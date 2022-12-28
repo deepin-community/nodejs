@@ -1,0 +1,2562 @@
+nodejs (16.15.1+dfsg-2) UNRELEASED; urgency=medium
+
+  * update
+
+ -- Debian Javascript Maintainers <pkg-javascript-devel@alioth-lists.debian.net>  Wed, 03 Aug 2022 11:18:15 +0800
+
+nodejs (16.15.1+dfsg-2) unstable; urgency=medium
+
+  * 删除依赖的版本号
+  * 修改lintian报错
+
+ -- Angie.J <doucaixia@uniontech.com>  Wed, 03 Aug 2022 09:52:34 +0800
+
+nodejs (16.15.1+dfsg-1) unstable; urgency=medium
+
+  * New upstream version 16.15.1+dfsg
+  * Fix completion generation, support "nodejs" cli
+    Closes: #977792
+  * Patch to fix mipsel crypto init error strings (Closes: #1011101)
+  * Patch: more flaky riscv64 cpu tests (Closes: #1012670)
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 13 Jun 2022 09:11:34 +0200
+
+nodejs (16.15.0+dfsg-1) unstable; urgency=medium
+
+  * New upstream version 16.15.0+dfsg
+  * Go back to +dfsg
+  * dfsg-exclude undici (missing source for compiled wasm)
+  * Will B-D undici <!pkg.nodejs.nobuiltin> when available
+  * bash-completion from node --completion-bash (Closes: #977792)
+  * Patches:
+    + build/skip-crypto-engine-check no longer needed
+    + test-diagnostic-dir-cpu-prof is flaky on riscv64
+      (Closes: #1011100)
+  * Update README.source
+  * Fix undici source name
+  * Update openssl.cnf to fix tests on mipsel (Closes: #1011339)
+  * Improve doc-generator
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 27 May 2022 15:48:16 +0200
+
+nodejs (16.14.2+dfsg1-1) unstable; urgency=medium
+
+  * Repack dfsg1, reimport without node-acorn
+  * OPENSSL_CONF: absolute path with openssl 3 (Closes: #1006246)
+  * Mark test-cpu-prof-exit as flaky on riscv64
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 11 May 2022 11:02:01 +0200
+
+nodejs (16.14.2+dfsg-5) unstable; urgency=medium
+
+  * Patches:
+    + skip failing arch-dependent assertions.
+      Closes: #1010069
+    + free test-crypto-engine from build artifacts.
+      Closes: #1010497
+    + test-cpu-prof-worker-argv flaky on riscv64.
+      Closes: #1010509
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 03 May 2022 08:29:29 +0200
+
+nodejs (16.14.2+dfsg-4) unstable; urgency=medium
+
+  * Upload to unstable 
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 02 May 2022 10:49:50 +0200
+
+nodejs (16.14.2+dfsg-3) experimental; urgency=medium
+
+  * rules: add missing symlink for doc generation
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 29 Mar 2022 15:39:42 +0200
+
+nodejs (16.14.2+dfsg-2) experimental; urgency=medium
+
+  * Update nobuiltin to pkg.nodejs.nobuiltin
+  * nodejs breaks: (Closes: #1007248)
+    + libnode72 < 12.22.10~dfsg
+    + libnode83 < 16.13.2+really14.19.1~dfsg
+  * README.source: improve explanations
+  * rules: two-stage builds w.r.t. node-acorn
+  * watch: remove node-acorn component
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 29 Mar 2022 14:33:32 +0200
+
+nodejs (16.14.2+dfsg-1) experimental; urgency=medium
+
+  * New upstream version 16.14.2+dfsg
+  * Change ~dfsg to +dfsg
+  * copyright:
+    + dfsg-exclude corepack - missing source
+    + remove tools/lint-md.mjs
+  * rules: do not install corepack
+  * B-D libuv >= 1.43
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 23 Mar 2022 15:34:41 +0100
+
+nodejs (16.13.2+really14.19.1~dfsg-5) unstable; urgency=medium
+
+  [ Yadd ]
+  * Fix @types/node install (Closes: #1008110)
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 22 Mar 2022 19:59:55 +0100
+
+nodejs (16.13.2+really14.19.1~dfsg-4) unstable; urgency=medium
+
+  * Allow test-debugger-preserve-breaks to fail
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 22 Mar 2022 10:15:06 +0100
+
+nodejs (16.13.2+really14.19.1~dfsg-3) unstable; urgency=medium
+
+  * Test timeouts: try to stay under the radar
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 22 Mar 2022 02:21:12 +0100
+
+nodejs (16.13.2+really14.19.1~dfsg-2) unstable; urgency=medium
+
+  * Upload to unstable
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 22 Mar 2022 00:22:05 +0100
+
+nodejs (16.13.2+really14.19.1~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 16.13.2+really14.19.1~dfsg
+  * control: Break only libnode72 << 12.22.10~, since it can be
+    co-installed with libnode83. Only Replace it.
+    Likewise, if version Break: libnode64 << 10.24.1~.
+  * README.source: no need to rebuild arch-independent packages
+  * Drop dh_nodejs, totally useless now
+  * salsa-ci:
+    + use debian.yml script
+    + disable i386 build
+    + disable build checks - autopkgtest runs the same ones
+    + disable dbgsym generation to reduce artifacts size
+  * Let tests using unprivileged port fail. Closes: #994613.
+  * watch: uversionmangle with really version
+  * Skip parallel/test-child-process-stdio-overlapped
+    It depends on a binary that is not part of the build targets
+  * Namespace custom profile pkg.nodejs.nobuiltin
+  * copyright:
+    + add license for node-acorn component
+    + update c-ares paths
+    + removed paths in deps/v8/benchmarks/
+  * Install @types/node only *.d.ts
+  * Lintian overrides:
+    + update expressions
+    + v8 uses a heavily modified zlib, allow embedding.
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 21 Mar 2022 13:43:29 +0100
+
+nodejs (16.13.2+really14.19.0~dfsg-2) experimental; urgency=medium
+
+  [ Yadd ]
+  * Update standards version to 4.6.0, no changes needed.
+  * Make node_modules links (Closes: #1005089)
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 01 Mar 2022 09:50:07 +0100
+
+nodejs (16.13.2+really14.19.0~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 14.19.0~dfsg
+    Workaround the version currently in experimental
+  * Depends icu >= 67, c-ares >= 1.18.1, libuv1 >= 1.42.0
+  * Patches:
+    + stop using private cares header
+    + drop ppc64 patch, hopefully fixed now
+    + replace tools/doc patch by copy in debian/doc-generator
+    + mark test-debugger-heap-profiler as flaky
+    + regroup and rename patches files
+    + test helper not skipping for 32-bit mipsel
+    + upstream fix test-datetime-change-notify
+    + drop fix_daylight_dublin, applied upstream
+    + skip corepack tests
+  * doc-generator:
+    + rebase changes on latest upstream doc/tools
+    + update, port to js-yaml 4 and marked 4
+    + tighten dependency on js-yaml for esm support
+  * source overrides: update expressions
+  * Update README.source with info on two-stage build
+  * Bootstrap nodejs: (wip)
+    + add nobuiltin profile, installs files in
+      /usr/share/nodejs/node when selected,
+      otherwise just install empty files
+    + node-acorn=8.5.0 component for stage 1 builds,
+      update gbp.conf
+    + control: more nocheck, nobuiltin flags
+    + instructions in README.source
+    + node-highlight.js is Build-Depends-Indep
+    + doc-generator depends on external acorn
+    + flag !nocheck and !nodoc build-deps
+  * rules:
+    + fix check target for auto_test
+    + acorn is needed both for arch and indep targets
+    + fix nodejs.install dest dirs
+    + configure with verbose
+    + do not install corepack
+  * Drop nodepath, it assumes modules to be installed
+  * copyright:
+    + fix lint-md path
+    + highlight.pack.js no longer in tarball
+    + update deps/cares paths
+    + dfsg-exclude corepack - missing source
+    + various paths fixes
+
+  [ Bastien Roucariès ]
+  * Bug fix: "nodejs FTCBFS: uses build architecture build tools such as
+    gcc or pkg-config", thanks to Helmut Grohne (Closes: #996195).
+  * Document gyp target/host in debian/rules
+
+  [ Helmut Grohne ]
+  * Add native build dependencies for cross compiling. (Closes: #996416)
+
+ -- Jérémy Lal <kapouer@plummer.debian.org>  Sat, 05 Feb 2022 18:41:31 +0000
+
+nodejs (14.17.4~dfsg-1) experimental; urgency=medium
+
+  [ Helmut Grohne ]
+  * Add native build dependencies for cross compiling. (Closes: #996416)
+
+  [ Jérémy Lal ]
+  * New upstream version 14.17.4~dfsg
+  * Enable powerpc arch. Closes: #991638
+
+  [ Bastien Roucariès ]
+  * Team upload
+  * MA: allowed. Thanks Helmut.
+  * B-D sse2-support. Closes: #994720
+  * BD: python3:native
+  * Fix FTCBFS by using crosscompile option
+  * Document gyp target/host in debian/rules
+
+ -- Bastien Roucariès <rouca@debian.org>  Thu, 23 Sep 2021 15:25:09 +0000
+
+nodejs (14.17.0~dfsg-2) experimental; urgency=medium
+
+  * Install missing headers. Closes: #990282
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 24 Jun 2021 16:10:27 +0200
+
+nodejs (14.17.0~dfsg-1) experimental; urgency=medium
+
+  * Switch to branches -14.x
+  * New upstream version 14.17.0~dfsg
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 17 May 2021 23:48:33 +0200
+
+nodejs (14.16.1~dfsg-1) experimental; urgency=medium
+
+  [ James Addison ]
+  * THP ELF assembly: Add .note.GNU-stack section (Closes: #980272)
+
+  [ Jérémy Lal ]
+  * New upstream version 14.16.1~dfsg
+  * Add Breaks: node-babel-runtime (<< 7). Closes:#987301
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 06 May 2021 17:02:20 +0200
+
+nodejs (14.16.0~dfsg-1) experimental; urgency=medium
+
+  [ Jérémy Lal ]
+  * New upstream version 14.16.0~dfsg
+    Fixed vulnerabilities:
+    + CVE-2021-22883: HTTP2 'unknownProtocol' cause DoS
+      by resource exhaustion
+    + CVE-2021-22884: localhost6 DNS rebinding in --inspect
+  * Refresh make-doc patch
+  * Patch to always use pure javascript cjs lexer
+  * copyright: cjs-module-lexer is expat
+  * copyright: exclude cjs-module-lexer unbuildable files
+  * copyright: fix some copyright years
+  * copyright: shjs is no longer used
+  * lintian-overrides: false positive for a unicode regexp
+
+  [ Xavier Guimard ]
+  * Embed @types/node 14
+  * Provides node-types-node (Closes: #979698)
+  * Use secure copyright file specification URI.
+  * Set upstream metadata fields: Security-Contact.
+  * Bump debhelper compatibility level to 13
+  * Declare compliance with policy 4.5.1
+  * Use secure URI in Homepage field.
+  * Add "Rules-Requires-Root: no"
+  * Modernize debian/watch
+  * Add ctype=nodejs to component(s)
+  * Update d/copyright urls
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 04 Mar 2021 00:29:51 +0100
+
+nodejs (14.13.0~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 14.13.0~dfsg
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 06 Oct 2020 18:57:02 +0200
+
+nodejs (14.12.0~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 14.12.0~dfsg
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 23 Sep 2020 18:54:27 +0200
+
+nodejs (14.11.0~dfsg-2) experimental; urgency=medium
+
+  * Rewrite changelog with the CVE
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 17 Sep 2020 18:11:35 +0200
+
+nodejs (14.11.0~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 14.11.0~dfsg
+    Vulnerabilities fixed
+    + CVE-2020-8251
+      Denial of Service by resource exhaustion CWE-400 due to
+      unfinished HTTP/1.1 requests (Critical)
+    + CVE-2020-8252
+      fs.realpath.native on may cause buffer overflow (Medium)
+  * Refresh patches
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 17 Sep 2020 01:21:19 +0200
+
+nodejs (14.9.0~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 14.9.0~dfsg
+  * Drop python3 patch, applied upstream
+  * Update make-doc patch to ignore false type-match errors
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 29 Aug 2020 14:23:27 +0200
+
+nodejs (14.8.0~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 14.8.0~dfsg
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 11 Aug 2020 22:46:00 +0200
+
+nodejs (14.7.0~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 14.7.0~dfsg (Closes: #968139).
+  * Two tests won't pass on IPv6-only hosts
+  * There was no such thing as libnode64-dev, remove it
+  * libnode83 breaks libnode64, libnode72 Closes: #966008
+  * nodejs-doc: depends node-highlight.js instead of libjs
+  * python3 support (Closes: #967032):
+    + tests/control: depends python3, python3-distutils
+    + python3 patch: use env.PYTHON in two tests
+    + export PYTHON = python3 for Makefile
+  * tests/control: drop cdbs, now useless
+  * Update make-doc.patch to deal with new syntax in esm.md
+  * Refresh patches:
+    + drop mips-fix
+    + drop revert-extra-ca
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 10 Aug 2020 00:43:34 +0200
+
+nodejs (14.4.0~dfsg-2) experimental; urgency=medium
+
+  * Just completely disable ADDRCONFIG flag
+  * Multiarch hinter: remove Multi-Arch: same on libnode-dev
+  * Patch to fix ppc64 build
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 14 Jun 2020 16:59:47 +0200
+
+nodejs (14.4.0~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 14.4.0~dfsg
+  * Bump libnode ABI to 83
+  * Build-Depends python3-distutils
+  * Fix make-doc.patch to allow no description
+  * Fix make-doc.patch for stricter example heading match
+  * copyright: add zlib copy
+  * rules: JOBS=1 on 32-bit architectures only
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 11 Jun 2020 23:11:59 +0200
+
+nodejs (12.18.3~dfsg-4) unstable; urgency=medium
+
+  * python3 patch: use env.PYTHON in two tests
+    Closes: #967032 for good.
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 08 Aug 2020 14:09:43 +0200
+
+nodejs (12.18.3~dfsg-3) unstable; urgency=medium
+
+  * export PYTHON = python3 for Makefile
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 07 Aug 2020 03:33:58 +0200
+
+nodejs (12.18.3~dfsg-2) unstable; urgency=medium
+
+  * tests/control: depends python3, python3-distutils, drop cdbs
+    Thanks Moritz Mühlenhoff for noticing that.
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 05 Aug 2020 10:40:31 +0200
+
+nodejs (12.18.3~dfsg-1) unstable; urgency=medium
+
+  * New upstream version 12.18.3~dfsg
+  * B-D python3, python3-distutils
+    patch configure to use python3 (Closes: #967032)
+  * nodejs-doc: depends libjs-highlight.js
+  * copyright: dfsg-exclude highlight.pack.js,
+    replace sh_javascript.min.js
+  * source/lintian-overrides: drop sh_javascript.min.js override
+  * Drop patch that restores unminified sh_javascript.min.js
+  * Update make-doc.patch to deal with new syntax in esm.md
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 05 Aug 2020 00:11:08 +0200
+
+nodejs (12.18.2~dfsg-1) unstable; urgency=medium
+
+  * New upstream version 12.18.2~dfsg
+  * Drop Breaks: libnode64-dev, package does not exist
+  * Drop libnode-dev Depends: nodejs, useless
+  * libnode72 breaks libnode64. Closes: #966008
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 22 Jul 2020 10:36:58 +0200
+
+nodejs (12.18.1~dfsg-1) unstable; urgency=medium
+
+  * New upstream version 12.18.1~dfsg
+  * Update gbp.conf for *-12.x branches
+  * Just completely disable ADDRCONFIG flag,
+    but skip the two failing tests anyway
+  * Multiarch hinter: remove Multi-Arch: same on libnode-dev
+  * Patch to fix ppc64 build
+  * rules: JOBS=1 on 32-bit only
+  * libnode-dev depends nodejs: let addons test all right ?
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 30 Jun 2020 19:11:03 +0200
+
+nodejs (12.18.0~dfsg-3) unstable; urgency=medium
+
+  * mipsel does not support a feature leading to test failures
+  * Two tests won't pass on IPv6-only hosts
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 11 Jun 2020 17:59:38 +0200
+
+nodejs (12.18.0~dfsg-2) unstable; urgency=medium
+
+  * Do not use dns.ADDRCONFIG for localhost
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 11 Jun 2020 10:03:21 +0200
+
+nodejs (12.18.0~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 12.18.0~dfsg. Closes: #962145.
+  * Security fixes:
+    + CVE-2020-11080
+    + CVE-2020-8172
+    + CVE-2020-8174
+  * Build-Depends nghttp2 >= 1.41.0
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 05 Jun 2020 09:07:20 +0200
+
+nodejs (12.17.0~dfsg-4) experimental; urgency=medium
+
+  * Fix openssl.cnf path in libnode-dev.install
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 03 Jun 2020 09:59:43 +0200
+
+nodejs (12.17.0~dfsg-3) experimental; urgency=medium
+
+  * nodejs-doc: remove placeholder in long desc,
+    libnode__ABI is libnode72
+  * install missing files:
+    + libnode: node.stp systemtap config
+    + nodejs: gdbinit, lldb_commands.py
+  * move files in better paths (backward-compatibly):
+    + usr/include/openssl.cnf to usr/share/doc/nodejs
+    + usr/include/v8 links to usr/include/node
+  * mips patches:
+    + reduce reserved memory for mksnapshot to avoid oom
+    + test-cli-node-options skips --jitless
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 03 Jun 2020 02:59:20 +0200
+
+nodejs (12.17.0~dfsg-2) experimental; urgency=medium
+
+  * Build with -g1 on 32-bit, else -g
+  * Use dh --max-parallel=1 on 32-bit
+  * Backport v8 commit to fix mips snapshots
+  * Install devel files in /usr/include/node,
+    keep the old locations for backward compatibility.
+  * Use new alioth-lists email for maintainer
+  * nodejs-doc: add misc:Depends
+  * Standards-Version 4.5.0, no change required
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 01 Jun 2020 15:17:35 +0200
+
+nodejs (12.17.0~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 12.17.0~dfsg
+  * Ignore dh_dwz failures
+  * Depends sse2-support on i386. Closes: #961621
+  * copyright: deps/zlib/doc is no longer bundled
+  * Drop icu 67 patch
+  * On 32bit archs, save memory with -g1 and --max-parallel=1
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 29 May 2020 22:34:25 +0200
+
+nodejs (12.16.3~dfsg-2) experimental; urgency=medium
+
+  * Revert upstream commit, fix test-tls-root-certificates failure
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 30 Apr 2020 17:47:19 +0200
+
+nodejs (12.16.3~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 12.16.3~dfsg
+  * dh_dwz: set a lower low-mem-die-limit
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 30 Apr 2020 00:19:39 +0200
+
+nodejs (12.16.2~dfsg-2) experimental; urgency=medium
+
+  * Fix arch all build: skip tests, make install
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 26 Apr 2020 23:28:38 +0200
+
+nodejs (12.16.2~dfsg-1) experimental; urgency=medium
+
+  [ Xavier Guimard ]
+  * Add upstream/metadata
+  * Disable test-release-npm test
+  * Switch to dh, Bump debhelper compatibility level to 12
+  * New upstream version 12.16.1~dfsg
+  * Refresh patches
+
+  [ Olivier Tilloy ]
+  * Fix building architecture-independent doc package
+    (Closes: #952629)
+
+  [ Jérémy Lal ]
+  * Revert "Override any source-is-missing - workaround pattern issues"
+  * Simplify and tighten lintian overrides
+  * make-doc: drop tools/doc/node_modules target
+  * Exclude brotli from deps, use system-installed one
+  * Remove brotli from copyright
+  * watch xz
+  * New upstream version 12.16.2~dfsg
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 26 Apr 2020 21:38:16 +0200
+
+nodejs (12.13.1~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 12.13.1~dfsg
+  * gsplit-dwarf for all mips variants
+  * Standards-Version 4.4.1
+  * Non-trivial refresh of make-doc patch
+  * Remove uv 1.30 compatibility patch
+  * Depends libuv1-dev >= 1.33
+  * Override source-is-missing to work around pattern matching issues
+  * Comment kfreebsd patch in series to keep lintian quiet
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 19 Nov 2019 15:34:06 +0100
+
+nodejs (12.13.0~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 12.13.0~dfsg
+  * Link to atomic using a patch, LDFLAGS is not enough
+  * Need libuv1-dev >= 1.32.0
+  * Do not run parallel jobs at all (consumes too much memory,
+    and may make some tests fail).
+  * Use shared libhttp-parser (>= 2.9.2) again
+  * copyright: update paths
+  * Standards-Version 4.4.1
+  * Ignore source-is-missing for long lines
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 01 Nov 2019 11:19:03 +0100
+
+nodejs (12.10.0~dfsg-2) experimental; urgency=medium
+
+  * test: test-npm-version fails because npm not bundled
+  * ppc64 not supported: https://github.com/nodejs/node/issues/29534
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 16 Sep 2019 12:28:37 +0200
+
+nodejs (12.10.0~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 12.10.0~dfsg
+  * Tighten b-d pkg-js-tools (Closes: #934240)
+  * Use nodepath to setup links to acorn properly
+  * README: match current modules search paths (Closes:#939001)
+  * copyright:
+    + add rimraf paragraph
+    + couple new files in v8
+  * Revert upstream commit to stay compatible with uv 1.30
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 12 Sep 2019 01:15:23 +0200
+
+nodejs (12.8.0~dfsg-2) experimental; urgency=medium
+
+  * Fix js-yaml install path using nodepath (Closes: #934228)
+  * Update make-doc.patch to avoid fetching remote changelog
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 08 Aug 2019 14:53:09 +0200
+
+nodejs (12.8.0~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 12.8.0~dfsg (Closes: #934207)
+  * Fix make-doc.patch (Closes: #933840)
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 08 Aug 2019 12:13:21 +0200
+
+nodejs (12.7.0~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 12.7.0~dfsg (Closes: #932991)
+  * Use shared libuv >= 1.30.1
+  * libnode-dev depends libuv1-dev (Closes: #905415)
+  * Build-Depends node-debbundle-acorn >= 6.1.0~
+  * Build-Depends libnghttp2-dev >= 1.39.1
+  * Tighten dependency on icu >= 64.0~
+  * rules: set nghttp2 lib name - upstream assumes lib prefix
+  * Upstream patch to fix linking against libnode
+  * Build with snapshot https://github.com/nodejs/node/issues/28675
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 03 Aug 2019 19:48:03 +0200
+
+nodejs (12.2.0~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 12.2.0~dfsg
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 07 May 2019 21:39:23 +0200
+
+nodejs (12.1.0~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 12.1.0~dfsg
+  * Unapply all openssl 1.1.1 support patches
+  * Unapply silencing of buffer deprecations warnings
+  * Build using embedded uv until libuv1 1.28 is available
+  * Build using node-acorn >= 6, node-acorn-walk
+  * Update copyright file
+  * dfsg-exclude tools/lint-md.js, dependencies to rebuild it
+    are not available at the moment.
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 02 May 2019 11:32:28 +0200
+
+nodejs (10.16.3~dfsg-1) unstable; urgency=medium
+
+  * New upstream version 10.16.3~dfsg (Closes: #934885)
+  * Avoid two tests to cause a FTBFS (Closes: #919588)
+  * Delete applied ssl 1.1.1 compatibility patches
+  * Never run tests in parallel to avoid memory exhaustion
+  * README: match current modules search paths (Closes: #939001)
+  * Fix make-doc patch, simplify make using NODE_PATH
+  * B-D pkg-js-tools
+  * Tighten dep on libuv1 version
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 11 Sep 2019 10:39:30 +0200
+
+nodejs (10.15.3~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 10.15.3~dfsg
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 11 Mar 2019 09:47:26 +0100
+
+nodejs (10.15.2~dfsg-2) unstable; urgency=medium
+
+  * Avoid two tests to cause a FTBFS (Closes #919588)
+    + test-fs-error-messages fails with eatmydata
+    + test-net-listen-after-destroying-stdin is flaky
+  * gbp for debian/buster branch
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 08 Apr 2019 15:06:40 +0200
+
+nodejs (10.15.2~dfsg-1) unstable; urgency=high
+
+  * New upstream version 10.15.2~dfsg
+    Slowloris HTTP Denial of Service with keep-alive
+    (CVE-2019-5737)
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 28 Feb 2019 15:52:30 +0100
+
+nodejs (10.15.1~dfsg-5) unstable; urgency=medium
+
+  * Install only headers
+  * /usr/include/v8 should contain the headers directly
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 09 Feb 2019 11:55:56 +0100
+
+nodejs (10.15.1~dfsg-4) experimental; urgency=medium
+
+  * Add libv8-dev symlinks:
+    + libv8_libbase.so
+    + libv8_libplatform.so
+    + libv8_libsampler.so
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 08 Feb 2019 16:13:57 +0100
+
+nodejs (10.15.1~dfsg-3) experimental; urgency=medium
+
+  * Provides libv8-dev (Closes: #920329)
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 08 Feb 2019 14:25:03 +0100
+
+nodejs (10.15.1~dfsg-2) unstable; urgency=medium
+
+  * Fix Build-Deps and add libssl-dev to libnode-dev.
+    Closes: #921074.
+  * Refactor deps in debian/rules
+  * Declare Breaks properly in rules/control.in.in
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 01 Feb 2019 22:18:18 +0100
+
+nodejs (10.15.1~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 10.15.1~dfsg
+  * Backport upstream-approved Node 11 openssl 1.1.1a support
+    (except a test that was weird to backport).
+
+  [ Mattia Rizzolo ]
+  * Add Breaks:node-modern-syslog (<< 1.1.4-2) to libnode64.
+    node-modern-syslog before 1.1.4-2 depended on the nodejs
+    ABI, but didn't have an appropriate dependency.
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 31 Jan 2019 09:54:11 +0100
+
+nodejs (10.15.0~dfsg-10) unstable; urgency=medium
+
+  * M-A: same on libnode-dev, nodejs-dev
+  * Drop nodejs-dev package.
+    Addons should instead:
+    + Build-Depends libnode-dev, node-gyp
+    + remove dh --with nodejs argument in debian/rules
+    + use debhelper >= 10 because it strips and shlibs *.node files
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 25 Jan 2019 13:51:37 +0100
+
+nodejs (10.15.0~dfsg-9) unstable; urgency=medium
+
+  * M-A: foreign on nodejs-doc
+  * libnode-dev depends libuv1-dev (Closes: #905415)
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 21 Jan 2019 08:33:36 +0100
+
+nodejs (10.15.0~dfsg-8) unstable; urgency=medium
+
+  * Suggests npm - because nodejs must not be blocked by it.
+    Closes: #918388.
+  * Patch to silence buffer deprecations. Closes: #918456.
+    This patch is meant to ease migration to testing, and to be
+    removed as soon as possible.
+    It avoids printing to stderr deprecation warning about
+    calling Buffer as a constructor without the new operator.
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 06 Jan 2019 11:18:34 +0100
+
+nodejs (10.15.0~dfsg-7) unstable; urgency=medium
+
+  * Add missing shlibs, Closes: #917961.
+  * Nodejs 10 is here, Close #914965.
+  * libnode-dev: install openssl.cnf in /usr/include/nodejs
+  * Recommends npm, Closes: #918388.
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 05 Jan 2019 19:48:20 +0100
+
+nodejs (10.15.0~dfsg-6) unstable; urgency=medium
+
+  * nodejs: strict dependency on libnode64
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 01 Jan 2019 19:03:27 +0100
+
+nodejs (10.15.0~dfsg-5) experimental; urgency=medium
+
+  * mips(el): -latomic
+  * Remove split-dwarf for any arch, only for mips
+  * Forgot to export LDFLAGS
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 29 Dec 2018 17:16:30 +0100
+
+nodejs (10.15.0~dfsg-4) experimental; urgency=medium
+
+  * CPPFLAGS, CFLAGS -gsplit-dwarf for any arch
+    Why would this be reserved to mips anyway.
+  * Standards-Version 4.3.0
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 28 Dec 2018 11:19:02 +0100
+
+nodejs (10.15.0~dfsg-3) experimental; urgency=medium
+
+  * Add CPPFLAGS += -gsplit-dwarf as well
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 28 Dec 2018 10:04:23 +0100
+
+nodejs (10.15.0~dfsg-2) experimental; urgency=medium
+
+  * Add -gsplit-dwarf on mips to work around #829139
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 28 Dec 2018 02:38:02 +0100
+
+nodejs (10.15.0~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 10.15.0~dfsg
+  * copyright:
+    + add license for src/large_pages/*
+    + remove unused paragraph
+  * Build using bundled http-parser (unreleased changes)
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 27 Dec 2018 13:30:26 +0100
+
+nodejs (10.14.0~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 10.14.0~dfsg
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 28 Nov 2018 18:59:19 +0100
+
+nodejs (10.13.0~dfsg-3) experimental; urgency=medium
+
+  * Update uv headers path
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 15 Nov 2018 10:50:30 +0100
+
+nodejs (10.13.0~dfsg-2) experimental; urgency=medium
+
+  * Upstream patches for openssl 1.1.1 support
+  * Build using shared openssl and depend on it again
+  * Test suite assumes embedded openssl.cnf
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 01 Nov 2018 21:48:45 +0100
+
+nodejs (10.13.0~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 10.13.0~dfsg
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 30 Oct 2018 10:26:02 +0100
+
+nodejs (10.12.0~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 10.12.0~dfsg
+  * openssl: use bundled copy because node is not compatible
+    with openssl 1.1.1 right now (and there is no upstream fix).
+    On the plus side:
+    + this avoids ABI breakage for C++ addons (Closes: #904274)
+    + upstream have security support for openssl vulns
+    On the down side, it's a policy 4.13 violation.
+  * copyright:
+    + no longer exclude marked since it is removed
+    + drop paragraph for pthread-barrier.h
+  * Multiarch and DFHS:
+    + patch adding --node-relative-path configuration variable
+    + "/usr/lib/<$DEB_HOST_MULTIARCH>/nodejs" for c++ addons
+    + "/usr/share/nodejs" for pure javascript modules
+    + "/usr/lib/nodejs" for smooth migration of current modules
+    + Expose those configuration variables in
+      process.config.variables.node_relative_path
+      process.config.variables.arch_triplet
+    + In particular, if prefix is /usr/local all paths move there.
+    + Fix test expecting lib/node, should be lib/nodejs.
+    (Closes: #901474)
+  * Build using shared libuv1 again (Closes: #905415)
+  * Standards-Version 4.2.1
+  * Add support for mips64r6el arch (Closes: #905886)
+  * Drop libnodeXX-dev in favor of libnode-dev (Closes: #901297)
+  * Patch tools/doc to restore old dependencies on marked,
+    while waiting for remarked/rehyped modules to be available.
+  * sequential/test-http2-session-timeout is a flaky test
+  * Add lintian override for test/fixtures/assert-long-line.js,
+    false source-is-missing positive.
+  * Build using LANG=C
+  * Stop excluding tools/gyp because upstream patches it
+  * Tighten dependency on nghttp2 >= 1.34.0
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 17 Oct 2018 11:24:28 +0200
+
+nodejs (10.4.0~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 10.4.0~dfsg
+  * libnodeXX-dev Breaks+Replaces nodejs-dev << 10 (Closes: #898024)
+  * Standards-Version 4.1.4
+  * Copyright:
+		+ comment the unexpected change in this BSD-3-clause
+    + remove duplicate paragraph
+    + remove files
+    + add antlr4 with a BSD-3-clause license
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 11 Jun 2018 00:12:34 +0200
+
+nodejs (10.3.0~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 10.3.0~dfsg
+  * Skip performance test
+  * Symlink js-yaml to the expected dir for doc build
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 31 May 2018 00:38:30 +0200
+
+nodejs (10.1.0~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 10.1.0~dfsg
+  * watch file: back to dfsg
+  * Drop patches applied upstream
+  * Depends libc-ares >= 1.14~ to match upstream requirement
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 10 May 2018 22:56:08 +0200
+
+nodejs (10.0.0~dfsg1-4) experimental; urgency=medium
+
+  * Multi-Arch: foreign on nodejs binary (Closes: #826890)
+  * gbp: 10.x branches
+  * copyright: drop eu-strip from excluded files, applied upstream
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 10 May 2018 20:49:20 +0200
+
+nodejs (10.0.0~dfsg1-3) experimental; urgency=medium
+
+  * Build and distribute libnode:
+    + package libnode-dev, libnodeXX-dev
+    + keep nodejs-dev for dh-nodejs and deprecate it
+    + update packages descriptions
+    + Multi-Arch: same on lib/dev packages (Closes: #826890)
+  * Upstream patches fixing some tests
+  * copyright:
+    + dfsg-exclude non-free zlib rfc195*.txt files
+    + minor paths updates/removals
+  * lintian override: remove unused source-is-missing
+    deps/v8/src/js/max-min*
+  * Fix again installation of acorn files
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 28 Apr 2018 15:17:02 +0200
+
+nodejs (10.0.0~dfsg-2) experimental; urgency=medium
+
+  * Fix acorn files installation
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 26 Apr 2018 08:30:13 +0200
+
+nodejs (10.0.0~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 10.0.0~dfsg
+  * copyright:
+    + reformat to use Comment field
+    + CNNICHashWhitelist is no longer in tarball
+    + dfsg-exclude acorn, eu-strip
+    + add several new sections
+  * Build-Depends node-acorn
+  * Bump dependency on libuv >= 1.20
+  * Use temporarily embedded copy of libuv
+  * Depends openssl >= 1.1.0
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 26 Apr 2018 02:18:51 +0200
+
+nodejs (8.11.1~dfsg-2) unstable; urgency=medium
+
+  * Upload to unstable
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 13 Apr 2018 09:25:37 +0200
+
+nodejs (8.11.1~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 8.11.1~dfsg
+  * Revert 7e875d40, dependency on icu 60 is an upstream v8 bug
+  * Upstream patch to avoid mandatory dependency on icu 60
+  * Remove node-js-yaml from Build-Depends, already in Indep
+  * Depends libhttp-parser >= 2.8
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 10 Apr 2018 21:43:32 +0200
+
+nodejs (8.10.0~dfsg-2) experimental; urgency=medium
+
+  * Drop binutils dependency (Closes: #893841)
+  * Move repository to https://salsa.debian.org/js-team/nodejs.git
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 23 Mar 2018 09:30:55 +0100
+
+nodejs (8.10.0~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 8.10.0~dfsg
+  * Vcs-Git for that branch
+  * Remove openssl patches and others, applied upstream
+  * Depends icu 60.2
+  * Patch: build doc using node-js-yaml
+  * Build-Depends node-js-yaml
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 16 Mar 2018 10:25:24 +0100
+
+nodejs (8.9.3~dfsg-12) unstable; urgency=medium
+
+  * Do not Build-Depend on licensecheck, ever.
+    It's not right to hog build servers.
+  * Drop my backport of openssl 1.1.0 compatibility,
+    in favor of upstream backport.
+  * Remove patch that dropped -march=z196 for it is now the
+    minimum requirement for s390x. See also #888876.
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 18 Feb 2018 21:51:10 +0100
+
+nodejs (8.9.3~dfsg-11) unstable; urgency=medium
+
+  * Patch build files to remove -march=z196 out of s390x builds
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 23 Jan 2018 18:33:36 +0100
+
+nodejs (8.9.3~dfsg-10) unstable; urgency=medium
+
+  * should be compiled with FPXX ABI on 32-bit mips
+    (Closes: #888021).
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 22 Jan 2018 19:26:19 +0100
+
+nodejs (8.9.3~dfsg-9) unstable; urgency=medium
+
+  * On buildd always set JOBS to one during tests
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 19 Jan 2018 08:58:43 +0100
+
+nodejs (8.9.3~dfsg-8) unstable; urgency=medium
+
+  * Upstream patch: allow running test.py without configuring
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 18 Jan 2018 15:39:52 +0100
+
+nodejs (8.9.3~dfsg-7) unstable; urgency=medium
+
+  * Ensure passing JOBS with a default value of 1.
+    Test suite inherits that value and can crash with memory errors.
+    This attempts to fix mipsel build on mipsel-aql-02.
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 08 Jan 2018 16:12:18 +0100
+
+nodejs (8.9.3~dfsg-6) unstable; urgency=medium
+
+  * test-fs-utimes might fail on some platforms
+  * Patch to use less memory in test-zlib
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 05 Jan 2018 00:57:13 +0100
+
+nodejs (8.9.3~dfsg-5) unstable; urgency=medium
+
+  * Upload to unstable
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 04 Jan 2018 19:09:59 +0100
+
+nodejs (8.9.3~dfsg-4) experimental; urgency=medium
+
+  * Build using shared uv
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 27 Dec 2017 10:30:59 +0100
+
+nodejs (8.9.3~dfsg-3) experimental; urgency=medium
+
+  * Disable snapshot: runtime arch might be different than build
+  * nodejs-dev is optional like source package
+  * Fix a test result for openssl
+  * Fix test that need alice.html
+  * Skip test-dns-cancel-reverse-lookup, using network
+  * Some copyright file paths updates
+  * Standards-Version 4.1.2
+  * Short license for zlib
+  * Update overrides and comment
+  * Patch test-http2-connect to not fail in some cases
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 25 Dec 2017 17:53:03 +0100
+
+nodejs (8.9.3~dfsg-2) experimental; urgency=medium
+
+  * Build with -fPIC
+  * Build using bundled uv
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 24 Dec 2017 23:29:13 +0100
+
+nodejs (8.9.3~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 8.9.3~dfsg
+  * Stop removing zlib, uv deps
+  * Update debian/copyright for deps/uv, deps/zlib
+  * Copyright for embedded nghttp2
+  * test/gc/node_modules no longer in upstream tarball
+  * Backport #16130: support both openssl 1.0.1 and 1.1.0
+    Add openssl/fixups.patch to take care of additional fixes.
+  * Build against latest ssl-dev version
+  * Use node-js-yaml instead of yamlish
+  * Drop cctest as it does not compile on debian.
+    Help is welcome to fix this in a smarter way.
+    Meanwhile fix_disable_cctest.patch gets rid of it.
+  * Pass parallel option to JOBS
+  * Update watch to use https
+  * Add override for false positive source-is-missing
+  * (Re?)enable -g flags
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 18 Dec 2017 17:29:20 +0100
+
+nodejs (6.12.0~dfsg-2) unstable; urgency=medium
+
+  * Whitelist allowed architectures. Closes: #881735.
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 14 Nov 2017 18:25:41 +0100
+
+nodejs (6.12.0~dfsg-1) unstable; urgency=medium
+
+  * New upstream version 6.12.0~dfsg
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 14 Nov 2017 00:42:34 +0100
+
+nodejs (6.11.4~dfsg-1) unstable; urgency=medium
+
+  * New upstream version 6.11.4~dfsg
+  * Testsuite field is no longer needed
+  * Standards-Version 4.1.1
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 04 Oct 2017 13:33:00 +0200
+
+nodejs (6.11.3~dfsg-1) unstable; urgency=medium
+
+  * New upstream version 6.11.3~dfsg
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 06 Sep 2017 02:21:08 +0200
+
+nodejs (6.11.2~dfsg-5) unstable; urgency=medium
+
+  * Section javascript instead of web
+  * Mark parallel/test-debug-args as flaky on mips64el
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 04 Sep 2017 17:26:56 +0200
+
+nodejs (6.11.2~dfsg-4) unstable; urgency=medium
+
+  * Revert "Switch to g++-6, work around FTBFS on mips64el",
+    it got an Extra-Depends on a fixed gcc version.
+  * Explain what about node / nodejs in README.Debian
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 02 Sep 2017 10:10:58 +0200
+
+nodejs (6.11.2~dfsg-3) unstable; urgency=medium
+
+  * README.Debian explains armel/powerpc are not supported.
+    Closes: #872585.
+  * Build nodejs-doc, Closes: #872488.
+    Thanks to Felipe Sateler.
+  * Build using g++-6 to work around FTBFS on mips64el.
+    See: #871514.
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 28 Aug 2017 17:16:03 +0200
+
+nodejs (6.11.2~dfsg-2) unstable; urgency=medium
+
+  * Upload to unstable
+  * s_client_tls12.patch skips test relying on -tls1_1 openssl
+    client option, and patch another test to remove -tls1 option.
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 15 Aug 2017 22:37:50 +0200
+
+nodejs (6.11.2~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 6.11.2~dfsg
+  * Standards-Version 4.0.0
+  * Inherit Priority from source
+  * Drop nodejs-dbg, b-d debhelper 9.20160114 to get dbgsym
+  * Drop kfreebsd patch, it did not build anyway
+  * Restore /usr/bin/node following CTTE #862051.
+    Keep /usr/bin/nodejs symlink indefinitely.
+    Replaces and Conflicts nodejs-legacy.
+    Closes: #754462.
+  * Skip test-zlib-failed-init.js for it relies on zlib 1.2.11
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 01 Aug 2017 18:40:46 +0200
+
+nodejs (6.11.1~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 6.11.1~dfsg
+  * Priority: optional on source package (Closes: #864735)
+
+  [ Upstream ]
+  * Security fix: Constant Hashtable Seeds (CVE pending)
+    Closes: #868162.
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 18 Jul 2017 00:40:24 +0200
+
+nodejs (6.11.0~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 6.11.0~dfsg (Closes: #864605)
+  * Restore upstream code that finds /usr prefix
+  * Unapply ssl root certs patch implemented upstream,
+    now configured by --openssl-use-def-ca-store
+  * Build-Depend libssl1.0-dev
+  * Keep ca-certificates in build-dependencies for running tests
+  * Add ca-certificates to autopkgtest depends. (Closes: #855018)
+  * Recommends ca-certificates for nodejs package
+  * Patch to pass test with openssl 1.1.0 cli
+  * Patch test-module-loading-globalpaths as part of nodejs rename
+  * Workaround lintian override not matching source-is-missing path
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 12 Jun 2017 10:07:10 +0200
+
+nodejs (6.10.2~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 6.10.2~dfsg
+  * Fix memory leak if certificate is revoked (introduced in 6.10.1)
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 04 Apr 2017 16:43:22 +0200
+
+nodejs (6.10.1~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 6.10.1~dfsg
+  * Fix how control file is generated for build profile
+  * Update 2014_donotinclude_root_certs.patch to hard-code
+    NODE_EXTRA_CA_CERTS to /etc/ssl/certs/ca-certificates.crt
+    This is safer to maintain and safer to use since it disables
+    that undocumented env var setting.
+    Also expect extra ca tests to fail.
+  * Add dnt_helper.js Expat license
+  * Recommends, Build-Depends ca-certificates
+  * Use test-ci-js target now
+  * autopkgtest suite depends on ca-certificates
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 03 Apr 2017 08:45:04 +0200
+
+nodejs (6.9.3~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 6.9.3~dfsg
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 04 Jan 2017 10:14:15 +0100
+
+nodejs (6.9.2~dfsg-2) experimental; urgency=medium
+
+  * Fix recursive dependency on node-yamlish/marked (Closes: #850082)
+    Thanks to Tom Parker <palfrey@tevp.net>.
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 03 Jan 2017 23:53:50 +0100
+
+nodejs (6.9.2~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 6.9.2~dfsg
+  * Build-Depend libssl1.0-dev (Closes: #828457)
+  * nodejs Recommends ca-certificates (Closes: #841981)
+  * Skip two tests failing only in autopkgtest
+  * Override workaround for source-is-missing (See: #848825)
+  * Drop package-needs-versioned-debhelper-build-depends override.
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 20 Dec 2016 00:42:16 +0100
+
+nodejs (6.9.1~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 6.9.1~dfsg
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 20 Oct 2016 01:57:17 +0200
+
+nodejs (6.9.0~dfsg-1) experimental; urgency=medium
+
+  * Update patch to skip test-regress-GH-746a,
+    moved from sequential to parallel test suites.
+  * New upstream version 6.9.0~dfsg
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 18 Oct 2016 22:00:20 +0200
+
+nodejs (6.8.1~dfsg-2) experimental; urgency=medium
+
+  * Use mips r2 variant (mips32r2)
+    This was already fixed in nodejs 4.x packages.
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 17 Oct 2016 00:26:19 +0200
+
+nodejs (6.8.1~dfsg-1) experimental; urgency=medium
+
+  * New upstream version 6.8.1~dfsg
+  * Unapply build with shared zlib patch
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 15 Oct 2016 16:09:10 +0200
+
+nodejs (6.8.0~dfsg-1) experimental; urgency=medium
+
+  * Imported Upstream version 6.8.0~dfsg
+  * Switch back to ia32 arch instead of x87, see
+    https://lists.debian.org/debian-devel-announce/2016/05/msg00001.html
+  * Standards-Version 3.9.8
+  * Ensure build fails on armel (Closes: #818552)
+  * Ensure build fails on powerpc.
+  * Build-Depends openssl 1.0.2 (Closes: #821403)
+  * Exclude useless deps/icu-small
+  * s390x patch no longer needed :)
+  * Use test-ci-js instead of test-ci
+  * Disable dns during tests
+  * Do not fail when node symlink exists in check target
+  * Disable pseudo-tty and doctool suites
+  * Update test_ci_buildd patch so CI_*_SUITES can be overridden
+  * Disable tests failing since DNS has been disabled
+  * Add patch to use node-yamlish
+  * Build-Depends marked instead of bundling it
+  * Enable hardening flags: +all,-pie
+  * powerpc architecture is no longer supported
+  * fix build when using shared zlib (upstream patch)
+  * Move lintian source overrides into one file
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 14 Oct 2016 01:47:42 +0200
+
+nodejs (6.0.0~dfsg-1) experimental; urgency=medium
+
+  * Imported Upstream version 6.0.0~dfsg
+  * Files-Exclude: eslint* no longer needed
+  * Remove shared-cares patch, released upstream
+  * Import Upstream v8z s390-5.0 branch
+  * Override source-is-missing for benchmark of sampled regexps
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 27 Apr 2016 01:28:21 +0200
+
+nodejs (5.11.0~dfsg-1) experimental; urgency=medium
+
+  * tools/msvs directory no longer in upstream tarball
+  * Imported Upstream version 5.11.0~dfsg
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 21 Apr 2016 23:41:12 +0200
+
+nodejs (5.10.1~dfsg-1) experimental; urgency=medium
+
+  * Imported Upstream version 5.10.1~dfsg
+  * Re-enable shared c-ares >= 1.11.0, with patch from upstream
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 08 Apr 2016 10:12:36 +0200
+
+nodejs (5.9.1~dfsg-1) experimental; urgency=medium
+
+  * Imported Upstream version 5.9.1~dfsg
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 23 Mar 2016 20:17:39 +0100
+
+nodejs (5.8.0~dfsg-1) experimental; urgency=medium
+
+  * Imported Upstream version 5.8.0~dfsg
+  * Expect test-npm-install to fail
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 09 Mar 2016 22:24:03 +0100
+
+nodejs (5.7.1~dfsg-1) experimental; urgency=medium
+
+  * Imported Upstream version 5.7.1~dfsg
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 03 Mar 2016 01:06:29 +0100
+
+nodejs (5.7.0~dfsg-1) experimental; urgency=medium
+
+  * Imported Upstream version 5.7.0~dfsg
+  * Use secure uri in Vcs-* fields
+  * Standards-Version 3.9.7
+  * Patch configure script to allow and default to x87 on i386
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 02 Mar 2016 02:27:02 +0100
+
+nodejs (5.6.0~dfsg-1) experimental; urgency=medium
+
+  * Imported Upstream version 5.6.0~dfsg
+  * Override lintian error for two binary (but trivial) fixtures.
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 10 Feb 2016 01:31:29 +0100
+
+nodejs (5.5.0~dfsg-1) experimental; urgency=medium
+
+  * Imported Upstream version 5.5.0~dfsg
+  * Fix install path of non-minified sh_javascript
+  * Override lintian missing source sh_javascript.min.js, because
+    it is already fixed by removal and patch.
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 21 Jan 2016 10:23:05 +0100
+
+nodejs (5.4.1~dfsg-1) experimental; urgency=medium
+
+  * Imported Upstream version 5.4.1~dfsg
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 13 Jan 2016 22:54:32 +0100
+
+nodejs (5.4.0~dfsg-1) experimental; urgency=medium
+
+  * Imported Upstream version 5.4.0~dfsg
+  * tests need gcc to get DEB_HOST_ARCH,
+    add build-essential as dependency.
+  * Consolidate tmp dir using NODE_TEST_DIR
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 07 Jan 2016 09:42:42 +0100
+
+nodejs (5.3.0~dfsg-2) experimental; urgency=medium
+
+  * Merge fixes from 4.2.3~dfsg-2:
+    + create/remove a HOME for test
+    + test-force-repl hangs in test bed
+    + fix debian/watch
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 20 Dec 2015 13:45:35 +0100
+
+nodejs (5.3.0~dfsg-1) experimental; urgency=medium
+
+  * Imported Upstream version 5.3.0~dfsg
+  * There is no gcc -mfpu vfpv2 flag - the right flag is vfp
+  * Use repacksuffix in debian/watch
+  * Run tests as autopkgtests as well:
+    + add debian/rules check target to run tests using binary package
+    + disable test-process-config because it needs configured tree
+    + mark test-fs-watch as flaky
+  * Set test timeout to 3 seconds
+  * Flaky test-regress-GH-746 because it requires stdin
+  * Unapply no_sslv3.patch, applied upstream
+  * Refresh patches
+  * Re-enable test-tick-processor, fixed upstream
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 18 Dec 2015 00:46:12 +0100
+
+nodejs (5.1.1~dfsg-1) experimental; urgency=medium
+
+  * Imported Upstream version 5.1.1~dfsg
+  * CVE-2015-6764 V8 Out-of-bounds Access Vulnerability
+    (Closes: #806385)
+  * CVE-2015-8027 Denial of Service Vulnerability
+    (Closes: #806385)
+  * Patch: openssl -ssl3 fails immediately causing
+    test-tls-no-sslv3 failure.
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 04 Dec 2015 09:59:15 +0100
+
+nodejs (5.1.0~dfsg-1) experimental; urgency=medium
+
+  * Imported Upstream version 5.1.0~dfsg
+  * Refresh patches
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 18 Nov 2015 14:12:08 +0100
+
+nodejs (5.0.0~dfsg-1) experimental; urgency=medium
+
+  * Imported Upstream version 5.0.0~dfsg
+  * Refresh patches
+  * Disable s390 patch for now
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 30 Oct 2015 00:23:57 +0100
+
+nodejs (4.2.5~dfsg-1) unstable; urgency=medium
+
+  * Imported Upstream version 4.2.5~dfsg
+  * Remove no_sslv3 patch, fixed upstream
+  * Override lintian missing source sh_javascript.min.js, because
+    it is already fixed by removal and patch.
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 21 Jan 2016 09:38:25 +0100
+
+nodejs (4.2.4~dfsg-2) unstable; urgency=medium
+
+  * tests need gcc to get DEB_HOST_ARCH,
+    add build-essential as dependency. (Closes: #809845)
+  * Fix install path of non-minified sh_javascript
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 14 Jan 2016 09:39:14 +0100
+
+nodejs (4.2.4~dfsg-1) unstable; urgency=medium
+
+  * Imported Upstream version 4.2.4~dfsg
+  * Adapt v8 backport to s390 patch
+  * Refresh patches
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 24 Dec 2015 00:59:49 +0100
+
+nodejs (4.2.3~dfsg-2) unstable; urgency=medium
+
+  * There is no gcc -mfpu vfpv2 flag - the right flag is vfp
+  * Use repacksuffix in debian/watch
+  * Run tests as autopkgtests as well:
+    + add debian/rules check target to run tests using binary package
+    + create/remove a HOME for test
+    + disable test-process-config because it needs configured tree
+    + test-fs-watch does not work in test bed
+    + test-force-repl hangs in test bed
+  * Set test timeout to 3 seconds
+  * Flaky test-regress-GH-746 because it requires stdin
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 20 Dec 2015 03:03:50 +0100
+
+nodejs (4.2.3~dfsg-1) unstable; urgency=high
+
+  * Imported Upstream version 4.2.3~dfsg
+  * CVE-2015-6764 V8 Out-of-bounds Access Vulnerability
+    (Closes: #806385)
+  * CVE-2015-8027 Denial of Service Vulnerability
+    (Closes: #806385)
+  * Patch: openssl -ssl3 fails immediately causing
+    test-tls-no-sslv3 failure.
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 04 Dec 2015 09:02:50 +0100
+
+nodejs (4.2.2~dfsg-1) unstable; urgency=medium
+
+  * Imported Upstream version 4.2.2~dfsg
+  * Huge test timeout for all platforms
+  * Update from v8z 4.5 branch
+  * Node.js 4.2 is LTS, maintain it in master-4.2, upstream-4.2
+    + update gbp.conf
+    + lock watch file to 4.2.x
+    + update Vcs-Git in debian/control
+  * Remove test-domain-with-abort-on-uncaught-exception.diff,
+    applied upstream
+  * Add trivial autopkgtest (Closes: #802735)
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 04 Nov 2015 09:37:24 +0100
+
+nodejs (4.2.1~dfsg-2) unstable; urgency=medium
+
+  * Test ci patch: mark test-cluster-disconnect as flaky on arm
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 16 Oct 2015 20:56:02 +0200
+
+nodejs (4.2.1~dfsg-1) unstable; urgency=medium
+
+  * Imported Upstream version 4.2.1~dfsg
+  * kfreebsd patch: detect freebsd in tools/utils.py, so
+    that tests have correct $system set.
+  * test_ci_buildd patch: allow longer timeouts for mips64el
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 13 Oct 2015 20:54:13 +0200
+
+nodejs (4.2.0~dfsg-2) unstable; urgency=medium
+
+  * Add arch detection for ppc64 in debian/rules, useful for
+    tests configuration.
+  * Fix failing test-domain-with-abort-on-uncaught-exception
+  * Run flaky tests but don't care
+  * Run tests with huge timeout
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 13 Oct 2015 12:00:18 +0200
+
+nodejs (4.2.0~dfsg-1) unstable; urgency=medium
+
+  * Imported Upstream Long Term Support version 4.2.0~dfsg
+  * Allow test-stdout-close-unref to fail on freebsd too
+  * Unapply 1006_arm_fpu.patch, applied upstream
+  * Remove gflags from copyright, removed upstream
+  * Add copyright for s390 patch
+  * Exclude non-dfsg "gutenberg small print" licensed file
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 13 Oct 2015 00:23:43 +0200
+
+nodejs (4.1.2~dfsg-5) unstable; urgency=medium
+
+  * test-tick-processor can fail on pp64 and s390x:
+    + debian/rules: invoke test runner with --arch option
+    + test_ci_buildd.patch: declare that test as flaky on those
+      two arches, and fix test runner so $arch can be used.
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 12 Oct 2015 18:43:22 +0200
+
+nodejs (4.1.2~dfsg-4) unstable; urgency=medium
+
+  * Update patches to pass tests on respective arches
+  * Enable tests
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 12 Oct 2015 01:26:08 +0200
+
+nodejs (4.1.2~dfsg-3) experimental; urgency=medium
+
+  * Update test-ci patch to avoid testing addons
+  * No longer Build-Dep node-gyp to avoid bootstrapping issue
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 08 Oct 2015 09:05:17 +0200
+
+nodejs (4.1.2~dfsg-2) experimental; urgency=medium
+
+  * Set HOME env var for tests
+  * Patch: merge s390x branch from v8z 4.5
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 08 Oct 2015 01:59:04 +0200
+
+nodejs (4.1.2~dfsg-1) experimental; urgency=medium
+
+  [ Jérémy Lal ]
+  * Imported Upstream version 4.1.2~dfsg
+  * Unapply patch for CVE-2015-7384, applied upstream
+  * Run tests but ignore failures for now
+  * gyp >= 0.1~svn1773 now support no-parallel, remove patches
+  * enable continuous integration tests but ignore failures for
+    now, also patch to test-ci target to avoid logging to file.
+  * Add a dh --with nodejs plugin.
+
+  [ Jonas Smedegaard ]
+  * Offer binNMU'able linkage for arch-dependent plugins:
+    + Have nodejs provide virtual abi package
+    + Have nodejs-dev include helper tool dh_nodejs.
+    Closes: Bug#785748.
+  * Bump debhelper compatibility level to 9.
+  * Add descriptive comments to lintian overrides.
+  * Add lintian override regarding debhelper 9.
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 07 Oct 2015 11:16:09 +0200
+
+nodejs (4.1.1~dfsg-3) unstable; urgency=high
+
+  * Security fix for CVE-2015-7384 (Closes: #800580)
+  * Forward 2014_donotinclude_root_certs.patch
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 05 Oct 2015 22:31:38 +0200
+
+nodejs (4.1.1~dfsg-2) unstable; urgency=medium
+
+  * mips fixes, thanks to YunQiang Su (Closes: #800410):
+    + patch v8 to fix mips, mipsel fpu mode setting
+    + patch nodejs to support mips64el target_host setting
+    + update configuration in debian/rules
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 29 Sep 2015 02:32:16 +0200
+
+nodejs (4.1.1~dfsg-1) unstable; urgency=medium
+
+  * Imported Upstream version 4.1.1~dfsg
+  * Force mips arches to fp32 fpu mode
+  * Unapply mipsel detection patch, applied upstream
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 28 Sep 2015 23:53:22 +0200
+
+nodejs (4.1.0~dfsg-3) unstable; urgency=medium
+
+  * mips: let configure detect float abi
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 21 Sep 2015 12:26:05 +0200
+
+nodejs (4.1.0~dfsg-2) unstable; urgency=medium
+
+  * Fix armhf build: with-arm-float-abi expects 'hard', not 'hardfp'
+  * Fix mipsel build: patch configure so that it detects mipsel
+  * Configure mips, mipsel, mips64el ports
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 20 Sep 2015 23:46:39 +0200
+
+nodejs (4.1.0~dfsg-1) unstable; urgency=medium
+
+  * Imported Upstream version 4.1.0~dfsg
+  * Import bits of armel configuration from libv8
+  * Patch to allow arm_fpu config
+  * Update kfreebsd patch and flags
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 20 Sep 2015 11:17:02 +0200
+
+nodejs (4.0.0~dfsg-2) experimental; urgency=medium
+
+  * Configure dest-cpu and dest-os, hopefully fixing builds on
+    several architectures.
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 11 Sep 2015 13:03:06 +0200
+
+nodejs (4.0.0~dfsg-1) experimental; urgency=medium
+
+  * Imported Upstream version 4.0.0~dfsg
+  * Refresh and disable most old patches
+  * Build using embedded cares, embedded v8, because Node.js
+    is using patched versions of them and no longer allow
+    building with shared system libraries of those.
+  * Add cares copyright
+  * Add patch to build without zlib and uv gyp files
+  * nodejs-dev links to libuv1-dev headers
+  * Build documentation and fix privacy breaches more properly
+  * Numerous copyright-1.0 format fixes.
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 09 Sep 2015 00:43:21 +0200
+
+nodejs (0.10.38~dfsg-1) unstable; urgency=medium
+
+  * Upstream update.
+  * Copyright:
+    + add mk-ca-bundle curl license
+    + fix some paths, add a new file, DFSG-exclude
+      trademarked icons (node, joyent, npm).
+  * Standards-Version 3.9.6
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 04 May 2015 22:45:39 +0200
+
+nodejs (0.10.29~dfsg-1) unstable; urgency=medium
+
+  * Upstream update.
+  * 1007 patch: revert upstream commit that relies on a patch to
+    libv8-3.14 that breaks v8 API/ABI.
+    This means nodejs is stuck in NODE_INVALID_UTF8 mode, see
+    upstream ChangeLog to understand what this means.
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 13 Jun 2014 23:58:22 +0200
+
+nodejs (0.10.28~dfsg-2) unstable; urgency=medium
+
+  * Add 1006_relax_timeouts_in_tests.patch, fixing some tests to
+    pass on slow architectures.
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 01 Jun 2014 23:09:24 +0200
+
+nodejs (0.10.28~dfsg-1) unstable; urgency=medium
+
+  * Upstream update.
+  * Copyright: add wildcards to folders in Files-Excluded field.
+  * Override source-is-missing doc/sh_javascript.min.js, was already
+    fixed in nodejs-0.10.25~dfsg2-1.
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 23 May 2014 09:28:57 +0200
+
+nodejs (0.10.26~dfsg1-2) unstable; urgency=medium
+
+  * Update 2011 mipsel patch: add mips (big endian) support.
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 26 Apr 2014 01:39:34 +0200
+
+nodejs (0.10.26~dfsg1-1) unstable; urgency=medium
+
+  * Upstream update.
+  * Add 2014 patch: load /etc/ssl/certs/ca-certificates.crt at
+    runtime, if present, instead of bundling node_root_certs.h.
+  * copyright:
+    + use Files-Excluded section, update list of files.
+    + add section for node_root_certs.h (MPL-2.0)
+  * rules: drop upstream-tarball.mk in favor of uscan.
+  * Standards-Version 3.9.5
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 02 Mar 2014 01:57:14 +0100
+
+nodejs (0.10.25~dfsg2-2) unstable; urgency=medium
+
+  * Update 2005 patch, allow test-abort-fatal-error to time out.
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 27 Jan 2014 14:35:21 +0100
+
+nodejs (0.10.25~dfsg2-1) unstable; urgency=medium
+
+  * Exclude doc/sh_javascript.min.js, closes: #736779.
+  * Add 1005 patch to include a non-minified version of
+    doc/sh_javascript.min.js, and update path in debian/copyright.
+  * Update 2005 patch, allow test-abort-fatal-error to fail,
+    closes: #736576.
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 27 Jan 2014 09:58:56 +0100
+
+nodejs (0.10.25~dfsg1-1) unstable; urgency=medium
+
+  * Upstream update
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 24 Jan 2014 15:45:29 +0100
+
+nodejs (0.10.24~dfsg1-1) unstable; urgency=medium
+
+  * Upstream update
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 23 Dec 2013 00:45:40 +0100
+
+nodejs (0.10.23~dfsg1-3) unstable; urgency=medium
+
+  * Update 2005 patch, allow test-http-client-timeout-event to fail.
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 14 Dec 2013 10:00:16 +0100
+
+nodejs (0.10.23~dfsg1-2) unstable; urgency=medium
+
+  * Add 2013 patch, remove --no-parallel option incompatible with
+    gyp < r1773. Was breaking kfreebsd builds as side-effect.
+  * Empty DEB_CONFIGURE_NORMAL_ARGS without quotes because
+    configure assumes it is a path argument.
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 14 Dec 2013 01:52:05 +0100
+
+nodejs (0.10.23~dfsg1-1) unstable; urgency=medium
+
+  * Upstream update.
+  * Refresh patches, remove 1005 patch, applied upstream.
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 12 Dec 2013 23:04:07 +0100
+
+nodejs (0.10.22~dfsg1-2) unstable; urgency=low
+
+  * Update 2005 patch, allow test-cluster-dgram-2 to time out.
+  * Apply 1005 patch, upstream fix for BSD builds.
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 30 Nov 2013 23:54:20 +0100
+
+nodejs (0.10.22~dfsg1-1) unstable; urgency=low
+
+  * Upstream update.
+  * Refresh patches.
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 13 Nov 2013 23:17:51 +0100
+
+nodejs (0.10.21~dfsg1-1) unstable; urgency=low
+
+  * Upstream update.
+  * Update 2005 patch, allow test-http-pipeline-flood to fail.
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 19 Oct 2013 01:26:18 +0200
+
+nodejs (0.10.20~dfsg1-1) unstable; urgency=low
+
+  * Upstream update.
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 01 Oct 2013 13:08:52 +0200
+
+nodejs (0.10.19~dfsg1-1) unstable; urgency=low
+
+  * Upstream update.
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 27 Sep 2013 11:21:18 +0200
+
+nodejs (0.10.18~dfsg1-1) unstable; urgency=low
+
+  * Upstream update.
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 04 Sep 2013 20:54:54 +0200
+
+nodejs (0.10.17~dfsg1-2) unstable; urgency=low
+
+  * Update 2005 patch with new failing-on-slow-platforms tests.
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 31 Aug 2013 09:45:06 +0200
+
+nodejs (0.10.17~dfsg1-1) unstable; urgency=low
+
+  * Upstream update.
+  * Update 2005 patch with new failing-on-slow-platforms tests.
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 29 Aug 2013 17:18:29 +0200
+
+nodejs (0.10.15~dfsg1-4) unstable; urgency=low
+
+  * Update 2005 patch, adding a handful of tests that can fail on
+    slow platforms.
+  * Add 1004 patch to fix test failures when writing NaN to buffer
+    on mipsel.
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 14 Aug 2013 00:16:46 +0200
+
+nodejs (0.10.15~dfsg1-3) unstable; urgency=low
+
+  * Update 2005 patch, test-stdout-close-unref and
+    test-tls-zero-clear-in can fail on buildd.
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 10 Aug 2013 09:47:34 +0200
+
+nodejs (0.10.15~dfsg1-2) unstable; urgency=low
+
+  * Update 2005 patch, allow several tests to fail because of inner
+    timeouts or race conditions on slow buildd servers.
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 10 Aug 2013 00:09:59 +0200
+
+nodejs (0.10.15~dfsg1-1) unstable; urgency=low
+
+  * Upstream update.
+  * kfreebsd build: uv need -ldl.
+  * Update 2005 patch, allow 12 udp4 tests to fail on buildd servers.
+  * 2011 patch: test.py --arch=target_arch detected by ./configure.
+    This fixes an error in mipsel build.
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 29 Jul 2013 21:14:09 +0200
+
+nodejs (0.10.13~dfsg1-2) unstable; urgency=low
+
+  [ Jérémy Lal ]
+  * Fix kfreebsd build:
+    + Depend on libkvm-dev on kfreebsd systems.
+    + Tighten to build-depend on gyp versions that builds using flock.
+    + Add patch 2012 to add __FreeBSD_kernel__ defines.
+    + Add patch 1001 readFile not throwing EISDIR on some archs.
+    + Add patches 1002, 1003 to fix bugs in unit tests.
+    + Set gyp flavor in rules file using --dest-os switch.
+  * Restrict make check target in rules to avoid the call to jslint.
+
+  [ Jonas Smedegaard ]
+  * Make ~dfsg version suffix only optionally numbered.
+  * Stop breaking packages depending on old node binary: None of the
+    affected packages exist in any Debian suite since about a year.
+  * Declare all package relations except same-source ones in rules file.
+  * Add notes in rules file about reasons for versioned dependencies.
+  * Drop NEWS file: Contains only entries for versions older than
+    existing in any Debian suite since about a year.
+  * Rewrite short and long descriptions based on upstream texts.
+  * Bump standards-version to 3.9.4.
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 28 Jul 2013 18:50:13 +0200
+
+nodejs (0.10.13~dfsg1-1) experimental; urgency=low
+
+  * New upstream release.
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 12 Jul 2013 12:23:38 +0200
+
+nodejs (0.10.11~dfsg1-1) experimental; urgency=low
+
+  * New upstream release.
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 14 Jun 2013 01:32:49 +0200
+
+nodejs (0.10.10~dfsg1-1) experimental; urgency=low
+
+  * New upstream release.
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 05 Jun 2013 00:21:10 +0200
+
+nodejs (0.10.9~dfsg1-1) experimental; urgency=low
+
+  * New upstream release.
+  * Unapply 1001_revert_uv_osx_fix.patch, fixed upstream.
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 30 May 2013 23:08:55 +0200
+
+nodejs (0.10.8~dfsg1-1) experimental; urgency=low
+
+  * New upstream release.
+  * Set process.config.default_configuration to Release by removing
+    --debug flag.
+  * 1001_revert_uv_osx_fix.patch: revert a libuv commit bringing a
+    test/simple/test-stdout-close-catch.js regression.
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 29 May 2013 00:42:14 +0200
+
+nodejs (0.10.7~dfsg1-1) experimental; urgency=low
+
+  * New upstream release.
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 18 May 2013 00:40:02 +0200
+
+nodejs (0.10.6~dfsg1-1) experimental; urgency=low
+
+  * New upstream release.
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 15 May 2013 00:12:32 +0200
+
+nodejs (0.10.5~dfsg1-2) experimental; urgency=low
+
+  * nodejs-dev.links: fix symlinks to v8 headers.
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 28 Apr 2013 21:15:31 +0200
+
+nodejs (0.10.5~dfsg1-1) experimental; urgency=low
+
+  * New upstream release.
+  * nodejs-dev.install: common.gypi is needed by node-gyp.
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 28 Apr 2013 20:47:03 +0200
+
+nodejs (0.10.1~dfsg1-2) experimental; urgency=low
+
+  * copyright: use Source field to document dfsg-repackaging.
+  * nodejs-dev: install headers with the directory layout expected
+    node-gyp.
+  * 2005_expected_failing_tests.patch: some tests fail in chroot.
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 25 Mar 2013 16:21:25 +0100
+
+nodejs (0.10.1~dfsg1-1) experimental; urgency=low
+
+  * New upstream release.
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 22 Mar 2013 00:11:25 +0100
+
+nodejs (0.10.0~dfsg1-2) experimental; urgency=low
+
+  * Fix have nodejs-dev depend on libv8-3.14-dev (not bogus
+    libv8-3--14dev).
+
+ -- Jonas Smedegaard <dr@jones.dk>  Tue, 19 Mar 2013 05:07:15 +0100
+
+nodejs (0.10.0~dfsg1-1) experimental; urgency=low
+
+  [ upstream ]
+  * New release.
+    + Node-waf dropped: Replaced by node-gyp (packaged independently).
+
+  [ Jérémy Lal ]
+  * Build-depend unversioned on cdbs: Needed version satisfied in stable
+    and oldstable no longer supported.
+  * Upstream tarball repackaging:
+    + Exclude test/gc/node_modules.
+    + Exclude tools/blog.
+    + Exclude tools/wrk, a benchmark tool.
+    + Exclude tools/msvs/genfiles, it should be generated instead. It
+      also contains binaries and a meaningless copyright statement.
+    + Exclude deps/cares.
+    + Update exclusions to match already removed files.
+  * Documentation building:
+    + Remove workaround from 0.6.19~dfsg1-3.
+    + Delete already unapplied 1002_upstream_forgot_to_build_doc.patch.
+    + Remove script tags calling external assets from html files.
+  * Patches:
+    + Remove all patches regarding WAF.
+    + Remove patches involving eio or ev since those libs have been
+      rewritten inside uv.
+    + Remove 2008_fix_use_shared_cares.patch, no longer needed.
+    + Adjust 2005_expected_failing_tests.patch: re-enable some tests.
+    + Merge path, binary renames into 2001_FHS_paths_for_nodejs.patch.
+    + Remove unneeded 2002_build_without_libv8_debug.patch.
+    + Remove 2007_fix_use_shared_zlib.patch, replaced by --shared-zlib,
+      but 2010 patch is needed to shut up Makefile.
+    + Remove 1001_align_fast_buffers_8byte_boundary.patch, applied.
+    + Remove 2014_v8_38_compat.patch, unneeded.
+    + Disable 2011_enable_mipsel_build: libv8 fails to build on mipsel.
+  * Drop WAF quirks.
+  * Remove --no-ssl2 flag, it builds fine without it now, and
+    test-tls-server-verify fails in both cases.
+  * Use --without-snapshot since nodejs is using system libv8.
+  * Remove unneeded --shared-ev.
+  * Harden gyp: append CPPFLAGS to CXXFLAGS, export CXXFLAGS and
+    LDFLAGS.
+    Works around bug#689754.
+  * Update DEB_COPYRIGHT_CHECK_IGNORE_REGEX to match all binary files.
+  * Remove trailing slash in DEB_UPSTREAM_URL.
+  * Ship all headers from src and uv/include in nodejs-dev: node-gyp
+    expects them.
+  * Update copyright file:
+    + Drop obsolete paragraphs: eio, waf, buffer_ieee754.js,
+      src/platform_darwin_proctitle.cc.
+    + Add 'Nginx Inc' copyright to ngx-queue.h, as given by upstream
+      LICENSE file, and list the second copy of ngx-queue.h.
+    + Add license for deps/uv/include/uv-private/tree.h and the copy in
+      src/tree.h.
+    + Add ISC licenses for deps/uv/checksparse.sh, deps/uv/src/inet.c.
+    + Add deps/uv/include/uv-private/stdint-msvc2008.h BSD-3-clause.
+    + Add src/v8_typed_array* Expat license.
+    + Update licenses for bundled deps/v8 copy, taken from libv8
+      debian package. Note deps/v8/tools/testrunner/server/daemon.py is
+      Public-Domain.
+    + List all copies of sh.css.
+  * Suppress lintian OpenSSL warning: false positive.
+
+  [ Jonas Smedegaard ]
+  * Update copyright file:
+    + Fix GPL licensing to separate verbatim custom reference, verbatim
+      generic boilerplate, and packaging comments.
+    + Explicitly mention Public Domain file as such in Copyright field.
+  * Update package relations:
+    + Build-depend on, and have nodejs-dev depend on, libv8-3.14-dev
+      (not versioned on libv8-dev).
+    + Have nodejs-dbg recommend (not suggest) libv8-3.14-dbg (not
+      libv8-dbg).
+  * Bump dephelper compatibility level to 8.
+  * Drop obsolete "DM-Upload-Allowed" field.
+  * Rewrite README.source:
+    + Refer to common CDBS+git-buildpackage praxis.
+    + Emphasize explicitly that NMUs can totally ignore control.in file.
+
+ -- Jonas Smedegaard <dr@jones.dk>  Tue, 19 Mar 2013 04:38:57 +0100
+
+nodejs (0.6.19~dfsg1-6) UNRELEASED; urgency=low
+
+  * Update package relations:
+    + Generally tighten breaks to relate to (backport of) first known
+      working version (not last known broken version): node → nodejs
+      transition now done for all dependent packages.
+    + Relax needlesly tight breaks for node-bones.
+
+ -- Jonas Smedegaard <dr@jones.dk>  Sat, 22 Sep 2012 16:09:56 +0200
+
+nodejs (0.6.19~dfsg1-5) unstable; urgency=low
+
+  * Team upload.
+  * Fix node-waf so that it correctly looks for "nodejs" instead of
+    "node" (patched node_addon.py)
+
+ -- David Paleino <dapal@debian.org>  Fri, 21 Sep 2012 23:23:16 +0200
+
+nodejs (0.6.19~dfsg1-4) unstable; urgency=medium
+
+  * Update package relations:
+    + Break only packages actually calling /usr/bin/node (directly or
+      via env).
+    + Tighten breaks for packages with fixed release.
+  * Set urgency=medium as this change affects only packaging hints so
+    should not need reset of aging timer in unstable.
+
+ -- Jonas Smedegaard <dr@jones.dk>  Mon, 06 Aug 2012 14:51:31 +0200
+
+nodejs (0.6.19~dfsg1-3) unstable; urgency=low
+
+  [ Jérémy Lal ]
+  * debian/patches:
+    + 2012_fix_v8_3_10.patch, fix crash on exit when building
+      against libv8-3.10.8.
+    + 2013_waf_linkflags.patch, waf must support LINKFLAGS,
+      Closes: #678563.
+
+  [ Jonas Smedegaard ]
+  * Rename binary node → nodejs:
+    + Adjust paths of binary and manpage.
+    + Fix avoid bogus explicit installation of debug files.
+    + Adjust install scripts and add cleanup for old alternative.
+    + Patch manpage to adjust command name.
+    + Have binary package nodejs break any packages in Debian that
+      reference /usr/bin/node.
+    + Add new binary package nodejs-legacy, and have that (not nodejs)
+      conflict with node.
+    + Add NEWS entry.
+    Closes: bug#611698, #681360. See also bug#614907. Thanks to
+    tech-ctte and everyone else helping to resolve this.
+  * Work around upstream shipping docs in wrong subdir, and disable huge
+    patch 1002 attempting same but causing FTBFS for me. Keep patch 1002
+    in source, to ease proof-reading by release team.
+  * Add patch 2004 to fix FTBFS: Relax a test to work with slightly
+    different output when linked against recent v8.
+
+ -- Jonas Smedegaard <dr@jones.dk>  Sat, 28 Jul 2012 11:19:38 +0200
+
+nodejs (0.6.19~dfsg1-2) unstable; urgency=low
+
+  * debian/patches:
+    + 2005_expected_failing_tests.patch, more tests can timeout.
+    + 1002_upstream_forgot_to_build_doc.patch, include docs from
+      late release of version 0.6.19.
+  * debian/nodejs.docs:
+    + update path
+    + include markdown files.
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 06 Jun 2012 23:35:37 +0200
+
+nodejs (0.6.19~dfsg1-1) unstable; urgency=low
+
+  * Upstream update.
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 06 Jun 2012 19:11:21 +0200
+
+nodejs (0.6.18~dfsg1-1) unstable; urgency=low
+
+  * Upstream update.
+  * debian/patches:
+    + 1002_make_test_not_weak.patch removed, applied upstream.
+    + unfuzz patches.
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 16 May 2012 02:06:42 +0200
+
+nodejs (0.6.17~dfsg1-1) unstable; urgency=low
+
+  * Upstream update.
+  * Update copyright file: add test/*/testcfg.py files.
+  * debian/patches/1002_make_test_not_weak.patch fixes Makefile
+    test target, otherwise it tries to install an unneeded npm module.
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 04 May 2012 22:38:30 +0200
+
+nodejs (0.6.16~dfsg1-2) unstable; urgency=low
+
+  * Allow test-dgram-pingpong failure on buildd servers.
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 30 Apr 2012 22:42:23 +0200
+
+nodejs (0.6.16~dfsg1-1) unstable; urgency=low
+
+  [ Jonas Smedegaard ]
+  * Update copyright file:
+    + Fix Files section for marked: Use asterisk for dir, and ignore
+      symlink.
+    + Tidy Files section for waf-light: Drop superfluous © mark and
+      excess indentation, and sort by year and then name.
+
+  [ Jonathan Nieder ]
+  * Add /usr/bin/nodejs as a symlink to node and nodejs.1.gz as a
+    symlink to the node(1) manpage. Explanation in README.Debian.
+    Closes: #650343.
+  * Include README.Debian in nodejs package instead of nodejs-dev.
+
+  [ Jérémy Lal ]
+  * Upstream update.
+  * Fix dversionmangle in watch file.
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 30 Apr 2012 20:58:46 +0200
+
+nodejs (0.6.14~dfsg1-1) unstable; urgency=low
+
+  * debian/patches/2005_expected_failing_tests.patch:
+    + test-cluster-kill-workers can fail on any arch, not only armel,
+      because it is racey.
+    + test-buffer is not failing.
+    + test-tls-server-verify can fail with openssl 1.0.1
+  * debian/patches/1001_align_fast_buffers_8byte_boundary.patch fixes
+    test-buffer.js failure on armel. Closes: bug#660800.
+  * debian/patches/2011_enable_mipsel_build.patch: options.arch is
+    useless and buggy. Closes: bug#664627.
+  * Include tools/doc, now properly licensed.
+  * Include tools/doc/node_modules/marked : there are several other
+    markdown parsers in debian, but porting tools/doc/generate.js to one
+    of them is not an easy task.
+  * Update copyright file:
+    + tools/doc is already covered by default
+    + Add Files paragraph covering tools/doc/node_modules/marked.
+  * Remove libv8-dev << 3.8.
+    It is not necessary to conflict with next libv8 branch.
+  * Remove source override: source-contains-waf-binary, fixed in lintian.
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 03 Apr 2012 08:41:15 +0200
+
+nodejs (0.6.12~dfsg1-1) unstable; urgency=low
+
+  * Update Standards-Version to 3.9.3.
+  * Patch wscript to enable build on mipsel arch, libv8 being available.
+    Upstream does not support that arch, failure expected.
+  * test-cluster-kill-workers is expected to fail on armhf,
+    Bug#660802 will be closed when test pass.
+  * test-buffer is expected to fail on armel,
+    Bug#660800 will be closed when test pass.
+  * Add epoch to dependency on libev >= 1:4.11. Closes: bug#658441.
+  * Remove tools/doc because node-doc-generator has no license for now.
+  * Add copyright for doc/sh* files (shjs).
+  * source.lintian-overrides : source-contains-waf-binary tools/node-waf
+    it is simply not the case here.
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 13 Mar 2012 09:56:02 +0100
+
+nodejs (0.6.11~dfsg1-2) unstable; urgency=low
+
+  * test-stream-pipe-multi expected to timeout sometimes on busy builds.
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 20 Feb 2012 08:43:24 +0100
+
+nodejs (0.6.11~dfsg1-1) unstable; urgency=low
+
+  * New upstream release.
+  * Remove upstream patches.
+  * test-dgram-pingpong expected to timeout, the test itself is buggy.
+  * test-buffer expected to fail on armel, allow building package to make
+    it easier to find the cause of the failure.
+    Closes: bug#639636.
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 19 Feb 2012 23:58:31 +0100
+
+nodejs (0.6.10~dfsg2-2) unstable; urgency=low
+
+  [ Jérémy Lal ]
+  * Expect tests dgram-multicast and broadcast to fail.
+    debian/patches/2005_expected_failing_tests.patch
+
+  [ Jonas Smedegaard ]
+  * Drop dpkg-source local-options: Defaults since dpkg-source 1.16.1.
+
+ -- Jonas Smedegaard <dr@jones.dk>  Fri, 17 Feb 2012 04:18:27 +0100
+
+nodejs (0.6.10~dfsg2-1) unstable; urgency=low
+
+  * New upstream release.
+  * Depend on libev-dev 4.11, see bug#657080.
+  * Bump dependency on openssl to 1.0.0g.
+  * Remove useless uv_loop_refcount from libuv,
+    refreshed 2009_fix_shared_ev.patch.
+  * Apply to upstream patches landed after 0.6.10 release,
+    to fix debugger repl and http client.
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 16 Feb 2012 23:52:16 +0100
+
+nodejs (0.6.8~dfsg1-1) experimental; urgency=low
+
+  * New upstream release. Closes:bug#650661
+  * Repackage to remove non-dfsg font files ./deps/npm/html/*/*.ttf
+  * Remove unneeded bundled dependencies: lighter tarball,
+    debian/copyright is easier to maintain.
+  * Drop unneeded build-dependency on scons.
+  * Depend on zlib1g, libc-ares, libev.
+    Patches done to support building with those shared libs.
+  * Fix DEB_UPSTREAM_URL in debian/rules, and debian/watch.
+  * nodejs.pc file for pkgconfig is no more available.
+  * Build-depend on procps package, a test is using /bin/ps.
+  * Refreshed debian/patches/2005_expected_failing_tests.patch,
+    only for tests that need networking.
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 24 Jan 2012 13:37:01 +0100
+
+nodejs (0.4.12-3) unstable; urgency=low
+
+  * Depend on libv8 3.6 (>= 3.6.6.14-2), because it fixes CVE-2011-5037.
+    This breaks test/simple/test-sys.js, fixed by an upstream patch.
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 08 Jan 2012 12:00:02 +0100
+
+
+nodejs (0.4.12-2) unstable; urgency=low
+
+  * Port to libv8 3.5 branch and depend on it.
+  * Force nodejs-dev to depend on libv8-dev << 3.6, to avoid API
+    incompatibilities between nodejs-dev and libv8-dev.
+    This will help fixing bug#650552, thanks to Jonas Smedegaard.
+  * Do not search modules in /usr/local/lib/nodejs, see README.Debian.
+  * Remove useless debian/patches/1006_version.patch
+  * Drop unneeded dependency on Scons.
+  * Build-Depends on openssl, some tests spawn /usr/bin/openssl.
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 05 Dec 2011 11:34:27 +0100
+
+nodejs (0.4.12-1) unstable; urgency=low
+
+  * New upstream release
+  * Port to libv8 3.4 branch and depend on it. Closes:bug#642731.
+  * debian/gbp.conf: fix syntax, filter 'doc/logos/*' or else
+    pristine-tar will complain.
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 27 Sep 2011 16:10:10 +0200
+
+nodejs (0.4.11-1) unstable; urgency=low
+
+  * New upstream release
+  * debian/gbp.conf: Filter out doc/logos, unused, too big, and
+    upstream removed it from 0.5 tarballs.
+  * debian/patches/1006_version.patch : upstream forgot to update
+    VERSION flag in wscript.
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 18 Aug 2011 15:09:01 +0200
+
+nodejs (0.4.10-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 20 Jul 2011 20:50:07 +0200
+
+nodejs (0.4.9-1) unstable; urgency=low
+
+  * New upstream release
+  * Refresh debian/patches,
+    remove 1001_no_ssl_v2.patch, applied upstream.
+  * deps/http_parser.c based on expat-licensed work of Igor Sysoev.
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 29 Jun 2011 16:46:47 +0200
+
+nodejs (0.4.8-1) unstable; urgency=low
+
+  * New upstream release,
+    Closes: bug#628148.
+  * Depends on libv8 3.1.8.22
+  * Refresh debian/patches
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 26 Jun 2011 23:08:01 +0200
+
+nodejs (0.4.7-1) unstable; urgency=low
+
+  * New upstream release
+  * Bump policy compliance to standards-version 3.9.2.
+  * debian/watch : remove call to uupdate, it is annoying since
+    updates are done with git-import-orig.
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 23 Apr 2011 18:42:42 +0200
+
+nodejs (0.4.6-2) unstable; urgency=low
+
+  * Expect some tests to fail when run without network.
+    Closes: bug#623374.
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 19 Apr 2011 22:17:37 +0200
+
+nodejs (0.4.6-1) unstable; urgency=low
+
+  * New upstream release
+
+  [ Jérémy Lal ]
+  * Unfuzz patches.
+  * Update debian/copyright, now copyright Joyent.
+  * Drop SSL2 methods, see #589706.
+    Closes: bug#622065.
+  * Disable multicast test: Too dependent on network config.
+  * Allow Debian-Maintainer uploads.
+
+  [ Jonas Smedegaard ]
+  * Update copyright file:
+    + Fix relabel OpenBSD license as OpenBSD~Lucent: Disclaimer is
+      derived.
+    + Fix comma-delimit files, and (while at it) newline-delimit them
+      for improved readability.
+    + Compact and extend copyright years.
+  * Enable copyright-check.
+    Build-depend on devscripts.
+  * Add copyright hints.
+
+ -- Jonas Smedegaard <dr@jones.dk>  Sun, 17 Apr 2011 05:05:30 +0200
+
+nodejs (0.4.2-1) experimental; urgency=low
+
+  * New upstream release
+
+  [ Jérémy Lal ]
+  * Enable regression tests, without failing when targeted experimental.
+  * Unfuzz patches.
+  * Tighten build-dependency on libev-dev, to match new upstream source.
+
+ -- Jonas Smedegaard <dr@jones.dk>  Sat, 12 Mar 2011 10:45:08 +0100
+
+nodejs (0.2.6-5) unstable; urgency=low
+
+  [ Jonas Smedegaard ]
+  * Update team-maintainance:
+    + Set Debian Javascript Maintainers as maintainer.
+    + Set Jérémy Lal, Dave Beckett and myself as uploaders.
+  * Bump policy compliance to standards-version 3.9.2.
+  * Recompile against newer libv8.
+    Closes: bug#622623. Thanks to Adrian Knoth.
+  * Unfuzz patches.
+
+  [ Jérémy Lal ]
+  * Update git-buildpackage config : add commented lines explaining
+    layout.
+  * Allow Debian-Maintainer uploads.
+  * Add patch 1001 to disable ssl2 methods.
+
+ -- Jonas Smedegaard <dr@jones.dk>  Fri, 15 Apr 2011 23:33:09 +0200
+
+nodejs (0.2.6-4) unstable; urgency=low
+
+  [ Jérémy Lal ]
+  * Disable simple/test-buffer Buffer.unpack test that fails on ARM.
+    The pack/unpack functions are deprecated, and not documented.
+
+  [ Jonas Smedegaard ]
+  * Drop done items from TODO.
+
+ -- Jonas Smedegaard <dr@jones.dk>  Mon, 07 Feb 2011 23:39:40 +0100
+
+nodejs (0.2.6-3) experimental; urgency=low
+
+  [ Jérémy Lal ]
+  * Disable simple/test-dgram-multicast test that fails on sbuild.
+
+ -- Jonas Smedegaard <dr@jones.dk>  Tue, 25 Jan 2011 23:53:05 +0100
+
+nodejs (0.2.6-2) experimental; urgency=low
+
+  [ Jérémy Lal ]
+  * Build-depends on libv8-2.5.9.9-2.
+    (Closes: #610527, #607319, #605447, #597784)
+  * Refactor patches, DEP-3 format.
+  * Explain modules search paths in README.Debian.
+
+  [ Jonas Smedegaard ]
+  * Relax nodejs-dbg suggestion on libv8-dbg to be unversioned: already
+    handled by library packages.
+
+ -- Jonas Smedegaard <dr@jones.dk>  Tue, 25 Jan 2011 22:11:05 +0100
+
+nodejs (0.2.6-1) experimental; urgency=low
+
+  [ Jérémy Lal ]
+  * New upstream release.
+  * nodejs is an alternative to js. (Closes: #597572)
+  * Use upstream binary names for node and node-waf,
+    conflicts with node package. (Closes: #597571)
+  * Global modules search paths :
+    /usr/local/lib/nodejs
+    /usr/lib/nodejs
+    Custom paths can be set through NODE_PATH.
+    The reason is to support future npm package, giving higher
+    priority to modules installed by npm as root.
+  * Repackage using CDBS.  Enable regression testing.
+  * Add a note about importing upstream tarball in README.source.
+  * Update TODO
+
+  [ Jonas Smedegaard ]
+  * Add myself as uploader.
+  * Limit watch file to stable releases.
+  * Enable CDBS build-dependency autoresolving.
+  * Tighten build-dependency on cdbs to versions properly supporting
+    debhelper compat level 7.
+  * Tighten build-dependency on debhelper to versions fully supporting
+    compat level 7.
+  * Build-depend on dh-buildinfo to include buildinfo hints with binary
+    packages for easier troubleshooting.
+  * Build-depend on curl: Needed for regression tests (testing on
+    loopback, so should be Policy compliant).
+  * Newline-delimit package relations for improved readability.
+  * Add patch 2001 to skip TTY-needing regression test.
+
+ -- Jonas Smedegaard <dr@jones.dk>  Fri, 21 Jan 2011 21:00:24 +0100
+
+nodejs (0.2.2-1) experimental; urgency=low
+
+  * New upstream release
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 17 Sep 2010 21:27:40 +0200
+
+nodejs (0.2.0-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 20 Aug 2010 11:49:04 +0200
+
+nodejs (0.1.104-1) unstable; urgency=low
+
+  * New upstream release. (Closes: #593088)
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 16 Aug 2010 07:07:09 +0200
+
+nodejs (0.1.102-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 27 Jul 2010 08:29:40 +0200
+
+nodejs (0.1.101-2) unstable; urgency=low
+
+  * Build-Depends on bash-completion for dh_bash-completion
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 21 Jul 2010 08:58:52 +0200
+
+nodejs (0.1.101-1) unstable; urgency=low
+
+  * New upstream release
+  * Standards-Version 3.9.0
+  * Move BSD license in debian/copyright
+  * nodejs-waf now accepts NODE_PATH environment variable, which defines
+    where to install compiled modules. Defaults to ~/.node_libraries.
+  * nodejs-waf bash-completion snippet
+  * API Manual registered with doc-base.
+  * Depends on libv8-2.2.24
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 14 Jul 2010 13:52:07 +0200
+
+nodejs (0.1.99-1) unstable; urgency=low
+
+  * New upstream release
+  * DNS module : MX support since c-ares 1.7.3
+  * nodejs-repl is replaced by invoking nodejs without file argument,
+    rlwrap is no more needed.
+  * Full upstream author name in debian/copyright.
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 29 Jun 2010 08:25:13 +0200
+
+nodejs (0.1.97-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 30 May 2010 23:14:24 +0200
+
+nodejs (0.1.95-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 14 May 2010 02:05:25 +0200
+
+nodejs (0.1.94-2) unstable; urgency=low
+
+  * Drop dependencies on libgnutls-dev, libgpg-error-dev.
+  * Modules path moved to /usr/lib/nodejs (without /modules), to
+    follow more closely upstream practice.
+  * node-repl is now in /usr/share/nodejs because it is
+    simply a js script file ; nodejs-repl still in /usr/bin
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 11 May 2010 19:52:12 +0200
+
+nodejs (0.1.94-1) unstable; urgency=low
+
+  * New upstream release
+  * API has changed and will be more stable with 0.2 release
+  * Fix dependency on libv8. (Closes: #579044)
+  * Switched from gnutls to libssl.
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 06 May 2010 23:19:12 +0200
+
+nodejs (0.1.92-1) unstable; urgency=low
+
+  * New upstream release
+  * Switch from udns to c-ares.
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 24 Apr 2010 09:12:06 +0200
+
+nodejs (0.1.33-3) unstable; urgency=low
+
+  * Fix wrong use of binary-indep target in debian/rules.
+    (Closes: #575383)
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 05 Apr 2010 15:26:40 +0200
+
+nodejs (0.1.33-2) unstable; urgency=low
+
+  * Previous package was broken in some way. (Closes: #575383)
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 25 Mar 2010 12:24:06 +0100
+
+nodejs (0.1.33-1) unstable; urgency=low
+
+  * New upstream release. (Closes: #572023)
+  * Debian package has the same license as upstream (MIT).
+  * Include waf in source package and nodejs-dev package. (Closes: #571710)
+  * Switch to dpkg-source 3.0 (quilt) format.
+  * Place modules directory in usr/lib/nodejs/modules,
+    and add it to nodejs module path. Documentation in README.Debian.
+  * Architecture: any since the supported archs depends only on libv8.
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 22 Mar 2010 01:53:48 +0100
+
+nodejs (0.1.27+dfsg-1) unstable; urgency=low
+
+  * Initial release (Closes: #553514)
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 07 Feb 2010 01:16:07 +0100

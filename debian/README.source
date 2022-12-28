@@ -1,0 +1,31 @@
+Bootstrap a new arch: two-staged build
+--------------------------------------
+
+ Nodejs build-depends on several other nodejs arch-independent modules for:
+ - building documentation (not crucial)
+ - tolerant javascript parser and AST walker for cli REPL (acorn)
+ - fetch implementation using a webassembly http parser (undici)
+
+ Those modules may already be in the archive, or not;
+ 1. They have been built from some other architecture.
+    They naturally depend on nodejs, so one cannot install them to bootstrap nodejs.
+    However one can install them alongside a first stage build of nodejs to get
+    a fully working repl.
+    Build nodejs once, install modules and nodejs, rebuild nodejs.
+ 2. They are not available in the archive.
+    They must be built using a first stage build of nodejs:
+    Build nodejs once, build modules, install modules and nodejs, rebuild nodejs.
+ 
+ In both cases, one must build nodejs twice using:
+
+ - First using profiles=nodoc,nocheck,pkg.nodejs.nobuiltin
+   apt --build-profiles=xxx build-dep nodejs
+   dpkg-buildpackage --build-profiles=xxx --build=any
+   Or, just
+   sbuild --profiles=xxx --arch-any
+ - install produced nodejs debian package
+ - optionally (case 2), build the missing modules, install them
+ - Second without profiles, using the previously created debian packages
+   (either install them or use sbuild --extra-packages)
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 16 May 2022 11:47:13 +0200

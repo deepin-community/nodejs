@@ -1,0 +1,32 @@
+Description: cannot rebuilt dist/lexer.js, just use pure-js lexer
+Author: Jérémy Lal <kapouer@melix.org>
+Last-Update: 2020-11-24
+Forwarded: not-needed
+--- a/lib/internal/modules/esm/translators.js
++++ b/lib/internal/modules/esm/translators.js
+@@ -56,14 +56,7 @@
+ 
+ let cjsParse;
+ async function initCJSParse() {
+-  if (typeof WebAssembly === 'undefined') {
+-    cjsParse = require('internal/deps/cjs-module-lexer/lexer').parse;
+-  } else {
+-    const { parse, init } =
+-        require('internal/deps/cjs-module-lexer/dist/lexer');
+-    await init();
+-    cjsParse = parse;
+-  }
++  cjsParse = require('internal/deps/cjs-module-lexer/lexer').parse;
+ }
+ 
+ const translators = new SafeMap();
+--- a/node.gyp
++++ b/node.gyp
+@@ -50,7 +50,6 @@
+       'deps/acorn/acorn/dist/acorn.js',
+       'deps/acorn/acorn-walk/dist/walk.js',
+       'deps/cjs-module-lexer/lexer.js',
+-      'deps/cjs-module-lexer/dist/lexer.js',
+       'deps/undici/undici.js',
+     ],
+     'node_mksnapshot_exec': '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)node_mksnapshot<(EXECUTABLE_SUFFIX)',

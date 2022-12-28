@@ -1,0 +1,87 @@
+Description: facilite bootstrap by not requiring acorn during build
+Author: Jérémy Lal <kapouer@melix.org>
+Last-Update: 2021-11-11
+Forwarded: not-needed
+--- a/node.gyp
++++ b/node.gyp
+@@ -47,8 +47,6 @@
+       'deps/v8/tools/tickprocessor.mjs',
+       'deps/v8/tools/sourcemap.mjs',
+       'deps/v8/tools/tickprocessor-driver.mjs',
+-      'deps/acorn/acorn/dist/acorn.js',
+-      'deps/acorn/acorn-walk/dist/walk.js',
+       'deps/cjs-module-lexer/lexer.js',
+     ],
+     'node_mksnapshot_exec': '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)node_mksnapshot<(EXECUTABLE_SUFFIX)',
+--- a/lib/internal/modules/cjs/helpers.js
++++ b/lib/internal/modules/cjs/helpers.js
+@@ -203,7 +203,7 @@
+ // For error messages only - used to check if ESM syntax is in use.
+ function hasEsmSyntax(code) {
+   debug('Checking for ESM syntax');
+-  const parser = require('internal/deps/acorn/acorn/dist/acorn').Parser;
++  const parser = require('acorn').Parser;
+   let root;
+   try {
+     root = parser.parse(code, { sourceType: 'module', ecmaVersion: 'latest' });
+--- a/src/node_native_module.cc
++++ b/src/node_native_module.cc
+@@ -76,7 +76,8 @@
+     "internal/bootstrap/",
+     "internal/per_context/",
+     "internal/deps/",
+-    "internal/main/"
++    "internal/main/",
++    "/usr/share/nodejs/"
+   };
+ 
+   module_categories_.can_be_required.emplace(
+@@ -204,13 +205,10 @@
+ }
+ #endif  // NODE_BUILTIN_MODULES_PATH
+ 
+-MaybeLocal<String> NativeModuleLoader::LoadBuiltinModuleSource(Isolate* isolate,
+-                                                               const char* id) {
+-#ifdef NODE_BUILTIN_MODULES_PATH
+-  std::string filename = OnDiskFileName(id);
+-
++MaybeLocal<String> loadOnDiskModuleSource(Isolate* isolate,
++                                          const char* filename) {
+   std::string contents;
+-  int r = ReadFileSync(&contents, filename.c_str());
++  int r = ReadFileSync(&contents, filename);
+   if (r != 0) {
+     const std::string buf = SPrintF("Cannot read local builtin. %s: %s \"%s\"",
+                                     uv_err_name(r),
+@@ -222,13 +220,26 @@
+   }
+   return String::NewFromUtf8(
+       isolate, contents.c_str(), v8::NewStringType::kNormal, contents.length());
++}
++
++MaybeLocal<String> NativeModuleLoader::LoadBuiltinModuleSource(Isolate* isolate,
++                                                               const char* id) {
++#ifdef NODE_BUILTIN_MODULES_PATH
++  std::string filename = OnDiskFileName(id);
++  return loadOnDiskModuleSource(isolate, filename.c_str());
+ #else
+-  const auto source_it = source_.find(id);
+-  if (UNLIKELY(source_it == source_.end())) {
+-    fprintf(stderr, "Cannot find native builtin: \"%s\".\n", id);
+-    ABORT();
++  if (strncmp(id, "internal/deps/acorn/acorn/dist/acorn", strlen("internal/deps/acorn/acorn/dist/acorn")) == 0) {
++    return loadOnDiskModuleSource(isolate, "/usr/share/nodejs/acorn/dist/acorn.js");
++  } else if (strncmp(id, "internal/deps/acorn/acorn-walk/dist/walk", strlen("internal/deps/acorn/acorn-walk/dist/walk")) == 0) {
++    return loadOnDiskModuleSource(isolate, "/usr/share/nodejs/acorn-walk/dist/walk.js");
++  } else {
++    const auto source_it = source_.find(id);
++    if (UNLIKELY(source_it == source_.end())) {
++      fprintf(stderr, "Cannot find native builtin: \"%s\".\n", id);
++      ABORT();
++    }
++    return source_it->second.ToStringChecked(isolate);
+   }
+-  return source_it->second.ToStringChecked(isolate);
+ #endif  // NODE_BUILTIN_MODULES_PATH
+ }
+ 
