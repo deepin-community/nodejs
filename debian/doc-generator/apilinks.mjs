@@ -20,7 +20,7 @@ import child_process from 'child_process';
 import fs from 'fs';
 import path from 'path';
 
-import * as acorn from '../../deps/acorn/acorn/dist/acorn.mjs';
+import * as acorn from 'acorn';
 
 // Run a command, capturing stdout, ignoring errors.
 function execSync(command) {

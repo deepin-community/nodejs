@@ -3,12 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v16.15.1">
-  <title>Net | Node.js v16.15.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v18.13.0">
+  <title>Net | Node.js v18.13.0 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/net.html">
+  <script async defer src="assets/api.js" type="text/javascript"></script>
+  
 </head>
 <body class="alt apidoc" id="api-section-net">
   <div id="content" class="clearfix">
@@ -53,13 +55,13 @@
 <li><a href="intl.html" class="nav-intl">Internationalization</a></li>
 <li><a href="modules.html" class="nav-modules">Modules: CommonJS modules</a></li>
 <li><a href="esm.html" class="nav-esm">Modules: ECMAScript modules</a></li>
-<li><a href="module.html" class="nav-module">Modules: <code>module</code> API</a></li>
+<li><a href="module.html" class="nav-module">Modules: <code>node:module</code> API</a></li>
 <li><a href="packages.html" class="nav-packages">Modules: Packages</a></li>
 <li><a href="net.html" class="nav-net active">Net</a></li>
 <li><a href="os.html" class="nav-os">OS</a></li>
 <li><a href="path.html" class="nav-path">Path</a></li>
 <li><a href="perf_hooks.html" class="nav-perf_hooks">Performance hooks</a></li>
-<li><a href="policy.html" class="nav-policy">Policies</a></li>
+<li><a href="permissions.html" class="nav-permissions">Permissions</a></li>
 <li><a href="process.html" class="nav-process">Process</a></li>
 <li><a href="punycode.html" class="nav-punycode">Punycode</a></li>
 <li><a href="querystring.html" class="nav-querystring">Query strings</a></li>
@@ -68,6 +70,7 @@
 <li><a href="report.html" class="nav-report">Report</a></li>
 <li><a href="stream.html" class="nav-stream">Stream</a></li>
 <li><a href="string_decoder.html" class="nav-string_decoder">String decoder</a></li>
+<li><a href="test.html" class="nav-test">Test runner</a></li>
 <li><a href="timers.html" class="nav-timers">Timers</a></li>
 <li><a href="tls.html" class="nav-tls">TLS/SSL</a></li>
 <li><a href="tracing.html" class="nav-tracing">Trace events</a></li>
@@ -92,7 +95,7 @@
     <div id="column1" data-id="net" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v16.15.1 documentation</h1>
+          <h1>Node.js v18.13.0 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -107,6 +110,7 @@
         </div>
         <div id="gtoc">
           <ul>
+            <li class="pinned-header">Node.js v18.13.0</li>
             
     <li class="picker-header">
       <a href="#">
@@ -147,6 +151,7 @@
 <li><a href="#event-connection">Event: <code>'connection'</code></a></li>
 <li><a href="#event-error">Event: <code>'error'</code></a></li>
 <li><a href="#event-listening">Event: <code>'listening'</code></a></li>
+<li><a href="#event-drop">Event: <code>'drop'</code></a></li>
 <li><a href="#serveraddress"><code>server.address()</code></a></li>
 <li><a href="#serverclosecallback"><code>server.close([callback])</code></a></li>
 <li><a href="#servergetconnectionscallback"><code>server.getConnections(callback)</code></a></li>
@@ -193,12 +198,14 @@
 <li><a href="#socketenddata-encoding-callback"><code>socket.end([data[, encoding]][, callback])</code></a></li>
 <li><a href="#socketlocaladdress"><code>socket.localAddress</code></a></li>
 <li><a href="#socketlocalport"><code>socket.localPort</code></a></li>
+<li><a href="#socketlocalfamily"><code>socket.localFamily</code></a></li>
 <li><a href="#socketpause"><code>socket.pause()</code></a></li>
 <li><a href="#socketpending"><code>socket.pending</code></a></li>
 <li><a href="#socketref"><code>socket.ref()</code></a></li>
 <li><a href="#socketremoteaddress"><code>socket.remoteAddress</code></a></li>
 <li><a href="#socketremotefamily"><code>socket.remoteFamily</code></a></li>
 <li><a href="#socketremoteport"><code>socket.remotePort</code></a></li>
+<li><a href="#socketresetanddestroy"><code>socket.resetAndDestroy()</code></a></li>
 <li><a href="#socketresume"><code>socket.resume()</code></a></li>
 <li><a href="#socketsetencodingencoding"><code>socket.setEncoding([encoding])</code></a></li>
 <li><a href="#socketsetkeepaliveenable-initialdelay"><code>socket.setKeepAlive([enable][, initialDelay])</code></a></li>
@@ -280,13 +287,13 @@
 <li><a href="intl.html" class="nav-intl">Internationalization</a></li>
 <li><a href="modules.html" class="nav-modules">Modules: CommonJS modules</a></li>
 <li><a href="esm.html" class="nav-esm">Modules: ECMAScript modules</a></li>
-<li><a href="module.html" class="nav-module">Modules: <code>module</code> API</a></li>
+<li><a href="module.html" class="nav-module">Modules: <code>node:module</code> API</a></li>
 <li><a href="packages.html" class="nav-packages">Modules: Packages</a></li>
 <li><a href="net.html" class="nav-net active">Net</a></li>
 <li><a href="os.html" class="nav-os">OS</a></li>
 <li><a href="path.html" class="nav-path">Path</a></li>
 <li><a href="perf_hooks.html" class="nav-perf_hooks">Performance hooks</a></li>
-<li><a href="policy.html" class="nav-policy">Policies</a></li>
+<li><a href="permissions.html" class="nav-permissions">Permissions</a></li>
 <li><a href="process.html" class="nav-process">Process</a></li>
 <li><a href="punycode.html" class="nav-punycode">Punycode</a></li>
 <li><a href="querystring.html" class="nav-querystring">Query strings</a></li>
@@ -295,6 +302,7 @@
 <li><a href="report.html" class="nav-report">Report</a></li>
 <li><a href="stream.html" class="nav-stream">Stream</a></li>
 <li><a href="string_decoder.html" class="nav-string_decoder">String decoder</a></li>
+<li><a href="test.html" class="nav-test">Test runner</a></li>
 <li><a href="timers.html" class="nav-timers">Timers</a></li>
 <li><a href="tls.html" class="nav-tls">TLS/SSL</a></li>
 <li><a href="tracing.html" class="nav-tracing">Trace events</a></li>
@@ -322,13 +330,14 @@
         <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v18.x/api/net.html">18.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v19.x/api/net.html">19.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v18.x/api/net.html">18.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v17.x/api/net.html">17.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v16.x/api/net.html">16.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v15.x/api/net.html">15.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v14.x/api/net.html">14.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v13.x/api/net.html">13.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v12.x/api/net.html">12.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v12.x/api/net.html">12.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v11.x/api/net.html">11.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v10.x/api/net.html">10.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v9.x/api/net.html">9.x</a></li>
@@ -355,7 +364,7 @@
                   <li>
                     <a href="net.json">View as JSON</a>
                   </li>
-                  <li class="edit_on_github"><a href="https://github.com/nodejs/node/edit/master/doc/api/net.md">Edit on GitHub</a></li>    
+                  <li class="edit_on_github"><a href="https://github.com/nodejs/node/edit/main/doc/api/net.md">Edit on GitHub</a></li>    
                 </ul>
               </div>
             </li>
@@ -397,6 +406,7 @@
 <li><a href="#event-connection">Event: <code>'connection'</code></a></li>
 <li><a href="#event-error">Event: <code>'error'</code></a></li>
 <li><a href="#event-listening">Event: <code>'listening'</code></a></li>
+<li><a href="#event-drop">Event: <code>'drop'</code></a></li>
 <li><a href="#serveraddress"><code>server.address()</code></a></li>
 <li><a href="#serverclosecallback"><code>server.close([callback])</code></a></li>
 <li><a href="#servergetconnectionscallback"><code>server.getConnections(callback)</code></a></li>
@@ -443,12 +453,14 @@
 <li><a href="#socketenddata-encoding-callback"><code>socket.end([data[, encoding]][, callback])</code></a></li>
 <li><a href="#socketlocaladdress"><code>socket.localAddress</code></a></li>
 <li><a href="#socketlocalport"><code>socket.localPort</code></a></li>
+<li><a href="#socketlocalfamily"><code>socket.localFamily</code></a></li>
 <li><a href="#socketpause"><code>socket.pause()</code></a></li>
 <li><a href="#socketpending"><code>socket.pending</code></a></li>
 <li><a href="#socketref"><code>socket.ref()</code></a></li>
 <li><a href="#socketremoteaddress"><code>socket.remoteAddress</code></a></li>
 <li><a href="#socketremotefamily"><code>socket.remoteFamily</code></a></li>
 <li><a href="#socketremoteport"><code>socket.remotePort</code></a></li>
+<li><a href="#socketresetanddestroy"><code>socket.resetAndDestroy()</code></a></li>
 <li><a href="#socketresume"><code>socket.resume()</code></a></li>
 <li><a href="#socketsetencodingencoding"><code>socket.setEncoding([encoding])</code></a></li>
 <li><a href="#socketsetkeepaliveenable-initialdelay"><code>socket.setKeepAlive([enable][, initialDelay])</code></a></li>
@@ -487,17 +499,17 @@
 
 <!--lint disable maximum-line-length-->
 <p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v16.15.1/lib/net.js">lib/net.js</a></p>
-<p>The <code>net</code> module provides an asynchronous network API for creating stream-based
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.13.0/lib/net.js">lib/net.js</a></p>
+<p>The <code>node:net</code> module provides an asynchronous network API for creating stream-based
 TCP or <a href="#ipc-support">IPC</a> servers (<a href="#netcreateserveroptions-connectionlistener"><code>net.createServer()</code></a>) and clients
 (<a href="#netcreateconnection"><code>net.createConnection()</code></a>).</p>
 <p>It can be accessed using:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> net = <span class="hljs-built_in">require</span>(<span class="hljs-string">'net'</span>);</code></pre>
+<pre><code class="language-js"><span class="hljs-keyword">const</span> net = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:net'</span>);</code></pre>
 <section><h3>IPC support<span><a class="mark" href="#ipc-support" id="ipc-support">#</a></span><a aria-hidden="true" class="legacy" id="net_ipc_support"></a></h3>
-<p>The <code>net</code> module supports IPC with named pipes on Windows, and Unix domain
+<p>The <code>node:net</code> module supports IPC with named pipes on Windows, and Unix domain
 sockets on other operating systems.</p>
 <h4>Identifying paths for IPC connections<span><a class="mark" href="#identifying-paths-for-ipc-connections" id="identifying-paths-for-ipc-connections">#</a></span><a aria-hidden="true" class="legacy" id="net_identifying_paths_for_ipc_connections"></a></h4>
-<p><a href="#netconnect"><code>net.connect()</code></a>, <a href="#netcreateconnection"><code>net.createConnection()</code></a>, <a href="#serverlisten"><code>server.listen()</code></a> and
+<p><a href="#netconnect"><code>net.connect()</code></a>, <a href="#netcreateconnection"><code>net.createConnection()</code></a>, <a href="#serverlisten"><code>server.listen()</code></a>, and
 <a href="#socketconnect"><code>socket.connect()</code></a> take a <code>path</code> parameter to identify IPC endpoints.</p>
 <p>On Unix, the local domain is also known as the Unix domain. The path is a
 filesystem pathname. It gets truncated to an OS-dependent length of
@@ -523,14 +535,14 @@ escaping such as:</p>
   path.<span class="hljs-title function_">join</span>(<span class="hljs-string">'\\\\?\\pipe'</span>, process.<span class="hljs-title function_">cwd</span>(), <span class="hljs-string">'myctl'</span>));</code></pre>
 </section><section><h3>Class: <code>net.BlockList</code><span><a class="mark" href="#class-netblocklist" id="class-netblocklist">#</a></span><a aria-hidden="true" class="legacy" id="net_class_net_blocklist"></a></h3>
 <div class="api_metadata">
-<span>Added in: v15.0.0</span>
+<span>Added in: v15.0.0, v14.18.0</span>
 </div>
 <p>The <code>BlockList</code> object can be used with some network APIs to specify rules for
 disabling inbound or outbound access to specific IP addresses, IP ranges, or
 IP subnets.</p>
 <h4><code>blockList.addAddress(address[, type])</code><span><a class="mark" href="#blocklistaddaddressaddress-type" id="blocklistaddaddressaddress-type">#</a></span><a aria-hidden="true" class="legacy" id="net_blocklist_addaddress_address_type"></a></h4>
 <div class="api_metadata">
-<span>Added in: v15.0.0</span>
+<span>Added in: v15.0.0, v14.18.0</span>
 </div>
 <ul>
 <li><code>address</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="net.html#class-netsocketaddress" class="type">&#x3C;net.SocketAddress></a> An IPv4 or IPv6 address.</li>
@@ -539,7 +551,7 @@ IP subnets.</p>
 <p>Adds a rule to block the given IP address.</p>
 <h4><code>blockList.addRange(start, end[, type])</code><span><a class="mark" href="#blocklistaddrangestart-end-type" id="blocklistaddrangestart-end-type">#</a></span><a aria-hidden="true" class="legacy" id="net_blocklist_addrange_start_end_type"></a></h4>
 <div class="api_metadata">
-<span>Added in: v15.0.0</span>
+<span>Added in: v15.0.0, v14.18.0</span>
 </div>
 <ul>
 <li><code>start</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="net.html#class-netsocketaddress" class="type">&#x3C;net.SocketAddress></a> The starting IPv4 or IPv6 address in the
@@ -551,7 +563,7 @@ range.</li>
 <code>end</code> (inclusive).</p>
 <h4><code>blockList.addSubnet(net, prefix[, type])</code><span><a class="mark" href="#blocklistaddsubnetnet-prefix-type" id="blocklistaddsubnetnet-prefix-type">#</a></span><a aria-hidden="true" class="legacy" id="net_blocklist_addsubnet_net_prefix_type"></a></h4>
 <div class="api_metadata">
-<span>Added in: v15.0.0</span>
+<span>Added in: v15.0.0, v14.18.0</span>
 </div>
 <ul>
 <li><code>net</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="net.html#class-netsocketaddress" class="type">&#x3C;net.SocketAddress></a> The network IPv4 or IPv6 address.</li>
@@ -563,7 +575,7 @@ must be a value between <code>0</code> and <code>32</code>. For IPv6, this must 
 <p>Adds a rule to block a range of IP addresses specified as a subnet mask.</p>
 <h4><code>blockList.check(address[, type])</code><span><a class="mark" href="#blocklistcheckaddress-type" id="blocklistcheckaddress-type">#</a></span><a aria-hidden="true" class="legacy" id="net_blocklist_check_address_type"></a></h4>
 <div class="api_metadata">
-<span>Added in: v15.0.0</span>
+<span>Added in: v15.0.0, v14.18.0</span>
 </div>
 <ul>
 <li><code>address</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="net.html#class-netsocketaddress" class="type">&#x3C;net.SocketAddress></a> The IP address to check</li>
@@ -586,7 +598,7 @@ blockList.<span class="hljs-title function_">addSubnet</span>(<span class="hljs-
 <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(blockList.<span class="hljs-title function_">check</span>(<span class="hljs-string">'::ffff:123.123.123.123'</span>, <span class="hljs-string">'ipv6'</span>)); <span class="hljs-comment">// Prints: true</span></code></pre>
 <h4><code>blockList.rules</code><span><a class="mark" href="#blocklistrules" id="blocklistrules">#</a></span><a aria-hidden="true" class="legacy" id="net_blocklist_rules"></a></h4>
 <div class="api_metadata">
-<span>Added in: v15.0.0</span>
+<span>Added in: v15.0.0, v14.18.0</span>
 </div>
 <ul>
 <li>Type: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string[]></a></li>
@@ -594,11 +606,11 @@ blockList.<span class="hljs-title function_">addSubnet</span>(<span class="hljs-
 <p>The list of rules added to the blocklist.</p>
 </section><section><h3>Class: <code>net.SocketAddress</code><span><a class="mark" href="#class-netsocketaddress" id="class-netsocketaddress">#</a></span><a aria-hidden="true" class="legacy" id="net_class_net_socketaddress"></a></h3>
 <div class="api_metadata">
-<span>Added in: v15.14.0</span>
+<span>Added in: v15.14.0, v14.18.0</span>
 </div>
 <h4><code>new net.SocketAddress([options])</code><span><a class="mark" href="#new-netsocketaddressoptions" id="new-netsocketaddressoptions">#</a></span><a aria-hidden="true" class="legacy" id="net_new_net_socketaddress_options"></a></h4>
 <div class="api_metadata">
-<span>Added in: v15.14.0</span>
+<span>Added in: v15.14.0, v14.18.0</span>
 </div>
 <ul>
 <li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
@@ -615,28 +627,28 @@ blockList.<span class="hljs-title function_">addSubnet</span>(<span class="hljs-
 </ul>
 <h4><code>socketaddress.address</code><span><a class="mark" href="#socketaddressaddress" id="socketaddressaddress">#</a></span><a aria-hidden="true" class="legacy" id="net_socketaddress_address"></a></h4>
 <div class="api_metadata">
-<span>Added in: v15.14.0</span>
+<span>Added in: v15.14.0, v14.18.0</span>
 </div>
 <ul>
 <li>Type <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
 </ul>
 <h4><code>socketaddress.family</code><span><a class="mark" href="#socketaddressfamily" id="socketaddressfamily">#</a></span><a aria-hidden="true" class="legacy" id="net_socketaddress_family"></a></h4>
 <div class="api_metadata">
-<span>Added in: v15.14.0</span>
+<span>Added in: v15.14.0, v14.18.0</span>
 </div>
 <ul>
 <li>Type <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Either <code>'ipv4'</code> or <code>'ipv6'</code>.</li>
 </ul>
 <h4><code>socketaddress.flowlabel</code><span><a class="mark" href="#socketaddressflowlabel" id="socketaddressflowlabel">#</a></span><a aria-hidden="true" class="legacy" id="net_socketaddress_flowlabel"></a></h4>
 <div class="api_metadata">
-<span>Added in: v15.14.0</span>
+<span>Added in: v15.14.0, v14.18.0</span>
 </div>
 <ul>
 <li>Type <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
 </ul>
 <h4><code>socketaddress.port</code><span><a class="mark" href="#socketaddressport" id="socketaddressport">#</a></span><a aria-hidden="true" class="legacy" id="net_socketaddress_port"></a></h4>
 <div class="api_metadata">
-<span>Added in: v15.14.0</span>
+<span>Added in: v15.14.0, v14.18.0</span>
 </div>
 <ul>
 <li>Type <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
@@ -689,9 +701,38 @@ event will <strong>not</strong> be emitted directly following this event unless
 <span>Added in: v0.1.90</span>
 </div>
 <p>Emitted when the server has been bound after calling <a href="#serverlisten"><code>server.listen()</code></a>.</p>
+<h4>Event: <code>'drop'</code><span><a class="mark" href="#event-drop" id="event-drop">#</a></span><a aria-hidden="true" class="legacy" id="net_event_drop"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.6.0</span>
+</div>
+<p>When the number of connections reaches the threshold of <code>server.maxConnections</code>,
+the server will drop new connections and emit <code>'drop'</code> event instead. If it is a
+TCP server, the argument is as follows, otherwise the argument is <code>undefined</code>.</p>
+<ul>
+<li><code>data</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> The argument passed to event listener.
+<ul>
+<li><code>localAddress</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a>  Local address.</li>
+<li><code>localPort</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Local port.</li>
+<li><code>localFamily</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Local family.</li>
+<li><code>remoteAddress</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Remote address.</li>
+<li><code>remotePort</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Remote port.</li>
+<li><code>remoteFamily</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Remote IP family. <code>'IPv4'</code> or <code>'IPv6'</code>.</li>
+</ul>
+</li>
+</ul>
 <h4><code>server.address()</code><span><a class="mark" href="#serveraddress" id="serveraddress">#</a></span><a aria-hidden="true" class="legacy" id="net_server_address"></a></h4>
 <div class="api_metadata">
-<span>Added in: v0.1.90</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v18.4.0</td>
+<td><p>The <code>family</code> property now returns a string instead of a number.</p></td></tr>
+<tr><td>v18.0.0</td>
+<td><p>The <code>family</code> property now returns a number instead of a string.</p></td></tr>
+<tr><td>v0.1.90</td>
+<td><p><span>Added in: v0.1.90</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a></li>
@@ -770,7 +811,7 @@ This happens when another server is already listening on the requested
 after a certain amount of time:</p>
 <pre><code class="language-js">server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'error'</span>, <span class="hljs-function">(<span class="hljs-params">e</span>) =></span> {
   <span class="hljs-keyword">if</span> (e.<span class="hljs-property">code</span> === <span class="hljs-string">'EADDRINUSE'</span>) {
-    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'Address in use, retrying...'</span>);
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">'Address in use, retrying...'</span>);
     <span class="hljs-built_in">setTimeout</span>(<span class="hljs-function">() =></span> {
       server.<span class="hljs-title function_">close</span>();
       server.<span class="hljs-title function_">listen</span>(<span class="hljs-variable constant_">PORT</span>, <span class="hljs-variable constant_">HOST</span>);
@@ -844,7 +885,7 @@ shown below.</p>
 <pre><code class="language-js">server.<span class="hljs-title function_">listen</span>({
   <span class="hljs-attr">host</span>: <span class="hljs-string">'localhost'</span>,
   <span class="hljs-attr">port</span>: <span class="hljs-number">80</span>,
-  <span class="hljs-attr">exclusive</span>: <span class="hljs-literal">true</span>
+  <span class="hljs-attr">exclusive</span>: <span class="hljs-literal">true</span>,
 });</code></pre>
 <p>When <code>exclusive</code> is <code>true</code> and the underlying handle is shared, it is
 possible that several workers query a handle with different backlogs.
@@ -858,7 +899,7 @@ accessible for all users.</p>
 server.<span class="hljs-title function_">listen</span>({
   <span class="hljs-attr">host</span>: <span class="hljs-string">'localhost'</span>,
   <span class="hljs-attr">port</span>: <span class="hljs-number">80</span>,
-  <span class="hljs-attr">signal</span>: controller.<span class="hljs-property">signal</span>
+  <span class="hljs-attr">signal</span>: controller.<span class="hljs-property">signal</span>,
 });
 <span class="hljs-comment">// Later, when you want to close the server.</span>
 controller.<span class="hljs-title function_">abort</span>();</code></pre>
@@ -1055,7 +1096,7 @@ Not applicable to Unix sockets.</p>
 <ul>
 <li><code>err</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error" class="type">&#x3C;Error></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a> The error object. See <a href="dns.html#dnslookuphostname-options-callback"><code>dns.lookup()</code></a>.</li>
 <li><code>address</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> The IP address.</li>
-<li><code>family</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a> The address type. See <a href="dns.html#dnslookuphostname-options-callback"><code>dns.lookup()</code></a>.</li>
+<li><code>family</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a> The address type. See <a href="dns.html#dnslookuphostname-options-callback"><code>dns.lookup()</code></a>.</li>
 <li><code>host</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> The host name.</li>
 </ul>
 <h4>Event: <code>'ready'</code><span><a class="mark" href="#event-ready" id="event-ready">#</a></span><a aria-hidden="true" class="legacy" id="net_event_ready"></a></h4>
@@ -1073,7 +1114,17 @@ the socket has been idle. The user must manually close the connection.</p>
 <p>See also: <a href="#socketsettimeouttimeout-callback"><code>socket.setTimeout()</code></a>.</p>
 <h4><code>socket.address()</code><span><a class="mark" href="#socketaddress" id="socketaddress">#</a></span><a aria-hidden="true" class="legacy" id="net_socket_address"></a></h4>
 <div class="api_metadata">
-<span>Added in: v0.1.90</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v18.4.0</td>
+<td><p>The <code>family</code> property now returns a string instead of a number.</p></td></tr>
+<tr><td>v18.0.0</td>
+<td><p>The <code>family</code> property now returns a number instead of a string.</p></td></tr>
+<tr><td>v0.1.90</td>
+<td><p><span>Added in: v0.1.90</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a></li>
@@ -1142,8 +1193,10 @@ behavior.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v16.15.0</td>
-<td><p>The <code>noDelay</code>, <code>keepAlive</code> and <code>keepAliveInitialDelay</code> options are supported now.</p></td></tr>
+<tr><td>v18.13.0</td>
+<td><p>Added the <code>autoSelectFamily</code> option.</p></td></tr>
+<tr><td>v17.7.0</td>
+<td><p>The <code>noDelay</code>, <code>keepAlive</code>, and <code>keepAliveInitialDelay</code> options are supported now.</p></td></tr>
 <tr><td>v12.10.0</td>
 <td><p>Added <code>onread</code> option.</p></td></tr>
 <tr><td>v6.0.0</td>
@@ -1182,6 +1235,20 @@ immediately after the connection is established, similarly on what is done in
 <strong>Default:</strong> <code>false</code>.</li>
 <li><code>keepAliveInitialDelay</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> If set to a positive number, it sets the initial delay before
 the first keepalive probe is sent on an idle socket.<strong>Default:</strong> <code>0</code>.</li>
+<li><code>autoSelectFamily</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a>: If set to <code>true</code>, it enables a family autodetection algorithm
+that loosely implements section 5 of <a href="https://www.rfc-editor.org/rfc/rfc8305.txt">RFC 8305</a>.
+The <code>all</code> option passed to lookup is set to <code>true</code> and the sockets attempts to connect to all
+obtained IPv6 and IPv4 addresses, in sequence, until a connection is established.
+The first returned AAAA address is tried first, then the first returned A address and so on.
+Each connection attempt is given the amount of time specified by the <code>autoSelectFamilyAttemptTimeout</code>
+option before timing out and trying the next address.
+Ignored if the <code>family</code> option is not <code>0</code> or if <code>localAddress</code> is set.
+Connection errors are not emitted if at least one connection succeeds.
+<strong>Default:</strong> <code>false</code>.</li>
+<li><code>autoSelectFamilyAttemptTimeout</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a>: The amount of time in milliseconds to wait
+for a connection attempt to finish before trying the next address when using the <code>autoSelectFamily</code> option.
+If set to a positive integer less than <code>10</code>, then the value <code>10</code> will be used instead.
+<strong>Default:</strong> <code>250</code>.</li>
 </ul>
 <p>For <a href="#ipc-support">IPC</a> connections, available <code>options</code> are:</p>
 <ul>
@@ -1209,7 +1276,7 @@ global context.</li>
 </li>
 </ul>
 <p>Following is an example of a client using the <code>onread</code> option:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> net = <span class="hljs-built_in">require</span>(<span class="hljs-string">'net'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> net = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:net'</span>);
 net.<span class="hljs-title function_">connect</span>({
   <span class="hljs-attr">port</span>: <span class="hljs-number">80</span>,
   <span class="hljs-attr">onread</span>: {
@@ -1218,8 +1285,8 @@ net.<span class="hljs-title function_">connect</span>({
     <span class="hljs-attr">callback</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">nread, buf</span>) {
       <span class="hljs-comment">// Received data is available in `buf` from 0 to `nread`.</span>
       <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(buf.<span class="hljs-title function_">toString</span>(<span class="hljs-string">'utf8'</span>, <span class="hljs-number">0</span>, nread));
-    }
-  }
+    },
+  },
 });</code></pre>
 <h5><code>socket.connect(path[, connectListener])</code><span><a class="mark" href="#socketconnectpath-connectlistener" id="socketconnectpath-connectlistener">#</a></span><a aria-hidden="true" class="legacy" id="net_socket_connect_path_connectlistener"></a></h5>
 <ul>
@@ -1311,6 +1378,14 @@ connects on <code>'192.168.1.1'</code>, the value of <code>socket.localAddress</
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a></li>
 </ul>
 <p>The numeric representation of the local port. For example, <code>80</code> or <code>21</code>.</p>
+<h4><code>socket.localFamily</code><span><a class="mark" href="#socketlocalfamily" id="socketlocalfamily">#</a></span><a aria-hidden="true" class="legacy" id="net_socket_localfamily"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.8.0</span>
+</div>
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
+</ul>
+<p>The string representation of the local IP family. <code>'IPv4'</code> or <code>'IPv6'</code>.</p>
 <h4><code>socket.pause()</code><span><a class="mark" href="#socketpause" id="socketpause">#</a></span><a aria-hidden="true" class="legacy" id="net_socket_pause"></a></h4>
 <ul>
 <li>Returns: <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket></a> The socket itself.</li>
@@ -1363,6 +1438,17 @@ the socket is destroyed (for example, if the client disconnected).</p>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a></li>
 </ul>
 <p>The numeric representation of the remote port. For example, <code>80</code> or <code>21</code>.</p>
+<h4><code>socket.resetAndDestroy()</code><span><a class="mark" href="#socketresetanddestroy" id="socketresetanddestroy">#</a></span><a aria-hidden="true" class="legacy" id="net_socket_resetanddestroy"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.3.0</span>
+</div>
+<ul>
+<li>Returns: <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket></a></li>
+</ul>
+<p>Close the TCP connection by sending an RST packet and destroy the stream.
+If this TCP socket is in connecting status, it will send an RST packet and destroy this TCP socket once it is connected.
+Otherwise, it will call <code>socket.destroy</code> with an <code>ERR_SOCKET_CLOSED</code> Error.
+If this is not a TCP socket (for example, a pipe), calling this method will immediately throw an <code>ERR_INVALID_HANDLE_TYPE</code> Error.</p>
 <h4><code>socket.resume()</code><span><a class="mark" href="#socketresume" id="socketresume">#</a></span><a aria-hidden="true" class="legacy" id="net_socket_resume"></a></h4>
 <ul>
 <li>Returns: <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket></a> The socket itself.</li>
@@ -1425,7 +1511,15 @@ algorithm for the socket. Passing <code>false</code> for <code>noDelay</code> wi
 algorithm.</p>
 <h4><code>socket.setTimeout(timeout[, callback])</code><span><a class="mark" href="#socketsettimeouttimeout-callback" id="socketsettimeouttimeout-callback">#</a></span><a aria-hidden="true" class="legacy" id="net_socket_settimeout_timeout_callback"></a></h4>
 <div class="api_metadata">
-<span>Added in: v0.1.90</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v18.0.0</td>
+<td><p>Passing an invalid callback to the <code>callback</code> argument now throws <code>ERR_INVALID_ARG_TYPE</code> instead of <code>ERR_INVALID_CALLBACK</code>.</p></td></tr>
+<tr><td>v0.1.90</td>
+<td><p><span>Added in: v0.1.90</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><code>timeout</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
@@ -1583,7 +1677,7 @@ it starts the connection.</li>
 </ul>
 <p>Following is an example of a client of the echo server described
 in the <a href="#netcreateserveroptions-connectionlistener"><code>net.createServer()</code></a> section:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> net = <span class="hljs-built_in">require</span>(<span class="hljs-string">'net'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> net = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:net'</span>);
 <span class="hljs-keyword">const</span> client = net.<span class="hljs-title function_">createConnection</span>({ <span class="hljs-attr">port</span>: <span class="hljs-number">8124</span> }, <span class="hljs-function">() =></span> {
   <span class="hljs-comment">// 'connect' listener.</span>
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'connected to server!'</span>);
@@ -1640,7 +1734,15 @@ immediately initiates connection with
 then returns the <code>net.Socket</code> that starts the connection.</p>
 </section><section><h3><code>net.createServer([options][, connectionListener])</code><span><a class="mark" href="#netcreateserveroptions-connectionlistener" id="netcreateserveroptions-connectionlistener">#</a></span><a aria-hidden="true" class="legacy" id="net_net_createserver_options_connectionlistener"></a></h3>
 <div class="api_metadata">
-<span>Added in: v0.5.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v17.7.0, v16.15.0</td>
+<td><p>The <code>noDelay</code>, <code>keepAlive</code>, and <code>keepAliveInitialDelay</code> options are supported now.</p></td></tr>
+<tr><td>v0.5.0</td>
+<td><p><span>Added in: v0.5.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li>
@@ -1686,7 +1788,7 @@ read by the original process. To begin reading data from a paused socket, call
 <a href="#serverlisten"><code>listen()</code></a> to.</p>
 <p>Here is an example of a TCP echo server which listens for connections
 on port 8124:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> net = <span class="hljs-built_in">require</span>(<span class="hljs-string">'net'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> net = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:net'</span>);
 <span class="hljs-keyword">const</span> server = net.<span class="hljs-title function_">createServer</span>(<span class="hljs-function">(<span class="hljs-params">c</span>) =></span> {
   <span class="hljs-comment">// 'connection' listener.</span>
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'client connected'</span>);
@@ -1755,41 +1857,5 @@ net.<span class="hljs-title function_">isIPv6</span>(<span class="hljs-string">'
       </div>
     </div>
   </div>
-  <script>
-    'use strict';
-    {
-      const kCustomPreference = 'customDarkTheme';
-      const userSettings = sessionStorage.getItem(kCustomPreference);
-      const themeToggleButton = document.getElementById('theme-toggle-btn');
-      if (userSettings === null && window.matchMedia) {
-        const mq = window.matchMedia('(prefers-color-scheme: dark)');
-        if ('onchange' in mq) {
-          function mqChangeListener(e) {
-            document.documentElement.classList.toggle('dark-mode', e.matches);
-          }
-          mq.addEventListener('change', mqChangeListener);
-          if (themeToggleButton) {
-            themeToggleButton.addEventListener('click', function() {
-              mq.removeEventListener('change', mqChangeListener);
-            }, { once: true });
-          }
-        }
-        if (mq.matches) {
-          document.documentElement.classList.add('dark-mode');
-        }
-      } else if (userSettings === 'true') {
-        document.documentElement.classList.add('dark-mode');
-      }
-      if (themeToggleButton) {
-        themeToggleButton.hidden = false;
-        themeToggleButton.addEventListener('click', function() {
-          sessionStorage.setItem(
-            kCustomPreference,
-            document.documentElement.classList.toggle('dark-mode')
-          );
-        });
-      }
-    }
-  </script>
 </body>
 </html>

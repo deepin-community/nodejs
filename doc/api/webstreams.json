@@ -6,14 +6,26 @@
       "textRaw": "Web Streams API",
       "name": "web_streams_api",
       "introduced_in": "v16.5.0",
+      "meta": {
+        "added": [
+          "v16.5.0"
+        ],
+        "changes": [
+          {
+            "version": "v18.0.0",
+            "pr-url": "https://github.com/nodejs/node/pull/42225",
+            "description": "Use of this API no longer emit a runtime warning."
+          }
+        ]
+      },
       "stability": 1,
-      "stabilityText": "Experimental",
-      "desc": "<p>An implementation of the <a href=\"https://streams.spec.whatwg.org/\">WHATWG Streams Standard</a>.</p>\n<pre><code class=\"language-mjs\">import {\n  ReadableStream,\n  WritableStream,\n  TransformStream,\n} from 'node:stream/web';\n</code></pre>\n<pre><code class=\"language-cjs\">const {\n  ReadableStream,\n  WritableStream,\n  TransformStream,\n} = require('stream/web');\n</code></pre>",
+      "stabilityText": "Experimental.",
+      "desc": "<p>An implementation of the <a href=\"https://streams.spec.whatwg.org/\">WHATWG Streams Standard</a>.</p>",
       "modules": [
         {
           "textRaw": "Overview",
           "name": "overview",
-          "desc": "<p>The <a href=\"https://streams.spec.whatwg.org/\">WHATWG Streams Standard</a> (or \"web streams\") defines an API for handling\nstreaming data. It is similar to the Node.js <a href=\"stream.html\">Streams</a> API but emerged later\nand has become the \"standard\" API for streaming data across many JavaScript\nenvironments.</p>\n<p>There are three primary types of objects</p>\n<ul>\n<li><code>ReadableStream</code> - Represents a source of streaming data.</li>\n<li><code>WritableStream</code> - Represents a destination for streaming data.</li>\n<li><code>TransformStream</code> - Represents an algorithm for transforming streaming data.</li>\n</ul>\n<h3>Example <code>ReadableStream</code></h3>\n<p>This example creates a simple <code>ReadableStream</code> that pushes the current\n<code>performance.now()</code> timestamp once every second forever. An async iterable\nis used to read the data from the stream.</p>\n<pre><code class=\"language-mjs\">import {\n  ReadableStream\n} from 'node:stream/web';\n\nimport {\n  setInterval as every\n} from 'node:timers/promises';\n\nimport {\n  performance\n} from 'node:perf_hooks';\n\nconst SECOND = 1000;\n\nconst stream = new ReadableStream({\n  async start(controller) {\n    for await (const _ of every(SECOND))\n      controller.enqueue(performance.now());\n  }\n});\n\nfor await (const value of stream)\n  console.log(value);\n</code></pre>\n<pre><code class=\"language-cjs\">const {\n  ReadableStream\n} = require('stream/web');\n\nconst {\n  setInterval: every\n} = require('timers/promises');\n\nconst {\n  performance\n} = require('perf_hooks');\n\nconst SECOND = 1000;\n\nconst stream = new ReadableStream({\n  async start(controller) {\n    for await (const _ of every(SECOND))\n      controller.enqueue(performance.now());\n  }\n});\n\n(async () => {\n  for await (const value of stream)\n    console.log(value);\n})();\n</code></pre>",
+          "desc": "<p>The <a href=\"https://streams.spec.whatwg.org/\">WHATWG Streams Standard</a> (or \"web streams\") defines an API for handling\nstreaming data. It is similar to the Node.js <a href=\"stream.html\">Streams</a> API but emerged later\nand has become the \"standard\" API for streaming data across many JavaScript\nenvironments.</p>\n<p>There are three primary types of objects:</p>\n<ul>\n<li><code>ReadableStream</code> - Represents a source of streaming data.</li>\n<li><code>WritableStream</code> - Represents a destination for streaming data.</li>\n<li><code>TransformStream</code> - Represents an algorithm for transforming streaming data.</li>\n</ul>\n<h3>Example <code>ReadableStream</code></h3>\n<p>This example creates a simple <code>ReadableStream</code> that pushes the current\n<code>performance.now()</code> timestamp once every second forever. An async iterable\nis used to read the data from the stream.</p>\n<pre><code class=\"language-mjs\">import {\n  ReadableStream,\n} from 'node:stream/web';\n\nimport {\n  setInterval as every,\n} from 'node:timers/promises';\n\nimport {\n  performance,\n} from 'node:perf_hooks';\n\nconst SECOND = 1000;\n\nconst stream = new ReadableStream({\n  async start(controller) {\n    for await (const _ of every(SECOND))\n      controller.enqueue(performance.now());\n  },\n});\n\nfor await (const value of stream)\n  console.log(value);\n</code></pre>\n<pre><code class=\"language-cjs\">const {\n  ReadableStream,\n} = require('node:stream/web');\n\nconst {\n  setInterval: every,\n} = require('node:timers/promises');\n\nconst {\n  performance,\n} = require('node:perf_hooks');\n\nconst SECOND = 1000;\n\nconst stream = new ReadableStream({\n  async start(controller) {\n    for await (const _ of every(SECOND))\n      controller.enqueue(performance.now());\n  },\n});\n\n(async () => {\n  for await (const value of stream)\n    console.log(value);\n})();\n</code></pre>",
           "type": "module",
           "displayName": "Overview"
         },
@@ -29,7 +41,13 @@
                 "added": [
                   "v16.5.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v18.0.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/42225",
+                    "description": "This class is now exposed on the global object."
+                  }
+                ]
               },
               "properties": [
                 {
@@ -108,7 +126,7 @@
                       ]
                     }
                   ],
-                  "desc": "<pre><code class=\"language-mjs\">import { ReadableStream } from 'node:stream/web';\n\nconst stream = new ReadableStream();\n\nconst reader = stream.getReader();\n\nconsole.log(await reader.read());\n</code></pre>\n<pre><code class=\"language-cjs\">const { ReadableStream } = require('stream/web');\n\nconst stream = new ReadableStream();\n\nconst reader = stream.getReader();\n\nreader.read().then(console.log);\n</code></pre>\n<p>Causes the <code>readableStream.locked</code> to be <code>true</code>.</p>"
+                  "desc": "<pre><code class=\"language-mjs\">import { ReadableStream } from 'node:stream/web';\n\nconst stream = new ReadableStream();\n\nconst reader = stream.getReader();\n\nconsole.log(await reader.read());\n</code></pre>\n<pre><code class=\"language-cjs\">const { ReadableStream } = require('node:stream/web');\n\nconst stream = new ReadableStream();\n\nconst reader = stream.getReader();\n\nreader.read().then(console.log);\n</code></pre>\n<p>Causes the <code>readableStream.locked</code> to be <code>true</code>.</p>"
                 },
                 {
                   "textRaw": "`readableStream.pipeThrough(transform[, options])`",
@@ -160,16 +178,16 @@
                               "desc": "When `true`, errors in this `ReadableStream` will not cause `transform.writable` to be aborted."
                             },
                             {
-                              "textRaw": "`preventCancel` {boolean} When `true`, errors in the destination `transform.writable` is not cause this `ReadableStream` to be canceled.",
+                              "textRaw": "`preventCancel` {boolean} When `true`, errors in the destination `transform.writable` do not cause this `ReadableStream` to be canceled.",
                               "name": "preventCancel",
                               "type": "boolean",
-                              "desc": "When `true`, errors in the destination `transform.writable` is not cause this `ReadableStream` to be canceled."
+                              "desc": "When `true`, errors in the destination `transform.writable` do not cause this `ReadableStream` to be canceled."
                             },
                             {
-                              "textRaw": "`preventClose` {boolean} When `true`, closing this `ReadableStream` will no cause `transform.writable` to be closed.",
+                              "textRaw": "`preventClose` {boolean} When `true`, closing this `ReadableStream` does not cause `transform.writable` to be closed.",
                               "name": "preventClose",
                               "type": "boolean",
-                              "desc": "When `true`, closing this `ReadableStream` will no cause `transform.writable` to be closed."
+                              "desc": "When `true`, closing this `ReadableStream` does not cause `transform.writable` to be closed."
                             },
                             {
                               "textRaw": "`signal` {AbortSignal} Allows the transfer of data to be canceled using an {AbortController}.",
@@ -182,7 +200,7 @@
                       ]
                     }
                   ],
-                  "desc": "<p>Connects this <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> to the pair of <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> and\n<a href=\"webstreams.html#class-writablestream\" class=\"type\">&lt;WritableStream&gt;</a> provided in the <code>transform</code> argument such that the\ndata from this <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> is written in to <code>transform.writable</code>,\npossibly transformed, then pushed to <code>transform.readable</code>. Once the\npipeline is configured, <code>transform.readable</code> is returned.</p>\n<p>Causes the <code>readableStream.locked</code> to be <code>true</code> while the pipe operation\nis active.</p>\n<pre><code class=\"language-mjs\">import {\n  ReadableStream,\n  TransformStream,\n} from 'node:stream/web';\n\nconst stream = new ReadableStream({\n  start(controller) {\n    controller.enqueue('a');\n  },\n});\n\nconst transform = new TransformStream({\n  transform(chunk, controller) {\n    controller.enqueue(chunk.toUpperCase());\n  }\n});\n\nconst transformedStream = stream.pipeThrough(transform);\n\nfor await (const chunk of transformedStream)\n  console.log(chunk);\n</code></pre>\n<pre><code class=\"language-cjs\">const {\n  ReadableStream,\n  TransformStream,\n} = require('stream/web');\n\nconst stream = new ReadableStream({\n  start(controller) {\n    controller.enqueue('a');\n  },\n});\n\nconst transform = new TransformStream({\n  transform(chunk, controller) {\n    controller.enqueue(chunk.toUpperCase());\n  }\n});\n\nconst transformedStream = stream.pipeThrough(transform);\n\n(async () => {\n  for await (const chunk of transformedStream)\n    console.log(chunk);\n})();\n</code></pre>"
+                  "desc": "<p>Connects this <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> to the pair of <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> and\n<a href=\"webstreams.html#class-writablestream\" class=\"type\">&lt;WritableStream&gt;</a> provided in the <code>transform</code> argument such that the\ndata from this <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> is written in to <code>transform.writable</code>,\npossibly transformed, then pushed to <code>transform.readable</code>. Once the\npipeline is configured, <code>transform.readable</code> is returned.</p>\n<p>Causes the <code>readableStream.locked</code> to be <code>true</code> while the pipe operation\nis active.</p>\n<pre><code class=\"language-mjs\">import {\n  ReadableStream,\n  TransformStream,\n} from 'node:stream/web';\n\nconst stream = new ReadableStream({\n  start(controller) {\n    controller.enqueue('a');\n  },\n});\n\nconst transform = new TransformStream({\n  transform(chunk, controller) {\n    controller.enqueue(chunk.toUpperCase());\n  },\n});\n\nconst transformedStream = stream.pipeThrough(transform);\n\nfor await (const chunk of transformedStream)\n  console.log(chunk);\n</code></pre>\n<pre><code class=\"language-cjs\">const {\n  ReadableStream,\n  TransformStream,\n} = require('node:stream/web');\n\nconst stream = new ReadableStream({\n  start(controller) {\n    controller.enqueue('a');\n  },\n});\n\nconst transform = new TransformStream({\n  transform(chunk, controller) {\n    controller.enqueue(chunk.toUpperCase());\n  },\n});\n\nconst transformedStream = stream.pipeThrough(transform);\n\n(async () => {\n  for await (const chunk of transformedStream)\n    console.log(chunk);\n})();\n</code></pre>"
                 },
                 {
                   "textRaw": "`readableStream.pipeTo(destination, options)`",
@@ -214,22 +232,22 @@
                           "type": "Object",
                           "options": [
                             {
-                              "textRaw": "`preventAbort` {boolean} When `true`, errors in this `ReadableStream` will not cause `transform.writable` to be aborted.",
+                              "textRaw": "`preventAbort` {boolean} When `true`, errors in this `ReadableStream` will not cause `destination` to be aborted.",
                               "name": "preventAbort",
                               "type": "boolean",
-                              "desc": "When `true`, errors in this `ReadableStream` will not cause `transform.writable` to be aborted."
+                              "desc": "When `true`, errors in this `ReadableStream` will not cause `destination` to be aborted."
                             },
                             {
-                              "textRaw": "`preventCancel` {boolean} When `true`, errors in the destination `transform.writable` is not cause this `ReadableStream` to be canceled.",
+                              "textRaw": "`preventCancel` {boolean} When `true`, errors in the `destination` will not cause this `ReadableStream` to be canceled.",
                               "name": "preventCancel",
                               "type": "boolean",
-                              "desc": "When `true`, errors in the destination `transform.writable` is not cause this `ReadableStream` to be canceled."
+                              "desc": "When `true`, errors in the `destination` will not cause this `ReadableStream` to be canceled."
                             },
                             {
-                              "textRaw": "`preventClose` {boolean} When `true`, closing this `ReadableStream` will no cause `transform.writable` to be closed.",
+                              "textRaw": "`preventClose` {boolean} When `true`, closing this `ReadableStream` does not cause `destination` to be closed.",
                               "name": "preventClose",
                               "type": "boolean",
-                              "desc": "When `true`, closing this `ReadableStream` will no cause `transform.writable` to be closed."
+                              "desc": "When `true`, closing this `ReadableStream` does not cause `destination` to be closed."
                             },
                             {
                               "textRaw": "`signal` {AbortSignal} Allows the transfer of data to be canceled using an {AbortController}.",
@@ -252,7 +270,13 @@
                     "added": [
                       "v16.5.0"
                     ],
-                    "changes": []
+                    "changes": [
+                      {
+                        "version": "v18.10.0",
+                        "pr-url": "https://github.com/nodejs/node/pull/44505",
+                        "description": "Support teeing a readable byte stream."
+                      }
+                    ]
                   },
                   "signatures": [
                     {
@@ -285,10 +309,10 @@
                           "type": "Object",
                           "options": [
                             {
-                              "textRaw": "`preventCancel` {boolean} When `true`, prevents the {ReadableStream} from being closed when the async iterator abruptly terminates. **Defaults**: `false`",
+                              "textRaw": "`preventCancel` {boolean} When `true`, prevents the {ReadableStream} from being closed when the async iterator abruptly terminates. **Default**: `false`.",
                               "name": "preventCancel",
                               "type": "boolean",
-                              "desc": "When `true`, prevents the {ReadableStream} from being closed when the async iterator abruptly terminates. **Defaults**: `false`"
+                              "desc": "When `true`, prevents the {ReadableStream} from being closed when the async iterator abruptly terminates. **Default**: `false`."
                             }
                           ]
                         }
@@ -302,7 +326,7 @@
                 {
                   "textRaw": "Async Iteration",
                   "name": "async_iteration",
-                  "desc": "<p>The <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> object supports the async iterator protocol using\n<code>for await</code> syntax.</p>\n<pre><code class=\"language-mjs\">import { Buffer } from 'buffer';\n\nconst stream = new ReadableStream(getSomeSource());\n\nfor await (const chunk of stream)\n  console.log(Buffer.from(chunk).toString());\n</code></pre>\n<p>The async iterator will consume the <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> until it terminates.</p>\n<p>By default, if the async iterator exits early (via either a <code>break</code>,\n<code>return</code>, or a <code>throw</code>), the <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> will be closed. To prevent\nautomatic closing of the <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a>, use the <code>readableStream.values()</code>\nmethod to acquire the async iterator and set the <code>preventCancel</code> option to\n<code>true</code>.</p>\n<p>The <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> must not be locked (that is, it must not have an existing\nactive reader). During the async iteration, the <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> will be locked.</p>",
+                  "desc": "<p>The <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> object supports the async iterator protocol using\n<code>for await</code> syntax.</p>\n<pre><code class=\"language-mjs\">import { Buffer } from 'node:buffer';\n\nconst stream = new ReadableStream(getSomeSource());\n\nfor await (const chunk of stream)\n  console.log(Buffer.from(chunk).toString());\n</code></pre>\n<p>The async iterator will consume the <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> until it terminates.</p>\n<p>By default, if the async iterator exits early (via either a <code>break</code>,\n<code>return</code>, or a <code>throw</code>), the <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> will be closed. To prevent\nautomatic closing of the <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a>, use the <code>readableStream.values()</code>\nmethod to acquire the async iterator and set the <code>preventCancel</code> option to\n<code>true</code>.</p>\n<p>The <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> must not be locked (that is, it must not have an existing\nactive reader). During the async iteration, the <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> will be locked.</p>",
                   "type": "module",
                   "displayName": "Async Iteration"
                 },
@@ -329,7 +353,13 @@
                 "added": [
                   "v16.5.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v18.0.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/42225",
+                    "description": "This class is now exposed on the global object."
+                  }
+                ]
               },
               "desc": "<p>By default, calling <code>readableStream.getReader()</code> with no arguments\nwill return an instance of <code>ReadableStreamDefaultReader</code>. The default\nreader treats the chunks of data passed through the stream as opaque\nvalues, which allows the <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> to work with generally any\nJavaScript value.</p>",
               "methods": [
@@ -448,9 +478,15 @@
                 "added": [
                   "v16.5.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v18.0.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/42225",
+                    "description": "This class is now exposed on the global object."
+                  }
+                ]
               },
-              "desc": "<p>The <code>ReadableStreamBYOBReader</code> is an alternative consumer for\nbyte-oriented <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a>'s (those that are created with\n<code>underlyingSource.type</code> set equal to <code>'bytes'</code> when the\n<code>ReadableStream</code> was created).</p>\n<p>The <code>BYOB</code> is short for \"bring your own buffer\". This is a\npattern that allows for more efficient reading of byte-oriented\ndata that avoids extraneous copying.</p>\n<pre><code class=\"language-mjs\">import {\n  open\n} from 'node:fs/promises';\n\nimport {\n  ReadableStream\n} from 'node:stream/web';\n\nimport { Buffer } from 'node:buffer';\n\nclass Source {\n  type = 'bytes';\n  autoAllocateChunkSize = 1024;\n\n  async start(controller) {\n    this.file = await open(new URL(import.meta.url));\n    this.controller = controller;\n  }\n\n  async pull(controller) {\n    const view = controller.byobRequest?.view;\n    const {\n      bytesRead,\n    } = await this.file.read({\n      buffer: view,\n      offset: view.byteOffset,\n      length: view.byteLength\n    });\n\n    if (bytesRead === 0) {\n      await this.file.close();\n      this.controller.close();\n    }\n    controller.byobRequest.respond(bytesRead);\n  }\n}\n\nconst stream = new ReadableStream(new Source());\n\nasync function read(stream) {\n  const reader = stream.getReader({ mode: 'byob' });\n\n  const chunks = [];\n  let result;\n  do {\n    result = await reader.read(Buffer.alloc(100));\n    if (result.value !== undefined)\n      chunks.push(Buffer.from(result.value));\n  } while (!result.done);\n\n  return Buffer.concat(chunks);\n}\n\nconst data = await read(stream);\nconsole.log(Buffer.from(data).toString());\n</code></pre>",
+              "desc": "<p>The <code>ReadableStreamBYOBReader</code> is an alternative consumer for\nbyte-oriented <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a>s (those that are created with\n<code>underlyingSource.type</code> set equal to <code>'bytes'</code> when the\n<code>ReadableStream</code> was created).</p>\n<p>The <code>BYOB</code> is short for \"bring your own buffer\". This is a\npattern that allows for more efficient reading of byte-oriented\ndata that avoids extraneous copying.</p>\n<pre><code class=\"language-mjs\">import {\n  open,\n} from 'node:fs/promises';\n\nimport {\n  ReadableStream,\n} from 'node:stream/web';\n\nimport { Buffer } from 'node:buffer';\n\nclass Source {\n  type = 'bytes';\n  autoAllocateChunkSize = 1024;\n\n  async start(controller) {\n    this.file = await open(new URL(import.meta.url));\n    this.controller = controller;\n  }\n\n  async pull(controller) {\n    const view = controller.byobRequest?.view;\n    const {\n      bytesRead,\n    } = await this.file.read({\n      buffer: view,\n      offset: view.byteOffset,\n      length: view.byteLength,\n    });\n\n    if (bytesRead === 0) {\n      await this.file.close();\n      this.controller.close();\n    }\n    controller.byobRequest.respond(bytesRead);\n  }\n}\n\nconst stream = new ReadableStream(new Source());\n\nasync function read(stream) {\n  const reader = stream.getReader({ mode: 'byob' });\n\n  const chunks = [];\n  let result;\n  do {\n    result = await reader.read(Buffer.alloc(100));\n    if (result.value !== undefined)\n      chunks.push(Buffer.from(result.value));\n  } while (!result.done);\n\n  return Buffer.concat(chunks);\n}\n\nconst data = await read(stream);\nconsole.log(Buffer.from(data).toString());\n</code></pre>",
               "methods": [
                 {
                   "textRaw": "`readableStreamBYOBReader.cancel([reason])`",
@@ -518,7 +554,7 @@
                       ]
                     }
                   ],
-                  "desc": "<p>Requests the next chunk of data from the underlying <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a>\nand returns a promise that is fulfilled with the data once it is\navailable.</p>\n<p>Do not pass a pooled <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a> object instance in to this method.\nPooled <code>Buffer</code> objects are created using <code>Buffer.allocUnsafe()</code>,\nor <code>Buffer.from()</code>, or are often returned by various <code>fs</code> module\ncallbacks. These types of <code>Buffer</code>s use a shared underlying\n<a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer\" class=\"type\">&lt;ArrayBuffer&gt;</a> object that contains all of the data from all of\nthe pooled <code>Buffer</code> instances. When a <code>Buffer</code>, <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray\" class=\"type\">&lt;TypedArray&gt;</a>,\nor <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView\" class=\"type\">&lt;DataView&gt;</a> is passed in to <code>readableStreamBYOBReader.read()</code>,\nthe view's underlying <code>ArrayBuffer</code> is <em>detached</em>, invalidating\nall existing views that may exist on that <code>ArrayBuffer</code>. This\ncan have disastrous consequences for your application.</p>"
+                  "desc": "<p>Requests the next chunk of data from the underlying <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a>\nand returns a promise that is fulfilled with the data once it is\navailable.</p>\n<p>Do not pass a pooled <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a> object instance in to this method.\nPooled <code>Buffer</code> objects are created using <code>Buffer.allocUnsafe()</code>,\nor <code>Buffer.from()</code>, or are often returned by various <code>node:fs</code> module\ncallbacks. These types of <code>Buffer</code>s use a shared underlying\n<a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer\" class=\"type\">&lt;ArrayBuffer&gt;</a> object that contains all of the data from all of\nthe pooled <code>Buffer</code> instances. When a <code>Buffer</code>, <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray\" class=\"type\">&lt;TypedArray&gt;</a>,\nor <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView\" class=\"type\">&lt;DataView&gt;</a> is passed in to <code>readableStreamBYOBReader.read()</code>,\nthe view's underlying <code>ArrayBuffer</code> is <em>detached</em>, invalidating\nall existing views that may exist on that <code>ArrayBuffer</code>. This\ncan have disastrous consequences for your application.</p>"
                 },
                 {
                   "textRaw": "`readableStreamBYOBReader.releaseLock()`",
@@ -664,7 +700,13 @@
                 "added": [
                   "v16.5.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v18.10.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/44702",
+                    "description": "Support handling a BYOB pull request from a released reader."
+                  }
+                ]
               },
               "desc": "<p>Every <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> has a controller that is responsible for\nthe internal state and management of the stream's queue. The\n<code>ReadableByteStreamController</code> is for byte-oriented <code>ReadableStream</code>s.</p>",
               "properties": [
@@ -767,7 +809,13 @@
                 "added": [
                   "v16.5.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v18.0.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/42225",
+                    "description": "This class is now exposed on the global object."
+                  }
+                ]
               },
               "desc": "<p>When using <code>ReadableByteStreamController</code> in byte-oriented\nstreams, and when using the <code>ReadableStreamBYOBReader</code>,\nthe <code>readableByteStreamController.byobRequest</code> property\nprovides access to a <code>ReadableStreamBYOBRequest</code> instance\nthat represents the current read request. The object\nis used to gain access to the <code>ArrayBuffer</code>/<code>TypedArray</code>\nthat has been provided for the read request to fill,\nand provides methods for signaling that the data has\nbeen provided.</p>",
               "methods": [
@@ -840,9 +888,15 @@
                 "added": [
                   "v16.5.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v18.0.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/42225",
+                    "description": "This class is now exposed on the global object."
+                  }
+                ]
               },
-              "desc": "<p>The <code>WritableStream</code> is a destination to which stream data is sent.</p>\n<pre><code class=\"language-mjs\">import {\n  WritableStream\n} from 'node:stream/web';\n\nconst stream = new WritableStream({\n  write(chunk) {\n    console.log(chunk);\n  }\n});\n\nawait stream.getWriter().write('Hello World');\n</code></pre>",
+              "desc": "<p>The <code>WritableStream</code> is a destination to which stream data is sent.</p>\n<pre><code class=\"language-mjs\">import {\n  WritableStream,\n} from 'node:stream/web';\n\nconst stream = new WritableStream({\n  write(chunk) {\n    console.log(chunk);\n  },\n});\n\nawait stream.getWriter().write('Hello World');\n</code></pre>",
               "methods": [
                 {
                   "textRaw": "`writableStream.abort([reason])`",
@@ -1071,7 +1125,13 @@
                 "added": [
                   "v16.5.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v18.0.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/42225",
+                    "description": "This class is now exposed on the global object."
+                  }
+                ]
               },
               "methods": [
                 {
@@ -1228,23 +1288,15 @@
                 "added": [
                   "v16.5.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v18.0.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/42225",
+                    "description": "This class is now exposed on the global object."
+                  }
+                ]
               },
               "desc": "<p>The <code>WritableStreamDefaultController</code> manage's the <a href=\"webstreams.html#class-writablestream\" class=\"type\">&lt;WritableStream&gt;</a>'s\ninternal state.</p>",
-              "properties": [
-                {
-                  "textRaw": "`abortReason` Type: {any} The `reason` value passed to `writableStream.abort()`.",
-                  "type": "any",
-                  "name": "Type",
-                  "desc": "The `reason` value passed to `writableStream.abort()`."
-                },
-                {
-                  "textRaw": "`signal` Type: {AbortSignal} An `AbortSignal` that can be used to cancel pending write or close operations when a {WritableStream} is aborted.",
-                  "type": "AbortSignal",
-                  "name": "Type",
-                  "desc": "An `AbortSignal` that can be used to cancel pending write or close operations when a {WritableStream} is aborted."
-                }
-              ],
               "methods": [
                 {
                   "textRaw": "`writableStreamDefaultController.error(error)`",
@@ -1269,6 +1321,14 @@
                   ],
                   "desc": "<p>Called by user-code to signal that an error has occurred while processing\nthe <code>WritableStream</code> data. When called, the <a href=\"webstreams.html#class-writablestream\" class=\"type\">&lt;WritableStream&gt;</a> will be aborted,\nwith currently pending writes canceled.</p>"
                 }
+              ],
+              "properties": [
+                {
+                  "textRaw": "`signal` Type: {AbortSignal} An `AbortSignal` that can be used to cancel pending write or close operations when a {WritableStream} is aborted.",
+                  "type": "AbortSignal",
+                  "name": "Type",
+                  "desc": "An `AbortSignal` that can be used to cancel pending write or close operations when a {WritableStream} is aborted."
+                }
               ]
             },
             {
@@ -1279,9 +1339,15 @@
                 "added": [
                   "v16.5.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v18.0.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/42225",
+                    "description": "This class is now exposed on the global object."
+                  }
+                ]
               },
-              "desc": "<p>A <code>TransformStream</code> consists of a <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> and a <a href=\"webstreams.html#class-writablestream\" class=\"type\">&lt;WritableStream&gt;</a> that\nare connected such that the data written to the <code>WritableStream</code> is received,\nand potentially transformed, before being pushed into the <code>ReadableStream</code>'s\nqueue.</p>\n<pre><code class=\"language-mjs\">import {\n  TransformStream\n} from 'node:stream/web';\n\nconst transform = new TransformStream({\n  transform(chunk, controller) {\n    controller.enqueue(chunk.toUpperCase());\n  }\n});\n\nawait Promise.all([\n  transform.writable.getWriter().write('A'),\n  transform.readable.getReader().read(),\n]);\n</code></pre>",
+              "desc": "<p>A <code>TransformStream</code> consists of a <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> and a <a href=\"webstreams.html#class-writablestream\" class=\"type\">&lt;WritableStream&gt;</a> that\nare connected such that the data written to the <code>WritableStream</code> is received,\nand potentially transformed, before being pushed into the <code>ReadableStream</code>'s\nqueue.</p>\n<pre><code class=\"language-mjs\">import {\n  TransformStream,\n} from 'node:stream/web';\n\nconst transform = new TransformStream({\n  transform(chunk, controller) {\n    controller.enqueue(chunk.toUpperCase());\n  },\n});\n\nawait Promise.all([\n  transform.writable.getWriter().write('A'),\n  transform.readable.getReader().read(),\n]);\n</code></pre>",
               "properties": [
                 {
                   "textRaw": "`readable` Type: {ReadableStream}",
@@ -1470,7 +1536,13 @@
                 "added": [
                   "v16.5.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v18.0.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/42225",
+                    "description": "This class is now exposed on the global object."
+                  }
+                ]
               },
               "desc": "<p>The <code>TransformStreamDefaultController</code> manages the internal state\nof the <code>TransformStream</code>.</p>",
               "properties": [
@@ -1561,7 +1633,13 @@
                 "added": [
                   "v16.5.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v18.0.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/42225",
+                    "description": "This class is now exposed on the global object."
+                  }
+                ]
               },
               "properties": [
                 {
@@ -1626,7 +1704,13 @@
                 "added": [
                   "v16.5.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v18.0.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/42225",
+                    "description": "This class is now exposed on the global object."
+                  }
+                ]
               },
               "properties": [
                 {
@@ -1691,7 +1775,13 @@
                 "added": [
                   "v16.6.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v18.0.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/42225",
+                    "description": "This class is now exposed on the global object."
+                  }
+                ]
               },
               "properties": [
                 {
@@ -1744,7 +1834,13 @@
                 "added": [
                   "v16.6.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v18.0.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/42225",
+                    "description": "This class is now exposed on the global object."
+                  }
+                ]
               },
               "properties": [
                 {
@@ -1828,16 +1924,122 @@
                           "desc": "`true` if decoding failures are fatal."
                         },
                         {
-                          "textRaw": "`ignoreBOM` {boolean} When `true`, the `TextDecoderStream` will include the byte order mark in the decoded result. When `false`, the byte order mark will be removed from the output. This option is only used when `encoding` is `'utf-8'`, `'utf-16be'` or `'utf-16le'`. **Default:** `false`.",
+                          "textRaw": "`ignoreBOM` {boolean} When `true`, the `TextDecoderStream` will include the byte order mark in the decoded result. When `false`, the byte order mark will be removed from the output. This option is only used when `encoding` is `'utf-8'`, `'utf-16be'`, or `'utf-16le'`. **Default:** `false`.",
                           "name": "ignoreBOM",
                           "type": "boolean",
                           "default": "`false`",
-                          "desc": "When `true`, the `TextDecoderStream` will include the byte order mark in the decoded result. When `false`, the byte order mark will be removed from the output. This option is only used when `encoding` is `'utf-8'`, `'utf-16be'` or `'utf-16le'`."
+                          "desc": "When `true`, the `TextDecoderStream` will include the byte order mark in the decoded result. When `false`, the byte order mark will be removed from the output. This option is only used when `encoding` is `'utf-8'`, `'utf-16be'`, or `'utf-16le'`."
                         }
                       ]
                     }
                   ],
                   "desc": "<p>Creates a new <code>TextDecoderStream</code> instance.</p>"
+                }
+              ]
+            },
+            {
+              "textRaw": "Class: `CompressionStream`",
+              "type": "class",
+              "name": "CompressionStream",
+              "meta": {
+                "added": [
+                  "v17.0.0"
+                ],
+                "changes": [
+                  {
+                    "version": "v18.0.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/42225",
+                    "description": "This class is now exposed on the global object."
+                  }
+                ]
+              },
+              "properties": [
+                {
+                  "textRaw": "`readable` Type: {ReadableStream}",
+                  "type": "ReadableStream",
+                  "name": "Type",
+                  "meta": {
+                    "added": [
+                      "v17.0.0"
+                    ],
+                    "changes": []
+                  }
+                },
+                {
+                  "textRaw": "`writable` Type: {WritableStream}",
+                  "type": "WritableStream",
+                  "name": "Type",
+                  "meta": {
+                    "added": [
+                      "v17.0.0"
+                    ],
+                    "changes": []
+                  }
+                }
+              ],
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "textRaw": "`format` {string} One of either `'deflate'` or `'gzip'`.",
+                      "name": "format",
+                      "type": "string",
+                      "desc": "One of either `'deflate'` or `'gzip'`."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "textRaw": "Class: `DecompressionStream`",
+              "type": "class",
+              "name": "DecompressionStream",
+              "meta": {
+                "added": [
+                  "v17.0.0"
+                ],
+                "changes": [
+                  {
+                    "version": "v18.0.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/42225",
+                    "description": "This class is now exposed on the global object."
+                  }
+                ]
+              },
+              "properties": [
+                {
+                  "textRaw": "`readable` Type: {ReadableStream}",
+                  "type": "ReadableStream",
+                  "name": "Type",
+                  "meta": {
+                    "added": [
+                      "v17.0.0"
+                    ],
+                    "changes": []
+                  }
+                },
+                {
+                  "textRaw": "`writable` Type: {WritableStream}",
+                  "type": "WritableStream",
+                  "name": "Type",
+                  "meta": {
+                    "added": [
+                      "v17.0.0"
+                    ],
+                    "changes": []
+                  }
+                }
+              ],
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "textRaw": "`format` {string} One of either `'deflate'` or `'gzip'`.",
+                      "name": "format",
+                      "type": "string",
+                      "desc": "One of either `'deflate'` or `'gzip'`."
+                    }
+                  ]
                 }
               ]
             }
@@ -1852,7 +2054,7 @@
                 ],
                 "changes": []
               },
-              "desc": "<p>The utility consumer functions provide common options for consuming\nstreams.</p>\n<p>They are accessed using:</p>\n<pre><code class=\"language-mjs\">import {\n  arrayBuffer,\n  blob,\n  buffer,\n  json,\n  text,\n} from 'node:stream/consumers';\n</code></pre>\n<pre><code class=\"language-cjs\">const {\n  arrayBuffer,\n  blob,\n  buffer,\n  json,\n  text,\n} = require('stream/consumers');\n</code></pre>",
+              "desc": "<p>The utility consumer functions provide common options for consuming\nstreams.</p>\n<p>They are accessed using:</p>\n<pre><code class=\"language-mjs\">import {\n  arrayBuffer,\n  blob,\n  buffer,\n  json,\n  text,\n} from 'node:stream/consumers';\n</code></pre>\n<pre><code class=\"language-cjs\">const {\n  arrayBuffer,\n  blob,\n  buffer,\n  json,\n  text,\n} = require('node:stream/consumers');\n</code></pre>",
               "methods": [
                 {
                   "textRaw": "`streamConsumers.arrayBuffer(stream)`",
@@ -1880,7 +2082,8 @@
                         }
                       ]
                     }
-                  ]
+                  ],
+                  "desc": "<pre><code class=\"language-mjs\">import { buffer as arrayBuffer } from 'node:stream/consumers';\nimport { Readable } from 'node:stream';\nimport { TextEncoder } from 'node:util';\n\nconst encoder = new TextEncoder();\nconst dataArray = encoder.encode('hello world from consumers!');\n\nconst readable = Readable.from(dataArray);\nconst data = await arrayBuffer(readable);\nconsole.log(`from readable: ${data.byteLength}`);\n</code></pre>\n<pre><code class=\"language-cjs\">const { arrayBuffer } = require('node:stream/consumers');\nconst { Readable } = require('node:stream');\nconst { TextEncoder } = require('node:util');\n\nconst encoder = new TextEncoder();\nconst dataArray = encoder.encode(['hello world from consumers!']);\nconst readable = Readable.from(dataArray);\narrayBuffer(readable).then((data) => {\n  console.log(`from readable: ${data.byteLength}`);\n});\n</code></pre>"
                 },
                 {
                   "textRaw": "`streamConsumers.blob(stream)`",
@@ -1908,7 +2111,8 @@
                         }
                       ]
                     }
-                  ]
+                  ],
+                  "desc": "<pre><code class=\"language-mjs\">import { blob } from 'node:stream/consumers';\n\nconst dataBlob = new Blob(['hello world from consumers!']);\n\nconst readable = dataBlob.stream();\nconst data = await blob(readable);\nconsole.log(`from readable: ${data.size}`);\n</code></pre>\n<pre><code class=\"language-cjs\">const { blob } = require('node:stream/consumers');\n\nconst dataBlob = new Blob(['hello world from consumers!']);\n\nconst readable = dataBlob.stream();\nblob(readable).then((data) => {\n  console.log(`from readable: ${data.size}`);\n});\n</code></pre>"
                 },
                 {
                   "textRaw": "`streamConsumers.buffer(stream)`",
@@ -1936,7 +2140,8 @@
                         }
                       ]
                     }
-                  ]
+                  ],
+                  "desc": "<pre><code class=\"language-mjs\">import { buffer } from 'node:stream/consumers';\nimport { Readable } from 'node:stream';\nimport { Buffer } from 'node:buffer';\n\nconst dataBuffer = Buffer.from('hello world from consumers!');\n\nconst readable = Readable.from(dataBuffer);\nconst data = await buffer(readable);\nconsole.log(`from readable: ${data.length}`);\n</code></pre>\n<pre><code class=\"language-cjs\">const { buffer } = require('node:stream/consumers');\nconst { Readable } = require('node:stream');\nconst { Buffer } = require('node:buffer');\n\nconst dataBuffer = Buffer.from('hello world from consumers!');\n\nconst readable = Readable.from(dataBuffer);\nbuffer(readable).then((data) => {\n  console.log(`from readable: ${data.length}`);\n});\n</code></pre>"
                 },
                 {
                   "textRaw": "`streamConsumers.json(stream)`",
@@ -1964,7 +2169,8 @@
                         }
                       ]
                     }
-                  ]
+                  ],
+                  "desc": "<pre><code class=\"language-mjs\">import { json } from 'node:stream/consumers';\nimport { Readable } from 'node:stream';\n\nconst items = Array.from(\n  {\n    length: 100,\n  },\n  () => ({\n    message: 'hello world from consumers!',\n  }),\n);\n\nconst readable = Readable.from(JSON.stringify(items));\nconst data = await json(readable);\nconsole.log(`from readable: ${data.length}`);\n</code></pre>\n<pre><code class=\"language-cjs\">const { json } = require('node:stream/consumers');\nconst { Readable } = require('node:stream');\n\nconst items = Array.from(\n  {\n    length: 100,\n  },\n  () => ({\n    message: 'hello world from consumers!',\n  }),\n);\n\nconst readable = Readable.from(JSON.stringify(items));\njson(readable).then((data) => {\n  console.log(`from readable: ${data.length}`);\n});\n</code></pre>"
                 },
                 {
                   "textRaw": "`streamConsumers.text(stream)`",
@@ -1992,7 +2198,8 @@
                         }
                       ]
                     }
-                  ]
+                  ],
+                  "desc": "<pre><code class=\"language-mjs\">import { json, text, blob, buffer } from 'node:stream/consumers';\nimport { Readable } from 'node:stream';\n\nconst readable = Readable.from('Hello world from consumers!');\nconst data = await text(readable);\nconsole.log(`from readable: ${data.length}`);\n</code></pre>\n<pre><code class=\"language-cjs\">const { text } = require('node:stream/consumers');\nconst { Readable } = require('node:stream');\n\nconst readable = Readable.from('Hello world from consumers!');\ntext(readable).then((data) => {\n  console.log(`from readable: ${data.length}`);\n});\n</code></pre>"
                 }
               ],
               "type": "module",

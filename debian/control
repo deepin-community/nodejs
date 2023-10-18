@@ -5,7 +5,9 @@ Maintainer: Debian Javascript Maintainers <pkg-javascript-devel@alioth-lists.deb
 Uploaders: Jérémy Lal <kapouer@melix.org>,
  Jonas Smedegaard <dr@jones.dk>
 Build-Depends:
+ gcc-11, g++-11,
  sse2-support [i386] <!nocheck>,
+ armv6k-support [armel] <!nocheck>, vfpv2-support [armel] <!nocheck>,
  debhelper-compat (= 13),
  dh-buildinfo,
  bash-completion,
@@ -25,10 +27,11 @@ Build-Depends:
  libnghttp2-dev:native,
  libssl-dev (>= 1.1.1~),
  libssl-dev:native,
- libuv1-dev,
+ libuv1-dev (>= 1.43.0~),
  libuv1-dev:native,
  node-acorn (>= 6.2.1~) <!pkg.nodejs.nobuiltin>,
-# node-undici (>= 5.0.0~) <!pkg.nodejs.nobuiltin>,
+ node-cjs-module-lexer (>= 1.2.2~) <!pkg.nodejs.nobuiltin>,
+ node-undici (>= 5.0.0~) <!pkg.nodejs.nobuiltin>,
  openssl (>= 1.1.1~) <!nocheck>,
  pkg-config,
  pkg-js-tools (>= 0.8.2~) <!nocheck>,
@@ -38,10 +41,10 @@ Build-Depends:
  zlib1g-dev,
  zlib1g-dev:native,
 Build-Depends-Indep:
- node-js-yaml <!nodoc>,
- node-marked <!nodoc>,
+ node-js-yaml (>= 4.1.0+dfsg+~4.0.5-6) <!nodoc>,
+ node-marked (>= 4~) <!nodoc>,
  node-highlight.js <!nodoc>,
-Standards-Version: 4.6.0
+Standards-Version: 4.6.1.0
 Homepage: https://nodejs.org/
 Vcs-Browser: https://salsa.debian.org/js-team/nodejs/tree/master-16.x
 Vcs-Git: https://salsa.debian.org/js-team/nodejs.git -b master-16.x
@@ -49,11 +52,11 @@ Rules-Requires-Root: no
 
 Package: libnode-dev
 Section: libdevel
-Architecture: amd64 arm64 armhf i386 kfreebsd-i386 kfreebsd-amd64 mips mips64el mips64r6el mipsel powerpc ppc64 ppc64el riscv64 s390x
+Architecture: amd64 arm64 armel armhf i386 kfreebsd-i386 kfreebsd-amd64 mips mips64el mips64r6el mipsel powerpc ppc64 ppc64el riscv64 s390x
 Depends: ${misc:Depends},
  libssl-dev (>= 1.1.1~),
  libuv1-dev (>= 1.33.0~),
- libnode93 (= ${binary:Version})
+ libnode108 (= ${binary:Version})
 Breaks: nodejs-dev (<< 10.0.0~dfsg1-3)
 Replaces: libv8-dev,
  nodejs-dev (<< 10.0.0~dfsg1-3)
@@ -66,26 +69,28 @@ Description: evented I/O for V8 javascript (development files)
  efficient, perfect for data-intensive real-time applications that run
  across distributed devices.
  .
- This package provides development headers for libnode93
+ This package provides development headers for libnode108
 
 Package: nodejs
-Architecture: amd64 arm64 armhf i386 kfreebsd-i386 kfreebsd-amd64 mips mips64el mips64r6el mipsel powerpc ppc64 ppc64el riscv64 s390x
+Architecture: amd64 arm64 armel armhf i386 kfreebsd-i386 kfreebsd-amd64 mips mips64el mips64r6el mipsel powerpc ppc64 ppc64el riscv64 s390x
 Multi-Arch: allowed
 Depends:
  ${shlibs:Depends},
  ${misc:Depends},
  sse2-support [i386],
- libnode93 (= ${binary:Version})
+ armv6k-support [armel], vfpv2-support [armel],
+ libnode108 (= ${binary:Version})
 Recommends: ca-certificates,
  nodejs-doc
 Suggests: npm
 Replaces: nodejs-legacy
- , libnode72 (<< 12.22.10~dfsg~)
+ , libnode72 (<< 13)
  , libnode83 (<< 16.13.2+really14.19.1~dfsg~)
 Conflicts: nodejs-legacy
 Breaks: node-typescript-types (<< 20210110~)
  , node-babel-runtime (<< 7)
- , libnode72 (<< 12.22.10~dfsg~)
+ , node-jest (<< 29~)
+ , libnode72 (<< 13)
  , libnode83 (<< 16.13.2+really14.19.1~dfsg~)
 Provides: node-types-node (= ${types:Node})
 Description: evented I/O for V8 javascript - runtime executable
@@ -101,17 +106,21 @@ Description: evented I/O for V8 javascript - runtime executable
  System, Events, Standard I/O, Modules, Timers, Child Processes, POSIX,
  HTTP, Multipart Parsing, TCP, DNS, Assert, Path, URL, Query Strings.
 
-Package: libnode93
+Package: libnode108
 Section: libs
-Architecture: amd64 arm64 armhf i386 kfreebsd-i386 kfreebsd-amd64 mips mips64el mips64r6el mipsel powerpc ppc64 ppc64el riscv64 s390x
+Architecture: amd64 arm64 armel armhf i386 kfreebsd-i386 kfreebsd-amd64 mips mips64el mips64r6el mipsel powerpc ppc64 ppc64el riscv64 s390x
 Multi-Arch: same
 Depends: ${shlibs:Depends},
  ${misc:Depends},
- sse2-support [i386]
+ sse2-support [i386],
+ armv6k-support [armel], vfpv2-support [armel],
+ node-acorn (>= 6.2.1~) <!pkg.nodejs.nobuiltin>,
+ node-cjs-module-lexer (>= 1.2.2~) <!pkg.nodejs.nobuiltin>,
+ node-undici (>= 5.0.0~) <!pkg.nodejs.nobuiltin>
 Breaks: node-modern-syslog (<< 1.1.4-2),
  libnode64 (<< 10.24.1~),
- libnode72 (<< 12.22.10~)
-Replaces: nodejs-legacy, libnode72, libnode83
+ libnode72 (<< 13)
+Replaces: nodejs-legacy, libnode72, libnode83, libnode93
 Conflicts: nodejs-legacy
 Description: evented I/O for V8 javascript - runtime library
  Node.js is a platform built on Chrome's JavaScript runtime for easily

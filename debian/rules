@@ -3,7 +3,11 @@
 include /usr/share/dpkg/architecture.mk
 include /usr/share/dpkg/pkg-info.mk
 include /usr/share/dpkg/buildtools.mk
-export DEB_BUILD_MAINT_OPTIONS = hardening=+all,-pie
+
+export CC = gcc-11
+export CXX = g++-11
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
 builtins := /usr/share/nodejs/node
 
@@ -11,15 +15,13 @@ builtins := /usr/share/nodejs/node
 ABI = $(shell awk '/^#define NODE_MODULE_VERSION/ {print $$3}' src/node_version.h)
 
 # archs
-ARCHS := amd64 arm64 armhf i386 kfreebsd-i386 kfreebsd-amd64 mips mips64el mips64r6el mipsel ppc64 ppc64el riscv64 s390x
+ARCHS := amd64 arm64 armel armhf i386 kfreebsd-i386 kfreebsd-amd64 mips mips64el mips64r6el mipsel ppc64 ppc64el riscv64 s390x
 
 # branch
 BRANCH := $(word 1, $(subst .,$(space), $(DEB_UPSTREAM_VERSION)))
 
 LANG=C
 export LANG
-# disable icu
-#--without-intl \
 DEB_CONFIGURE_NORMAL_ARGS =
 DEB_CONFIGURE_EXTRA_FLAGS = \
 --verbose \
@@ -30,12 +32,17 @@ DEB_CONFIGURE_EXTRA_FLAGS = \
 --shared-cares \
 --shared-nghttp2 \
 --shared-brotli \
+--shared-builtin-undici/undici-path=/usr/share/nodejs/undici/undici-fetch.js \
+--shared-builtin-acorn-path=/usr/share/nodejs/acorn/dist/acorn.js \
+--shared-builtin-acorn_walk-path=/usr/share/nodejs/acorn-walk/dist/walk.js \
+--shared-builtin-cjs_module_lexer/lexer-path=/usr/share/nodejs/cjs-module-lexer/lexer.js \
+--shared-builtin-cjs_module_lexer/dist/lexer-path=/usr/share/nodejs/cjs-module-lexer/dist/lexer.js \
 --with-intl=system-icu \
 --prefix=/usr \
 --shared-openssl \
 --openssl-use-def-ca-store \
 --arch-triplet=$(DEB_HOST_MULTIARCH) \
---node-relative-path="lib/$(DEB_HOST_MULTIARCH)/nodejs:share/nodejs:lib/nodejs" \
+--node-relative-path="lib/$(DEB_HOST_MULTIARCH)/nodejs:share/nodejs" \
 --shared-libuv
 
 ifneq ($(filter pkg.nodejs.nobuiltin,$(DEB_BUILD_PROFILES)),)
@@ -51,7 +58,7 @@ destCpu := $(or $(destCpu),$(if $(filter kfreebsd-i386,$(DEB_HOST_ARCH)),ia32))
 destCpu := $(or $(destCpu),$(if $(filter hurd-i386,$(DEB_HOST_ARCH)),ia32))
 destCpu := $(or $(destCpu),$(if $(filter amd64,$(DEB_HOST_ARCH)),x64))
 destCpu := $(or $(destCpu),$(if $(filter kfreebsd-amd64,$(DEB_HOST_ARCH)),x64))
-destCpu := $(or $(destCpu),$(if $(filter armel,$(DEB_HOST_ARCH)),unsupported))
+destCpu := $(or $(destCpu),$(if $(filter armel,$(DEB_HOST_ARCH)),arm))
 destCpu := $(or $(destCpu),$(if $(filter armhf,$(DEB_HOST_ARCH)),arm))
 destCpu := $(or $(destCpu),$(if $(filter aarch64,$(DEB_HOST_ARCH)),arm64))
 destCpu := $(or $(destCpu),$(if $(filter mipsel,$(DEB_HOST_ARCH)),mipsel))
@@ -120,10 +127,12 @@ ifeq ($(shell dpkg-vendor --is ubuntu && echo true),true)
 # Ubuntu targets armv7+ with VFP and thumb2 support by default for armel
 DEB_CONFIGURE_EXTRA_FLAGS += --with-arm-fpu=vfpv3
 else
-# debian defaults
-# v8 does not support < armv5
-CXXFLAGS += -march=armv5t
-DEB_CONFIGURE_EXTRA_FLAGS += --with-arm-fpu=vfp
+# debian armel version
+# v8 supports armv6k (must be set explicitely) + vfpv2 (selected by default)
+# armv6k is only not available on ARM1136JF-S r0p2, and available on r1p0.
+DEB_CONFIGURE_EXTRA_FLAGS += --with-arm-fpu=vfpv2 --with-arm-version=6
+CFLAGS += -march=armv6k -mfpu=vfpv2
+CPPFLAGS += -march=armv6k -mfpu=vfpv2
 endif
 endif
 
@@ -133,8 +142,8 @@ ifeq ($(shell dpkg-vendor --derives-from raspbian && echo true),true)
 # enable vfp, disable armv7
 DEB_CONFIGURE_EXTRA_FLAGS += --with-arm-fpu=vfp
 else
-# enable armv7 vfpv3
-DEB_CONFIGURE_EXTRA_FLAGS += --with-arm-fpu=vfpv3
+# enable armv7 vfpv3-d16
+DEB_CONFIGURE_EXTRA_FLAGS += --with-arm-fpu=vfpv3-d16
 endif
 endif
 
@@ -149,7 +158,6 @@ export TEST_CI_ARGS = --arch=$(destCpu) --timeout=3000
 export CI_JS_SUITES = message parallel sequential
 export NODE_TEST_DIR = $(CURDIR)/tmp
 export NODE_TEST_NO_INTERNET = 1
-DEBIAN_DOC_DEPS = $(CURDIR)/debian/doc-generator/node_modules
 # needed for tests to avoid "ee key too small" errors
 export OPENSSL_CONF = $(CURDIR)/deps/openssl/openssl/apps/openssl.cnf
 # keep in mind ./debian/rules check is also invoked by adt-run, see debian/tests/
@@ -181,14 +189,11 @@ export LDFLAGS
 
 export PYTHON = python3
 
-# disable DNS requests during tests
-export RES_OPTIONS = attempts:0
-
 %:
 	dh $@ --with bash-completion $(DH_FLAGS)
 
 # properly clean files from build, test, python
-override_dh_auto_clean: deps_clean
+override_dh_auto_clean:
 	dh_auto_clean
 	rm -f node_trace.1.log
 	rm -f icu_config.gypi
@@ -203,10 +208,11 @@ override_dh_auto_clean: deps_clean
 	rm -rf $(NODE_TEST_DIR)
 	find . -name "*.pyc" -delete
 	rm -rf out
-	rm -rf $(DEBIAN_DOC_DEPS)
+	rm -rf node_modules
 	rm -f debian/libnode$(ABI).install
 	rm -f debian/libnode-dev.links
 	rm -f debian/nodejs.install
+	rm -f debian/nodejs.bash-completion
 
 # remove *.json files from documentation
 override_dh_installdocs:
@@ -225,52 +231,21 @@ else
 	./configure $(DEB_CONFIGURE_EXTRA_FLAGS)
 endif
 
-deps_clean:
-	rm -rf deps/acorn/acorn/dist
-	rm -rf deps/acorn/acorn-walk/dist
-	rm -rf deps/undici
-
-deps_fake: deps_clean
-	mkdir -p deps/acorn/acorn/dist
-	mkdir -p deps/acorn/acorn-walk/dist
-	mkdir -p deps/undici
-	touch deps/acorn/acorn/dist/acorn.js
-	touch deps/acorn/acorn-walk/dist/walk.js
-	touch deps/undici/undici.js
-
-deps_links: deps_clean
-	mkdir -p $(NODE_TEST_DIR)
-	mkdir -p deps/acorn/acorn/dist
-	mkdir -p deps/acorn/acorn-walk/dist
-	mkdir -p deps/undici
-	ln -sTf /usr/share/nodejs/acorn/dist/acorn.js deps/acorn/acorn/dist/acorn.js
-	ln -sTf /usr/share/nodejs/acorn/dist/acorn.mjs deps/acorn/acorn/dist/acorn.mjs
-	ln -sTf /usr/share/nodejs/acorn-walk/dist/walk.js deps/acorn/acorn-walk/dist/walk.js
-	echo "throw new Error('No undici support yet');" > deps/undici/undici.js
-	#ln -sTf /usr/share/nodejs/undici/undici-fetch.js deps/undici/undici.js
-
-ifneq ($(filter pkg.nodejs.nobuiltin,$(DEB_BUILD_PROFILES)),)
-deps_build: deps_fake
-	# pass
-else
-deps_build: deps_links
-	# pass
-endif
-
-override_dh_auto_build-arch: deps_build
+override_dh_auto_build-arch:
 	dh_auto_build
 	./out/Release/node --completion-bash > ./debian/nodejs.bash-completion
 
-override_dh_auto_build-indep: deps_links
-	mkdir -p $(DEBIAN_DOC_DEPS)
-	ln -sTf /usr/share/nodejs/marked $(DEBIAN_DOC_DEPS)/marked
-	ln -sTf /usr/share/nodejs/js-yaml $(DEBIAN_DOC_DEPS)/js-yaml
+override_dh_auto_build-indep:
+	mkdir -p node_modules
+	ln -sf /usr/share/nodejs/marked node_modules/
+	ln -sf /usr/share/nodejs/acorn node_modules/
+	ln -sf /usr/share/nodejs/js-yaml node_modules/
 	$(MAKE) doc-only
 
 override_dh_auto_test-indep:
 	# skip tests
 
-override_dh_auto_test-arch: deps_links
+override_dh_auto_test-arch:
 ifeq ($(filter nocheck,$(DEB_BUILD_PROFILES)),)
 	-ln -s /usr/bin/node node
 	mkdir -p $(NODE_TEST_DIR)
@@ -285,7 +260,7 @@ override_dh_auto_install-indep:
 override_dh_auto_install-arch:
 	dh_auto_install
 
-override_dh_install-arch: deps_links
+override_dh_install-arch:
 	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' debian/libnode.install > debian/libnode$(ABI).install
 	sed -e 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' -e 's/@ABI@/$(ABI)/g' debian/libnode-dev.links.in > debian/libnode-dev.links
 	cp debian/nodejs.install.in debian/nodejs.install
@@ -307,3 +282,6 @@ override_dh_dwz:
 override_dh_gencontrol:
 	dh_gencontrol -- \
 	 -V"types:Node=$(shell jq --raw-output .version <types-node/package.json)~$(DEB_VERSION)"
+
+execute_after_dh_fixperms-arch:
+	find $(CURDIR)/debian/nodejs/usr/share/nodejs/@types/node -type f -exec chmod a-x '{}' \;

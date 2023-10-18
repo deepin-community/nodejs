@@ -3,8 +3,8 @@
   "source": "doc/api/module.md",
   "modules": [
     {
-      "textRaw": "Modules: `module` API",
-      "name": "modules:_`module`_api",
+      "textRaw": "Modules: `node:module` API",
+      "name": "modules:_`node:module`_api",
       "introduced_in": "v12.20.0",
       "meta": {
         "added": [
@@ -16,7 +16,7 @@
         {
           "textRaw": "The `Module` object",
           "name": "the_`module`_object",
-          "desc": "<ul>\n<li><a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object\" class=\"type\">&lt;Object&gt;</a></li>\n</ul>\n<p>Provides general utility methods when interacting with instances of\n<code>Module</code>, the <a href=\"modules.html#the-module-object\"><code>module</code></a> variable often seen in <a href=\"modules.html\">CommonJS</a> modules. Accessed\nvia <code>import 'module'</code> or <code>require('module')</code>.</p>",
+          "desc": "<ul>\n<li><a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object\" class=\"type\">&lt;Object&gt;</a></li>\n</ul>\n<p>Provides general utility methods when interacting with instances of\n<code>Module</code>, the <a href=\"modules.html#the-module-object\"><code>module</code></a> variable often seen in <a href=\"modules.html\">CommonJS</a> modules. Accessed\nvia <code>import 'node:module'</code> or <code>require('node:module')</code>.</p>",
           "properties": [
             {
               "textRaw": "`builtinModules` {string\\[]}",
@@ -30,7 +30,7 @@
                 ],
                 "changes": []
               },
-              "desc": "<p>A list of the names of all modules provided by Node.js. Can be used to verify\nif a module is maintained by a third party or not.</p>\n<p><code>module</code> in this context isn't the same object that's provided\nby the <a href=\"modules.html#the-module-wrapper\">module wrapper</a>. To access it, require the <code>Module</code> module:</p>\n<pre><code class=\"language-mjs\">// module.mjs\n// In an ECMAScript module\nimport { builtinModules as builtin } from 'module';\n</code></pre>\n<pre><code class=\"language-cjs\">// module.cjs\n// In a CommonJS module\nconst builtin = require('module').builtinModules;\n</code></pre>"
+              "desc": "<p>A list of the names of all modules provided by Node.js. Can be used to verify\nif a module is maintained by a third party or not.</p>\n<p><code>module</code> in this context isn't the same object that's provided\nby the <a href=\"modules.html#the-module-wrapper\">module wrapper</a>. To access it, require the <code>Module</code> module:</p>\n<pre><code class=\"language-mjs\">// module.mjs\n// In an ECMAScript module\nimport { builtinModules as builtin } from 'node:module';\n</code></pre>\n<pre><code class=\"language-cjs\">// module.cjs\n// In a CommonJS module\nconst builtin = require('node:module').builtinModules;\n</code></pre>"
             }
           ],
           "methods": [
@@ -62,7 +62,37 @@
                   ]
                 }
               ],
-              "desc": "<pre><code class=\"language-mjs\">import { createRequire } from 'module';\nconst require = createRequire(import.meta.url);\n\n// sibling-module.js is a CommonJS module.\nconst siblingModule = require('./sibling-module');\n</code></pre>"
+              "desc": "<pre><code class=\"language-mjs\">import { createRequire } from 'node:module';\nconst require = createRequire(import.meta.url);\n\n// sibling-module.js is a CommonJS module.\nconst siblingModule = require('./sibling-module');\n</code></pre>"
+            },
+            {
+              "textRaw": "`module.isBuiltin(moduleName)`",
+              "type": "method",
+              "name": "isBuiltin",
+              "meta": {
+                "added": [
+                  "v18.6.0"
+                ],
+                "changes": []
+              },
+              "signatures": [
+                {
+                  "return": {
+                    "textRaw": "Returns: {boolean} returns true if the module is builtin else returns false",
+                    "name": "return",
+                    "type": "boolean",
+                    "desc": "returns true if the module is builtin else returns false"
+                  },
+                  "params": [
+                    {
+                      "textRaw": "`moduleName` {string} name of the module",
+                      "name": "moduleName",
+                      "type": "string",
+                      "desc": "name of the module"
+                    }
+                  ]
+                }
+              ],
+              "desc": "<pre><code class=\"language-mjs\">import { isBuiltin } from 'node:module';\nisBuiltin('node:fs'); // true\nisBuiltin('fs'); // true\nisBuiltin('wss'); // false\n</code></pre>"
             },
             {
               "textRaw": "`module.syncBuiltinESMExports()`",
@@ -79,7 +109,7 @@
                   "params": []
                 }
               ],
-              "desc": "<p>The <code>module.syncBuiltinESMExports()</code> method updates all the live bindings for\nbuiltin <a href=\"esm.html\">ES Modules</a> to match the properties of the <a href=\"modules.html\">CommonJS</a> exports. It\ndoes not add or remove exported names from the <a href=\"esm.html\">ES Modules</a>.</p>\n<pre><code class=\"language-js\">const fs = require('fs');\nconst assert = require('assert');\nconst { syncBuiltinESMExports } = require('module');\n\nfs.readFile = newAPI;\n\ndelete fs.readFileSync;\n\nfunction newAPI() {\n  // ...\n}\n\nfs.newAPI = newAPI;\n\nsyncBuiltinESMExports();\n\nimport('fs').then((esmFS) => {\n  // It syncs the existing readFile property with the new value\n  assert.strictEqual(esmFS.readFile, newAPI);\n  // readFileSync has been deleted from the required fs\n  assert.strictEqual('readFileSync' in fs, false);\n  // syncBuiltinESMExports() does not remove readFileSync from esmFS\n  assert.strictEqual('readFileSync' in esmFS, true);\n  // syncBuiltinESMExports() does not add names\n  assert.strictEqual(esmFS.newAPI, undefined);\n});\n</code></pre>"
+              "desc": "<p>The <code>module.syncBuiltinESMExports()</code> method updates all the live bindings for\nbuiltin <a href=\"esm.html\">ES Modules</a> to match the properties of the <a href=\"modules.html\">CommonJS</a> exports. It\ndoes not add or remove exported names from the <a href=\"esm.html\">ES Modules</a>.</p>\n<pre><code class=\"language-js\">const fs = require('node:fs');\nconst assert = require('node:assert');\nconst { syncBuiltinESMExports } = require('node:module');\n\nfs.readFile = newAPI;\n\ndelete fs.readFileSync;\n\nfunction newAPI() {\n  // ...\n}\n\nfs.newAPI = newAPI;\n\nsyncBuiltinESMExports();\n\nimport('node:fs').then((esmFS) => {\n  // It syncs the existing readFile property with the new value\n  assert.strictEqual(esmFS.readFile, newAPI);\n  // readFileSync has been deleted from the required fs\n  assert.strictEqual('readFileSync' in fs, false);\n  // syncBuiltinESMExports() does not remove readFileSync from esmFS\n  assert.strictEqual('readFileSync' in esmFS, true);\n  // syncBuiltinESMExports() does not add names\n  assert.strictEqual(esmFS.newAPI, undefined);\n});\n</code></pre>"
             }
           ],
           "type": "module",
@@ -97,7 +127,7 @@
           },
           "stability": 1,
           "stabilityText": "Experimental",
-          "desc": "<p>Helpers for interacting with the source map cache. This cache is\npopulated when source map parsing is enabled and\n<a href=\"https://sourcemaps.info/spec.html#h.lmz475t4mvbx\">source map include directives</a> are found in a modules' footer.</p>\n<p>To enable source map parsing, Node.js must be run with the flag\n<a href=\"cli.html#--enable-source-maps\"><code>--enable-source-maps</code></a>, or with code coverage enabled by setting\n<a href=\"cli.html#node_v8_coveragedir\"><code>NODE_V8_COVERAGE=dir</code></a>.</p>\n<pre><code class=\"language-mjs\">// module.mjs\n// In an ECMAScript module\nimport { findSourceMap, SourceMap } from 'module';\n</code></pre>\n<pre><code class=\"language-cjs\">// module.cjs\n// In a CommonJS module\nconst { findSourceMap, SourceMap } = require('module');\n</code></pre>\n<!-- Anchors to make sure old links find a target -->\n<p><a id=\"module_module_findsourcemap_path_error\"></a></p>",
+          "desc": "<p>Helpers for interacting with the source map cache. This cache is\npopulated when source map parsing is enabled and\n<a href=\"https://sourcemaps.info/spec.html#h.lmz475t4mvbx\">source map include directives</a> are found in a modules' footer.</p>\n<p>To enable source map parsing, Node.js must be run with the flag\n<a href=\"cli.html#--enable-source-maps\"><code>--enable-source-maps</code></a>, or with code coverage enabled by setting\n<a href=\"cli.html#node_v8_coveragedir\"><code>NODE_V8_COVERAGE=dir</code></a>.</p>\n<pre><code class=\"language-mjs\">// module.mjs\n// In an ECMAScript module\nimport { findSourceMap, SourceMap } from 'node:module';\n</code></pre>\n<pre><code class=\"language-cjs\">// module.cjs\n// In a CommonJS module\nconst { findSourceMap, SourceMap } = require('node:module');\n</code></pre>\n<!-- Anchors to make sure old links find a target -->\n<p><a id=\"module_module_findsourcemap_path_error\"></a></p>",
           "methods": [
             {
               "textRaw": "`module.findSourceMap(path)`",
@@ -113,9 +143,10 @@
               "signatures": [
                 {
                   "return": {
-                    "textRaw": "Returns: {module.SourceMap}",
+                    "textRaw": "Returns: {module.SourceMap|undefined} Returns `module.SourceMap` if a source map is found, `undefined` otherwise.",
                     "name": "return",
-                    "type": "module.SourceMap"
+                    "type": "module.SourceMap|undefined",
+                    "desc": "Returns `module.SourceMap` if a source map is found, `undefined` otherwise."
                   },
                   "params": [
                     {
@@ -197,7 +228,7 @@
         }
       ],
       "type": "module",
-      "displayName": "Modules: `module` API"
+      "displayName": "Modules: `node:module` API"
     }
   ]
 }

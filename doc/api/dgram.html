@@ -3,12 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v16.15.1">
-  <title>UDP/datagram sockets | Node.js v16.15.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v18.13.0">
+  <title>UDP/datagram sockets | Node.js v18.13.0 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/dgram.html">
+  <script async defer src="assets/api.js" type="text/javascript"></script>
+  <style>@media(max-width:558px){.with-42-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:542px){.with-40-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}</style>
 </head>
 <body class="alt apidoc" id="api-section-dgram">
   <div id="content" class="clearfix">
@@ -53,13 +55,13 @@
 <li><a href="intl.html" class="nav-intl">Internationalization</a></li>
 <li><a href="modules.html" class="nav-modules">Modules: CommonJS modules</a></li>
 <li><a href="esm.html" class="nav-esm">Modules: ECMAScript modules</a></li>
-<li><a href="module.html" class="nav-module">Modules: <code>module</code> API</a></li>
+<li><a href="module.html" class="nav-module">Modules: <code>node:module</code> API</a></li>
 <li><a href="packages.html" class="nav-packages">Modules: Packages</a></li>
 <li><a href="net.html" class="nav-net">Net</a></li>
 <li><a href="os.html" class="nav-os">OS</a></li>
 <li><a href="path.html" class="nav-path">Path</a></li>
 <li><a href="perf_hooks.html" class="nav-perf_hooks">Performance hooks</a></li>
-<li><a href="policy.html" class="nav-policy">Policies</a></li>
+<li><a href="permissions.html" class="nav-permissions">Permissions</a></li>
 <li><a href="process.html" class="nav-process">Process</a></li>
 <li><a href="punycode.html" class="nav-punycode">Punycode</a></li>
 <li><a href="querystring.html" class="nav-querystring">Query strings</a></li>
@@ -68,6 +70,7 @@
 <li><a href="report.html" class="nav-report">Report</a></li>
 <li><a href="stream.html" class="nav-stream">Stream</a></li>
 <li><a href="string_decoder.html" class="nav-string_decoder">String decoder</a></li>
+<li><a href="test.html" class="nav-test">Test runner</a></li>
 <li><a href="timers.html" class="nav-timers">Timers</a></li>
 <li><a href="tls.html" class="nav-tls">TLS/SSL</a></li>
 <li><a href="tracing.html" class="nav-tracing">Trace events</a></li>
@@ -92,7 +95,7 @@
     <div id="column1" data-id="dgram" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v16.15.1 documentation</h1>
+          <h1>Node.js v18.13.0 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -107,6 +110,7 @@
         </div>
         <div id="gtoc">
           <ul>
+            <li class="pinned-header">Node.js v18.13.0</li>
             
     <li class="picker-header">
       <a href="#">
@@ -136,6 +140,8 @@
 <li><a href="#socketdropsourcespecificmembershipsourceaddress-groupaddress-multicastinterface"><code>socket.dropSourceSpecificMembership(sourceAddress, groupAddress[, multicastInterface])</code></a></li>
 <li><a href="#socketgetrecvbuffersize"><code>socket.getRecvBufferSize()</code></a></li>
 <li><a href="#socketgetsendbuffersize"><code>socket.getSendBufferSize()</code></a></li>
+<li><a href="#socketgetsendqueuesize"><code>socket.getSendQueueSize()</code></a></li>
+<li><a href="#socketgetsendqueuecount"><code>socket.getSendQueueCount()</code></a></li>
 <li><a href="#socketref"><code>socket.ref()</code></a></li>
 <li><a href="#socketremoteaddress"><code>socket.remoteAddress()</code></a></li>
 <li><a href="#socketsendmsg-offset-length-port-address-callback"><code>socket.send(msg[, offset, length][, port][, address][, callback])</code></a>
@@ -159,7 +165,7 @@
 <li><a href="#socketunref"><code>socket.unref()</code></a></li>
 </ul>
 </li>
-<li><a href="#dgram-module-functions"><code>dgram</code> module functions</a>
+<li><a href="#nodedgram-module-functions"><code>node:dgram</code> module functions</a>
 <ul>
 <li><a href="#dgramcreatesocketoptions-callback"><code>dgram.createSocket(options[, callback])</code></a></li>
 <li><a href="#dgramcreatesockettype-callback"><code>dgram.createSocket(type[, callback])</code></a></li>
@@ -217,13 +223,13 @@
 <li><a href="intl.html" class="nav-intl">Internationalization</a></li>
 <li><a href="modules.html" class="nav-modules">Modules: CommonJS modules</a></li>
 <li><a href="esm.html" class="nav-esm">Modules: ECMAScript modules</a></li>
-<li><a href="module.html" class="nav-module">Modules: <code>module</code> API</a></li>
+<li><a href="module.html" class="nav-module">Modules: <code>node:module</code> API</a></li>
 <li><a href="packages.html" class="nav-packages">Modules: Packages</a></li>
 <li><a href="net.html" class="nav-net">Net</a></li>
 <li><a href="os.html" class="nav-os">OS</a></li>
 <li><a href="path.html" class="nav-path">Path</a></li>
 <li><a href="perf_hooks.html" class="nav-perf_hooks">Performance hooks</a></li>
-<li><a href="policy.html" class="nav-policy">Policies</a></li>
+<li><a href="permissions.html" class="nav-permissions">Permissions</a></li>
 <li><a href="process.html" class="nav-process">Process</a></li>
 <li><a href="punycode.html" class="nav-punycode">Punycode</a></li>
 <li><a href="querystring.html" class="nav-querystring">Query strings</a></li>
@@ -232,6 +238,7 @@
 <li><a href="report.html" class="nav-report">Report</a></li>
 <li><a href="stream.html" class="nav-stream">Stream</a></li>
 <li><a href="string_decoder.html" class="nav-string_decoder">String decoder</a></li>
+<li><a href="test.html" class="nav-test">Test runner</a></li>
 <li><a href="timers.html" class="nav-timers">Timers</a></li>
 <li><a href="tls.html" class="nav-tls">TLS/SSL</a></li>
 <li><a href="tracing.html" class="nav-tracing">Trace events</a></li>
@@ -259,13 +266,14 @@
         <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v18.x/api/dgram.html">18.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v19.x/api/dgram.html">19.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v18.x/api/dgram.html">18.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v17.x/api/dgram.html">17.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v16.x/api/dgram.html">16.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v15.x/api/dgram.html">15.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v14.x/api/dgram.html">14.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v13.x/api/dgram.html">13.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v12.x/api/dgram.html">12.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v12.x/api/dgram.html">12.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v11.x/api/dgram.html">11.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v10.x/api/dgram.html">10.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v9.x/api/dgram.html">9.x</a></li>
@@ -292,7 +300,7 @@
                   <li>
                     <a href="dgram.json">View as JSON</a>
                   </li>
-                  <li class="edit_on_github"><a href="https://github.com/nodejs/node/edit/master/doc/api/dgram.md">Edit on GitHub</a></li>    
+                  <li class="edit_on_github"><a href="https://github.com/nodejs/node/edit/main/doc/api/dgram.md">Edit on GitHub</a></li>    
                 </ul>
               </div>
             </li>
@@ -323,6 +331,8 @@
 <li><a href="#socketdropsourcespecificmembershipsourceaddress-groupaddress-multicastinterface"><code>socket.dropSourceSpecificMembership(sourceAddress, groupAddress[, multicastInterface])</code></a></li>
 <li><a href="#socketgetrecvbuffersize"><code>socket.getRecvBufferSize()</code></a></li>
 <li><a href="#socketgetsendbuffersize"><code>socket.getSendBufferSize()</code></a></li>
+<li><a href="#socketgetsendqueuesize"><code>socket.getSendQueueSize()</code></a></li>
+<li><a href="#socketgetsendqueuecount"><code>socket.getSendQueueCount()</code></a></li>
 <li><a href="#socketref"><code>socket.ref()</code></a></li>
 <li><a href="#socketremoteaddress"><code>socket.remoteAddress()</code></a></li>
 <li><a href="#socketsendmsg-offset-length-port-address-callback"><code>socket.send(msg[, offset, length][, port][, address][, callback])</code></a>
@@ -346,7 +356,7 @@
 <li><a href="#socketunref"><code>socket.unref()</code></a></li>
 </ul>
 </li>
-<li><a href="#dgram-module-functions"><code>dgram</code> module functions</a>
+<li><a href="#nodedgram-module-functions"><code>node:dgram</code> module functions</a>
 <ul>
 <li><a href="#dgramcreatesocketoptions-callback"><code>dgram.createSocket(options[, callback])</code></a></li>
 <li><a href="#dgramcreatesockettype-callback"><code>dgram.createSocket(type[, callback])</code></a></li>
@@ -361,15 +371,15 @@
 
 <p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
 
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v16.15.1/lib/dgram.js">lib/dgram.js</a></p>
-<p>The <code>dgram</code> module provides an implementation of UDP datagram sockets.</p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.13.0/lib/dgram.js">lib/dgram.js</a></p>
+<p>The <code>node:dgram</code> module provides an implementation of UDP datagram sockets.</p>
 
-<pre><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> dgram <span class="hljs-keyword">from</span> <span class="hljs-string">'dgram'</span>;
+<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> dgram <span class="hljs-keyword">from</span> <span class="hljs-string">'node:dgram'</span>;
 
 <span class="hljs-keyword">const</span> server = dgram.<span class="hljs-title function_">createSocket</span>(<span class="hljs-string">'udp4'</span>);
 
 server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'error'</span>, <span class="hljs-function">(<span class="hljs-params">err</span>) =></span> {
-  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`server error:\n<span class="hljs-subst">${err.stack}</span>`</span>);
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">`server error:\n<span class="hljs-subst">${err.stack}</span>`</span>);
   server.<span class="hljs-title function_">close</span>();
 });
 
@@ -383,11 +393,11 @@ server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'l
 });
 
 server.<span class="hljs-title function_">bind</span>(<span class="hljs-number">41234</span>);
-<span class="hljs-comment">// Prints: server listening 0.0.0.0:41234</span></code><code class="language-js cjs"><span class="hljs-keyword">const</span> dgram = <span class="hljs-built_in">require</span>(<span class="hljs-string">'dgram'</span>);
+<span class="hljs-comment">// Prints: server listening 0.0.0.0:41234</span></code><code class="language-js cjs"><span class="hljs-keyword">const</span> dgram = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:dgram'</span>);
 <span class="hljs-keyword">const</span> server = dgram.<span class="hljs-title function_">createSocket</span>(<span class="hljs-string">'udp4'</span>);
 
 server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'error'</span>, <span class="hljs-function">(<span class="hljs-params">err</span>) =></span> {
-  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`server error:\n<span class="hljs-subst">${err.stack}</span>`</span>);
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">`server error:\n<span class="hljs-subst">${err.stack}</span>`</span>);
   server.<span class="hljs-title function_">close</span>();
 });
 
@@ -444,7 +454,17 @@ Until the <code>dgram.Socket</code> is listening, the underlying system resource
 exist and calls such as <code>socket.address()</code> and <code>socket.setTTL()</code> will fail.</p>
 <h4>Event: <code>'message'</code><span><a class="mark" href="#event-message" id="event-message">#</a></span><a aria-hidden="true" class="legacy" id="dgram_event_message"></a></h4>
 <div class="api_metadata">
-<span>Added in: v0.1.99</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v18.4.0</td>
+<td><p>The <code>family</code> property now returns a string instead of a number.</p></td></tr>
+<tr><td>v18.0.0</td>
+<td><p>The <code>family</code> property now returns a number instead of a string.</p></td></tr>
+<tr><td>v0.1.99</td>
+<td><p><span>Added in: v0.1.99</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <p>The <code>'message'</code> event is emitted when a new datagram is available on a socket.
 The event handler function is passed two arguments: <code>msg</code> and <code>rinfo</code>.</p>
@@ -483,8 +503,8 @@ port, listening on all interfaces.</p>
 <code>socket.addMembership()</code> function must be called only once or an
 <code>EADDRINUSE</code> error will occur:</p>
 
-<pre><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> cluster <span class="hljs-keyword">from</span> <span class="hljs-string">'cluster'</span>;
-<span class="hljs-keyword">import</span> dgram <span class="hljs-keyword">from</span> <span class="hljs-string">'dgram'</span>;
+<pre class="with-40-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> cluster <span class="hljs-keyword">from</span> <span class="hljs-string">'node:cluster'</span>;
+<span class="hljs-keyword">import</span> dgram <span class="hljs-keyword">from</span> <span class="hljs-string">'node:dgram'</span>;
 
 <span class="hljs-keyword">if</span> (cluster.<span class="hljs-property">isPrimary</span>) {
   cluster.<span class="hljs-title function_">fork</span>(); <span class="hljs-comment">// Works ok.</span>
@@ -494,8 +514,8 @@ port, listening on all interfaces.</p>
   s.<span class="hljs-title function_">bind</span>(<span class="hljs-number">1234</span>, <span class="hljs-function">() =></span> {
     s.<span class="hljs-title function_">addMembership</span>(<span class="hljs-string">'224.0.0.114'</span>);
   });
-}</code><code class="language-js cjs"><span class="hljs-keyword">const</span> cluster = <span class="hljs-built_in">require</span>(<span class="hljs-string">'cluster'</span>);
-<span class="hljs-keyword">const</span> dgram = <span class="hljs-built_in">require</span>(<span class="hljs-string">'dgram'</span>);
+}</code><code class="language-js cjs"><span class="hljs-keyword">const</span> cluster = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:cluster'</span>);
+<span class="hljs-keyword">const</span> dgram = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:dgram'</span>);
 
 <span class="hljs-keyword">if</span> (cluster.<span class="hljs-property">isPrimary</span>) {
   cluster.<span class="hljs-title function_">fork</span>(); <span class="hljs-comment">// Works ok.</span>
@@ -531,7 +551,7 @@ port, listening on all interfaces.</p>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a></li>
 </ul>
 <p>Returns an object containing the address information for a socket.
-For UDP sockets, this object will contain <code>address</code>, <code>family</code> and <code>port</code>
+For UDP sockets, this object will contain <code>address</code>, <code>family</code>, and <code>port</code>
 properties.</p>
 <p>This method throws <code>EBADF</code> if called on an unbound socket.</p>
 <h4><code>socket.bind([port][, address][, callback])</code><span><a class="mark" href="#socketbindport-address-callback" id="socketbindport-address-callback">#</a></span><a aria-hidden="true" class="legacy" id="dgram_socket_bind_port_address_callback"></a></h4>
@@ -567,12 +587,12 @@ datagram messages.</p>
 attempting to bind with a closed socket), an <a href="errors.html#class-error"><code>Error</code></a> may be thrown.</p>
 <p>Example of a UDP server listening on port 41234:</p>
 
-<pre><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> dgram <span class="hljs-keyword">from</span> <span class="hljs-string">'dgram'</span>;
+<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> dgram <span class="hljs-keyword">from</span> <span class="hljs-string">'node:dgram'</span>;
 
 <span class="hljs-keyword">const</span> server = dgram.<span class="hljs-title function_">createSocket</span>(<span class="hljs-string">'udp4'</span>);
 
 server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'error'</span>, <span class="hljs-function">(<span class="hljs-params">err</span>) =></span> {
-  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`server error:\n<span class="hljs-subst">${err.stack}</span>`</span>);
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">`server error:\n<span class="hljs-subst">${err.stack}</span>`</span>);
   server.<span class="hljs-title function_">close</span>();
 });
 
@@ -586,11 +606,11 @@ server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'l
 });
 
 server.<span class="hljs-title function_">bind</span>(<span class="hljs-number">41234</span>);
-<span class="hljs-comment">// Prints: server listening 0.0.0.0:41234</span></code><code class="language-js cjs"><span class="hljs-keyword">const</span> dgram = <span class="hljs-built_in">require</span>(<span class="hljs-string">'dgram'</span>);
+<span class="hljs-comment">// Prints: server listening 0.0.0.0:41234</span></code><code class="language-js cjs"><span class="hljs-keyword">const</span> dgram = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:dgram'</span>);
 <span class="hljs-keyword">const</span> server = dgram.<span class="hljs-title function_">createSocket</span>(<span class="hljs-string">'udp4'</span>);
 
 server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'error'</span>, <span class="hljs-function">(<span class="hljs-params">err</span>) =></span> {
-  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`server error:\n<span class="hljs-subst">${err.stack}</span>`</span>);
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">`server error:\n<span class="hljs-subst">${err.stack}</span>`</span>);
   server.<span class="hljs-title function_">close</span>();
 });
 
@@ -649,7 +669,7 @@ attempting to bind with a closed socket), an <a href="errors.html#class-error"><
 <pre><code class="language-js">socket.<span class="hljs-title function_">bind</span>({
   <span class="hljs-attr">address</span>: <span class="hljs-string">'localhost'</span>,
   <span class="hljs-attr">port</span>: <span class="hljs-number">8000</span>,
-  <span class="hljs-attr">exclusive</span>: <span class="hljs-literal">true</span>
+  <span class="hljs-attr">exclusive</span>: <span class="hljs-literal">true</span>,
 });</code></pre>
 <h4><code>socket.close([callback])</code><span><a class="mark" href="#socketclosecallback" id="socketclosecallback">#</a></span><a aria-hidden="true" class="legacy" id="dgram_socket_close_callback"></a></h4>
 <div class="api_metadata">
@@ -732,6 +752,21 @@ drop membership on all valid interfaces.</p>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> the <code>SO_SNDBUF</code> socket send buffer size in bytes.</li>
 </ul>
 <p>This method throws <a href="errors.html#err_socket_buffer_size"><code>ERR_SOCKET_BUFFER_SIZE</code></a> if called on an unbound socket.</p>
+<h4><code>socket.getSendQueueSize()</code><span><a class="mark" href="#socketgetsendqueuesize" id="socketgetsendqueuesize">#</a></span><a aria-hidden="true" class="legacy" id="dgram_socket_getsendqueuesize"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.8.0</span>
+</div>
+<ul>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Number of bytes queued for sending.</li>
+</ul>
+<h4><code>socket.getSendQueueCount()</code><span><a class="mark" href="#socketgetsendqueuecount" id="socketgetsendqueuecount">#</a></span><a aria-hidden="true" class="legacy" id="dgram_socket_getsendqueuecount"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.8.0</span>
+</div>
+<ul>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Number of send requests currently in the queue awaiting
+to be processed.</li>
+</ul>
 <h4><code>socket.ref()</code><span><a class="mark" href="#socketref" id="socketref">#</a></span><a aria-hidden="true" class="legacy" id="dgram_socket_ref"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.9.1</span>
@@ -762,6 +797,8 @@ if the socket is not connected.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v17.0.0</td>
+<td><p>The <code>address</code> parameter now only accepts a <code>string</code>, <code>null</code> or <code>undefined</code>.</p></td></tr>
 <tr><td>v14.5.0, v12.19.0</td>
 <td><p>The <code>msg</code> parameter can now be any <code>TypedArray</code> or <code>DataView</code>.</p></td></tr>
 <tr><td>v12.0.0</td>
@@ -803,7 +840,7 @@ respect to <a href="buffer.html#static-method-bufferbytelengthstring-encoding">b
 If <code>msg</code> is an array, <code>offset</code> and <code>length</code> must not be specified.</p>
 <p>The <code>address</code> argument is a string. If the value of <code>address</code> is a host name,
 DNS will be used to resolve the address of the host. If <code>address</code> is not
-provided or otherwise falsy, <code>'127.0.0.1'</code> (for <code>udp4</code> sockets) or <code>'::1'</code>
+provided or otherwise nullish, <code>'127.0.0.1'</code> (for <code>udp4</code> sockets) or <code>'::1'</code>
 (for <code>udp6</code> sockets) will be used by default.</p>
 <p>If the socket has not been previously bound with a call to <code>bind</code>, the socket
 is assigned a random port number and is bound to the "all interfaces" address
@@ -822,15 +859,15 @@ or a <code>DataView</code>.</p>
 <p>This method throws <a href="errors.html#err_socket_bad_port"><code>ERR_SOCKET_BAD_PORT</code></a> if called on an unbound socket.</p>
 <p>Example of sending a UDP packet to a port on <code>localhost</code>;</p>
 
-<pre><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> dgram <span class="hljs-keyword">from</span> <span class="hljs-string">'dgram'</span>;
-<span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> dgram <span class="hljs-keyword">from</span> <span class="hljs-string">'node:dgram'</span>;
+<span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> message = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'Some bytes'</span>);
 <span class="hljs-keyword">const</span> client = dgram.<span class="hljs-title function_">createSocket</span>(<span class="hljs-string">'udp4'</span>);
 client.<span class="hljs-title function_">send</span>(message, <span class="hljs-number">41234</span>, <span class="hljs-string">'localhost'</span>, <span class="hljs-function">(<span class="hljs-params">err</span>) =></span> {
   client.<span class="hljs-title function_">close</span>();
-});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> dgram = <span class="hljs-built_in">require</span>(<span class="hljs-string">'dgram'</span>);
-<span class="hljs-keyword">const</span> { <span class="hljs-title class_">Buffer</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'buffer'</span>);
+});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> dgram = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:dgram'</span>);
+<span class="hljs-keyword">const</span> { <span class="hljs-title class_">Buffer</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:buffer'</span>);
 
 <span class="hljs-keyword">const</span> message = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'Some bytes'</span>);
 <span class="hljs-keyword">const</span> client = dgram.<span class="hljs-title function_">createSocket</span>(<span class="hljs-string">'udp4'</span>);
@@ -840,16 +877,16 @@ client.<span class="hljs-title function_">send</span>(message, <span class="hljs
 <p>Example of sending a UDP packet composed of multiple buffers to a port on
 <code>127.0.0.1</code>;</p>
 
-<pre><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> dgram <span class="hljs-keyword">from</span> <span class="hljs-string">'dgram'</span>;
-<span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> dgram <span class="hljs-keyword">from</span> <span class="hljs-string">'node:dgram'</span>;
+<span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf1 = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'Some '</span>);
 <span class="hljs-keyword">const</span> buf2 = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'bytes'</span>);
 <span class="hljs-keyword">const</span> client = dgram.<span class="hljs-title function_">createSocket</span>(<span class="hljs-string">'udp4'</span>);
 client.<span class="hljs-title function_">send</span>([buf1, buf2], <span class="hljs-number">41234</span>, <span class="hljs-function">(<span class="hljs-params">err</span>) =></span> {
   client.<span class="hljs-title function_">close</span>();
-});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> dgram = <span class="hljs-built_in">require</span>(<span class="hljs-string">'dgram'</span>);
-<span class="hljs-keyword">const</span> { <span class="hljs-title class_">Buffer</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'buffer'</span>);
+});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> dgram = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:dgram'</span>);
+<span class="hljs-keyword">const</span> { <span class="hljs-title class_">Buffer</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:buffer'</span>);
 
 <span class="hljs-keyword">const</span> buf1 = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'Some '</span>);
 <span class="hljs-keyword">const</span> buf2 = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'bytes'</span>);
@@ -864,8 +901,8 @@ however, sending multiple buffers is faster.</p>
 <p>Example of sending a UDP packet using a socket connected to a port on
 <code>localhost</code>:</p>
 
-<pre><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> dgram <span class="hljs-keyword">from</span> <span class="hljs-string">'dgram'</span>;
-<span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> dgram <span class="hljs-keyword">from</span> <span class="hljs-string">'node:dgram'</span>;
+<span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> message = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'Some bytes'</span>);
 <span class="hljs-keyword">const</span> client = dgram.<span class="hljs-title function_">createSocket</span>(<span class="hljs-string">'udp4'</span>);
@@ -873,8 +910,8 @@ client.<span class="hljs-title function_">connect</span>(<span class="hljs-numbe
   client.<span class="hljs-title function_">send</span>(message, <span class="hljs-function">(<span class="hljs-params">err</span>) =></span> {
     client.<span class="hljs-title function_">close</span>();
   });
-});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> dgram = <span class="hljs-built_in">require</span>(<span class="hljs-string">'dgram'</span>);
-<span class="hljs-keyword">const</span> { <span class="hljs-title class_">Buffer</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'buffer'</span>);
+});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> dgram = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:dgram'</span>);
+<span class="hljs-keyword">const</span> { <span class="hljs-title class_">Buffer</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:buffer'</span>);
 
 <span class="hljs-keyword">const</span> message = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'Some bytes'</span>);
 <span class="hljs-keyword">const</span> client = dgram.<span class="hljs-title function_">createSocket</span>(<span class="hljs-string">'udp4'</span>);
@@ -1050,7 +1087,7 @@ listening.</p>
 <p>Calling <code>socket.unref()</code> multiple times will have no addition effect.</p>
 <p>The <code>socket.unref()</code> method returns a reference to the socket so calls can be
 chained.</p>
-</section><section><h3><code>dgram</code> module functions<span><a class="mark" href="#dgram-module-functions" id="dgram-module-functions">#</a></span><a aria-hidden="true" class="legacy" id="dgram_dgram_module_functions"></a></h3>
+</section><section><h3><code>node:dgram</code> module functions<span><a class="mark" href="#nodedgram-module-functions" id="nodedgram-module-functions">#</a></span><a aria-hidden="true" class="legacy" id="dgram_node_dgram_module_functions"></a></h3>
 <h4><code>dgram.createSocket(options[, callback])</code><span><a class="mark" href="#dgramcreatesocketoptions-callback" id="dgramcreatesocketoptions-callback">#</a></span><a aria-hidden="true" class="legacy" id="dgram_dgram_createsocket_options_callback"></a></h4>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
@@ -1126,41 +1163,5 @@ and <code>udp6</code> sockets). The bound address and port can be retrieved usin
       </div>
     </div>
   </div>
-  <script>
-    'use strict';
-    {
-      const kCustomPreference = 'customDarkTheme';
-      const userSettings = sessionStorage.getItem(kCustomPreference);
-      const themeToggleButton = document.getElementById('theme-toggle-btn');
-      if (userSettings === null && window.matchMedia) {
-        const mq = window.matchMedia('(prefers-color-scheme: dark)');
-        if ('onchange' in mq) {
-          function mqChangeListener(e) {
-            document.documentElement.classList.toggle('dark-mode', e.matches);
-          }
-          mq.addEventListener('change', mqChangeListener);
-          if (themeToggleButton) {
-            themeToggleButton.addEventListener('click', function() {
-              mq.removeEventListener('change', mqChangeListener);
-            }, { once: true });
-          }
-        }
-        if (mq.matches) {
-          document.documentElement.classList.add('dark-mode');
-        }
-      } else if (userSettings === 'true') {
-        document.documentElement.classList.add('dark-mode');
-      }
-      if (themeToggleButton) {
-        themeToggleButton.hidden = false;
-        themeToggleButton.addEventListener('click', function() {
-          sessionStorage.setItem(
-            kCustomPreference,
-            document.documentElement.classList.toggle('dark-mode')
-          );
-        });
-      }
-    }
-  </script>
 </body>
 </html>

@@ -3,12 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v16.15.1">
-  <title>Modules: ECMAScript modules | Node.js v16.15.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v18.13.0">
+  <title>Modules: ECMAScript modules | Node.js v18.13.0 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/esm.html">
+  <script async defer src="assets/api.js" type="text/javascript"></script>
+  
 </head>
 <body class="alt apidoc" id="api-section-esm">
   <div id="content" class="clearfix">
@@ -53,13 +55,13 @@
 <li><a href="intl.html" class="nav-intl">Internationalization</a></li>
 <li><a href="modules.html" class="nav-modules">Modules: CommonJS modules</a></li>
 <li><a href="esm.html" class="nav-esm active">Modules: ECMAScript modules</a></li>
-<li><a href="module.html" class="nav-module">Modules: <code>module</code> API</a></li>
+<li><a href="module.html" class="nav-module">Modules: <code>node:module</code> API</a></li>
 <li><a href="packages.html" class="nav-packages">Modules: Packages</a></li>
 <li><a href="net.html" class="nav-net">Net</a></li>
 <li><a href="os.html" class="nav-os">OS</a></li>
 <li><a href="path.html" class="nav-path">Path</a></li>
 <li><a href="perf_hooks.html" class="nav-perf_hooks">Performance hooks</a></li>
-<li><a href="policy.html" class="nav-policy">Policies</a></li>
+<li><a href="permissions.html" class="nav-permissions">Permissions</a></li>
 <li><a href="process.html" class="nav-process">Process</a></li>
 <li><a href="punycode.html" class="nav-punycode">Punycode</a></li>
 <li><a href="querystring.html" class="nav-querystring">Query strings</a></li>
@@ -68,6 +70,7 @@
 <li><a href="report.html" class="nav-report">Report</a></li>
 <li><a href="stream.html" class="nav-stream">Stream</a></li>
 <li><a href="string_decoder.html" class="nav-string_decoder">String decoder</a></li>
+<li><a href="test.html" class="nav-test">Test runner</a></li>
 <li><a href="timers.html" class="nav-timers">Timers</a></li>
 <li><a href="tls.html" class="nav-tls">TLS/SSL</a></li>
 <li><a href="tracing.html" class="nav-tracing">Trace events</a></li>
@@ -92,7 +95,7 @@
     <div id="column1" data-id="esm" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v16.15.1 documentation</h1>
+          <h1>Node.js v18.13.0 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -107,6 +110,7 @@
         </div>
         <div id="gtoc">
           <ul>
+            <li class="pinned-header">Node.js v18.13.0</li>
             
     <li class="picker-header">
       <a href="#">
@@ -127,8 +131,8 @@
 <li><a href="#urls">URLs</a>
 <ul>
 <li><a href="#file-urls"><code>file:</code> URLs</a></li>
-<li><a href="#data-imports"><code>data:</code> Imports</a></li>
-<li><a href="#node-imports"><code>node:</code> Imports</a></li>
+<li><a href="#data-imports"><code>data:</code> imports</a></li>
+<li><a href="#node-imports"><code>node:</code> imports</a></li>
 </ul>
 </li>
 </ul>
@@ -149,9 +153,9 @@
 <li><a href="#commonjs-namespaces">CommonJS Namespaces</a></li>
 <li><a href="#differences-between-es-modules-and-commonjs">Differences between ES modules and CommonJS</a>
 <ul>
-<li><a href="#no-require-exports-or-moduleexports">No <code>require</code>, <code>exports</code> or <code>module.exports</code></a></li>
+<li><a href="#no-require-exports-or-moduleexports">No <code>require</code>, <code>exports</code>, or <code>module.exports</code></a></li>
 <li><a href="#no-__filename-or-__dirname">No <code>__filename</code> or <code>__dirname</code></a></li>
-<li><a href="#no-native-module-loading">No Native Module Loading</a></li>
+<li><a href="#no-addon-loading">No Addon Loading</a></li>
 <li><a href="#no-requireresolve">No <code>require.resolve</code></a></li>
 <li><a href="#no-node_path">No <code>NODE_PATH</code></a></li>
 <li><a href="#no-requireextensions">No <code>require.extensions</code></a></li>
@@ -162,7 +166,7 @@
 </li>
 <li><span class="stability_1"><a href="#json-modules">JSON modules</a></span></li>
 <li><span class="stability_1"><a href="#wasm-modules">Wasm modules</a></span></li>
-<li><span class="stability_1"><a href="#top-level-await">Top-level <code>await</code></a></span></li>
+<li><a href="#top-level-await">Top-level <code>await</code></a></li>
 <li><span class="stability_1"><a href="#https-and-http-imports">HTTPS and HTTP imports</a></span>
 <ul>
 <li><a href="#imports-are-limited-to-http1">Imports are limited to HTTP/1</a></li>
@@ -177,8 +181,8 @@
 <ul>
 <li><a href="#hooks">Hooks</a>
 <ul>
-<li><a href="#resolvespecifier-context-defaultresolve"><code>resolve(specifier, context, defaultResolve)</code></a></li>
-<li><a href="#loadurl-context-defaultload"><code>load(url, context, defaultLoad)</code></a></li>
+<li><a href="#resolvespecifier-context-nextresolve"><code>resolve(specifier, context, nextResolve)</code></a></li>
+<li><a href="#loadurl-context-nextload"><code>load(url, context, nextLoad)</code></a></li>
 <li><a href="#globalpreload"><code>globalPreload()</code></a></li>
 </ul>
 </li>
@@ -250,13 +254,13 @@
 <li><a href="intl.html" class="nav-intl">Internationalization</a></li>
 <li><a href="modules.html" class="nav-modules">Modules: CommonJS modules</a></li>
 <li><a href="esm.html" class="nav-esm active">Modules: ECMAScript modules</a></li>
-<li><a href="module.html" class="nav-module">Modules: <code>module</code> API</a></li>
+<li><a href="module.html" class="nav-module">Modules: <code>node:module</code> API</a></li>
 <li><a href="packages.html" class="nav-packages">Modules: Packages</a></li>
 <li><a href="net.html" class="nav-net">Net</a></li>
 <li><a href="os.html" class="nav-os">OS</a></li>
 <li><a href="path.html" class="nav-path">Path</a></li>
 <li><a href="perf_hooks.html" class="nav-perf_hooks">Performance hooks</a></li>
-<li><a href="policy.html" class="nav-policy">Policies</a></li>
+<li><a href="permissions.html" class="nav-permissions">Permissions</a></li>
 <li><a href="process.html" class="nav-process">Process</a></li>
 <li><a href="punycode.html" class="nav-punycode">Punycode</a></li>
 <li><a href="querystring.html" class="nav-querystring">Query strings</a></li>
@@ -265,6 +269,7 @@
 <li><a href="report.html" class="nav-report">Report</a></li>
 <li><a href="stream.html" class="nav-stream">Stream</a></li>
 <li><a href="string_decoder.html" class="nav-string_decoder">String decoder</a></li>
+<li><a href="test.html" class="nav-test">Test runner</a></li>
 <li><a href="timers.html" class="nav-timers">Timers</a></li>
 <li><a href="tls.html" class="nav-tls">TLS/SSL</a></li>
 <li><a href="tracing.html" class="nav-tracing">Trace events</a></li>
@@ -292,13 +297,14 @@
         <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v18.x/api/esm.html">18.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v19.x/api/esm.html">19.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v18.x/api/esm.html">18.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v17.x/api/esm.html">17.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v16.x/api/esm.html">16.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v15.x/api/esm.html">15.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v14.x/api/esm.html">14.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v13.x/api/esm.html">13.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v12.x/api/esm.html">12.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v12.x/api/esm.html">12.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v11.x/api/esm.html">11.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v10.x/api/esm.html">10.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v9.x/api/esm.html">9.x</a></li>
@@ -319,7 +325,7 @@
                   <li>
                     <a href="esm.json">View as JSON</a>
                   </li>
-                  <li class="edit_on_github"><a href="https://github.com/nodejs/node/edit/master/doc/api/esm.md">Edit on GitHub</a></li>    
+                  <li class="edit_on_github"><a href="https://github.com/nodejs/node/edit/main/doc/api/esm.md">Edit on GitHub</a></li>    
                 </ul>
               </div>
             </li>
@@ -341,8 +347,8 @@
 <li><a href="#urls">URLs</a>
 <ul>
 <li><a href="#file-urls"><code>file:</code> URLs</a></li>
-<li><a href="#data-imports"><code>data:</code> Imports</a></li>
-<li><a href="#node-imports"><code>node:</code> Imports</a></li>
+<li><a href="#data-imports"><code>data:</code> imports</a></li>
+<li><a href="#node-imports"><code>node:</code> imports</a></li>
 </ul>
 </li>
 </ul>
@@ -363,9 +369,9 @@
 <li><a href="#commonjs-namespaces">CommonJS Namespaces</a></li>
 <li><a href="#differences-between-es-modules-and-commonjs">Differences between ES modules and CommonJS</a>
 <ul>
-<li><a href="#no-require-exports-or-moduleexports">No <code>require</code>, <code>exports</code> or <code>module.exports</code></a></li>
+<li><a href="#no-require-exports-or-moduleexports">No <code>require</code>, <code>exports</code>, or <code>module.exports</code></a></li>
 <li><a href="#no-__filename-or-__dirname">No <code>__filename</code> or <code>__dirname</code></a></li>
-<li><a href="#no-native-module-loading">No Native Module Loading</a></li>
+<li><a href="#no-addon-loading">No Addon Loading</a></li>
 <li><a href="#no-requireresolve">No <code>require.resolve</code></a></li>
 <li><a href="#no-node_path">No <code>NODE_PATH</code></a></li>
 <li><a href="#no-requireextensions">No <code>require.extensions</code></a></li>
@@ -376,7 +382,7 @@
 </li>
 <li><span class="stability_1"><a href="#json-modules">JSON modules</a></span></li>
 <li><span class="stability_1"><a href="#wasm-modules">Wasm modules</a></span></li>
-<li><span class="stability_1"><a href="#top-level-await">Top-level <code>await</code></a></span></li>
+<li><a href="#top-level-await">Top-level <code>await</code></a></li>
 <li><span class="stability_1"><a href="#https-and-http-imports">HTTPS and HTTP imports</a></span>
 <ul>
 <li><a href="#imports-are-limited-to-http1">Imports are limited to HTTP/1</a></li>
@@ -391,8 +397,8 @@
 <ul>
 <li><a href="#hooks">Hooks</a>
 <ul>
-<li><a href="#resolvespecifier-context-defaultresolve"><code>resolve(specifier, context, defaultResolve)</code></a></li>
-<li><a href="#loadurl-context-defaultload"><code>load(url, context, defaultLoad)</code></a></li>
+<li><a href="#resolvespecifier-context-nextresolve"><code>resolve(specifier, context, nextResolve)</code></a></li>
+<li><a href="#loadurl-context-nextload"><code>load(url, context, nextLoad)</code></a></li>
 <li><a href="#globalpreload"><code>globalPreload()</code></a></li>
 </ul>
 </li>
@@ -424,13 +430,15 @@
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v16.14.0</td>
+<tr><td>v18.6.0</td>
+<td><p>Add support for chaining loaders.</p></td></tr>
+<tr><td>v17.1.0, v16.14.0</td>
 <td><p>Add support for import assertions.</p></td></tr>
-<tr><td>v16.12.0</td>
+<tr><td>v17.0.0, v16.12.0</td>
 <td><p>Consolidate loader hooks, removed <code>getFormat</code>, <code>getSource</code>, <code>transformSource</code>, and <code>getGlobalPreloadCode</code> hooks added <code>load</code> and <code>globalPreload</code> hooks allowed returning <code>format</code> from either <code>resolve</code> or <code>load</code> hooks.</p></td></tr>
 <tr><td>v14.8.0</td>
 <td><p>Unflag Top-Level Await.</p></td></tr>
-<tr><td>v15.3.0, v12.22.0</td>
+<tr><td>v15.3.0, v14.17.0, v12.22.0</td>
 <td><p>Stabilize modules implementation.</p></td></tr>
 <tr><td>v14.13.0, v12.20.0</td>
 <td><p>Support for detection of CommonJS named exports.</p></td></tr>
@@ -483,8 +491,9 @@ module loader. See <a href="packages.html#determining-module-system">Determining
 </section><section><h3><code>import</code> Specifiers<span><a class="mark" href="#import-specifiers" id="import-specifiers">#</a></span><a aria-hidden="true" class="legacy" id="esm_import_specifiers"></a></h3>
 <h4>Terminology<span><a class="mark" href="#terminology" id="terminology">#</a></span><a aria-hidden="true" class="legacy" id="esm_terminology"></a></h4>
 <p>The <em>specifier</em> of an <code>import</code> statement is the string after the <code>from</code> keyword,
-e.g. <code>'path'</code> in <code>import { sep } from 'path'</code>. Specifiers are also used in
-<code>export from</code> statements, and as the argument to an <code>import()</code> expression.</p>
+e.g. <code>'node:path'</code> in <code>import { sep } from 'node:path'</code>. Specifiers are also
+used in <code>export from</code> statements, and as the argument to an <code>import()</code>
+expression.</p>
 <p>There are three types of specifiers:</p>
 <ul>
 <li>
@@ -508,7 +517,7 @@ directly and explicitly to a full path.</p>
 algorithm</a>. All other specifier resolutions are always only resolved with
 the standard relative <a href="https://url.spec.whatwg.org/">URL</a> resolution semantics.</p>
 <p>Like in CommonJS, module files within packages can be accessed by appending a
-path to the package name unless the package’s <a href="packages.html#nodejs-packagejson-field-definitions"><code>package.json</code></a> contains an
+path to the package name unless the package's <a href="packages.html#nodejs-packagejson-field-definitions"><code>package.json</code></a> contains an
 <a href="packages.html#exports"><code>"exports"</code></a> field, in which case files within packages can only be accessed
 via the paths defined in <a href="packages.html#exports"><code>"exports"</code></a>.</p>
 <p>For details on these package resolution rules that apply to bare specifiers in
@@ -530,34 +539,33 @@ a <a href="#https-loader">custom HTTPS loader</a>.</p>
 them has a different query or fragment.</p>
 <pre><code class="language-js"><span class="hljs-keyword">import</span> <span class="hljs-string">'./foo.mjs?query=1'</span>; <span class="hljs-comment">// loads ./foo.mjs with query of "?query=1"</span>
 <span class="hljs-keyword">import</span> <span class="hljs-string">'./foo.mjs?query=2'</span>; <span class="hljs-comment">// loads ./foo.mjs with query of "?query=2"</span></code></pre>
-<p>The volume root may be referenced via <code>/</code>, <code>//</code> or <code>file:///</code>. Given the
+<p>The volume root may be referenced via <code>/</code>, <code>//</code>, or <code>file:///</code>. Given the
 differences between <a href="https://url.spec.whatwg.org/">URL</a> and path resolution (such as percent encoding
 details), it is recommended to use <a href="url.html#urlpathtofileurlpath">url.pathToFileURL</a> when importing a path.</p>
-<h5><code>data:</code> Imports<span><a class="mark" href="#data-imports" id="data-imports">#</a></span><a aria-hidden="true" class="legacy" id="esm_data_imports"></a></h5>
+<h5><code>data:</code> imports<span><a class="mark" href="#data-imports" id="data-imports">#</a></span><a aria-hidden="true" class="legacy" id="esm_data_imports"></a></h5>
 <div class="api_metadata">
 <span>Added in: v12.10.0</span>
 </div>
 <p><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs"><code>data:</code> URLs</a> are supported for importing with the following MIME types:</p>
 <ul>
-<li><code>text/javascript</code> for ES Modules</li>
+<li><code>text/javascript</code> for ES modules</li>
 <li><code>application/json</code> for JSON</li>
 <li><code>application/wasm</code> for Wasm</li>
 </ul>
-<p><code>data:</code> URLs only resolve <a href="#terminology"><em>Bare specifiers</em></a> for builtin modules
-and <a href="#terminology"><em>Absolute specifiers</em></a>. Resolving
-<a href="#terminology"><em>Relative specifiers</em></a> does not work because <code>data:</code> is not a
+<pre><code class="language-js"><span class="hljs-keyword">import</span> <span class="hljs-string">'data:text/javascript,console.log("hello!");'</span>;
+<span class="hljs-keyword">import</span> _ <span class="hljs-keyword">from</span> <span class="hljs-string">'data:application/json,"world!"'</span> assert { <span class="hljs-attr">type</span>: <span class="hljs-string">'json'</span> };</code></pre>
+<p><code>data:</code> URLs only resolve <a href="#terminology">bare specifiers</a> for builtin modules
+and <a href="#terminology">absolute specifiers</a>. Resolving
+<a href="#terminology">relative specifiers</a> does not work because <code>data:</code> is not a
 <a href="https://url.spec.whatwg.org/#special-scheme">special scheme</a>. For example, attempting to load <code>./foo</code>
 from <code>data:text/javascript,import "./foo";</code> fails to resolve because there
-is no concept of relative resolution for <code>data:</code> URLs. An example of a <code>data:</code>
-URLs being used is:</p>
-<pre><code class="language-js"><span class="hljs-keyword">import</span> <span class="hljs-string">'data:text/javascript,console.log("hello!");'</span>;
-<span class="hljs-keyword">import</span> _ <span class="hljs-keyword">from</span> <span class="hljs-string">'data:application/json,"world!"'</span>;</code></pre>
-<h5><code>node:</code> Imports<span><a class="mark" href="#node-imports" id="node-imports">#</a></span><a aria-hidden="true" class="legacy" id="esm_node_imports"></a></h5>
+is no concept of relative resolution for <code>data:</code> URLs.</p>
+<h5><code>node:</code> imports<span><a class="mark" href="#node-imports" id="node-imports">#</a></span><a aria-hidden="true" class="legacy" id="esm_node_imports"></a></h5>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v16.0.0</td>
+<tr><td>v16.0.0, v14.18.0</td>
 <td><p>Added <code>node:</code> import support to <code>require(...)</code>.</p></td></tr>
 <tr><td>v14.13.1, v12.20.0</td>
 <td><p><span>Added in: v14.13.1, v12.20.0</span></p></td></tr>
@@ -570,7 +578,7 @@ absolute URL strings.</p>
 <pre><code class="language-js"><span class="hljs-keyword">import</span> fs <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs/promises'</span>;</code></pre>
 </section><section><h3>Import assertions<span><a class="mark" href="#import-assertions" id="import-assertions">#</a></span><a aria-hidden="true" class="legacy" id="esm_import_assertions"></a></h3>
 <div class="api_metadata">
-<span>Added in: v16.14.0</span>
+<span>Added in: v17.1.0, v16.14.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <p>The <a href="https://github.com/tc39/proposal-import-assertions">Import Assertions proposal</a> adds an inline syntax for module import
@@ -578,7 +586,7 @@ statements to pass on more information alongside the module specifier.</p>
 <pre><code class="language-js"><span class="hljs-keyword">import</span> fooData <span class="hljs-keyword">from</span> <span class="hljs-string">'./foo.json'</span> assert { <span class="hljs-attr">type</span>: <span class="hljs-string">'json'</span> };
 
 <span class="hljs-keyword">const</span> { <span class="hljs-attr">default</span>: barData } =
-  <span class="hljs-keyword">await</span> <span class="hljs-title function_">import</span>(<span class="hljs-string">'./bar.json'</span>, { <span class="hljs-attr">assert</span>: { <span class="hljs-attr">type</span>: <span class="hljs-string">'json'</span> } });</code></pre>
+  <span class="hljs-keyword">await</span> <span class="hljs-keyword">import</span>(<span class="hljs-string">'./bar.json'</span>, { <span class="hljs-attr">assert</span>: { <span class="hljs-attr">type</span>: <span class="hljs-string">'json'</span> } });</code></pre>
 <p>Node.js supports the following <code>type</code> values, for which the assertion is
 mandatory:</p>
 
@@ -601,9 +609,9 @@ default export is also provided which is the value of the CommonJS exports.
 The default export can be used for, among other things, modifying the named
 exports. Named exports of builtin modules are updated only by calling
 <a href="module.html#modulesyncbuiltinesmexports"><code>module.syncBuiltinESMExports()</code></a>.</p>
-<pre><code class="language-js"><span class="hljs-keyword">import</span> <span class="hljs-title class_">EventEmitter</span> <span class="hljs-keyword">from</span> <span class="hljs-string">'events'</span>;
+<pre><code class="language-js"><span class="hljs-keyword">import</span> <span class="hljs-title class_">EventEmitter</span> <span class="hljs-keyword">from</span> <span class="hljs-string">'node:events'</span>;
 <span class="hljs-keyword">const</span> e = <span class="hljs-keyword">new</span> <span class="hljs-title class_">EventEmitter</span>();</code></pre>
-<pre><code class="language-js"><span class="hljs-keyword">import</span> { readFile } <span class="hljs-keyword">from</span> <span class="hljs-string">'fs'</span>;
+<pre><code class="language-js"><span class="hljs-keyword">import</span> { readFile } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs'</span>;
 <span class="hljs-title function_">readFile</span>(<span class="hljs-string">'./foo.txt'</span>, <span class="hljs-function">(<span class="hljs-params">err, source</span>) =></span> {
   <span class="hljs-keyword">if</span> (err) {
     <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(err);
@@ -611,16 +619,16 @@ exports. Named exports of builtin modules are updated only by calling
     <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(source);
   }
 });</code></pre>
-<pre><code class="language-js"><span class="hljs-keyword">import</span> fs, { readFileSync } <span class="hljs-keyword">from</span> <span class="hljs-string">'fs'</span>;
-<span class="hljs-keyword">import</span> { syncBuiltinESMExports } <span class="hljs-keyword">from</span> <span class="hljs-string">'module'</span>;
-<span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'buffer'</span>;
+<pre><code class="language-js"><span class="hljs-keyword">import</span> fs, { readFileSync } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs'</span>;
+<span class="hljs-keyword">import</span> { syncBuiltinESMExports } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:module'</span>;
+<span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 fs.<span class="hljs-property">readFileSync</span> = <span class="hljs-function">() =></span> <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'Hello, ESM'</span>);
 <span class="hljs-title function_">syncBuiltinESMExports</span>();
 
 fs.<span class="hljs-property">readFileSync</span> === readFileSync;</code></pre>
 </section><section><h3><code>import()</code> expressions<span><a class="mark" href="#import-expressions" id="import-expressions">#</a></span><a aria-hidden="true" class="legacy" id="esm_import_expressions"></a></h3>
-<p><a href="https://wiki.developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import#Dynamic_Imports">Dynamic <code>import()</code></a> is supported in both CommonJS and ES modules. In CommonJS
+<p><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import">Dynamic <code>import()</code></a> is supported in both CommonJS and ES modules. In CommonJS
 modules it can be used to load ES modules.</p>
 </section><section><h3><code>import.meta</code><span><a class="mark" href="#importmeta" id="importmeta">#</a></span><a aria-hidden="true" class="legacy" id="esm_import_meta"></a></h3>
 <ul>
@@ -635,7 +643,7 @@ properties.</p>
 <p>This is defined exactly the same as it is in browsers providing the URL of the
 current module file.</p>
 <p>This enables useful patterns such as relative file loading:</p>
-<pre><code class="language-js"><span class="hljs-keyword">import</span> { readFileSync } <span class="hljs-keyword">from</span> <span class="hljs-string">'fs'</span>;
+<pre><code class="language-js"><span class="hljs-keyword">import</span> { readFileSync } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs'</span>;
 <span class="hljs-keyword">const</span> buffer = <span class="hljs-title function_">readFileSync</span>(<span class="hljs-keyword">new</span> <span class="hljs-title function_">URL</span>(<span class="hljs-string">'./data.proto'</span>, <span class="hljs-keyword">import</span>.<span class="hljs-property">meta</span>.<span class="hljs-property">url</span>));</code></pre>
 <h4><code>import.meta.resolve(specifier[, parent])</code><span><a class="mark" href="#importmetaresolvespecifier-parent" id="importmetaresolvespecifier-parent">#</a></span><a aria-hidden="true" class="legacy" id="esm_import_meta_resolve_specifier_parent"></a></h4>
 <!--
@@ -643,7 +651,9 @@ added:
   - v13.9.0
   - v12.16.2
 changes:
-  - version: v16.2.0
+  - version:
+      - v16.2.0
+      - v14.18.0
     pr-url: https://github.com/nodejs/node/pull/38587
     description: Add support for WHATWG `URL` object to `parentURL` parameter.
 -->
@@ -704,7 +714,7 @@ a namespace with a <code>default</code> export key pointing to the CommonJS
 <!-- eslint-skip -->
 <pre><code class="language-js"><span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> m <span class="hljs-keyword">from</span> <span class="hljs-string">'cjs'</span>;
 <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(m);
-<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(m === <span class="hljs-keyword">await</span> <span class="hljs-title function_">import</span>(<span class="hljs-string">'cjs'</span>));
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(m === <span class="hljs-keyword">await</span> <span class="hljs-keyword">import</span>(<span class="hljs-string">'cjs'</span>));
 <span class="hljs-comment">// Prints:</span>
 <span class="hljs-comment">//   [Module] { default: &#x3C;module.exports> }</span>
 <span class="hljs-comment">//   true</span></code></pre>
@@ -740,7 +750,7 @@ import form described above can be a better option.</p>
 and build tool and transpiler outputs. See <a href="https://github.com/nodejs/cjs-module-lexer/tree/1.2.2">cjs-module-lexer</a> for the exact
 semantics implemented.</p>
 <h4>Differences between ES modules and CommonJS<span><a class="mark" href="#differences-between-es-modules-and-commonjs" id="differences-between-es-modules-and-commonjs">#</a></span><a aria-hidden="true" class="legacy" id="esm_differences_between_es_modules_and_commonjs"></a></h4>
-<h5>No <code>require</code>, <code>exports</code> or <code>module.exports</code><span><a class="mark" href="#no-require-exports-or-moduleexports" id="no-require-exports-or-moduleexports">#</a></span><a aria-hidden="true" class="legacy" id="esm_no_require_exports_or_module_exports"></a></h5>
+<h5>No <code>require</code>, <code>exports</code>, or <code>module.exports</code><span><a class="mark" href="#no-require-exports-or-moduleexports" id="no-require-exports-or-moduleexports">#</a></span><a aria-hidden="true" class="legacy" id="esm_no_require_exports_or_module_exports"></a></h5>
 <p>In most cases, the ES module <code>import</code> can be used to load CommonJS modules.</p>
 <p>If needed, a <code>require</code> function can be constructed within an ES module using
 <a href="module.html#modulecreaterequirefilename"><code>module.createRequire()</code></a>.</p>
@@ -748,8 +758,8 @@ semantics implemented.</p>
 <p>These CommonJS variables are not available in ES modules.</p>
 <p><code>__filename</code> and <code>__dirname</code> use cases can be replicated via
 <a href="#importmetaurl"><code>import.meta.url</code></a>.</p>
-<h5>No Native Module Loading<span><a class="mark" href="#no-native-module-loading" id="no-native-module-loading">#</a></span><a aria-hidden="true" class="legacy" id="esm_no_native_module_loading"></a></h5>
-<p>Native modules are not currently supported with ES module imports.</p>
+<h5>No Addon Loading<span><a class="mark" href="#no-addon-loading" id="no-addon-loading">#</a></span><a aria-hidden="true" class="legacy" id="esm_no_addon_loading"></a></h5>
+<p><a href="addons.html">Addons</a> are not currently supported with ES module imports.</p>
 <p>They can instead be loaded with <a href="module.html#modulecreaterequirefilename"><code>module.createRequire()</code></a> or
 <a href="process.html#processdlopenmodule-filename-flags"><code>process.dlopen</code></a>.</p>
 <h5>No <code>require.resolve</code><span><a class="mark" href="#no-requireresolve" id="no-requireresolve">#</a></span><a aria-hidden="true" class="legacy" id="esm_no_require_resolve"></a></h5>
@@ -795,7 +805,6 @@ imported as normal modules while also supporting their module imports.</p>
 <div class="api_metadata">
 <span>Added in: v14.8.0</span>
 </div>
-<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <p>The <code>await</code> keyword may be used in the top level body of an ECMAScript module.</p>
 <p>Assuming an <code>a.mjs</code> with</p>
 <pre><code class="language-js"><span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> five = <span class="hljs-keyword">await</span> <span class="hljs-title class_">Promise</span>.<span class="hljs-title function_">resolve</span>(<span class="hljs-number">5</span>);</code></pre>
@@ -806,8 +815,8 @@ imported as normal modules while also supporting their module imports.</p>
 <pre><code class="language-bash">node b.mjs <span class="hljs-comment"># works</span></code></pre>
 <p>If a top level <code>await</code> expression never resolves, the <code>node</code> process will exit
 with a <code>13</code> <a href="process.html#exit-codes">status code</a>.</p>
-<pre><code class="language-js"><span class="hljs-keyword">import</span> { spawn } <span class="hljs-keyword">from</span> <span class="hljs-string">'child_process'</span>;
-<span class="hljs-keyword">import</span> { execPath } <span class="hljs-keyword">from</span> <span class="hljs-string">'process'</span>;
+<pre><code class="language-js"><span class="hljs-keyword">import</span> { spawn } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:child_process'</span>;
+<span class="hljs-keyword">import</span> { execPath } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:process'</span>;
 
 <span class="hljs-title function_">spawn</span>(execPath, [
   <span class="hljs-string">'--input-type=module'</span>,
@@ -844,7 +853,7 @@ server-based implementation.</p>
 To still access local modules while avoiding the security concern, pass in
 references to the local dependencies:</p>
 <pre><code class="language-js mjs"><span class="hljs-comment">// file.mjs</span>
-<span class="hljs-keyword">import</span> worker_threads <span class="hljs-keyword">from</span> <span class="hljs-string">'worker_threads'</span>;
+<span class="hljs-keyword">import</span> worker_threads <span class="hljs-keyword">from</span> <span class="hljs-string">'node:worker_threads'</span>;
 <span class="hljs-keyword">import</span> { configure, resize } <span class="hljs-keyword">from</span> <span class="hljs-string">'https://example.com/imagelib.mjs'</span>;
 <span class="hljs-title function_">configure</span>({ worker_threads });</code></pre>
 <pre><code class="language-js mjs"><span class="hljs-comment">// https://example.com/imagelib.mjs</span>
@@ -863,6 +872,19 @@ inadvertently using potentially mutable state that could affect reliability
 of Node.js applications.</p>
 <p><i id="esm_experimental_loaders"></i></p>
 </section><section><h3>Loaders<span><a class="mark" href="#loaders" id="loaders">#</a></span><a aria-hidden="true" class="legacy" id="esm_loaders"></a></h3>
+<div class="api_metadata">
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v18.6.0</td>
+<td><p>Add support for chaining loaders.</p></td></tr>
+<tr><td>v16.12.0</td>
+<td><p>Removed <code>getFormat</code>, <code>getSource</code>, <code>transformSource</code>, and <code>globalPreload</code>; added <code>load</code> hook and <code>getGlobalPreload</code> hook.</p></td></tr>
+<tr><td>v8.8.0</td>
+<td><p><span>Added in: v8.8.0</span></p></td></tr>
+</tbody></table>
+</details>
+</div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <blockquote>
 <p>This API is currently being redesigned and will still change.</p>
@@ -872,13 +894,31 @@ of Node.js applications.</p>
 provided via a <code>--experimental-loader ./loader-name.mjs</code> argument to Node.js.</p>
 <p>When hooks are used they apply to the entry point and all <code>import</code> calls. They
 won't apply to <code>require</code> calls; those still follow <a href="modules.html">CommonJS</a> rules.</p>
+<p>Loaders follow the pattern of <code>--require</code>:</p>
+<pre><code class="language-console">node \
+  --experimental-loader unpkg \
+  --experimental-loader http-to-https \
+  --experimental-loader cache-buster</code></pre>
+<p>These are called in the following sequence: <code>cache-buster</code> calls
+<code>http-to-https</code> which calls <code>unpkg</code>.</p>
 <h4>Hooks<span><a class="mark" href="#hooks" id="hooks">#</a></span><a aria-hidden="true" class="legacy" id="esm_hooks"></a></h4>
-<h5><code>resolve(specifier, context, defaultResolve)</code><span><a class="mark" href="#resolvespecifier-context-defaultresolve" id="resolvespecifier-context-defaultresolve">#</a></span><a aria-hidden="true" class="legacy" id="esm_resolve_specifier_context_defaultresolve"></a></h5>
+<p>Hooks are part of a chain, even if that chain consists of only one custom
+(user-provided) hook and the default hook, which is always present. Hook
+functions nest: each one must always return a plain object, and chaining happens
+as a result of each function calling <code>next&#x3C;hookName>()</code>, which is a reference
+to the subsequent loader’s hook.</p>
+<p>A hook that returns a value lacking a required property triggers an exception.
+A hook that returns without calling <code>next&#x3C;hookName>()</code> <em>and</em> without returning
+<code>shortCircuit: true</code> also triggers an exception. These errors are to help
+prevent unintentional breaks in the chain.</p>
+<h5><code>resolve(specifier, context, nextResolve)</code><span><a class="mark" href="#resolvespecifier-context-nextresolve" id="resolvespecifier-context-nextresolve">#</a></span><a aria-hidden="true" class="legacy" id="esm_resolve_specifier_context_nextresolve"></a></h5>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v16.14.0</td>
+<tr><td>v18.6.0</td>
+<td><p>Add support for chaining resolve hooks. Each hook must either call <code>nextResolve()</code> or include a <code>shortCircuit</code> property set to <code>true</code> in its return.</p></td></tr>
+<tr><td>v17.1.0, v16.14.0</td>
 <td><p>Add support for import assertions.</p></td></tr>
 </tbody></table>
 </details>
@@ -891,30 +931,41 @@ signature may change. Do not rely on the API described below.</p>
 <li><code>specifier</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
 <li><code>context</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
 <ul>
-<li><code>conditions</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string[]></a></li>
+<li><code>conditions</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string[]></a> Export conditions of the relevant <code>package.json</code></li>
 <li><code>importAssertions</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a></li>
-<li><code>parentURL</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type" class="type">&#x3C;undefined></a></li>
+<li><code>parentURL</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type" class="type">&#x3C;undefined></a> The module importing this one, or undefined
+if this is the Node.js entry point</li>
 </ul>
 </li>
-<li><code>defaultResolve</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> The Node.js default resolver.</li>
+<li><code>nextResolve</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> The subsequent <code>resolve</code> hook in the chain, or the
+Node.js default <code>resolve</code> hook after the last user-supplied <code>resolve</code> hook
+<ul>
+<li><code>specifier</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
+<li><code>context</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a></li>
+</ul>
+</li>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
 <ul>
-<li><code>format</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type" class="type">&#x3C;undefined></a>
+<li><code>format</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type" class="type">&#x3C;undefined></a> A hint to the load hook (it might be
+ignored)
 <code>'builtin' | 'commonjs' | 'json' | 'module' | 'wasm'</code></li>
-<li><code>url</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> The absolute url to the import target (such as <code>file://…</code>)</li>
+<li><code>shortCircuit</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type" class="type">&#x3C;undefined></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> A signal that this hook intends to
+terminate the chain of <code>resolve</code> hooks. <strong>Default:</strong> <code>false</code></li>
+<li><code>url</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> The absolute URL to which this input resolves</li>
 </ul>
 </li>
 </ul>
-<p>The <code>resolve</code> hook returns the resolved file URL for a given module specifier
-and parent URL, and optionally its format (such as <code>'module'</code>) as a hint to the
-<code>load</code> hook. If a format is specified, the <code>load</code> hook is ultimately responsible
-for providing the final <code>format</code> value (and it is free to ignore the hint
-provided by <code>resolve</code>); if <code>resolve</code> provides a <code>format</code>, a custom <code>load</code>
-hook is required even if only to pass the value to the Node.js default <code>load</code>
-hook.</p>
+<p>The <code>resolve</code> hook chain is responsible for resolving file URL for a given
+module specifier and parent URL, and optionally its format (such as <code>'module'</code>)
+as a hint to the <code>load</code> hook. If a format is specified, the <code>load</code> hook is
+ultimately responsible for providing the final <code>format</code> value (and it is free to
+ignore the hint provided by <code>resolve</code>); if <code>resolve</code> provides a <code>format</code>, a
+custom <code>load</code> hook is required even if only to pass the value to the Node.js
+default <code>load</code> hook.</p>
 <p>The module specifier is the string in an <code>import</code> statement or
-<code>import()</code> expression, and the parent URL is the URL of the module that imported
-this one, or <code>undefined</code> if this is the main entry point for the application.</p>
+<code>import()</code> expression.</p>
+<p>The parent URL is the URL of the module that imported this one, or <code>undefined</code>
+if this is the main entry point for the application.</p>
 <p>The <code>conditions</code> property in <code>context</code> is an array of conditions for
 <a href="packages.html#conditional-exports">package exports conditions</a> that apply to this resolution
 request. They can be used for looking up conditional mappings elsewhere or to
@@ -924,38 +975,43 @@ the <code>context.conditions</code> array passed into the hook. To guarantee <em
 Node.js module specifier resolution behavior</em> when calling <code>defaultResolve</code>, the
 <code>context.conditions</code> array passed to it <em>must</em> include <em>all</em> elements of the
 <code>context.conditions</code> array originally passed into the <code>resolve</code> hook.</p>
-<pre><code class="language-js"><span class="hljs-comment">/**
- * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string</span>} <span class="hljs-variable">specifier</span>
- * <span class="hljs-doctag">@param</span> {<span class="hljs-type">{
- *   conditions: string[],
- *   parentURL: string | undefined,
- * </span>}} context
- * <span class="hljs-doctag">@param</span> {<span class="hljs-type">Function</span>} <span class="hljs-variable">defaultResolve</span>
- * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">Promise&#x3C;{ url: string </span>}>}
- */</span>
-<span class="hljs-keyword">export</span> <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">resolve</span>(<span class="hljs-params">specifier, context, defaultResolve</span>) {
+<pre><code class="language-js"><span class="hljs-keyword">export</span> <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">resolve</span>(<span class="hljs-params">specifier, context, nextResolve</span>) {
   <span class="hljs-keyword">const</span> { parentURL = <span class="hljs-literal">null</span> } = context;
+
   <span class="hljs-keyword">if</span> (<span class="hljs-title class_">Math</span>.<span class="hljs-title function_">random</span>() > <span class="hljs-number">0.5</span>) { <span class="hljs-comment">// Some condition.</span>
     <span class="hljs-comment">// For some or all specifiers, do some custom logic for resolving.</span>
     <span class="hljs-comment">// Always return an object of the form {url: &#x3C;string>}.</span>
     <span class="hljs-keyword">return</span> {
+      <span class="hljs-attr">shortCircuit</span>: <span class="hljs-literal">true</span>,
       <span class="hljs-attr">url</span>: parentURL ?
         <span class="hljs-keyword">new</span> <span class="hljs-title function_">URL</span>(specifier, parentURL).<span class="hljs-property">href</span> :
         <span class="hljs-keyword">new</span> <span class="hljs-title function_">URL</span>(specifier).<span class="hljs-property">href</span>,
     };
   }
+
   <span class="hljs-keyword">if</span> (<span class="hljs-title class_">Math</span>.<span class="hljs-title function_">random</span>() &#x3C; <span class="hljs-number">0.5</span>) { <span class="hljs-comment">// Another condition.</span>
     <span class="hljs-comment">// When calling `defaultResolve`, the arguments can be modified. In this</span>
     <span class="hljs-comment">// case it's adding another value for matching conditional exports.</span>
-    <span class="hljs-keyword">return</span> <span class="hljs-title function_">defaultResolve</span>(specifier, {
+    <span class="hljs-keyword">return</span> <span class="hljs-title function_">nextResolve</span>(specifier, {
       ...context,
       <span class="hljs-attr">conditions</span>: [...context.<span class="hljs-property">conditions</span>, <span class="hljs-string">'another-condition'</span>],
     });
   }
-  <span class="hljs-comment">// Defer to Node.js for all other specifiers.</span>
-  <span class="hljs-keyword">return</span> <span class="hljs-title function_">defaultResolve</span>(specifier, context, defaultResolve);
+
+  <span class="hljs-comment">// Defer to the next hook in the chain, which would be the</span>
+  <span class="hljs-comment">// Node.js default resolve if this is the last user-specified loader.</span>
+  <span class="hljs-keyword">return</span> <span class="hljs-title function_">nextResolve</span>(specifier);
 }</code></pre>
-<h5><code>load(url, context, defaultLoad)</code><span><a class="mark" href="#loadurl-context-defaultload" id="loadurl-context-defaultload">#</a></span><a aria-hidden="true" class="legacy" id="esm_load_url_context_defaultload"></a></h5>
+<h5><code>load(url, context, nextLoad)</code><span><a class="mark" href="#loadurl-context-nextload" id="loadurl-context-nextload">#</a></span><a aria-hidden="true" class="legacy" id="esm_load_url_context_nextload"></a></h5>
+<div class="api_metadata">
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v18.6.0</td>
+<td><p>Add support for chaining load hooks. Each hook must either call <code>nextLoad()</code> or include a <code>shortCircuit</code> property set to <code>true</code> in its return.</p></td></tr>
+</tbody></table>
+</details>
+</div>
 <blockquote>
 <p>The loaders API is being redesigned. This hook may disappear or its
 signature may change. Do not rely on the API described below.</p>
@@ -965,19 +1021,28 @@ signature may change. Do not rely on the API described below.</p>
 deprecated, hooks (<code>getFormat</code>, <code>getSource</code>, and <code>transformSource</code>).</p>
 </blockquote>
 <ul>
-<li><code>url</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
+<li><code>url</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> The URL returned by the <code>resolve</code> chain</li>
 <li><code>context</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
 <ul>
+<li><code>conditions</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string[]></a> Export conditions of the relevant <code>package.json</code></li>
 <li><code>format</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type" class="type">&#x3C;undefined></a> The format optionally supplied by the
-<code>resolve</code> hook.</li>
+<code>resolve</code> hook chain</li>
 <li><code>importAssertions</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a></li>
 </ul>
 </li>
-<li><code>defaultLoad</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a></li>
+<li><code>nextLoad</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> The subsequent <code>load</code> hook in the chain, or the
+Node.js default <code>load</code> hook after the last user-supplied <code>load</code> hook
+<ul>
+<li><code>specifier</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
+<li><code>context</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a></li>
+</ul>
+</li>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
 <ul>
 <li><code>format</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
-<li><code>source</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer" class="type">&#x3C;ArrayBuffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a></li>
+<li><code>shortCircuit</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type" class="type">&#x3C;undefined></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> A signal that this hook intends to
+terminate the chain of <code>resolve</code> hooks. <strong>Default:</strong> <code>false</code></li>
+<li><code>source</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer" class="type">&#x3C;ArrayBuffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> The source for Node.js to evaluate</li>
 </ul>
 </li>
 </ul>
@@ -1045,20 +1110,10 @@ is not a string, it is converted to a string using <a href="util.html#class-util
 source code of an ES module specifier. This would allow a loader to potentially
 avoid reading files from disk. It could also be used to map an unrecognized
 format to a supported one, for example <code>yaml</code> to <code>module</code>.</p>
-<pre><code class="language-js"><span class="hljs-comment">/**
- * <span class="hljs-doctag">@param</span> {<span class="hljs-type">string</span>} <span class="hljs-variable">url</span>
- * <span class="hljs-doctag">@param</span> {<span class="hljs-type">{
-    format: string,
-  </span>}} context If resolve settled with a `format`, that value is included here.
- * <span class="hljs-doctag">@param</span> {<span class="hljs-type">Function</span>} <span class="hljs-variable">defaultLoad</span>
- * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">Promise&#x3C;{
-    format: string,
-    source: string | ArrayBuffer | SharedArrayBuffer | Uint8Array,
-  </span>}>}
- */</span>
-<span class="hljs-keyword">export</span> <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">load</span>(<span class="hljs-params">url, context, defaultLoad</span>) {
+<pre><code class="language-js"><span class="hljs-keyword">export</span> <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">load</span>(<span class="hljs-params">url, context, nextLoad</span>) {
   <span class="hljs-keyword">const</span> { format } = context;
-  <span class="hljs-keyword">if</span> (<span class="hljs-title class_">Math</span>.<span class="hljs-title function_">random</span>() > <span class="hljs-number">0.5</span>) { <span class="hljs-comment">// Some condition.</span>
+
+  <span class="hljs-keyword">if</span> (<span class="hljs-title class_">Math</span>.<span class="hljs-title function_">random</span>() > <span class="hljs-number">0.5</span>) { <span class="hljs-comment">// Some condition</span>
     <span class="hljs-comment">/*
       For some or all URLs, do some custom logic for retrieving the source.
       Always return an object of the form {
@@ -1068,15 +1123,26 @@ format to a supported one, for example <code>yaml</code> to <code>module</code>.
     */</span>
     <span class="hljs-keyword">return</span> {
       format,
+      <span class="hljs-attr">shortCircuit</span>: <span class="hljs-literal">true</span>,
       <span class="hljs-attr">source</span>: <span class="hljs-string">'...'</span>,
     };
   }
-  <span class="hljs-comment">// Defer to Node.js for all other URLs.</span>
-  <span class="hljs-keyword">return</span> <span class="hljs-title function_">defaultLoad</span>(url, context, defaultLoad);
+
+  <span class="hljs-comment">// Defer to the next hook in the chain.</span>
+  <span class="hljs-keyword">return</span> <span class="hljs-title function_">nextLoad</span>(url);
 }</code></pre>
 <p>In a more advanced scenario, this can also be used to transform an unsupported
 source to a supported one (see <a href="#examples">Examples</a> below).</p>
 <h5><code>globalPreload()</code><span><a class="mark" href="#globalpreload" id="globalpreload">#</a></span><a aria-hidden="true" class="legacy" id="esm_globalpreload"></a></h5>
+<div class="api_metadata">
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v18.6.0</td>
+<td><p>Add support for chaining globalPreload hooks.</p></td></tr>
+</tbody></table>
+</details>
+</div>
 <blockquote>
 <p>The loaders API is being redesigned. This hook may disappear or its
 signature may change. Do not rely on the API described below.</p>
@@ -1086,7 +1152,12 @@ signature may change. Do not rely on the API described below.</p>
 <code>getGlobalPreloadCode</code>.</p>
 </blockquote>
 <ul>
-<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
+<li><code>context</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> Information to assist the preload code
+<ul>
+<li><code>port</code> <a href="worker_threads.html#class-messageport" class="type">&#x3C;MessagePort></a></li>
+</ul>
+</li>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Code to run before application startup</li>
 </ul>
 <p>Sometimes it might be necessary to run some code inside of the same global
 scope that the application runs in. This hook allows the return of a string
@@ -1096,13 +1167,7 @@ scope. The only argument is a <code>require</code>-like function that can be use
 builtins like "fs": <code>getBuiltin(request: string)</code>.</p>
 <p>If the code needs more advanced <code>require</code> features, it has to construct
 its own <code>require</code> using  <code>module.createRequire()</code>.</p>
-<pre><code class="language-js"><span class="hljs-comment">/**
- * <span class="hljs-doctag">@param</span> {<span class="hljs-type">{
-     port: MessagePort,
-   </span>}} utilities Things that preload code might find useful
- * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">string</span>} Code to run before application startup
- */</span>
-<span class="hljs-keyword">export</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">globalPreload</span>(<span class="hljs-params">utilities</span>) {
+<pre><code class="language-js"><span class="hljs-keyword">export</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">globalPreload</span>(<span class="hljs-params">context</span>) {
   <span class="hljs-keyword">return</span> <span class="hljs-string">`\
 globalThis.someInjectedProperty = 42;
 console.log('I just set some globals!');
@@ -1123,10 +1188,6 @@ close normally.</p>
 <pre><code class="language-js"><span class="hljs-comment">/**
  * This example has the application context send a message to the loader
  * and sends the message back to the application context
- * <span class="hljs-doctag">@param</span> {<span class="hljs-type">{
-     port: MessagePort,
-   </span>}} utilities Things that preload code might find useful
- * <span class="hljs-doctag">@returns</span> {<span class="hljs-type">string</span>} Code to run before application startup
  */</span>
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">globalPreload</span>(<span class="hljs-params">{ port }</span>) {
   port.<span class="hljs-property">onmessage</span> = <span class="hljs-function">(<span class="hljs-params">evt</span>) =></span> {
@@ -1141,18 +1202,19 @@ close normally.</p>
 }</code></pre>
 <h4>Examples<span><a class="mark" href="#examples" id="examples">#</a></span><a aria-hidden="true" class="legacy" id="esm_examples"></a></h4>
 <p>The various loader hooks can be used together to accomplish wide-ranging
-customizations of Node.js’ code loading and evaluation behaviors.</p>
+customizations of the Node.js code loading and evaluation behaviors.</p>
 <h5>HTTPS loader<span><a class="mark" href="#https-loader" id="https-loader">#</a></span><a aria-hidden="true" class="legacy" id="esm_https_loader"></a></h5>
-<p>In current Node.js, specifiers starting with <code>https://</code> are unsupported. The
-loader below registers hooks to enable rudimentary support for such specifiers.
-While this may seem like a significant improvement to Node.js core
+<p>In current Node.js, specifiers starting with <code>https://</code> are experimental (see
+<a href="#https-and-http-imports">HTTPS and HTTP imports</a>).</p>
+<p>The loader below registers hooks to enable rudimentary support for such
+specifiers. While this may seem like a significant improvement to Node.js core
 functionality, there are substantial downsides to actually using this loader:
 performance is much slower than loading files from disk, there is no caching,
 and there is no security.</p>
 <pre><code class="language-js"><span class="hljs-comment">// https-loader.mjs</span>
-<span class="hljs-keyword">import</span> { get } <span class="hljs-keyword">from</span> <span class="hljs-string">'https'</span>;
+<span class="hljs-keyword">import</span> { get } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:https'</span>;
 
-<span class="hljs-keyword">export</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">resolve</span>(<span class="hljs-params">specifier, context, defaultResolve</span>) {
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">resolve</span>(<span class="hljs-params">specifier, context, nextResolve</span>) {
   <span class="hljs-keyword">const</span> { parentURL = <span class="hljs-literal">null</span> } = context;
 
   <span class="hljs-comment">// Normally Node.js would error on specifiers starting with 'https://', so</span>
@@ -1160,19 +1222,21 @@ and there is no security.</p>
   <span class="hljs-comment">// passed along to the later hooks below.</span>
   <span class="hljs-keyword">if</span> (specifier.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">'https://'</span>)) {
     <span class="hljs-keyword">return</span> {
-      <span class="hljs-attr">url</span>: specifier
+      <span class="hljs-attr">shortCircuit</span>: <span class="hljs-literal">true</span>,
+      <span class="hljs-attr">url</span>: specifier,
     };
   } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (parentURL &#x26;&#x26; parentURL.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">'https://'</span>)) {
     <span class="hljs-keyword">return</span> {
-      <span class="hljs-attr">url</span>: <span class="hljs-keyword">new</span> <span class="hljs-title function_">URL</span>(specifier, parentURL).<span class="hljs-property">href</span>
+      <span class="hljs-attr">shortCircuit</span>: <span class="hljs-literal">true</span>,
+      <span class="hljs-attr">url</span>: <span class="hljs-keyword">new</span> <span class="hljs-title function_">URL</span>(specifier, parentURL).<span class="hljs-property">href</span>,
     };
   }
 
   <span class="hljs-comment">// Let Node.js handle all other specifiers.</span>
-  <span class="hljs-keyword">return</span> <span class="hljs-title function_">defaultResolve</span>(specifier, context, defaultResolve);
+  <span class="hljs-keyword">return</span> <span class="hljs-title function_">nextResolve</span>(specifier);
 }
 
-<span class="hljs-keyword">export</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">load</span>(<span class="hljs-params">url, context, defaultLoad</span>) {
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">load</span>(<span class="hljs-params">url, context, nextLoad</span>) {
   <span class="hljs-comment">// For JavaScript to be loaded over the network, we need to fetch and</span>
   <span class="hljs-comment">// return it.</span>
   <span class="hljs-keyword">if</span> (url.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">'https://'</span>)) {
@@ -1184,6 +1248,7 @@ and there is no security.</p>
           <span class="hljs-comment">// This example assumes all network-provided JavaScript is ES module</span>
           <span class="hljs-comment">// code.</span>
           <span class="hljs-attr">format</span>: <span class="hljs-string">'module'</span>,
+          <span class="hljs-attr">shortCircuit</span>: <span class="hljs-literal">true</span>,
           <span class="hljs-attr">source</span>: data,
         }));
       }).<span class="hljs-title function_">on</span>(<span class="hljs-string">'error'</span>, <span class="hljs-function">(<span class="hljs-params">err</span>) =></span> <span class="hljs-title function_">reject</span>(err));
@@ -1191,7 +1256,7 @@ and there is no security.</p>
   }
 
   <span class="hljs-comment">// Let Node.js handle all other URLs.</span>
-  <span class="hljs-keyword">return</span> <span class="hljs-title function_">defaultLoad</span>(url, context, defaultLoad);
+  <span class="hljs-keyword">return</span> <span class="hljs-title function_">nextLoad</span>(url);
 }</code></pre>
 <pre><code class="language-js"><span class="hljs-comment">// main.mjs</span>
 <span class="hljs-keyword">import</span> { <span class="hljs-variable constant_">VERSION</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'https://coffeescript.org/browser-compiler-modern/coffeescript.js'</span>;
@@ -1202,9 +1267,9 @@ and there is no security.</p>
 prints the current version of CoffeeScript per the module at the URL in
 <code>main.mjs</code>.</p>
 <h5>Transpiler loader<span><a class="mark" href="#transpiler-loader" id="transpiler-loader">#</a></span><a aria-hidden="true" class="legacy" id="esm_transpiler_loader"></a></h5>
-<p>Sources that are in formats Node.js doesn’t understand can be converted into
-JavaScript using the <a href="#loadurl-context-defaultload"><code>load</code> hook</a>. Before that hook gets called,
-however, a <a href="#resolvespecifier-context-defaultresolve"><code>resolve</code> hook</a> needs to tell Node.js not to
+<p>Sources that are in formats Node.js doesn't understand can be converted into
+JavaScript using the <a href="#loadurl-context-nextload"><code>load</code> hook</a>. Before that hook gets called,
+however, a <a href="#resolvespecifier-context-nextresolve"><code>resolve</code> hook</a> needs to tell Node.js not to
 throw an error on unknown file types.</p>
 <p>This is less performant than transpiling source files before running
 Node.js; a transpiler loader should only be used for development and testing
@@ -1218,30 +1283,32 @@ purposes.</p>
 
 <span class="hljs-keyword">const</span> baseURL = <span class="hljs-title function_">pathToFileURL</span>(<span class="hljs-string">`<span class="hljs-subst">${cwd()}</span>/`</span>).<span class="hljs-property">href</span>;
 
-<span class="hljs-comment">// CoffeeScript files end in .coffee, .litcoffee or .coffee.md.</span>
+<span class="hljs-comment">// CoffeeScript files end in .coffee, .litcoffee, or .coffee.md.</span>
 <span class="hljs-keyword">const</span> extensionsRegex = <span class="hljs-regexp">/\.coffee$|\.litcoffee$|\.coffee\.md$/</span>;
 
-<span class="hljs-keyword">export</span> <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">resolve</span>(<span class="hljs-params">specifier, context, defaultResolve</span>) {
-  <span class="hljs-keyword">const</span> { parentURL = baseURL } = context;
-
-  <span class="hljs-comment">// Node.js normally errors on unknown file extensions, so return a URL for</span>
-  <span class="hljs-comment">// specifiers ending in the CoffeeScript file extensions.</span>
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">resolve</span>(<span class="hljs-params">specifier, context, nextResolve</span>) {
   <span class="hljs-keyword">if</span> (extensionsRegex.<span class="hljs-title function_">test</span>(specifier)) {
+    <span class="hljs-keyword">const</span> { parentURL = baseURL } = context;
+
+    <span class="hljs-comment">// Node.js normally errors on unknown file extensions, so return a URL for</span>
+    <span class="hljs-comment">// specifiers ending in the CoffeeScript file extensions.</span>
     <span class="hljs-keyword">return</span> {
-      <span class="hljs-attr">url</span>: <span class="hljs-keyword">new</span> <span class="hljs-title function_">URL</span>(specifier, parentURL).<span class="hljs-property">href</span>
+      <span class="hljs-attr">shortCircuit</span>: <span class="hljs-literal">true</span>,
+      <span class="hljs-attr">url</span>: <span class="hljs-keyword">new</span> <span class="hljs-title function_">URL</span>(specifier, parentURL).<span class="hljs-property">href</span>,
     };
   }
 
   <span class="hljs-comment">// Let Node.js handle all other specifiers.</span>
-  <span class="hljs-keyword">return</span> <span class="hljs-title function_">defaultResolve</span>(specifier, context, defaultResolve);
+  <span class="hljs-keyword">return</span> <span class="hljs-title function_">nextResolve</span>(specifier);
 }
 
-<span class="hljs-keyword">export</span> <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">load</span>(<span class="hljs-params">url, context, defaultLoad</span>) {
-  <span class="hljs-comment">// Now that we patched resolve to let CoffeeScript URLs through, we need to</span>
-  <span class="hljs-comment">// tell Node.js what format such URLs should be interpreted as. Because</span>
-  <span class="hljs-comment">// CoffeeScript transpiles into JavaScript, it should be one of the two</span>
-  <span class="hljs-comment">// JavaScript formats: 'commonjs' or 'module'.</span>
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">load</span>(<span class="hljs-params">url, context, nextLoad</span>) {
   <span class="hljs-keyword">if</span> (extensionsRegex.<span class="hljs-title function_">test</span>(url)) {
+    <span class="hljs-comment">// Now that we patched resolve to let CoffeeScript URLs through, we need to</span>
+    <span class="hljs-comment">// tell Node.js what format such URLs should be interpreted as. Because</span>
+    <span class="hljs-comment">// CoffeeScript transpiles into JavaScript, it should be one of the two</span>
+    <span class="hljs-comment">// JavaScript formats: 'commonjs' or 'module'.</span>
+
     <span class="hljs-comment">// CoffeeScript files can be either CommonJS or ES modules, so we want any</span>
     <span class="hljs-comment">// CoffeeScript file to be treated by Node.js the same as a .js file at the</span>
     <span class="hljs-comment">// same location. To determine how Node.js would interpret an arbitrary .js</span>
@@ -1254,25 +1321,26 @@ purposes.</p>
     <span class="hljs-comment">// loader. Avoiding the need for a separate CommonJS handler is a future</span>
     <span class="hljs-comment">// enhancement planned for ES module loaders.</span>
     <span class="hljs-keyword">if</span> (format === <span class="hljs-string">'commonjs'</span>) {
-      <span class="hljs-keyword">return</span> { format };
+      <span class="hljs-keyword">return</span> {
+        format,
+        <span class="hljs-attr">shortCircuit</span>: <span class="hljs-literal">true</span>,
+      };
     }
 
-    <span class="hljs-keyword">const</span> { <span class="hljs-attr">source</span>: rawSource } = <span class="hljs-keyword">await</span> <span class="hljs-title function_">defaultLoad</span>(url, { format });
+    <span class="hljs-keyword">const</span> { <span class="hljs-attr">source</span>: rawSource } = <span class="hljs-keyword">await</span> <span class="hljs-title function_">nextLoad</span>(url, { ...context, format });
     <span class="hljs-comment">// This hook converts CoffeeScript source code into JavaScript source code</span>
     <span class="hljs-comment">// for all imported CoffeeScript files.</span>
-    <span class="hljs-keyword">const</span> transformedSource = <span class="hljs-title class_">CoffeeScript</span>.<span class="hljs-title function_">compile</span>(rawSource.<span class="hljs-title function_">toString</span>(), {
-      <span class="hljs-attr">bare</span>: <span class="hljs-literal">true</span>,
-      <span class="hljs-attr">filename</span>: url,
-    });
+    <span class="hljs-keyword">const</span> transformedSource = <span class="hljs-title function_">coffeeCompile</span>(rawSource.<span class="hljs-title function_">toString</span>(), url);
 
     <span class="hljs-keyword">return</span> {
       format,
+      <span class="hljs-attr">shortCircuit</span>: <span class="hljs-literal">true</span>,
       <span class="hljs-attr">source</span>: transformedSource,
     };
   }
 
   <span class="hljs-comment">// Let Node.js handle all other URLs.</span>
-  <span class="hljs-keyword">return</span> <span class="hljs-title function_">defaultLoad</span>(url, context, defaultLoad);
+  <span class="hljs-keyword">return</span> <span class="hljs-title function_">nextLoad</span>(url);
 }
 
 <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">getPackageType</span>(<span class="hljs-params">url</span>) {
@@ -1307,7 +1375,7 @@ purposes.</p>
 <span class="hljs-keyword">import</span> { scream } <span class="hljs-keyword">from</span> <span class="hljs-string">'./scream.coffee'</span>
 console.log scream <span class="hljs-string">'hello, world'</span>
 
-<span class="hljs-keyword">import</span> { version } <span class="hljs-keyword">from</span> <span class="hljs-string">'process'</span>
+<span class="hljs-keyword">import</span> { version } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:process'</span>
 console.log <span class="hljs-string">"Brought to you by Node.js version <span class="hljs-subst">#{version}</span>"</span></code></pre>
 <pre><code class="language-coffee"><span class="hljs-comment"># scream.coffee</span>
 <span class="hljs-keyword">export</span> scream = <span class="hljs-function"><span class="hljs-params">(str)</span> -></span> str.toUpperCase()</code></pre>
@@ -1368,7 +1436,7 @@ which is not a supported target for module imports.</li>
 <em>specifier</em> as a URL.</li>
 </ol>
 </li>
-<li>Otherwise, if <em>specifier</em> starts with <em>"/"</em>, <em>"./"</em> or <em>"../"</em>, then
+<li>Otherwise, if <em>specifier</em> starts with <em>"/"</em>, <em>"./"</em>, or <em>"../"</em>, then
 <ol>
 <li>Set <em>resolved</em> to the URL resolution of <em>specifier</em> relative to
 <em>parentURL</em>.</li>
@@ -1376,9 +1444,9 @@ which is not a supported target for module imports.</li>
 </li>
 <li>Otherwise, if <em>specifier</em> starts with <em>"#"</em>, then
 <ol>
-<li>Set <em>resolved</em> to the destructured value of the result of
-<strong>PACKAGE_IMPORTS_RESOLVE</strong>(<em>specifier</em>, <em>parentURL</em>,
-<em>defaultConditions</em>).</li>
+<li>Set <em>resolved</em> to the result of
+<strong>PACKAGE_IMPORTS_RESOLVE</strong>(<em>specifier</em>,
+<em>parentURL</em>, <em>defaultConditions</em>).</li>
 </ol>
 </li>
 <li>Otherwise,
@@ -1522,9 +1590,8 @@ concatenated with <em>packageSpecifier</em>, relative to <em>parentURL</em>.</li
 </li>
 <li>If <em>pjson.name</em> is equal to <em>packageName</em>, then
 <ol>
-<li>Return the <em>resolved</em> destructured value of the result of
-<strong>PACKAGE_EXPORTS_RESOLVE</strong>(<em>packageURL</em>, <em>packageSubpath</em>,
-<em>pjson.exports</em>, <em>defaultConditions</em>).</li>
+<li>Return the result of <strong>PACKAGE_EXPORTS_RESOLVE</strong>(<em>packageURL</em>,
+<em>packageSubpath</em>, <em>pjson.exports</em>, <em>defaultConditions</em>).</li>
 </ol>
 </li>
 <li>Otherwise, return <strong>undefined</strong>.</li>
@@ -1552,13 +1619,8 @@ starting with <em>"."</em>, then
 <li>If <em>mainExport</em> is not <strong>undefined</strong>, then
 <ol>
 <li>Let <em>resolved</em> be the result of <strong>PACKAGE_TARGET_RESOLVE</strong>(
-<em>packageURL</em>, <em>mainExport</em>, <em>""</em>, <strong>false</strong>, <strong>false</strong>,
-<em>conditions</em>).</li>
-<li>If <em>resolved</em> is not <strong>null</strong> or <strong>undefined</strong>, then
-<ol>
-<li>Return <em>resolved</em>.</li>
-</ol>
-</li>
+<em>packageURL</em>, <em>mainExport</em>, <strong>null</strong>, <strong>false</strong>, <em>conditions</em>).</li>
+<li>If <em>resolved</em> is not <strong>null</strong> or <strong>undefined</strong>, return <em>resolved</em>.</li>
 </ol>
 </li>
 </ol>
@@ -1567,13 +1629,9 @@ starting with <em>"."</em>, then
 <em>"."</em>, then
 <ol>
 <li>Let <em>matchKey</em> be the string <em>"./"</em> concatenated with <em>subpath</em>.</li>
-<li>Let <em>resolvedMatch</em> be result of <strong>PACKAGE_IMPORTS_EXPORTS_RESOLVE</strong>(
+<li>Let <em>resolved</em> be the result of <strong>PACKAGE_IMPORTS_EXPORTS_RESOLVE</strong>(
 <em>matchKey</em>, <em>exports</em>, <em>packageURL</em>, <strong>false</strong>, <em>conditions</em>).</li>
-<li>If <em>resolvedMatch</em>.<em>resolve</em> is not <strong>null</strong> or <strong>undefined</strong>, then
-<ol>
-<li>Return <em>resolvedMatch</em>.</li>
-</ol>
-</li>
+<li>If <em>resolved</em> is not <strong>null</strong> or <strong>undefined</strong>, return <em>resolved</em>.</li>
 </ol>
 </li>
 <li>Throw a <em>Package Path Not Exported</em> error.</li>
@@ -1594,14 +1652,10 @@ starting with <em>"."</em>, then
 <li>Let <em>pjson</em> be the result of <strong>READ_PACKAGE_JSON</strong>(<em>packageURL</em>).</li>
 <li>If <em>pjson.imports</em> is a non-null Object, then
 <ol>
-<li>Let <em>resolvedMatch</em> be the result of
-<strong>PACKAGE_IMPORTS_EXPORTS_RESOLVE</strong>(<em>specifier</em>, <em>pjson.imports</em>,
-<em>packageURL</em>, <strong>true</strong>, <em>conditions</em>).</li>
-<li>If <em>resolvedMatch</em>.<em>resolve</em> is not <strong>null</strong> or <strong>undefined</strong>, then
-<ol>
-<li>Return <em>resolvedMatch</em>.</li>
-</ol>
-</li>
+<li>Let <em>resolved</em> be the result of
+<strong>PACKAGE_IMPORTS_EXPORTS_RESOLVE</strong>(
+<em>specifier</em>, <em>pjson.imports</em>, <em>packageURL</em>, <strong>true</strong>, <em>conditions</em>).</li>
+<li>If <em>resolved</em> is not <strong>null</strong> or <strong>undefined</strong>, return <em>resolved</em>.</li>
 </ol>
 </li>
 </ol>
@@ -1613,28 +1667,22 @@ starting with <em>"."</em>, then
 <em>isImports</em>, <em>conditions</em>)</p>
 <blockquote>
 <ol>
-<li>If <em>matchKey</em> is a key of <em>matchObj</em> and does not end in <em>"/"</em> or contain
-<em>"*"</em>, then
+<li>If <em>matchKey</em> is a key of <em>matchObj</em> and does not contain <em>"*"</em>, then
 <ol>
 <li>Let <em>target</em> be the value of <em>matchObj</em>[<em>matchKey</em>].</li>
-<li>Let <em>resolved</em> be the result of <strong>PACKAGE_TARGET_RESOLVE</strong>(
-<em>packageURL</em>, <em>target</em>, <em>""</em>, <strong>false</strong>, <em>isImports</em>, <em>conditions</em>).</li>
-<li>Return the object <em>{ resolved, exact: <strong>true</strong> }</em>.</li>
+<li>Return the result of <strong>PACKAGE_TARGET_RESOLVE</strong>(<em>packageURL</em>,
+<em>target</em>, <strong>null</strong>, <em>isImports</em>, <em>conditions</em>).</li>
 </ol>
 </li>
-<li>Let <em>expansionKeys</em> be the list of keys of <em>matchObj</em> either ending in
-<em>"/"</em> or containing only a single <em>"*"</em>, sorted by the sorting function
-<strong>PATTERN_KEY_COMPARE</strong> which orders in descending order of specificity.</li>
+<li>Let <em>expansionKeys</em> be the list of keys of <em>matchObj</em> containing only a
+single <em>"*"</em>, sorted by the sorting function <strong>PATTERN_KEY_COMPARE</strong>
+which orders in descending order of specificity.</li>
 <li>For each key <em>expansionKey</em> in <em>expansionKeys</em>, do
 <ol>
-<li>Let <em>patternBase</em> be <strong>null</strong>.</li>
-<li>If <em>expansionKey</em> contains <em>"*"</em>, set <em>patternBase</em> to the substring of
-<em>expansionKey</em> up to but excluding the first <em>"*"</em> character.</li>
-<li>If <em>patternBase</em> is not <strong>null</strong> and <em>matchKey</em> starts with but is not
-equal to <em>patternBase</em>, then
+<li>Let <em>patternBase</em> be the substring of <em>expansionKey</em> up to but excluding
+the first <em>"*"</em> character.</li>
+<li>If <em>matchKey</em> starts with but is not equal to <em>patternBase</em>, then
 <ol>
-<li>If <em>matchKey</em> ends with <em>"/"</em>, throw an <em>Invalid Module Specifier</em>
-error.</li>
 <li>Let <em>patternTrailer</em> be the substring of <em>expansionKey</em> from the
 index after the first <em>"*"</em> character.</li>
 <li>If <em>patternTrailer</em> has zero length, or if <em>matchKey</em> ends with
@@ -1642,32 +1690,18 @@ index after the first <em>"*"</em> character.</li>
 equal to the length of <em>expansionKey</em>, then
 <ol>
 <li>Let <em>target</em> be the value of <em>matchObj</em>[<em>expansionKey</em>].</li>
-<li>Let <em>subpath</em> be the substring of <em>matchKey</em> starting at the
+<li>Let <em>patternMatch</em> be the substring of <em>matchKey</em> starting at the
 index of the length of <em>patternBase</em> up to the length of
 <em>matchKey</em> minus the length of <em>patternTrailer</em>.</li>
-<li>Let <em>resolved</em> be the result of <strong>PACKAGE_TARGET_RESOLVE</strong>(
-<em>packageURL</em>, <em>target</em>, <em>subpath</em>, <strong>true</strong>, <em>isImports</em>,
-<em>conditions</em>).</li>
-<li>Return the object <em>{ resolved, exact: <strong>true</strong> }</em>.</li>
+<li>Return the result of <strong>PACKAGE_TARGET_RESOLVE</strong>(<em>packageURL</em>,
+<em>target</em>, <em>patternMatch</em>, <em>isImports</em>, <em>conditions</em>).</li>
 </ol>
 </li>
 </ol>
 </li>
-<li>Otherwise if <em>patternBase</em> is <strong>null</strong> and <em>matchKey</em> starts with
-<em>expansionKey</em>, then
-<ol>
-<li>Let <em>target</em> be the value of <em>matchObj</em>[<em>expansionKey</em>].</li>
-<li>Let <em>subpath</em> be the substring of <em>matchKey</em> starting at the
-index of the length of <em>expansionKey</em>.</li>
-<li>Let <em>resolved</em> be the result of <strong>PACKAGE_TARGET_RESOLVE</strong>(
-<em>packageURL</em>, <em>target</em>, <em>subpath</em>, <strong>false</strong>, <em>isImports</em>,
-<em>conditions</em>).</li>
-<li>Return the object <em>{ resolved, exact: <strong>false</strong> }</em>.</li>
 </ol>
 </li>
-</ol>
-</li>
-<li>Return the object <em>{ resolved: <strong>null</strong>, exact: <strong>true</strong> }</em>.</li>
+<li>Return <strong>null</strong>.</li>
 </ol>
 </blockquote>
 <p><strong>PATTERN_KEY_COMPARE</strong>(<em>keyA</em>, <em>keyB</em>)</p>
@@ -1688,54 +1722,46 @@ contains <em>"*"</em>, or the length of <em>keyB</em> otherwise.</li>
 <li>Return 0.</li>
 </ol>
 </blockquote>
-<p><strong>PACKAGE_TARGET_RESOLVE</strong>(<em>packageURL</em>, <em>target</em>, <em>subpath</em>, <em>pattern</em>,
-<em>internal</em>, <em>conditions</em>)</p>
+<p><strong>PACKAGE_TARGET_RESOLVE</strong>(<em>packageURL</em>, <em>target</em>, <em>patternMatch</em>,
+<em>isImports</em>, <em>conditions</em>)</p>
 <blockquote>
 <ol>
 <li>If <em>target</em> is a String, then
 <ol>
-<li>If <em>pattern</em> is <strong>false</strong>, <em>subpath</em> has non-zero length and <em>target</em>
-does not end with <em>"/"</em>, throw an <em>Invalid Module Specifier</em> error.</li>
 <li>If <em>target</em> does not start with <em>"./"</em>, then
 <ol>
-<li>If <em>internal</em> is <strong>true</strong> and <em>target</em> does not start with <em>"../"</em> or
-<em>"/"</em> and is not a valid URL, then
+<li>If <em>isImports</em> is <strong>false</strong>, or if <em>target</em> starts with <em>"../"</em> or
+<em>"/"</em>, or if <em>target</em> is a valid URL, then
 <ol>
-<li>If <em>pattern</em> is <strong>true</strong>, then
+<li>Throw an <em>Invalid Package Target</em> error.</li>
+</ol>
+</li>
+<li>If <em>patternMatch</em> is a String, then
 <ol>
-<li>Return <strong>PACKAGE_RESOLVE</strong>(<em>target</em> with every instance of
-<em>"*"</em> replaced by <em>subpath</em>, <em>packageURL</em> + <em>"/"</em>).</li>
+<li>Return <strong>PACKAGE_RESOLVE</strong>(<em>target</em> with every instance of <em>"*"</em>
+replaced by <em>patternMatch</em>, <em>packageURL</em> + <em>"/"</em>).</li>
 </ol>
 </li>
-<li>Return <strong>PACKAGE_RESOLVE</strong>(<em>target</em> + <em>subpath</em>,
-<em>packageURL</em> + <em>"/"</em>).</li>
+<li>Return <strong>PACKAGE_RESOLVE</strong>(<em>target</em>, <em>packageURL</em> + <em>"/"</em>).</li>
 </ol>
 </li>
-<li>Otherwise, throw an <em>Invalid Package Target</em> error.</li>
-</ol>
-</li>
-<li>If <em>target</em> split on <em>"/"</em> or <em>"\"</em> contains any <em>"."</em>, <em>".."</em> or
-<em>"node_modules"</em> segments after the first segment, case insensitive and
-including percent encoded variants, throw an <em>Invalid Package Target</em>
-error.</li>
+<li>If <em>target</em> split on <em>"/"</em> or <em>"\"</em> contains any <em>""</em>, <em>"."</em>, <em>".."</em>,
+or <em>"node_modules"</em> segments after the first <em>"."</em> segment, case
+insensitive and including percent encoded variants, throw an <em>Invalid
+Package Target</em> error.</li>
 <li>Let <em>resolvedTarget</em> be the URL resolution of the concatenation of
 <em>packageURL</em> and <em>target</em>.</li>
 <li>Assert: <em>resolvedTarget</em> is contained in <em>packageURL</em>.</li>
-<li>If <em>subpath</em> split on <em>"/"</em> or <em>"\"</em> contains any <em>"."</em>, <em>".."</em> or
-<em>"node_modules"</em> segments, case insensitive and including percent
-encoded variants, throw an <em>Invalid Module Specifier</em> error.</li>
-<li>If <em>pattern</em> is <strong>true</strong>, then
+<li>If <em>patternMatch</em> is <strong>null</strong>, then
 <ol>
+<li>Return <em>resolvedTarget</em>.</li>
+</ol>
+</li>
+<li>If <em>patternMatch</em> split on <em>"/"</em> or <em>"\"</em> contains any <em>""</em>, <em>"."</em>,
+<em>".."</em>, or <em>"node_modules"</em> segments, case insensitive and including
+percent encoded variants, throw an <em>Invalid Module Specifier</em> error.</li>
 <li>Return the URL resolution of <em>resolvedTarget</em> with every instance of
-<em>"*"</em> replaced with <em>subpath</em>.</li>
-</ol>
-</li>
-<li>Otherwise,
-<ol>
-<li>Return the URL resolution of the concatenation of <em>subpath</em> and
-<em>resolvedTarget</em>.</li>
-</ol>
-</li>
+<em>"*"</em> replaced with <em>patternMatch</em>.</li>
 </ol>
 </li>
 <li>Otherwise, if <em>target</em> is a non-null Object, then
@@ -1749,7 +1775,7 @@ then
 <ol>
 <li>Let <em>targetValue</em> be the value of the <em>p</em> property in <em>target</em>.</li>
 <li>Let <em>resolved</em> be the result of <strong>PACKAGE_TARGET_RESOLVE</strong>(
-<em>packageURL</em>, <em>targetValue</em>, <em>subpath</em>, <em>pattern</em>, <em>internal</em>,
+<em>packageURL</em>, <em>targetValue</em>, <em>patternMatch</em>, <em>isImports</em>,
 <em>conditions</em>).</li>
 <li>If <em>resolved</em> is equal to <strong>undefined</strong>, continue the loop.</li>
 <li>Return <em>resolved</em>.</li>
@@ -1766,7 +1792,7 @@ then
 <li>For each item <em>targetValue</em> in <em>target</em>, do
 <ol>
 <li>Let <em>resolved</em> be the result of <strong>PACKAGE_TARGET_RESOLVE</strong>(
-<em>packageURL</em>, <em>targetValue</em>, <em>subpath</em>, <em>pattern</em>, <em>internal</em>,
+<em>packageURL</em>, <em>targetValue</em>, <em>patternMatch</em>, <em>isImports</em>,
 <em>conditions</em>), continuing the loop on any <em>Invalid Package Target</em>
 error.</li>
 <li>If <em>resolved</em> is <strong>undefined</strong>, continue the loop.</li>
@@ -1882,41 +1908,5 @@ success!</code></pre>
       </div>
     </div>
   </div>
-  <script>
-    'use strict';
-    {
-      const kCustomPreference = 'customDarkTheme';
-      const userSettings = sessionStorage.getItem(kCustomPreference);
-      const themeToggleButton = document.getElementById('theme-toggle-btn');
-      if (userSettings === null && window.matchMedia) {
-        const mq = window.matchMedia('(prefers-color-scheme: dark)');
-        if ('onchange' in mq) {
-          function mqChangeListener(e) {
-            document.documentElement.classList.toggle('dark-mode', e.matches);
-          }
-          mq.addEventListener('change', mqChangeListener);
-          if (themeToggleButton) {
-            themeToggleButton.addEventListener('click', function() {
-              mq.removeEventListener('change', mqChangeListener);
-            }, { once: true });
-          }
-        }
-        if (mq.matches) {
-          document.documentElement.classList.add('dark-mode');
-        }
-      } else if (userSettings === 'true') {
-        document.documentElement.classList.add('dark-mode');
-      }
-      if (themeToggleButton) {
-        themeToggleButton.hidden = false;
-        themeToggleButton.addEventListener('click', function() {
-          sessionStorage.setItem(
-            kCustomPreference,
-            document.documentElement.classList.toggle('dark-mode')
-          );
-        });
-      }
-    }
-  </script>
 </body>
 </html>

@@ -3,12 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v16.15.1">
-  <title>HTTP | Node.js v16.15.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v18.13.0">
+  <title>HTTP | Node.js v18.13.0 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/http.html">
+  <script async defer src="assets/api.js" type="text/javascript"></script>
+  
 </head>
 <body class="alt apidoc" id="api-section-http">
   <div id="content" class="clearfix">
@@ -53,13 +55,13 @@
 <li><a href="intl.html" class="nav-intl">Internationalization</a></li>
 <li><a href="modules.html" class="nav-modules">Modules: CommonJS modules</a></li>
 <li><a href="esm.html" class="nav-esm">Modules: ECMAScript modules</a></li>
-<li><a href="module.html" class="nav-module">Modules: <code>module</code> API</a></li>
+<li><a href="module.html" class="nav-module">Modules: <code>node:module</code> API</a></li>
 <li><a href="packages.html" class="nav-packages">Modules: Packages</a></li>
 <li><a href="net.html" class="nav-net">Net</a></li>
 <li><a href="os.html" class="nav-os">OS</a></li>
 <li><a href="path.html" class="nav-path">Path</a></li>
 <li><a href="perf_hooks.html" class="nav-perf_hooks">Performance hooks</a></li>
-<li><a href="policy.html" class="nav-policy">Policies</a></li>
+<li><a href="permissions.html" class="nav-permissions">Permissions</a></li>
 <li><a href="process.html" class="nav-process">Process</a></li>
 <li><a href="punycode.html" class="nav-punycode">Punycode</a></li>
 <li><a href="querystring.html" class="nav-querystring">Query strings</a></li>
@@ -68,6 +70,7 @@
 <li><a href="report.html" class="nav-report">Report</a></li>
 <li><a href="stream.html" class="nav-stream">Stream</a></li>
 <li><a href="string_decoder.html" class="nav-string_decoder">String decoder</a></li>
+<li><a href="test.html" class="nav-test">Test runner</a></li>
 <li><a href="timers.html" class="nav-timers">Timers</a></li>
 <li><a href="tls.html" class="nav-tls">TLS/SSL</a></li>
 <li><a href="tracing.html" class="nav-tracing">Trace events</a></li>
@@ -92,7 +95,7 @@
     <div id="column1" data-id="http" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v16.15.1 documentation</h1>
+          <h1>Node.js v18.13.0 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -107,6 +110,7 @@
         </div>
         <div id="gtoc">
           <ul>
+            <li class="pinned-header">Node.js v18.13.0</li>
             
     <li class="picker-header">
       <a href="#">
@@ -136,8 +140,10 @@
 <li><a href="#class-httpclientrequest">Class: <code>http.ClientRequest</code></a>
 <ul>
 <li><span class="stability_0"><a href="#event-abort">Event: <code>'abort'</code></a></span></li>
+<li><a href="#event-close">Event: <code>'close'</code></a></li>
 <li><a href="#event-connect">Event: <code>'connect'</code></a></li>
 <li><a href="#event-continue">Event: <code>'continue'</code></a></li>
+<li><a href="#event-finish">Event: <code>'finish'</code></a></li>
 <li><a href="#event-information">Event: <code>'information'</code></a></li>
 <li><a href="#event-response">Event: <code>'response'</code></a></li>
 <li><a href="#event-socket">Event: <code>'socket'</code></a></li>
@@ -146,6 +152,7 @@
 <li><span class="stability_0"><a href="#requestabort"><code>request.abort()</code></a></span></li>
 <li><span class="stability_0"><a href="#requestaborted"><code>request.aborted</code></a></span></li>
 <li><span class="stability_0"><a href="#requestconnection"><code>request.connection</code></a></span></li>
+<li><a href="#requestcork"><code>request.cork()</code></a></li>
 <li><a href="#requestenddata-encoding-callback"><code>request.end([data[, encoding]][, callback])</code></a></li>
 <li><a href="#requestdestroyerror"><code>request.destroy([error])</code></a>
 <ul>
@@ -155,7 +162,10 @@
 <li><span class="stability_0"><a href="#requestfinished"><code>request.finished</code></a></span></li>
 <li><a href="#requestflushheaders"><code>request.flushHeaders()</code></a></li>
 <li><a href="#requestgetheadername"><code>request.getHeader(name)</code></a></li>
+<li><a href="#requestgetheadernames"><code>request.getHeaderNames()</code></a></li>
+<li><a href="#requestgetheaders"><code>request.getHeaders()</code></a></li>
 <li><a href="#requestgetrawheadernames"><code>request.getRawHeaderNames()</code></a></li>
+<li><a href="#requesthasheadername"><code>request.hasHeader(name)</code></a></li>
 <li><a href="#requestmaxheaderscount"><code>request.maxHeadersCount</code></a></li>
 <li><a href="#requestpath"><code>request.path</code></a></li>
 <li><a href="#requestmethod"><code>request.method</code></a></li>
@@ -168,6 +178,7 @@
 <li><a href="#requestsetsocketkeepaliveenable-initialdelay"><code>request.setSocketKeepAlive([enable][, initialDelay])</code></a></li>
 <li><a href="#requestsettimeouttimeout-callback"><code>request.setTimeout(timeout[, callback])</code></a></li>
 <li><a href="#requestsocket"><code>request.socket</code></a></li>
+<li><a href="#requestuncork"><code>request.uncork()</code></a></li>
 <li><a href="#requestwritableended"><code>request.writableEnded</code></a></li>
 <li><a href="#requestwritablefinished"><code>request.writableFinished</code></a></li>
 <li><a href="#requestwritechunk-encoding-callback"><code>request.write(chunk[, encoding][, callback])</code></a></li>
@@ -178,12 +189,15 @@
 <li><a href="#event-checkcontinue">Event: <code>'checkContinue'</code></a></li>
 <li><a href="#event-checkexpectation">Event: <code>'checkExpectation'</code></a></li>
 <li><a href="#event-clienterror">Event: <code>'clientError'</code></a></li>
-<li><a href="#event-close">Event: <code>'close'</code></a></li>
+<li><a href="#event-close_1">Event: <code>'close'</code></a></li>
 <li><a href="#event-connect_1">Event: <code>'connect'</code></a></li>
 <li><a href="#event-connection">Event: <code>'connection'</code></a></li>
+<li><a href="#event-droprequest">Event: <code>'dropRequest'</code></a></li>
 <li><a href="#event-request">Event: <code>'request'</code></a></li>
 <li><a href="#event-upgrade_1">Event: <code>'upgrade'</code></a></li>
 <li><a href="#serverclosecallback"><code>server.close([callback])</code></a></li>
+<li><a href="#servercloseallconnections"><code>server.closeAllConnections()</code></a></li>
+<li><a href="#servercloseidleconnections"><code>server.closeIdleConnections()</code></a></li>
 <li><a href="#serverheaderstimeout"><code>server.headersTimeout</code></a></li>
 <li><a href="#serverlisten"><code>server.listen()</code></a></li>
 <li><a href="#serverlistening"><code>server.listening</code></a></li>
@@ -197,8 +211,8 @@
 </li>
 <li><a href="#class-httpserverresponse">Class: <code>http.ServerResponse</code></a>
 <ul>
-<li><a href="#event-close_1">Event: <code>'close'</code></a></li>
-<li><a href="#event-finish">Event: <code>'finish'</code></a></li>
+<li><a href="#event-close_2">Event: <code>'close'</code></a></li>
+<li><a href="#event-finish_1">Event: <code>'finish'</code></a></li>
 <li><a href="#responseaddtrailersheaders"><code>response.addTrailers(headers)</code></a></li>
 <li><span class="stability_0"><a href="#responseconnection"><code>response.connection</code></a></span></li>
 <li><a href="#responsecork"><code>response.cork()</code></a></li>
@@ -223,6 +237,7 @@
 <li><a href="#responsewritablefinished"><code>response.writableFinished</code></a></li>
 <li><a href="#responsewritechunk-encoding-callback"><code>response.write(chunk[, encoding][, callback])</code></a></li>
 <li><a href="#responsewritecontinue"><code>response.writeContinue()</code></a></li>
+<li><a href="#responsewriteearlyhintshints-callback"><code>response.writeEarlyHints(hints[, callback])</code></a></li>
 <li><a href="#responsewriteheadstatuscode-statusmessage-headers"><code>response.writeHead(statusCode[, statusMessage][, headers])</code></a></li>
 <li><a href="#responsewriteprocessing"><code>response.writeProcessing()</code></a></li>
 </ul>
@@ -230,12 +245,13 @@
 <li><a href="#class-httpincomingmessage">Class: <code>http.IncomingMessage</code></a>
 <ul>
 <li><span class="stability_0"><a href="#event-aborted">Event: <code>'aborted'</code></a></span></li>
-<li><a href="#event-close_2">Event: <code>'close'</code></a></li>
+<li><a href="#event-close_3">Event: <code>'close'</code></a></li>
 <li><span class="stability_0"><a href="#messageaborted"><code>message.aborted</code></a></span></li>
 <li><a href="#messagecomplete"><code>message.complete</code></a></li>
 <li><span class="stability_0"><a href="#messageconnection"><code>message.connection</code></a></span></li>
 <li><a href="#messagedestroyerror"><code>message.destroy([error])</code></a></li>
 <li><a href="#messageheaders"><code>message.headers</code></a></li>
+<li><a href="#messageheadersdistinct"><code>message.headersDistinct</code></a></li>
 <li><a href="#messagehttpversion"><code>message.httpVersion</code></a></li>
 <li><a href="#messagemethod"><code>message.method</code></a></li>
 <li><a href="#messagerawheaders"><code>message.rawHeaders</code></a></li>
@@ -245,15 +261,17 @@
 <li><a href="#messagestatuscode"><code>message.statusCode</code></a></li>
 <li><a href="#messagestatusmessage"><code>message.statusMessage</code></a></li>
 <li><a href="#messagetrailers"><code>message.trailers</code></a></li>
+<li><a href="#messagetrailersdistinct"><code>message.trailersDistinct</code></a></li>
 <li><a href="#messageurl"><code>message.url</code></a></li>
 </ul>
 </li>
 <li><a href="#class-httpoutgoingmessage">Class: <code>http.OutgoingMessage</code></a>
 <ul>
 <li><a href="#event-drain">Event: <code>'drain'</code></a></li>
-<li><a href="#event-finish_1">Event: <code>'finish'</code></a></li>
+<li><a href="#event-finish_2">Event: <code>'finish'</code></a></li>
 <li><a href="#event-prefinish">Event: <code>'prefinish'</code></a></li>
 <li><a href="#outgoingmessageaddtrailersheaders"><code>outgoingMessage.addTrailers(headers)</code></a></li>
+<li><a href="#outgoingmessageappendheadername-value"><code>outgoingMessage.appendHeader(name, value)</code></a></li>
 <li><span class="stability_0"><a href="#outgoingmessageconnection"><code>outgoingMessage.connection</code></a></span></li>
 <li><a href="#outgoingmessagecork"><code>outgoingMessage.cork()</code></a></li>
 <li><a href="#outgoingmessagedestroyerror"><code>outgoingMessage.destroy([error])</code></a></li>
@@ -265,7 +283,7 @@
 <li><a href="#outgoingmessagehasheadername"><code>outgoingMessage.hasHeader(name)</code></a></li>
 <li><a href="#outgoingmessageheaderssent"><code>outgoingMessage.headersSent</code></a></li>
 <li><a href="#outgoingmessagepipe"><code>outgoingMessage.pipe()</code></a></li>
-<li><a href="#outgoingmessageremoveheader"><code>outgoingMessage.removeHeader()</code></a></li>
+<li><a href="#outgoingmessageremoveheadername"><code>outgoingMessage.removeHeader(name)</code></a></li>
 <li><a href="#outgoingmessagesetheadername-value"><code>outgoingMessage.setHeader(name, value)</code></a></li>
 <li><a href="#outgoingmessagesettimeoutmsesc-callback"><code>outgoingMessage.setTimeout(msesc[, callback])</code></a></li>
 <li><a href="#outgoingmessagesocket"><code>outgoingMessage.socket</code></a></li>
@@ -290,6 +308,7 @@
 <li><a href="#httprequesturl-options-callback"><code>http.request(url[, options][, callback])</code></a></li>
 <li><a href="#httpvalidateheadernamename"><code>http.validateHeaderName(name)</code></a></li>
 <li><a href="#httpvalidateheadervaluename-value"><code>http.validateHeaderValue(name, value)</code></a></li>
+<li><a href="#httpsetmaxidlehttpparsers"><code>http.setMaxIdleHTTPParsers</code></a></li>
 </ul>
 </li>
 </ul></div></div>
@@ -342,13 +361,13 @@
 <li><a href="intl.html" class="nav-intl">Internationalization</a></li>
 <li><a href="modules.html" class="nav-modules">Modules: CommonJS modules</a></li>
 <li><a href="esm.html" class="nav-esm">Modules: ECMAScript modules</a></li>
-<li><a href="module.html" class="nav-module">Modules: <code>module</code> API</a></li>
+<li><a href="module.html" class="nav-module">Modules: <code>node:module</code> API</a></li>
 <li><a href="packages.html" class="nav-packages">Modules: Packages</a></li>
 <li><a href="net.html" class="nav-net">Net</a></li>
 <li><a href="os.html" class="nav-os">OS</a></li>
 <li><a href="path.html" class="nav-path">Path</a></li>
 <li><a href="perf_hooks.html" class="nav-perf_hooks">Performance hooks</a></li>
-<li><a href="policy.html" class="nav-policy">Policies</a></li>
+<li><a href="permissions.html" class="nav-permissions">Permissions</a></li>
 <li><a href="process.html" class="nav-process">Process</a></li>
 <li><a href="punycode.html" class="nav-punycode">Punycode</a></li>
 <li><a href="querystring.html" class="nav-querystring">Query strings</a></li>
@@ -357,6 +376,7 @@
 <li><a href="report.html" class="nav-report">Report</a></li>
 <li><a href="stream.html" class="nav-stream">Stream</a></li>
 <li><a href="string_decoder.html" class="nav-string_decoder">String decoder</a></li>
+<li><a href="test.html" class="nav-test">Test runner</a></li>
 <li><a href="timers.html" class="nav-timers">Timers</a></li>
 <li><a href="tls.html" class="nav-tls">TLS/SSL</a></li>
 <li><a href="tracing.html" class="nav-tracing">Trace events</a></li>
@@ -384,13 +404,14 @@
         <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v18.x/api/http.html">18.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v19.x/api/http.html">19.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v18.x/api/http.html">18.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v17.x/api/http.html">17.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v16.x/api/http.html">16.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v15.x/api/http.html">15.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v14.x/api/http.html">14.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v13.x/api/http.html">13.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v12.x/api/http.html">12.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v12.x/api/http.html">12.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v11.x/api/http.html">11.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v10.x/api/http.html">10.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v9.x/api/http.html">9.x</a></li>
@@ -417,7 +438,7 @@
                   <li>
                     <a href="http.json">View as JSON</a>
                   </li>
-                  <li class="edit_on_github"><a href="https://github.com/nodejs/node/edit/master/doc/api/http.md">Edit on GitHub</a></li>    
+                  <li class="edit_on_github"><a href="https://github.com/nodejs/node/edit/main/doc/api/http.md">Edit on GitHub</a></li>    
                 </ul>
               </div>
             </li>
@@ -448,8 +469,10 @@
 <li><a href="#class-httpclientrequest">Class: <code>http.ClientRequest</code></a>
 <ul>
 <li><span class="stability_0"><a href="#event-abort">Event: <code>'abort'</code></a></span></li>
+<li><a href="#event-close">Event: <code>'close'</code></a></li>
 <li><a href="#event-connect">Event: <code>'connect'</code></a></li>
 <li><a href="#event-continue">Event: <code>'continue'</code></a></li>
+<li><a href="#event-finish">Event: <code>'finish'</code></a></li>
 <li><a href="#event-information">Event: <code>'information'</code></a></li>
 <li><a href="#event-response">Event: <code>'response'</code></a></li>
 <li><a href="#event-socket">Event: <code>'socket'</code></a></li>
@@ -458,6 +481,7 @@
 <li><span class="stability_0"><a href="#requestabort"><code>request.abort()</code></a></span></li>
 <li><span class="stability_0"><a href="#requestaborted"><code>request.aborted</code></a></span></li>
 <li><span class="stability_0"><a href="#requestconnection"><code>request.connection</code></a></span></li>
+<li><a href="#requestcork"><code>request.cork()</code></a></li>
 <li><a href="#requestenddata-encoding-callback"><code>request.end([data[, encoding]][, callback])</code></a></li>
 <li><a href="#requestdestroyerror"><code>request.destroy([error])</code></a>
 <ul>
@@ -467,7 +491,10 @@
 <li><span class="stability_0"><a href="#requestfinished"><code>request.finished</code></a></span></li>
 <li><a href="#requestflushheaders"><code>request.flushHeaders()</code></a></li>
 <li><a href="#requestgetheadername"><code>request.getHeader(name)</code></a></li>
+<li><a href="#requestgetheadernames"><code>request.getHeaderNames()</code></a></li>
+<li><a href="#requestgetheaders"><code>request.getHeaders()</code></a></li>
 <li><a href="#requestgetrawheadernames"><code>request.getRawHeaderNames()</code></a></li>
+<li><a href="#requesthasheadername"><code>request.hasHeader(name)</code></a></li>
 <li><a href="#requestmaxheaderscount"><code>request.maxHeadersCount</code></a></li>
 <li><a href="#requestpath"><code>request.path</code></a></li>
 <li><a href="#requestmethod"><code>request.method</code></a></li>
@@ -480,6 +507,7 @@
 <li><a href="#requestsetsocketkeepaliveenable-initialdelay"><code>request.setSocketKeepAlive([enable][, initialDelay])</code></a></li>
 <li><a href="#requestsettimeouttimeout-callback"><code>request.setTimeout(timeout[, callback])</code></a></li>
 <li><a href="#requestsocket"><code>request.socket</code></a></li>
+<li><a href="#requestuncork"><code>request.uncork()</code></a></li>
 <li><a href="#requestwritableended"><code>request.writableEnded</code></a></li>
 <li><a href="#requestwritablefinished"><code>request.writableFinished</code></a></li>
 <li><a href="#requestwritechunk-encoding-callback"><code>request.write(chunk[, encoding][, callback])</code></a></li>
@@ -490,12 +518,15 @@
 <li><a href="#event-checkcontinue">Event: <code>'checkContinue'</code></a></li>
 <li><a href="#event-checkexpectation">Event: <code>'checkExpectation'</code></a></li>
 <li><a href="#event-clienterror">Event: <code>'clientError'</code></a></li>
-<li><a href="#event-close">Event: <code>'close'</code></a></li>
+<li><a href="#event-close_1">Event: <code>'close'</code></a></li>
 <li><a href="#event-connect_1">Event: <code>'connect'</code></a></li>
 <li><a href="#event-connection">Event: <code>'connection'</code></a></li>
+<li><a href="#event-droprequest">Event: <code>'dropRequest'</code></a></li>
 <li><a href="#event-request">Event: <code>'request'</code></a></li>
 <li><a href="#event-upgrade_1">Event: <code>'upgrade'</code></a></li>
 <li><a href="#serverclosecallback"><code>server.close([callback])</code></a></li>
+<li><a href="#servercloseallconnections"><code>server.closeAllConnections()</code></a></li>
+<li><a href="#servercloseidleconnections"><code>server.closeIdleConnections()</code></a></li>
 <li><a href="#serverheaderstimeout"><code>server.headersTimeout</code></a></li>
 <li><a href="#serverlisten"><code>server.listen()</code></a></li>
 <li><a href="#serverlistening"><code>server.listening</code></a></li>
@@ -509,8 +540,8 @@
 </li>
 <li><a href="#class-httpserverresponse">Class: <code>http.ServerResponse</code></a>
 <ul>
-<li><a href="#event-close_1">Event: <code>'close'</code></a></li>
-<li><a href="#event-finish">Event: <code>'finish'</code></a></li>
+<li><a href="#event-close_2">Event: <code>'close'</code></a></li>
+<li><a href="#event-finish_1">Event: <code>'finish'</code></a></li>
 <li><a href="#responseaddtrailersheaders"><code>response.addTrailers(headers)</code></a></li>
 <li><span class="stability_0"><a href="#responseconnection"><code>response.connection</code></a></span></li>
 <li><a href="#responsecork"><code>response.cork()</code></a></li>
@@ -535,6 +566,7 @@
 <li><a href="#responsewritablefinished"><code>response.writableFinished</code></a></li>
 <li><a href="#responsewritechunk-encoding-callback"><code>response.write(chunk[, encoding][, callback])</code></a></li>
 <li><a href="#responsewritecontinue"><code>response.writeContinue()</code></a></li>
+<li><a href="#responsewriteearlyhintshints-callback"><code>response.writeEarlyHints(hints[, callback])</code></a></li>
 <li><a href="#responsewriteheadstatuscode-statusmessage-headers"><code>response.writeHead(statusCode[, statusMessage][, headers])</code></a></li>
 <li><a href="#responsewriteprocessing"><code>response.writeProcessing()</code></a></li>
 </ul>
@@ -542,12 +574,13 @@
 <li><a href="#class-httpincomingmessage">Class: <code>http.IncomingMessage</code></a>
 <ul>
 <li><span class="stability_0"><a href="#event-aborted">Event: <code>'aborted'</code></a></span></li>
-<li><a href="#event-close_2">Event: <code>'close'</code></a></li>
+<li><a href="#event-close_3">Event: <code>'close'</code></a></li>
 <li><span class="stability_0"><a href="#messageaborted"><code>message.aborted</code></a></span></li>
 <li><a href="#messagecomplete"><code>message.complete</code></a></li>
 <li><span class="stability_0"><a href="#messageconnection"><code>message.connection</code></a></span></li>
 <li><a href="#messagedestroyerror"><code>message.destroy([error])</code></a></li>
 <li><a href="#messageheaders"><code>message.headers</code></a></li>
+<li><a href="#messageheadersdistinct"><code>message.headersDistinct</code></a></li>
 <li><a href="#messagehttpversion"><code>message.httpVersion</code></a></li>
 <li><a href="#messagemethod"><code>message.method</code></a></li>
 <li><a href="#messagerawheaders"><code>message.rawHeaders</code></a></li>
@@ -557,15 +590,17 @@
 <li><a href="#messagestatuscode"><code>message.statusCode</code></a></li>
 <li><a href="#messagestatusmessage"><code>message.statusMessage</code></a></li>
 <li><a href="#messagetrailers"><code>message.trailers</code></a></li>
+<li><a href="#messagetrailersdistinct"><code>message.trailersDistinct</code></a></li>
 <li><a href="#messageurl"><code>message.url</code></a></li>
 </ul>
 </li>
 <li><a href="#class-httpoutgoingmessage">Class: <code>http.OutgoingMessage</code></a>
 <ul>
 <li><a href="#event-drain">Event: <code>'drain'</code></a></li>
-<li><a href="#event-finish_1">Event: <code>'finish'</code></a></li>
+<li><a href="#event-finish_2">Event: <code>'finish'</code></a></li>
 <li><a href="#event-prefinish">Event: <code>'prefinish'</code></a></li>
 <li><a href="#outgoingmessageaddtrailersheaders"><code>outgoingMessage.addTrailers(headers)</code></a></li>
+<li><a href="#outgoingmessageappendheadername-value"><code>outgoingMessage.appendHeader(name, value)</code></a></li>
 <li><span class="stability_0"><a href="#outgoingmessageconnection"><code>outgoingMessage.connection</code></a></span></li>
 <li><a href="#outgoingmessagecork"><code>outgoingMessage.cork()</code></a></li>
 <li><a href="#outgoingmessagedestroyerror"><code>outgoingMessage.destroy([error])</code></a></li>
@@ -577,7 +612,7 @@
 <li><a href="#outgoingmessagehasheadername"><code>outgoingMessage.hasHeader(name)</code></a></li>
 <li><a href="#outgoingmessageheaderssent"><code>outgoingMessage.headersSent</code></a></li>
 <li><a href="#outgoingmessagepipe"><code>outgoingMessage.pipe()</code></a></li>
-<li><a href="#outgoingmessageremoveheader"><code>outgoingMessage.removeHeader()</code></a></li>
+<li><a href="#outgoingmessageremoveheadername"><code>outgoingMessage.removeHeader(name)</code></a></li>
 <li><a href="#outgoingmessagesetheadername-value"><code>outgoingMessage.setHeader(name, value)</code></a></li>
 <li><a href="#outgoingmessagesettimeoutmsesc-callback"><code>outgoingMessage.setTimeout(msesc[, callback])</code></a></li>
 <li><a href="#outgoingmessagesocket"><code>outgoingMessage.socket</code></a></li>
@@ -602,6 +637,7 @@
 <li><a href="#httprequesturl-options-callback"><code>http.request(url[, options][, callback])</code></a></li>
 <li><a href="#httpvalidateheadernamename"><code>http.validateHeaderName(name)</code></a></li>
 <li><a href="#httpvalidateheadervaluename-value"><code>http.validateHeaderValue(name, value)</code></a></li>
+<li><a href="#httpsetmaxidlehttpparsers"><code>http.setMaxIdleHTTPParsers</code></a></li>
 </ul>
 </li>
 </ul></details>
@@ -610,8 +646,8 @@
         <h2>HTTP<span><a class="mark" href="#http" id="http">#</a></span><a aria-hidden="true" class="legacy" id="http_http"></a></h2>
 
 <p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v16.15.1/lib/http.js">lib/http.js</a></p>
-<p>To use the HTTP server and client one must <code>require('http')</code>.</p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.13.0/lib/http.js">lib/http.js</a></p>
+<p>To use the HTTP server and client one must <code>require('node:http')</code>.</p>
 <p>The HTTP interfaces in Node.js are designed to support many features
 of the protocol which have been traditionally difficult to use.
 In particular, large, possibly chunk-encoded, messages. The interface is
@@ -683,7 +719,7 @@ for the client connection.</p>
   <span class="hljs-attr">hostname</span>: <span class="hljs-string">'localhost'</span>,
   <span class="hljs-attr">port</span>: <span class="hljs-number">80</span>,
   <span class="hljs-attr">path</span>: <span class="hljs-string">'/'</span>,
-  <span class="hljs-attr">agent</span>: <span class="hljs-literal">false</span>  <span class="hljs-comment">// Create a new agent just for this one request</span>
+  <span class="hljs-attr">agent</span>: <span class="hljs-literal">false</span>,  <span class="hljs-comment">// Create a new agent just for this one request</span>
 }, <span class="hljs-function">(<span class="hljs-params">res</span>) =></span> {
   <span class="hljs-comment">// Do stuff with response</span>
 });</code></pre>
@@ -692,7 +728,7 @@ for the client connection.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v15.6.0</td>
+<tr><td>v15.6.0, v14.17.0</td>
 <td><p>Change the default scheduling from 'fifo' to 'lifo'.</p></td></tr>
 <tr><td>v14.5.0, v12.20.0</td>
 <td><p>Add <code>scheduling</code> option to specify the free socket scheduling strategy.</p></td></tr>
@@ -756,7 +792,7 @@ This will set the timeout when the socket is created.</li>
 <p>The default <a href="#httpglobalagent"><code>http.globalAgent</code></a> that is used by <a href="#httprequestoptions-callback"><code>http.request()</code></a> has all
 of these values set to their respective defaults.</p>
 <p>To configure any of them, a custom <a href="#class-httpagent"><code>http.Agent</code></a> instance must be created.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
 <span class="hljs-keyword">const</span> keepAliveAgent = <span class="hljs-keyword">new</span> http.<span class="hljs-title class_">Agent</span>({ <span class="hljs-attr">keepAlive</span>: <span class="hljs-literal">true</span> });
 options.<span class="hljs-property">agent</span> = keepAliveAgent;
 http.<span class="hljs-title function_">request</span>(options, onResponseCallback);</code></pre>
@@ -844,7 +880,7 @@ removed from the array on <code>'timeout'</code>.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v16.15.0</td>
+<tr><td>v17.7.0</td>
 <td><p>The <code>options</code> parameter is now optional.</p></td></tr>
 <tr><td>v0.11.4</td>
 <td><p><span>Added in: v0.11.4</span></p></td></tr>
@@ -936,7 +972,7 @@ agent. Do not modify.</p>
 <span>Added in: v0.1.17</span>
 </div>
 <ul>
-<li>Extends: <a href="stream.html#stream" class="type">&#x3C;Stream></a></li>
+<li>Extends: <a href="http.html#class-httpoutgoingmessage" class="type">&#x3C;http.OutgoingMessage></a></li>
 </ul>
 <p>This object is created internally and returned from <a href="#httprequestoptions-callback"><code>http.request()</code></a>. It
 represents an <em>in-progress</em> request whose header has already been queued. The
@@ -959,15 +995,24 @@ the data is read it will consume memory that can eventually lead to a
 'process out of memory' error.</p>
 <p>For backward compatibility, <code>res</code> will only emit <code>'error'</code> if there is an
 <code>'error'</code> listener registered.</p>
-<p>Node.js does not check whether Content-Length and the length of the
-body which has been transmitted are equal or not.</p>
+<p>Set <code>Content-Length</code> header to limit the response body size. Mismatching the
+<code>Content-Length</code> header value will result in an [<code>Error</code>][] being thrown,
+identified by <code>code:</code> <a href="errors.html#err_http_content_length_mismatch"><code>'ERR_HTTP_CONTENT_LENGTH_MISMATCH'</code></a>.</p>
+<p><code>Content-Length</code> value should be in bytes, not characters. Use
+<a href="buffer.html#static-method-bufferbytelengthstring-encoding"><code>Buffer.byteLength()</code></a> to determine the length of the body in bytes.</p>
 <h4>Event: <code>'abort'</code><span><a class="mark" href="#event-abort" id="event-abort">#</a></span><a aria-hidden="true" class="legacy" id="http_event_abort"></a></h4>
 <div class="api_metadata">
-<span>Added in: v1.4.1</span><span>Deprecated since: v16.12.0</span>
+<span>Added in: v1.4.1</span><span>Deprecated since: v17.0.0, v16.12.0</span>
 </div>
 <p></p><div class="api_stability api_stability_0"><a href="documentation.html#stability-index">Stability: 0</a> - Deprecated. Listen for the <code>'close'</code> event instead.</div><p></p>
 <p>Emitted when the request has been aborted by the client. This event is only
 emitted on the first call to <code>abort()</code>.</p>
+<h4>Event: <code>'close'</code><span><a class="mark" href="#event-close" id="event-close">#</a></span><a aria-hidden="true" class="legacy" id="http_event_close"></a></h4>
+<div class="api_metadata">
+<span>Added in: v0.5.4</span>
+</div>
+<p>Indicates that the request is completed, or its underlying connection was
+terminated prematurely (before the response completion).</p>
 <h4>Event: <code>'connect'</code><span><a class="mark" href="#event-connect" id="event-connect">#</a></span><a aria-hidden="true" class="legacy" id="http_event_connect"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.7.0</span>
@@ -984,9 +1029,9 @@ have their connections closed.</p>
 a subclass of <a href="stream.html#class-streamduplex" class="type">&#x3C;stream.Duplex></a>, unless the user specifies a socket
 type other than <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket></a>.</p>
 <p>A client and server pair demonstrating how to listen for the <code>'connect'</code> event:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http'</span>);
-<span class="hljs-keyword">const</span> net = <span class="hljs-built_in">require</span>(<span class="hljs-string">'net'</span>);
-<span class="hljs-keyword">const</span> { <span class="hljs-variable constant_">URL</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'url'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
+<span class="hljs-keyword">const</span> net = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:net'</span>);
+<span class="hljs-keyword">const</span> { <span class="hljs-variable constant_">URL</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:url'</span>);
 
 <span class="hljs-comment">// Create an HTTP tunneling proxy</span>
 <span class="hljs-keyword">const</span> proxy = http.<span class="hljs-title function_">createServer</span>(<span class="hljs-function">(<span class="hljs-params">req, res</span>) =></span> {
@@ -1014,7 +1059,7 @@ proxy.<span class="hljs-title function_">listen</span>(<span class="hljs-number"
     <span class="hljs-attr">port</span>: <span class="hljs-number">1337</span>,
     <span class="hljs-attr">host</span>: <span class="hljs-string">'127.0.0.1'</span>,
     <span class="hljs-attr">method</span>: <span class="hljs-string">'CONNECT'</span>,
-    <span class="hljs-attr">path</span>: <span class="hljs-string">'www.google.com:80'</span>
+    <span class="hljs-attr">path</span>: <span class="hljs-string">'www.google.com:80'</span>,
   };
 
   <span class="hljs-keyword">const</span> req = http.<span class="hljs-title function_">request</span>(options);
@@ -1043,6 +1088,14 @@ proxy.<span class="hljs-title function_">listen</span>(<span class="hljs-number"
 <p>Emitted when the server sends a '100 Continue' HTTP response, usually because
 the request contained 'Expect: 100-continue'. This is an instruction that
 the client should send the request body.</p>
+<h4>Event: <code>'finish'</code><span><a class="mark" href="#event-finish" id="event-finish">#</a></span><a aria-hidden="true" class="legacy" id="http_event_finish"></a></h4>
+<div class="api_metadata">
+<span>Added in: v0.3.6</span>
+</div>
+<p>Emitted when the request has been sent. More specifically, this event is emitted
+when the last segment of the response headers and body have been handed off to
+the operating system for transmission over the network. It does not imply that
+the server has received anything yet.</p>
 <h4>Event: <code>'information'</code><span><a class="mark" href="#event-information" id="event-information">#</a></span><a aria-hidden="true" class="legacy" id="http_event_information"></a></h4>
 <div class="api_metadata">
 <span>Added in: v10.0.0</span>
@@ -1064,12 +1117,12 @@ the client should send the request body.</p>
 Upgrade). The listeners of this event will receive an object containing the
 HTTP version, status code, status message, key-value headers object,
 and array with the raw header names followed by their respective values.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
 
 <span class="hljs-keyword">const</span> options = {
   <span class="hljs-attr">host</span>: <span class="hljs-string">'127.0.0.1'</span>,
   <span class="hljs-attr">port</span>: <span class="hljs-number">8080</span>,
-  <span class="hljs-attr">path</span>: <span class="hljs-string">'/length_request'</span>
+  <span class="hljs-attr">path</span>: <span class="hljs-string">'/length_request'</span>,
 };
 
 <span class="hljs-comment">// Make a request</span>
@@ -1126,7 +1179,7 @@ closed.</p>
 a subclass of <a href="stream.html#class-streamduplex" class="type">&#x3C;stream.Duplex></a>, unless the user specifies a socket
 type other than <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket></a>.</p>
 <p>A client server pair demonstrating how to listen for the <code>'upgrade'</code> event.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
 
 <span class="hljs-comment">// Create an HTTP server</span>
 <span class="hljs-keyword">const</span> server = http.<span class="hljs-title function_">createServer</span>(<span class="hljs-function">(<span class="hljs-params">req, res</span>) =></span> {
@@ -1151,8 +1204,8 @@ server.<span class="hljs-title function_">listen</span>(<span class="hljs-number
     <span class="hljs-attr">host</span>: <span class="hljs-string">'127.0.0.1'</span>,
     <span class="hljs-attr">headers</span>: {
       <span class="hljs-string">'Connection'</span>: <span class="hljs-string">'Upgrade'</span>,
-      <span class="hljs-string">'Upgrade'</span>: <span class="hljs-string">'websocket'</span>
-    }
+      <span class="hljs-string">'Upgrade'</span>: <span class="hljs-string">'websocket'</span>,
+    },
   };
 
   <span class="hljs-keyword">const</span> req = http.<span class="hljs-title function_">request</span>(options);
@@ -1176,8 +1229,8 @@ in the response to be dropped and the socket to be destroyed.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v16.12.0</td>
-<td><p><span>Deprecated since: v16.12.0</span></p></td></tr>
+<tr><td>v17.0.0, v16.12.0</td>
+<td><p><span>Deprecated since: v17.0.0, v16.12.0</span></p></td></tr>
 <tr><td>v11.0.0</td>
 <td><p>The <code>aborted</code> property is no longer a timestamp number.</p></td></tr>
 <tr><td>v0.11.14</td>
@@ -1200,11 +1253,18 @@ been aborted.</p>
 <li><a href="stream.html#class-streamduplex" class="type">&#x3C;stream.Duplex></a></li>
 </ul>
 <p>See <a href="#requestsocket"><code>request.socket</code></a>.</p>
+<h4><code>request.cork()</code><span><a class="mark" href="#requestcork" id="requestcork">#</a></span><a aria-hidden="true" class="legacy" id="http_request_cork"></a></h4>
+<div class="api_metadata">
+<span>Added in: v13.2.0, v12.16.0</span>
+</div>
+<p>See <a href="stream.html#writablecork"><code>writable.cork()</code></a>.</p>
 <h4><code>request.end([data[, encoding]][, callback])</code><span><a class="mark" href="#requestenddata-encoding-callback" id="requestenddata-encoding-callback">#</a></span><a aria-hidden="true" class="legacy" id="http_request_end_data_encoding_callback"></a></h4>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v15.0.0</td>
+<td><p>The <code>data</code> parameter can now be a <code>Uint8Array</code>.</p></td></tr>
 <tr><td>v10.0.0</td>
 <td><p>This method now returns a reference to <code>ClientRequest</code>.</p></td></tr>
 <tr><td>v0.1.90</td>
@@ -1213,7 +1273,7 @@ been aborted.</p>
 </details>
 </div>
 <ul>
-<li><code>data</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a></li>
+<li><code>data</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array" class="type">&#x3C;Uint8Array></a></li>
 <li><code>encoding</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
 <li><code>callback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a></li>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this" class="type">&#x3C;this></a></li>
@@ -1296,9 +1356,44 @@ request.<span class="hljs-title function_">setHeader</span>(<span class="hljs-st
 <span class="hljs-comment">// 'contentLength' is of type number</span>
 <span class="hljs-keyword">const</span> cookie = request.<span class="hljs-title function_">getHeader</span>(<span class="hljs-string">'Cookie'</span>);
 <span class="hljs-comment">// 'cookie' is of type string[]</span></code></pre>
+<h4><code>request.getHeaderNames()</code><span><a class="mark" href="#requestgetheadernames" id="requestgetheadernames">#</a></span><a aria-hidden="true" class="legacy" id="http_request_getheadernames"></a></h4>
+<div class="api_metadata">
+<span>Added in: v7.7.0</span>
+</div>
+<ul>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string[]></a></li>
+</ul>
+<p>Returns an array containing the unique names of the current outgoing headers.
+All header names are lowercase.</p>
+<pre><code class="language-js">request.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'Foo'</span>, <span class="hljs-string">'bar'</span>);
+request.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'Cookie'</span>, [<span class="hljs-string">'foo=bar'</span>, <span class="hljs-string">'bar=baz'</span>]);
+
+<span class="hljs-keyword">const</span> headerNames = request.<span class="hljs-title function_">getHeaderNames</span>();
+<span class="hljs-comment">// headerNames === ['foo', 'cookie']</span></code></pre>
+<h4><code>request.getHeaders()</code><span><a class="mark" href="#requestgetheaders" id="requestgetheaders">#</a></span><a aria-hidden="true" class="legacy" id="http_request_getheaders"></a></h4>
+<div class="api_metadata">
+<span>Added in: v7.7.0</span>
+</div>
+<ul>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a></li>
+</ul>
+<p>Returns a shallow copy of the current outgoing headers. Since a shallow copy
+is used, array values may be mutated without additional calls to various
+header-related http module methods. The keys of the returned object are the
+header names and the values are the respective header values. All header names
+are lowercase.</p>
+<p>The object returned by the <code>request.getHeaders()</code> method <em>does not</em>
+prototypically inherit from the JavaScript <code>Object</code>. This means that typical
+<code>Object</code> methods such as <code>obj.toString()</code>, <code>obj.hasOwnProperty()</code>, and others
+are not defined and <em>will not work</em>.</p>
+<pre><code class="language-js">request.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'Foo'</span>, <span class="hljs-string">'bar'</span>);
+request.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'Cookie'</span>, [<span class="hljs-string">'foo=bar'</span>, <span class="hljs-string">'bar=baz'</span>]);
+
+<span class="hljs-keyword">const</span> headers = request.<span class="hljs-title function_">getHeaders</span>();
+<span class="hljs-comment">// headers === { foo: 'bar', 'cookie': ['foo=bar', 'bar=baz'] }</span></code></pre>
 <h4><code>request.getRawHeaderNames()</code><span><a class="mark" href="#requestgetrawheadernames" id="requestgetrawheadernames">#</a></span><a aria-hidden="true" class="legacy" id="http_request_getrawheadernames"></a></h4>
 <div class="api_metadata">
-<span>Added in: v15.13.0</span>
+<span>Added in: v15.13.0, v14.17.0</span>
 </div>
 <ul>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string[]></a></li>
@@ -1310,6 +1405,17 @@ request.<span class="hljs-title function_">setHeader</span>(<span class="hljs-st
 
 <span class="hljs-keyword">const</span> headerNames = request.<span class="hljs-title function_">getRawHeaderNames</span>();
 <span class="hljs-comment">// headerNames === ['Foo', 'Set-Cookie']</span></code></pre>
+<h4><code>request.hasHeader(name)</code><span><a class="mark" href="#requesthasheadername" id="requesthasheadername">#</a></span><a aria-hidden="true" class="legacy" id="http_request_hasheader_name"></a></h4>
+<div class="api_metadata">
+<span>Added in: v7.7.0</span>
+</div>
+<ul>
+<li><code>name</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a></li>
+</ul>
+<p>Returns <code>true</code> if the header identified by <code>name</code> is currently set in the
+outgoing headers. The header name matching is case-insensitive.</p>
+<pre><code class="language-js"><span class="hljs-keyword">const</span> hasContentType = request.<span class="hljs-title function_">hasHeader</span>(<span class="hljs-string">'content-type'</span>);</code></pre>
 <h4><code>request.maxHeadersCount</code><span><a class="mark" href="#requestmaxheaderscount" id="requestmaxheaderscount">#</a></span><a aria-hidden="true" class="legacy" id="http_request_maxheaderscount"></a></h4>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> <strong>Default:</strong> <code>2000</code></li>
@@ -1362,7 +1468,7 @@ request.<span class="hljs-title function_">setHeader</span>(<span class="hljs-st
 <p>When sending request through a keep-alive enabled agent, the underlying socket
 might be reused. But if server closes connection at unfortunate time, client
 may run into a 'ECONNRESET' error.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
 
 <span class="hljs-comment">// Server has a 5 seconds keep-alive timeout by default</span>
 http
@@ -1382,7 +1488,7 @@ http
 }, <span class="hljs-number">5000</span>); <span class="hljs-comment">// Sending request on 5s interval so it's easy to hit idle timeout</span></code></pre>
 <p>By marking a request whether it reused socket or not, we can do
 automatic error retry base on it.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
 <span class="hljs-keyword">const</span> agent = <span class="hljs-keyword">new</span> http.<span class="hljs-title class_">Agent</span>({ <span class="hljs-attr">keepAlive</span>: <span class="hljs-literal">true</span> });
 
 <span class="hljs-keyword">function</span> <span class="hljs-title function_">retriableRequest</span>(<span class="hljs-params"></span>) {
@@ -1416,6 +1522,12 @@ for network transmission.</p>
 <pre><code class="language-js">request.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'Content-Type'</span>, <span class="hljs-string">'application/json'</span>);</code></pre>
 <p>or</p>
 <pre><code class="language-js">request.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'Cookie'</span>, [<span class="hljs-string">'type=ninja'</span>, <span class="hljs-string">'language=javascript'</span>]);</code></pre>
+<p>When the value is a string an exception will be thrown if it contains
+characters outside the <code>latin1</code> encoding.</p>
+<p>If you need to pass UTF-8 characters in the value please encode the value
+using the <a href="https://www.rfc-editor.org/rfc/rfc8187.txt">RFC 8187</a> standard.</p>
+<pre><code class="language-js"><span class="hljs-keyword">const</span> filename = <span class="hljs-string">'Rock 🎵.txt'</span>;
+request.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'Content-Disposition'</span>, <span class="hljs-string">`attachment; filename*=utf-8''<span class="hljs-subst">${<span class="hljs-built_in">encodeURIComponent</span>(filename)}</span>`</span>);</code></pre>
 <h4><code>request.setNoDelay([noDelay])</code><span><a class="mark" href="#requestsetnodelaynodelay" id="requestsetnodelaynodelay">#</a></span><a aria-hidden="true" class="legacy" id="http_request_setnodelay_nodelay"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.5.9</span>
@@ -1465,7 +1577,7 @@ Same as binding to the <code>'timeout'</code> event.</li>
 <p>Reference to the underlying socket. Usually users will not want to access
 this property. In particular, the socket will not emit <code>'readable'</code> events
 because of how the protocol parser attaches to the socket.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
 <span class="hljs-keyword">const</span> options = {
   <span class="hljs-attr">host</span>: <span class="hljs-string">'www.google.com'</span>,
 };
@@ -1480,6 +1592,11 @@ req.<span class="hljs-title function_">once</span>(<span class="hljs-string">'re
 <p>This property is guaranteed to be an instance of the <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket></a> class,
 a subclass of <a href="stream.html#class-streamduplex" class="type">&#x3C;stream.Duplex></a>, unless the user specified a socket
 type other than <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket></a>.</p>
+<h4><code>request.uncork()</code><span><a class="mark" href="#requestuncork" id="requestuncork">#</a></span><a aria-hidden="true" class="legacy" id="http_request_uncork"></a></h4>
+<div class="api_metadata">
+<span>Added in: v13.2.0, v12.16.0</span>
+</div>
+<p>See <a href="stream.html#writableuncork"><code>writable.uncork()</code></a>.</p>
 <h4><code>request.writableEnded</code><span><a class="mark" href="#requestwritableended" id="requestwritableended">#</a></span><a aria-hidden="true" class="legacy" id="http_request_writableended"></a></h4>
 <div class="api_metadata">
 <span>Added in: v12.9.0</span>
@@ -1501,10 +1618,18 @@ does not indicate whether the data has been flushed, for this use
 before the <a href="#event-finish"><code>'finish'</code></a> event is emitted.</p>
 <h4><code>request.write(chunk[, encoding][, callback])</code><span><a class="mark" href="#requestwritechunk-encoding-callback" id="requestwritechunk-encoding-callback">#</a></span><a aria-hidden="true" class="legacy" id="http_request_write_chunk_encoding_callback"></a></h4>
 <div class="api_metadata">
-<span>Added in: v0.1.29</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v15.0.0</td>
+<td><p>The <code>chunk</code> parameter can now be a <code>Uint8Array</code>.</p></td></tr>
+<tr><td>v0.1.29</td>
+<td><p><span>Added in: v0.1.29</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
-<li><code>chunk</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a></li>
+<li><code>chunk</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array" class="type">&#x3C;Uint8Array></a></li>
 <li><code>encoding</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
 <li><code>callback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a></li>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a></li>
@@ -1589,10 +1714,11 @@ a subclass of <a href="stream.html#class-streamduplex" class="type">&#x3C;stream
 type other than <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket></a>.</p>
 <p>Default behavior is to try close the socket with a HTTP '400 Bad Request',
 or a HTTP '431 Request Header Fields Too Large' in the case of a
-<a href="errors.html#hpe_header_overflow"><code>HPE_HEADER_OVERFLOW</code></a> error. If the socket is not writable or has already
-written data it is immediately destroyed.</p>
+<a href="errors.html#hpe_header_overflow"><code>HPE_HEADER_OVERFLOW</code></a> error. If the socket is not writable or headers
+of the current attached <a href="#class-httpserverresponse"><code>http.ServerResponse</code></a> has been sent, it is
+immediately destroyed.</p>
 <p><code>socket</code> is the <a href="net.html#class-netsocket"><code>net.Socket</code></a> object that the error originated from.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
 
 <span class="hljs-keyword">const</span> server = http.<span class="hljs-title function_">createServer</span>(<span class="hljs-function">(<span class="hljs-params">req, res</span>) =></span> {
   res.<span class="hljs-title function_">end</span>();
@@ -1622,7 +1748,7 @@ writable.</p>
 
   socket.<span class="hljs-title function_">end</span>(<span class="hljs-string">'HTTP/1.1 400 Bad Request\r\n\r\n'</span>);
 });</code></pre>
-<h4>Event: <code>'close'</code><span><a class="mark" href="#event-close" id="event-close">#</a></span><a aria-hidden="true" class="legacy" id="http_event_close"></a></h4>
+<h4>Event: <code>'close'</code><span><a class="mark" href="#event-close_1" id="event-close_1">#</a></span><a aria-hidden="true" class="legacy" id="http_event_close_1"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.1.4</span>
 </div>
@@ -1666,6 +1792,18 @@ into the HTTP server. In that case, any <a href="stream.html#class-streamduplex"
 <p>This event is guaranteed to be passed an instance of the <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket></a> class,
 a subclass of <a href="stream.html#class-streamduplex" class="type">&#x3C;stream.Duplex></a>, unless the user specifies a socket
 type other than <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket></a>.</p>
+<h4>Event: <code>'dropRequest'</code><span><a class="mark" href="#event-droprequest" id="event-droprequest">#</a></span><a aria-hidden="true" class="legacy" id="http_event_droprequest"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.7.0</span>
+</div>
+<ul>
+<li><code>request</code> <a href="http.html#class-httpincomingmessage" class="type">&#x3C;http.IncomingMessage></a> Arguments for the HTTP request, as it is in
+the <a href="#event-request"><code>'request'</code></a> event</li>
+<li><code>socket</code> <a href="stream.html#class-streamduplex" class="type">&#x3C;stream.Duplex></a> Network socket between the server and client</li>
+</ul>
+<p>When the number of requests on a socket reaches the threshold of
+<code>server.maxRequestsPerSocket</code>, the server will drop new requests
+and emit <code>'dropRequest'</code> event instead, then send <code>503</code> to client.</p>
 <h4>Event: <code>'request'</code><span><a class="mark" href="#event-request" id="event-request">#</a></span><a aria-hidden="true" class="legacy" id="http_event_request"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.1.0</span>
@@ -1710,6 +1848,17 @@ type other than <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket
 <li><code>callback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a></li>
 </ul>
 <p>Stops the server from accepting new connections. See <a href="net.html#serverclosecallback"><code>net.Server.close()</code></a>.</p>
+<h4><code>server.closeAllConnections()</code><span><a class="mark" href="#servercloseallconnections" id="servercloseallconnections">#</a></span><a aria-hidden="true" class="legacy" id="http_server_closeallconnections"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.2.0</span>
+</div>
+<p>Closes all connections connected to this server.</p>
+<h4><code>server.closeIdleConnections()</code><span><a class="mark" href="#servercloseidleconnections" id="servercloseidleconnections">#</a></span><a aria-hidden="true" class="legacy" id="http_server_closeidleconnections"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.2.0</span>
+</div>
+<p>Closes all connections connected to this server which are not sending a request
+or waiting for a response.</p>
 <h4><code>server.headersTimeout</code><span><a class="mark" href="#serverheaderstimeout" id="serverheaderstimeout">#</a></span><a aria-hidden="true" class="legacy" id="http_server_headerstimeout"></a></h4>
 <div class="api_metadata">
 <span>Added in: v11.3.0, v10.14.0</span>
@@ -1719,15 +1868,11 @@ type other than <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket
 </ul>
 <p>Limit the amount of time the parser will wait to receive the complete HTTP
 headers.</p>
-<p>In case of inactivity, the rules defined in <a href="#servertimeout"><code>server.timeout</code></a> apply. However,
-that inactivity based timeout would still allow the connection to be kept open
-if the headers are being sent very slowly (by default, up to a byte per 2
-minutes). In order to prevent this, whenever header data arrives an additional
-check is made that more than <code>server.headersTimeout</code> milliseconds has not
-passed since the connection was established. If the check fails, a <code>'timeout'</code>
-event is emitted on the server object, and (by default) the socket is destroyed.
-See <a href="#servertimeout"><code>server.timeout</code></a> for more information on how timeout behavior can be
-customized.</p>
+<p>If the timeout expires, the server responds with status 408 without
+forwarding the request to the request listener and then closes the connection.</p>
+<p>It must be set to a non-zero value (e.g. 120 seconds) to protect against
+potential Denial-of-Service attacks in case the server is deployed without a
+reverse proxy in front.</p>
 <h4><code>server.listen()</code><span><a class="mark" href="#serverlisten" id="serverlisten">#</a></span><a aria-hidden="true" class="legacy" id="http_server_listen"></a></h4>
 <p>Starts the HTTP server listening for connections.
 This method is identical to <a href="net.html#serverlisten"><code>server.listen()</code></a> from <a href="net.html#class-netserver"><code>net.Server</code></a>.</p>
@@ -1748,10 +1893,18 @@ This method is identical to <a href="net.html#serverlisten"><code>server.listen(
 <p>Limits maximum incoming headers count. If set to 0, no limit will be applied.</p>
 <h4><code>server.requestTimeout</code><span><a class="mark" href="#serverrequesttimeout" id="serverrequesttimeout">#</a></span><a aria-hidden="true" class="legacy" id="http_server_requesttimeout"></a></h4>
 <div class="api_metadata">
-<span>Added in: v14.11.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v18.0.0</td>
+<td><p>The default request timeout changed from no timeout to 300s (5 minutes).</p></td></tr>
+<tr><td>v14.11.0</td>
+<td><p><span>Added in: v14.11.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
-<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> <strong>Default:</strong> <code>0</code></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> <strong>Default:</strong> <code>300000</code></li>
 </ul>
 <p>Sets the timeout value in milliseconds for receiving the entire request from
 the client.</p>
@@ -1841,17 +1994,17 @@ affects new connections to the server, not any existing connections.</p>
 <span>Added in: v0.1.17</span>
 </div>
 <ul>
-<li>Extends: <a href="stream.html#stream" class="type">&#x3C;Stream></a></li>
+<li>Extends: <a href="http.html#class-httpoutgoingmessage" class="type">&#x3C;http.OutgoingMessage></a></li>
 </ul>
 <p>This object is created internally by an HTTP server, not by the user. It is
 passed as the second parameter to the <a href="#event-request"><code>'request'</code></a> event.</p>
-<h4>Event: <code>'close'</code><span><a class="mark" href="#event-close_1" id="event-close_1">#</a></span><a aria-hidden="true" class="legacy" id="http_event_close_1"></a></h4>
+<h4>Event: <code>'close'</code><span><a class="mark" href="#event-close_2" id="event-close_2">#</a></span><a aria-hidden="true" class="legacy" id="http_event_close_2"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.6.7</span>
 </div>
 <p>Indicates that the response is completed, or its underlying connection was
 terminated prematurely (before the response completion).</p>
-<h4>Event: <code>'finish'</code><span><a class="mark" href="#event-finish" id="event-finish">#</a></span><a aria-hidden="true" class="legacy" id="http_event_finish"></a></h4>
+<h4>Event: <code>'finish'</code><span><a class="mark" href="#event-finish_1" id="event-finish_1">#</a></span><a aria-hidden="true" class="legacy" id="http_event_finish_1"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.3.6</span>
 </div>
@@ -1899,6 +2052,8 @@ will result in a <a href="errors.html#class-typeerror"><code>TypeError</code></a
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v15.0.0</td>
+<td><p>The <code>data</code> parameter can now be a <code>Uint8Array</code>.</p></td></tr>
 <tr><td>v10.0.0</td>
 <td><p>This method now returns a reference to <code>ServerResponse</code>.</p></td></tr>
 <tr><td>v0.1.90</td>
@@ -1907,7 +2062,7 @@ will result in a <a href="errors.html#class-typeerror"><code>TypeError</code></a
 </details>
 </div>
 <ul>
-<li><code>data</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a></li>
+<li><code>data</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array" class="type">&#x3C;Uint8Array></a></li>
 <li><code>encoding</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
 <li><code>callback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a></li>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this" class="type">&#x3C;this></a></li>
@@ -2101,7 +2256,7 @@ timed out sockets must be handled explicitly.</p>
 this property. In particular, the socket will not emit <code>'readable'</code> events
 because of how the protocol parser attaches to the socket. After
 <code>response.end()</code>, the property is nulled.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
 <span class="hljs-keyword">const</span> server = http.<span class="hljs-title function_">createServer</span>(<span class="hljs-function">(<span class="hljs-params">req, res</span>) =></span> {
   <span class="hljs-keyword">const</span> ip = res.<span class="hljs-property">socket</span>.<span class="hljs-property">remoteAddress</span>;
   <span class="hljs-keyword">const</span> port = res.<span class="hljs-property">socket</span>.<span class="hljs-property">remotePort</span>;
@@ -2163,10 +2318,18 @@ does not indicate whether the data has been flushed, for this use
 before the <a href="#event-finish"><code>'finish'</code></a> event is emitted.</p>
 <h4><code>response.write(chunk[, encoding][, callback])</code><span><a class="mark" href="#responsewritechunk-encoding-callback" id="responsewritechunk-encoding-callback">#</a></span><a aria-hidden="true" class="legacy" id="http_response_write_chunk_encoding_callback"></a></h4>
 <div class="api_metadata">
-<span>Added in: v0.1.29</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v15.0.0</td>
+<td><p>The <code>chunk</code> parameter can now be a <code>Uint8Array</code>.</p></td></tr>
+<tr><td>v0.1.29</td>
+<td><p><span>Added in: v0.1.29</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
-<li><code>chunk</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a></li>
+<li><code>chunk</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array" class="type">&#x3C;Uint8Array></a></li>
 <li><code>encoding</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> <strong>Default:</strong> <code>'utf8'</code></li>
 <li><code>callback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a></li>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a></li>
@@ -2175,7 +2338,7 @@ before the <a href="#event-finish"><code>'finish'</code></a> event is emitted.</
 it will switch to implicit header mode and flush the implicit headers.</p>
 <p>This sends a chunk of the response body. This method may
 be called multiple times to provide successive parts of the body.</p>
-<p>In the <code>http</code> module, the response body is omitted when the
+<p>In the <code>node:http</code> module, the response body is omitted when the
 request is a HEAD request. Similarly, the <code>204</code> and <code>304</code> responses
 <em>must not</em> include a message body.</p>
 <p><code>chunk</code> can be a string or a buffer. If <code>chunk</code> is a string,
@@ -2195,9 +2358,49 @@ buffer. Returns <code>false</code> if all or part of the data was queued in user
 <div class="api_metadata">
 <span>Added in: v0.3.0</span>
 </div>
-<p>Sends a HTTP/1.1 100 Continue message to the client, indicating that
+<p>Sends an HTTP/1.1 100 Continue message to the client, indicating that
 the request body should be sent. See the <a href="#event-checkcontinue"><code>'checkContinue'</code></a> event on
 <code>Server</code>.</p>
+<h4><code>response.writeEarlyHints(hints[, callback])</code><span><a class="mark" href="#responsewriteearlyhintshints-callback" id="responsewriteearlyhintshints-callback">#</a></span><a aria-hidden="true" class="legacy" id="http_response_writeearlyhints_hints_callback"></a></h4>
+<div class="api_metadata">
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v18.11.0</td>
+<td><p>Allow passing hints as an object.</p></td></tr>
+<tr><td>v18.11.0</td>
+<td><p><span>Added in: v18.11.0</span></p></td></tr>
+</tbody></table>
+</details>
+</div>
+<ul>
+<li><code>hints</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a></li>
+<li><code>callback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a></li>
+</ul>
+<p>Sends an HTTP/1.1 103 Early Hints message to the client with a Link header,
+indicating that the user agent can preload/preconnect the linked resources.
+The <code>hints</code> is an object containing the values of headers to be sent with
+early hints message. The optional <code>callback</code> argument will be called when
+the response message has been written.</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-js"><span class="hljs-keyword">const</span> earlyHintsLink = <span class="hljs-string">'&#x3C;/styles.css>; rel=preload; as=style'</span>;
+response.<span class="hljs-title function_">writeEarlyHints</span>({
+  <span class="hljs-string">'link'</span>: earlyHintsLink,
+});
+
+<span class="hljs-keyword">const</span> earlyHintsLinks = [
+  <span class="hljs-string">'&#x3C;/styles.css>; rel=preload; as=style'</span>,
+  <span class="hljs-string">'&#x3C;/scripts.js>; rel=preload; as=script'</span>,
+];
+response.<span class="hljs-title function_">writeEarlyHints</span>({
+  <span class="hljs-string">'link'</span>: earlyHintsLinks,
+  <span class="hljs-string">'x-trace-id'</span>: <span class="hljs-string">'id for diagnostics'</span>,
+});
+
+<span class="hljs-keyword">const</span> <span class="hljs-title function_">earlyHintsCallback</span> = (<span class="hljs-params"></span>) => <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'early hints message sent'</span>);
+response.<span class="hljs-title function_">writeEarlyHints</span>({
+  <span class="hljs-string">'link'</span>: earlyHintsLinks,
+}, earlyHintsCallback);</code></pre>
 <h4><code>response.writeHead(statusCode[, statusMessage][, headers])</code><span><a class="mark" href="#responsewriteheadstatuscode-statusmessage-headers" id="responsewriteheadstatuscode-statusmessage-headers">#</a></span><a aria-hidden="true" class="legacy" id="http_response_writehead_statuscode_statusmessage_headers"></a></h4>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
@@ -2233,7 +2436,7 @@ format as <code>request.rawHeaders</code>.</p>
 response
   .<span class="hljs-title function_">writeHead</span>(<span class="hljs-number">200</span>, {
     <span class="hljs-string">'Content-Length'</span>: <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">byteLength</span>(body),
-    <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'text/plain'</span>
+    <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'text/plain'</span>,
   })
   .<span class="hljs-title function_">end</span>(body);</code></pre>
 <p>This method must only be called once on a message and it must
@@ -2256,12 +2459,12 @@ desired with potential future retrieval and modification, use
   res.<span class="hljs-title function_">writeHead</span>(<span class="hljs-number">200</span>, { <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'text/plain'</span> });
   res.<span class="hljs-title function_">end</span>(<span class="hljs-string">'ok'</span>);
 });</code></pre>
-<p><code>Content-Length</code> is given in bytes, not characters. Use
+<p><code>Content-Length</code> is read in bytes, not characters. Use
 <a href="buffer.html#static-method-bufferbytelengthstring-encoding"><code>Buffer.byteLength()</code></a> to determine the length of the body in bytes. Node.js
-does not check whether <code>Content-Length</code> and the length of the body which has
+will check whether <code>Content-Length</code> and the length of the body which has
 been transmitted are equal or not.</p>
 <p>Attempting to set a header field name or value that contains invalid characters
-will result in a <a href="errors.html#class-typeerror"><code>TypeError</code></a> being thrown.</p>
+will result in a [<code>Error</code>][] being thrown.</p>
 <h4><code>response.writeProcessing()</code><span><a class="mark" href="#responsewriteprocessing" id="responsewriteprocessing">#</a></span><a aria-hidden="true" class="legacy" id="http_response_writeprocessing"></a></h4>
 <div class="api_metadata">
 <span>Added in: v10.0.0</span>
@@ -2288,27 +2491,35 @@ the request body should be sent.</p>
 <p>An <code>IncomingMessage</code> object is created by <a href="#class-httpserver"><code>http.Server</code></a> or
 <a href="#class-httpclientrequest"><code>http.ClientRequest</code></a> and passed as the first argument to the <a href="#event-request"><code>'request'</code></a>
 and <a href="#event-response"><code>'response'</code></a> event respectively. It may be used to access response
-status, headers and data.</p>
+status, headers, and data.</p>
 <p>Different from its <code>socket</code> value which is a subclass of <a href="stream.html#class-streamduplex" class="type">&#x3C;stream.Duplex></a>, the
 <code>IncomingMessage</code> itself extends <a href="stream.html#class-streamreadable" class="type">&#x3C;stream.Readable></a> and is created separately to
 parse and emit the incoming HTTP headers and payload, as the underlying socket
 may be reused multiple times in case of keep-alive.</p>
 <h4>Event: <code>'aborted'</code><span><a class="mark" href="#event-aborted" id="event-aborted">#</a></span><a aria-hidden="true" class="legacy" id="http_event_aborted"></a></h4>
 <div class="api_metadata">
-<span>Added in: v0.3.8</span><span>Deprecated since: v16.12.0</span>
+<span>Added in: v0.3.8</span><span>Deprecated since: v17.0.0, v16.12.0</span>
 </div>
 <p></p><div class="api_stability api_stability_0"><a href="documentation.html#stability-index">Stability: 0</a> - Deprecated. Listen for <code>'close'</code> event instead.</div><p></p>
 <p>Emitted when the request has been aborted.</p>
-<h4>Event: <code>'close'</code><span><a class="mark" href="#event-close_2" id="event-close_2">#</a></span><a aria-hidden="true" class="legacy" id="http_event_close_2"></a></h4>
+<h4>Event: <code>'close'</code><span><a class="mark" href="#event-close_3" id="event-close_3">#</a></span><a aria-hidden="true" class="legacy" id="http_event_close_3"></a></h4>
 <div class="api_metadata">
-<span>Added in: v0.4.2</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v16.0.0</td>
+<td><p>The close event is now emitted when the request has been completed and not when the underlying socket is closed.</p></td></tr>
+<tr><td>v0.4.2</td>
+<td><p><span>Added in: v0.4.2</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
-<p>Indicates that the underlying connection was closed.</p>
+<p>Emitted when the request has been completed.</p>
 <h4><code>message.aborted</code><span><a class="mark" href="#messageaborted" id="messageaborted">#</a></span><a aria-hidden="true" class="legacy" id="http_message_aborted"></a></h4>
 <div class="api_metadata">
-<span>Added in: v10.1.0</span><span>Deprecated since: v16.12.0</span>
+<span>Added in: v10.1.0</span><span>Deprecated since: v17.0.0, v16.12.0</span>
 </div>
-<p></p><div class="api_stability api_stability_0"><a href="documentation.html#stability-index">Stability: 0</a> - Deprecated. Check <code>message.destroyed</code> from <a href="stream.html#class-streamreadable" class="type">&#x3C;stream.Readable></a>..</div><p></p>
+<p></p><div class="api_stability api_stability_0"><a href="documentation.html#stability-index">Stability: 0</a> - Deprecated. Check <code>message.destroyed</code> from <a href="stream.html#class-streamreadable" class="type">&#x3C;stream.Readable></a>.</div><p></p>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a></li>
 </ul>
@@ -2328,7 +2539,7 @@ server fully transmitted a message before a connection was terminated:</p>
 <pre><code class="language-js"><span class="hljs-keyword">const</span> req = http.<span class="hljs-title function_">request</span>({
   <span class="hljs-attr">host</span>: <span class="hljs-string">'127.0.0.1'</span>,
   <span class="hljs-attr">port</span>: <span class="hljs-number">8080</span>,
-  <span class="hljs-attr">method</span>: <span class="hljs-string">'POST'</span>
+  <span class="hljs-attr">method</span>: <span class="hljs-string">'POST'</span>,
 }, <span class="hljs-function">(<span class="hljs-params">res</span>) =></span> {
   res.<span class="hljs-title function_">resume</span>();
   res.<span class="hljs-title function_">on</span>(<span class="hljs-string">'end'</span>, <span class="hljs-function">() =></span> {
@@ -2393,9 +2604,24 @@ header name:</p>
 <code>last-modified</code>, <code>location</code>, <code>max-forwards</code>, <code>proxy-authorization</code>, <code>referer</code>,
 <code>retry-after</code>, <code>server</code>, or <code>user-agent</code> are discarded.</li>
 <li><code>set-cookie</code> is always an array. Duplicates are added to the array.</li>
-<li>For duplicate <code>cookie</code> headers, the values are joined together with '; '.</li>
-<li>For all other headers, the values are joined together with ', '.</li>
+<li>For duplicate <code>cookie</code> headers, the values are joined together with <code>; </code>.</li>
+<li>For all other headers, the values are joined together with <code>, </code>.</li>
 </ul>
+<h4><code>message.headersDistinct</code><span><a class="mark" href="#messageheadersdistinct" id="messageheadersdistinct">#</a></span><a aria-hidden="true" class="legacy" id="http_message_headersdistinct"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.3.0</span>
+</div>
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a></li>
+</ul>
+<p>Similar to <a href="#messageheaders"><code>message.headers</code></a>, but there is no join logic and the values are
+always arrays of strings, even for headers received just once.</p>
+<pre><code class="language-js"><span class="hljs-comment">// Prints something like:</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// { 'user-agent': ['curl/7.22.0'],</span>
+<span class="hljs-comment">//   host: ['127.0.0.1:8000'],</span>
+<span class="hljs-comment">//   accept: ['*/*'] }</span>
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(request.<span class="hljs-property">headersDistinct</span>);</code></pre>
 <h4><code>message.httpVersion</code><span><a class="mark" href="#messagehttpversion" id="messagehttpversion">#</a></span><a aria-hidden="true" class="legacy" id="http_message_httpversion"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.1.1</span>
@@ -2498,6 +2724,16 @@ type other than <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a></li>
 </ul>
 <p>The request/response trailers object. Only populated at the <code>'end'</code> event.</p>
+<h4><code>message.trailersDistinct</code><span><a class="mark" href="#messagetrailersdistinct" id="messagetrailersdistinct">#</a></span><a aria-hidden="true" class="legacy" id="http_message_trailersdistinct"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.3.0</span>
+</div>
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a></li>
+</ul>
+<p>Similar to <a href="#messagetrailers"><code>message.trailers</code></a>, but there is no join logic and the values are
+always arrays of strings, even for headers received just once.
+Only populated at the <code>'end'</code> event.</p>
 <h4><code>message.url</code><span><a class="mark" href="#messageurl" id="messageurl">#</a></span><a aria-hidden="true" class="legacy" id="http_message_url"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.1.90</span>
@@ -2512,8 +2748,8 @@ HTTP request. Take the following request:</p>
 <span class="hljs-attribute">Accept</span><span class="hljs-punctuation">: </span>text/plain</code></pre>
 <p>To parse the URL into its parts:</p>
 <pre><code class="language-js"><span class="hljs-keyword">new</span> <span class="hljs-title function_">URL</span>(request.<span class="hljs-property">url</span>, <span class="hljs-string">`http://<span class="hljs-subst">${request.headers.host}</span>`</span>);</code></pre>
-<p>When <code>request.url</code> is <code>'/status?name=ryan'</code> and
-<code>request.headers.host</code> is <code>'localhost:3000'</code>:</p>
+<p>When <code>request.url</code> is <code>'/status?name=ryan'</code> and <code>request.headers.host</code> is
+<code>'localhost:3000'</code>:</p>
 <pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">node</span>
 <span class="hljs-meta prompt_">> </span><span class="language-bash">new URL(request.url, `http://<span class="hljs-variable">${request.headers.host}</span>`)</span>
 URL {
@@ -2538,14 +2774,14 @@ URL {
 <li>Extends: <a href="stream.html#stream" class="type">&#x3C;Stream></a></li>
 </ul>
 <p>This class serves as the parent class of <a href="#class-httpclientrequest"><code>http.ClientRequest</code></a>
-and <a href="#class-httpserverresponse"><code>http.ServerResponse</code></a>. It is an abstract of outgoing message from
-the perspective of the participants of HTTP transaction.</p>
+and <a href="#class-httpserverresponse"><code>http.ServerResponse</code></a>. It is an abstract outgoing message from
+the perspective of the participants of an HTTP transaction.</p>
 <h4>Event: <code>'drain'</code><span><a class="mark" href="#event-drain" id="event-drain">#</a></span><a aria-hidden="true" class="legacy" id="http_event_drain"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.3.6</span>
 </div>
 <p>Emitted when the buffer of the message is free again.</p>
-<h4>Event: <code>'finish'</code><span><a class="mark" href="#event-finish_1" id="event-finish_1">#</a></span><a aria-hidden="true" class="legacy" id="http_event_finish_1"></a></h4>
+<h4>Event: <code>'finish'</code><span><a class="mark" href="#event-finish_2" id="event-finish_2">#</a></span><a aria-hidden="true" class="legacy" id="http_event_finish_2"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.1.17</span>
 </div>
@@ -2554,7 +2790,7 @@ the perspective of the participants of HTTP transaction.</p>
 <div class="api_metadata">
 <span>Added in: v0.11.6</span>
 </div>
-<p>Emitted when <code>outgoingMessage.end</code> was called.
+<p>Emitted after <code>outgoingMessage.end()</code> is called.
 When the event is emitted, all data has been processed but not necessarily
 completely flushed.</p>
 <h4><code>outgoingMessage.addTrailers(headers)</code><span><a class="mark" href="#outgoingmessageaddtrailersheaders" id="outgoingmessageaddtrailersheaders">#</a></span><a aria-hidden="true" class="legacy" id="http_outgoingmessage_addtrailers_headers"></a></h4>
@@ -2565,10 +2801,10 @@ completely flushed.</p>
 <li><code>headers</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a></li>
 </ul>
 <p>Adds HTTP trailers (headers but at the end of the message) to the message.</p>
-<p>Trailers are <strong>only</strong> be emitted if the message is chunked encoded. If not,
-the trailer will be silently discarded.</p>
-<p>HTTP requires the  <code>Trailer</code> header to be sent to emit trailers,
-with a list of header fields in its value, e.g.</p>
+<p>Trailers will <strong>only</strong> be emitted if the message is chunked encoded. If not,
+the trailers will be silently discarded.</p>
+<p>HTTP requires the <code>Trailer</code> header to be sent to emit trailers,
+with a list of header field names in its value, e.g.</p>
 <pre><code class="language-js">message.<span class="hljs-title function_">writeHead</span>(<span class="hljs-number">200</span>, { <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'text/plain'</span>,
                          <span class="hljs-string">'Trailer'</span>: <span class="hljs-string">'Content-MD5'</span> });
 message.<span class="hljs-title function_">write</span>(fileData);
@@ -2576,15 +2812,32 @@ message.<span class="hljs-title function_">addTrailers</span>({ <span class="hlj
 message.<span class="hljs-title function_">end</span>();</code></pre>
 <p>Attempting to set a header field name or value that contains invalid characters
 will result in a <code>TypeError</code> being thrown.</p>
+<h4><code>outgoingMessage.appendHeader(name, value)</code><span><a class="mark" href="#outgoingmessageappendheadername-value" id="outgoingmessageappendheadername-value">#</a></span><a aria-hidden="true" class="legacy" id="http_outgoingmessage_appendheader_name_value"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.3.0</span>
+</div>
+<ul>
+<li><code>name</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Header name</li>
+<li><code>value</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string[]></a> Header value</li>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this" class="type">&#x3C;this></a></li>
+</ul>
+<p>Append a single header value for the header object.</p>
+<p>If the value is an array, this is equivalent of calling this method multiple
+times.</p>
+<p>If there were no previous value for the header, this is equivalent of calling
+<a href="#outgoingmessagesetheadername-value"><code>outgoingMessage.setHeader(name, value)</code></a>.</p>
+<p>Depending of the value of <code>options.uniqueHeaders</code> when the client request or the
+server were created, this will end up in the header being sent multiple times or
+a single time with values joined using <code>; </code>.</p>
 <h4><code>outgoingMessage.connection</code><span><a class="mark" href="#outgoingmessageconnection" id="outgoingmessageconnection">#</a></span><a aria-hidden="true" class="legacy" id="http_outgoingmessage_connection"></a></h4>
 <div class="api_metadata">
-<span>Added in: v0.3.0</span><span>Deprecated since: v15.12.0</span>
+<span>Added in: v0.3.0</span><span>Deprecated since: v15.12.0, v14.17.1</span>
 </div>
 <p></p><div class="api_stability api_stability_0"><a href="documentation.html#stability-index">Stability: 0</a> - Deprecated: Use <a href="#outgoingmessagesocket"><code>outgoingMessage.socket</code></a> instead.</div><p></p>
-<p>Aliases of <code>outgoingMessage.socket</code></p>
+<p>Alias of <a href="#outgoingmessagesocket"><code>outgoingMessage.socket</code></a>.</p>
 <h4><code>outgoingMessage.cork()</code><span><a class="mark" href="#outgoingmessagecork" id="outgoingmessagecork">#</a></span><a aria-hidden="true" class="legacy" id="http_outgoingmessage_cork"></a></h4>
 <div class="api_metadata">
-<span>Added in: v14.0.0</span>
+<span>Added in: v13.2.0, v12.16.0</span>
 </div>
 <p>See <a href="stream.html#writablecork"><code>writable.cork()</code></a>.</p>
 <h4><code>outgoingMessage.destroy([error])</code><span><a class="mark" href="#outgoingmessagedestroyerror" id="outgoingmessagedestroyerror">#</a></span><a aria-hidden="true" class="legacy" id="http_outgoingmessage_destroy_error"></a></h4>
@@ -2602,6 +2855,8 @@ and is connected, that socket will be destroyed as well.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v15.0.0</td>
+<td><p>The <code>chunk</code> parameter can now be a <code>Uint8Array</code>.</p></td></tr>
 <tr><td>v0.11.6</td>
 <td><p>add <code>callback</code> argument.</p></td></tr>
 <tr><td>v0.1.90</td>
@@ -2610,31 +2865,31 @@ and is connected, that socket will be destroyed as well.</p>
 </details>
 </div>
 <ul>
-<li><code>chunk</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a></li>
+<li><code>chunk</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array" class="type">&#x3C;Uint8Array></a></li>
 <li><code>encoding</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Optional, <strong>Default</strong>: <code>utf8</code></li>
 <li><code>callback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> Optional</li>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this" class="type">&#x3C;this></a></li>
 </ul>
 <p>Finishes the outgoing message. If any parts of the body are unsent, it will
 flush them to the underlying system. If the message is chunked, it will
-send the terminating chunk <code>0\r\n\r\n</code>, and send the trailer (if any).</p>
-<p>If <code>chunk</code> is specified, it is equivalent to call
+send the terminating chunk <code>0\r\n\r\n</code>, and send the trailers (if any).</p>
+<p>If <code>chunk</code> is specified, it is equivalent to calling
 <code>outgoingMessage.write(chunk, encoding)</code>, followed by
 <code>outgoingMessage.end(callback)</code>.</p>
-<p>If <code>callback</code> is provided, it will be called when the message is finished.
-(equivalent to the callback to event <code>finish</code>)</p>
+<p>If <code>callback</code> is provided, it will be called when the message is finished
+(equivalent to a listener of the <code>'finish'</code> event).</p>
 <h4><code>outgoingMessage.flushHeaders()</code><span><a class="mark" href="#outgoingmessageflushheaders" id="outgoingmessageflushheaders">#</a></span><a aria-hidden="true" class="legacy" id="http_outgoingmessage_flushheaders"></a></h4>
 <div class="api_metadata">
 <span>Added in: v1.6.0</span>
 </div>
-<p>Compulsorily flushes the message headers</p>
+<p>Flushes the message headers.</p>
 <p>For efficiency reason, Node.js normally buffers the message headers
 until <code>outgoingMessage.end()</code> is called or the first chunk of message data
 is written. It then tries to pack the headers and data into a single TCP
 packet.</p>
 <p>It is usually desired (it saves a TCP round-trip), but not when the first
 data is not sent until possibly much later. <code>outgoingMessage.flushHeaders()</code>
-bypasses the optimization and kickstarts the request.</p>
+bypasses the optimization and kickstarts the message.</p>
 <h4><code>outgoingMessage.getHeader(name)</code><span><a class="mark" href="#outgoingmessagegetheadername" id="outgoingmessagegetheadername">#</a></span><a aria-hidden="true" class="legacy" id="http_outgoingmessage_getheader_name"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.4.0</span>
@@ -2643,20 +2898,20 @@ bypasses the optimization and kickstarts the request.</p>
 <li><code>name</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Name of header</li>
 <li>Returns <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type" class="type">&#x3C;undefined></a></li>
 </ul>
-<p>Gets the value of HTTP header with the given name. If such a name doesn't
-exist in message, it will be <code>undefined</code>.</p>
+<p>Gets the value of the HTTP header with the given name. If that header is not
+set, the returned value will be <code>undefined</code>.</p>
 <h4><code>outgoingMessage.getHeaderNames()</code><span><a class="mark" href="#outgoingmessagegetheadernames" id="outgoingmessagegetheadernames">#</a></span><a aria-hidden="true" class="legacy" id="http_outgoingmessage_getheadernames"></a></h4>
 <div class="api_metadata">
-<span>Added in: v8.0.0</span>
+<span>Added in: v7.7.0</span>
 </div>
 <ul>
 <li>Returns <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string[]></a></li>
 </ul>
-<p>Returns an array of names of headers of the outgoing outgoingMessage. All
-names are lowercase.</p>
+<p>Returns an array containing the unique names of the current outgoing headers.
+All names are lowercase.</p>
 <h4><code>outgoingMessage.getHeaders()</code><span><a class="mark" href="#outgoingmessagegetheaders" id="outgoingmessagegetheaders">#</a></span><a aria-hidden="true" class="legacy" id="http_outgoingmessage_getheaders"></a></h4>
 <div class="api_metadata">
-<span>Added in: v8.0.0</span>
+<span>Added in: v7.7.0</span>
 </div>
 <ul>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a></li>
@@ -2667,8 +2922,8 @@ various header-related HTTP module methods. The keys of the returned
 object are the header names and the values are the respective header
 values. All header names are lowercase.</p>
 <p>The object returned by the <code>outgoingMessage.getHeaders()</code> method does
-not prototypically inherit from the JavaScript Object. This means that
-typical Object methods such as <code>obj.toString()</code>, <code>obj.hasOwnProperty()</code>,
+not prototypically inherit from the JavaScript <code>Object</code>. This means that
+typical <code>Object</code> methods such as <code>obj.toString()</code>, <code>obj.hasOwnProperty()</code>,
 and others are not defined and will not work.</p>
 <pre><code class="language-js">outgoingMessage.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'Foo'</span>, <span class="hljs-string">'bar'</span>);
 outgoingMessage.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'Set-Cookie'</span>, [<span class="hljs-string">'foo=bar'</span>, <span class="hljs-string">'bar=baz'</span>]);
@@ -2677,7 +2932,7 @@ outgoingMessage.<span class="hljs-title function_">setHeader</span>(<span class=
 <span class="hljs-comment">// headers === { foo: 'bar', 'set-cookie': ['foo=bar', 'bar=baz'] }</span></code></pre>
 <h4><code>outgoingMessage.hasHeader(name)</code><span><a class="mark" href="#outgoingmessagehasheadername" id="outgoingmessagehasheadername">#</a></span><a aria-hidden="true" class="legacy" id="http_outgoingmessage_hasheader_name"></a></h4>
 <div class="api_metadata">
-<span>Added in: v8.0.0</span>
+<span>Added in: v7.7.0</span>
 </div>
 <ul>
 <li><code>name</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
@@ -2698,16 +2953,17 @@ outgoing headers. The header name is case-insensitive.</p>
 <div class="api_metadata">
 <span>Added in: v9.0.0</span>
 </div>
-<p>Overrides the pipe method of legacy <code>Stream</code> which is the parent class of
-<code>http.outgoingMessage</code>.</p>
-<p>Since <code>OutgoingMessage</code> should be a write-only stream,
-call this function will throw an <code>Error</code>. Thus, it disabled the pipe method
-it inherits from <code>Stream</code>.</p>
-<p>The User should not call this function directly.</p>
-<h4><code>outgoingMessage.removeHeader()</code><span><a class="mark" href="#outgoingmessageremoveheader" id="outgoingmessageremoveheader">#</a></span><a aria-hidden="true" class="legacy" id="http_outgoingmessage_removeheader"></a></h4>
+<p>Overrides the <code>stream.pipe()</code> method inherited from the legacy <code>Stream</code> class
+which is the parent class of <code>http.OutgoingMessage</code>.</p>
+<p>Calling this method will throw an <code>Error</code> because <code>outgoingMessage</code> is a
+write-only stream.</p>
+<h4><code>outgoingMessage.removeHeader(name)</code><span><a class="mark" href="#outgoingmessageremoveheadername" id="outgoingmessageremoveheadername">#</a></span><a aria-hidden="true" class="legacy" id="http_outgoingmessage_removeheader_name"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.4.0</span>
 </div>
+<ul>
+<li><code>name</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Header name</li>
+</ul>
 <p>Removes a header that is queued for implicit sending.</p>
 <pre><code class="language-js">outgoingMessage.<span class="hljs-title function_">removeHeader</span>(<span class="hljs-string">'Content-Encoding'</span>);</code></pre>
 <h4><code>outgoingMessage.setHeader(name, value)</code><span><a class="mark" href="#outgoingmessagesetheadername-value" id="outgoingmessagesetheadername-value">#</a></span><a aria-hidden="true" class="legacy" id="http_outgoingmessage_setheader_name_value"></a></h4>
@@ -2716,10 +2972,12 @@ it inherits from <code>Stream</code>.</p>
 </div>
 <ul>
 <li><code>name</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Header name</li>
-<li><code>value</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Header value</li>
+<li><code>value</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types" class="type">&#x3C;any></a> Header value</li>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this" class="type">&#x3C;this></a></li>
 </ul>
-<p>Sets a single header value for the header object.</p>
+<p>Sets a single header value. If the header already exists in the to-be-sent
+headers, its value will be replaced. Use an array of strings to send multiple
+headers with the same name.</p>
 <h4><code>outgoingMessage.setTimeout(msesc[, callback])</code><span><a class="mark" href="#outgoingmessagesettimeoutmsesc-callback" id="outgoingmessagesettimeoutmsesc-callback">#</a></span><a aria-hidden="true" class="legacy" id="http_outgoingmessage_settimeout_msesc_callback"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.9.12</span>
@@ -2744,106 +3002,88 @@ this property.</p>
 <p>After calling <code>outgoingMessage.end()</code>, this property will be nulled.</p>
 <h4><code>outgoingMessage.uncork()</code><span><a class="mark" href="#outgoingmessageuncork" id="outgoingmessageuncork">#</a></span><a aria-hidden="true" class="legacy" id="http_outgoingmessage_uncork"></a></h4>
 <div class="api_metadata">
-<span>Added in: v14.0.0</span>
+<span>Added in: v13.2.0, v12.16.0</span>
 </div>
 <p>See <a href="stream.html#writableuncork"><code>writable.uncork()</code></a></p>
 <h4><code>outgoingMessage.writableCorked</code><span><a class="mark" href="#outgoingmessagewritablecorked" id="outgoingmessagewritablecorked">#</a></span><a aria-hidden="true" class="legacy" id="http_outgoingmessage_writablecorked"></a></h4>
 <div class="api_metadata">
-<span>Added in: v14.0.0</span>
+<span>Added in: v13.2.0, v12.16.0</span>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
 </ul>
-<p>This <code>outgoingMessage.writableCorked</code> will return the time how many
-<code>outgoingMessage.cork()</code> have been called.</p>
+<p>The number of times <code>outgoingMessage.cork()</code> has been called.</p>
 <h4><code>outgoingMessage.writableEnded</code><span><a class="mark" href="#outgoingmessagewritableended" id="outgoingmessagewritableended">#</a></span><a aria-hidden="true" class="legacy" id="http_outgoingmessage_writableended"></a></h4>
 <div class="api_metadata">
-<span>Added in: v13.0.0</span>
+<span>Added in: v12.9.0</span>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a></li>
 </ul>
-<p>Readonly, <code>true</code> if <code>outgoingMessage.end()</code> has been called. Noted that
-this property does not reflect whether the data has been flush. For that
-purpose, use <code>message.writableFinished</code> instead.</p>
+<p>Is <code>true</code> if <code>outgoingMessage.end()</code> has been called. This property does
+not indicate whether the data has been flushed. For that purpose, use
+<code>message.writableFinished</code> instead.</p>
 <h4><code>outgoingMessage.writableFinished</code><span><a class="mark" href="#outgoingmessagewritablefinished" id="outgoingmessagewritablefinished">#</a></span><a aria-hidden="true" class="legacy" id="http_outgoingmessage_writablefinished"></a></h4>
 <div class="api_metadata">
-<span>Added in: v13.0.0</span>
+<span>Added in: v12.7.0</span>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a></li>
 </ul>
-<p>Readonly. <code>true</code> if all data has been flushed to the underlying system.</p>
+<p>Is <code>true</code> if all data has been flushed to the underlying system.</p>
 <h4><code>outgoingMessage.writableHighWaterMark</code><span><a class="mark" href="#outgoingmessagewritablehighwatermark" id="outgoingmessagewritablehighwatermark">#</a></span><a aria-hidden="true" class="legacy" id="http_outgoingmessage_writablehighwatermark"></a></h4>
 <div class="api_metadata">
-<span>Added in: v13.0.0</span>
+<span>Added in: v12.9.0</span>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
 </ul>
-<p>This <code>outgoingMessage.writableHighWaterMark</code> will be the <code>highWaterMark</code> of
-underlying socket if socket exists. Else, it would be the default
-<code>highWaterMark</code>.</p>
-<p><code>highWaterMark</code> is the maximum amount of data that can be potentially
-buffered by the socket.</p>
+<p>The <code>highWaterMark</code> of the underlying socket if assigned. Otherwise, the default
+buffer level when <a href="stream.html#writablewritechunk-encoding-callback"><code>writable.write()</code></a> starts returning false (<code>16384</code>).</p>
 <h4><code>outgoingMessage.writableLength</code><span><a class="mark" href="#outgoingmessagewritablelength" id="outgoingmessagewritablelength">#</a></span><a aria-hidden="true" class="legacy" id="http_outgoingmessage_writablelength"></a></h4>
 <div class="api_metadata">
-<span>Added in: v13.0.0</span>
+<span>Added in: v12.9.0</span>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
 </ul>
-<p>Readonly, This <code>outgoingMessage.writableLength</code> contains the number of
-bytes (or objects) in the buffer ready to send.</p>
+<p>The number of buffered bytes.</p>
 <h4><code>outgoingMessage.writableObjectMode</code><span><a class="mark" href="#outgoingmessagewritableobjectmode" id="outgoingmessagewritableobjectmode">#</a></span><a aria-hidden="true" class="legacy" id="http_outgoingmessage_writableobjectmode"></a></h4>
 <div class="api_metadata">
-<span>Added in: v13.0.0</span>
+<span>Added in: v12.9.0</span>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a></li>
 </ul>
-<p>Readonly, always returns <code>false</code>.</p>
+<p>Always <code>false</code>.</p>
 <h4><code>outgoingMessage.write(chunk[, encoding][, callback])</code><span><a class="mark" href="#outgoingmessagewritechunk-encoding-callback" id="outgoingmessagewritechunk-encoding-callback">#</a></span><a aria-hidden="true" class="legacy" id="http_outgoingmessage_write_chunk_encoding_callback"></a></h4>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v15.0.0</td>
+<td><p>The <code>chunk</code> parameter can now be a <code>Uint8Array</code>.</p></td></tr>
 <tr><td>v0.11.6</td>
-<td><p>add <code>callback</code> argument.</p></td></tr>
+<td><p>The <code>callback</code> argument was added.</p></td></tr>
 <tr><td>v0.1.29</td>
 <td><p><span>Added in: v0.1.29</span></p></td></tr>
 </tbody></table>
 </details>
 </div>
 <ul>
-<li><code>chunk</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a></li>
+<li><code>chunk</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array" class="type">&#x3C;Uint8Array></a></li>
 <li><code>encoding</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> <strong>Default</strong>: <code>utf8</code></li>
 <li><code>callback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a></li>
 <li>Returns <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a></li>
 </ul>
-<p>If this method is called and the header is not sent, it will call
-<code>this._implicitHeader</code> to flush implicit header.
-If the message should not have a body (indicated by <code>this._hasBody</code>),
-the call is ignored and <code>chunk</code> will not be sent. It could be useful
-when handling a particular message which must not include a body.
-e.g. response to <code>HEAD</code> request, <code>204</code> and <code>304</code> response.</p>
-<p><code>chunk</code> can be a string or a buffer. When <code>chunk</code> is a string, the
-<code>encoding</code> parameter specifies how to encode <code>chunk</code> into a byte stream.
-<code>callback</code> will be called when the <code>chunk</code> is flushed.</p>
-<p>If the message is transferred in chucked encoding
-(indicated by <code>this.chunkedEncoding</code>), <code>chunk</code> will be flushed as
-one chunk among a stream of chunks. Otherwise, it will be flushed as the
-body of message.</p>
-<p>This method handles the raw body of the HTTP message and has nothing to do
-with higher-level multi-part body encodings that may be used.</p>
-<p>If it is the first call to this method of a message, it will send the
-buffered header first, then flush the <code>chunk</code> as described above.</p>
-<p>The second and successive calls to this method will assume the data
-will be streamed and send the new data separately. It means that the response
-is buffered up to the first chunk of the body.</p>
+<p>Sends a chunk of the body. This method can be called multiple times.</p>
+<p>The <code>encoding</code> argument is only relevant when <code>chunk</code> is a string. Defaults to
+<code>'utf8'</code>.</p>
+<p>The <code>callback</code> argument is optional and will be called when this chunk of data
+is flushed.</p>
 <p>Returns <code>true</code> if the entire data was flushed successfully to the kernel
 buffer. Returns <code>false</code> if all or part of the data was queued in the user
-memory. Event <code>drain</code> will be emitted when the buffer is free again.</p>
+memory. The <code>'drain'</code> event will be emitted when the buffer is free again.</p>
 </section><section><h3><code>http.METHODS</code><span><a class="mark" href="#httpmethods" id="httpmethods">#</a></span><a aria-hidden="true" class="legacy" id="http_http_methods"></a></h3>
 <div class="api_metadata">
 <span>Added in: v0.11.8</span>
@@ -2866,7 +3106,11 @@ short description of each. For example, <code>http.STATUS_CODES[404] === 'Not Fo
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v16.15.0</td>
+<tr><td>v18.0.0</td>
+<td><p>The <code>requestTimeout</code>, <code>headersTimeout</code>, <code>keepAliveTimeout</code>, and <code>connectionsCheckingInterval</code> options are supported now.</p></td></tr>
+<tr><td>v18.0.0</td>
+<td><p>The <code>noDelay</code> option now defaults to <code>true</code>.</p></td></tr>
+<tr><td>v17.7.0</td>
 <td><p>The <code>noDelay</code>, <code>keepAlive</code> and <code>keepAliveInitialDelay</code> options are supported now.</p></td></tr>
 <tr><td>v13.3.0</td>
 <td><p>The <code>maxHeaderSize</code> option is supported now.</p></td></tr>
@@ -2889,6 +3133,22 @@ class to be used. Useful for extending the original <code>IncomingMessage</code>
 <li><code>ServerResponse</code> <a href="http.html#class-httpserverresponse" class="type">&#x3C;http.ServerResponse></a> Specifies the <code>ServerResponse</code> class
 to be used. Useful for extending the original <code>ServerResponse</code>. <strong>Default:</strong>
 <code>ServerResponse</code>.</li>
+<li><code>requestTimeout</code>: Sets the timeout value in milliseconds for receiving
+the entire request from the client.
+See <a href="#serverrequesttimeout"><code>server.requestTimeout</code></a> for more information.
+<strong>Default:</strong> <code>300000</code>.</li>
+<li><code>headersTimeout</code>: Sets the timeout value in milliseconds for receiving
+the complete HTTP headers from the client.
+See <a href="#serverheaderstimeout"><code>server.headersTimeout</code></a> for more information.
+<strong>Default:</strong> <code>60000</code>.</li>
+<li><code>keepAliveTimeout</code>: The number of milliseconds of inactivity a server
+needs to wait for additional incoming data, after it has finished writing
+the last response, before a socket will be destroyed.
+See <a href="#serverkeepalivetimeout"><code>server.keepAliveTimeout</code></a> for more information.
+<strong>Default:</strong> <code>5000</code>.</li>
+<li><code>connectionsCheckingInterval</code>: Sets the interval value in milliseconds to
+check for request and headers timeout in incomplete requests.
+<strong>Default:</strong> <code>30000</code>.</li>
 <li><code>insecureHTTPParser</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> Use an insecure HTTP parser that accepts
 invalid HTTP headers when <code>true</code>. Using the insecure parser should be
 avoided. See <a href="cli.html#--insecure-http-parser"><code>--insecure-http-parser</code></a> for more information.
@@ -2896,10 +3156,10 @@ avoided. See <a href="cli.html#--insecure-http-parser"><code>--insecure-http-par
 <li><code>maxHeaderSize</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Optionally overrides the value of
 <a href="cli.html#--max-http-header-sizesize"><code>--max-http-header-size</code></a> for requests received by this server, i.e.
 the maximum length of request headers in bytes.
-<strong>Default:</strong> 16384 (16 KB).</li>
+<strong>Default:</strong> 16384 (16 KiB).</li>
 <li><code>noDelay</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If set to <code>true</code>, it disables the use of Nagle's
 algorithm immediately after a new incoming connection is received.
-<strong>Default:</strong> <code>false</code>.</li>
+<strong>Default:</strong> <code>true</code>.</li>
 <li><code>keepAlive</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If set to <code>true</code>, it enables keep-alive functionality
 on the socket immediately after a new incoming connection is received,
 similarly on what is done in [<code>socket.setKeepAlive([enable][, initialDelay])</code>][<code>socket.setKeepAlive(enable, initialDelay)</code>].
@@ -2907,6 +3167,9 @@ similarly on what is done in [<code>socket.setKeepAlive([enable][, initialDelay]
 <li><code>keepAliveInitialDelay</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> If set to a positive number, it sets the
 initial delay before the first keepalive probe is sent on an idle socket.
 <strong>Default:</strong> <code>0</code>.</li>
+<li><code>uniqueHeaders</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="type">&#x3C;Array></a> A list of response headers that should be sent only
+once. If the header's value is an array, the items will be joined
+using <code>; </code>.</li>
 </ul>
 </li>
 <li>
@@ -2919,18 +3182,18 @@ initial delay before the first keepalive probe is sent on an idle socket.
 <p>Returns a new instance of <a href="#class-httpserver"><code>http.Server</code></a>.</p>
 <p>The <code>requestListener</code> is a function which is automatically
 added to the <a href="#event-request"><code>'request'</code></a> event.</p>
-<pre><code class="language-js cjs"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http'</span>);
+<pre><code class="language-js cjs"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
 
 <span class="hljs-comment">// Create a local server to receive data from</span>
 <span class="hljs-keyword">const</span> server = http.<span class="hljs-title function_">createServer</span>(<span class="hljs-function">(<span class="hljs-params">req, res</span>) =></span> {
   res.<span class="hljs-title function_">writeHead</span>(<span class="hljs-number">200</span>, { <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'application/json'</span> });
   res.<span class="hljs-title function_">end</span>(<span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">stringify</span>({
-    <span class="hljs-attr">data</span>: <span class="hljs-string">'Hello World!'</span>
+    <span class="hljs-attr">data</span>: <span class="hljs-string">'Hello World!'</span>,
   }));
 });
 
 server.<span class="hljs-title function_">listen</span>(<span class="hljs-number">8000</span>);</code></pre>
-<pre><code class="language-js cjs"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http'</span>);
+<pre><code class="language-js cjs"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
 
 <span class="hljs-comment">// Create a local server to receive data from</span>
 <span class="hljs-keyword">const</span> server = http.<span class="hljs-title function_">createServer</span>();
@@ -2939,7 +3202,7 @@ server.<span class="hljs-title function_">listen</span>(<span class="hljs-number
 server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'request'</span>, <span class="hljs-function">(<span class="hljs-params">request, res</span>) =></span> {
   res.<span class="hljs-title function_">writeHead</span>(<span class="hljs-number">200</span>, { <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'application/json'</span> });
   res.<span class="hljs-title function_">end</span>(<span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">stringify</span>({
-    <span class="hljs-attr">data</span>: <span class="hljs-string">'Hello World!'</span>
+    <span class="hljs-attr">data</span>: <span class="hljs-string">'Hello World!'</span>,
   }));
 });
 
@@ -3015,7 +3278,7 @@ data for reasons stated in <a href="#class-httpclientrequest"><code>http.ClientR
 <span class="hljs-keyword">const</span> server = http.<span class="hljs-title function_">createServer</span>(<span class="hljs-function">(<span class="hljs-params">req, res</span>) =></span> {
   res.<span class="hljs-title function_">writeHead</span>(<span class="hljs-number">200</span>, { <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'application/json'</span> });
   res.<span class="hljs-title function_">end</span>(<span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">stringify</span>({
-    <span class="hljs-attr">data</span>: <span class="hljs-string">'Hello World!'</span>
+    <span class="hljs-attr">data</span>: <span class="hljs-string">'Hello World!'</span>,
   }));
 });
 
@@ -3037,7 +3300,7 @@ requests.</p>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
 </ul>
 <p>Read-only property specifying the maximum allowed size of HTTP headers in bytes.
-Defaults to 16 KB. Configurable using the <a href="cli.html#--max-http-header-sizesize"><code>--max-http-header-size</code></a> CLI
+Defaults to 16 KiB. Configurable using the <a href="cli.html#--max-http-header-sizesize"><code>--max-http-header-size</code></a> CLI
 option.</p>
 <p>This can be overridden for servers and client requests by passing the
 <code>maxHeaderSize</code> option.</p>
@@ -3047,7 +3310,7 @@ option.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v16.7.0</td>
+<tr><td>v16.7.0, v14.18.0</td>
 <td><p>When using a <code>URL</code> object parsed username and password will now be properly URI decoded.</p></td></tr>
 <tr><td>v15.3.0, v14.17.0</td>
 <td><p>It is possible to abort a request with an AbortSignal.</p></td></tr>
@@ -3104,7 +3367,7 @@ avoided. See <a href="cli.html#--insecure-http-parser"><code>--insecure-http-par
 <li><code>maxHeaderSize</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Optionally overrides the value of
 <a href="cli.html#--max-http-header-sizesize"><code>--max-http-header-size</code></a> (the maximum length of response headers in
 bytes) for responses received from the server.
-<strong>Default:</strong> 16384 (16 KB).</li>
+<strong>Default:</strong> 16384 (16 KiB).</li>
 <li><code>method</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> A string specifying the HTTP request method. <strong>Default:</strong>
 <code>'GET'</code>.</li>
 <li><code>path</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Request path. Should include query string if any.
@@ -3116,12 +3379,15 @@ else <code>80</code>.</li>
 <li><code>protocol</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Protocol to use. <strong>Default:</strong> <code>'http:'</code>.</li>
 <li><code>setHost</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a>: Specifies whether or not to automatically add the
 <code>Host</code> header. Defaults to <code>true</code>.</li>
+<li><code>signal</code> <a href="globals.html#class-abortsignal" class="type">&#x3C;AbortSignal></a>: An AbortSignal that may be used to abort an ongoing
+request.</li>
 <li><code>socketPath</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Unix domain socket. Cannot be used if one of <code>host</code>
 or <code>port</code> is specified, as those specify a TCP Socket.</li>
 <li><code>timeout</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a>: A number specifying the socket timeout in milliseconds.
 This will set the timeout before the socket is connected.</li>
-<li><code>signal</code> <a href="globals.html#class-abortsignal" class="type">&#x3C;AbortSignal></a>: An AbortSignal that may be used to abort an ongoing
-request.</li>
+<li><code>uniqueHeaders</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="type">&#x3C;Array></a> A list of request headers that should be sent
+only once. If the header's value is an array, the items will be joined
+using <code>; </code>.</li>
 </ul>
 </li>
 <li><code>callback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a></li>
@@ -3140,10 +3406,10 @@ the <a href="#event-response"><code>'response'</code></a> event.</p>
 <p><code>http.request()</code> returns an instance of the <a href="#class-httpclientrequest"><code>http.ClientRequest</code></a>
 class. The <code>ClientRequest</code> instance is a writable stream. If one needs to
 upload a file with a POST request, then write to the <code>ClientRequest</code> object.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
 
 <span class="hljs-keyword">const</span> postData = <span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">stringify</span>({
-  <span class="hljs-string">'msg'</span>: <span class="hljs-string">'Hello World!'</span>
+  <span class="hljs-string">'msg'</span>: <span class="hljs-string">'Hello World!'</span>,
 });
 
 <span class="hljs-keyword">const</span> options = {
@@ -3153,8 +3419,8 @@ upload a file with a POST request, then write to the <code>ClientRequest</code> 
   <span class="hljs-attr">method</span>: <span class="hljs-string">'POST'</span>,
   <span class="hljs-attr">headers</span>: {
     <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'application/json'</span>,
-    <span class="hljs-string">'Content-Length'</span>: <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">byteLength</span>(postData)
-  }
+    <span class="hljs-string">'Content-Length'</span>: <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">byteLength</span>(postData),
+  },
 };
 
 <span class="hljs-keyword">const</span> req = http.<span class="hljs-title function_">request</span>(options, <span class="hljs-function">(<span class="hljs-params">res</span>) =></span> {
@@ -3340,7 +3606,7 @@ identified by <code>code: 'ERR_INVALID_HTTP_TOKEN'</code>.</p>
 or response. The HTTP module will automatically validate such headers.
 Examples:</p>
 <p>Example:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> { validateHeaderName } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> { validateHeaderName } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
 
 <span class="hljs-keyword">try</span> {
   <span class="hljs-title function_">validateHeaderName</span>(<span class="hljs-string">''</span>);
@@ -3367,7 +3633,7 @@ Examples:</p>
 <p>It is not necessary to use this method before passing headers to an HTTP request
 or response. The HTTP module will automatically validate such headers.</p>
 <p>Examples:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> { validateHeaderValue } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> { validateHeaderValue } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
 
 <span class="hljs-keyword">try</span> {
   <span class="hljs-title function_">validateHeaderValue</span>(<span class="hljs-string">'x-my-header'</span>, <span class="hljs-literal">undefined</span>);
@@ -3383,46 +3649,18 @@ or response. The HTTP module will automatically validate such headers.</p>
   err <span class="hljs-keyword">instanceof</span> <span class="hljs-title class_">TypeError</span>; <span class="hljs-comment">// --> true</span>
   err.<span class="hljs-property">code</span> === <span class="hljs-string">'ERR_INVALID_CHAR'</span>; <span class="hljs-comment">// --> true</span>
   err.<span class="hljs-property">message</span>; <span class="hljs-comment">// --> 'Invalid character in header content ["x-my-header"]'</span>
-}</code></pre></section>
+}</code></pre>
+</section><section><h3><code>http.setMaxIdleHTTPParsers</code><span><a class="mark" href="#httpsetmaxidlehttpparsers" id="httpsetmaxidlehttpparsers">#</a></span><a aria-hidden="true" class="legacy" id="http_http_setmaxidlehttpparsers"></a></h3>
+<div class="api_metadata">
+<span>Added in: v18.8.0</span>
+</div>
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
+</ul>
+<p>Set the maximum number of idle HTTP parsers. <strong>Default:</strong> <code>1000</code>.</p></section>
         <!-- API END -->
       </div>
     </div>
   </div>
-  <script>
-    'use strict';
-    {
-      const kCustomPreference = 'customDarkTheme';
-      const userSettings = sessionStorage.getItem(kCustomPreference);
-      const themeToggleButton = document.getElementById('theme-toggle-btn');
-      if (userSettings === null && window.matchMedia) {
-        const mq = window.matchMedia('(prefers-color-scheme: dark)');
-        if ('onchange' in mq) {
-          function mqChangeListener(e) {
-            document.documentElement.classList.toggle('dark-mode', e.matches);
-          }
-          mq.addEventListener('change', mqChangeListener);
-          if (themeToggleButton) {
-            themeToggleButton.addEventListener('click', function() {
-              mq.removeEventListener('change', mqChangeListener);
-            }, { once: true });
-          }
-        }
-        if (mq.matches) {
-          document.documentElement.classList.add('dark-mode');
-        }
-      } else if (userSettings === 'true') {
-        document.documentElement.classList.add('dark-mode');
-      }
-      if (themeToggleButton) {
-        themeToggleButton.hidden = false;
-        themeToggleButton.addEventListener('click', function() {
-          sessionStorage.setItem(
-            kCustomPreference,
-            document.documentElement.classList.toggle('dark-mode')
-          );
-        });
-      }
-    }
-  </script>
 </body>
 </html>

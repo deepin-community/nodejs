@@ -3,12 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v16.15.1">
-  <title>Command-line API | Node.js v16.15.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v18.13.0">
+  <title>Command-line API | Node.js v18.13.0 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/cli.html">
+  <script async defer src="assets/api.js" type="text/javascript"></script>
+  
 </head>
 <body class="alt apidoc" id="api-section-cli">
   <div id="content" class="clearfix">
@@ -53,13 +55,13 @@
 <li><a href="intl.html" class="nav-intl">Internationalization</a></li>
 <li><a href="modules.html" class="nav-modules">Modules: CommonJS modules</a></li>
 <li><a href="esm.html" class="nav-esm">Modules: ECMAScript modules</a></li>
-<li><a href="module.html" class="nav-module">Modules: <code>module</code> API</a></li>
+<li><a href="module.html" class="nav-module">Modules: <code>node:module</code> API</a></li>
 <li><a href="packages.html" class="nav-packages">Modules: Packages</a></li>
 <li><a href="net.html" class="nav-net">Net</a></li>
 <li><a href="os.html" class="nav-os">OS</a></li>
 <li><a href="path.html" class="nav-path">Path</a></li>
 <li><a href="perf_hooks.html" class="nav-perf_hooks">Performance hooks</a></li>
-<li><a href="policy.html" class="nav-policy">Policies</a></li>
+<li><a href="permissions.html" class="nav-permissions">Permissions</a></li>
 <li><a href="process.html" class="nav-process">Process</a></li>
 <li><a href="punycode.html" class="nav-punycode">Punycode</a></li>
 <li><a href="querystring.html" class="nav-querystring">Query strings</a></li>
@@ -68,6 +70,7 @@
 <li><a href="report.html" class="nav-report">Report</a></li>
 <li><a href="stream.html" class="nav-stream">Stream</a></li>
 <li><a href="string_decoder.html" class="nav-string_decoder">String decoder</a></li>
+<li><a href="test.html" class="nav-test">Test runner</a></li>
 <li><a href="timers.html" class="nav-timers">Timers</a></li>
 <li><a href="tls.html" class="nav-tls">TLS/SSL</a></li>
 <li><a href="tracing.html" class="nav-tracing">Trace events</a></li>
@@ -92,7 +95,7 @@
     <div id="column1" data-id="cli" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v16.15.1 documentation</h1>
+          <h1>Node.js v18.13.0 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -107,6 +110,7 @@
         </div>
         <div id="gtoc">
           <ul>
+            <li class="pinned-header">Node.js v18.13.0</li>
             
     <li class="picker-header">
       <a href="#">
@@ -128,6 +132,7 @@
 <li><a href="#-"><code>-</code></a></li>
 <li><a href="#--"><code>--</code></a></li>
 <li><a href="#--abort-on-uncaught-exception"><code>--abort-on-uncaught-exception</code></a></li>
+<li><span class="stability_1"><a href="#--build-snapshot"><code>--build-snapshot</code></a></span></li>
 <li><a href="#--completion-bash"><code>--completion-bash</code></a></li>
 <li><span class="stability_1"><a href="#-ccondition---conditionscondition"><code>-C=condition</code>, <code>--conditions=condition</code></a></span></li>
 <li><span class="stability_1"><a href="#--cpu-prof"><code>--cpu-prof</code></a></span></li>
@@ -140,13 +145,15 @@
 <li><a href="#--dns-result-orderorder"><code>--dns-result-order=order</code></a></li>
 <li><a href="#--enable-fips"><code>--enable-fips</code></a></li>
 <li><a href="#--enable-source-maps"><code>--enable-source-maps</code></a></li>
-<li><a href="#--experimental-fetch"><code>--experimental-fetch</code></a></li>
+<li><a href="#--experimental-global-customevent"><code>--experimental-global-customevent</code></a></li>
 <li><a href="#--experimental-global-webcrypto"><code>--experimental-global-webcrypto</code></a></li>
 <li><a href="#--experimental-import-meta-resolve"><code>--experimental-import-meta-resolve</code></a></li>
 <li><a href="#--experimental-loadermodule"><code>--experimental-loader=module</code></a></li>
 <li><span class="stability_1"><a href="#--experimental-network-imports"><code>--experimental-network-imports</code></a></span></li>
 <li><a href="#--experimental-policy"><code>--experimental-policy</code></a></li>
+<li><a href="#--no-experimental-fetch"><code>--no-experimental-fetch</code></a></li>
 <li><a href="#--no-experimental-repl-await"><code>--no-experimental-repl-await</code></a></li>
+<li><a href="#--experimental-shadow-realm"><code>--experimental-shadow-realm</code></a></li>
 <li><a href="#--experimental-specifier-resolutionmode"><code>--experimental-specifier-resolution=mode</code></a></li>
 <li><a href="#--experimental-vm-modules"><code>--experimental-vm-modules</code></a></li>
 <li><a href="#--experimental-wasi-unstable-preview1"><code>--experimental-wasi-unstable-preview1</code></a></li>
@@ -154,6 +161,7 @@
 <li><a href="#--force-context-aware"><code>--force-context-aware</code></a></li>
 <li><a href="#--force-fips"><code>--force-fips</code></a></li>
 <li><span class="stability_1"><a href="#--frozen-intrinsics"><code>--frozen-intrinsics</code></a></span></li>
+<li><a href="#--force-node-api-uncaught-exceptions-policy"><code>--force-node-api-uncaught-exceptions-policy</code></a></li>
 <li><span class="stability_1"><a href="#--heapsnapshot-near-heap-limitmax_count"><code>--heapsnapshot-near-heap-limit=max_count</code></a></span></li>
 <li><a href="#--heapsnapshot-signalsignal"><code>--heapsnapshot-signal=signal</code></a></li>
 <li><span class="stability_1"><a href="#--heap-prof"><code>--heap-prof</code></a></span></li>
@@ -176,11 +184,14 @@
 <li><a href="#--napi-modules"><code>--napi-modules</code></a></li>
 <li><a href="#--no-addons"><code>--no-addons</code></a></li>
 <li><a href="#--no-deprecation"><code>--no-deprecation</code></a></li>
+<li><a href="#--no-extra-info-on-fatal-exception"><code>--no-extra-info-on-fatal-exception</code></a></li>
 <li><a href="#--no-force-async-hooks-checks"><code>--no-force-async-hooks-checks</code></a></li>
 <li><a href="#--no-global-search-paths"><code>--no-global-search-paths</code></a></li>
 <li><a href="#--no-warnings"><code>--no-warnings</code></a></li>
 <li><a href="#--node-memory-debug"><code>--node-memory-debug</code></a></li>
 <li><a href="#--openssl-configfile"><code>--openssl-config=file</code></a></li>
+<li><a href="#--openssl-shared-config"><code>--openssl-shared-config</code></a></li>
+<li><a href="#--openssl-legacy-provider"><code>--openssl-legacy-provider</code></a></li>
 <li><a href="#--pending-deprecation"><code>--pending-deprecation</code></a></li>
 <li><span class="stability_1"><a href="#--policy-integritysri"><code>--policy-integrity=sri</code></a></span></li>
 <li><a href="#--preserve-symlinks"><code>--preserve-symlinks</code></a></li>
@@ -197,6 +208,10 @@
 <li><a href="#--report-uncaught-exception"><code>--report-uncaught-exception</code></a></li>
 <li><a href="#--secure-heapn"><code>--secure-heap=n</code></a></li>
 <li><a href="#--secure-heap-minn"><code>--secure-heap-min=n</code></a></li>
+<li><span class="stability_1"><a href="#--snapshot-blobpath"><code>--snapshot-blob=path</code></a></span></li>
+<li><a href="#--test"><code>--test</code></a></li>
+<li><a href="#--test-name-pattern"><code>--test-name-pattern</code></a></li>
+<li><a href="#--test-only"><code>--test-only</code></a></li>
 <li><a href="#--throw-deprecation"><code>--throw-deprecation</code></a></li>
 <li><a href="#--titletitle"><code>--title=title</code></a></li>
 <li><a href="#--tls-cipher-listlist"><code>--tls-cipher-list=list</code></a></li>
@@ -207,7 +222,7 @@
 <li><a href="#--tls-min-v11"><code>--tls-min-v1.1</code></a></li>
 <li><a href="#--tls-min-v12"><code>--tls-min-v1.2</code></a></li>
 <li><a href="#--tls-min-v13"><code>--tls-min-v1.3</code></a></li>
-<li><a href="#--trace-atomics-wait"><code>--trace-atomics-wait</code></a></li>
+<li><span class="stability_0"><a href="#--trace-atomics-wait"><code>--trace-atomics-wait</code></a></span></li>
 <li><a href="#--trace-deprecation"><code>--trace-deprecation</code></a></li>
 <li><a href="#--trace-event-categories"><code>--trace-event-categories</code></a></li>
 <li><a href="#--trace-event-file-pattern"><code>--trace-event-file-pattern</code></a></li>
@@ -220,10 +235,14 @@
 <li><a href="#--trace-warnings"><code>--trace-warnings</code></a></li>
 <li><a href="#--track-heap-objects"><code>--track-heap-objects</code></a></li>
 <li><a href="#--unhandled-rejectionsmode"><code>--unhandled-rejections=mode</code></a></li>
+<li><a href="#--update-assert-snapshot"><code>--update-assert-snapshot</code></a></li>
 <li><a href="#--use-bundled-ca---use-openssl-ca"><code>--use-bundled-ca</code>, <code>--use-openssl-ca</code></a></li>
 <li><a href="#--use-largepagesmode"><code>--use-largepages=mode</code></a></li>
 <li><a href="#--v8-options"><code>--v8-options</code></a></li>
 <li><a href="#--v8-pool-sizenum"><code>--v8-pool-size=num</code></a></li>
+<li><span class="stability_1"><a href="#--watch"><code>--watch</code></a></span></li>
+<li><span class="stability_1"><a href="#--watch-path"><code>--watch-path</code></a></span></li>
+<li><a href="#--watch-preserve-output"><code>--watch-preserve-output</code></a></li>
 <li><a href="#--zero-fill-buffers"><code>--zero-fill-buffers</code></a></li>
 <li><a href="#-c---check"><code>-c</code>, <code>--check</code></a></li>
 <li><a href="#-e---eval-script"><code>-e</code>, <code>--eval "script"</code></a></li>
@@ -270,6 +289,7 @@
 <li><a href="#useful-v8-options">Useful V8 options</a>
 <ul>
 <li><a href="#--max-old-space-sizesize-in-megabytes"><code>--max-old-space-size=SIZE</code> (in megabytes)</a></li>
+<li><a href="#--max-semi-space-sizesize-in-megabytes"><code>--max-semi-space-size=SIZE</code> (in megabytes)</a></li>
 </ul>
 </li>
 </ul>
@@ -324,13 +344,13 @@
 <li><a href="intl.html" class="nav-intl">Internationalization</a></li>
 <li><a href="modules.html" class="nav-modules">Modules: CommonJS modules</a></li>
 <li><a href="esm.html" class="nav-esm">Modules: ECMAScript modules</a></li>
-<li><a href="module.html" class="nav-module">Modules: <code>module</code> API</a></li>
+<li><a href="module.html" class="nav-module">Modules: <code>node:module</code> API</a></li>
 <li><a href="packages.html" class="nav-packages">Modules: Packages</a></li>
 <li><a href="net.html" class="nav-net">Net</a></li>
 <li><a href="os.html" class="nav-os">OS</a></li>
 <li><a href="path.html" class="nav-path">Path</a></li>
 <li><a href="perf_hooks.html" class="nav-perf_hooks">Performance hooks</a></li>
-<li><a href="policy.html" class="nav-policy">Policies</a></li>
+<li><a href="permissions.html" class="nav-permissions">Permissions</a></li>
 <li><a href="process.html" class="nav-process">Process</a></li>
 <li><a href="punycode.html" class="nav-punycode">Punycode</a></li>
 <li><a href="querystring.html" class="nav-querystring">Query strings</a></li>
@@ -339,6 +359,7 @@
 <li><a href="report.html" class="nav-report">Report</a></li>
 <li><a href="stream.html" class="nav-stream">Stream</a></li>
 <li><a href="string_decoder.html" class="nav-string_decoder">String decoder</a></li>
+<li><a href="test.html" class="nav-test">Test runner</a></li>
 <li><a href="timers.html" class="nav-timers">Timers</a></li>
 <li><a href="tls.html" class="nav-tls">TLS/SSL</a></li>
 <li><a href="tracing.html" class="nav-tracing">Trace events</a></li>
@@ -366,13 +387,14 @@
         <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v18.x/api/cli.html">18.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v19.x/api/cli.html">19.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v18.x/api/cli.html">18.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v17.x/api/cli.html">17.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v16.x/api/cli.html">16.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v15.x/api/cli.html">15.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v14.x/api/cli.html">14.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v13.x/api/cli.html">13.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v12.x/api/cli.html">12.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v12.x/api/cli.html">12.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v11.x/api/cli.html">11.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v10.x/api/cli.html">10.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v9.x/api/cli.html">9.x</a></li>
@@ -396,7 +418,7 @@
                   <li>
                     <a href="cli.json">View as JSON</a>
                   </li>
-                  <li class="edit_on_github"><a href="https://github.com/nodejs/node/edit/master/doc/api/cli.md">Edit on GitHub</a></li>    
+                  <li class="edit_on_github"><a href="https://github.com/nodejs/node/edit/main/doc/api/cli.md">Edit on GitHub</a></li>    
                 </ul>
               </div>
             </li>
@@ -419,6 +441,7 @@
 <li><a href="#-"><code>-</code></a></li>
 <li><a href="#--"><code>--</code></a></li>
 <li><a href="#--abort-on-uncaught-exception"><code>--abort-on-uncaught-exception</code></a></li>
+<li><span class="stability_1"><a href="#--build-snapshot"><code>--build-snapshot</code></a></span></li>
 <li><a href="#--completion-bash"><code>--completion-bash</code></a></li>
 <li><span class="stability_1"><a href="#-ccondition---conditionscondition"><code>-C=condition</code>, <code>--conditions=condition</code></a></span></li>
 <li><span class="stability_1"><a href="#--cpu-prof"><code>--cpu-prof</code></a></span></li>
@@ -431,13 +454,15 @@
 <li><a href="#--dns-result-orderorder"><code>--dns-result-order=order</code></a></li>
 <li><a href="#--enable-fips"><code>--enable-fips</code></a></li>
 <li><a href="#--enable-source-maps"><code>--enable-source-maps</code></a></li>
-<li><a href="#--experimental-fetch"><code>--experimental-fetch</code></a></li>
+<li><a href="#--experimental-global-customevent"><code>--experimental-global-customevent</code></a></li>
 <li><a href="#--experimental-global-webcrypto"><code>--experimental-global-webcrypto</code></a></li>
 <li><a href="#--experimental-import-meta-resolve"><code>--experimental-import-meta-resolve</code></a></li>
 <li><a href="#--experimental-loadermodule"><code>--experimental-loader=module</code></a></li>
 <li><span class="stability_1"><a href="#--experimental-network-imports"><code>--experimental-network-imports</code></a></span></li>
 <li><a href="#--experimental-policy"><code>--experimental-policy</code></a></li>
+<li><a href="#--no-experimental-fetch"><code>--no-experimental-fetch</code></a></li>
 <li><a href="#--no-experimental-repl-await"><code>--no-experimental-repl-await</code></a></li>
+<li><a href="#--experimental-shadow-realm"><code>--experimental-shadow-realm</code></a></li>
 <li><a href="#--experimental-specifier-resolutionmode"><code>--experimental-specifier-resolution=mode</code></a></li>
 <li><a href="#--experimental-vm-modules"><code>--experimental-vm-modules</code></a></li>
 <li><a href="#--experimental-wasi-unstable-preview1"><code>--experimental-wasi-unstable-preview1</code></a></li>
@@ -445,6 +470,7 @@
 <li><a href="#--force-context-aware"><code>--force-context-aware</code></a></li>
 <li><a href="#--force-fips"><code>--force-fips</code></a></li>
 <li><span class="stability_1"><a href="#--frozen-intrinsics"><code>--frozen-intrinsics</code></a></span></li>
+<li><a href="#--force-node-api-uncaught-exceptions-policy"><code>--force-node-api-uncaught-exceptions-policy</code></a></li>
 <li><span class="stability_1"><a href="#--heapsnapshot-near-heap-limitmax_count"><code>--heapsnapshot-near-heap-limit=max_count</code></a></span></li>
 <li><a href="#--heapsnapshot-signalsignal"><code>--heapsnapshot-signal=signal</code></a></li>
 <li><span class="stability_1"><a href="#--heap-prof"><code>--heap-prof</code></a></span></li>
@@ -467,11 +493,14 @@
 <li><a href="#--napi-modules"><code>--napi-modules</code></a></li>
 <li><a href="#--no-addons"><code>--no-addons</code></a></li>
 <li><a href="#--no-deprecation"><code>--no-deprecation</code></a></li>
+<li><a href="#--no-extra-info-on-fatal-exception"><code>--no-extra-info-on-fatal-exception</code></a></li>
 <li><a href="#--no-force-async-hooks-checks"><code>--no-force-async-hooks-checks</code></a></li>
 <li><a href="#--no-global-search-paths"><code>--no-global-search-paths</code></a></li>
 <li><a href="#--no-warnings"><code>--no-warnings</code></a></li>
 <li><a href="#--node-memory-debug"><code>--node-memory-debug</code></a></li>
 <li><a href="#--openssl-configfile"><code>--openssl-config=file</code></a></li>
+<li><a href="#--openssl-shared-config"><code>--openssl-shared-config</code></a></li>
+<li><a href="#--openssl-legacy-provider"><code>--openssl-legacy-provider</code></a></li>
 <li><a href="#--pending-deprecation"><code>--pending-deprecation</code></a></li>
 <li><span class="stability_1"><a href="#--policy-integritysri"><code>--policy-integrity=sri</code></a></span></li>
 <li><a href="#--preserve-symlinks"><code>--preserve-symlinks</code></a></li>
@@ -488,6 +517,10 @@
 <li><a href="#--report-uncaught-exception"><code>--report-uncaught-exception</code></a></li>
 <li><a href="#--secure-heapn"><code>--secure-heap=n</code></a></li>
 <li><a href="#--secure-heap-minn"><code>--secure-heap-min=n</code></a></li>
+<li><span class="stability_1"><a href="#--snapshot-blobpath"><code>--snapshot-blob=path</code></a></span></li>
+<li><a href="#--test"><code>--test</code></a></li>
+<li><a href="#--test-name-pattern"><code>--test-name-pattern</code></a></li>
+<li><a href="#--test-only"><code>--test-only</code></a></li>
 <li><a href="#--throw-deprecation"><code>--throw-deprecation</code></a></li>
 <li><a href="#--titletitle"><code>--title=title</code></a></li>
 <li><a href="#--tls-cipher-listlist"><code>--tls-cipher-list=list</code></a></li>
@@ -498,7 +531,7 @@
 <li><a href="#--tls-min-v11"><code>--tls-min-v1.1</code></a></li>
 <li><a href="#--tls-min-v12"><code>--tls-min-v1.2</code></a></li>
 <li><a href="#--tls-min-v13"><code>--tls-min-v1.3</code></a></li>
-<li><a href="#--trace-atomics-wait"><code>--trace-atomics-wait</code></a></li>
+<li><span class="stability_0"><a href="#--trace-atomics-wait"><code>--trace-atomics-wait</code></a></span></li>
 <li><a href="#--trace-deprecation"><code>--trace-deprecation</code></a></li>
 <li><a href="#--trace-event-categories"><code>--trace-event-categories</code></a></li>
 <li><a href="#--trace-event-file-pattern"><code>--trace-event-file-pattern</code></a></li>
@@ -511,10 +544,14 @@
 <li><a href="#--trace-warnings"><code>--trace-warnings</code></a></li>
 <li><a href="#--track-heap-objects"><code>--track-heap-objects</code></a></li>
 <li><a href="#--unhandled-rejectionsmode"><code>--unhandled-rejections=mode</code></a></li>
+<li><a href="#--update-assert-snapshot"><code>--update-assert-snapshot</code></a></li>
 <li><a href="#--use-bundled-ca---use-openssl-ca"><code>--use-bundled-ca</code>, <code>--use-openssl-ca</code></a></li>
 <li><a href="#--use-largepagesmode"><code>--use-largepages=mode</code></a></li>
 <li><a href="#--v8-options"><code>--v8-options</code></a></li>
 <li><a href="#--v8-pool-sizenum"><code>--v8-pool-size=num</code></a></li>
+<li><span class="stability_1"><a href="#--watch"><code>--watch</code></a></span></li>
+<li><span class="stability_1"><a href="#--watch-path"><code>--watch-path</code></a></span></li>
+<li><a href="#--watch-preserve-output"><code>--watch-preserve-output</code></a></li>
 <li><a href="#--zero-fill-buffers"><code>--zero-fill-buffers</code></a></li>
 <li><a href="#-c---check"><code>-c</code>, <code>--check</code></a></li>
 <li><a href="#-e---eval-script"><code>-e</code>, <code>--eval "script"</code></a></li>
@@ -561,6 +598,7 @@
 <li><a href="#useful-v8-options">Useful V8 options</a>
 <ul>
 <li><a href="#--max-old-space-sizesize-in-megabytes"><code>--max-old-space-size=SIZE</code> (in megabytes)</a></li>
+<li><a href="#--max-semi-space-sizesize-in-megabytes"><code>--max-semi-space-size=SIZE</code> (in megabytes)</a></li>
 </ul>
 </li>
 </ul>
@@ -641,7 +679,50 @@ the next argument is used as a script filename.</p>
 analysis using a debugger (such as <code>lldb</code>, <code>gdb</code>, and <code>mdb</code>).</p>
 <p>If this flag is passed, the behavior can still be set to not abort through
 <a href="process.html#processsetuncaughtexceptioncapturecallbackfn"><code>process.setUncaughtExceptionCaptureCallback()</code></a> (and through usage of the
-<code>domain</code> module that uses it).</p>
+<code>node:domain</code> module that uses it).</p>
+<h4><code>--build-snapshot</code><span><a class="mark" href="#--build-snapshot" id="--build-snapshot">#</a></span><a aria-hidden="true" class="legacy" id="cli_build_snapshot"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.8.0</span>
+</div>
+<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
+<p>Generates a snapshot blob when the process exits and writes it to
+disk, which can be loaded later with <code>--snapshot-blob</code>.</p>
+<p>When building the snapshot, if <code>--snapshot-blob</code> is not specified,
+the generated blob will be written, by default, to <code>snapshot.blob</code>
+in the current working directory. Otherwise it will be written to
+the path specified by <code>--snapshot-blob</code>.</p>
+<pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">"globalThis.foo = 'I am from the snapshot'"</span> > snapshot.js</span>
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">Run snapshot.js to intialize the application and snapshot the</span>
+<span class="hljs-meta prompt_"># </span><span class="language-bash">state of it into snapshot.blob.</span>
+<span class="hljs-meta prompt_">$ </span><span class="language-bash">node --snapshot-blob snapshot.blob --build-snapshot snapshot.js</span>
+<span class="hljs-meta prompt_">
+$ </span><span class="language-bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">"console.log(globalThis.foo)"</span> > index.js</span>
+<span class="hljs-meta prompt_">
+# </span><span class="language-bash">Load the generated snapshot and start the application from index.js.</span>
+<span class="hljs-meta prompt_">$ </span><span class="language-bash">node --snapshot-blob snapshot.blob index.js</span>
+I am from the snapshot</code></pre>
+<p>The <a href="v8.html#startup-snapshot-api"><code>v8.startupSnapshot</code> API</a> can be used to specify an entry point at
+snapshot building time, thus avoiding the need of an additional entry
+script at deserialization time:</p>
+<pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">"require('v8').startupSnapshot.setDeserializeMainFunction(() => console.log('I am from the snapshot'))"</span> > snapshot.js</span>
+<span class="hljs-meta prompt_">$ </span><span class="language-bash">node --snapshot-blob snapshot.blob --build-snapshot snapshot.js</span>
+<span class="hljs-meta prompt_">$ </span><span class="language-bash">node --snapshot-blob snapshot.blob</span>
+I am from the snapshot</code></pre>
+<p>For more information, check out the <a href="v8.html#startup-snapshot-api"><code>v8.startupSnapshot</code> API</a> documentation.</p>
+<p>Currently the support for run-time snapshot is experimental in that:</p>
+<ol>
+<li>User-land modules are not yet supported in the snapshot, so only
+one single file can be snapshotted. Users can bundle their applications
+into a single script with their bundler of choice before building
+a snapshot, however.</li>
+<li>Only a subset of the built-in modules work in the snapshot, though the
+Node.js core test suite checks that a few fairly complex applications
+can be snapshotted. Support for more modules are being added. If any
+crashes or buggy behaviors occur when building a snapshot, please file
+a report in the <a href="https://github.com/nodejs/node/issues">Node.js issue tracker</a> and link to it in the
+<a href="https://github.com/nodejs/node/issues/44014">tracking issue for user-land snapshots</a>.</li>
+</ol>
 <h4><code>--completion-bash</code><span><a class="mark" href="#--completion-bash" id="--completion-bash">#</a></span><a aria-hidden="true" class="legacy" id="cli_completion_bash"></a></h4>
 <div class="api_metadata">
 <span>Added in: v10.12.0</span>
@@ -719,10 +800,18 @@ property throw an exception with the code <code>ERR_PROTO_ACCESS</code>.</p>
 </div>
 <p>Make built-in language features like <code>eval</code> and <code>new Function</code> that generate
 code from strings throw an exception instead. This does not affect the Node.js
-<code>vm</code> module.</p>
+<code>node:vm</code> module.</p>
 <h4><code>--dns-result-order=order</code><span><a class="mark" href="#--dns-result-orderorder" id="--dns-result-orderorder">#</a></span><a aria-hidden="true" class="legacy" id="cli_dns_result_order_order"></a></h4>
 <div class="api_metadata">
-<span>Added in: v16.4.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v17.0.0</td>
+<td><p>Changed default value to <code>verbatim</code>.</p></td></tr>
+<tr><td>v16.4.0, v14.18.0</td>
+<td><p><span>Added in: v16.4.0, v14.18.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <p>Set the default value of <code>verbatim</code> in <a href="dns.html#dnslookuphostname-options-callback"><code>dns.lookup()</code></a> and
 <a href="dns.html#dnspromiseslookuphostname-options"><code>dnsPromises.lookup()</code></a>. The value could be:</p>
@@ -730,7 +819,7 @@ code from strings throw an exception instead. This does not affect the Node.js
 <li><code>ipv4first</code>: sets default <code>verbatim</code> <code>false</code>.</li>
 <li><code>verbatim</code>: sets default <code>verbatim</code> <code>true</code>.</li>
 </ul>
-<p>The default is <code>ipv4first</code> and <a href="dns.html#dnssetdefaultresultorderorder"><code>dns.setDefaultResultOrder()</code></a> have higher
+<p>The default is <code>verbatim</code> and <a href="dns.html#dnssetdefaultresultorderorder"><code>dns.setDefaultResultOrder()</code></a> have higher
 priority than <code>--dns-result-order</code>.</p>
 <h4><code>--enable-fips</code><span><a class="mark" href="#--enable-fips" id="--enable-fips">#</a></span><a aria-hidden="true" class="legacy" id="cli_enable_fips"></a></h4>
 <div class="api_metadata">
@@ -743,7 +832,7 @@ against FIPS-compatible OpenSSL.)</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v15.11.0</td>
+<tr><td>v15.11.0, v14.18.0</td>
 <td><p>This API is no longer experimental.</p></td></tr>
 <tr><td>v12.12.0</td>
 <td><p><span>Added in: v12.12.0</span></p></td></tr>
@@ -757,14 +846,18 @@ application reference the transpiled code, not the original source position.
 effort to report stack traces relative to the original source file.</p>
 <p>Overriding <code>Error.prepareStackTrace</code> prevents <code>--enable-source-maps</code> from
 modifying the stack trace.</p>
-<h4><code>--experimental-fetch</code><span><a class="mark" href="#--experimental-fetch" id="--experimental-fetch">#</a></span><a aria-hidden="true" class="legacy" id="cli_experimental_fetch"></a></h4>
+<p>Note, enabling source maps can introduce latency to your application
+when <code>Error.stack</code> is accessed. If you access <code>Error.stack</code> frequently
+in your application, take into account the performance implications
+of <code>--enable-source-maps</code>.</p>
+<h4><code>--experimental-global-customevent</code><span><a class="mark" href="#--experimental-global-customevent" id="--experimental-global-customevent">#</a></span><a aria-hidden="true" class="legacy" id="cli_experimental_global_customevent"></a></h4>
 <div class="api_metadata">
-<span>Added in: v16.15.0</span>
+<span>Added in: v18.7.0</span>
 </div>
-<p>Enable experimental support for the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API">Fetch API</a>.</p>
+<p>Expose the <a href="https://dom.spec.whatwg.org/#customevent">CustomEvent Web API</a> on the global scope.</p>
 <h4><code>--experimental-global-webcrypto</code><span><a class="mark" href="#--experimental-global-webcrypto" id="--experimental-global-webcrypto">#</a></span><a aria-hidden="true" class="legacy" id="cli_experimental_global_webcrypto"></a></h4>
 <div class="api_metadata">
-<span>Added in: v16.15.0</span>
+<span>Added in: v17.6.0</span>
 </div>
 <p>Expose the <a href="webcrypto.html">Web Crypto API</a> on the global scope.</p>
 <h4><code>--experimental-import-meta-resolve</code><span><a class="mark" href="#--experimental-import-meta-resolve" id="--experimental-import-meta-resolve">#</a></span><a aria-hidden="true" class="legacy" id="cli_experimental_import_meta_resolve"></a></h4>
@@ -774,13 +867,21 @@ modifying the stack trace.</p>
 <p>Enable experimental <code>import.meta.resolve()</code> support.</p>
 <h4><code>--experimental-loader=module</code><span><a class="mark" href="#--experimental-loadermodule" id="--experimental-loadermodule">#</a></span><a aria-hidden="true" class="legacy" id="cli_experimental_loader_module"></a></h4>
 <div class="api_metadata">
-<span>Added in: v9.0.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v12.11.1</td>
+<td><p>This flag was renamed from <code>--loader</code> to <code>--experimental-loader</code>.</p></td></tr>
+<tr><td>v8.8.0</td>
+<td><p><span>Added in: v8.8.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <p>Specify the <code>module</code> of a custom experimental <a href="esm.html#loaders">ECMAScript module loader</a>.
 <code>module</code> may be any string accepted as an <a href="esm.html#import-specifiers"><code>import</code> specifier</a>.</p>
 <h4><code>--experimental-network-imports</code><span><a class="mark" href="#--experimental-network-imports" id="--experimental-network-imports">#</a></span><a aria-hidden="true" class="legacy" id="cli_experimental_network_imports"></a></h4>
 <div class="api_metadata">
-<span>Added in: v16.15.0</span>
+<span>Added in: v17.6.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <p>Enable experimental support for the <code>https:</code> protocol in <code>import</code> specifiers.</p>
@@ -789,11 +890,21 @@ modifying the stack trace.</p>
 <span>Added in: v11.8.0</span>
 </div>
 <p>Use the specified file as a security policy.</p>
+<h4><code>--no-experimental-fetch</code><span><a class="mark" href="#--no-experimental-fetch" id="--no-experimental-fetch">#</a></span><a aria-hidden="true" class="legacy" id="cli_no_experimental_fetch"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.0.0</span>
+</div>
+<p>Disable experimental support for the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API">Fetch API</a>.</p>
 <h4><code>--no-experimental-repl-await</code><span><a class="mark" href="#--no-experimental-repl-await" id="--no-experimental-repl-await">#</a></span><a aria-hidden="true" class="legacy" id="cli_no_experimental_repl_await"></a></h4>
 <div class="api_metadata">
 <span>Added in: v16.6.0</span>
 </div>
 <p>Use this flag to disable top-level await in REPL.</p>
+<h4><code>--experimental-shadow-realm</code><span><a class="mark" href="#--experimental-shadow-realm" id="--experimental-shadow-realm">#</a></span><a aria-hidden="true" class="legacy" id="cli_experimental_shadow_realm"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.13.0</span>
+</div>
+<p>Use this flag to enable <a href="https://github.com/tc39/proposal-shadowrealm">ShadowRealm</a> support.</p>
 <h4><code>--experimental-specifier-resolution=mode</code><span><a class="mark" href="#--experimental-specifier-resolutionmode" id="--experimental-specifier-resolutionmode">#</a></span><a aria-hidden="true" class="legacy" id="cli_experimental_specifier_resolution_mode"></a></h4>
 <div class="api_metadata">
 <span>Added in: v13.4.0, v12.16.0</span>
@@ -808,7 +919,7 @@ the ability to import a directory that has an index file.</p>
 <div class="api_metadata">
 <span>Added in: v9.6.0</span>
 </div>
-<p>Enable experimental ES Module support in the <code>vm</code> module.</p>
+<p>Enable experimental ES Module support in the <code>node:vm</code> module.</p>
 <h4><code>--experimental-wasi-unstable-preview1</code><span><a class="mark" href="#--experimental-wasi-unstable-preview1" id="--experimental-wasi-unstable-preview1">#</a></span><a aria-hidden="true" class="legacy" id="cli_experimental_wasi_unstable_preview1"></a></h4>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
@@ -848,16 +959,24 @@ the ability to import a directory that has an index file.</p>
 <code>globalThis.Array</code> is indeed the default intrinsic reference. Code may break
 under this flag.</p>
 <p>To allow polyfills to be added, <code>--require</code> runs before freezing intrinsics.</p>
+<h4><code>--force-node-api-uncaught-exceptions-policy</code><span><a class="mark" href="#--force-node-api-uncaught-exceptions-policy" id="--force-node-api-uncaught-exceptions-policy">#</a></span><a aria-hidden="true" class="legacy" id="cli_force_node_api_uncaught_exceptions_policy"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.3.0</span>
+</div>
+<p>Enforces <code>uncaughtException</code> event on Node-API asynchronous callbacks.</p>
+<p>To prevent from an existing add-on from crashing the process, this flag is not
+enabled by default. In the future, this flag will be enabled by default to
+enforce the correct behavior.</p>
 <h4><code>--heapsnapshot-near-heap-limit=max_count</code><span><a class="mark" href="#--heapsnapshot-near-heap-limitmax_count" id="--heapsnapshot-near-heap-limitmax_count">#</a></span><a aria-hidden="true" class="legacy" id="cli_heapsnapshot_near_heap_limit_max_count"></a></h4>
 <div class="api_metadata">
-<span>Added in: v15.1.0</span>
+<span>Added in: v15.1.0, v14.18.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <p>Writes a V8 heap snapshot to disk when the V8 heap usage is approaching the
 heap limit. <code>count</code> should be a non-negative integer (in which case
 Node.js will write no more than <code>max_count</code> snapshots to disk).</p>
 <p>When generating snapshots, garbage collection may be triggered and bring
-the heap usage down, therefore multiple snapshots may be written to disk
+the heap usage down. Therefore multiple snapshots may be written to disk
 before the Node.js instance finally runs out of memory. These heap snapshots
 can be compared to determine what objects are being allocated during the
 time consecutive snapshots are taken. It's not guaranteed that Node.js will
@@ -948,6 +1067,7 @@ by <code>--heap-prof</code>. The default is 512 * 1024 bytes.</p>
 <p>This configures Node.js to interpret string input as CommonJS or as an ES
 module. String input is input via <code>--eval</code>, <code>--print</code>, or <code>STDIN</code>.</p>
 <p>Valid values are <code>"commonjs"</code> and <code>"module"</code>. The default is <code>"commonjs"</code>.</p>
+<p>The REPL does not support this option.</p>
 <h4><code>--inspect-brk[=[host:]port]</code><span><a class="mark" href="#--inspect-brkhostport" id="--inspect-brkhostport">#</a></span><a aria-hidden="true" class="legacy" id="cli_inspect_brk_host_port"></a></h4>
 <div class="api_metadata">
 <span>Added in: v7.6.0</span>
@@ -1012,13 +1132,13 @@ disappear in a non-semver-major release.</p>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
 <tr><td>v13.13.0</td>
-<td><p>Change maximum default size of HTTP headers from 8 KB to 16 KB.</p></td></tr>
+<td><p>Change maximum default size of HTTP headers from 8 KiB to 16 KiB.</p></td></tr>
 <tr><td>v11.6.0, v10.15.0</td>
 <td><p><span>Added in: v11.6.0, v10.15.0</span></p></td></tr>
 </tbody></table>
 </details>
 </div>
-<p>Specify the maximum size, in bytes, of HTTP headers. Defaults to 16 KB.</p>
+<p>Specify the maximum size, in bytes, of HTTP headers. Defaults to 16 KiB.</p>
 <h4><code>--napi-modules</code><span><a class="mark" href="#--napi-modules" id="--napi-modules">#</a></span><a aria-hidden="true" class="legacy" id="cli_napi_modules"></a></h4>
 <div class="api_metadata">
 <span>Added in: v7.10.0</span>
@@ -1026,7 +1146,7 @@ disappear in a non-semver-major release.</p>
 <p>This option is a no-op. It is kept for compatibility.</p>
 <h4><code>--no-addons</code><span><a class="mark" href="#--no-addons" id="--no-addons">#</a></span><a aria-hidden="true" class="legacy" id="cli_no_addons"></a></h4>
 <div class="api_metadata">
-<span>Added in: v16.10.0</span>
+<span>Added in: v16.10.0, v14.19.0</span>
 </div>
 <p>Disable the <code>node-addons</code> exports condition as well as disable loading
 native addons. When <code>--no-addons</code> is specified, calling <code>process.dlopen</code> or
@@ -1036,6 +1156,11 @@ requiring a native C++ addon will fail and throw an exception.</p>
 <span>Added in: v0.8.0</span>
 </div>
 <p>Silence deprecation warnings.</p>
+<h4><code>--no-extra-info-on-fatal-exception</code><span><a class="mark" href="#--no-extra-info-on-fatal-exception" id="--no-extra-info-on-fatal-exception">#</a></span><a aria-hidden="true" class="legacy" id="cli_no_extra_info_on_fatal_exception"></a></h4>
+<div class="api_metadata">
+<span>Added in: v17.0.0</span>
+</div>
+<p>Hide extra information on fatal exception that causes exit.</p>
 <h4><code>--no-force-async-hooks-checks</code><span><a class="mark" href="#--no-force-async-hooks-checks" id="--no-force-async-hooks-checks">#</a></span><a aria-hidden="true" class="legacy" id="cli_no_force_async_hooks_checks"></a></h4>
 <div class="api_metadata">
 <span>Added in: v9.0.0</span>
@@ -1055,7 +1180,7 @@ dynamically when <code>async_hooks</code> is enabled.</p>
 <p>Silence all process warnings (including deprecations).</p>
 <h4><code>--node-memory-debug</code><span><a class="mark" href="#--node-memory-debug" id="--node-memory-debug">#</a></span><a aria-hidden="true" class="legacy" id="cli_node_memory_debug"></a></h4>
 <div class="api_metadata">
-<span>Added in: v15.0.0</span>
+<span>Added in: v15.0.0, v14.18.0</span>
 </div>
 <p>Enable extra debug checks for memory leaks in Node.js internals. This is
 usually only useful for developers debugging Node.js itself.</p>
@@ -1066,6 +1191,24 @@ usually only useful for developers debugging Node.js itself.</p>
 <p>Load an OpenSSL configuration file on startup. Among other uses, this can be
 used to enable FIPS-compliant crypto if Node.js is built
 against FIPS-enabled OpenSSL.</p>
+<h4><code>--openssl-shared-config</code><span><a class="mark" href="#--openssl-shared-config" id="--openssl-shared-config">#</a></span><a aria-hidden="true" class="legacy" id="cli_openssl_shared_config"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.5.0</span>
+</div>
+<p>Enable OpenSSL default configuration section, <code>openssl_conf</code> to be read from
+the OpenSSL configuration file. The default configuration file is named
+<code>openssl.cnf</code> but this can be changed using the environment variable
+<code>OPENSSL_CONF</code>, or by using the command line option <code>--openssl-config</code>.
+The location of the default OpenSSL configuration file depends on how OpenSSL
+is being linked to Node.js. Sharing the OpenSSL configuration may have unwanted
+implications and it is recommended to use a configuration section specific to
+Node.js which is <code>nodejs_conf</code> and is default when this option is not used.</p>
+<h4><code>--openssl-legacy-provider</code><span><a class="mark" href="#--openssl-legacy-provider" id="--openssl-legacy-provider">#</a></span><a aria-hidden="true" class="legacy" id="cli_openssl_legacy_provider"></a></h4>
+<div class="api_metadata">
+<span>Added in: v17.0.0</span>
+</div>
+<p>Enable OpenSSL 3.0 legacy provider. For more information please see
+<a href="https://www.openssl.org/docs/man3.0/man7/OSSL_PROVIDER-legacy.html">OSSL_PROVIDER-legacy</a>.</p>
 <h4><code>--pending-deprecation</code><span><a class="mark" href="#--pending-deprecation" id="--pending-deprecation">#</a></span><a aria-hidden="true" class="legacy" id="cli_pending_deprecation"></a></h4>
 <div class="api_metadata">
 <span>Added in: v8.0.0</span>
@@ -1133,7 +1276,7 @@ however, for backward compatibility with older Node.js versions.</p>
 <code>--preserve-symlinks-main</code> in addition to
 <code>--preserve-symlinks</code> when it is not desirable to follow symlinks before
 resolving relative paths.</p>
-<p>See <code>--preserve-symlinks</code> for more information.</p>
+<p>See <a href="#--preserve-symlinks"><code>--preserve-symlinks</code></a> for more information.</p>
 <h4><code>--prof</code><span><a class="mark" href="#--prof" id="--prof">#</a></span><a aria-hidden="true" class="legacy" id="cli_prof"></a></h4>
 <div class="api_metadata">
 <span>Added in: v2.0.0</span>
@@ -1192,6 +1335,8 @@ human consumption.</p>
 </details>
 </div>
 <p>Name of the file to which the report will be written.</p>
+<p>If the filename is set to <code>'stdout'</code> or <code>'stderr'</code>, the report is written to
+the stdout or stderr of the process respectively.</p>
 <h4><code>--report-on-fatalerror</code><span><a class="mark" href="#--report-on-fatalerror" id="--report-on-fatalerror">#</a></span><a aria-hidden="true" class="legacy" id="cli_report_on_fatalerror"></a></h4>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
@@ -1249,6 +1394,8 @@ Default signal is <code>SIGUSR2</code>.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v18.8.0</td>
+<td><p>Report is not generated if the uncaught exception is handled.</p></td></tr>
 <tr><td>v13.12.0, v12.17.0</td>
 <td><p>This option is no longer experimental.</p></td></tr>
 <tr><td>v12.0.0</td>
@@ -1258,9 +1405,9 @@ Default signal is <code>SIGUSR2</code>.</p>
 </tbody></table>
 </details>
 </div>
-<p>Enables report to be generated on uncaught exceptions. Useful when inspecting
-the JavaScript stack in conjunction with native stack and other runtime
-environment data.</p>
+<p>Enables report to be generated when the process exits due to an uncaught
+exception. Useful when inspecting the JavaScript stack in conjunction with
+native stack and other runtime environment data.</p>
 <h4><code>--secure-heap=n</code><span><a class="mark" href="#--secure-heapn" id="--secure-heapn">#</a></span><a aria-hidden="true" class="legacy" id="cli_secure_heap_n"></a></h4>
 <div class="api_metadata">
 <span>Added in: v15.6.0</span>
@@ -1286,6 +1433,54 @@ will disable the secure heap.</p>
 minimum allocation from the secure heap. The minimum value is <code>2</code>.
 The maximum value is the lesser of <code>--secure-heap</code> or <code>2147483647</code>.
 The value given must be a power of two.</p>
+<h4><code>--snapshot-blob=path</code><span><a class="mark" href="#--snapshot-blobpath" id="--snapshot-blobpath">#</a></span><a aria-hidden="true" class="legacy" id="cli_snapshot_blob_path"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.8.0</span>
+</div>
+<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
+<p>When used with <code>--build-snapshot</code>, <code>--snapshot-blob</code> specifies the path
+where the generated snapshot blob is written to. If not specified, the
+generated blob is written to <code>snapshot.blob</code> in the current working directory.</p>
+<p>When used without <code>--build-snapshot</code>, <code>--snapshot-blob</code> specifies the
+path to the blob that is used to restore the application state.</p>
+<p>When loading a snapshot, Node.js checks that:</p>
+<ol>
+<li>The version, architecture and platform of the running Node.js binary
+are exactly the same as that of the binary that generates the snapshot.</li>
+<li>The V8 flags and CPU features are compatible with that of the binary
+that generates the snapshot.</li>
+</ol>
+<p>If they don't match, Node.js refuses to load the snapshot and exits with
+status code 1.</p>
+<h4><code>--test</code><span><a class="mark" href="#--test" id="--test">#</a></span><a aria-hidden="true" class="legacy" id="cli_test"></a></h4>
+<div class="api_metadata">
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v18.13.0</td>
+<td><p>Test runner now supports running in watch mode.</p></td></tr>
+<tr><td>v18.1.0</td>
+<td><p><span>Added in: v18.1.0</span></p></td></tr>
+</tbody></table>
+</details>
+</div>
+<p>Starts the Node.js command line test runner. This flag cannot be combined with
+<code>--watch-path</code>, <code>--check</code>, <code>--eval</code>, <code>--interactive</code>, or the inspector.
+See the documentation on <a href="test.html#running-tests-from-the-command-line">running tests from the command line</a>
+for more details.</p>
+<h4><code>--test-name-pattern</code><span><a class="mark" href="#--test-name-pattern" id="--test-name-pattern">#</a></span><a aria-hidden="true" class="legacy" id="cli_test_name_pattern"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.11.0</span>
+</div>
+<p>A regular expression that configures the test runner to only execute tests
+whose name matches the provided pattern. See the documentation on
+<a href="test.html#filtering-tests-by-name">filtering tests by name</a> for more details.</p>
+<h4><code>--test-only</code><span><a class="mark" href="#--test-only" id="--test-only">#</a></span><a aria-hidden="true" class="legacy" id="cli_test_only"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.0.0</span>
+</div>
+<p>Configures the test runner to only execute top level tests that have the <code>only</code>
+option set.</p>
 <h4><code>--throw-deprecation</code><span><a class="mark" href="#--throw-deprecation" id="--throw-deprecation">#</a></span><a aria-hidden="true" class="legacy" id="cli_throw_deprecation"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.11.14</span>
@@ -1348,8 +1543,9 @@ versions.</p>
 for TLSv1.2, which is not as secure as TLSv1.3.</p>
 <h4><code>--trace-atomics-wait</code><span><a class="mark" href="#--trace-atomics-wait" id="--trace-atomics-wait">#</a></span><a aria-hidden="true" class="legacy" id="cli_trace_atomics_wait"></a></h4>
 <div class="api_metadata">
-<span>Added in: v14.3.0</span>
+<span>Added in: v14.3.0</span><span>Deprecated since: v18.8.0</span>
 </div>
+<p></p><div class="api_stability api_stability_0"><a href="documentation.html#stability-index">Stability: 0</a> - Deprecated</div><p></p>
 <p>Print short summaries of calls to <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Atomics/wait"><code>Atomics.wait()</code></a> to stderr.
 The output could look like this:</p>
 <pre><code class="language-text">(node:15701) [Thread 0] Atomics.wait(&#x26;lt;address> + 0, 1, inf) started
@@ -1459,6 +1655,11 @@ set, trigger a warning, and set the process exit code to 1.</li>
 </ul>
 <p>If a rejection happens during the command line entry point's ES module static
 loading phase, it will always raise it as an uncaught exception.</p>
+<h4><code>--update-assert-snapshot</code><span><a class="mark" href="#--update-assert-snapshot" id="--update-assert-snapshot">#</a></span><a aria-hidden="true" class="legacy" id="cli_update_assert_snapshot"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.8.0</span>
+</div>
+<p>Updates snapshot files used by <a href="assert.html#assertsnapshotvalue-name"><code>assert.snapshot()</code></a>.</p>
 <h4><code>--use-bundled-ca</code>, <code>--use-openssl-ca</code><span><a class="mark" href="#--use-bundled-ca---use-openssl-ca" id="--use-bundled-ca---use-openssl-ca">#</a></span><a aria-hidden="true" class="legacy" id="cli_use_bundled_ca_use_openssl_ca"></a></h4>
 <div class="api_metadata">
 <span>Added in: v6.11.0</span>
@@ -1499,10 +1700,52 @@ will be ignored and will not be reported.</li>
 <span>Added in: v5.10.0</span>
 </div>
 <p>Set V8's thread pool size which will be used to allocate background jobs.</p>
-<p>If set to <code>0</code> then V8 will choose an appropriate size of the thread pool based
-on the number of online processors.</p>
-<p>If the value provided is larger than V8's maximum, then the largest value
-will be chosen.</p>
+<p>If set to <code>0</code> then Node.js will choose an appropriate size of the thread pool
+based on an estimate of the amount of parallelism.</p>
+<p>The amount of parallelism refers to the number of computations that can be
+carried out simultaneously in a given machine. In general, it's the same as the
+amount of CPUs, but it may diverge in environments such as VMs or containers.</p>
+<h4><code>--watch</code><span><a class="mark" href="#--watch" id="--watch">#</a></span><a aria-hidden="true" class="legacy" id="cli_watch"></a></h4>
+<div class="api_metadata">
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v18.13.0</td>
+<td><p>Test runner now supports running in watch mode.</p></td></tr>
+<tr><td>v18.11.0</td>
+<td><p><span>Added in: v18.11.0</span></p></td></tr>
+</tbody></table>
+</details>
+</div>
+<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
+<p>Starts Node.js in watch mode.
+When in watch mode, changes in the watched files cause the Node.js process to
+restart.
+By default, watch mode will watch the entry point
+and any required or imported module.
+Use <code>--watch-path</code> to specify what paths to watch.</p>
+<p>This flag cannot be combined with
+<code>--check</code>, <code>--eval</code>, <code>--interactive</code>, or the REPL.</p>
+<pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">node --watch index.js</span></code></pre>
+<h4><code>--watch-path</code><span><a class="mark" href="#--watch-path" id="--watch-path">#</a></span><a aria-hidden="true" class="legacy" id="cli_watch_path"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.11.0</span>
+</div>
+<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
+<p>Starts Node.js in watch mode and specifies what paths to watch.
+When in watch mode, changes in the watched paths cause the Node.js process to
+restart.
+This will turn off watching of required or imported modules, even when used in
+combination with <code>--watch</code>.</p>
+<p>This flag cannot be combined with
+<code>--check</code>, <code>--eval</code>, <code>--interactive</code>, <code>--test</code>, or the REPL.</p>
+<pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">node --watch-path=./src --watch-path=./tests index.js</span></code></pre>
+<p>This option is only supported on macOS and Windows.
+An <code>ERR_FEATURE_UNAVAILABLE_ON_PLATFORM</code> exception will be thrown
+when the option is used on a platform that does not support it.</p>
+<h4><code>--watch-preserve-output</code><span><a class="mark" href="#--watch-preserve-output" id="--watch-preserve-output">#</a></span><a aria-hidden="true" class="legacy" id="cli_watch_preserve_output"></a></h4>
+<p>Disable the clearing of the console when watch mode restarts the process.</p>
+<pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">node --watch --watch-preserve-output test.js</span></code></pre>
 <h4><code>--zero-fill-buffers</code><span><a class="mark" href="#--zero-fill-buffers" id="--zero-fill-buffers">#</a></span><a aria-hidden="true" class="legacy" id="cli_zero_fill_buffers"></a></h4>
 <div class="api_metadata">
 <span>Added in: v6.0.0</span>
@@ -1659,7 +1902,7 @@ node --require <span class="hljs-string">"./a.js"</span> --require <span class="
 <li><code>--enable-fips</code></li>
 <li><code>--enable-source-maps</code></li>
 <li><code>--experimental-abortcontroller</code></li>
-<li><code>--experimental-fetch</code></li>
+<li><code>--experimental-global-customevent</code></li>
 <li><code>--experimental-global-webcrypto</code></li>
 <li><code>--experimental-import-meta-resolve</code></li>
 <li><code>--experimental-json-modules</code></li>
@@ -1667,6 +1910,7 @@ node --require <span class="hljs-string">"./a.js"</span> --require <span class="
 <li><code>--experimental-modules</code></li>
 <li><code>--experimental-network-imports</code></li>
 <li><code>--experimental-policy</code></li>
+<li><code>--experimental-shadow-realm</code></li>
 <li><code>--experimental-specifier-resolution</code></li>
 <li><code>--experimental-top-level-await</code></li>
 <li><code>--experimental-vm-modules</code></li>
@@ -1674,6 +1918,7 @@ node --require <span class="hljs-string">"./a.js"</span> --require <span class="
 <li><code>--experimental-wasm-modules</code></li>
 <li><code>--force-context-aware</code></li>
 <li><code>--force-fips</code></li>
+<li><code>--force-node-api-uncaught-exceptions-policy</code></li>
 <li><code>--frozen-intrinsics</code></li>
 <li><code>--heapsnapshot-near-heap-limit</code></li>
 <li><code>--heapsnapshot-signal</code></li>
@@ -1689,12 +1934,16 @@ node --require <span class="hljs-string">"./a.js"</span> --require <span class="
 <li><code>--napi-modules</code></li>
 <li><code>--no-addons</code></li>
 <li><code>--no-deprecation</code></li>
+<li><code>--no-experimental-fetch</code></li>
 <li><code>--no-experimental-repl-await</code></li>
+<li><code>--no-extra-info-on-fatal-exception</code></li>
 <li><code>--no-force-async-hooks-checks</code></li>
 <li><code>--no-global-search-paths</code></li>
 <li><code>--no-warnings</code></li>
 <li><code>--node-memory-debug</code></li>
 <li><code>--openssl-config</code></li>
+<li><code>--openssl-legacy-provider</code></li>
+<li><code>--openssl-shared-config</code></li>
 <li><code>--pending-deprecation</code></li>
 <li><code>--policy-integrity</code></li>
 <li><code>--preserve-symlinks-main</code></li>
@@ -1711,6 +1960,8 @@ node --require <span class="hljs-string">"./a.js"</span> --require <span class="
 <li><code>--require</code>, <code>-r</code></li>
 <li><code>--secure-heap-min</code></li>
 <li><code>--secure-heap</code></li>
+<li><code>--snapshot-blob</code></li>
+<li><code>--test-only</code></li>
 <li><code>--throw-deprecation</code></li>
 <li><code>--title</code></li>
 <li><code>--tls-cipher-list</code></li>
@@ -1734,10 +1985,14 @@ node --require <span class="hljs-string">"./a.js"</span> --require <span class="
 <li><code>--trace-warnings</code></li>
 <li><code>--track-heap-objects</code></li>
 <li><code>--unhandled-rejections</code></li>
+<li><code>--update-assert-snapshot</code></li>
 <li><code>--use-bundled-ca</code></li>
 <li><code>--use-largepages</code></li>
 <li><code>--use-openssl-ca</code></li>
 <li><code>--v8-pool-size</code></li>
+<li><code>--watch-path</code></li>
+<li><code>--watch-preserve-output</code></li>
+<li><code>--watch</code></li>
 <li><code>--zero-fill-buffers</code></li>
 </ul>
 <!-- node-options-node end -->
@@ -1750,6 +2005,7 @@ node --require <span class="hljs-string">"./a.js"</span> --require <span class="
 <li><code>--interpreted-frames-native-stack</code></li>
 <li><code>--jitless</code></li>
 <li><code>--max-old-space-size</code></li>
+<li><code>--max-semi-space-size</code></li>
 <li><code>--perf-basic-prof-only-functions</code></li>
 <li><code>--perf-basic-prof</code></li>
 <li><code>--perf-prof-unwinding-info</code></li>
@@ -1924,9 +2180,9 @@ may cause them to trust the same CAs as node.</p>
 </details>
 </div>
 <p>The <code>TZ</code> environment variable is used to specify the timezone configuration.</p>
-<p>While the Node.js support for <code>TZ</code> will not handle all of the various
-<a href="https://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html">ways that <code>TZ</code> is handled in other environments</a>, it will support basic
-<a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones">timezone IDs</a> (such as <code>'Etc/UTC'</code>, <code>'Europe/Paris'</code> or <code>'America/New_York'</code>.
+<p>While Node.js does not support all of the various <a href="https://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html">ways that <code>TZ</code> is handled in
+other environments</a>, it does support basic <a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones">timezone IDs</a> (such as
+<code>'Etc/UTC'</code>, <code>'Europe/Paris'</code>, or <code>'America/New_York'</code>).
 It may support a few other abbreviations or aliases, but these are strongly
 discouraged and not guaranteed.</p>
 <pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">TZ=Europe/Dublin node -pe <span class="hljs-string">"new Date().toString()"</span></span>
@@ -1964,48 +2220,29 @@ documented here:</p>
 <p>Sets the max memory size of V8's old memory section. As memory
 consumption approaches the limit, V8 will spend more time on
 garbage collection in an effort to free unused memory.</p>
-<p>On a machine with 2 GB of memory, consider setting this to
-1536 (1.5 GB) to leave some memory for other uses and avoid swapping.</p>
-<pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">node --max-old-space-size=1536 index.js</span></code></pre></section>
+<p>On a machine with 2 GiB of memory, consider setting this to
+1536 (1.5 GiB) to leave some memory for other uses and avoid swapping.</p>
+<pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">node --max-old-space-size=1536 index.js</span></code></pre>
+<h4><code>--max-semi-space-size=SIZE</code> (in megabytes)<span><a class="mark" href="#--max-semi-space-sizesize-in-megabytes" id="--max-semi-space-sizesize-in-megabytes">#</a></span><a aria-hidden="true" class="legacy" id="cli_max_semi_space_size_size_in_megabytes"></a></h4>
+<p>Sets the maximum <a href="https://www.memorymanagement.org/glossary/s.html#semi.space">semi-space</a> size for V8's <a href="https://v8.dev/blog/orinoco-parallel-scavenger">scavenge garbage collector</a> in
+MiB (megabytes).
+Increasing the max size of a semi-space may improve throughput for Node.js at
+the cost of more memory consumption.</p>
+<p>Since the young generation size of the V8 heap is three times (see
+<a href="https://chromium.googlesource.com/v8/v8.git/+/refs/tags/10.3.129/src/heap/heap.cc#328"><code>YoungGenerationSizeFromSemiSpaceSize</code></a> in V8) the size of the semi-space,
+an increase of 1 MiB to semi-space applies to each of the three individual
+semi-spaces and causes the heap size to increase by 3 MiB. The throughput
+improvement depends on your workload (see <a href="https://github.com/nodejs/node/issues/42511">#42511</a>).</p>
+<p>The default value is 16 MiB for 64-bit systems and 8 MiB for 32-bit systems. To
+get the best configuration for your application, you should try different
+max-semi-space-size values when running benchmarks for your application.</p>
+<p>For example, benchmark on a 64-bit systems:</p>
+<pre><code class="language-bash"><span class="hljs-keyword">for</span> MiB <span class="hljs-keyword">in</span> 16 32 64 128; <span class="hljs-keyword">do</span>
+    node --max-semi-space-size=<span class="hljs-variable">$MiB</span> index.js
+<span class="hljs-keyword">done</span></code></pre></section>
         <!-- API END -->
       </div>
     </div>
   </div>
-  <script>
-    'use strict';
-    {
-      const kCustomPreference = 'customDarkTheme';
-      const userSettings = sessionStorage.getItem(kCustomPreference);
-      const themeToggleButton = document.getElementById('theme-toggle-btn');
-      if (userSettings === null && window.matchMedia) {
-        const mq = window.matchMedia('(prefers-color-scheme: dark)');
-        if ('onchange' in mq) {
-          function mqChangeListener(e) {
-            document.documentElement.classList.toggle('dark-mode', e.matches);
-          }
-          mq.addEventListener('change', mqChangeListener);
-          if (themeToggleButton) {
-            themeToggleButton.addEventListener('click', function() {
-              mq.removeEventListener('change', mqChangeListener);
-            }, { once: true });
-          }
-        }
-        if (mq.matches) {
-          document.documentElement.classList.add('dark-mode');
-        }
-      } else if (userSettings === 'true') {
-        document.documentElement.classList.add('dark-mode');
-      }
-      if (themeToggleButton) {
-        themeToggleButton.hidden = false;
-        themeToggleButton.addEventListener('click', function() {
-          sessionStorage.setItem(
-            kCustomPreference,
-            document.documentElement.classList.toggle('dark-mode')
-          );
-        });
-      }
-    }
-  </script>
 </body>
 </html>

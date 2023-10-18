@@ -3,12 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v16.15.1">
-  <title>Node-API | Node.js v16.15.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v18.13.0">
+  <title>Node-API | Node.js v18.13.0 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/n-api.html">
+  <script async defer src="assets/api.js" type="text/javascript"></script>
+  
 </head>
 <body class="alt apidoc" id="api-section-n-api">
   <div id="content" class="clearfix">
@@ -53,13 +55,13 @@
 <li><a href="intl.html" class="nav-intl">Internationalization</a></li>
 <li><a href="modules.html" class="nav-modules">Modules: CommonJS modules</a></li>
 <li><a href="esm.html" class="nav-esm">Modules: ECMAScript modules</a></li>
-<li><a href="module.html" class="nav-module">Modules: <code>module</code> API</a></li>
+<li><a href="module.html" class="nav-module">Modules: <code>node:module</code> API</a></li>
 <li><a href="packages.html" class="nav-packages">Modules: Packages</a></li>
 <li><a href="net.html" class="nav-net">Net</a></li>
 <li><a href="os.html" class="nav-os">OS</a></li>
 <li><a href="path.html" class="nav-path">Path</a></li>
 <li><a href="perf_hooks.html" class="nav-perf_hooks">Performance hooks</a></li>
-<li><a href="policy.html" class="nav-policy">Policies</a></li>
+<li><a href="permissions.html" class="nav-permissions">Permissions</a></li>
 <li><a href="process.html" class="nav-process">Process</a></li>
 <li><a href="punycode.html" class="nav-punycode">Punycode</a></li>
 <li><a href="querystring.html" class="nav-querystring">Query strings</a></li>
@@ -68,6 +70,7 @@
 <li><a href="report.html" class="nav-report">Report</a></li>
 <li><a href="stream.html" class="nav-stream">Stream</a></li>
 <li><a href="string_decoder.html" class="nav-string_decoder">String decoder</a></li>
+<li><a href="test.html" class="nav-test">Test runner</a></li>
 <li><a href="timers.html" class="nav-timers">Timers</a></li>
 <li><a href="tls.html" class="nav-tls">TLS/SSL</a></li>
 <li><a href="tracing.html" class="nav-tracing">Trace events</a></li>
@@ -92,7 +95,7 @@
     <div id="column1" data-id="n-api" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v16.15.1 documentation</h1>
+          <h1>Node.js v18.13.0 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -107,6 +110,7 @@
         </div>
         <div id="gtoc">
           <ul>
+            <li class="pinned-header">Node.js v18.13.0</li>
             
     <li class="picker-header">
       <a href="#">
@@ -169,6 +173,7 @@
 <li><a href="#napi_async_execute_callback"><code>napi_async_execute_callback</code></a></li>
 <li><a href="#napi_async_complete_callback"><code>napi_async_complete_callback</code></a></li>
 <li><a href="#napi_threadsafe_function_call_js"><code>napi_threadsafe_function_call_js</code></a></li>
+<li><a href="#napi_cleanup_hook"><code>napi_cleanup_hook</code></a></li>
 <li><a href="#napi_async_cleanup_hook"><code>napi_async_cleanup_hook</code></a></li>
 </ul>
 </li>
@@ -187,11 +192,12 @@
 <li><a href="#napi_throw_error"><code>napi_throw_error</code></a></li>
 <li><a href="#napi_throw_type_error"><code>napi_throw_type_error</code></a></li>
 <li><a href="#napi_throw_range_error"><code>napi_throw_range_error</code></a></li>
-<li><a href="#node_api_throw_syntax_error"><code>node_api_throw_syntax_error</code></a></li>
+<li><span class="stability_1"><a href="#node_api_throw_syntax_error"><code>node_api_throw_syntax_error</code></a></span></li>
+<li><a href="#napi_is_error"><code>napi_is_error</code></a></li>
 <li><a href="#napi_create_error"><code>napi_create_error</code></a></li>
 <li><a href="#napi_create_type_error"><code>napi_create_type_error</code></a></li>
 <li><a href="#napi_create_range_error"><code>napi_create_range_error</code></a></li>
-<li><a href="#node_api_create_syntax_error"><code>node_api_create_syntax_error</code></a></li>
+<li><span class="stability_1"><a href="#node_api_create_syntax_error"><code>node_api_create_syntax_error</code></a></span></li>
 <li><a href="#napi_get_and_clear_last_exception"><code>napi_get_and_clear_last_exception</code></a></li>
 <li><a href="#napi_is_exception_pending"><code>napi_is_exception_pending</code></a></li>
 <li><a href="#napi_fatal_exception"><code>napi_fatal_exception</code></a></li>
@@ -323,7 +329,7 @@
 <li><a href="#napi_is_arraybuffer"><code>napi_is_arraybuffer</code></a></li>
 <li><a href="#napi_is_buffer"><code>napi_is_buffer</code></a></li>
 <li><a href="#napi_is_date"><code>napi_is_date</code></a></li>
-<li><a href="#napi_is_error"><code>napi_is_error</code></a></li>
+<li><a href="#napi_is_error_1"><code>napi_is_error</code></a></li>
 <li><a href="#napi_is_typedarray"><code>napi_is_typedarray</code></a></li>
 <li><a href="#napi_is_dataview"><code>napi_is_dataview</code></a></li>
 <li><a href="#napi_strict_equals"><code>napi_strict_equals</code></a></li>
@@ -499,13 +505,13 @@
 <li><a href="intl.html" class="nav-intl">Internationalization</a></li>
 <li><a href="modules.html" class="nav-modules">Modules: CommonJS modules</a></li>
 <li><a href="esm.html" class="nav-esm">Modules: ECMAScript modules</a></li>
-<li><a href="module.html" class="nav-module">Modules: <code>module</code> API</a></li>
+<li><a href="module.html" class="nav-module">Modules: <code>node:module</code> API</a></li>
 <li><a href="packages.html" class="nav-packages">Modules: Packages</a></li>
 <li><a href="net.html" class="nav-net">Net</a></li>
 <li><a href="os.html" class="nav-os">OS</a></li>
 <li><a href="path.html" class="nav-path">Path</a></li>
 <li><a href="perf_hooks.html" class="nav-perf_hooks">Performance hooks</a></li>
-<li><a href="policy.html" class="nav-policy">Policies</a></li>
+<li><a href="permissions.html" class="nav-permissions">Permissions</a></li>
 <li><a href="process.html" class="nav-process">Process</a></li>
 <li><a href="punycode.html" class="nav-punycode">Punycode</a></li>
 <li><a href="querystring.html" class="nav-querystring">Query strings</a></li>
@@ -514,6 +520,7 @@
 <li><a href="report.html" class="nav-report">Report</a></li>
 <li><a href="stream.html" class="nav-stream">Stream</a></li>
 <li><a href="string_decoder.html" class="nav-string_decoder">String decoder</a></li>
+<li><a href="test.html" class="nav-test">Test runner</a></li>
 <li><a href="timers.html" class="nav-timers">Timers</a></li>
 <li><a href="tls.html" class="nav-tls">TLS/SSL</a></li>
 <li><a href="tracing.html" class="nav-tracing">Trace events</a></li>
@@ -541,13 +548,14 @@
         <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v18.x/api/n-api.html">18.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v19.x/api/n-api.html">19.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v18.x/api/n-api.html">18.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v17.x/api/n-api.html">17.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v16.x/api/n-api.html">16.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v15.x/api/n-api.html">15.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v14.x/api/n-api.html">14.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v13.x/api/n-api.html">13.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v12.x/api/n-api.html">12.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v12.x/api/n-api.html">12.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v11.x/api/n-api.html">11.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v10.x/api/n-api.html">10.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v9.x/api/n-api.html">9.x</a></li>
@@ -568,7 +576,7 @@
                   <li>
                     <a href="n-api.json">View as JSON</a>
                   </li>
-                  <li class="edit_on_github"><a href="https://github.com/nodejs/node/edit/master/doc/api/n-api.md">Edit on GitHub</a></li>    
+                  <li class="edit_on_github"><a href="https://github.com/nodejs/node/edit/main/doc/api/n-api.md">Edit on GitHub</a></li>    
                 </ul>
               </div>
             </li>
@@ -632,6 +640,7 @@
 <li><a href="#napi_async_execute_callback"><code>napi_async_execute_callback</code></a></li>
 <li><a href="#napi_async_complete_callback"><code>napi_async_complete_callback</code></a></li>
 <li><a href="#napi_threadsafe_function_call_js"><code>napi_threadsafe_function_call_js</code></a></li>
+<li><a href="#napi_cleanup_hook"><code>napi_cleanup_hook</code></a></li>
 <li><a href="#napi_async_cleanup_hook"><code>napi_async_cleanup_hook</code></a></li>
 </ul>
 </li>
@@ -650,11 +659,12 @@
 <li><a href="#napi_throw_error"><code>napi_throw_error</code></a></li>
 <li><a href="#napi_throw_type_error"><code>napi_throw_type_error</code></a></li>
 <li><a href="#napi_throw_range_error"><code>napi_throw_range_error</code></a></li>
-<li><a href="#node_api_throw_syntax_error"><code>node_api_throw_syntax_error</code></a></li>
+<li><span class="stability_1"><a href="#node_api_throw_syntax_error"><code>node_api_throw_syntax_error</code></a></span></li>
+<li><a href="#napi_is_error"><code>napi_is_error</code></a></li>
 <li><a href="#napi_create_error"><code>napi_create_error</code></a></li>
 <li><a href="#napi_create_type_error"><code>napi_create_type_error</code></a></li>
 <li><a href="#napi_create_range_error"><code>napi_create_range_error</code></a></li>
-<li><a href="#node_api_create_syntax_error"><code>node_api_create_syntax_error</code></a></li>
+<li><span class="stability_1"><a href="#node_api_create_syntax_error"><code>node_api_create_syntax_error</code></a></span></li>
 <li><a href="#napi_get_and_clear_last_exception"><code>napi_get_and_clear_last_exception</code></a></li>
 <li><a href="#napi_is_exception_pending"><code>napi_is_exception_pending</code></a></li>
 <li><a href="#napi_fatal_exception"><code>napi_fatal_exception</code></a></li>
@@ -786,7 +796,7 @@
 <li><a href="#napi_is_arraybuffer"><code>napi_is_arraybuffer</code></a></li>
 <li><a href="#napi_is_buffer"><code>napi_is_buffer</code></a></li>
 <li><a href="#napi_is_date"><code>napi_is_date</code></a></li>
-<li><a href="#napi_is_error"><code>napi_is_error</code></a></li>
+<li><a href="#napi_is_error_1"><code>napi_is_error</code></a></li>
 <li><a href="#napi_is_typedarray"><code>napi_is_typedarray</code></a></li>
 <li><a href="#napi_is_dataview"><code>napi_is_dataview</code></a></li>
 <li><a href="#napi_strict_equals"><code>napi_strict_equals</code></a></li>
@@ -1064,9 +1074,9 @@ uploads binaries only to <a href="https://help.github.com/en/github/administerin
 GitHub projects using CMake.js.</p>
 <h5>prebuildify<span><a class="mark" href="#prebuildify" id="prebuildify">#</a></span><a aria-hidden="true" class="legacy" id="n_api_prebuildify"></a></h5>
 <p><a href="https://github.com/prebuild/prebuildify">prebuildify</a> is a tool based on node-gyp. The advantage of prebuildify is
-that the built binaries are bundled with the native module when it's
+that the built binaries are bundled with the native addon when it's
 uploaded to npm. The binaries are downloaded from npm and are immediately
-available to the module user when the native module is installed.</p>
+available to the module user when the native addon is installed.</p>
 </section><section><h3>Usage<span><a class="mark" href="#usage" id="usage">#</a></span><a aria-hidden="true" class="legacy" id="n_api_usage"></a></h3>
 <p>In order to use the Node-API functions, include the file <a href="https://github.com/nodejs/node/blob/HEAD/src/node_api.h"><code>node_api.h</code></a> which
 is located in the src directory in the node development tree:</p>
@@ -1378,6 +1388,7 @@ Currently, the following status codes are supported.</p>
   napi_arraybuffer_expected,
   napi_detachable_arraybuffer_expected,
   napi_would_deadlock,  <span class="hljs-comment">/* unused */</span>
+  napi_no_external_buffers_allowed
 } napi_status;</code></pre>
 <p>If additional information is required upon an API returning a failed status,
 it can be obtained by calling <code>napi_get_last_error_info</code>.</p>
@@ -1603,6 +1614,18 @@ callback should free the data.</li>
 </ul>
 <p>Unless for reasons discussed in <a href="#object-lifetime-management">Object Lifetime Management</a>, creating a
 handle and/or callback scope inside the function body is not necessary.</p>
+<h5><code>napi_cleanup_hook</code><span><a class="mark" href="#napi_cleanup_hook" id="napi_cleanup_hook">#</a></span><a aria-hidden="true" class="legacy" id="n_api_napi_cleanup_hook"></a></h5>
+<div class="api_metadata">
+<span>Added in: v18.13.0</span>
+<span>N-API version: 3</span>
+</div>
+<p>Function pointer used with <a href="#napi_add_env_cleanup_hook"><code>napi_add_env_cleanup_hook</code></a>. It will be called
+when the environment is being torn down.</p>
+<p>Callback functions must satisfy the following signature:</p>
+<pre><code class="language-c"><span class="hljs-keyword">typedef</span> <span class="hljs-title function_">void</span> <span class="hljs-params">(*napi_cleanup_hook)</span><span class="hljs-params">(<span class="hljs-type">void</span>* data)</span>;</code></pre>
+<ul>
+<li><code>[in] data</code>: The data that was passed to <a href="#napi_add_env_cleanup_hook"><code>napi_add_env_cleanup_hook</code></a>.</li>
+</ul>
 <h5><code>napi_async_cleanup_hook</code><span><a class="mark" href="#napi_async_cleanup_hook" id="napi_async_cleanup_hook">#</a></span><a aria-hidden="true" class="legacy" id="n_api_napi_async_cleanup_hook"></a></h5>
 <div class="api_metadata">
 <span>Added in: v14.10.0, v12.19.0</span>
@@ -1814,29 +1837,25 @@ is <code>'ERR_ERROR_1'</code> and a <code>TypeError</code> is being created the 
 <p>This API throws a JavaScript <code>RangeError</code> with the text provided.</p>
 <h5><code>node_api_throw_syntax_error</code><span><a class="mark" href="#node_api_throw_syntax_error" id="node_api_throw_syntax_error">#</a></span><a aria-hidden="true" class="legacy" id="n_api_node_api_throw_syntax_error"></a></h5>
 <div class="api_metadata">
-<span>Added in: v16.14.0</span>
+<span>Added in: v17.2.0, v16.14.0</span>
 </div>
+<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <pre><code class="language-c">NAPI_EXTERN napi_status <span class="hljs-title function_">node_api_throw_syntax_error</span><span class="hljs-params">(napi_env env,
                                                     <span class="hljs-type">const</span> <span class="hljs-type">char</span>* code,
-                                                    <span class="hljs-type">const</span> <span class="hljs-type">char</span>* msg)</span>;
-
-* `[in] env`: The environment that the API is invoked under.
-* `[in] code`: Optional error code to be <span class="hljs-built_in">set</span> on the error.
-* `[in] msg`: C <span class="hljs-built_in">string</span> representing the text to be associated with the error.
-
-Returns `napi_ok` <span class="hljs-keyword">if</span> the API succeeded.
-
-This API throws a JavaScript `SyntaxError` with the text provided.
-
-#### `napi_is_error`
-
-&#x3C;!-- YAML
-added: v8<span class="hljs-number">.0</span><span class="hljs-number">.0</span>
-napiVersion: <span class="hljs-number">1</span>
--->
-
-```c
-NAPI_EXTERN napi_status <span class="hljs-title function_">napi_is_error</span><span class="hljs-params">(napi_env env,
+                                                    <span class="hljs-type">const</span> <span class="hljs-type">char</span>* msg)</span>;</code></pre>
+<ul>
+<li><code>[in] env</code>: The environment that the API is invoked under.</li>
+<li><code>[in] code</code>: Optional error code to be set on the error.</li>
+<li><code>[in] msg</code>: C string representing the text to be associated with the error.</li>
+</ul>
+<p>Returns <code>napi_ok</code> if the API succeeded.</p>
+<p>This API throws a JavaScript <code>SyntaxError</code> with the text provided.</p>
+<h5><code>napi_is_error</code><span><a class="mark" href="#napi_is_error" id="napi_is_error">#</a></span><a aria-hidden="true" class="legacy" id="n_api_napi_is_error"></a></h5>
+<div class="api_metadata">
+<span>Added in: v8.0.0</span>
+<span>N-API version: 1</span>
+</div>
+<pre><code class="language-c">NAPI_EXTERN napi_status <span class="hljs-title function_">napi_is_error</span><span class="hljs-params">(napi_env env,
                                       napi_value value,
                                       <span class="hljs-type">bool</span>* result)</span>;</code></pre>
 <ul>
@@ -1906,8 +1925,9 @@ the message for the <code>Error</code>.</li>
 <p>This API returns a JavaScript <code>RangeError</code> with the text provided.</p>
 <h5><code>node_api_create_syntax_error</code><span><a class="mark" href="#node_api_create_syntax_error" id="node_api_create_syntax_error">#</a></span><a aria-hidden="true" class="legacy" id="n_api_node_api_create_syntax_error"></a></h5>
 <div class="api_metadata">
-<span>Added in: v16.14.0</span>
+<span>Added in: v17.2.0, v16.14.0</span>
 </div>
+<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <pre><code class="language-c">NAPI_EXTERN napi_status <span class="hljs-title function_">node_api_create_syntax_error</span><span class="hljs-params">(napi_env env,
                                                      napi_value code,
                                                      napi_value msg,
@@ -1960,7 +1980,7 @@ the message for the <code>Error</code>.</li>
 <p>Trigger an <code>'uncaughtException'</code> in JavaScript. Useful if an async
 callback throws an exception with no way to recover.</p>
 <h4>Fatal errors<span><a class="mark" href="#fatal-errors" id="fatal-errors">#</a></span><a aria-hidden="true" class="legacy" id="n_api_fatal_errors"></a></h4>
-<p>In the event of an unrecoverable error in a native module, a fatal error can be
+<p>In the event of an unrecoverable error in a native addon, a fatal error can be
 thrown to immediately terminate the process.</p>
 <h5><code>napi_fatal_error</code><span><a class="mark" href="#napi_fatal_error" id="napi_fatal_error">#</a></span><a aria-hidden="true" class="legacy" id="n_api_napi_fatal_error"></a></h5>
 <div class="api_metadata">
@@ -2271,7 +2291,7 @@ should be freed up.</p>
 <span>N-API version: 3</span>
 </div>
 <pre><code class="language-c">NODE_EXTERN napi_status <span class="hljs-title function_">napi_add_env_cleanup_hook</span><span class="hljs-params">(napi_env env,
-                                                  <span class="hljs-type">void</span> (*fun)(<span class="hljs-type">void</span>* arg),
+                                                  napi_cleanup_hook fun,
                                                   <span class="hljs-type">void</span>* arg)</span>;</code></pre>
 <p>Registers <code>fun</code> as a function to be run with the <code>arg</code> parameter once the
 current Node.js environment exits.</p>
@@ -2720,6 +2740,17 @@ collection.</li>
 <li><code>[out] result</code>: A <code>napi_value</code> representing a JavaScript <code>ArrayBuffer</code>.</li>
 </ul>
 <p>Returns <code>napi_ok</code> if the API succeeded.</p>
+<p><strong>Some runtimes other than Node.js have dropped support for external buffers</strong>.
+On runtimes other than Node.js this method may return
+<code>napi_no_external_buffers_allowed</code> to indicate that external
+buffers are not supported. One such runtime is Electron as
+described in this issue
+<a href="https://github.com/electron/electron/issues/35801">electron/issues/35801</a>.</p>
+<p>In order to maintain broadest compatibility with all runtimes
+you may define <code>NODE_API_NO_EXTERNAL_BUFFERS_ALLOWED</code> in your addon before
+includes for the node-api headers. Doing so will hide the 2 functions
+that create external buffers. This will ensure a compilation error
+occurs if you accidentally use one of these methods.</p>
 <p>This API returns a Node-API value corresponding to a JavaScript <code>ArrayBuffer</code>.
 The underlying byte buffer of the <code>ArrayBuffer</code> is externally allocated and
 managed. The caller must ensure that the byte buffer remains valid until the
@@ -2757,6 +2788,17 @@ collection.</li>
 <li><code>[out] result</code>: A <code>napi_value</code> representing a <code>node::Buffer</code>.</li>
 </ul>
 <p>Returns <code>napi_ok</code> if the API succeeded.</p>
+<p><strong>Some runtimes other than Node.js have dropped support for external buffers</strong>.
+On runtimes other than Node.js this method may return
+<code>napi_no_external_buffers_allowed</code> to indicate that external
+buffers are not supported. One such runtime is Electron as
+described in this issue
+<a href="https://github.com/electron/electron/issues/35801">electron/issues/35801</a>.</p>
+<p>In order to maintain broadest compatibility with all runtimes
+you may define <code>NODE_API_NO_EXTERNAL_BUFFERS_ALLOWED</code> in your addon before
+includes for the node-api headers. Doing so will hide the 2 functions
+that create external buffers. This will ensure a compilation error
+occurs if you accidentally use one of these methods.</p>
 <p>This API allocates a <code>node::Buffer</code> object and initializes it with data
 backed by the passed in buffer. While this is still a fully-supported data
 structure, in most cases using a <code>TypedArray</code> will suffice.</p>
@@ -2804,8 +2846,7 @@ ECMAScript Language Specification.</p>
 of the ECMAScript Language Specification.</p>
 <h5><code>node_api_symbol_for</code><span><a class="mark" href="#node_api_symbol_for" id="node_api_symbol_for">#</a></span><a aria-hidden="true" class="legacy" id="n_api_node_api_symbol_for"></a></h5>
 <div class="api_metadata">
-<span>Added in: v16.15.0</span>
-<span>N-API version: v16.15.0</span>
+<span>Added in: v17.5.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <pre><code class="language-c">napi_status <span class="hljs-title function_">node_api_symbol_for</span><span class="hljs-params">(napi_env env,
@@ -3713,7 +3754,7 @@ object.</li>
 </ul>
 <p>Returns <code>napi_ok</code> if the API succeeded.</p>
 <p>This API checks if the <code>Object</code> passed in is a date.</p>
-<h4><code>napi_is_error</code><span><a class="mark" href="#napi_is_error" id="napi_is_error">#</a></span><a aria-hidden="true" class="legacy" id="n_api_napi_is_error"></a></h4>
+<h4><code>napi_is_error</code><span><a class="mark" href="#napi_is_error_1" id="napi_is_error_1">#</a></span><a aria-hidden="true" class="legacy" id="n_api_napi_is_error_1"></a></h4>
 <div class="api_metadata">
 <span>Added in: v8.0.0</span>
 <span>N-API version: 1</span>
@@ -3884,7 +3925,7 @@ reasons. Consider the following JavaScript:</p>
 <pre><code class="language-js"><span class="hljs-keyword">const</span> obj = {};
 <span class="hljs-title class_">Object</span>.<span class="hljs-title function_">defineProperties</span>(obj, {
   <span class="hljs-string">'foo'</span>: { <span class="hljs-attr">value</span>: <span class="hljs-number">123</span>, <span class="hljs-attr">writable</span>: <span class="hljs-literal">true</span>, <span class="hljs-attr">configurable</span>: <span class="hljs-literal">true</span>, <span class="hljs-attr">enumerable</span>: <span class="hljs-literal">true</span> },
-  <span class="hljs-string">'bar'</span>: { <span class="hljs-attr">value</span>: <span class="hljs-number">456</span>, <span class="hljs-attr">writable</span>: <span class="hljs-literal">true</span>, <span class="hljs-attr">configurable</span>: <span class="hljs-literal">true</span>, <span class="hljs-attr">enumerable</span>: <span class="hljs-literal">true</span> }
+  <span class="hljs-string">'bar'</span>: { <span class="hljs-attr">value</span>: <span class="hljs-number">456</span>, <span class="hljs-attr">writable</span>: <span class="hljs-literal">true</span>, <span class="hljs-attr">configurable</span>: <span class="hljs-literal">true</span>, <span class="hljs-attr">enumerable</span>: <span class="hljs-literal">true</span> },
 });</code></pre>
 <p>The following is the approximate equivalent of the Node-API counterpart:</p>
 <pre><code class="language-c">napi_status status = napi_status_generic_failure;
@@ -4483,8 +4524,8 @@ requested number of arguments are copied. If there are fewer arguments
 provided than claimed, the rest of <code>argv</code> is filled with <code>napi_value</code> values
 that represent <code>undefined</code>. <code>argv</code> can optionally be ignored by
 passing <code>NULL</code>.</li>
-<li><code>[out] this</code>: Receives the JavaScript <code>this</code> argument for the call. <code>this</code>
-can optionally be ignored by passing <code>NULL</code>.</li>
+<li><code>[out] thisArg</code>: Receives the JavaScript <code>this</code> argument for the call.
+<code>thisArg</code> can optionally be ignored by passing <code>NULL</code>.</li>
 <li><code>[out] data</code>: Receives the data pointer for the callback. <code>data</code> can
 optionally be ignored by passing <code>NULL</code>.</li>
 </ul>
@@ -4821,6 +4862,10 @@ temporarily during async operations that require the instance to remain valid.</
 invocation. If it is deleted before then, then the finalize callback may never
 be invoked. Therefore, when obtaining a reference a finalize callback is also
 required in order to enable correct disposal of the reference.</p>
+<p>Finalizer callbacks may be deferred, leaving a window where the object has
+been garbage collected (and the weak reference is invalid) but the finalizer
+hasn't been called yet. When using <code>napi_get_reference_value()</code> on weak
+references returned by <code>napi_wrap()</code>, you should still handle an empty result.</p>
 <p>Calling <code>napi_wrap()</code> a second time on an object will return an error. To
 associate another native instance with the object, use <code>napi_remove_wrap()</code>
 first.</p>
@@ -5285,7 +5330,7 @@ alive by JavaScript objects.</li>
 <p>Returns <code>napi_ok</code> if the API succeeded.</p>
 <p>This function gives V8 an indication of the amount of externally allocated
 memory that is kept alive by JavaScript objects (i.e. a JavaScript object
-that points to its own memory allocated by a native module). Registering
+that points to its own memory allocated by a native addon). Registering
 externally allocated memory will trigger global garbage collections more
 often than it would otherwise.</p>
 </section><section><h3>Promises<span><a class="mark" href="#promises" id="promises">#</a></span><a aria-hidden="true" class="legacy" id="n_api_promises"></a></h3>
@@ -5726,7 +5771,7 @@ idempotent.</p>
 </section><section><h3>Miscellaneous utilities<span><a class="mark" href="#miscellaneous-utilities" id="miscellaneous-utilities">#</a></span><a aria-hidden="true" class="legacy" id="n_api_miscellaneous_utilities"></a></h3>
 <h4><code>node_api_get_module_file_name</code><span><a class="mark" href="#node_api_get_module_file_name" id="node_api_get_module_file_name">#</a></span><a aria-hidden="true" class="legacy" id="n_api_node_api_get_module_file_name"></a></h4>
 <div class="api_metadata">
-<span>Added in: v15.9.0, v12.22.0</span>
+<span>Added in: v15.9.0, v14.18.0, v12.22.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <pre><code class="language-c">NAPI_EXTERN napi_status
@@ -5745,41 +5790,5 @@ the add-on's file name during loading.</p></section>
       </div>
     </div>
   </div>
-  <script>
-    'use strict';
-    {
-      const kCustomPreference = 'customDarkTheme';
-      const userSettings = sessionStorage.getItem(kCustomPreference);
-      const themeToggleButton = document.getElementById('theme-toggle-btn');
-      if (userSettings === null && window.matchMedia) {
-        const mq = window.matchMedia('(prefers-color-scheme: dark)');
-        if ('onchange' in mq) {
-          function mqChangeListener(e) {
-            document.documentElement.classList.toggle('dark-mode', e.matches);
-          }
-          mq.addEventListener('change', mqChangeListener);
-          if (themeToggleButton) {
-            themeToggleButton.addEventListener('click', function() {
-              mq.removeEventListener('change', mqChangeListener);
-            }, { once: true });
-          }
-        }
-        if (mq.matches) {
-          document.documentElement.classList.add('dark-mode');
-        }
-      } else if (userSettings === 'true') {
-        document.documentElement.classList.add('dark-mode');
-      }
-      if (themeToggleButton) {
-        themeToggleButton.hidden = false;
-        themeToggleButton.addEventListener('click', function() {
-          sessionStorage.setItem(
-            kCustomPreference,
-            document.documentElement.classList.toggle('dark-mode')
-          );
-        });
-      }
-    }
-  </script>
 </body>
 </html>

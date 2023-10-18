@@ -3,33 +3,30 @@ Upstream-Name: Node.js
 Upstream-Contact: https://github.com/nodejs/node/issues
 Source: https://nodejs.org/
  https://registry.npmjs.org/@types/node
- https://github.com/acornjs/acorn
 Comment: Repackaged to exclude non-DFSG files:
-  + deps/acorn/*/dist/
-    because it contains only the compiled version
+  + deps/acorn/*
+    because it contains only the compiled version,
+    using node-acorn instead
   + deps/brotli/*
     because it does not change often and debian version is
     up-to-date.
-  + deps/cjs-module-lexer/dist/*
-    missing source files in the source tarball,
-    building them requires too much additional deps,
-    and nodejs can run without them anyway,
-    with debian/patches/cjs-module-lexer.patch
+  + deps/cjs-module-lexer/*
+    missing source files in the source tarball.
   + deps/corepack/*
     missing all source files, not stable.
   + deps/undici/*
     contains precompiled wasm files
+    using node-undici instead
   + benchmark/fixtures/alice.html
   + src/res/node.ico
   + deps/npm/html/favicon.ico
     and png/jpg files in doc that show a Nodejs (TM) logo.
  Other files being excluded to ease copyright maintenance.
 Files-Excluded:
- deps/acorn/acorn/dist/*
- deps/acorn/acorn-walk/dist/*
+ deps/acorn/*
  deps/brotli/*
- deps/cjs-module-lexer/dist/*
  deps/corepack/*
+ deps/cjs-module-lexer/*
  deps/undici/*
  benchmark/fixtures/alice.html
  doc/osx_installer_logo.png
@@ -39,15 +36,19 @@ Files-Excluded:
  deps/icu-small/*
  deps/npm/*
  tools/certdata.txt
+ snapshot.blob
 
 Files: *
 Copyright: Node.js contributors,
  Joyent, Inc. and other Node contributors.
 License: Expat
 
-Files: deps/acorn/*
-Copyright: 2012-2020 by various contributors
-License: Expat
+Files: deps/base64/*
+Copyright: 2005-2007, Nick Galbreath
+ 2013-2019, Alfred Klomp
+ 2015-2017, Wojciech Mula
+ 2016-2017, Matthieu Darbois
+License: BSD-2-clause~holders
 
 Files: deps/cares/*
 Copyright: 1998-2000 Greg Hudson <ghudson@mit.edu>,
@@ -81,10 +82,6 @@ Files: test/fixtures/wpt/resources/webidl2/*
 Copyright: 2014 Robin Berjon
 License: Expat
 
-Files: deps/corepack/*
-Copyright: Corepack contributors
-License: Expat
-
 Files: deps/nghttp2/*
 Copyright: 2012-2016 Tatsuhiro Tsujikawa and nghttp2 contributors
 License: Expat
@@ -105,33 +102,6 @@ Files: deps/uv/src/inet.c
 Copyright: 2004, Internet Systems Consortium, Inc. ("ISC")
            1996-1999, Internet Software Consortium.
 License: ISC
-
-Files: deps/uv/include/uv/android-ifaddrs.h
-Copyright: 1995-1999, Berkeley Software Design
-License: BSD-1-clause
- Redistribution and use in source and binary forms, with or without
- modification, are permitted provided that the following conditions are
- met:
- .
- 1. Redistributions of source code must retain the above copyright
- notice, this list of conditions and the following disclaimer.
- .
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
- IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
- TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
- PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-Files: deps/uv/src/unix/android-ifaddrs.c
-Copyright: 2013, Kenneth MacKay
-           2014, Emergya (Cloud4all, FP7/2007-2013, grant agreement n° 289016)
-License: BSD-2-clause~holders
 
 Files: deps/uv/include/uv/tree.h
 Copyright: 2002, Niels Provos <provos@citi.umich.edu>
@@ -163,34 +133,9 @@ License: GPL-3
 Files: deps/v8/*
  tools/test.py
  tools/js2c.py
+ tools/v8-json-to-junit.py
  test/pseudo-tty/testcfg.py
 Copyright: 2006-2017, the V8 Project Authors <v8-dev@googlegroups.com>
-License: BSD-3-clause~Google
-
-Files: deps/v8/base/trace_event/common/trace_event_common.h
- deps/v8/BUILD.gn
- deps/v8/include/js_protocol.pdl
- deps/v8/src/base/free_deleter.h
- deps/v8/src/base/debug/stack_trace_win.cc
- deps/v8/src/base/debug/stack_trace_android.cc
- deps/v8/src/base/debug/stack_trace_posix.cc
- deps/v8/src/base/debug/stack_trace.h
- deps/v8/src/base/optional.h
- deps/v8/src/base/adapters.h
- deps/v8/src/base/safe_conversions.h
- deps/v8/src/base/safe_conversions_impl.h
- deps/v8/third_party/binutils/download.py
- deps/v8/third_party/inspector_protocol/*
- tools/inspector_protocol/*
- deps/v8/tools/mb/mb.py
- deps/v8/tools/mb/mb_unittest.py
- deps/v8/tools/mb/PRESUBMIT.py
- deps/v8/tools/mb/mb
- deps/zlib/zlib.gyp
- deps/v8/third_party/zlib
- src/tracing/trace_event_common.h
- tools/icu/icu-generic.gyp
-Copyright: 2009-2019 The Chromium Authors
 License: BSD-3-clause~Google
 
 Files: tools/v8_gypfiles/GN-scraper.py
@@ -202,42 +147,6 @@ Copyright: 2009-2015 Google Inc. All rights reserved.
  2011-2014 The Chromium Authors. All rights reserved.
  2013 Yandex LLC
 License: BSD-3-clause~Google
-
-Files: deps/v8/src/inspector/*
-Copyright: Copyright: 2007-2009 Apple Inc.
- 2009-2013 Google Inc.
- 2014-2016 The Chromium Authors
-License: BSD-3-clause~Google
-
-Files: deps/v8/third_party/colorama/*
-Copyright: 2010 Jonathan Hartley All rights reserved.
-License: BSD-3-clause~holders
-
-Files: deps/v8/third_party/jinja2/*
- tools/inspector_protocol/jinja2/*
-Copyright: 2009-2013 Jinja Team, see AUTHORS
-License: BSD-3-clause~contributors
-
-Files: deps/v8/third_party/markupsafe/*
- tools/inspector_protocol/markupsafe/*
-Copyright: 2013 by Armin Ronacher and contributors
-License: BSD-3-clause~contributors
-
-Files: deps/v8/src/third_party/siphash/*
-Copyright: 2016 Jean-Philippe Aumasson <jeanphilippe.aumasson@gmail.com>
-License: CC0
-
-Files: deps/v8/src/third_party/utf8-decoder/*
-Copyright: 2008-2009, Bjoern Hoehrmann <bjoern@hoehrmann.de>
-License: Expat
-
-Files: deps/v8/third_party/v8/builtins/*
-Copyright: 2001-2018 Python Software Foundation
-License: Python
-
-Files: deps/cjs-module-lexer/*
-Copyright: 2018-2020 Guy Bedford
-License: Expat
 
 Files: deps/histogram/*
 Copyright: 2012, 2013, 2014 Gil Tene
@@ -251,10 +160,6 @@ License: Expat
 
 Files: deps/uvwasi/*
 Copyright: 2019 Colin Ihrig and Contributors
-License: Expat
-
-Files: tools/node-lint-md-cli-rollup/*
-Copyright: 2018 Refael Ackermann<refack@gmail.com>
 License: Expat
 
 Files: deps/openssl/*
@@ -398,38 +303,9 @@ License: MIT/X11
  All trademarks and registered trademarks mentioned herein are the
  property of their respective owners.
 
-
-Files: deps/v8/src/codegen/arm/assembler-arm*
- deps/v8/src/codegen/assembler.*
- deps/v8/src/codegen/arm64/assembler-arm64*
- deps/v8/src/codegen/ia32/assembler-ia32*
- deps/v8/src/codegen/mips/assembler-mips*
- deps/v8/src/codegen/mips64/assembler-mips64*
- deps/v8/src/codegen/ppc/assembler-ppc*
- deps/v8/src/codegen/s390/assembler-s390*
- deps/v8/src/codegen/x64/assembler-x64*
-Copyright: 1994-2006,2011, Sun Microsystems Inc.
-License: BSD-3-clause~Sun
-
-Files: deps/v8/src/third_party/valgrind/valgrind.h
-Copyright: 2000-2010, Julian Seward
-License: BSD-4-clause~author
-
-Files: deps/v8/src/third_party/vtune/*
-Copyright: 2005-2012, Intel Corporation.
-License: BSD-3-clause~Intel or GPL-2
-
 Files: src/large_pages/*
 Copyright: 2018 Intel Corporation
 License: Expat
-
-Files: src/heap_utils.cc
-Copyright: 2012, Ben Noordhuis <info@bnoordhuis.nl>
-License: ISC
-
-Files: src/compat.h src/compat-inl.h
-Copyright: 2014, StrongLoop Inc.
-License: ISC
 
 Files: lib/internal/freeze_intrinsics.js
 Copyright: 2011 Google Inc, 2018 Agoric
@@ -443,14 +319,6 @@ License: Expat
 Files: lib/internal/fs/rimraf.js
 Copyright: Isaac Z. Schlueter and Contributors
 License: ISC
-
-Files: deps/v8/src/base/ieee754.cc
-Copyright: 1993-2004 by Sun Microsystems, Inc. All rights reserved.
-License: ISC-no-disclaim
- Developed at SunSoft, a Sun Microsystems, Inc. business.
- Permission to use, copy, modify, and distribute this
- software is freely granted, provided that this notice
- is preserved.
 
 Files: deps/zlib/*
 Copyright: 1995-2017 Jean-loup Gailly <jloup@gzip.org> and
@@ -477,6 +345,103 @@ Comment:
  people who reported problems and suggested various improvements in zlib;
  they are too numerous to cite here.
 
+Files: deps/v8/base/trace_event/common/trace_event_common.h
+ deps/v8/BUILD.gn
+ deps/v8/include/js_protocol.pdl
+ deps/v8/src/base/free_deleter.h
+ deps/v8/src/base/debug/stack_trace_win.cc
+ deps/v8/src/base/debug/stack_trace_android.cc
+ deps/v8/src/base/debug/stack_trace_posix.cc
+ deps/v8/src/base/debug/stack_trace.h
+ deps/v8/src/base/optional.h
+ deps/v8/src/base/safe_conversions.h
+ deps/v8/src/base/safe_conversions_impl.h
+ deps/v8/third_party/inspector_protocol/*
+ tools/inspector_protocol/*
+ deps/v8/tools/mb/mb.py
+ deps/v8/tools/mb/mb_test.py
+ deps/v8/tools/mb/PRESUBMIT.py
+ deps/v8/tools/mb/mb
+ deps/zlib/zlib.gyp
+ deps/v8/third_party/zlib/*
+ src/tracing/trace_event_common.h
+ tools/icu/icu-generic.gyp
+Copyright: 2009-2019 The Chromium Authors
+License: BSD-3-clause~Google
+
+Files: deps/v8/src/inspector/*
+Copyright: Copyright: 2007-2009 Apple Inc.
+ 2009-2013 Google Inc.
+ 2014-2016 The Chromium Authors
+License: BSD-3-clause~Google
+
+Files: deps/v8/third_party/colorama/*
+Copyright: 2010 Jonathan Hartley All rights reserved.
+License: BSD-3-clause~holders
+
+Files: deps/v8/third_party/ittapi/*
+Copyright: 2005-2020 Intel Corporation. All rights reserved.
+License: BSD-3-clause~holders or GPL-2
+
+Files: deps/v8/third_party/ittapi/src/ittnotify/ittptmark32.S
+ deps/v8/third_party/ittapi/src/ittnotify/ittptmark64.S
+ deps/v8/third_party/ittapi/src/ittnotify/ittptmark64.asm
+ deps/v8/third_party/ittapi/src/ittnotify/ittptmark32.asm
+ deps/v8/third_party/ittapi/include/fortran/win32/ittnotify.f90
+ deps/v8/third_party/ittapi/include/fortran/posix/ittnotify.f90
+Copyright: 2005-2020 Intel Corporation. All rights reserved.
+License: BSD-3-clause~intel or GPL-2
+
+Files: deps/v8/third_party/jinja2/*
+ tools/inspector_protocol/jinja2/*
+Copyright: 2009-2013 Jinja Team, see AUTHORS
+License: BSD-3-clause~contributors
+
+Files: deps/v8/third_party/markupsafe/*
+ tools/inspector_protocol/markupsafe/*
+Copyright: 2013 by Armin Ronacher and contributors
+License: BSD-3-clause~contributors
+
+Files: deps/v8/src/third_party/siphash/*
+Copyright: 2016 Jean-Philippe Aumasson <jeanphilippe.aumasson@gmail.com>
+License: CC0
+
+Files: deps/v8/src/third_party/utf8-decoder/*
+Copyright: 2008-2009, Bjoern Hoehrmann <bjoern@hoehrmann.de>
+License: Expat
+
+Files: deps/v8/third_party/v8/builtins/*
+Copyright: 2001-2018 Python Software Foundation
+License: Python
+
+Files: deps/v8/src/codegen/arm/assembler-arm*
+ deps/v8/src/codegen/assembler.*
+ deps/v8/src/codegen/arm64/assembler-arm64*
+ deps/v8/src/codegen/ia32/assembler-ia32*
+ deps/v8/src/codegen/mips/assembler-mips*
+ deps/v8/src/codegen/mips64/assembler-mips64*
+ deps/v8/src/codegen/ppc/assembler-ppc*
+ deps/v8/src/codegen/s390/assembler-s390*
+ deps/v8/src/codegen/x64/assembler-x64*
+Copyright: 1994-2006,2011, Sun Microsystems Inc.
+License: BSD-3-clause~Sun
+
+Files: deps/v8/src/third_party/valgrind/valgrind.h
+Copyright: 2000-2010, Julian Seward
+License: BSD-4-clause~author
+
+Files: deps/v8/src/third_party/vtune/*
+Copyright: 2005-2012, Intel Corporation.
+License: BSD-3-clause~Intel or GPL-2
+
+Files: deps/v8/src/base/ieee754.cc
+Copyright: 1993-2004 by Sun Microsystems, Inc. All rights reserved.
+License: ISC-no-disclaim
+ Developed at SunSoft, a Sun Microsystems, Inc. business.
+ Permission to use, copy, modify, and distribute this
+ software is freely granted, provided that this notice
+ is preserved.
+
 Files: lib/assert.js
 Copyright: 2009 Thomas Robinson <280north.com>
 License: Expat
@@ -500,9 +465,7 @@ Comment:
  https://bugzilla.mozilla.org/show_bug.cgi?id=850003
 License: MPL-2.0
 
-Files: tools/rpm/node.spec
- tools/rpm/rpmbuild.sh
- lib/v8.js
+Files: lib/v8.js
 Copyright: 2013, 2014 StrongLoop, Inc. <callback@strongloop.com>
 License: ISC
 
@@ -556,34 +519,6 @@ License: Expat
  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  IN THE SOFTWARE.
 
-License: Expat~Wu
- Permission is hereby granted, free of charge, to any person obtaining a
- copy of this software and associated documentation files (the
- "Software"), to deal in the Software without restriction, including
- without limitation the rights to use, copy, modify, merge, publish,
- distribute, sublicense, and/or sell copies of the Software, and to
- permit persons to whom the Software is furnished to do so, subject to
- the following conditions:
- .
- The above copyright notice and this permission notice shall be included
- in all copies or substantial portions of the Software.
- .
- THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND,
- EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY
- WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
- .
- IN NO EVENT SHALL TOM WU BE LIABLE FOR ANY SPECIAL, INCIDENTAL,
- INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND, OR ANY DAMAGES
- WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER OR NOT
- ADVISED OF THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF LIABILITY,
- ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
- SOFTWARE.
- .
- In addition, the following condition applies:
- .
- All redistributions must retain an intact copy of this copyright notice
- and disclaimer.
-
 License: NTP~MIT
  Permission to use, copy, modify, and distribute this software and its
  documentation for any purpose and without fee is hereby granted, provided
@@ -594,18 +529,6 @@ License: NTP~MIT
  written prior permission.
  M.I.T. makes no representations about the suitability of this software for
  any purpose. It is provided "as is" without express or implied warranty.
-
-License: MIT~Prototype
- Permission to use, copy, modify, and distribute this software for any
- purpose without fee is hereby granted, provided that this entire notice
- is included in all copies of any software which is or includes a copy
- or modification of this software and in all copies of the supporting
- documentation for such software.
- .
- THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
- WARRANTY.  IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
- REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
- OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
 
 License: BSD-2-clause~author
  Redistribution and use in source and binary forms, with or without
@@ -845,22 +768,6 @@ License: BSD-4-clause~author
  STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
-
-License: GPL-2+
- This program is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
- .
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
- .
- Comment:
- .
- On Debian GNU/Linux systems, the complete text of the GNU General
- Public License can be found in `/usr/share/common-licenses/GPL-2'
 
 License: GPL-2
  Comment:

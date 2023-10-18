@@ -14,10 +14,6 @@ function bail(error) {
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
-function commonjsRequire (path) {
-	throw new Error('Could not dynamically require "' + path + '". Please configure the dynamicRequireTargets or/and ignoreDynamicRequires option of @rollup/plugin-commonjs appropriately for this require call to work.');
-}
-
 /*!
  * Determine if an object is a Buffer
  *
@@ -114,11 +110,11 @@ var extend$1 = function extend() {
 };
 
 function isPlainObject(value) {
-	if (Object.prototype.toString.call(value) !== '[object Object]') {
+	if (typeof value !== 'object' || value === null) {
 		return false;
 	}
 	const prototype = Object.getPrototypeOf(value);
-	return prototype === null || prototype === Object.prototype;
+	return (prototype === null || prototype === Object.prototype || Object.getPrototypeOf(prototype) === null) && !(Symbol.toStringTag in value) && !(Symbol.iterator in value);
 }
 
 function trough() {
@@ -262,17 +258,20 @@ class VFileMessage extends Error {
     }
     this.name = stringifyPosition(place) || '1:1';
     this.message = typeof reason === 'object' ? reason.message : reason;
-    this.stack = typeof reason === 'object' ? reason.stack : '';
+    this.stack = '';
+    if (typeof reason === 'object' && reason.stack) {
+      this.stack = reason.stack;
+    }
     this.reason = this.message;
     this.fatal;
     this.line = position.start.line;
     this.column = position.start.column;
+    this.position = position;
     this.source = parts[0];
     this.ruleId = parts[1];
-    this.position = position;
+    this.file;
     this.actual;
     this.expected;
-    this.file;
     this.url;
     this.note;
   }
@@ -1507,18 +1506,13 @@ function tokenizeCharacterEscape(effects, ok, nok) {
 }
 
 const characterEntities = {
-  AEli: 'Æ',
   AElig: 'Æ',
-  AM: '&',
   AMP: '&',
-  Aacut: 'Á',
   Aacute: 'Á',
   Abreve: 'Ă',
-  Acir: 'Â',
   Acirc: 'Â',
   Acy: 'А',
   Afr: '𝔄',
-  Agrav: 'À',
   Agrave: 'À',
   Alpha: 'Α',
   Amacr: 'Ā',
@@ -1526,13 +1520,10 @@ const characterEntities = {
   Aogon: 'Ą',
   Aopf: '𝔸',
   ApplyFunction: '⁡',
-  Arin: 'Å',
   Aring: 'Å',
   Ascr: '𝒜',
   Assign: '≔',
-  Atild: 'Ã',
   Atilde: 'Ã',
-  Aum: 'Ä',
   Auml: 'Ä',
   Backslash: '∖',
   Barv: '⫧',
@@ -1547,14 +1538,12 @@ const characterEntities = {
   Bscr: 'ℬ',
   Bumpeq: '≎',
   CHcy: 'Ч',
-  COP: '©',
   COPY: '©',
   Cacute: 'Ć',
   Cap: '⋒',
   CapitalDifferentialD: 'ⅅ',
   Cayleys: 'ℭ',
   Ccaron: 'Č',
-  Ccedi: 'Ç',
   Ccedil: 'Ç',
   Ccirc: 'Ĉ',
   Cconint: '∰',
@@ -1637,17 +1626,13 @@ const characterEntities = {
   Dscr: '𝒟',
   Dstrok: 'Đ',
   ENG: 'Ŋ',
-  ET: 'Ð',
   ETH: 'Ð',
-  Eacut: 'É',
   Eacute: 'É',
   Ecaron: 'Ě',
-  Ecir: 'Ê',
   Ecirc: 'Ê',
   Ecy: 'Э',
   Edot: 'Ė',
   Efr: '𝔈',
-  Egrav: 'È',
   Egrave: 'È',
   Element: '∈',
   Emacr: 'Ē',
@@ -1662,7 +1647,6 @@ const characterEntities = {
   Escr: 'ℰ',
   Esim: '⩳',
   Eta: 'Η',
-  Eum: 'Ë',
   Euml: 'Ë',
   Exists: '∃',
   ExponentialE: 'ⅇ',
@@ -1675,7 +1659,6 @@ const characterEntities = {
   Fouriertrf: 'ℱ',
   Fscr: 'ℱ',
   GJcy: 'Ѓ',
-  G: '>',
   GT: '>',
   Gamma: 'Γ',
   Gammad: 'Ϝ',
@@ -1711,14 +1694,11 @@ const characterEntities = {
   IEcy: 'Е',
   IJlig: 'Ĳ',
   IOcy: 'Ё',
-  Iacut: 'Í',
   Iacute: 'Í',
-  Icir: 'Î',
   Icirc: 'Î',
   Icy: 'И',
   Idot: 'İ',
   Ifr: 'ℑ',
-  Igrav: 'Ì',
   Igrave: 'Ì',
   Im: 'ℑ',
   Imacr: 'Ī',
@@ -1735,7 +1715,6 @@ const characterEntities = {
   Iscr: 'ℐ',
   Itilde: 'Ĩ',
   Iukcy: 'І',
-  Ium: 'Ï',
   Iuml: 'Ï',
   Jcirc: 'Ĵ',
   Jcy: 'Й',
@@ -1753,7 +1732,6 @@ const characterEntities = {
   Kopf: '𝕂',
   Kscr: '𝒦',
   LJcy: 'Љ',
-  L: '<',
   LT: '<',
   Lacute: 'Ĺ',
   Lambda: 'Λ',
@@ -1890,18 +1868,14 @@ const characterEntities = {
   NotTildeTilde: '≉',
   NotVerticalBar: '∤',
   Nscr: '𝒩',
-  Ntild: 'Ñ',
   Ntilde: 'Ñ',
   Nu: 'Ν',
   OElig: 'Œ',
-  Oacut: 'Ó',
   Oacute: 'Ó',
-  Ocir: 'Ô',
   Ocirc: 'Ô',
   Ocy: 'О',
   Odblac: 'Ő',
   Ofr: '𝔒',
-  Ograv: 'Ò',
   Ograve: 'Ò',
   Omacr: 'Ō',
   Omega: 'Ω',
@@ -1911,12 +1885,9 @@ const characterEntities = {
   OpenCurlyQuote: '‘',
   Or: '⩔',
   Oscr: '𝒪',
-  Oslas: 'Ø',
   Oslash: 'Ø',
-  Otild: 'Õ',
   Otilde: 'Õ',
   Otimes: '⨷',
-  Oum: 'Ö',
   Ouml: 'Ö',
   OverBar: '‾',
   OverBrace: '⏞',
@@ -1941,13 +1912,11 @@ const characterEntities = {
   Proportional: '∝',
   Pscr: '𝒫',
   Psi: 'Ψ',
-  QUO: '"',
   QUOT: '"',
   Qfr: '𝔔',
   Qopf: 'ℚ',
   Qscr: '𝒬',
   RBarr: '⤐',
-  RE: '®',
   REG: '®',
   Racute: 'Ŕ',
   Rang: '⟫',
@@ -2031,7 +2000,6 @@ const characterEntities = {
   Superset: '⊃',
   SupersetEqual: '⊇',
   Supset: '⋑',
-  THOR: 'Þ',
   THORN: 'Þ',
   TRADE: '™',
   TSHcy: 'Ћ',
@@ -2054,18 +2022,15 @@ const characterEntities = {
   TripleDot: '⃛',
   Tscr: '𝒯',
   Tstrok: 'Ŧ',
-  Uacut: 'Ú',
   Uacute: 'Ú',
   Uarr: '↟',
   Uarrocir: '⥉',
   Ubrcy: 'Ў',
   Ubreve: 'Ŭ',
-  Ucir: 'Û',
   Ucirc: 'Û',
   Ucy: 'У',
   Udblac: 'Ű',
   Ufr: '𝔘',
-  Ugrav: 'Ù',
   Ugrave: 'Ù',
   Umacr: 'Ū',
   UnderBar: '_',
@@ -2092,7 +2057,6 @@ const characterEntities = {
   Uring: 'Ů',
   Uscr: '𝒰',
   Utilde: 'Ũ',
-  Uum: 'Ü',
   Uuml: 'Ü',
   VDash: '⊫',
   Vbar: '⫫',
@@ -2123,7 +2087,6 @@ const characterEntities = {
   YAcy: 'Я',
   YIcy: 'Ї',
   YUcy: 'Ю',
-  Yacut: 'Ý',
   Yacute: 'Ý',
   Ycirc: 'Ŷ',
   Ycy: 'Ы',
@@ -2141,29 +2104,23 @@ const characterEntities = {
   Zfr: 'ℨ',
   Zopf: 'ℤ',
   Zscr: '𝒵',
-  aacut: 'á',
   aacute: 'á',
   abreve: 'ă',
   ac: '∾',
   acE: '∾̳',
   acd: '∿',
-  acir: 'â',
   acirc: 'â',
-  acut: '´',
   acute: '´',
   acy: 'а',
-  aeli: 'æ',
   aelig: 'æ',
   af: '⁡',
   afr: '𝔞',
-  agrav: 'à',
   agrave: 'à',
   alefsym: 'ℵ',
   aleph: 'ℵ',
   alpha: 'α',
   amacr: 'ā',
   amalg: '⨿',
-  am: '&',
   amp: '&',
   and: '∧',
   andand: '⩕',
@@ -2198,15 +2155,12 @@ const characterEntities = {
   apos: "'",
   approx: '≈',
   approxeq: '≊',
-  arin: 'å',
   aring: 'å',
   ascr: '𝒶',
   ast: '*',
   asymp: '≈',
   asympeq: '≍',
-  atild: 'ã',
   atilde: 'ã',
-  aum: 'ä',
   auml: 'ä',
   awconint: '∳',
   awint: '⨑',
@@ -2311,7 +2265,6 @@ const characterEntities = {
   boxvr: '├',
   bprime: '‵',
   breve: '˘',
-  brvba: '¦',
   brvbar: '¦',
   bscr: '𝒷',
   bsemi: '⁏',
@@ -2338,16 +2291,13 @@ const characterEntities = {
   caron: 'ˇ',
   ccaps: '⩍',
   ccaron: 'č',
-  ccedi: 'ç',
   ccedil: 'ç',
   ccirc: 'ĉ',
   ccups: '⩌',
   ccupssm: '⩐',
   cdot: 'ċ',
-  cedi: '¸',
   cedil: '¸',
   cemptyv: '⦲',
-  cen: '¢',
   cent: '¢',
   centerdot: '·',
   cfr: '𝔠',
@@ -2386,7 +2336,6 @@ const characterEntities = {
   conint: '∮',
   copf: '𝕔',
   coprod: '∐',
-  cop: '©',
   copy: '©',
   copysr: '℗',
   crarr: '↵',
@@ -2416,7 +2365,6 @@ const characterEntities = {
   curlyeqsucc: '⋟',
   curlyvee: '⋎',
   curlywedge: '⋏',
-  curre: '¤',
   curren: '¤',
   curvearrowleft: '↶',
   curvearrowright: '↷',
@@ -2440,7 +2388,6 @@ const characterEntities = {
   ddagger: '‡',
   ddarr: '⇊',
   ddotseq: '⩷',
-  de: '°',
   deg: '°',
   delta: 'δ',
   demptyv: '⦱',
@@ -2456,7 +2403,6 @@ const characterEntities = {
   digamma: 'ϝ',
   disin: '⋲',
   div: '÷',
-  divid: '÷',
   divide: '÷',
   divideontimes: '⋇',
   divonx: '⋇',
@@ -2493,11 +2439,10 @@ const characterEntities = {
   dzigrarr: '⟿',
   eDDot: '⩷',
   eDot: '≑',
-  eacut: 'é',
   eacute: 'é',
   easter: '⩮',
   ecaron: 'ě',
-  ecir: 'ê',
+  ecir: '≖',
   ecirc: 'ê',
   ecolon: '≕',
   ecy: 'э',
@@ -2506,7 +2451,6 @@ const characterEntities = {
   efDot: '≒',
   efr: '𝔢',
   eg: '⪚',
-  egrav: 'è',
   egrave: 'è',
   egs: '⪖',
   egsdot: '⪘',
@@ -2548,9 +2492,7 @@ const characterEntities = {
   esdot: '≐',
   esim: '≂',
   eta: 'η',
-  et: 'ð',
   eth: 'ð',
-  eum: 'ë',
   euml: 'ë',
   euro: '€',
   excl: '!',
@@ -2575,7 +2517,6 @@ const characterEntities = {
   fork: '⋔',
   forkv: '⫙',
   fpartint: '⨍',
-  frac1: '¼',
   frac12: '½',
   frac13: '⅓',
   frac14: '¼',
@@ -2584,7 +2525,6 @@ const characterEntities = {
   frac18: '⅛',
   frac23: '⅔',
   frac25: '⅖',
-  frac3: '¾',
   frac34: '¾',
   frac35: '⅗',
   frac38: '⅜',
@@ -2639,7 +2579,6 @@ const characterEntities = {
   gsim: '≳',
   gsime: '⪎',
   gsiml: '⪐',
-  g: '>',
   gt: '>',
   gtcc: '⪧',
   gtcir: '⩺',
@@ -2683,18 +2622,14 @@ const characterEntities = {
   hstrok: 'ħ',
   hybull: '⁃',
   hyphen: '‐',
-  iacut: 'í',
   iacute: 'í',
   ic: '⁣',
-  icir: 'î',
   icirc: 'î',
   icy: 'и',
   iecy: 'е',
-  iexc: '¡',
   iexcl: '¡',
   iff: '⇔',
   ifr: '𝔦',
-  igrav: 'ì',
   igrave: 'ì',
   ii: 'ⅈ',
   iiiint: '⨌',
@@ -2725,7 +2660,6 @@ const characterEntities = {
   iopf: '𝕚',
   iota: 'ι',
   iprod: '⨼',
-  iques: '¿',
   iquest: '¿',
   iscr: '𝒾',
   isin: '∈',
@@ -2737,7 +2671,6 @@ const characterEntities = {
   it: '⁢',
   itilde: 'ĩ',
   iukcy: 'і',
-  ium: 'ï',
   iuml: 'ï',
   jcirc: 'ĵ',
   jcy: 'й',
@@ -2772,7 +2705,6 @@ const characterEntities = {
   langd: '⦑',
   langle: '⟨',
   lap: '⪅',
-  laqu: '«',
   laquo: '«',
   larr: '←',
   larrb: '⇤',
@@ -2894,7 +2826,6 @@ const characterEntities = {
   lsquo: '‘',
   lsquor: '‚',
   lstrok: 'ł',
-  l: '<',
   lt: '<',
   ltcc: '⪦',
   ltcir: '⩹',
@@ -2912,7 +2843,6 @@ const characterEntities = {
   lvertneqq: '≨︀',
   lvnE: '≨︀',
   mDDot: '∺',
-  mac: '¯',
   macr: '¯',
   male: '♂',
   malt: '✠',
@@ -2929,12 +2859,10 @@ const characterEntities = {
   measuredangle: '∡',
   mfr: '𝔪',
   mho: '℧',
-  micr: 'µ',
   micro: 'µ',
   mid: '∣',
   midast: '*',
   midcir: '⫰',
-  middo: '·',
   middot: '·',
   minus: '−',
   minusb: '⊟',
@@ -2973,7 +2901,6 @@ const characterEntities = {
   natur: '♮',
   natural: '♮',
   naturals: 'ℕ',
-  nbs: ' ',
   nbsp: ' ',
   nbump: '≎̸',
   nbumpe: '≏̸',
@@ -3032,7 +2959,6 @@ const characterEntities = {
   nltrie: '⋬',
   nmid: '∤',
   nopf: '𝕟',
-  no: '¬',
   not: '¬',
   notin: '∉',
   notinE: '⋹̸',
@@ -3089,7 +3015,6 @@ const characterEntities = {
   nsupseteq: '⊉',
   nsupseteqq: '⫆̸',
   ntgl: '≹',
-  ntild: 'ñ',
   ntilde: 'ñ',
   ntlg: '≸',
   ntriangleleft: '⋪',
@@ -3120,10 +3045,9 @@ const characterEntities = {
   nwarrow: '↖',
   nwnear: '⤧',
   oS: 'Ⓢ',
-  oacut: 'ó',
   oacute: 'ó',
   oast: '⊛',
-  ocir: 'ô',
+  ocir: '⊚',
   ocirc: 'ô',
   ocy: 'о',
   odash: '⊝',
@@ -3135,7 +3059,6 @@ const characterEntities = {
   ofcir: '⦿',
   ofr: '𝔬',
   ogon: '˛',
-  ograv: 'ò',
   ograve: 'ò',
   ogt: '⧁',
   ohbar: '⦵',
@@ -3157,7 +3080,7 @@ const characterEntities = {
   oplus: '⊕',
   or: '∨',
   orarr: '↻',
-  ord: 'º',
+  ord: '⩝',
   order: 'ℴ',
   orderof: 'ℴ',
   ordf: 'ª',
@@ -3167,17 +3090,14 @@ const characterEntities = {
   orslope: '⩗',
   orv: '⩛',
   oscr: 'ℴ',
-  oslas: 'ø',
   oslash: 'ø',
   osol: '⊘',
-  otild: 'õ',
   otilde: 'õ',
   otimes: '⊗',
   otimesas: '⨶',
-  oum: 'ö',
   ouml: 'ö',
   ovbar: '⌽',
-  par: '¶',
+  par: '∥',
   para: '¶',
   parallel: '∥',
   parsim: '⫳',
@@ -3207,14 +3127,12 @@ const characterEntities = {
   plusdo: '∔',
   plusdu: '⨥',
   pluse: '⩲',
-  plusm: '±',
   plusmn: '±',
   plussim: '⨦',
   plustwo: '⨧',
   pm: '±',
   pointint: '⨕',
   popf: '𝕡',
-  poun: '£',
   pound: '£',
   pr: '≺',
   prE: '⪳',
@@ -3254,7 +3172,6 @@ const characterEntities = {
   quatint: '⨖',
   quest: '?',
   questeq: '≟',
-  quo: '"',
   quot: '"',
   rAarr: '⇛',
   rArr: '⇒',
@@ -3269,7 +3186,6 @@ const characterEntities = {
   rangd: '⦒',
   range: '⦥',
   rangle: '⟩',
-  raqu: '»',
   raquo: '»',
   rarr: '→',
   rarrap: '⥵',
@@ -3308,7 +3224,6 @@ const characterEntities = {
   realpart: 'ℜ',
   reals: 'ℝ',
   rect: '▭',
-  re: '®',
   reg: '®',
   rfisht: '⥽',
   rfloor: '⌋',
@@ -3383,7 +3298,6 @@ const characterEntities = {
   searhk: '⤥',
   searr: '↘',
   searrow: '↘',
-  sec: '§',
   sect: '§',
   semi: ';',
   seswar: '⤩',
@@ -3397,7 +3311,6 @@ const characterEntities = {
   shcy: 'ш',
   shortmid: '∣',
   shortparallel: '∥',
-  sh: '­',
   shy: '­',
   sigma: 'σ',
   sigmaf: 'ς',
@@ -3484,10 +3397,10 @@ const characterEntities = {
   succsim: '≿',
   sum: '∑',
   sung: '♪',
-  sup: '⊃',
   sup1: '¹',
   sup2: '²',
   sup3: '³',
+  sup: '⊃',
   supE: '⫆',
   supdot: '⪾',
   supdsub: '⫘',
@@ -3513,7 +3426,6 @@ const characterEntities = {
   swarr: '↙',
   swarrow: '↙',
   swnwar: '⤪',
-  szli: 'ß',
   szlig: 'ß',
   target: '⌖',
   tau: 'τ',
@@ -3534,10 +3446,8 @@ const characterEntities = {
   thinsp: ' ',
   thkap: '≈',
   thksim: '∼',
-  thor: 'þ',
   thorn: 'þ',
   tilde: '˜',
-  time: '×',
   times: '×',
   timesb: '⊠',
   timesbar: '⨱',
@@ -3575,12 +3485,10 @@ const characterEntities = {
   twoheadrightarrow: '↠',
   uArr: '⇑',
   uHar: '⥣',
-  uacut: 'ú',
   uacute: 'ú',
   uarr: '↑',
   ubrcy: 'ў',
   ubreve: 'ŭ',
-  ucir: 'û',
   ucirc: 'û',
   ucy: 'у',
   udarr: '⇅',
@@ -3588,7 +3496,6 @@ const characterEntities = {
   udhar: '⥮',
   ufisht: '⥾',
   ufr: '𝔲',
-  ugrav: 'ù',
   ugrave: 'ù',
   uharl: '↿',
   uharr: '↾',
@@ -3598,7 +3505,6 @@ const characterEntities = {
   ulcrop: '⌏',
   ultri: '◸',
   umacr: 'ū',
-  um: '¨',
   uml: '¨',
   uogon: 'ų',
   uopf: '𝕦',
@@ -3622,7 +3528,6 @@ const characterEntities = {
   utri: '▵',
   utrif: '▴',
   uuarr: '⇈',
-  uum: 'ü',
   uuml: 'ü',
   uwangle: '⦧',
   vArr: '⇕',
@@ -3702,19 +3607,16 @@ const characterEntities = {
   xutri: '△',
   xvee: '⋁',
   xwedge: '⋀',
-  yacut: 'ý',
   yacute: 'ý',
   yacy: 'я',
   ycirc: 'ŷ',
   ycy: 'ы',
-  ye: '¥',
   yen: '¥',
   yfr: '𝔶',
   yicy: 'ї',
   yopf: '𝕪',
   yscr: '𝓎',
   yucy: 'ю',
-  yum: 'ÿ',
   yuml: 'ÿ',
   zacute: 'ź',
   zcaron: 'ž',
@@ -4939,7 +4841,6 @@ const htmlBlockNames = [
   'p',
   'param',
   'section',
-  'source',
   'summary',
   'table',
   'tbody',
@@ -7872,17 +7773,18 @@ function remarkParse(options) {
   Object.assign(this, {Parser: parser});
 }
 
-var own$4 = {}.hasOwnProperty;
+const own$4 = {}.hasOwnProperty;
 function zwitch(key, options) {
-  var settings = options || {};
-  function one(value) {
-    var fn = one.invalid;
-    var handlers = one.handlers;
+  const settings = options || {};
+  function one(value, ...parameters) {
+    let fn = one.invalid;
+    const handlers = one.handlers;
     if (value && own$4.call(value, key)) {
-      fn = own$4.call(handlers, value[key]) ? handlers[value[key]] : one.unknown;
+      const id = String(value[key]);
+      fn = own$4.call(handlers, id) ? handlers[id] : one.unknown;
     }
     if (fn) {
-      return fn.apply(this, arguments)
+      return fn.call(this, value, ...parameters)
     }
   }
   one.handlers = settings.handlers || {};
@@ -8050,14 +7952,14 @@ function hardBreak(_, _1, context, safe) {
   return '\\\n'
 }
 
-function longestStreak(value, character) {
+function longestStreak(value, substring) {
   const source = String(value);
-  let index = source.indexOf(character);
+  let index = source.indexOf(substring);
   let expected = index;
   let count = 0;
   let max = 0;
-  if (typeof character !== 'string' || character.length !== 1) {
-    throw new Error('Expected character')
+  if (typeof substring !== 'string') {
+    throw new TypeError('Expected substring')
   }
   while (index !== -1) {
     if (index === expected) {
@@ -8067,8 +7969,8 @@ function longestStreak(value, character) {
     } else {
       count = 1;
     }
-    expected = index + 1;
-    index = source.indexOf(character, expected);
+    expected = index + substring.length;
+    index = source.indexOf(substring, expected);
   }
   return max
 }
@@ -10801,80 +10703,6 @@ function escapeStringRegexp(string) {
 		.replace(/-/g, '\\x2d');
 }
 
-function color$1(d) {
-  return '\u001B[33m' + d + '\u001B[39m'
-}
-
-const CONTINUE = true;
-const SKIP = 'skip';
-const EXIT = false;
-const visitParents =
-  (
-    function (tree, test, visitor, reverse) {
-      if (typeof test === 'function' && typeof visitor !== 'function') {
-        reverse = visitor;
-        visitor = test;
-        test = null;
-      }
-      var is = convert(test);
-      var step = reverse ? -1 : 1;
-      factory(tree, null, [])();
-      function factory(node, index, parents) {
-        var value = typeof node === 'object' && node !== null ? node : {};
-        var name;
-        if (typeof value.type === 'string') {
-          name =
-            typeof value.tagName === 'string'
-              ? value.tagName
-              : typeof value.name === 'string'
-              ? value.name
-              : undefined;
-          Object.defineProperty(visit, 'name', {
-            value:
-              'node (' +
-              color$1(value.type + (name ? '<' + name + '>' : '')) +
-              ')'
-          });
-        }
-        return visit
-        function visit() {
-          var result = [];
-          var subresult;
-          var offset;
-          var grandparents;
-          if (!test || is(node, index, parents[parents.length - 1] || null)) {
-            result = toResult(visitor(node, parents));
-            if (result[0] === EXIT) {
-              return result
-            }
-          }
-          if (node.children && result[0] !== SKIP) {
-            offset = (reverse ? node.children.length : -1) + step;
-            grandparents = parents.concat(node);
-            while (offset > -1 && offset < node.children.length) {
-              subresult = factory(node.children[offset], offset, grandparents)();
-              if (subresult[0] === EXIT) {
-                return subresult
-              }
-              offset =
-                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
-            }
-          }
-          return result
-        }
-      }
-    }
-  );
-function toResult(value) {
-  if (Array.isArray(value)) {
-    return value
-  }
-  if (typeof value === 'number') {
-    return [CONTINUE, value]
-  }
-  return [value]
-}
-
 const own$3 = {}.hasOwnProperty;
 const findAndReplace =
   (
@@ -10895,7 +10723,7 @@ const findAndReplace =
       const pairs = toPairs(schema);
       let pairIndex = -1;
       while (++pairIndex < pairs.length) {
-        visitParents(tree, 'text', visitor);
+        visitParents$1(tree, 'text', visitor);
       }
       return tree
       function visitor(node, parents) {
@@ -10915,24 +10743,28 @@ const findAndReplace =
           grandparent = parent;
         }
         if (grandparent) {
-          return handler(node, grandparent)
+          return handler(node, parents)
         }
       }
-      function handler(node, parent) {
+      function handler(node, parents) {
+        const parent = parents[parents.length - 1];
         const find = pairs[pairIndex][0];
         const replace = pairs[pairIndex][1];
         let start = 0;
-        let index = parent.children.indexOf(node);
+        const index = parent.children.indexOf(node);
+        let change = false;
         let nodes = [];
         let position;
         find.lastIndex = 0;
         let match = find.exec(node.value);
         while (match) {
           position = match.index;
-          let value = replace(...match, {
+          const matchObject = {
             index: match.index,
-            input: match.input
-          });
+            input: match.input,
+            stack: [...parents, node]
+          };
+          let value = replace(...match, matchObject);
           if (typeof value === 'string') {
             value = value.length > 0 ? {type: 'text', value} : undefined;
           }
@@ -10949,22 +10781,22 @@ const findAndReplace =
               nodes.push(value);
             }
             start = position + match[0].length;
+            change = true;
           }
           if (!find.global) {
             break
           }
           match = find.exec(node.value);
         }
-        if (position === undefined) {
-          nodes = [node];
-          index--;
-        } else {
+        if (change) {
           if (start < node.value.length) {
             nodes.push({type: 'text', value: node.value.slice(start)});
           }
           parent.children.splice(index, 1, ...nodes);
+        } else {
+          nodes = [node];
         }
-        return index + nodes.length + 1
+        return index + nodes.length
       }
     }
   );
@@ -11269,8 +11101,22 @@ const gfmStrikethroughFromMarkdown = {
   enter: {strikethrough: enterStrikethrough},
   exit: {strikethrough: exitStrikethrough}
 };
+const constructsWithoutStrikethrough = [
+  'autolink',
+  'destinationLiteral',
+  'destinationRaw',
+  'reference',
+  'titleQuote',
+  'titleApostrophe'
+];
 const gfmStrikethroughToMarkdown = {
-  unsafe: [{character: '~', inConstruct: 'phrasing'}],
+  unsafe: [
+    {
+      character: '~',
+      inConstruct: 'phrasing',
+      notInConstruct: constructsWithoutStrikethrough
+    }
+  ],
   handlers: {delete: handleDelete}
 };
 handleDelete.peek = peekDelete;
@@ -11751,6 +11597,80 @@ function location(file) {
   }
 }
 
+function color$1(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE = true;
+const SKIP = 'skip';
+const EXIT = false;
+const visitParents =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      var is = convert(test);
+      var step = reverse ? -1 : 1;
+      factory(tree, null, [])();
+      function factory(node, index, parents) {
+        var value = typeof node === 'object' && node !== null ? node : {};
+        var name;
+        if (typeof value.type === 'string') {
+          name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              : typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' +
+              color$1(value.type + (name ? '<' + name + '>' : '')) +
+              ')'
+          });
+        }
+        return visit
+        function visit() {
+          var result = [];
+          var subresult;
+          var offset;
+          var grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult(visitor(node, parents));
+            if (result[0] === EXIT) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE, value]
+  }
+  return [value]
+}
+
 const visit =
   (
     function (tree, test, visitor, reverse) {
@@ -12204,332 +12124,336 @@ const remarkLintFinalNewline = lintRule(
 );
 var remarkLintFinalNewline$1 = remarkLintFinalNewline;
 
+function commonjsRequire(path) {
+	throw new Error('Could not dynamically require "' + path + '". Please configure the dynamicRequireTargets or/and ignoreDynamicRequires option of @rollup/plugin-commonjs appropriately for this require call to work.');
+}
+
 var pluralize = {exports: {}};
 
 (function (module, exports) {
-(function (root, pluralize) {
-  if (typeof commonjsRequire === 'function' && 'object' === 'object' && 'object' === 'object') {
-    module.exports = pluralize();
-  } else {
-    root.pluralize = pluralize();
-  }
-})(commonjsGlobal, function () {
-  var pluralRules = [];
-  var singularRules = [];
-  var uncountables = {};
-  var irregularPlurals = {};
-  var irregularSingles = {};
-  function sanitizeRule (rule) {
-    if (typeof rule === 'string') {
-      return new RegExp('^' + rule + '$', 'i');
-    }
-    return rule;
-  }
-  function restoreCase (word, token) {
-    if (word === token) return token;
-    if (word === word.toLowerCase()) return token.toLowerCase();
-    if (word === word.toUpperCase()) return token.toUpperCase();
-    if (word[0] === word[0].toUpperCase()) {
-      return token.charAt(0).toUpperCase() + token.substr(1).toLowerCase();
-    }
-    return token.toLowerCase();
-  }
-  function interpolate (str, args) {
-    return str.replace(/\$(\d{1,2})/g, function (match, index) {
-      return args[index] || '';
-    });
-  }
-  function replace (word, rule) {
-    return word.replace(rule[0], function (match, index) {
-      var result = interpolate(rule[1], arguments);
-      if (match === '') {
-        return restoreCase(word[index - 1], result);
-      }
-      return restoreCase(match, result);
-    });
-  }
-  function sanitizeWord (token, word, rules) {
-    if (!token.length || uncountables.hasOwnProperty(token)) {
-      return word;
-    }
-    var len = rules.length;
-    while (len--) {
-      var rule = rules[len];
-      if (rule[0].test(word)) return replace(word, rule);
-    }
-    return word;
-  }
-  function replaceWord (replaceMap, keepMap, rules) {
-    return function (word) {
-      var token = word.toLowerCase();
-      if (keepMap.hasOwnProperty(token)) {
-        return restoreCase(word, token);
-      }
-      if (replaceMap.hasOwnProperty(token)) {
-        return restoreCase(word, replaceMap[token]);
-      }
-      return sanitizeWord(token, word, rules);
-    };
-  }
-  function checkWord (replaceMap, keepMap, rules, bool) {
-    return function (word) {
-      var token = word.toLowerCase();
-      if (keepMap.hasOwnProperty(token)) return true;
-      if (replaceMap.hasOwnProperty(token)) return false;
-      return sanitizeWord(token, token, rules) === token;
-    };
-  }
-  function pluralize (word, count, inclusive) {
-    var pluralized = count === 1
-      ? pluralize.singular(word) : pluralize.plural(word);
-    return (inclusive ? count + ' ' : '') + pluralized;
-  }
-  pluralize.plural = replaceWord(
-    irregularSingles, irregularPlurals, pluralRules
-  );
-  pluralize.isPlural = checkWord(
-    irregularSingles, irregularPlurals, pluralRules
-  );
-  pluralize.singular = replaceWord(
-    irregularPlurals, irregularSingles, singularRules
-  );
-  pluralize.isSingular = checkWord(
-    irregularPlurals, irregularSingles, singularRules
-  );
-  pluralize.addPluralRule = function (rule, replacement) {
-    pluralRules.push([sanitizeRule(rule), replacement]);
-  };
-  pluralize.addSingularRule = function (rule, replacement) {
-    singularRules.push([sanitizeRule(rule), replacement]);
-  };
-  pluralize.addUncountableRule = function (word) {
-    if (typeof word === 'string') {
-      uncountables[word.toLowerCase()] = true;
-      return;
-    }
-    pluralize.addPluralRule(word, '$0');
-    pluralize.addSingularRule(word, '$0');
-  };
-  pluralize.addIrregularRule = function (single, plural) {
-    plural = plural.toLowerCase();
-    single = single.toLowerCase();
-    irregularSingles[single] = plural;
-    irregularPlurals[plural] = single;
-  };
-  [
-    ['I', 'we'],
-    ['me', 'us'],
-    ['he', 'they'],
-    ['she', 'they'],
-    ['them', 'them'],
-    ['myself', 'ourselves'],
-    ['yourself', 'yourselves'],
-    ['itself', 'themselves'],
-    ['herself', 'themselves'],
-    ['himself', 'themselves'],
-    ['themself', 'themselves'],
-    ['is', 'are'],
-    ['was', 'were'],
-    ['has', 'have'],
-    ['this', 'these'],
-    ['that', 'those'],
-    ['echo', 'echoes'],
-    ['dingo', 'dingoes'],
-    ['volcano', 'volcanoes'],
-    ['tornado', 'tornadoes'],
-    ['torpedo', 'torpedoes'],
-    ['genus', 'genera'],
-    ['viscus', 'viscera'],
-    ['stigma', 'stigmata'],
-    ['stoma', 'stomata'],
-    ['dogma', 'dogmata'],
-    ['lemma', 'lemmata'],
-    ['schema', 'schemata'],
-    ['anathema', 'anathemata'],
-    ['ox', 'oxen'],
-    ['axe', 'axes'],
-    ['die', 'dice'],
-    ['yes', 'yeses'],
-    ['foot', 'feet'],
-    ['eave', 'eaves'],
-    ['goose', 'geese'],
-    ['tooth', 'teeth'],
-    ['quiz', 'quizzes'],
-    ['human', 'humans'],
-    ['proof', 'proofs'],
-    ['carve', 'carves'],
-    ['valve', 'valves'],
-    ['looey', 'looies'],
-    ['thief', 'thieves'],
-    ['groove', 'grooves'],
-    ['pickaxe', 'pickaxes'],
-    ['passerby', 'passersby']
-  ].forEach(function (rule) {
-    return pluralize.addIrregularRule(rule[0], rule[1]);
-  });
-  [
-    [/s?$/i, 's'],
-    [/[^\u0000-\u007F]$/i, '$0'],
-    [/([^aeiou]ese)$/i, '$1'],
-    [/(ax|test)is$/i, '$1es'],
-    [/(alias|[^aou]us|t[lm]as|gas|ris)$/i, '$1es'],
-    [/(e[mn]u)s?$/i, '$1s'],
-    [/([^l]ias|[aeiou]las|[ejzr]as|[iu]am)$/i, '$1'],
-    [/(alumn|syllab|vir|radi|nucle|fung|cact|stimul|termin|bacill|foc|uter|loc|strat)(?:us|i)$/i, '$1i'],
-    [/(alumn|alg|vertebr)(?:a|ae)$/i, '$1ae'],
-    [/(seraph|cherub)(?:im)?$/i, '$1im'],
-    [/(her|at|gr)o$/i, '$1oes'],
-    [/(agend|addend|millenni|dat|extrem|bacteri|desiderat|strat|candelabr|errat|ov|symposi|curricul|automat|quor)(?:a|um)$/i, '$1a'],
-    [/(apheli|hyperbat|periheli|asyndet|noumen|phenomen|criteri|organ|prolegomen|hedr|automat)(?:a|on)$/i, '$1a'],
-    [/sis$/i, 'ses'],
-    [/(?:(kni|wi|li)fe|(ar|l|ea|eo|oa|hoo)f)$/i, '$1$2ves'],
-    [/([^aeiouy]|qu)y$/i, '$1ies'],
-    [/([^ch][ieo][ln])ey$/i, '$1ies'],
-    [/(x|ch|ss|sh|zz)$/i, '$1es'],
-    [/(matr|cod|mur|sil|vert|ind|append)(?:ix|ex)$/i, '$1ices'],
-    [/\b((?:tit)?m|l)(?:ice|ouse)$/i, '$1ice'],
-    [/(pe)(?:rson|ople)$/i, '$1ople'],
-    [/(child)(?:ren)?$/i, '$1ren'],
-    [/eaux$/i, '$0'],
-    [/m[ae]n$/i, 'men'],
-    ['thou', 'you']
-  ].forEach(function (rule) {
-    return pluralize.addPluralRule(rule[0], rule[1]);
-  });
-  [
-    [/s$/i, ''],
-    [/(ss)$/i, '$1'],
-    [/(wi|kni|(?:after|half|high|low|mid|non|night|[^\w]|^)li)ves$/i, '$1fe'],
-    [/(ar|(?:wo|[ae])l|[eo][ao])ves$/i, '$1f'],
-    [/ies$/i, 'y'],
-    [/\b([pl]|zomb|(?:neck|cross)?t|coll|faer|food|gen|goon|group|lass|talk|goal|cut)ies$/i, '$1ie'],
-    [/\b(mon|smil)ies$/i, '$1ey'],
-    [/\b((?:tit)?m|l)ice$/i, '$1ouse'],
-    [/(seraph|cherub)im$/i, '$1'],
-    [/(x|ch|ss|sh|zz|tto|go|cho|alias|[^aou]us|t[lm]as|gas|(?:her|at|gr)o|[aeiou]ris)(?:es)?$/i, '$1'],
-    [/(analy|diagno|parenthe|progno|synop|the|empha|cri|ne)(?:sis|ses)$/i, '$1sis'],
-    [/(movie|twelve|abuse|e[mn]u)s$/i, '$1'],
-    [/(test)(?:is|es)$/i, '$1is'],
-    [/(alumn|syllab|vir|radi|nucle|fung|cact|stimul|termin|bacill|foc|uter|loc|strat)(?:us|i)$/i, '$1us'],
-    [/(agend|addend|millenni|dat|extrem|bacteri|desiderat|strat|candelabr|errat|ov|symposi|curricul|quor)a$/i, '$1um'],
-    [/(apheli|hyperbat|periheli|asyndet|noumen|phenomen|criteri|organ|prolegomen|hedr|automat)a$/i, '$1on'],
-    [/(alumn|alg|vertebr)ae$/i, '$1a'],
-    [/(cod|mur|sil|vert|ind)ices$/i, '$1ex'],
-    [/(matr|append)ices$/i, '$1ix'],
-    [/(pe)(rson|ople)$/i, '$1rson'],
-    [/(child)ren$/i, '$1'],
-    [/(eau)x?$/i, '$1'],
-    [/men$/i, 'man']
-  ].forEach(function (rule) {
-    return pluralize.addSingularRule(rule[0], rule[1]);
-  });
-  [
-    'adulthood',
-    'advice',
-    'agenda',
-    'aid',
-    'aircraft',
-    'alcohol',
-    'ammo',
-    'analytics',
-    'anime',
-    'athletics',
-    'audio',
-    'bison',
-    'blood',
-    'bream',
-    'buffalo',
-    'butter',
-    'carp',
-    'cash',
-    'chassis',
-    'chess',
-    'clothing',
-    'cod',
-    'commerce',
-    'cooperation',
-    'corps',
-    'debris',
-    'diabetes',
-    'digestion',
-    'elk',
-    'energy',
-    'equipment',
-    'excretion',
-    'expertise',
-    'firmware',
-    'flounder',
-    'fun',
-    'gallows',
-    'garbage',
-    'graffiti',
-    'hardware',
-    'headquarters',
-    'health',
-    'herpes',
-    'highjinks',
-    'homework',
-    'housework',
-    'information',
-    'jeans',
-    'justice',
-    'kudos',
-    'labour',
-    'literature',
-    'machinery',
-    'mackerel',
-    'mail',
-    'media',
-    'mews',
-    'moose',
-    'music',
-    'mud',
-    'manga',
-    'news',
-    'only',
-    'personnel',
-    'pike',
-    'plankton',
-    'pliers',
-    'police',
-    'pollution',
-    'premises',
-    'rain',
-    'research',
-    'rice',
-    'salmon',
-    'scissors',
-    'series',
-    'sewage',
-    'shambles',
-    'shrimp',
-    'software',
-    'species',
-    'staff',
-    'swine',
-    'tennis',
-    'traffic',
-    'transportation',
-    'trout',
-    'tuna',
-    'wealth',
-    'welfare',
-    'whiting',
-    'wildebeest',
-    'wildlife',
-    'you',
-    /pok[eé]mon$/i,
-    /[^aeiou]ese$/i,
-    /deer$/i,
-    /fish$/i,
-    /measles$/i,
-    /o[iu]s$/i,
-    /pox$/i,
-    /sheep$/i
-  ].forEach(pluralize.addUncountableRule);
-  return pluralize;
-});
-}(pluralize));
+	(function (root, pluralize) {
+	  if (typeof commonjsRequire === 'function' && 'object' === 'object' && 'object' === 'object') {
+	    module.exports = pluralize();
+	  } else {
+	    root.pluralize = pluralize();
+	  }
+	})(commonjsGlobal, function () {
+	  var pluralRules = [];
+	  var singularRules = [];
+	  var uncountables = {};
+	  var irregularPlurals = {};
+	  var irregularSingles = {};
+	  function sanitizeRule (rule) {
+	    if (typeof rule === 'string') {
+	      return new RegExp('^' + rule + '$', 'i');
+	    }
+	    return rule;
+	  }
+	  function restoreCase (word, token) {
+	    if (word === token) return token;
+	    if (word === word.toLowerCase()) return token.toLowerCase();
+	    if (word === word.toUpperCase()) return token.toUpperCase();
+	    if (word[0] === word[0].toUpperCase()) {
+	      return token.charAt(0).toUpperCase() + token.substr(1).toLowerCase();
+	    }
+	    return token.toLowerCase();
+	  }
+	  function interpolate (str, args) {
+	    return str.replace(/\$(\d{1,2})/g, function (match, index) {
+	      return args[index] || '';
+	    });
+	  }
+	  function replace (word, rule) {
+	    return word.replace(rule[0], function (match, index) {
+	      var result = interpolate(rule[1], arguments);
+	      if (match === '') {
+	        return restoreCase(word[index - 1], result);
+	      }
+	      return restoreCase(match, result);
+	    });
+	  }
+	  function sanitizeWord (token, word, rules) {
+	    if (!token.length || uncountables.hasOwnProperty(token)) {
+	      return word;
+	    }
+	    var len = rules.length;
+	    while (len--) {
+	      var rule = rules[len];
+	      if (rule[0].test(word)) return replace(word, rule);
+	    }
+	    return word;
+	  }
+	  function replaceWord (replaceMap, keepMap, rules) {
+	    return function (word) {
+	      var token = word.toLowerCase();
+	      if (keepMap.hasOwnProperty(token)) {
+	        return restoreCase(word, token);
+	      }
+	      if (replaceMap.hasOwnProperty(token)) {
+	        return restoreCase(word, replaceMap[token]);
+	      }
+	      return sanitizeWord(token, word, rules);
+	    };
+	  }
+	  function checkWord (replaceMap, keepMap, rules, bool) {
+	    return function (word) {
+	      var token = word.toLowerCase();
+	      if (keepMap.hasOwnProperty(token)) return true;
+	      if (replaceMap.hasOwnProperty(token)) return false;
+	      return sanitizeWord(token, token, rules) === token;
+	    };
+	  }
+	  function pluralize (word, count, inclusive) {
+	    var pluralized = count === 1
+	      ? pluralize.singular(word) : pluralize.plural(word);
+	    return (inclusive ? count + ' ' : '') + pluralized;
+	  }
+	  pluralize.plural = replaceWord(
+	    irregularSingles, irregularPlurals, pluralRules
+	  );
+	  pluralize.isPlural = checkWord(
+	    irregularSingles, irregularPlurals, pluralRules
+	  );
+	  pluralize.singular = replaceWord(
+	    irregularPlurals, irregularSingles, singularRules
+	  );
+	  pluralize.isSingular = checkWord(
+	    irregularPlurals, irregularSingles, singularRules
+	  );
+	  pluralize.addPluralRule = function (rule, replacement) {
+	    pluralRules.push([sanitizeRule(rule), replacement]);
+	  };
+	  pluralize.addSingularRule = function (rule, replacement) {
+	    singularRules.push([sanitizeRule(rule), replacement]);
+	  };
+	  pluralize.addUncountableRule = function (word) {
+	    if (typeof word === 'string') {
+	      uncountables[word.toLowerCase()] = true;
+	      return;
+	    }
+	    pluralize.addPluralRule(word, '$0');
+	    pluralize.addSingularRule(word, '$0');
+	  };
+	  pluralize.addIrregularRule = function (single, plural) {
+	    plural = plural.toLowerCase();
+	    single = single.toLowerCase();
+	    irregularSingles[single] = plural;
+	    irregularPlurals[plural] = single;
+	  };
+	  [
+	    ['I', 'we'],
+	    ['me', 'us'],
+	    ['he', 'they'],
+	    ['she', 'they'],
+	    ['them', 'them'],
+	    ['myself', 'ourselves'],
+	    ['yourself', 'yourselves'],
+	    ['itself', 'themselves'],
+	    ['herself', 'themselves'],
+	    ['himself', 'themselves'],
+	    ['themself', 'themselves'],
+	    ['is', 'are'],
+	    ['was', 'were'],
+	    ['has', 'have'],
+	    ['this', 'these'],
+	    ['that', 'those'],
+	    ['echo', 'echoes'],
+	    ['dingo', 'dingoes'],
+	    ['volcano', 'volcanoes'],
+	    ['tornado', 'tornadoes'],
+	    ['torpedo', 'torpedoes'],
+	    ['genus', 'genera'],
+	    ['viscus', 'viscera'],
+	    ['stigma', 'stigmata'],
+	    ['stoma', 'stomata'],
+	    ['dogma', 'dogmata'],
+	    ['lemma', 'lemmata'],
+	    ['schema', 'schemata'],
+	    ['anathema', 'anathemata'],
+	    ['ox', 'oxen'],
+	    ['axe', 'axes'],
+	    ['die', 'dice'],
+	    ['yes', 'yeses'],
+	    ['foot', 'feet'],
+	    ['eave', 'eaves'],
+	    ['goose', 'geese'],
+	    ['tooth', 'teeth'],
+	    ['quiz', 'quizzes'],
+	    ['human', 'humans'],
+	    ['proof', 'proofs'],
+	    ['carve', 'carves'],
+	    ['valve', 'valves'],
+	    ['looey', 'looies'],
+	    ['thief', 'thieves'],
+	    ['groove', 'grooves'],
+	    ['pickaxe', 'pickaxes'],
+	    ['passerby', 'passersby']
+	  ].forEach(function (rule) {
+	    return pluralize.addIrregularRule(rule[0], rule[1]);
+	  });
+	  [
+	    [/s?$/i, 's'],
+	    [/[^\u0000-\u007F]$/i, '$0'],
+	    [/([^aeiou]ese)$/i, '$1'],
+	    [/(ax|test)is$/i, '$1es'],
+	    [/(alias|[^aou]us|t[lm]as|gas|ris)$/i, '$1es'],
+	    [/(e[mn]u)s?$/i, '$1s'],
+	    [/([^l]ias|[aeiou]las|[ejzr]as|[iu]am)$/i, '$1'],
+	    [/(alumn|syllab|vir|radi|nucle|fung|cact|stimul|termin|bacill|foc|uter|loc|strat)(?:us|i)$/i, '$1i'],
+	    [/(alumn|alg|vertebr)(?:a|ae)$/i, '$1ae'],
+	    [/(seraph|cherub)(?:im)?$/i, '$1im'],
+	    [/(her|at|gr)o$/i, '$1oes'],
+	    [/(agend|addend|millenni|dat|extrem|bacteri|desiderat|strat|candelabr|errat|ov|symposi|curricul|automat|quor)(?:a|um)$/i, '$1a'],
+	    [/(apheli|hyperbat|periheli|asyndet|noumen|phenomen|criteri|organ|prolegomen|hedr|automat)(?:a|on)$/i, '$1a'],
+	    [/sis$/i, 'ses'],
+	    [/(?:(kni|wi|li)fe|(ar|l|ea|eo|oa|hoo)f)$/i, '$1$2ves'],
+	    [/([^aeiouy]|qu)y$/i, '$1ies'],
+	    [/([^ch][ieo][ln])ey$/i, '$1ies'],
+	    [/(x|ch|ss|sh|zz)$/i, '$1es'],
+	    [/(matr|cod|mur|sil|vert|ind|append)(?:ix|ex)$/i, '$1ices'],
+	    [/\b((?:tit)?m|l)(?:ice|ouse)$/i, '$1ice'],
+	    [/(pe)(?:rson|ople)$/i, '$1ople'],
+	    [/(child)(?:ren)?$/i, '$1ren'],
+	    [/eaux$/i, '$0'],
+	    [/m[ae]n$/i, 'men'],
+	    ['thou', 'you']
+	  ].forEach(function (rule) {
+	    return pluralize.addPluralRule(rule[0], rule[1]);
+	  });
+	  [
+	    [/s$/i, ''],
+	    [/(ss)$/i, '$1'],
+	    [/(wi|kni|(?:after|half|high|low|mid|non|night|[^\w]|^)li)ves$/i, '$1fe'],
+	    [/(ar|(?:wo|[ae])l|[eo][ao])ves$/i, '$1f'],
+	    [/ies$/i, 'y'],
+	    [/\b([pl]|zomb|(?:neck|cross)?t|coll|faer|food|gen|goon|group|lass|talk|goal|cut)ies$/i, '$1ie'],
+	    [/\b(mon|smil)ies$/i, '$1ey'],
+	    [/\b((?:tit)?m|l)ice$/i, '$1ouse'],
+	    [/(seraph|cherub)im$/i, '$1'],
+	    [/(x|ch|ss|sh|zz|tto|go|cho|alias|[^aou]us|t[lm]as|gas|(?:her|at|gr)o|[aeiou]ris)(?:es)?$/i, '$1'],
+	    [/(analy|diagno|parenthe|progno|synop|the|empha|cri|ne)(?:sis|ses)$/i, '$1sis'],
+	    [/(movie|twelve|abuse|e[mn]u)s$/i, '$1'],
+	    [/(test)(?:is|es)$/i, '$1is'],
+	    [/(alumn|syllab|vir|radi|nucle|fung|cact|stimul|termin|bacill|foc|uter|loc|strat)(?:us|i)$/i, '$1us'],
+	    [/(agend|addend|millenni|dat|extrem|bacteri|desiderat|strat|candelabr|errat|ov|symposi|curricul|quor)a$/i, '$1um'],
+	    [/(apheli|hyperbat|periheli|asyndet|noumen|phenomen|criteri|organ|prolegomen|hedr|automat)a$/i, '$1on'],
+	    [/(alumn|alg|vertebr)ae$/i, '$1a'],
+	    [/(cod|mur|sil|vert|ind)ices$/i, '$1ex'],
+	    [/(matr|append)ices$/i, '$1ix'],
+	    [/(pe)(rson|ople)$/i, '$1rson'],
+	    [/(child)ren$/i, '$1'],
+	    [/(eau)x?$/i, '$1'],
+	    [/men$/i, 'man']
+	  ].forEach(function (rule) {
+	    return pluralize.addSingularRule(rule[0], rule[1]);
+	  });
+	  [
+	    'adulthood',
+	    'advice',
+	    'agenda',
+	    'aid',
+	    'aircraft',
+	    'alcohol',
+	    'ammo',
+	    'analytics',
+	    'anime',
+	    'athletics',
+	    'audio',
+	    'bison',
+	    'blood',
+	    'bream',
+	    'buffalo',
+	    'butter',
+	    'carp',
+	    'cash',
+	    'chassis',
+	    'chess',
+	    'clothing',
+	    'cod',
+	    'commerce',
+	    'cooperation',
+	    'corps',
+	    'debris',
+	    'diabetes',
+	    'digestion',
+	    'elk',
+	    'energy',
+	    'equipment',
+	    'excretion',
+	    'expertise',
+	    'firmware',
+	    'flounder',
+	    'fun',
+	    'gallows',
+	    'garbage',
+	    'graffiti',
+	    'hardware',
+	    'headquarters',
+	    'health',
+	    'herpes',
+	    'highjinks',
+	    'homework',
+	    'housework',
+	    'information',
+	    'jeans',
+	    'justice',
+	    'kudos',
+	    'labour',
+	    'literature',
+	    'machinery',
+	    'mackerel',
+	    'mail',
+	    'media',
+	    'mews',
+	    'moose',
+	    'music',
+	    'mud',
+	    'manga',
+	    'news',
+	    'only',
+	    'personnel',
+	    'pike',
+	    'plankton',
+	    'pliers',
+	    'police',
+	    'pollution',
+	    'premises',
+	    'rain',
+	    'research',
+	    'rice',
+	    'salmon',
+	    'scissors',
+	    'series',
+	    'sewage',
+	    'shambles',
+	    'shrimp',
+	    'software',
+	    'species',
+	    'staff',
+	    'swine',
+	    'tennis',
+	    'traffic',
+	    'transportation',
+	    'trout',
+	    'tuna',
+	    'wealth',
+	    'welfare',
+	    'whiting',
+	    'wildebeest',
+	    'wildlife',
+	    'you',
+	    /pok[eé]mon$/i,
+	    /[^aeiou]ese$/i,
+	    /deer$/i,
+	    /fish$/i,
+	    /measles$/i,
+	    /o[iu]s$/i,
+	    /pox$/i,
+	    /sheep$/i
+	  ].forEach(pluralize.addUncountableRule);
+	  return pluralize;
+	});
+} (pluralize));
 var plural = pluralize.exports;
 
 /**
@@ -13582,9 +13506,12 @@ var remarkLintNoShortcutReferenceLink$1 = remarkLintNoShortcutReferenceLink;
  * The following options (default: `undefined`) are accepted:
  *
  * *   `Object` with the following fields:
- *     *   `allow` (`Array<string>`, default: `[]`)
- *         — text that you want to allowed between `[` and `]` even though it’s
- *         undefined
+ *     *   `allow` (`Array<string | RegExp | { source: string }>`,
+ *         default: `[]`)
+ *         — text or regex that you want to be allowed between `[` and `]`
+ *         even though it’s undefined; regex is provided via a `RegExp` object
+ *         or via a `{ source: string }` object where `source` is the source
+ *         text of a case-insensitive regex
  *
  * ## Recommendation
  *
@@ -13630,9 +13557,18 @@ var remarkLintNoShortcutReferenceLink$1 = remarkLintNoShortcutReferenceLink;
  *   [foo]: https://example.com
  *
  * @example
- *   {"name": "ok-allow.md", "setting": {"allow": ["...", "…"]}}
+ *   {"name": "ok-allow.md", "config": {"allow": ["...", "…"]}}
  *
  *   > Eliding a portion of a quoted passage […] is acceptable.
+ *
+ * @example
+ *   {"name": "ok-allow.md", "config": {"allow": ["a", {"source": "^b\\."}]}}
+ *
+ *   [foo][b.c]
+ *
+ *   [bar][a]
+ *
+ *   Matching is case-insensitive: [bar][B.C]
  *
  * @example
  *   {"name": "not-ok.md", "label": "input"}
@@ -13667,6 +13603,19 @@ var remarkLintNoShortcutReferenceLink$1 = remarkLintNoShortcutReferenceLink;
  *   15:13-15:25: Found reference to undefined definition
  *   17:17-17:23: Found reference to undefined definition
  *   17:23-17:26: Found reference to undefined definition
+ *
+ * @example
+ *   {"name": "not-ok.md", "label": "input", "config": {"allow": ["a", {"source": "^b\\."}]}}
+ *
+ *   [foo][a.c]
+ *
+ *   [bar][b]
+ *
+ * @example
+ *   {"name": "not-ok.md", "label": "output", "config": {"allow": ["a", {"source": "^b\\."}]}}
+ *
+ *   1:1-1:11: Found reference to undefined definition
+ *   3:1-3:9: Found reference to undefined definition
  */
 const remarkLintNoUndefinedReferences = lintRule(
   {
@@ -13677,10 +13626,21 @@ const remarkLintNoUndefinedReferences = lintRule(
     const contents = String(file);
     const loc = location(file);
     const lineEnding = /(\r?\n|\r)[\t ]*(>[\t ]*)*/g;
-    const allow = new Set(
-      (option.allow || []).map((d) => normalizeIdentifier(d))
-    );
     const map = Object.create(null);
+    const allow = option.allow || [];
+    const regexes = [];
+    const strings = new Set();
+    let index = -1;
+    while (++index < allow.length) {
+      const value = allow[index];
+      if (typeof value === 'string') {
+        strings.add(normalizeIdentifier(value));
+      } else if (value instanceof RegExp) {
+        regexes.push(value);
+      } else {
+        regexes.push(new RegExp(value.source, 'i'));
+      }
+    }
     visit$1(tree, (node) => {
       if (
         (node.type === 'definition' || node.type === 'footnoteDefinition') &&
@@ -13696,7 +13656,7 @@ const remarkLintNoUndefinedReferences = lintRule(
           node.type === 'footnoteReference') &&
         !generated(node) &&
         !(normalizeIdentifier(node.identifier) in map) &&
-        !allow.has(normalizeIdentifier(node.identifier))
+        !isAllowed(node.identifier)
       ) {
         file.message('Found reference to undefined definition', node);
       }
@@ -13799,11 +13759,18 @@ const remarkLintNoUndefinedReferences = lintRule(
         if (
           !generated({position: pos}) &&
           !(normalizeIdentifier(id) in map) &&
-          !allow.has(normalizeIdentifier(id))
+          !isAllowed(id)
         ) {
           file.message('Found reference to undefined definition', pos);
         }
       }
+    }
+    function isAllowed(id) {
+      const normalized = normalizeIdentifier(id);
+      return (
+        strings.has(normalized) ||
+        regexes.some((regex) => regex.test(normalized))
+      )
     }
   }
 );
@@ -19297,13 +19264,13 @@ var jsYaml = {
 const SEMVER_SPEC_VERSION = '2.0.0';
 const MAX_LENGTH$2 = 256;
 const MAX_SAFE_INTEGER$1 = Number.MAX_SAFE_INTEGER ||
-   9007199254740991;
+ 9007199254740991;
 const MAX_SAFE_COMPONENT_LENGTH = 16;
 var constants = {
   SEMVER_SPEC_VERSION,
   MAX_LENGTH: MAX_LENGTH$2,
   MAX_SAFE_INTEGER: MAX_SAFE_INTEGER$1,
-  MAX_SAFE_COMPONENT_LENGTH
+  MAX_SAFE_COMPONENT_LENGTH,
 };
 
 var re$2 = {exports: {}};
@@ -19318,106 +19285,106 @@ const debug$1 = (
 var debug_1 = debug$1;
 
 (function (module, exports) {
-const { MAX_SAFE_COMPONENT_LENGTH } = constants;
-const debug = debug_1;
-exports = module.exports = {};
-const re = exports.re = [];
-const src = exports.src = [];
-const t = exports.t = {};
-let R = 0;
-const createToken = (name, value, isGlobal) => {
-  const index = R++;
-  debug(index, value);
-  t[name] = index;
-  src[index] = value;
-  re[index] = new RegExp(value, isGlobal ? 'g' : undefined);
-};
-createToken('NUMERICIDENTIFIER', '0|[1-9]\\d*');
-createToken('NUMERICIDENTIFIERLOOSE', '[0-9]+');
-createToken('NONNUMERICIDENTIFIER', '\\d*[a-zA-Z-][a-zA-Z0-9-]*');
-createToken('MAINVERSION', `(${src[t.NUMERICIDENTIFIER]})\\.` +
-                   `(${src[t.NUMERICIDENTIFIER]})\\.` +
-                   `(${src[t.NUMERICIDENTIFIER]})`);
-createToken('MAINVERSIONLOOSE', `(${src[t.NUMERICIDENTIFIERLOOSE]})\\.` +
-                        `(${src[t.NUMERICIDENTIFIERLOOSE]})\\.` +
-                        `(${src[t.NUMERICIDENTIFIERLOOSE]})`);
-createToken('PRERELEASEIDENTIFIER', `(?:${src[t.NUMERICIDENTIFIER]
-}|${src[t.NONNUMERICIDENTIFIER]})`);
-createToken('PRERELEASEIDENTIFIERLOOSE', `(?:${src[t.NUMERICIDENTIFIERLOOSE]
-}|${src[t.NONNUMERICIDENTIFIER]})`);
-createToken('PRERELEASE', `(?:-(${src[t.PRERELEASEIDENTIFIER]
-}(?:\\.${src[t.PRERELEASEIDENTIFIER]})*))`);
-createToken('PRERELEASELOOSE', `(?:-?(${src[t.PRERELEASEIDENTIFIERLOOSE]
-}(?:\\.${src[t.PRERELEASEIDENTIFIERLOOSE]})*))`);
-createToken('BUILDIDENTIFIER', '[0-9A-Za-z-]+');
-createToken('BUILD', `(?:\\+(${src[t.BUILDIDENTIFIER]
-}(?:\\.${src[t.BUILDIDENTIFIER]})*))`);
-createToken('FULLPLAIN', `v?${src[t.MAINVERSION]
-}${src[t.PRERELEASE]}?${
-  src[t.BUILD]}?`);
-createToken('FULL', `^${src[t.FULLPLAIN]}$`);
-createToken('LOOSEPLAIN', `[v=\\s]*${src[t.MAINVERSIONLOOSE]
-}${src[t.PRERELEASELOOSE]}?${
-  src[t.BUILD]}?`);
-createToken('LOOSE', `^${src[t.LOOSEPLAIN]}$`);
-createToken('GTLT', '((?:<|>)?=?)');
-createToken('XRANGEIDENTIFIERLOOSE', `${src[t.NUMERICIDENTIFIERLOOSE]}|x|X|\\*`);
-createToken('XRANGEIDENTIFIER', `${src[t.NUMERICIDENTIFIER]}|x|X|\\*`);
-createToken('XRANGEPLAIN', `[v=\\s]*(${src[t.XRANGEIDENTIFIER]})` +
-                   `(?:\\.(${src[t.XRANGEIDENTIFIER]})` +
-                   `(?:\\.(${src[t.XRANGEIDENTIFIER]})` +
-                   `(?:${src[t.PRERELEASE]})?${
-                     src[t.BUILD]}?` +
-                   `)?)?`);
-createToken('XRANGEPLAINLOOSE', `[v=\\s]*(${src[t.XRANGEIDENTIFIERLOOSE]})` +
-                        `(?:\\.(${src[t.XRANGEIDENTIFIERLOOSE]})` +
-                        `(?:\\.(${src[t.XRANGEIDENTIFIERLOOSE]})` +
-                        `(?:${src[t.PRERELEASELOOSE]})?${
-                          src[t.BUILD]}?` +
-                        `)?)?`);
-createToken('XRANGE', `^${src[t.GTLT]}\\s*${src[t.XRANGEPLAIN]}$`);
-createToken('XRANGELOOSE', `^${src[t.GTLT]}\\s*${src[t.XRANGEPLAINLOOSE]}$`);
-createToken('COERCE', `${'(^|[^\\d])' +
-              '(\\d{1,'}${MAX_SAFE_COMPONENT_LENGTH}})` +
-              `(?:\\.(\\d{1,${MAX_SAFE_COMPONENT_LENGTH}}))?` +
-              `(?:\\.(\\d{1,${MAX_SAFE_COMPONENT_LENGTH}}))?` +
-              `(?:$|[^\\d])`);
-createToken('COERCERTL', src[t.COERCE], true);
-createToken('LONETILDE', '(?:~>?)');
-createToken('TILDETRIM', `(\\s*)${src[t.LONETILDE]}\\s+`, true);
-exports.tildeTrimReplace = '$1~';
-createToken('TILDE', `^${src[t.LONETILDE]}${src[t.XRANGEPLAIN]}$`);
-createToken('TILDELOOSE', `^${src[t.LONETILDE]}${src[t.XRANGEPLAINLOOSE]}$`);
-createToken('LONECARET', '(?:\\^)');
-createToken('CARETTRIM', `(\\s*)${src[t.LONECARET]}\\s+`, true);
-exports.caretTrimReplace = '$1^';
-createToken('CARET', `^${src[t.LONECARET]}${src[t.XRANGEPLAIN]}$`);
-createToken('CARETLOOSE', `^${src[t.LONECARET]}${src[t.XRANGEPLAINLOOSE]}$`);
-createToken('COMPARATORLOOSE', `^${src[t.GTLT]}\\s*(${src[t.LOOSEPLAIN]})$|^$`);
-createToken('COMPARATOR', `^${src[t.GTLT]}\\s*(${src[t.FULLPLAIN]})$|^$`);
-createToken('COMPARATORTRIM', `(\\s*)${src[t.GTLT]
-}\\s*(${src[t.LOOSEPLAIN]}|${src[t.XRANGEPLAIN]})`, true);
-exports.comparatorTrimReplace = '$1$2$3';
-createToken('HYPHENRANGE', `^\\s*(${src[t.XRANGEPLAIN]})` +
-                   `\\s+-\\s+` +
-                   `(${src[t.XRANGEPLAIN]})` +
-                   `\\s*$`);
-createToken('HYPHENRANGELOOSE', `^\\s*(${src[t.XRANGEPLAINLOOSE]})` +
-                        `\\s+-\\s+` +
-                        `(${src[t.XRANGEPLAINLOOSE]})` +
-                        `\\s*$`);
-createToken('STAR', '(<|>)?=?\\s*\\*');
-createToken('GTE0', '^\\s*>=\\s*0\.0\.0\\s*$');
-createToken('GTE0PRE', '^\\s*>=\\s*0\.0\.0-0\\s*$');
-}(re$2, re$2.exports));
+	const { MAX_SAFE_COMPONENT_LENGTH } = constants;
+	const debug = debug_1;
+	exports = module.exports = {};
+	const re = exports.re = [];
+	const src = exports.src = [];
+	const t = exports.t = {};
+	let R = 0;
+	const createToken = (name, value, isGlobal) => {
+	  const index = R++;
+	  debug(name, index, value);
+	  t[name] = index;
+	  src[index] = value;
+	  re[index] = new RegExp(value, isGlobal ? 'g' : undefined);
+	};
+	createToken('NUMERICIDENTIFIER', '0|[1-9]\\d*');
+	createToken('NUMERICIDENTIFIERLOOSE', '[0-9]+');
+	createToken('NONNUMERICIDENTIFIER', '\\d*[a-zA-Z-][a-zA-Z0-9-]*');
+	createToken('MAINVERSION', `(${src[t.NUMERICIDENTIFIER]})\\.` +
+	                   `(${src[t.NUMERICIDENTIFIER]})\\.` +
+	                   `(${src[t.NUMERICIDENTIFIER]})`);
+	createToken('MAINVERSIONLOOSE', `(${src[t.NUMERICIDENTIFIERLOOSE]})\\.` +
+	                        `(${src[t.NUMERICIDENTIFIERLOOSE]})\\.` +
+	                        `(${src[t.NUMERICIDENTIFIERLOOSE]})`);
+	createToken('PRERELEASEIDENTIFIER', `(?:${src[t.NUMERICIDENTIFIER]
+	}|${src[t.NONNUMERICIDENTIFIER]})`);
+	createToken('PRERELEASEIDENTIFIERLOOSE', `(?:${src[t.NUMERICIDENTIFIERLOOSE]
+	}|${src[t.NONNUMERICIDENTIFIER]})`);
+	createToken('PRERELEASE', `(?:-(${src[t.PRERELEASEIDENTIFIER]
+	}(?:\\.${src[t.PRERELEASEIDENTIFIER]})*))`);
+	createToken('PRERELEASELOOSE', `(?:-?(${src[t.PRERELEASEIDENTIFIERLOOSE]
+	}(?:\\.${src[t.PRERELEASEIDENTIFIERLOOSE]})*))`);
+	createToken('BUILDIDENTIFIER', '[0-9A-Za-z-]+');
+	createToken('BUILD', `(?:\\+(${src[t.BUILDIDENTIFIER]
+	}(?:\\.${src[t.BUILDIDENTIFIER]})*))`);
+	createToken('FULLPLAIN', `v?${src[t.MAINVERSION]
+	}${src[t.PRERELEASE]}?${
+	  src[t.BUILD]}?`);
+	createToken('FULL', `^${src[t.FULLPLAIN]}$`);
+	createToken('LOOSEPLAIN', `[v=\\s]*${src[t.MAINVERSIONLOOSE]
+	}${src[t.PRERELEASELOOSE]}?${
+	  src[t.BUILD]}?`);
+	createToken('LOOSE', `^${src[t.LOOSEPLAIN]}$`);
+	createToken('GTLT', '((?:<|>)?=?)');
+	createToken('XRANGEIDENTIFIERLOOSE', `${src[t.NUMERICIDENTIFIERLOOSE]}|x|X|\\*`);
+	createToken('XRANGEIDENTIFIER', `${src[t.NUMERICIDENTIFIER]}|x|X|\\*`);
+	createToken('XRANGEPLAIN', `[v=\\s]*(${src[t.XRANGEIDENTIFIER]})` +
+	                   `(?:\\.(${src[t.XRANGEIDENTIFIER]})` +
+	                   `(?:\\.(${src[t.XRANGEIDENTIFIER]})` +
+	                   `(?:${src[t.PRERELEASE]})?${
+	                     src[t.BUILD]}?` +
+	                   `)?)?`);
+	createToken('XRANGEPLAINLOOSE', `[v=\\s]*(${src[t.XRANGEIDENTIFIERLOOSE]})` +
+	                        `(?:\\.(${src[t.XRANGEIDENTIFIERLOOSE]})` +
+	                        `(?:\\.(${src[t.XRANGEIDENTIFIERLOOSE]})` +
+	                        `(?:${src[t.PRERELEASELOOSE]})?${
+	                          src[t.BUILD]}?` +
+	                        `)?)?`);
+	createToken('XRANGE', `^${src[t.GTLT]}\\s*${src[t.XRANGEPLAIN]}$`);
+	createToken('XRANGELOOSE', `^${src[t.GTLT]}\\s*${src[t.XRANGEPLAINLOOSE]}$`);
+	createToken('COERCE', `${'(^|[^\\d])' +
+	              '(\\d{1,'}${MAX_SAFE_COMPONENT_LENGTH}})` +
+	              `(?:\\.(\\d{1,${MAX_SAFE_COMPONENT_LENGTH}}))?` +
+	              `(?:\\.(\\d{1,${MAX_SAFE_COMPONENT_LENGTH}}))?` +
+	              `(?:$|[^\\d])`);
+	createToken('COERCERTL', src[t.COERCE], true);
+	createToken('LONETILDE', '(?:~>?)');
+	createToken('TILDETRIM', `(\\s*)${src[t.LONETILDE]}\\s+`, true);
+	exports.tildeTrimReplace = '$1~';
+	createToken('TILDE', `^${src[t.LONETILDE]}${src[t.XRANGEPLAIN]}$`);
+	createToken('TILDELOOSE', `^${src[t.LONETILDE]}${src[t.XRANGEPLAINLOOSE]}$`);
+	createToken('LONECARET', '(?:\\^)');
+	createToken('CARETTRIM', `(\\s*)${src[t.LONECARET]}\\s+`, true);
+	exports.caretTrimReplace = '$1^';
+	createToken('CARET', `^${src[t.LONECARET]}${src[t.XRANGEPLAIN]}$`);
+	createToken('CARETLOOSE', `^${src[t.LONECARET]}${src[t.XRANGEPLAINLOOSE]}$`);
+	createToken('COMPARATORLOOSE', `^${src[t.GTLT]}\\s*(${src[t.LOOSEPLAIN]})$|^$`);
+	createToken('COMPARATOR', `^${src[t.GTLT]}\\s*(${src[t.FULLPLAIN]})$|^$`);
+	createToken('COMPARATORTRIM', `(\\s*)${src[t.GTLT]
+	}\\s*(${src[t.LOOSEPLAIN]}|${src[t.XRANGEPLAIN]})`, true);
+	exports.comparatorTrimReplace = '$1$2$3';
+	createToken('HYPHENRANGE', `^\\s*(${src[t.XRANGEPLAIN]})` +
+	                   `\\s+-\\s+` +
+	                   `(${src[t.XRANGEPLAIN]})` +
+	                   `\\s*$`);
+	createToken('HYPHENRANGELOOSE', `^\\s*(${src[t.XRANGEPLAINLOOSE]})` +
+	                        `\\s+-\\s+` +
+	                        `(${src[t.XRANGEPLAINLOOSE]})` +
+	                        `\\s*$`);
+	createToken('STAR', '(<|>)?=?\\s*\\*');
+	createToken('GTE0', '^\\s*>=\\s*0\\.0\\.0\\s*$');
+	createToken('GTE0PRE', '^\\s*>=\\s*0\\.0\\.0-0\\s*$');
+} (re$2, re$2.exports));
 
 const opts = ['includePrerelease', 'loose', 'rtl'];
 const parseOptions$2 = options =>
   !options ? {}
   : typeof options !== 'object' ? { loose: true }
-  : opts.filter(k => options[k]).reduce((options, k) => {
-    options[k] = true;
-    return options
+  : opts.filter(k => options[k]).reduce((o, k) => {
+    o[k] = true;
+    return o
   }, {});
 var parseOptions_1 = parseOptions$2;
 
@@ -19438,7 +19405,7 @@ const compareIdentifiers$1 = (a, b) => {
 const rcompareIdentifiers = (a, b) => compareIdentifiers$1(b, a);
 var identifiers = {
   compareIdentifiers: compareIdentifiers$1,
-  rcompareIdentifiers
+  rcompareIdentifiers,
 };
 
 const debug = debug_1;
@@ -19446,7 +19413,7 @@ const { MAX_LENGTH: MAX_LENGTH$1, MAX_SAFE_INTEGER } = constants;
 const { re: re$1, t: t$1 } = re$2.exports;
 const parseOptions$1 = parseOptions_1;
 const { compareIdentifiers } = identifiers;
-class SemVer$2 {
+let SemVer$2 = class SemVer {
   constructor (version, options) {
     options = parseOptions$1(options);
     if (version instanceof SemVer$2) {
@@ -19652,7 +19619,7 @@ class SemVer$2 {
           }
         }
         if (identifier) {
-          if (this.prerelease[0] === identifier) {
+          if (compareIdentifiers(this.prerelease[0], identifier) === 0) {
             if (isNaN(this.prerelease[1])) {
               this.prerelease = [identifier, 0];
             }
@@ -19668,10 +19635,10 @@ class SemVer$2 {
     this.raw = this.version;
     return this
   }
-}
+};
 var semver = SemVer$2;
 
-const {MAX_LENGTH} = constants;
+const { MAX_LENGTH } = constants;
 const { re, t } = re$2.exports;
 const SemVer$1 = semver;
 const parseOptions = parseOptions_1;
@@ -20915,307 +20882,307 @@ function stripAnsi(string) {
 var eastasianwidth = {exports: {}};
 
 (function (module) {
-var eaw = {};
-{
-  module.exports = eaw;
-}
-eaw.eastAsianWidth = function(character) {
-  var x = character.charCodeAt(0);
-  var y = (character.length == 2) ? character.charCodeAt(1) : 0;
-  var codePoint = x;
-  if ((0xD800 <= x && x <= 0xDBFF) && (0xDC00 <= y && y <= 0xDFFF)) {
-    x &= 0x3FF;
-    y &= 0x3FF;
-    codePoint = (x << 10) | y;
-    codePoint += 0x10000;
-  }
-  if ((0x3000 == codePoint) ||
-      (0xFF01 <= codePoint && codePoint <= 0xFF60) ||
-      (0xFFE0 <= codePoint && codePoint <= 0xFFE6)) {
-    return 'F';
-  }
-  if ((0x20A9 == codePoint) ||
-      (0xFF61 <= codePoint && codePoint <= 0xFFBE) ||
-      (0xFFC2 <= codePoint && codePoint <= 0xFFC7) ||
-      (0xFFCA <= codePoint && codePoint <= 0xFFCF) ||
-      (0xFFD2 <= codePoint && codePoint <= 0xFFD7) ||
-      (0xFFDA <= codePoint && codePoint <= 0xFFDC) ||
-      (0xFFE8 <= codePoint && codePoint <= 0xFFEE)) {
-    return 'H';
-  }
-  if ((0x1100 <= codePoint && codePoint <= 0x115F) ||
-      (0x11A3 <= codePoint && codePoint <= 0x11A7) ||
-      (0x11FA <= codePoint && codePoint <= 0x11FF) ||
-      (0x2329 <= codePoint && codePoint <= 0x232A) ||
-      (0x2E80 <= codePoint && codePoint <= 0x2E99) ||
-      (0x2E9B <= codePoint && codePoint <= 0x2EF3) ||
-      (0x2F00 <= codePoint && codePoint <= 0x2FD5) ||
-      (0x2FF0 <= codePoint && codePoint <= 0x2FFB) ||
-      (0x3001 <= codePoint && codePoint <= 0x303E) ||
-      (0x3041 <= codePoint && codePoint <= 0x3096) ||
-      (0x3099 <= codePoint && codePoint <= 0x30FF) ||
-      (0x3105 <= codePoint && codePoint <= 0x312D) ||
-      (0x3131 <= codePoint && codePoint <= 0x318E) ||
-      (0x3190 <= codePoint && codePoint <= 0x31BA) ||
-      (0x31C0 <= codePoint && codePoint <= 0x31E3) ||
-      (0x31F0 <= codePoint && codePoint <= 0x321E) ||
-      (0x3220 <= codePoint && codePoint <= 0x3247) ||
-      (0x3250 <= codePoint && codePoint <= 0x32FE) ||
-      (0x3300 <= codePoint && codePoint <= 0x4DBF) ||
-      (0x4E00 <= codePoint && codePoint <= 0xA48C) ||
-      (0xA490 <= codePoint && codePoint <= 0xA4C6) ||
-      (0xA960 <= codePoint && codePoint <= 0xA97C) ||
-      (0xAC00 <= codePoint && codePoint <= 0xD7A3) ||
-      (0xD7B0 <= codePoint && codePoint <= 0xD7C6) ||
-      (0xD7CB <= codePoint && codePoint <= 0xD7FB) ||
-      (0xF900 <= codePoint && codePoint <= 0xFAFF) ||
-      (0xFE10 <= codePoint && codePoint <= 0xFE19) ||
-      (0xFE30 <= codePoint && codePoint <= 0xFE52) ||
-      (0xFE54 <= codePoint && codePoint <= 0xFE66) ||
-      (0xFE68 <= codePoint && codePoint <= 0xFE6B) ||
-      (0x1B000 <= codePoint && codePoint <= 0x1B001) ||
-      (0x1F200 <= codePoint && codePoint <= 0x1F202) ||
-      (0x1F210 <= codePoint && codePoint <= 0x1F23A) ||
-      (0x1F240 <= codePoint && codePoint <= 0x1F248) ||
-      (0x1F250 <= codePoint && codePoint <= 0x1F251) ||
-      (0x20000 <= codePoint && codePoint <= 0x2F73F) ||
-      (0x2B740 <= codePoint && codePoint <= 0x2FFFD) ||
-      (0x30000 <= codePoint && codePoint <= 0x3FFFD)) {
-    return 'W';
-  }
-  if ((0x0020 <= codePoint && codePoint <= 0x007E) ||
-      (0x00A2 <= codePoint && codePoint <= 0x00A3) ||
-      (0x00A5 <= codePoint && codePoint <= 0x00A6) ||
-      (0x00AC == codePoint) ||
-      (0x00AF == codePoint) ||
-      (0x27E6 <= codePoint && codePoint <= 0x27ED) ||
-      (0x2985 <= codePoint && codePoint <= 0x2986)) {
-    return 'Na';
-  }
-  if ((0x00A1 == codePoint) ||
-      (0x00A4 == codePoint) ||
-      (0x00A7 <= codePoint && codePoint <= 0x00A8) ||
-      (0x00AA == codePoint) ||
-      (0x00AD <= codePoint && codePoint <= 0x00AE) ||
-      (0x00B0 <= codePoint && codePoint <= 0x00B4) ||
-      (0x00B6 <= codePoint && codePoint <= 0x00BA) ||
-      (0x00BC <= codePoint && codePoint <= 0x00BF) ||
-      (0x00C6 == codePoint) ||
-      (0x00D0 == codePoint) ||
-      (0x00D7 <= codePoint && codePoint <= 0x00D8) ||
-      (0x00DE <= codePoint && codePoint <= 0x00E1) ||
-      (0x00E6 == codePoint) ||
-      (0x00E8 <= codePoint && codePoint <= 0x00EA) ||
-      (0x00EC <= codePoint && codePoint <= 0x00ED) ||
-      (0x00F0 == codePoint) ||
-      (0x00F2 <= codePoint && codePoint <= 0x00F3) ||
-      (0x00F7 <= codePoint && codePoint <= 0x00FA) ||
-      (0x00FC == codePoint) ||
-      (0x00FE == codePoint) ||
-      (0x0101 == codePoint) ||
-      (0x0111 == codePoint) ||
-      (0x0113 == codePoint) ||
-      (0x011B == codePoint) ||
-      (0x0126 <= codePoint && codePoint <= 0x0127) ||
-      (0x012B == codePoint) ||
-      (0x0131 <= codePoint && codePoint <= 0x0133) ||
-      (0x0138 == codePoint) ||
-      (0x013F <= codePoint && codePoint <= 0x0142) ||
-      (0x0144 == codePoint) ||
-      (0x0148 <= codePoint && codePoint <= 0x014B) ||
-      (0x014D == codePoint) ||
-      (0x0152 <= codePoint && codePoint <= 0x0153) ||
-      (0x0166 <= codePoint && codePoint <= 0x0167) ||
-      (0x016B == codePoint) ||
-      (0x01CE == codePoint) ||
-      (0x01D0 == codePoint) ||
-      (0x01D2 == codePoint) ||
-      (0x01D4 == codePoint) ||
-      (0x01D6 == codePoint) ||
-      (0x01D8 == codePoint) ||
-      (0x01DA == codePoint) ||
-      (0x01DC == codePoint) ||
-      (0x0251 == codePoint) ||
-      (0x0261 == codePoint) ||
-      (0x02C4 == codePoint) ||
-      (0x02C7 == codePoint) ||
-      (0x02C9 <= codePoint && codePoint <= 0x02CB) ||
-      (0x02CD == codePoint) ||
-      (0x02D0 == codePoint) ||
-      (0x02D8 <= codePoint && codePoint <= 0x02DB) ||
-      (0x02DD == codePoint) ||
-      (0x02DF == codePoint) ||
-      (0x0300 <= codePoint && codePoint <= 0x036F) ||
-      (0x0391 <= codePoint && codePoint <= 0x03A1) ||
-      (0x03A3 <= codePoint && codePoint <= 0x03A9) ||
-      (0x03B1 <= codePoint && codePoint <= 0x03C1) ||
-      (0x03C3 <= codePoint && codePoint <= 0x03C9) ||
-      (0x0401 == codePoint) ||
-      (0x0410 <= codePoint && codePoint <= 0x044F) ||
-      (0x0451 == codePoint) ||
-      (0x2010 == codePoint) ||
-      (0x2013 <= codePoint && codePoint <= 0x2016) ||
-      (0x2018 <= codePoint && codePoint <= 0x2019) ||
-      (0x201C <= codePoint && codePoint <= 0x201D) ||
-      (0x2020 <= codePoint && codePoint <= 0x2022) ||
-      (0x2024 <= codePoint && codePoint <= 0x2027) ||
-      (0x2030 == codePoint) ||
-      (0x2032 <= codePoint && codePoint <= 0x2033) ||
-      (0x2035 == codePoint) ||
-      (0x203B == codePoint) ||
-      (0x203E == codePoint) ||
-      (0x2074 == codePoint) ||
-      (0x207F == codePoint) ||
-      (0x2081 <= codePoint && codePoint <= 0x2084) ||
-      (0x20AC == codePoint) ||
-      (0x2103 == codePoint) ||
-      (0x2105 == codePoint) ||
-      (0x2109 == codePoint) ||
-      (0x2113 == codePoint) ||
-      (0x2116 == codePoint) ||
-      (0x2121 <= codePoint && codePoint <= 0x2122) ||
-      (0x2126 == codePoint) ||
-      (0x212B == codePoint) ||
-      (0x2153 <= codePoint && codePoint <= 0x2154) ||
-      (0x215B <= codePoint && codePoint <= 0x215E) ||
-      (0x2160 <= codePoint && codePoint <= 0x216B) ||
-      (0x2170 <= codePoint && codePoint <= 0x2179) ||
-      (0x2189 == codePoint) ||
-      (0x2190 <= codePoint && codePoint <= 0x2199) ||
-      (0x21B8 <= codePoint && codePoint <= 0x21B9) ||
-      (0x21D2 == codePoint) ||
-      (0x21D4 == codePoint) ||
-      (0x21E7 == codePoint) ||
-      (0x2200 == codePoint) ||
-      (0x2202 <= codePoint && codePoint <= 0x2203) ||
-      (0x2207 <= codePoint && codePoint <= 0x2208) ||
-      (0x220B == codePoint) ||
-      (0x220F == codePoint) ||
-      (0x2211 == codePoint) ||
-      (0x2215 == codePoint) ||
-      (0x221A == codePoint) ||
-      (0x221D <= codePoint && codePoint <= 0x2220) ||
-      (0x2223 == codePoint) ||
-      (0x2225 == codePoint) ||
-      (0x2227 <= codePoint && codePoint <= 0x222C) ||
-      (0x222E == codePoint) ||
-      (0x2234 <= codePoint && codePoint <= 0x2237) ||
-      (0x223C <= codePoint && codePoint <= 0x223D) ||
-      (0x2248 == codePoint) ||
-      (0x224C == codePoint) ||
-      (0x2252 == codePoint) ||
-      (0x2260 <= codePoint && codePoint <= 0x2261) ||
-      (0x2264 <= codePoint && codePoint <= 0x2267) ||
-      (0x226A <= codePoint && codePoint <= 0x226B) ||
-      (0x226E <= codePoint && codePoint <= 0x226F) ||
-      (0x2282 <= codePoint && codePoint <= 0x2283) ||
-      (0x2286 <= codePoint && codePoint <= 0x2287) ||
-      (0x2295 == codePoint) ||
-      (0x2299 == codePoint) ||
-      (0x22A5 == codePoint) ||
-      (0x22BF == codePoint) ||
-      (0x2312 == codePoint) ||
-      (0x2460 <= codePoint && codePoint <= 0x24E9) ||
-      (0x24EB <= codePoint && codePoint <= 0x254B) ||
-      (0x2550 <= codePoint && codePoint <= 0x2573) ||
-      (0x2580 <= codePoint && codePoint <= 0x258F) ||
-      (0x2592 <= codePoint && codePoint <= 0x2595) ||
-      (0x25A0 <= codePoint && codePoint <= 0x25A1) ||
-      (0x25A3 <= codePoint && codePoint <= 0x25A9) ||
-      (0x25B2 <= codePoint && codePoint <= 0x25B3) ||
-      (0x25B6 <= codePoint && codePoint <= 0x25B7) ||
-      (0x25BC <= codePoint && codePoint <= 0x25BD) ||
-      (0x25C0 <= codePoint && codePoint <= 0x25C1) ||
-      (0x25C6 <= codePoint && codePoint <= 0x25C8) ||
-      (0x25CB == codePoint) ||
-      (0x25CE <= codePoint && codePoint <= 0x25D1) ||
-      (0x25E2 <= codePoint && codePoint <= 0x25E5) ||
-      (0x25EF == codePoint) ||
-      (0x2605 <= codePoint && codePoint <= 0x2606) ||
-      (0x2609 == codePoint) ||
-      (0x260E <= codePoint && codePoint <= 0x260F) ||
-      (0x2614 <= codePoint && codePoint <= 0x2615) ||
-      (0x261C == codePoint) ||
-      (0x261E == codePoint) ||
-      (0x2640 == codePoint) ||
-      (0x2642 == codePoint) ||
-      (0x2660 <= codePoint && codePoint <= 0x2661) ||
-      (0x2663 <= codePoint && codePoint <= 0x2665) ||
-      (0x2667 <= codePoint && codePoint <= 0x266A) ||
-      (0x266C <= codePoint && codePoint <= 0x266D) ||
-      (0x266F == codePoint) ||
-      (0x269E <= codePoint && codePoint <= 0x269F) ||
-      (0x26BE <= codePoint && codePoint <= 0x26BF) ||
-      (0x26C4 <= codePoint && codePoint <= 0x26CD) ||
-      (0x26CF <= codePoint && codePoint <= 0x26E1) ||
-      (0x26E3 == codePoint) ||
-      (0x26E8 <= codePoint && codePoint <= 0x26FF) ||
-      (0x273D == codePoint) ||
-      (0x2757 == codePoint) ||
-      (0x2776 <= codePoint && codePoint <= 0x277F) ||
-      (0x2B55 <= codePoint && codePoint <= 0x2B59) ||
-      (0x3248 <= codePoint && codePoint <= 0x324F) ||
-      (0xE000 <= codePoint && codePoint <= 0xF8FF) ||
-      (0xFE00 <= codePoint && codePoint <= 0xFE0F) ||
-      (0xFFFD == codePoint) ||
-      (0x1F100 <= codePoint && codePoint <= 0x1F10A) ||
-      (0x1F110 <= codePoint && codePoint <= 0x1F12D) ||
-      (0x1F130 <= codePoint && codePoint <= 0x1F169) ||
-      (0x1F170 <= codePoint && codePoint <= 0x1F19A) ||
-      (0xE0100 <= codePoint && codePoint <= 0xE01EF) ||
-      (0xF0000 <= codePoint && codePoint <= 0xFFFFD) ||
-      (0x100000 <= codePoint && codePoint <= 0x10FFFD)) {
-    return 'A';
-  }
-  return 'N';
-};
-eaw.characterLength = function(character) {
-  var code = this.eastAsianWidth(character);
-  if (code == 'F' || code == 'W' || code == 'A') {
-    return 2;
-  } else {
-    return 1;
-  }
-};
-function stringToArray(string) {
-  return string.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g) || [];
-}
-eaw.length = function(string) {
-  var characters = stringToArray(string);
-  var len = 0;
-  for (var i = 0; i < characters.length; i++) {
-    len = len + this.characterLength(characters[i]);
-  }
-  return len;
-};
-eaw.slice = function(text, start, end) {
-  textLen = eaw.length(text);
-  start = start ? start : 0;
-  end = end ? end : 1;
-  if (start < 0) {
-      start = textLen + start;
-  }
-  if (end < 0) {
-      end = textLen + end;
-  }
-  var result = '';
-  var eawLen = 0;
-  var chars = stringToArray(text);
-  for (var i = 0; i < chars.length; i++) {
-    var char = chars[i];
-    var charLen = eaw.length(char);
-    if (eawLen >= start - (charLen == 2 ? 1 : 0)) {
-        if (eawLen + charLen <= end) {
-            result += char;
-        } else {
-            break;
-        }
-    }
-    eawLen += charLen;
-  }
-  return result;
-};
-}(eastasianwidth));
+	var eaw = {};
+	{
+	  module.exports = eaw;
+	}
+	eaw.eastAsianWidth = function(character) {
+	  var x = character.charCodeAt(0);
+	  var y = (character.length == 2) ? character.charCodeAt(1) : 0;
+	  var codePoint = x;
+	  if ((0xD800 <= x && x <= 0xDBFF) && (0xDC00 <= y && y <= 0xDFFF)) {
+	    x &= 0x3FF;
+	    y &= 0x3FF;
+	    codePoint = (x << 10) | y;
+	    codePoint += 0x10000;
+	  }
+	  if ((0x3000 == codePoint) ||
+	      (0xFF01 <= codePoint && codePoint <= 0xFF60) ||
+	      (0xFFE0 <= codePoint && codePoint <= 0xFFE6)) {
+	    return 'F';
+	  }
+	  if ((0x20A9 == codePoint) ||
+	      (0xFF61 <= codePoint && codePoint <= 0xFFBE) ||
+	      (0xFFC2 <= codePoint && codePoint <= 0xFFC7) ||
+	      (0xFFCA <= codePoint && codePoint <= 0xFFCF) ||
+	      (0xFFD2 <= codePoint && codePoint <= 0xFFD7) ||
+	      (0xFFDA <= codePoint && codePoint <= 0xFFDC) ||
+	      (0xFFE8 <= codePoint && codePoint <= 0xFFEE)) {
+	    return 'H';
+	  }
+	  if ((0x1100 <= codePoint && codePoint <= 0x115F) ||
+	      (0x11A3 <= codePoint && codePoint <= 0x11A7) ||
+	      (0x11FA <= codePoint && codePoint <= 0x11FF) ||
+	      (0x2329 <= codePoint && codePoint <= 0x232A) ||
+	      (0x2E80 <= codePoint && codePoint <= 0x2E99) ||
+	      (0x2E9B <= codePoint && codePoint <= 0x2EF3) ||
+	      (0x2F00 <= codePoint && codePoint <= 0x2FD5) ||
+	      (0x2FF0 <= codePoint && codePoint <= 0x2FFB) ||
+	      (0x3001 <= codePoint && codePoint <= 0x303E) ||
+	      (0x3041 <= codePoint && codePoint <= 0x3096) ||
+	      (0x3099 <= codePoint && codePoint <= 0x30FF) ||
+	      (0x3105 <= codePoint && codePoint <= 0x312D) ||
+	      (0x3131 <= codePoint && codePoint <= 0x318E) ||
+	      (0x3190 <= codePoint && codePoint <= 0x31BA) ||
+	      (0x31C0 <= codePoint && codePoint <= 0x31E3) ||
+	      (0x31F0 <= codePoint && codePoint <= 0x321E) ||
+	      (0x3220 <= codePoint && codePoint <= 0x3247) ||
+	      (0x3250 <= codePoint && codePoint <= 0x32FE) ||
+	      (0x3300 <= codePoint && codePoint <= 0x4DBF) ||
+	      (0x4E00 <= codePoint && codePoint <= 0xA48C) ||
+	      (0xA490 <= codePoint && codePoint <= 0xA4C6) ||
+	      (0xA960 <= codePoint && codePoint <= 0xA97C) ||
+	      (0xAC00 <= codePoint && codePoint <= 0xD7A3) ||
+	      (0xD7B0 <= codePoint && codePoint <= 0xD7C6) ||
+	      (0xD7CB <= codePoint && codePoint <= 0xD7FB) ||
+	      (0xF900 <= codePoint && codePoint <= 0xFAFF) ||
+	      (0xFE10 <= codePoint && codePoint <= 0xFE19) ||
+	      (0xFE30 <= codePoint && codePoint <= 0xFE52) ||
+	      (0xFE54 <= codePoint && codePoint <= 0xFE66) ||
+	      (0xFE68 <= codePoint && codePoint <= 0xFE6B) ||
+	      (0x1B000 <= codePoint && codePoint <= 0x1B001) ||
+	      (0x1F200 <= codePoint && codePoint <= 0x1F202) ||
+	      (0x1F210 <= codePoint && codePoint <= 0x1F23A) ||
+	      (0x1F240 <= codePoint && codePoint <= 0x1F248) ||
+	      (0x1F250 <= codePoint && codePoint <= 0x1F251) ||
+	      (0x20000 <= codePoint && codePoint <= 0x2F73F) ||
+	      (0x2B740 <= codePoint && codePoint <= 0x2FFFD) ||
+	      (0x30000 <= codePoint && codePoint <= 0x3FFFD)) {
+	    return 'W';
+	  }
+	  if ((0x0020 <= codePoint && codePoint <= 0x007E) ||
+	      (0x00A2 <= codePoint && codePoint <= 0x00A3) ||
+	      (0x00A5 <= codePoint && codePoint <= 0x00A6) ||
+	      (0x00AC == codePoint) ||
+	      (0x00AF == codePoint) ||
+	      (0x27E6 <= codePoint && codePoint <= 0x27ED) ||
+	      (0x2985 <= codePoint && codePoint <= 0x2986)) {
+	    return 'Na';
+	  }
+	  if ((0x00A1 == codePoint) ||
+	      (0x00A4 == codePoint) ||
+	      (0x00A7 <= codePoint && codePoint <= 0x00A8) ||
+	      (0x00AA == codePoint) ||
+	      (0x00AD <= codePoint && codePoint <= 0x00AE) ||
+	      (0x00B0 <= codePoint && codePoint <= 0x00B4) ||
+	      (0x00B6 <= codePoint && codePoint <= 0x00BA) ||
+	      (0x00BC <= codePoint && codePoint <= 0x00BF) ||
+	      (0x00C6 == codePoint) ||
+	      (0x00D0 == codePoint) ||
+	      (0x00D7 <= codePoint && codePoint <= 0x00D8) ||
+	      (0x00DE <= codePoint && codePoint <= 0x00E1) ||
+	      (0x00E6 == codePoint) ||
+	      (0x00E8 <= codePoint && codePoint <= 0x00EA) ||
+	      (0x00EC <= codePoint && codePoint <= 0x00ED) ||
+	      (0x00F0 == codePoint) ||
+	      (0x00F2 <= codePoint && codePoint <= 0x00F3) ||
+	      (0x00F7 <= codePoint && codePoint <= 0x00FA) ||
+	      (0x00FC == codePoint) ||
+	      (0x00FE == codePoint) ||
+	      (0x0101 == codePoint) ||
+	      (0x0111 == codePoint) ||
+	      (0x0113 == codePoint) ||
+	      (0x011B == codePoint) ||
+	      (0x0126 <= codePoint && codePoint <= 0x0127) ||
+	      (0x012B == codePoint) ||
+	      (0x0131 <= codePoint && codePoint <= 0x0133) ||
+	      (0x0138 == codePoint) ||
+	      (0x013F <= codePoint && codePoint <= 0x0142) ||
+	      (0x0144 == codePoint) ||
+	      (0x0148 <= codePoint && codePoint <= 0x014B) ||
+	      (0x014D == codePoint) ||
+	      (0x0152 <= codePoint && codePoint <= 0x0153) ||
+	      (0x0166 <= codePoint && codePoint <= 0x0167) ||
+	      (0x016B == codePoint) ||
+	      (0x01CE == codePoint) ||
+	      (0x01D0 == codePoint) ||
+	      (0x01D2 == codePoint) ||
+	      (0x01D4 == codePoint) ||
+	      (0x01D6 == codePoint) ||
+	      (0x01D8 == codePoint) ||
+	      (0x01DA == codePoint) ||
+	      (0x01DC == codePoint) ||
+	      (0x0251 == codePoint) ||
+	      (0x0261 == codePoint) ||
+	      (0x02C4 == codePoint) ||
+	      (0x02C7 == codePoint) ||
+	      (0x02C9 <= codePoint && codePoint <= 0x02CB) ||
+	      (0x02CD == codePoint) ||
+	      (0x02D0 == codePoint) ||
+	      (0x02D8 <= codePoint && codePoint <= 0x02DB) ||
+	      (0x02DD == codePoint) ||
+	      (0x02DF == codePoint) ||
+	      (0x0300 <= codePoint && codePoint <= 0x036F) ||
+	      (0x0391 <= codePoint && codePoint <= 0x03A1) ||
+	      (0x03A3 <= codePoint && codePoint <= 0x03A9) ||
+	      (0x03B1 <= codePoint && codePoint <= 0x03C1) ||
+	      (0x03C3 <= codePoint && codePoint <= 0x03C9) ||
+	      (0x0401 == codePoint) ||
+	      (0x0410 <= codePoint && codePoint <= 0x044F) ||
+	      (0x0451 == codePoint) ||
+	      (0x2010 == codePoint) ||
+	      (0x2013 <= codePoint && codePoint <= 0x2016) ||
+	      (0x2018 <= codePoint && codePoint <= 0x2019) ||
+	      (0x201C <= codePoint && codePoint <= 0x201D) ||
+	      (0x2020 <= codePoint && codePoint <= 0x2022) ||
+	      (0x2024 <= codePoint && codePoint <= 0x2027) ||
+	      (0x2030 == codePoint) ||
+	      (0x2032 <= codePoint && codePoint <= 0x2033) ||
+	      (0x2035 == codePoint) ||
+	      (0x203B == codePoint) ||
+	      (0x203E == codePoint) ||
+	      (0x2074 == codePoint) ||
+	      (0x207F == codePoint) ||
+	      (0x2081 <= codePoint && codePoint <= 0x2084) ||
+	      (0x20AC == codePoint) ||
+	      (0x2103 == codePoint) ||
+	      (0x2105 == codePoint) ||
+	      (0x2109 == codePoint) ||
+	      (0x2113 == codePoint) ||
+	      (0x2116 == codePoint) ||
+	      (0x2121 <= codePoint && codePoint <= 0x2122) ||
+	      (0x2126 == codePoint) ||
+	      (0x212B == codePoint) ||
+	      (0x2153 <= codePoint && codePoint <= 0x2154) ||
+	      (0x215B <= codePoint && codePoint <= 0x215E) ||
+	      (0x2160 <= codePoint && codePoint <= 0x216B) ||
+	      (0x2170 <= codePoint && codePoint <= 0x2179) ||
+	      (0x2189 == codePoint) ||
+	      (0x2190 <= codePoint && codePoint <= 0x2199) ||
+	      (0x21B8 <= codePoint && codePoint <= 0x21B9) ||
+	      (0x21D2 == codePoint) ||
+	      (0x21D4 == codePoint) ||
+	      (0x21E7 == codePoint) ||
+	      (0x2200 == codePoint) ||
+	      (0x2202 <= codePoint && codePoint <= 0x2203) ||
+	      (0x2207 <= codePoint && codePoint <= 0x2208) ||
+	      (0x220B == codePoint) ||
+	      (0x220F == codePoint) ||
+	      (0x2211 == codePoint) ||
+	      (0x2215 == codePoint) ||
+	      (0x221A == codePoint) ||
+	      (0x221D <= codePoint && codePoint <= 0x2220) ||
+	      (0x2223 == codePoint) ||
+	      (0x2225 == codePoint) ||
+	      (0x2227 <= codePoint && codePoint <= 0x222C) ||
+	      (0x222E == codePoint) ||
+	      (0x2234 <= codePoint && codePoint <= 0x2237) ||
+	      (0x223C <= codePoint && codePoint <= 0x223D) ||
+	      (0x2248 == codePoint) ||
+	      (0x224C == codePoint) ||
+	      (0x2252 == codePoint) ||
+	      (0x2260 <= codePoint && codePoint <= 0x2261) ||
+	      (0x2264 <= codePoint && codePoint <= 0x2267) ||
+	      (0x226A <= codePoint && codePoint <= 0x226B) ||
+	      (0x226E <= codePoint && codePoint <= 0x226F) ||
+	      (0x2282 <= codePoint && codePoint <= 0x2283) ||
+	      (0x2286 <= codePoint && codePoint <= 0x2287) ||
+	      (0x2295 == codePoint) ||
+	      (0x2299 == codePoint) ||
+	      (0x22A5 == codePoint) ||
+	      (0x22BF == codePoint) ||
+	      (0x2312 == codePoint) ||
+	      (0x2460 <= codePoint && codePoint <= 0x24E9) ||
+	      (0x24EB <= codePoint && codePoint <= 0x254B) ||
+	      (0x2550 <= codePoint && codePoint <= 0x2573) ||
+	      (0x2580 <= codePoint && codePoint <= 0x258F) ||
+	      (0x2592 <= codePoint && codePoint <= 0x2595) ||
+	      (0x25A0 <= codePoint && codePoint <= 0x25A1) ||
+	      (0x25A3 <= codePoint && codePoint <= 0x25A9) ||
+	      (0x25B2 <= codePoint && codePoint <= 0x25B3) ||
+	      (0x25B6 <= codePoint && codePoint <= 0x25B7) ||
+	      (0x25BC <= codePoint && codePoint <= 0x25BD) ||
+	      (0x25C0 <= codePoint && codePoint <= 0x25C1) ||
+	      (0x25C6 <= codePoint && codePoint <= 0x25C8) ||
+	      (0x25CB == codePoint) ||
+	      (0x25CE <= codePoint && codePoint <= 0x25D1) ||
+	      (0x25E2 <= codePoint && codePoint <= 0x25E5) ||
+	      (0x25EF == codePoint) ||
+	      (0x2605 <= codePoint && codePoint <= 0x2606) ||
+	      (0x2609 == codePoint) ||
+	      (0x260E <= codePoint && codePoint <= 0x260F) ||
+	      (0x2614 <= codePoint && codePoint <= 0x2615) ||
+	      (0x261C == codePoint) ||
+	      (0x261E == codePoint) ||
+	      (0x2640 == codePoint) ||
+	      (0x2642 == codePoint) ||
+	      (0x2660 <= codePoint && codePoint <= 0x2661) ||
+	      (0x2663 <= codePoint && codePoint <= 0x2665) ||
+	      (0x2667 <= codePoint && codePoint <= 0x266A) ||
+	      (0x266C <= codePoint && codePoint <= 0x266D) ||
+	      (0x266F == codePoint) ||
+	      (0x269E <= codePoint && codePoint <= 0x269F) ||
+	      (0x26BE <= codePoint && codePoint <= 0x26BF) ||
+	      (0x26C4 <= codePoint && codePoint <= 0x26CD) ||
+	      (0x26CF <= codePoint && codePoint <= 0x26E1) ||
+	      (0x26E3 == codePoint) ||
+	      (0x26E8 <= codePoint && codePoint <= 0x26FF) ||
+	      (0x273D == codePoint) ||
+	      (0x2757 == codePoint) ||
+	      (0x2776 <= codePoint && codePoint <= 0x277F) ||
+	      (0x2B55 <= codePoint && codePoint <= 0x2B59) ||
+	      (0x3248 <= codePoint && codePoint <= 0x324F) ||
+	      (0xE000 <= codePoint && codePoint <= 0xF8FF) ||
+	      (0xFE00 <= codePoint && codePoint <= 0xFE0F) ||
+	      (0xFFFD == codePoint) ||
+	      (0x1F100 <= codePoint && codePoint <= 0x1F10A) ||
+	      (0x1F110 <= codePoint && codePoint <= 0x1F12D) ||
+	      (0x1F130 <= codePoint && codePoint <= 0x1F169) ||
+	      (0x1F170 <= codePoint && codePoint <= 0x1F19A) ||
+	      (0xE0100 <= codePoint && codePoint <= 0xE01EF) ||
+	      (0xF0000 <= codePoint && codePoint <= 0xFFFFD) ||
+	      (0x100000 <= codePoint && codePoint <= 0x10FFFD)) {
+	    return 'A';
+	  }
+	  return 'N';
+	};
+	eaw.characterLength = function(character) {
+	  var code = this.eastAsianWidth(character);
+	  if (code == 'F' || code == 'W' || code == 'A') {
+	    return 2;
+	  } else {
+	    return 1;
+	  }
+	};
+	function stringToArray(string) {
+	  return string.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g) || [];
+	}
+	eaw.length = function(string) {
+	  var characters = stringToArray(string);
+	  var len = 0;
+	  for (var i = 0; i < characters.length; i++) {
+	    len = len + this.characterLength(characters[i]);
+	  }
+	  return len;
+	};
+	eaw.slice = function(text, start, end) {
+	  textLen = eaw.length(text);
+	  start = start ? start : 0;
+	  end = end ? end : 1;
+	  if (start < 0) {
+	      start = textLen + start;
+	  }
+	  if (end < 0) {
+	      end = textLen + end;
+	  }
+	  var result = '';
+	  var eawLen = 0;
+	  var chars = stringToArray(text);
+	  for (var i = 0; i < chars.length; i++) {
+	    var char = chars[i];
+	    var charLen = eaw.length(char);
+	    if (eawLen >= start - (charLen == 2 ? 1 : 0)) {
+	        if (eawLen + charLen <= end) {
+	            result += char;
+	        } else {
+	            break;
+	        }
+	    }
+	    eawLen += charLen;
+	  }
+	  return result;
+	};
+} (eastasianwidth));
 var eastAsianWidth = eastasianwidth.exports;
 
 var emojiRegex = function () {
@@ -21446,11 +21413,11 @@ const supportsColor = {
 
 const color = supportsColor.stderr.hasBasic;
 
+const platform = process$1.platform;
+
 const own = {}.hasOwnProperty;
 const chars =
-  process.platform === 'win32'
-    ? {error: '×', warning: '‼'}
-    : {error: '✖', warning: '⚠'};
+  platform === 'win32' ? {error: '×', warning: '‼'} : {error: '✖', warning: '⚠'};
 const labels = {
   true: 'error',
   false: 'warning',
