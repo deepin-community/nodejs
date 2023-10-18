@@ -5,10 +5,39 @@
     {
       "textRaw": "Web Crypto API",
       "name": "web_crypto_api",
+      "meta": {
+        "changes": [
+          {
+            "version": "v18.4.0",
+            "pr-url": "https://github.com/nodejs/node/pull/43310",
+            "description": "Removed proprietary `'node.keyObject'` import/export format."
+          },
+          {
+            "version": "v18.4.0",
+            "pr-url": "https://github.com/nodejs/node/pull/43310",
+            "description": "Removed proprietary `'NODE-DSA'`, `'NODE-DH'`, and `'NODE-SCRYPT'` algorithms."
+          },
+          {
+            "version": "v18.4.0",
+            "pr-url": "https://github.com/nodejs/node/pull/42507",
+            "description": "Added `'Ed25519'`, `'Ed448'`, `'X25519'`, and `'X448'` algorithms."
+          },
+          {
+            "version": "v18.4.0",
+            "pr-url": "https://github.com/nodejs/node/pull/42507",
+            "description": "Removed proprietary `'NODE-ED25519'` and `'NODE-ED448'` algorithms."
+          },
+          {
+            "version": "v18.4.0",
+            "pr-url": "https://github.com/nodejs/node/pull/42507",
+            "description": "Removed proprietary `'NODE-X25519'` and `'NODE-X448'` named curves from the `'ECDH'` algorithm."
+          }
+        ]
+      },
       "introduced_in": "v15.0.0",
       "stability": 1,
       "stabilityText": "Experimental",
-      "desc": "<p>Node.js provides an implementation of the standard <a href=\"https://www.w3.org/TR/WebCryptoAPI/\">Web Crypto API</a>.</p>\n<p>Use <code>require('crypto').webcrypto</code> to access this module.</p>\n<pre><code class=\"language-js\">const { subtle } = require('crypto').webcrypto;\n\n(async function() {\n\n  const key = await subtle.generateKey({\n    name: 'HMAC',\n    hash: 'SHA-256',\n    length: 256\n  }, true, ['sign', 'verify']);\n\n  const enc = new TextEncoder();\n  const message = enc.encode('I love cupcakes');\n\n  const digest = await subtle.sign({\n    name: 'HMAC'\n  }, key, message);\n\n})();\n</code></pre>\n<h2>Examples</h2>",
+      "desc": "<p>Node.js provides an implementation of the standard <a href=\"https://www.w3.org/TR/WebCryptoAPI/\">Web Crypto API</a>.</p>\n<p>Use <code>require('node:crypto').webcrypto</code> to access this module.</p>\n<pre><code class=\"language-js\">const { subtle } = require('node:crypto').webcrypto;\n\n(async function() {\n\n  const key = await subtle.generateKey({\n    name: 'HMAC',\n    hash: 'SHA-256',\n    length: 256,\n  }, true, ['sign', 'verify']);\n\n  const enc = new TextEncoder();\n  const message = enc.encode('I love cupcakes');\n\n  const digest = await subtle.sign({\n    name: 'HMAC',\n  }, key, message);\n\n})();\n</code></pre>\n<h2>Examples</h2>",
       "modules": [
         {
           "textRaw": "Generating keys",
@@ -18,35 +47,37 @@
             {
               "textRaw": "AES keys",
               "name": "aes_keys",
-              "desc": "<pre><code class=\"language-js\">const { subtle } = require('crypto').webcrypto;\n\nasync function generateAesKey(length = 256) {\n  const key = await subtle.generateKey({\n    name: 'AES-CBC',\n    length\n  }, true, ['encrypt', 'decrypt']);\n\n  return key;\n}\n</code></pre>",
+              "desc": "<pre><code class=\"language-js\">const { subtle } = require('node:crypto').webcrypto;\n\nasync function generateAesKey(length = 256) {\n  const key = await subtle.generateKey({\n    name: 'AES-CBC',\n    length,\n  }, true, ['encrypt', 'decrypt']);\n\n  return key;\n}\n</code></pre>",
               "type": "module",
               "displayName": "AES keys"
             },
             {
               "textRaw": "ECDSA key pairs",
               "name": "ecdsa_key_pairs",
-              "desc": "<pre><code class=\"language-js\">const { subtle } = require('crypto').webcrypto;\n\nasync function generateEcKey(namedCurve = 'P-521') {\n  const {\n    publicKey,\n    privateKey\n  } = await subtle.generateKey({\n    name: 'ECDSA',\n    namedCurve,\n  }, true, ['sign', 'verify']);\n\n  return { publicKey, privateKey };\n}\n</code></pre>",
+              "desc": "<pre><code class=\"language-js\">const { subtle } = require('node:crypto').webcrypto;\n\nasync function generateEcKey(namedCurve = 'P-521') {\n  const {\n    publicKey,\n    privateKey,\n  } = await subtle.generateKey({\n    name: 'ECDSA',\n    namedCurve,\n  }, true, ['sign', 'verify']);\n\n  return { publicKey, privateKey };\n}\n</code></pre>",
               "type": "module",
               "displayName": "ECDSA key pairs"
             },
             {
-              "textRaw": "ED25519/ED448/X25519/X448 key pairs",
+              "textRaw": "Ed25519/Ed448/X25519/X448 key pairs",
               "name": "ed25519/ed448/x25519/x448_key_pairs",
-              "desc": "<pre><code class=\"language-js\">const { subtle } = require('crypto').webcrypto;\n\nasync function generateEd25519Key() {\n  return subtle.generateKey({\n    name: 'NODE-ED25519',\n    namedCurve: 'NODE-ED25519',\n  }, true, ['sign', 'verify']);\n}\n\nasync function generateX25519Key() {\n  return subtle.generateKey({\n    name: 'ECDH',\n    namedCurve: 'NODE-X25519',\n  }, true, ['deriveKey']);\n}\n</code></pre>",
+              "stability": 1,
+              "stabilityText": "Experimental",
+              "desc": "<pre><code class=\"language-js\">const { subtle } = require('node:crypto').webcrypto;\n\nasync function generateEd25519Key() {\n  return subtle.generateKey({\n    name: 'Ed25519',\n  }, true, ['sign', 'verify']);\n}\n\nasync function generateX25519Key() {\n  return subtle.generateKey({\n    name: 'X25519',\n  }, true, ['deriveKey']);\n}\n</code></pre>",
               "type": "module",
-              "displayName": "ED25519/ED448/X25519/X448 key pairs"
+              "displayName": "Ed25519/Ed448/X25519/X448 key pairs"
             },
             {
               "textRaw": "HMAC keys",
               "name": "hmac_keys",
-              "desc": "<pre><code class=\"language-js\">const { subtle } = require('crypto').webcrypto;\n\nasync function generateHmacKey(hash = 'SHA-256') {\n  const key = await subtle.generateKey({\n    name: 'HMAC',\n    hash\n  }, true, ['sign', 'verify']);\n\n  return key;\n}\n</code></pre>",
+              "desc": "<pre><code class=\"language-js\">const { subtle } = require('node:crypto').webcrypto;\n\nasync function generateHmacKey(hash = 'SHA-256') {\n  const key = await subtle.generateKey({\n    name: 'HMAC',\n    hash,\n  }, true, ['sign', 'verify']);\n\n  return key;\n}\n</code></pre>",
               "type": "module",
               "displayName": "HMAC keys"
             },
             {
               "textRaw": "RSA key pairs",
               "name": "rsa_key_pairs",
-              "desc": "<pre><code class=\"language-js\">const { subtle } = require('crypto').webcrypto;\nconst publicExponent = new Uint8Array([1, 0, 1]);\n\nasync function generateRsaKey(modulusLength = 2048, hash = 'SHA-256') {\n  const {\n    publicKey,\n    privateKey\n  } = await subtle.generateKey({\n    name: 'RSASSA-PKCS1-v1_5',\n    modulusLength,\n    publicExponent,\n    hash,\n  }, true, ['sign', 'verify']);\n\n  return { publicKey, privateKey };\n}\n</code></pre>",
+              "desc": "<pre><code class=\"language-js\">const { subtle } = require('node:crypto').webcrypto;\nconst publicExponent = new Uint8Array([1, 0, 1]);\n\nasync function generateRsaKey(modulusLength = 2048, hash = 'SHA-256') {\n  const {\n    publicKey,\n    privateKey,\n  } = await subtle.generateKey({\n    name: 'RSASSA-PKCS1-v1_5',\n    modulusLength,\n    publicExponent,\n    hash,\n  }, true, ['sign', 'verify']);\n\n  return { publicKey, privateKey };\n}\n</code></pre>",
               "type": "module",
               "displayName": "RSA key pairs"
             }
@@ -57,49 +88,49 @@
         {
           "textRaw": "Encryption and decryption",
           "name": "encryption_and_decryption",
-          "desc": "<pre><code class=\"language-js\">const crypto = require('crypto').webcrypto;\n\nasync function aesEncrypt(plaintext) {\n  const ec = new TextEncoder();\n  const key = await generateAesKey();\n  const iv = crypto.getRandomValues(new Uint8Array(16));\n\n  const ciphertext = await crypto.subtle.encrypt({\n    name: 'AES-CBC',\n    iv,\n  }, key, ec.encode(plaintext));\n\n  return {\n    key,\n    iv,\n    ciphertext\n  };\n}\n\nasync function aesDecrypt(ciphertext, key, iv) {\n  const dec = new TextDecoder();\n  const plaintext = await crypto.subtle.decrypt({\n    name: 'AES-CBC',\n    iv,\n  }, key, ciphertext);\n\n  return dec.decode(plaintext);\n}\n</code></pre>",
+          "desc": "<pre><code class=\"language-js\">const crypto = require('node:crypto').webcrypto;\n\nasync function aesEncrypt(plaintext) {\n  const ec = new TextEncoder();\n  const key = await generateAesKey();\n  const iv = crypto.getRandomValues(new Uint8Array(16));\n\n  const ciphertext = await crypto.subtle.encrypt({\n    name: 'AES-CBC',\n    iv,\n  }, key, ec.encode(plaintext));\n\n  return {\n    key,\n    iv,\n    ciphertext,\n  };\n}\n\nasync function aesDecrypt(ciphertext, key, iv) {\n  const dec = new TextDecoder();\n  const plaintext = await crypto.subtle.decrypt({\n    name: 'AES-CBC',\n    iv,\n  }, key, ciphertext);\n\n  return dec.decode(plaintext);\n}\n</code></pre>",
           "type": "module",
           "displayName": "Encryption and decryption"
         },
         {
           "textRaw": "Exporting and importing keys",
           "name": "exporting_and_importing_keys",
-          "desc": "<pre><code class=\"language-js\">const { subtle } = require('crypto').webcrypto;\n\nasync function generateAndExportHmacKey(format = 'jwk', hash = 'SHA-512') {\n  const key = await subtle.generateKey({\n    name: 'HMAC',\n    hash\n  }, true, ['sign', 'verify']);\n\n  return subtle.exportKey(format, key);\n}\n\nasync function importHmacKey(keyData, format = 'jwk', hash = 'SHA-512') {\n  const key = await subtle.importKey(format, keyData, {\n    name: 'HMAC',\n    hash\n  }, true, ['sign', 'verify']);\n\n  return key;\n}\n</code></pre>",
+          "desc": "<pre><code class=\"language-js\">const { subtle } = require('node:crypto').webcrypto;\n\nasync function generateAndExportHmacKey(format = 'jwk', hash = 'SHA-512') {\n  const key = await subtle.generateKey({\n    name: 'HMAC',\n    hash,\n  }, true, ['sign', 'verify']);\n\n  return subtle.exportKey(format, key);\n}\n\nasync function importHmacKey(keyData, format = 'jwk', hash = 'SHA-512') {\n  const key = await subtle.importKey(format, keyData, {\n    name: 'HMAC',\n    hash,\n  }, true, ['sign', 'verify']);\n\n  return key;\n}\n</code></pre>",
           "type": "module",
           "displayName": "Exporting and importing keys"
         },
         {
           "textRaw": "Wrapping and unwrapping keys",
           "name": "wrapping_and_unwrapping_keys",
-          "desc": "<pre><code class=\"language-js\">const { subtle } = require('crypto').webcrypto;\n\nasync function generateAndWrapHmacKey(format = 'jwk', hash = 'SHA-512') {\n  const [\n    key,\n    wrappingKey,\n  ] = await Promise.all([\n    subtle.generateKey({\n      name: 'HMAC', hash\n    }, true, ['sign', 'verify']),\n    subtle.generateKey({\n      name: 'AES-KW',\n      length: 256\n    }, true, ['wrapKey', 'unwrapKey']),\n  ]);\n\n  const wrappedKey = await subtle.wrapKey(format, key, wrappingKey, 'AES-KW');\n\n  return wrappedKey;\n}\n\nasync function unwrapHmacKey(\n  wrappedKey,\n  wrappingKey,\n  format = 'jwk',\n  hash = 'SHA-512') {\n\n  const key = await subtle.unwrapKey(\n    format,\n    wrappedKey,\n    unwrappingKey,\n    'AES-KW',\n    { name: 'HMAC', hash },\n    true,\n    ['sign', 'verify']);\n\n  return key;\n}\n</code></pre>",
+          "desc": "<pre><code class=\"language-js\">const { subtle } = require('node:crypto').webcrypto;\n\nasync function generateAndWrapHmacKey(format = 'jwk', hash = 'SHA-512') {\n  const [\n    key,\n    wrappingKey,\n  ] = await Promise.all([\n    subtle.generateKey({\n      name: 'HMAC', hash,\n    }, true, ['sign', 'verify']),\n    subtle.generateKey({\n      name: 'AES-KW',\n      length: 256,\n    }, true, ['wrapKey', 'unwrapKey']),\n  ]);\n\n  const wrappedKey = await subtle.wrapKey(format, key, wrappingKey, 'AES-KW');\n\n  return { wrappedKey, wrappingKey };\n}\n\nasync function unwrapHmacKey(\n  wrappedKey,\n  wrappingKey,\n  format = 'jwk',\n  hash = 'SHA-512') {\n\n  const key = await subtle.unwrapKey(\n    format,\n    wrappedKey,\n    wrappingKey,\n    'AES-KW',\n    { name: 'HMAC', hash },\n    true,\n    ['sign', 'verify']);\n\n  return key;\n}\n</code></pre>",
           "type": "module",
           "displayName": "Wrapping and unwrapping keys"
         },
         {
           "textRaw": "Sign and verify",
           "name": "sign_and_verify",
-          "desc": "<pre><code class=\"language-js\">const { subtle } = require('crypto').webcrypto;\n\nasync function sign(key, data) {\n  const ec = new TextEncoder();\n  const signature =\n    await subtle.sign('RSASSA-PKCS1-v1_5', key, ec.encode(data));\n  return signature;\n}\n\nasync function verify(key, signature, data) {\n  const ec = new TextEncoder();\n  const verified =\n    await subtle.verify(\n      'RSASSA-PKCS1-v1_5',\n      key,\n      signature,\n      ec.encode(data));\n  return verified;\n}\n</code></pre>",
+          "desc": "<pre><code class=\"language-js\">const { subtle } = require('node:crypto').webcrypto;\n\nasync function sign(key, data) {\n  const ec = new TextEncoder();\n  const signature =\n    await subtle.sign('RSASSA-PKCS1-v1_5', key, ec.encode(data));\n  return signature;\n}\n\nasync function verify(key, signature, data) {\n  const ec = new TextEncoder();\n  const verified =\n    await subtle.verify(\n      'RSASSA-PKCS1-v1_5',\n      key,\n      signature,\n      ec.encode(data));\n  return verified;\n}\n</code></pre>",
           "type": "module",
           "displayName": "Sign and verify"
         },
         {
           "textRaw": "Deriving bits and keys",
           "name": "deriving_bits_and_keys",
-          "desc": "<pre><code class=\"language-js\">const { subtle } = require('crypto').webcrypto;\n\nasync function pbkdf2(pass, salt, iterations = 1000, length = 256) {\n  const ec = new TextEncoder();\n  const key = await subtle.importKey(\n    'raw',\n    ec.encode(pass),\n    'PBKDF2',\n    false,\n    ['deriveBits']);\n  const bits = await subtle.deriveBits({\n    name: 'PBKDF2',\n    hash: 'SHA-512',\n    salt: ec.encode(salt),\n    iterations\n  }, key, length);\n  return bits;\n}\n\nasync function pbkdf2Key(pass, salt, iterations = 1000, length = 256) {\n  const ec = new TextEncoder();\n  const keyMaterial = await subtle.importKey(\n    'raw',\n    ec.encode(pass),\n    'PBKDF2',\n    false,\n    ['deriveKey']);\n  const key = await subtle.deriveKey({\n    name: 'PBKDF2',\n    hash: 'SHA-512',\n    salt: ec.encode(salt),\n    iterations\n  }, keyMaterial, {\n    name: 'AES-GCM',\n    length: 256\n  }, true, ['encrypt', 'decrypt']);\n  return key;\n}\n</code></pre>",
+          "desc": "<pre><code class=\"language-js\">const { subtle } = require('node:crypto').webcrypto;\n\nasync function pbkdf2(pass, salt, iterations = 1000, length = 256) {\n  const ec = new TextEncoder();\n  const key = await subtle.importKey(\n    'raw',\n    ec.encode(pass),\n    'PBKDF2',\n    false,\n    ['deriveBits']);\n  const bits = await subtle.deriveBits({\n    name: 'PBKDF2',\n    hash: 'SHA-512',\n    salt: ec.encode(salt),\n    iterations,\n  }, key, length);\n  return bits;\n}\n\nasync function pbkdf2Key(pass, salt, iterations = 1000, length = 256) {\n  const ec = new TextEncoder();\n  const keyMaterial = await subtle.importKey(\n    'raw',\n    ec.encode(pass),\n    'PBKDF2',\n    false,\n    ['deriveKey']);\n  const key = await subtle.deriveKey({\n    name: 'PBKDF2',\n    hash: 'SHA-512',\n    salt: ec.encode(salt),\n    iterations,\n  }, keyMaterial, {\n    name: 'AES-GCM',\n    length: 256,\n  }, true, ['encrypt', 'decrypt']);\n  return key;\n}\n</code></pre>",
           "type": "module",
           "displayName": "Deriving bits and keys"
         },
         {
           "textRaw": "Digest",
           "name": "digest",
-          "desc": "<pre><code class=\"language-js\">const { subtle } = require('crypto').webcrypto;\n\nasync function digest(data, algorithm = 'SHA-512') {\n  const ec = new TextEncoder();\n  const digest = await subtle.digest(algorithm, ec.encode(data));\n  return digest;\n}\n</code></pre>",
+          "desc": "<pre><code class=\"language-js\">const { subtle } = require('node:crypto').webcrypto;\n\nasync function digest(data, algorithm = 'SHA-512') {\n  const ec = new TextEncoder();\n  const digest = await subtle.digest(algorithm, ec.encode(data));\n  return digest;\n}\n</code></pre>",
           "type": "module",
           "displayName": "Digest"
         },
         {
           "textRaw": "Algorithm matrix",
           "name": "algorithm_matrix",
-          "desc": "<p>The table details the algorithms supported by the Node.js Web Crypto API\nimplementation and the APIs supported for each:</p>\n<table>\n<thead>\n<tr>\n<th>Algorithm</th>\n<th><code>generateKey</code></th>\n<th><code>exportKey</code></th>\n<th><code>importKey</code></th>\n<th><code>encrypt</code></th>\n<th><code>decrypt</code></th>\n<th><code>wrapKey</code></th>\n<th><code>unwrapKey</code></th>\n<th><code>deriveBits</code></th>\n<th><code>deriveKey</code></th>\n<th><code>sign</code></th>\n<th><code>verify</code></th>\n<th><code>digest</code></th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>'RSASSA-PKCS1-v1_5'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n</tr>\n<tr>\n<td><code>'RSA-PSS'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n</tr>\n<tr>\n<td><code>'RSA-OAEP'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'ECDSA'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n</tr>\n<tr>\n<td><code>'ECDH'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'AES-CTR'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'AES-CBC'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'AES-GCM'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'AES-KW'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'HMAC'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n</tr>\n<tr>\n<td><code>'HKDF'</code></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'PBKDF2'</code></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'SHA-1'</code></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'SHA-256'</code></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'SHA-384'</code></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'SHA-512'</code></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'NODE-DSA'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n</tr>\n<tr>\n<td><code>'NODE-DH'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-2\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'NODE-ED25519'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-3\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n</tr>\n<tr>\n<td><code>'NODE-ED448'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-4\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n</tr>\n</tbody>\n</table>",
+          "desc": "<p>The table details the algorithms supported by the Node.js Web Crypto API\nimplementation and the APIs supported for each:</p>\n<table>\n<thead>\n<tr>\n<th>Algorithm</th>\n<th><code>generateKey</code></th>\n<th><code>exportKey</code></th>\n<th><code>importKey</code></th>\n<th><code>encrypt</code></th>\n<th><code>decrypt</code></th>\n<th><code>wrapKey</code></th>\n<th><code>unwrapKey</code></th>\n<th><code>deriveBits</code></th>\n<th><code>deriveKey</code></th>\n<th><code>sign</code></th>\n<th><code>verify</code></th>\n<th><code>digest</code></th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>'RSASSA-PKCS1-v1_5'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n</tr>\n<tr>\n<td><code>'RSA-PSS'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n</tr>\n<tr>\n<td><code>'RSA-OAEP'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'ECDSA'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n</tr>\n<tr>\n<td><code>'Ed25519'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n</tr>\n<tr>\n<td><code>'Ed448'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-2\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n</tr>\n<tr>\n<td><code>'ECDH'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'X25519'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-3\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'X448'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-4\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'AES-CTR'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'AES-CBC'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'AES-GCM'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'AES-KW'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'HMAC'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n</tr>\n<tr>\n<td><code>'HKDF'</code></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'PBKDF2'</code></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'SHA-1'</code></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'SHA-256'</code></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'SHA-384'</code></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'SHA-512'</code></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n</tr>\n</tbody>\n</table>",
           "type": "module",
           "displayName": "Algorithm matrix"
         },
@@ -108,6 +139,30 @@
           "name": "algorithm_parameters",
           "desc": "<p>The algorithm parameter objects define the methods and parameters used by\nthe various <a href=\"webcrypto.html#class-subtlecrypto\" class=\"type\">&lt;SubtleCrypto&gt;</a> methods. While described here as \"classes\", they\nare simple JavaScript dictionary objects.</p>",
           "classes": [
+            {
+              "textRaw": "Class: `AlgorithmIdentifier`",
+              "type": "class",
+              "name": "AlgorithmIdentifier",
+              "meta": {
+                "added": [
+                  "v18.4.0"
+                ],
+                "changes": []
+              },
+              "properties": [
+                {
+                  "textRaw": "`name` Type: {string}",
+                  "type": "string",
+                  "name": "Type",
+                  "meta": {
+                    "added": [
+                      "v18.4.0"
+                    ],
+                    "changes": []
+                  }
+                }
+              ]
+            },
             {
               "textRaw": "Class: `AesCbcParams`",
               "type": "class",
@@ -227,7 +282,7 @@
                     ],
                     "changes": []
                   },
-                  "desc": "<p>The initialization vector must be unique for every encryption operation\nusing a given key. It is recommended by the AES-GCM specification that\nthis contain at least 12 random bytes.</p>"
+                  "desc": "<p>The initialization vector must be unique for every encryption operation using a\ngiven key.</p>\n<p>Ideally, this is a deterministic 12-byte value that is computed in such a way\nthat it is guaranteed to be unique across all invocations that use the same key.\nAlternatively, the initialization vector may consist of at least 12\ncryptographically random bytes. For more information on constructing\ninitialization vectors for AES-GCM, refer to Section 8 of <a href=\"https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf\">NIST SP 800-38D</a>.</p>"
                 },
                 {
                   "textRaw": "`name` Type: {string} Must be `'AES-GCM'`.",
@@ -253,31 +308,6 @@
                   },
                   "default": "`128`",
                   "desc": "The size in bits of the generated authentication tag. This values must be one of `32`, `64`, `96`, `104`, `112`, `120`, or `128`."
-                }
-              ]
-            },
-            {
-              "textRaw": "Class: `AesImportParams`",
-              "type": "class",
-              "name": "AesImportParams",
-              "meta": {
-                "added": [
-                  "v15.0.0"
-                ],
-                "changes": []
-              },
-              "properties": [
-                {
-                  "textRaw": "`name` Type: {string} Must be one of `'AES-CTR'`, `'AES-CBC'`, `'AES-GCM'`, or `'AES-KW'`.",
-                  "type": "string",
-                  "name": "Type",
-                  "meta": {
-                    "added": [
-                      "v15.0.0"
-                    ],
-                    "changes": []
-                  },
-                  "desc": "Must be one of `'AES-CTR'`, `'AES-CBC'`, `'AES-GCM'`, or `'AES-KW'`."
                 }
               ]
             },
@@ -319,31 +349,6 @@
               ]
             },
             {
-              "textRaw": "Class: `AesKwParams`",
-              "type": "class",
-              "name": "AesKwParams",
-              "meta": {
-                "added": [
-                  "v15.0.0"
-                ],
-                "changes": []
-              },
-              "properties": [
-                {
-                  "textRaw": "`name` Type: {string} Must be `'AES-KW'`.",
-                  "type": "string",
-                  "name": "Type",
-                  "meta": {
-                    "added": [
-                      "v15.0.0"
-                    ],
-                    "changes": []
-                  },
-                  "desc": "Must be `'AES-KW'`."
-                }
-              ]
-            },
-            {
               "textRaw": "Class: `EcdhKeyDeriveParams`",
               "type": "class",
               "name": "EcdhKeyDeriveParams",
@@ -355,7 +360,7 @@
               },
               "properties": [
                 {
-                  "textRaw": "`name` Type: {string} Must be `'ECDH'`.",
+                  "textRaw": "`name` Type: {string} Must be `'ECDH'`, `'X25519'`, or `'X448'`.",
                   "type": "string",
                   "name": "Type",
                   "meta": {
@@ -364,7 +369,7 @@
                     ],
                     "changes": []
                   },
-                  "desc": "Must be `'ECDH'`."
+                  "desc": "Must be `'ECDH'`, `'X25519'`, or `'X448'`."
                 },
                 {
                   "textRaw": "`public` Type: {CryptoKey}",
@@ -441,7 +446,7 @@
                   "desc": "Must be one of `'ECDSA'` or `'ECDH'`."
                 },
                 {
-                  "textRaw": "`namedCurve` Type: {string} Must be one of `'P-256'`, `'P-384'`, `'P-521'`, `'NODE-ED25519'`, `'NODE-ED448'`, `'NODE-X25519'`, or `'NODE-X448'`.",
+                  "textRaw": "`namedCurve` Type: {string} Must be one of `'P-256'`, `'P-384'`, `'P-521'`.",
                   "type": "string",
                   "name": "Type",
                   "meta": {
@@ -450,7 +455,7 @@
                     ],
                     "changes": []
                   },
-                  "desc": "Must be one of `'P-256'`, `'P-384'`, `'P-521'`, `'NODE-ED25519'`, `'NODE-ED448'`, `'NODE-X25519'`, or `'NODE-X448'`."
+                  "desc": "Must be one of `'P-256'`, `'P-384'`, `'P-521'`."
                 }
               ]
             },
@@ -478,7 +483,7 @@
                   "desc": "Must be one of `'ECDSA'` or `'ECDH'`."
                 },
                 {
-                  "textRaw": "`namedCurve` Type: {string} Must be one of `'P-256'`, `'P-384'`, `'P-521'`, `'NODE-ED25519'`, `'NODE-ED448'`, `'NODE-X25519'`, or `'NODE-X448'`.",
+                  "textRaw": "`namedCurve` Type: {string} Must be one of `'P-256'`, `'P-384'`, `'P-521'`.",
                   "type": "string",
                   "name": "Type",
                   "meta": {
@@ -487,7 +492,44 @@
                     ],
                     "changes": []
                   },
-                  "desc": "Must be one of `'P-256'`, `'P-384'`, `'P-521'`, `'NODE-ED25519'`, `'NODE-ED448'`, `'NODE-X25519'`, or `'NODE-X448'`."
+                  "desc": "Must be one of `'P-256'`, `'P-384'`, `'P-521'`."
+                }
+              ]
+            },
+            {
+              "textRaw": "Class: `Ed448Params`",
+              "type": "class",
+              "name": "Ed448Params",
+              "meta": {
+                "added": [
+                  "v15.0.0"
+                ],
+                "changes": []
+              },
+              "properties": [
+                {
+                  "textRaw": "`name` Type: {string} Must be `'Ed448'`.",
+                  "type": "string",
+                  "name": "Type",
+                  "meta": {
+                    "added": [
+                      "v18.4.0"
+                    ],
+                    "changes": []
+                  },
+                  "desc": "Must be `'Ed448'`."
+                },
+                {
+                  "textRaw": "`context` Type: {ArrayBuffer|TypedArray|DataView|Buffer|undefined}",
+                  "type": "ArrayBuffer|TypedArray|DataView|Buffer|undefined",
+                  "name": "Type",
+                  "meta": {
+                    "added": [
+                      "v18.4.0"
+                    ],
+                    "changes": []
+                  },
+                  "desc": "<p>The <code>context</code> member represents the optional context data to associate with\nthe message.\nThe Node.js Web Crypto API implementation only supports zero-length context\nwhich is equivalent to not providing context at all.</p>"
                 }
               ]
             },
@@ -647,56 +689,6 @@
                     "changes": []
                   },
                   "desc": "Must be `'HMAC'`."
-                }
-              ]
-            },
-            {
-              "textRaw": "Class: `HmacParams`",
-              "type": "class",
-              "name": "HmacParams",
-              "meta": {
-                "added": [
-                  "v15.0.0"
-                ],
-                "changes": []
-              },
-              "properties": [
-                {
-                  "textRaw": "`name` Type: {string} Must be `'HMAC'`.",
-                  "type": "string",
-                  "name": "Type",
-                  "meta": {
-                    "added": [
-                      "v15.0.0"
-                    ],
-                    "changes": []
-                  },
-                  "desc": "Must be `'HMAC'`."
-                }
-              ]
-            },
-            {
-              "textRaw": "Class: `Pbkdf2ImportParams`",
-              "type": "class",
-              "name": "Pbkdf2ImportParams",
-              "meta": {
-                "added": [
-                  "v15.0.0"
-                ],
-                "changes": []
-              },
-              "properties": [
-                {
-                  "textRaw": "`name` Type: {string} Must be `'PBKDF2'`",
-                  "type": "string",
-                  "name": "Type",
-                  "meta": {
-                    "added": [
-                      "v15.0.0"
-                    ],
-                    "changes": []
-                  },
-                  "desc": "Must be `'PBKDF2'`"
                 }
               ]
             },
@@ -932,536 +924,10 @@
                   "desc": "<p>The length (in bytes) of the random salt to use.</p>"
                 }
               ]
-            },
-            {
-              "textRaw": "Class: `RsaSignParams`",
-              "type": "class",
-              "name": "RsaSignParams",
-              "meta": {
-                "added": [
-                  "v15.0.0"
-                ],
-                "changes": []
-              },
-              "properties": [
-                {
-                  "textRaw": "`name` Type: {string} Must be `'RSASSA-PKCS1-v1_5'`",
-                  "type": "string",
-                  "name": "Type",
-                  "meta": {
-                    "added": [
-                      "v15.0.0"
-                    ],
-                    "changes": []
-                  },
-                  "desc": "Must be `'RSASSA-PKCS1-v1_5'`"
-                }
-              ]
             }
           ],
           "type": "module",
           "displayName": "Algorithm parameters"
-        },
-        {
-          "textRaw": "Node.js-specific extensions",
-          "name": "node.js-specific_extensions",
-          "desc": "<p>The Node.js Web Crypto API extends various aspects of the Web Crypto API.\nThese extensions are consistently identified by prepending names with the\n<code>node.</code> prefix. For instance, the <code>'node.keyObject'</code> key format can be\nused with the <code>subtle.exportKey()</code> and <code>subtle.importKey()</code> methods to\nconvert between a WebCrypto <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a> object and a Node.js <a href=\"crypto.html#class-keyobject\" class=\"type\">&lt;KeyObject&gt;</a>.</p>\n<p>Care should be taken when using Node.js-specific extensions as they are\nnot supported by other WebCrypto implementations and reduce the portability\nof code to other environments.</p>",
-          "modules": [
-            {
-              "textRaw": "`NODE-DH` Algorithm",
-              "name": "`node-dh`_algorithm",
-              "meta": {
-                "added": [
-                  "v15.0.0"
-                ],
-                "changes": []
-              },
-              "desc": "<p>The <code>NODE-DH</code> algorithm is the common implementation of Diffie-Hellman\nkey agreement.</p>",
-              "classes": [
-                {
-                  "textRaw": "Class: `NodeDhImportParams`",
-                  "type": "class",
-                  "name": "NodeDhImportParams",
-                  "meta": {
-                    "added": [
-                      "v15.0.0"
-                    ],
-                    "changes": []
-                  },
-                  "properties": [
-                    {
-                      "textRaw": "`name` Type: {string} Must be `'NODE-DH'`.",
-                      "type": "string",
-                      "name": "Type",
-                      "meta": {
-                        "added": [
-                          "v15.0.0"
-                        ],
-                        "changes": []
-                      },
-                      "desc": "Must be `'NODE-DH'`."
-                    }
-                  ]
-                },
-                {
-                  "textRaw": "Class: `NodeDhKeyGenParams`",
-                  "type": "class",
-                  "name": "NodeDhKeyGenParams",
-                  "meta": {
-                    "added": [
-                      "v15.0.0"
-                    ],
-                    "changes": []
-                  },
-                  "properties": [
-                    {
-                      "textRaw": "`generator` Type: {number} A custom generator.",
-                      "type": "number",
-                      "name": "Type",
-                      "meta": {
-                        "added": [
-                          "v15.0.0"
-                        ],
-                        "changes": []
-                      },
-                      "desc": "A custom generator."
-                    },
-                    {
-                      "textRaw": "`group` Type: {string} The Diffie-Hellman group name.",
-                      "type": "string",
-                      "name": "Type",
-                      "meta": {
-                        "added": [
-                          "v15.0.0"
-                        ],
-                        "changes": []
-                      },
-                      "desc": "The Diffie-Hellman group name."
-                    },
-                    {
-                      "textRaw": "`prime` Type: {Buffer} The prime parameter.",
-                      "type": "Buffer",
-                      "name": "Type",
-                      "meta": {
-                        "added": [
-                          "v15.0.0"
-                        ],
-                        "changes": []
-                      },
-                      "desc": "The prime parameter."
-                    },
-                    {
-                      "textRaw": "`primeLength` Type: {number} The length in bits of the prime.",
-                      "type": "number",
-                      "name": "Type",
-                      "meta": {
-                        "added": [
-                          "v15.0.0"
-                        ],
-                        "changes": []
-                      },
-                      "desc": "The length in bits of the prime."
-                    }
-                  ]
-                },
-                {
-                  "textRaw": "Class: NodeDhDeriveBitsParams",
-                  "type": "class",
-                  "name": "NodeDhDeriveBitsParams",
-                  "meta": {
-                    "added": [
-                      "v15.0.0"
-                    ],
-                    "changes": []
-                  },
-                  "properties": [
-                    {
-                      "textRaw": "`public` Type: {CryptoKey} The other parties public key.",
-                      "type": "CryptoKey",
-                      "name": "Type",
-                      "meta": {
-                        "added": [
-                          "v15.0.0"
-                        ],
-                        "changes": []
-                      },
-                      "desc": "The other parties public key."
-                    }
-                  ]
-                }
-              ],
-              "type": "module",
-              "displayName": "`NODE-DH` Algorithm"
-            },
-            {
-              "textRaw": "`NODE-DSA` Algorithm",
-              "name": "`node-dsa`_algorithm",
-              "meta": {
-                "added": [
-                  "v15.0.0"
-                ],
-                "changes": []
-              },
-              "desc": "<p>The <code>NODE-DSA</code> algorithm is the common implementation of the DSA digital\nsignature algorithm.</p>",
-              "classes": [
-                {
-                  "textRaw": "Class: `NodeDsaImportParams`",
-                  "type": "class",
-                  "name": "NodeDsaImportParams",
-                  "meta": {
-                    "added": [
-                      "v15.0.0"
-                    ],
-                    "changes": []
-                  },
-                  "properties": [
-                    {
-                      "textRaw": "`hash` Type: {string|Object}",
-                      "type": "string|Object",
-                      "name": "Type",
-                      "meta": {
-                        "added": [
-                          "v15.0.0"
-                        ],
-                        "changes": []
-                      },
-                      "desc": "<p>If represented as a <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a>, the value must be one of:</p>\n<ul>\n<li><code>'SHA-1'</code></li>\n<li><code>'SHA-256'</code></li>\n<li><code>'SHA-384'</code></li>\n<li><code>'SHA-512'</code></li>\n</ul>\n<p>If represented as an <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object\" class=\"type\">&lt;Object&gt;</a>, the object must have a <code>name</code> property\nwhose value is one of the above listed values.</p>"
-                    },
-                    {
-                      "textRaw": "`name` Type: {string} Must be `'NODE-DSA'`.",
-                      "type": "string",
-                      "name": "Type",
-                      "meta": {
-                        "added": [
-                          "v15.0.0"
-                        ],
-                        "changes": []
-                      },
-                      "desc": "Must be `'NODE-DSA'`."
-                    }
-                  ]
-                },
-                {
-                  "textRaw": "Class: `NodeDsaKeyGenParams`",
-                  "type": "class",
-                  "name": "NodeDsaKeyGenParams",
-                  "meta": {
-                    "added": [
-                      "v15.0.0"
-                    ],
-                    "changes": []
-                  },
-                  "properties": [
-                    {
-                      "textRaw": "`divisorLength` Type: {number}",
-                      "type": "number",
-                      "name": "Type",
-                      "meta": {
-                        "added": [
-                          "v15.0.0"
-                        ],
-                        "changes": []
-                      },
-                      "desc": "<p>The optional length in bits of the DSA divisor.</p>"
-                    },
-                    {
-                      "textRaw": "`hash` Type: {string|Object}",
-                      "type": "string|Object",
-                      "name": "Type",
-                      "meta": {
-                        "added": [
-                          "v15.0.0"
-                        ],
-                        "changes": []
-                      },
-                      "desc": "<p>If represented as a <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a>, the value must be one of:</p>\n<ul>\n<li><code>'SHA-1'</code></li>\n<li><code>'SHA-256'</code></li>\n<li><code>'SHA-384'</code></li>\n<li><code>'SHA-512'</code></li>\n</ul>\n<p>If represented as an <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object\" class=\"type\">&lt;Object&gt;</a>, the object must have a <code>name</code> property\nwhose value is one of the above listed values.</p>"
-                    },
-                    {
-                      "textRaw": "`modulusLength` Type: {number}",
-                      "type": "number",
-                      "name": "Type",
-                      "meta": {
-                        "added": [
-                          "v15.0.0"
-                        ],
-                        "changes": []
-                      },
-                      "desc": "<p>The length in bits of the DSA modulus. As a best practice, this should be\nat least <code>2048</code>.</p>"
-                    },
-                    {
-                      "textRaw": "`name` Type: {string} Must be `'NODE-DSA'`.",
-                      "type": "string",
-                      "name": "Type",
-                      "meta": {
-                        "added": [
-                          "v15.0.0"
-                        ],
-                        "changes": []
-                      },
-                      "desc": "Must be `'NODE-DSA'`."
-                    }
-                  ]
-                },
-                {
-                  "textRaw": "Class: `NodeDsaSignParams`",
-                  "type": "class",
-                  "name": "NodeDsaSignParams",
-                  "meta": {
-                    "added": [
-                      "v15.0.0"
-                    ],
-                    "changes": []
-                  },
-                  "properties": [
-                    {
-                      "textRaw": "`name` Type: {string} Must be `'NODE-DSA'`",
-                      "type": "string",
-                      "name": "Type",
-                      "meta": {
-                        "added": [
-                          "v15.0.0"
-                        ],
-                        "changes": []
-                      },
-                      "desc": "Must be `'NODE-DSA'`"
-                    }
-                  ]
-                }
-              ],
-              "type": "module",
-              "displayName": "`NODE-DSA` Algorithm"
-            },
-            {
-              "textRaw": "`NODE-ED25519` and `NODE-ED448` Algorithms",
-              "name": "`node-ed25519`_and_`node-ed448`_algorithms",
-              "meta": {
-                "added": [
-                  "v15.8.0"
-                ],
-                "changes": []
-              },
-              "classes": [
-                {
-                  "textRaw": "Class: `NodeEdKeyGenParams`",
-                  "type": "class",
-                  "name": "NodeEdKeyGenParams",
-                  "meta": {
-                    "added": [
-                      "v15.8.0"
-                    ],
-                    "changes": []
-                  },
-                  "properties": [
-                    {
-                      "textRaw": "`name` Type: {string} Must be one of `'NODE-ED25519'`, `'NODE-ED448'` or `'ECDH'`.",
-                      "type": "string",
-                      "name": "Type",
-                      "meta": {
-                        "added": [
-                          "v15.8.0"
-                        ],
-                        "changes": []
-                      },
-                      "desc": "Must be one of `'NODE-ED25519'`, `'NODE-ED448'` or `'ECDH'`."
-                    },
-                    {
-                      "textRaw": "`namedCurve` Type: {string} Must be one of `'NODE-ED25519'`, `'NODE-ED448'`, `'NODE-X25519'`, or `'NODE-X448'`.",
-                      "type": "string",
-                      "name": "Type",
-                      "meta": {
-                        "added": [
-                          "v15.8.0"
-                        ],
-                        "changes": []
-                      },
-                      "desc": "Must be one of `'NODE-ED25519'`, `'NODE-ED448'`, `'NODE-X25519'`, or `'NODE-X448'`."
-                    }
-                  ]
-                },
-                {
-                  "textRaw": "Class: `NodeEdKeyImportParams`",
-                  "type": "class",
-                  "name": "NodeEdKeyImportParams",
-                  "meta": {
-                    "added": [
-                      "v15.8.0"
-                    ],
-                    "changes": []
-                  },
-                  "properties": [
-                    {
-                      "textRaw": "`name` Type: {string} Must be one of `'NODE-ED25519'` or `'NODE-ED448'` if importing an `Ed25519` or `Ed448` key, or `'ECDH'` if importing an `X25519` or `X448` key.",
-                      "type": "string",
-                      "name": "Type",
-                      "meta": {
-                        "added": [
-                          "v15.8.0"
-                        ],
-                        "changes": []
-                      },
-                      "desc": "Must be one of `'NODE-ED25519'` or `'NODE-ED448'` if importing an `Ed25519` or `Ed448` key, or `'ECDH'` if importing an `X25519` or `X448` key."
-                    },
-                    {
-                      "textRaw": "`namedCurve` Type: {string} Must be one of `'NODE-ED25519'`, `'NODE-ED448'`, `'NODE-X25519'`, or `'NODE-X448'`.",
-                      "type": "string",
-                      "name": "Type",
-                      "meta": {
-                        "added": [
-                          "v15.8.0"
-                        ],
-                        "changes": []
-                      },
-                      "desc": "Must be one of `'NODE-ED25519'`, `'NODE-ED448'`, `'NODE-X25519'`, or `'NODE-X448'`."
-                    },
-                    {
-                      "textRaw": "`public` Type: {boolean}",
-                      "type": "boolean",
-                      "name": "Type",
-                      "meta": {
-                        "added": [
-                          "v15.8.0"
-                        ],
-                        "changes": []
-                      },
-                      "desc": "<p>The <code>public</code> parameter is used to specify that the <code>'raw'</code> format key is to be\ninterpreted as a public key. <strong>Default:</strong> <code>false</code>.</p>"
-                    }
-                  ]
-                }
-              ],
-              "type": "module",
-              "displayName": "`NODE-ED25519` and `NODE-ED448` Algorithms"
-            },
-            {
-              "textRaw": "`NODE-SCRYPT` Algorithm",
-              "name": "`node-scrypt`_algorithm",
-              "meta": {
-                "added": [
-                  "v15.0.0"
-                ],
-                "changes": []
-              },
-              "desc": "<p>The <code>NODE-SCRYPT</code> algorithm is the common implementation of the scrypt key\nderivation algorithm.</p>",
-              "classes": [
-                {
-                  "textRaw": "Class: `NodeScryptImportParams`",
-                  "type": "class",
-                  "name": "NodeScryptImportParams",
-                  "meta": {
-                    "added": [
-                      "v15.0.0"
-                    ],
-                    "changes": []
-                  },
-                  "properties": [
-                    {
-                      "textRaw": "`name` Type: {string} Must be `'NODE-SCRYPT'`.",
-                      "type": "string",
-                      "name": "Type",
-                      "meta": {
-                        "added": [
-                          "v15.0.0"
-                        ],
-                        "changes": []
-                      },
-                      "desc": "Must be `'NODE-SCRYPT'`."
-                    }
-                  ]
-                },
-                {
-                  "textRaw": "Class: `NodeScryptParams`",
-                  "type": "class",
-                  "name": "NodeScryptParams",
-                  "meta": {
-                    "added": [
-                      "v15.0.0"
-                    ],
-                    "changes": []
-                  },
-                  "properties": [
-                    {
-                      "textRaw": "`encoding` Type: {string} The string encoding when `salt` is a string.",
-                      "type": "string",
-                      "name": "Type",
-                      "meta": {
-                        "added": [
-                          "v15.0.0"
-                        ],
-                        "changes": []
-                      },
-                      "desc": "The string encoding when `salt` is a string."
-                    },
-                    {
-                      "textRaw": "`maxmem` Type: {number} Memory upper bound. It is an error when (approximately) `127 * N * r > maxmem`. **Default:** `32 * 1024 * 1024`.",
-                      "type": "number",
-                      "name": "Type",
-                      "meta": {
-                        "added": [
-                          "v15.0.0"
-                        ],
-                        "changes": []
-                      },
-                      "default": "`32 * 1024 * 1024`",
-                      "desc": "Memory upper bound. It is an error when (approximately) `127 * N * r > maxmem`."
-                    },
-                    {
-                      "textRaw": "`N` Type: {number} The CPU/memory cost parameter. Must e a power of two greater than 1. **Default:** `16384`.",
-                      "type": "number",
-                      "name": "Type",
-                      "meta": {
-                        "added": [
-                          "v15.0.0"
-                        ],
-                        "changes": []
-                      },
-                      "default": "`16384`",
-                      "desc": "The CPU/memory cost parameter. Must e a power of two greater than 1."
-                    },
-                    {
-                      "textRaw": "`p` Type: {number} Parallelization parameter. **Default:** `1`.",
-                      "type": "number",
-                      "name": "Type",
-                      "meta": {
-                        "added": [
-                          "v15.0.0"
-                        ],
-                        "changes": []
-                      },
-                      "default": "`1`",
-                      "desc": "Parallelization parameter."
-                    },
-                    {
-                      "textRaw": "`r` Type: {number} Block size parameter. **Default:** `8`.",
-                      "type": "number",
-                      "name": "Type",
-                      "meta": {
-                        "added": [
-                          "v15.0.0"
-                        ],
-                        "changes": []
-                      },
-                      "default": "`8`",
-                      "desc": "Block size parameter."
-                    },
-                    {
-                      "textRaw": "`salt` Type: {string|ArrayBuffer|Buffer|TypedArray|DataView}",
-                      "type": "string|ArrayBuffer|Buffer|TypedArray|DataView",
-                      "name": "Type",
-                      "meta": {
-                        "added": [
-                          "v15.0.0"
-                        ],
-                        "changes": []
-                      }
-                    }
-                  ]
-                }
-              ],
-              "type": "module",
-              "displayName": "`NODE-SCRYPT` Algorithm"
-            }
-          ],
-          "type": "module",
-          "displayName": "Node.js-specific extensions"
         }
       ],
       "classes": [
@@ -1475,7 +941,7 @@
             ],
             "changes": []
           },
-          "desc": "<p>Calling <code>require('crypto').webcrypto</code> returns an instance of the <code>Crypto</code> class.\n<code>Crypto</code> is a singleton that provides access to the remainder of the crypto API.</p>",
+          "desc": "<p>Calling <code>require('node:crypto').webcrypto</code> returns an instance of the <code>Crypto</code>\nclass. <code>Crypto</code> is a singleton that provides access to the remainder of the\ncrypto API.</p>",
           "properties": [
             {
               "textRaw": "`subtle` Type: {SubtleCrypto}",
@@ -1563,7 +1029,7 @@
                 ],
                 "changes": []
               },
-              "desc": "<!--lint disable maximum-line-length remark-lint-->\n<ul>\n<li>Type: <a href=\"webcrypto.html#class-aeskeygenparams\" class=\"type\">&lt;AesKeyGenParams&gt;</a> | <a href=\"webcrypto.html#class-rsahashedkeygenparams\" class=\"type\">&lt;RsaHashedKeyGenParams&gt;</a> | <a href=\"webcrypto.html#class-eckeygenparams\" class=\"type\">&lt;EcKeyGenParams&gt;</a> | <a href=\"webcrypto.html#class-hmackeygenparams\" class=\"type\">&lt;HmacKeyGenParams&gt;</a> | <a href=\"webcrypto.html#class-nodedsakeygenparams\" class=\"type\">&lt;NodeDsaKeyGenParams&gt;</a> | <a href=\"webcrypto.html#class-nodedhkeygenparams\" class=\"type\">&lt;NodeDhKeyGenParams&gt;</a></li>\n</ul>\n<!--lint enable maximum-line-length remark-lint-->\n<p>An object detailing the algorithm for which the key can be used along with\nadditional algorithm-specific parameters.</p>\n<p>Read-only.</p>"
+              "desc": "<!--lint disable maximum-line-length remark-lint-->\n<ul>\n<li>Type: <a href=\"webcrypto.html#class-aeskeygenparams\" class=\"type\">&lt;AesKeyGenParams&gt;</a> | <a href=\"webcrypto.html#class-rsahashedkeygenparams\" class=\"type\">&lt;RsaHashedKeyGenParams&gt;</a> | <a href=\"webcrypto.html#class-eckeygenparams\" class=\"type\">&lt;EcKeyGenParams&gt;</a> | <a href=\"webcrypto.html#class-hmackeygenparams\" class=\"type\">&lt;HmacKeyGenParams&gt;</a></li>\n</ul>\n<!--lint enable maximum-line-length remark-lint-->\n<p>An object detailing the algorithm for which the key can be used along with\nadditional algorithm-specific parameters.</p>\n<p>Read-only.</p>"
             },
             {
               "textRaw": "`extractable` Type: {boolean}",
@@ -1600,7 +1066,7 @@
                 ],
                 "changes": []
               },
-              "desc": "<p>An array of strings identifying the operations for which the\nkey may be used.</p>\n<p>The possible usages are:</p>\n<ul>\n<li><code>'encrypt'</code> - The key may be used to encrypt data.</li>\n<li><code>'decrypt'</code> - The key may be used to decrypt data.</li>\n<li><code>'sign'</code> - The key may be used to generate digital signatures.</li>\n<li><code>'verify'</code> - The key may be used to verify digital signatures.</li>\n<li><code>'deriveKey'</code> - The key may be used to derive a new key.</li>\n<li><code>'deriveBits'</code> - The key may be used to derive bits.</li>\n<li><code>'wrapKey'</code> - The key may be used to wrap another key.</li>\n<li><code>'unwrapKey'</code> - The key may be used to unwrap another key.</li>\n</ul>\n<p>Valid key usages depend on the key algorithm (identified by\n<code>cryptokey.algorithm.name</code>).</p>\n<table>\n<thead>\n<tr>\n<th>Key Type</th>\n<th><code>'encrypt'</code></th>\n<th><code>'decrypt'</code></th>\n<th><code>'sign'</code></th>\n<th><code>'verify'</code></th>\n<th><code>'deriveKey'</code></th>\n<th><code>'deriveBits'</code></th>\n<th><code>'wrapKey'</code></th>\n<th><code>'unwrapKey'</code></th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>'AES-CBC'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'AES-CTR'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'AES-GCM'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'AES-KW'</code></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'ECDH'</code></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'ECDSA'</code></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'HDKF'</code></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'HMAC'</code></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'PBKDF2'</code></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'RSA-OAEP'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'RSA-PSS'</code></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'RSASSA-PKCS1-v1_5'</code></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'NODE-DSA'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'NODE-DH'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-2\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'NODE-SCRYPT'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-3\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'NODE-ED25519'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-4\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'NODE-ED448'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-5\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n</tbody>\n</table>"
+              "desc": "<p>An array of strings identifying the operations for which the\nkey may be used.</p>\n<p>The possible usages are:</p>\n<ul>\n<li><code>'encrypt'</code> - The key may be used to encrypt data.</li>\n<li><code>'decrypt'</code> - The key may be used to decrypt data.</li>\n<li><code>'sign'</code> - The key may be used to generate digital signatures.</li>\n<li><code>'verify'</code> - The key may be used to verify digital signatures.</li>\n<li><code>'deriveKey'</code> - The key may be used to derive a new key.</li>\n<li><code>'deriveBits'</code> - The key may be used to derive bits.</li>\n<li><code>'wrapKey'</code> - The key may be used to wrap another key.</li>\n<li><code>'unwrapKey'</code> - The key may be used to unwrap another key.</li>\n</ul>\n<p>Valid key usages depend on the key algorithm (identified by\n<code>cryptokey.algorithm.name</code>).</p>\n<table>\n<thead>\n<tr>\n<th>Key Type</th>\n<th><code>'encrypt'</code></th>\n<th><code>'decrypt'</code></th>\n<th><code>'sign'</code></th>\n<th><code>'verify'</code></th>\n<th><code>'deriveKey'</code></th>\n<th><code>'deriveBits'</code></th>\n<th><code>'wrapKey'</code></th>\n<th><code>'unwrapKey'</code></th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>'AES-CBC'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'AES-CTR'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'AES-GCM'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'AES-KW'</code></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'ECDH'</code></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'X25519'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'X448'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-2\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'ECDSA'</code></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'Ed25519'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-3\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'Ed448'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-4\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'HDKF'</code></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'HMAC'</code></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'PBKDF2'</code></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'RSA-OAEP'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'RSA-PSS'</code></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'RSASSA-PKCS1-v1_5'</code></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n</tbody>\n</table>"
             }
           ]
         },
@@ -1700,14 +1166,20 @@
                 "added": [
                   "v15.0.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v18.4.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/42507",
+                    "description": "Added `'X25519'`, and `'X448'` algorithms."
+                  }
+                ]
               },
               "signatures": [
                 {
                   "params": []
                 }
               ],
-              "desc": "<!--lint disable maximum-line-length remark-lint-->\n<ul>\n<li><code>algorithm</code>: <a href=\"webcrypto.html#class-ecdhkeyderiveparams\" class=\"type\">&lt;EcdhKeyDeriveParams&gt;</a> | <a href=\"webcrypto.html#class-hkdfparams\" class=\"type\">&lt;HkdfParams&gt;</a> | <a href=\"webcrypto.html#class-pbkdf2params\" class=\"type\">&lt;Pbkdf2Params&gt;</a> | <a href=\"webcrypto.html#class-nodedhderivebitsparams\" class=\"type\">&lt;NodeDhDeriveBitsParams&gt;</a> | <a href=\"webcrypto.html#class-nodescryptparams\" class=\"type\">&lt;NodeScryptParams&gt;</a></li>\n<li><code>baseKey</code>: <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a></li>\n<li><code>length</code>: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a></li>\n<li>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise\" class=\"type\">&lt;Promise&gt;</a> containing <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer\" class=\"type\">&lt;ArrayBuffer&gt;</a></li>\n</ul>\n<!--lint enable maximum-line-length remark-lint-->\n<p>Using the method and parameters specified in <code>algorithm</code> and the keying\nmaterial provided by <code>baseKey</code>, <code>subtle.deriveBits()</code> attempts to generate\n<code>length</code> bits. The Node.js implementation requires that <code>length</code> is a\nmultiple of <code>8</code>. If successful, the returned promise will be resolved with\nan <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer\" class=\"type\">&lt;ArrayBuffer&gt;</a> containing the generated data.</p>\n<p>The algorithms currently supported include:</p>\n<ul>\n<li><code>'ECDH'</code></li>\n<li><code>'HKDF'</code></li>\n<li><code>'PBKDF2'</code></li>\n<li><code>'NODE-DH'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n<li><code>'NODE-SCRYPT'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-2\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n</ul>"
+              "desc": "<!--lint disable maximum-line-length remark-lint-->\n<ul>\n<li><code>algorithm</code>: <a href=\"webcrypto.html#class-algorithmidentifier\" class=\"type\">&lt;AlgorithmIdentifier&gt;</a> | <a href=\"webcrypto.html#class-ecdhkeyderiveparams\" class=\"type\">&lt;EcdhKeyDeriveParams&gt;</a> | <a href=\"webcrypto.html#class-hkdfparams\" class=\"type\">&lt;HkdfParams&gt;</a> | <a href=\"webcrypto.html#class-pbkdf2params\" class=\"type\">&lt;Pbkdf2Params&gt;</a></li>\n<li><code>baseKey</code>: <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a></li>\n<li><code>length</code>: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type\" class=\"type\">&lt;null&gt;</a></li>\n<li>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise\" class=\"type\">&lt;Promise&gt;</a> containing <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer\" class=\"type\">&lt;ArrayBuffer&gt;</a></li>\n</ul>\n<!--lint enable maximum-line-length remark-lint-->\n<p>Using the method and parameters specified in <code>algorithm</code> and the keying\nmaterial provided by <code>baseKey</code>, <code>subtle.deriveBits()</code> attempts to generate\n<code>length</code> bits.</p>\n<p>The Node.js implementation requires that when <code>length</code> is a\nnumber it must be multiple of <code>8</code>.</p>\n<p>When <code>length</code> is <code>null</code> the maximum number of bits for a given algorithm is\ngenerated. This is allowed for the <code>'ECDH'</code>, <code>'X25519'</code>, and <code>'X448'</code>\nalgorithms.</p>\n<p>If successful, the returned promise will be resolved with an <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer\" class=\"type\">&lt;ArrayBuffer&gt;</a>\ncontaining the generated data.</p>\n<p>The algorithms currently supported include:</p>\n<ul>\n<li><code>'ECDH'</code></li>\n<li><code>'X25519'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n<li><code>'X448'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-2\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n<li><code>'HKDF'</code></li>\n<li><code>'PBKDF2'</code></li>\n</ul>"
             },
             {
               "textRaw": "`subtle.deriveKey(algorithm, baseKey, derivedKeyAlgorithm, extractable, keyUsages)`",
@@ -1717,14 +1189,20 @@
                 "added": [
                   "v15.0.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v18.4.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/42507",
+                    "description": "Added `'X25519'`, and `'X448'` algorithms."
+                  }
+                ]
               },
               "signatures": [
                 {
                   "params": []
                 }
               ],
-              "desc": "<!--lint disable maximum-line-length remark-lint-->\n<ul>\n<li><code>algorithm</code>: <a href=\"webcrypto.html#class-ecdhkeyderiveparams\" class=\"type\">&lt;EcdhKeyDeriveParams&gt;</a> | <a href=\"webcrypto.html#class-hkdfparams\" class=\"type\">&lt;HkdfParams&gt;</a> | <a href=\"webcrypto.html#class-pbkdf2params\" class=\"type\">&lt;Pbkdf2Params&gt;</a> | <a href=\"webcrypto.html#class-nodedhderivebitsparams\" class=\"type\">&lt;NodeDhDeriveBitsParams&gt;</a> | <a href=\"webcrypto.html#class-nodescryptparams\" class=\"type\">&lt;NodeScryptParams&gt;</a></li>\n<li><code>baseKey</code>: <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a></li>\n<li><code>derivedKeyAlgorithm</code>: <a href=\"webcrypto.html#class-hmackeygenparams\" class=\"type\">&lt;HmacKeyGenParams&gt;</a> | <a href=\"webcrypto.html#class-aeskeygenparams\" class=\"type\">&lt;AesKeyGenParams&gt;</a></li>\n<li><code>extractable</code>: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a></li>\n<li><code>keyUsages</code>: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string[]&gt;</a> See <a href=\"#cryptokeyusages\">Key usages</a>.</li>\n<li>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise\" class=\"type\">&lt;Promise&gt;</a> containing <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a></li>\n</ul>\n<!--lint enable maximum-line-length remark-lint-->\n<p>Using the method and parameters specified in <code>algorithm</code>, and the keying\nmaterial provided by <code>baseKey</code>, <code>subtle.deriveKey()</code> attempts to generate\na new <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a> based on the method and parameters in <code>derivedKeyAlgorithm</code>.</p>\n<p>Calling <code>subtle.deriveKey()</code> is equivalent to calling <code>subtle.deriveBits()</code> to\ngenerate raw keying material, then passing the result into the\n<code>subtle.importKey()</code> method using the <code>deriveKeyAlgorithm</code>, <code>extractable</code>, and\n<code>keyUsages</code> parameters as input.</p>\n<p>The algorithms currently supported include:</p>\n<ul>\n<li><code>'ECDH'</code></li>\n<li><code>'HKDF'</code></li>\n<li><code>'PBKDF2'</code></li>\n<li><code>'NODE-DH'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n<li>'<code>NODE-SCRYPT'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-2\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n</ul>"
+              "desc": "<!--lint disable maximum-line-length remark-lint-->\n<ul>\n<li><code>algorithm</code>: <a href=\"webcrypto.html#class-algorithmidentifier\" class=\"type\">&lt;AlgorithmIdentifier&gt;</a> | <a href=\"webcrypto.html#class-ecdhkeyderiveparams\" class=\"type\">&lt;EcdhKeyDeriveParams&gt;</a> | <a href=\"webcrypto.html#class-hkdfparams\" class=\"type\">&lt;HkdfParams&gt;</a> | <a href=\"webcrypto.html#class-pbkdf2params\" class=\"type\">&lt;Pbkdf2Params&gt;</a></li>\n<li><code>baseKey</code>: <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a></li>\n<li><code>derivedKeyAlgorithm</code>: <a href=\"webcrypto.html#class-hmackeygenparams\" class=\"type\">&lt;HmacKeyGenParams&gt;</a> | <a href=\"webcrypto.html#class-aeskeygenparams\" class=\"type\">&lt;AesKeyGenParams&gt;</a></li>\n<li><code>extractable</code>: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a></li>\n<li><code>keyUsages</code>: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string[]&gt;</a> See <a href=\"#cryptokeyusages\">Key usages</a>.</li>\n<li>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise\" class=\"type\">&lt;Promise&gt;</a> containing <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a></li>\n</ul>\n<!--lint enable maximum-line-length remark-lint-->\n<p>Using the method and parameters specified in <code>algorithm</code>, and the keying\nmaterial provided by <code>baseKey</code>, <code>subtle.deriveKey()</code> attempts to generate\na new <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a> based on the method and parameters in <code>derivedKeyAlgorithm</code>.</p>\n<p>Calling <code>subtle.deriveKey()</code> is equivalent to calling <code>subtle.deriveBits()</code> to\ngenerate raw keying material, then passing the result into the\n<code>subtle.importKey()</code> method using the <code>deriveKeyAlgorithm</code>, <code>extractable</code>, and\n<code>keyUsages</code> parameters as input.</p>\n<p>The algorithms currently supported include:</p>\n<ul>\n<li><code>'ECDH'</code></li>\n<li><code>'X25519'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n<li><code>'X448'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-2\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n<li><code>'HKDF'</code></li>\n<li><code>'PBKDF2'</code></li>\n</ul>"
             },
             {
               "textRaw": "`subtle.digest(algorithm, data)`",
@@ -1804,6 +1282,11 @@
                 ],
                 "changes": [
                   {
+                    "version": "v18.4.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/42507",
+                    "description": "Added `'Ed25519'`, `'Ed448'`, `'X25519'`, and `'X448'` algorithms."
+                  },
+                  {
                     "version": "v15.9.0",
                     "pr-url": "https://github.com/nodejs/node/pull/37203",
                     "description": "Removed `'NODE-DSA'` JWK export."
@@ -1813,17 +1296,17 @@
               "signatures": [
                 {
                   "return": {
-                    "textRaw": "Returns: {Promise} containing {ArrayBuffer}, or, if `format` is `'node.keyObject'`, a {KeyObject}.",
+                    "textRaw": "Returns: {Promise} containing {ArrayBuffer}.",
                     "name": "return",
                     "type": "Promise",
-                    "desc": "containing {ArrayBuffer}, or, if `format` is `'node.keyObject'`, a {KeyObject}."
+                    "desc": "containing {ArrayBuffer}."
                   },
                   "params": [
                     {
-                      "textRaw": "`format`: {string} Must be one of `'raw'`, `'pkcs8'`, `'spki'`, `'jwk'`, or `'node.keyObject'`.",
+                      "textRaw": "`format`: {string} Must be one of `'raw'`, `'pkcs8'`, `'spki'`, or `'jwk'`.",
                       "name": "format",
                       "type": "string",
-                      "desc": "Must be one of `'raw'`, `'pkcs8'`, `'spki'`, `'jwk'`, or `'node.keyObject'`."
+                      "desc": "Must be one of `'raw'`, `'pkcs8'`, `'spki'`, or `'jwk'`."
                     },
                     {
                       "textRaw": "`key`: {CryptoKey}",
@@ -1833,7 +1316,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Exports the given key into the specified format, if supported.</p>\n<p>If the <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a> is not extractable, the returned promise will reject.</p>\n<p>When <code>format</code> is either <code>'pkcs8'</code> or <code>'spki'</code> and the export is successful,\nthe returned promise will be resolved with an <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer\" class=\"type\">&lt;ArrayBuffer&gt;</a> containing the\nexported key data.</p>\n<p>When <code>format</code> is <code>'jwk'</code> and the export is successful, the returned promise\nwill be resolved with a JavaScript object conforming to the <a href=\"https://tools.ietf.org/html/rfc7517\">JSON Web Key</a>\nspecification.</p>\n<p>The special <code>'node.keyObject'</code> value for <code>format</code> is a Node.js-specific\nextension that allows converting a <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a> into a Node.js <a href=\"crypto.html#class-keyobject\" class=\"type\">&lt;KeyObject&gt;</a>.</p>\n<table>\n<thead>\n<tr>\n<th>Key Type</th>\n<th><code>'spki'</code></th>\n<th><code>'pkcs8'</code></th>\n<th><code>'jwk'</code></th>\n<th><code>'raw'</code></th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>'AES-CBC'</code></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'AES-CTR'</code></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'AES-GCM'</code></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'AES-KW'</code></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'ECDH'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'ECDSA'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'HDKF'</code></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'HMAC'</code></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'PBKDF2'</code></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'RSA-OAEP'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n</tr>\n<tr>\n<td><code>'RSA-PSS'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n</tr>\n<tr>\n<td><code>'RSASSA-PKCS1-v1_5'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n</tr>\n<tr>\n<td><code>'NODE-DSA'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'NODE-DH'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-2\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'NODE-SCRYPT'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-3\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'NODE-ED25519'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-4\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'NODE-ED448'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-5\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n</tbody>\n</table>"
+              "desc": "<p>Exports the given key into the specified format, if supported.</p>\n<p>If the <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a> is not extractable, the returned promise will reject.</p>\n<p>When <code>format</code> is either <code>'pkcs8'</code> or <code>'spki'</code> and the export is successful,\nthe returned promise will be resolved with an <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer\" class=\"type\">&lt;ArrayBuffer&gt;</a> containing the\nexported key data.</p>\n<p>When <code>format</code> is <code>'jwk'</code> and the export is successful, the returned promise\nwill be resolved with a JavaScript object conforming to the <a href=\"https://tools.ietf.org/html/rfc7517\">JSON Web Key</a>\nspecification.</p>\n<table>\n<thead>\n<tr>\n<th>Key Type</th>\n<th><code>'spki'</code></th>\n<th><code>'pkcs8'</code></th>\n<th><code>'jwk'</code></th>\n<th><code>'raw'</code></th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>'AES-CBC'</code></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'AES-CTR'</code></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'AES-GCM'</code></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'AES-KW'</code></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'ECDH'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'ECDSA'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'Ed25519'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'Ed448'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-2\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'HDKF'</code></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'HMAC'</code></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'PBKDF2'</code></td>\n<td></td>\n<td></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'RSA-OAEP'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n</tr>\n<tr>\n<td><code>'RSA-PSS'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n</tr>\n<tr>\n<td><code>'RSASSA-PKCS1-v1_5'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n</tr>\n</tbody>\n</table>"
             },
             {
               "textRaw": "`subtle.generateKey(algorithm, extractable, keyUsages)`",
@@ -1850,7 +1333,7 @@
                   "params": []
                 }
               ],
-              "desc": "<!--lint disable maximum-line-length remark-lint-->\n<ul>\n<li><code>algorithm</code>: <a href=\"webcrypto.html#class-rsahashedkeygenparams\" class=\"type\">&lt;RsaHashedKeyGenParams&gt;</a> | <a href=\"webcrypto.html#class-eckeygenparams\" class=\"type\">&lt;EcKeyGenParams&gt;</a> | <a href=\"webcrypto.html#class-hmackeygenparams\" class=\"type\">&lt;HmacKeyGenParams&gt;</a> | <a href=\"webcrypto.html#class-aeskeygenparams\" class=\"type\">&lt;AesKeyGenParams&gt;</a> | <a href=\"webcrypto.html#class-nodedsakeygenparams\" class=\"type\">&lt;NodeDsaKeyGenParams&gt;</a> | <a href=\"webcrypto.html#class-nodedhkeygenparams\" class=\"type\">&lt;NodeDhKeyGenParams&gt;</a> | <a href=\"webcrypto.html#class-nodeedkeygenparams\" class=\"type\">&lt;NodeEdKeyGenParams&gt;</a></li>\n</ul>\n<!--lint enable maximum-line-length remark-lint-->\n<ul>\n<li><code>extractable</code>: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a></li>\n<li><code>keyUsages</code>: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string[]&gt;</a> See <a href=\"#cryptokeyusages\">Key usages</a>.</li>\n<li>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise\" class=\"type\">&lt;Promise&gt;</a> containing <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a> | <a href=\"webcrypto.html#class-cryptokeypair\" class=\"type\">&lt;CryptoKeyPair&gt;</a></li>\n</ul>\n<p>Using the method and parameters provided in <code>algorithm</code>, <code>subtle.generateKey()</code>\nattempts to generate new keying material. Depending the method used, the method\nmay generate either a single <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a> or a <a href=\"webcrypto.html#class-cryptokeypair\" class=\"type\">&lt;CryptoKeyPair&gt;</a>.</p>\n<p>The <a href=\"webcrypto.html#class-cryptokeypair\" class=\"type\">&lt;CryptoKeyPair&gt;</a> (public and private key) generating algorithms supported\ninclude:</p>\n<ul>\n<li><code>'RSASSA-PKCS1-v1_5'</code></li>\n<li><code>'RSA-PSS'</code></li>\n<li><code>'RSA-OAEP'</code></li>\n<li><code>'ECDSA'</code></li>\n<li><code>'ECDH'</code></li>\n<li><code>'NODE-DSA'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n<li><code>'NODE-DH'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-2\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n<li><code>'NODE-ED25519'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-3\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n<li><code>'NODE-ED448'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-4\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n</ul>\n<p>The <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a> (secret key) generating algorithms supported include:</p>\n<ul>\n<li><code>'HMAC'</code></li>\n<li><code>'AES-CTR'</code></li>\n<li><code>'AES-CBC'</code></li>\n<li><code>'AES-GCM'</code></li>\n<li><code>'AES-KW'</code></li>\n</ul>"
+              "desc": "<!--lint disable maximum-line-length remark-lint-->\n<ul>\n<li><code>algorithm</code>: <a href=\"webcrypto.html#class-algorithmidentifier\" class=\"type\">&lt;AlgorithmIdentifier&gt;</a> | <a href=\"webcrypto.html#class-rsahashedkeygenparams\" class=\"type\">&lt;RsaHashedKeyGenParams&gt;</a> | <a href=\"webcrypto.html#class-eckeygenparams\" class=\"type\">&lt;EcKeyGenParams&gt;</a> | <a href=\"webcrypto.html#class-hmackeygenparams\" class=\"type\">&lt;HmacKeyGenParams&gt;</a> | <a href=\"webcrypto.html#class-aeskeygenparams\" class=\"type\">&lt;AesKeyGenParams&gt;</a></li>\n</ul>\n<!--lint enable maximum-line-length remark-lint-->\n<ul>\n<li><code>extractable</code>: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a></li>\n<li><code>keyUsages</code>: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string[]&gt;</a> See <a href=\"#cryptokeyusages\">Key usages</a>.</li>\n<li>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise\" class=\"type\">&lt;Promise&gt;</a> containing <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a> | <a href=\"webcrypto.html#class-cryptokeypair\" class=\"type\">&lt;CryptoKeyPair&gt;</a></li>\n</ul>\n<p>Using the method and parameters provided in <code>algorithm</code>, <code>subtle.generateKey()</code>\nattempts to generate new keying material. Depending the method used, the method\nmay generate either a single <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a> or a <a href=\"webcrypto.html#class-cryptokeypair\" class=\"type\">&lt;CryptoKeyPair&gt;</a>.</p>\n<p>The <a href=\"webcrypto.html#class-cryptokeypair\" class=\"type\">&lt;CryptoKeyPair&gt;</a> (public and private key) generating algorithms supported\ninclude:</p>\n<ul>\n<li><code>'RSASSA-PKCS1-v1_5'</code></li>\n<li><code>'RSA-PSS'</code></li>\n<li><code>'RSA-OAEP'</code></li>\n<li><code>'ECDSA'</code></li>\n<li><code>'Ed25519'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n<li><code>'Ed448'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-2\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n<li><code>'ECDH'</code></li>\n<li><code>'X25519'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-3\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n<li><code>'X448'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-4\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n</ul>\n<p>The <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a> (secret key) generating algorithms supported include:</p>\n<ul>\n<li><code>'HMAC'</code></li>\n<li><code>'AES-CTR'</code></li>\n<li><code>'AES-CBC'</code></li>\n<li><code>'AES-GCM'</code></li>\n<li><code>'AES-KW'</code></li>\n</ul>"
             },
             {
               "textRaw": "`subtle.importKey(format, keyData, algorithm, extractable, keyUsages)`",
@@ -1862,6 +1345,11 @@
                 ],
                 "changes": [
                   {
+                    "version": "v18.4.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/42507",
+                    "description": "Added `'Ed25519'`, `'Ed448'`, `'X25519'`, and `'X448'` algorithms."
+                  },
+                  {
                     "version": "v15.9.0",
                     "pr-url": "https://github.com/nodejs/node/pull/37203",
                     "description": "Removed `'NODE-DSA'` JWK import."
@@ -1872,10 +1360,10 @@
                 {
                   "params": [
                     {
-                      "textRaw": "`format`: {string} Must be one of `'raw'`, `'pkcs8'`, `'spki'`, `'jwk'`, or `'node.keyObject'`.",
+                      "textRaw": "`format`: {string} Must be one of `'raw'`, `'pkcs8'`, `'spki'`, or `'jwk'`.",
                       "name": "format",
                       "type": "string",
-                      "desc": "Must be one of `'raw'`, `'pkcs8'`, `'spki'`, `'jwk'`, or `'node.keyObject'`."
+                      "desc": "Must be one of `'raw'`, `'pkcs8'`, `'spki'`, or `'jwk'`."
                     },
                     {
                       "textRaw": "`keyData`: {ArrayBuffer|TypedArray|DataView|Buffer|KeyObject}",
@@ -1885,7 +1373,7 @@
                   ]
                 }
               ],
-              "desc": "<!--lint disable maximum-line-length remark-lint-->\n<ul>\n<li><code>algorithm</code>: <a href=\"webcrypto.html#class-rsahashedimportparams\" class=\"type\">&lt;RsaHashedImportParams&gt;</a> | <a href=\"webcrypto.html#class-eckeyimportparams\" class=\"type\">&lt;EcKeyImportParams&gt;</a> | <a href=\"webcrypto.html#class-hmacimportparams\" class=\"type\">&lt;HmacImportParams&gt;</a> | <a href=\"webcrypto.html#class-aesimportparams\" class=\"type\">&lt;AesImportParams&gt;</a> | <a href=\"webcrypto.html#class-pbkdf2importparams\" class=\"type\">&lt;Pbkdf2ImportParams&gt;</a> | <a href=\"webcrypto.html#class-nodedsaimportparams\" class=\"type\">&lt;NodeDsaImportParams&gt;</a> | <a href=\"webcrypto.html#class-nodedhimportparams\" class=\"type\">&lt;NodeDhImportParams&gt;</a> | <a href=\"webcrypto.html#class-nodescryptimportparams\" class=\"type\">&lt;NodeScryptImportParams&gt;</a> | <a href=\"webcrypto.html#class-nodeedkeyimportparams\" class=\"type\">&lt;NodeEdKeyImportParams&gt;</a></li>\n</ul>\n<!--lint enable maximum-line-length remark-lint-->\n<ul>\n<li><code>extractable</code>: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a></li>\n<li><code>keyUsages</code>: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string[]&gt;</a> See <a href=\"#cryptokeyusages\">Key usages</a>.</li>\n<li>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise\" class=\"type\">&lt;Promise&gt;</a> containing <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a></li>\n</ul>\n<p>The <code>subtle.importKey()</code> method attempts to interpret the provided <code>keyData</code>\nas the given <code>format</code> to create a <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a> instance using the provided\n<code>algorithm</code>, <code>extractable</code>, and <code>keyUsages</code> arguments. If the import is\nsuccessful, the returned promise will be resolved with the created <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a>.</p>\n<p>The special <code>'node.keyObject'</code> value for <code>format</code> is a Node.js-specific\nextension that allows converting a Node.js <a href=\"crypto.html#class-keyobject\" class=\"type\">&lt;KeyObject&gt;</a> into a <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a>.</p>\n<p>If importing a <code>'PBKDF2'</code> key, <code>extractable</code> must be <code>false</code>.</p>\n<p>The algorithms currently supported include:</p>\n<table>\n<thead>\n<tr>\n<th>Key Type</th>\n<th><code>'spki'</code></th>\n<th><code>'pkcs8'</code></th>\n<th><code>'jwk'</code></th>\n<th><code>'raw'</code></th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>'AES-CBC'</code></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'AES-CTR'</code></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'AES-GCM'</code></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'AES-KW'</code></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'ECDH'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'ECDSA'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'HDKF'</code></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'HMAC'</code></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'PBKDF2'</code></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'RSA-OAEP'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n</tr>\n<tr>\n<td><code>'RSA-PSS'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n</tr>\n<tr>\n<td><code>'RSASSA-PKCS1-v1_5'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n</tr>\n<tr>\n<td><code>'NODE-DSA'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'NODE-DH'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-2\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td><code>'NODE-SCRYPT'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-3\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'NODE-ED25519'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-4\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'NODE-ED448'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-5\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n</tbody>\n</table>"
+              "desc": "<!--lint disable maximum-line-length remark-lint-->\n<ul>\n<li><code>algorithm</code>: <a href=\"webcrypto.html#class-algorithmidentifier\" class=\"type\">&lt;AlgorithmIdentifier&gt;</a> | <a href=\"webcrypto.html#class-rsahashedimportparams\" class=\"type\">&lt;RsaHashedImportParams&gt;</a> | <a href=\"webcrypto.html#class-eckeyimportparams\" class=\"type\">&lt;EcKeyImportParams&gt;</a> | <a href=\"webcrypto.html#class-hmacimportparams\" class=\"type\">&lt;HmacImportParams&gt;</a></li>\n</ul>\n<!--lint enable maximum-line-length remark-lint-->\n<ul>\n<li><code>extractable</code>: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a></li>\n<li><code>keyUsages</code>: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string[]&gt;</a> See <a href=\"#cryptokeyusages\">Key usages</a>.</li>\n<li>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise\" class=\"type\">&lt;Promise&gt;</a> containing <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a></li>\n</ul>\n<p>The <code>subtle.importKey()</code> method attempts to interpret the provided <code>keyData</code>\nas the given <code>format</code> to create a <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a> instance using the provided\n<code>algorithm</code>, <code>extractable</code>, and <code>keyUsages</code> arguments. If the import is\nsuccessful, the returned promise will be resolved with the created <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a>.</p>\n<p>If importing a <code>'PBKDF2'</code> key, <code>extractable</code> must be <code>false</code>.</p>\n<p>The algorithms currently supported include:</p>\n<table>\n<thead>\n<tr>\n<th>Key Type</th>\n<th><code>'spki'</code></th>\n<th><code>'pkcs8'</code></th>\n<th><code>'jwk'</code></th>\n<th><code>'raw'</code></th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>'AES-CBC'</code></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'AES-CTR'</code></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'AES-GCM'</code></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'AES-KW'</code></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'ECDH'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'X25519'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'X448'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-2\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'ECDSA'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'Ed25519'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-3\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'Ed448'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-4\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'HDKF'</code></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'HMAC'</code></td>\n<td></td>\n<td></td>\n<td>✔</td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'PBKDF2'</code></td>\n<td></td>\n<td></td>\n<td></td>\n<td>✔</td>\n</tr>\n<tr>\n<td><code>'RSA-OAEP'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n</tr>\n<tr>\n<td><code>'RSA-PSS'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n</tr>\n<tr>\n<td><code>'RSASSA-PKCS1-v1_5'</code></td>\n<td>✔</td>\n<td>✔</td>\n<td>✔</td>\n<td></td>\n</tr>\n</tbody>\n</table>"
             },
             {
               "textRaw": "`subtle.sign(algorithm, key, data)`",
@@ -1895,14 +1383,20 @@
                 "added": [
                   "v15.0.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v18.4.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/42507",
+                    "description": "Added `'Ed25519'`, and `'Ed448'` algorithms."
+                  }
+                ]
               },
               "signatures": [
                 {
                   "params": []
                 }
               ],
-              "desc": "<!--lint disable maximum-line-length remark-lint-->\n<ul>\n<li><code>algorithm</code>: <a href=\"webcrypto.html#class-rsasignparams\" class=\"type\">&lt;RsaSignParams&gt;</a> | <a href=\"webcrypto.html#class-rsapssparams\" class=\"type\">&lt;RsaPssParams&gt;</a> | <a href=\"webcrypto.html#class-ecdsaparams\" class=\"type\">&lt;EcdsaParams&gt;</a> | <a href=\"webcrypto.html#class-hmacparams\" class=\"type\">&lt;HmacParams&gt;</a> | <a href=\"webcrypto.html#class-nodedsasignparams\" class=\"type\">&lt;NodeDsaSignParams&gt;</a></li>\n<li><code>key</code>: <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a></li>\n<li><code>data</code>: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer\" class=\"type\">&lt;ArrayBuffer&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray\" class=\"type\">&lt;TypedArray&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView\" class=\"type\">&lt;DataView&gt;</a> | <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a></li>\n<li>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise\" class=\"type\">&lt;Promise&gt;</a> containing <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer\" class=\"type\">&lt;ArrayBuffer&gt;</a></li>\n</ul>\n<!--lint enable maximum-line-length remark-lint-->\n<p>Using the method and parameters given by <code>algorithm</code> and the keying material\nprovided by <code>key</code>, <code>subtle.sign()</code> attempts to generate a cryptographic\nsignature of <code>data</code>. If successful, the returned promise is resolved with\nan <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer\" class=\"type\">&lt;ArrayBuffer&gt;</a> containing the generated signature.</p>\n<p>The algorithms currently supported include:</p>\n<ul>\n<li><code>'RSASSA-PKCS1-v1_5'</code></li>\n<li><code>'RSA-PSS'</code></li>\n<li><code>'ECDSA'</code></li>\n<li><code>'HMAC'</code></li>\n<li><code>'NODE-DSA'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n<li><code>'NODE-ED25519'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-2\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n<li><code>'NODE-ED448'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-3\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n</ul>"
+              "desc": "<!--lint disable maximum-line-length remark-lint-->\n<ul>\n<li><code>algorithm</code>: <a href=\"webcrypto.html#class-algorithmidentifier\" class=\"type\">&lt;AlgorithmIdentifier&gt;</a> | <a href=\"webcrypto.html#class-rsapssparams\" class=\"type\">&lt;RsaPssParams&gt;</a> | <a href=\"webcrypto.html#class-ecdsaparams\" class=\"type\">&lt;EcdsaParams&gt;</a> | <a href=\"webcrypto.html#class-ed448params\" class=\"type\">&lt;Ed448Params&gt;</a></li>\n<li><code>key</code>: <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a></li>\n<li><code>data</code>: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer\" class=\"type\">&lt;ArrayBuffer&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray\" class=\"type\">&lt;TypedArray&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView\" class=\"type\">&lt;DataView&gt;</a> | <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a></li>\n<li>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise\" class=\"type\">&lt;Promise&gt;</a> containing <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer\" class=\"type\">&lt;ArrayBuffer&gt;</a></li>\n</ul>\n<!--lint enable maximum-line-length remark-lint-->\n<p>Using the method and parameters given by <code>algorithm</code> and the keying material\nprovided by <code>key</code>, <code>subtle.sign()</code> attempts to generate a cryptographic\nsignature of <code>data</code>. If successful, the returned promise is resolved with\nan <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer\" class=\"type\">&lt;ArrayBuffer&gt;</a> containing the generated signature.</p>\n<p>The algorithms currently supported include:</p>\n<ul>\n<li><code>'RSASSA-PKCS1-v1_5'</code></li>\n<li><code>'RSA-PSS'</code></li>\n<li><code>'ECDSA'</code></li>\n<li><code>'Ed25519'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n<li><code>'Ed448'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-2\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n<li><code>'HMAC'</code></li>\n</ul>"
             },
             {
               "textRaw": "`subtle.unwrapKey(format, wrappedKey, unwrappingKey, unwrapAlgo, unwrappedKeyAlgo, extractable, keyUsages)`",
@@ -1936,7 +1430,7 @@
                   ]
                 }
               ],
-              "desc": "<!--lint disable maximum-line-length remark-lint-->\n<ul>\n<li><code>unwrapAlgo</code>: <a href=\"webcrypto.html#class-rsaoaepparams\" class=\"type\">&lt;RsaOaepParams&gt;</a> | <a href=\"webcrypto.html#class-aesctrparams\" class=\"type\">&lt;AesCtrParams&gt;</a> | <a href=\"webcrypto.html#class-aescbcparams\" class=\"type\">&lt;AesCbcParams&gt;</a> | <a href=\"webcrypto.html#class-aesgcmparams\" class=\"type\">&lt;AesGcmParams&gt;</a> | <a href=\"webcrypto.html#class-aeskwparams\" class=\"type\">&lt;AesKwParams&gt;</a></li>\n<li><code>unwrappedKeyAlgo</code>: <a href=\"webcrypto.html#class-rsahashedimportparams\" class=\"type\">&lt;RsaHashedImportParams&gt;</a> | <a href=\"webcrypto.html#class-eckeyimportparams\" class=\"type\">&lt;EcKeyImportParams&gt;</a> | <a href=\"webcrypto.html#class-hmacimportparams\" class=\"type\">&lt;HmacImportParams&gt;</a> | <a href=\"webcrypto.html#class-aesimportparams\" class=\"type\">&lt;AesImportParams&gt;</a></li>\n</ul>\n<!--lint enable maximum-line-length remark-lint-->\n<ul>\n<li><code>extractable</code>: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a></li>\n<li><code>keyUsages</code>: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string[]&gt;</a> See <a href=\"#cryptokeyusages\">Key usages</a>.</li>\n<li>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise\" class=\"type\">&lt;Promise&gt;</a> containing <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a></li>\n</ul>\n<p>In cryptography, \"wrapping a key\" refers to exporting and then encrypting the\nkeying material. The <code>subtle.unwrapKey()</code> method attempts to decrypt a wrapped\nkey and create a <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a> instance. It is equivalent to calling\n<code>subtle.decrypt()</code> first on the encrypted key data (using the <code>wrappedKey</code>,\n<code>unwrapAlgo</code>, and <code>unwrappingKey</code> arguments as input) then passing the results\nin to the <code>subtle.importKey()</code> method using the <code>unwrappedKeyAlgo</code>,\n<code>extractable</code>, and <code>keyUsages</code> arguments as inputs. If successful, the returned\npromise is resolved with a <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a> object.</p>\n<p>The wrapping algorithms currently supported include:</p>\n<ul>\n<li><code>'RSA-OAEP'</code></li>\n<li><code>'AES-CTR'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n<li><code>'AES-CBC'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-2\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n<li><code>'AES-GCM'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-3\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n<li><code>'AES-KW'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-4\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n</ul>\n<p>The unwrapped key algorithms supported include:</p>\n<ul>\n<li><code>'RSASSA-PKCS1-v1_5'</code></li>\n<li><code>'RSA-PSS'</code></li>\n<li><code>'RSA-OAEP'</code></li>\n<li><code>'ECDSA'</code></li>\n<li><code>'ECDH'</code></li>\n<li><code>'HMAC'</code></li>\n<li><code>'AES-CTR'</code></li>\n<li><code>'AES-CBC'</code></li>\n<li><code>'AES-GCM'</code></li>\n<li><code>'AES-KW'</code></li>\n<li><code>'NODE-DSA'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-5\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n<li><code>'NODE-DH'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-6\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n</ul>"
+              "desc": "<!--lint disable maximum-line-length remark-lint-->\n<ul>\n<li><code>unwrapAlgo</code>: <a href=\"webcrypto.html#class-algorithmidentifier\" class=\"type\">&lt;AlgorithmIdentifier&gt;</a> | <a href=\"webcrypto.html#class-rsaoaepparams\" class=\"type\">&lt;RsaOaepParams&gt;</a> | <a href=\"webcrypto.html#class-aesctrparams\" class=\"type\">&lt;AesCtrParams&gt;</a> | <a href=\"webcrypto.html#class-aescbcparams\" class=\"type\">&lt;AesCbcParams&gt;</a> | <a href=\"webcrypto.html#class-aesgcmparams\" class=\"type\">&lt;AesGcmParams&gt;</a></li>\n<li><code>unwrappedKeyAlgo</code>: <a href=\"webcrypto.html#class-algorithmidentifier\" class=\"type\">&lt;AlgorithmIdentifier&gt;</a> | <a href=\"webcrypto.html#class-rsahashedimportparams\" class=\"type\">&lt;RsaHashedImportParams&gt;</a> | <a href=\"webcrypto.html#class-eckeyimportparams\" class=\"type\">&lt;EcKeyImportParams&gt;</a> | <a href=\"webcrypto.html#class-hmacimportparams\" class=\"type\">&lt;HmacImportParams&gt;</a></li>\n</ul>\n<!--lint enable maximum-line-length remark-lint-->\n<ul>\n<li><code>extractable</code>: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a></li>\n<li><code>keyUsages</code>: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string[]&gt;</a> See <a href=\"#cryptokeyusages\">Key usages</a>.</li>\n<li>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise\" class=\"type\">&lt;Promise&gt;</a> containing <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a></li>\n</ul>\n<p>In cryptography, \"wrapping a key\" refers to exporting and then encrypting the\nkeying material. The <code>subtle.unwrapKey()</code> method attempts to decrypt a wrapped\nkey and create a <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a> instance. It is equivalent to calling\n<code>subtle.decrypt()</code> first on the encrypted key data (using the <code>wrappedKey</code>,\n<code>unwrapAlgo</code>, and <code>unwrappingKey</code> arguments as input) then passing the results\nin to the <code>subtle.importKey()</code> method using the <code>unwrappedKeyAlgo</code>,\n<code>extractable</code>, and <code>keyUsages</code> arguments as inputs. If successful, the returned\npromise is resolved with a <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a> object.</p>\n<p>The wrapping algorithms currently supported include:</p>\n<ul>\n<li><code>'RSA-OAEP'</code></li>\n<li><code>'AES-CTR'</code></li>\n<li><code>'AES-CBC'</code></li>\n<li><code>'AES-GCM'</code></li>\n<li><code>'AES-KW'</code></li>\n</ul>\n<p>The unwrapped key algorithms supported include:</p>\n<ul>\n<li><code>'RSASSA-PKCS1-v1_5'</code></li>\n<li><code>'RSA-PSS'</code></li>\n<li><code>'RSA-OAEP'</code></li>\n<li><code>'ECDSA'</code></li>\n<li><code>'Ed25519'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n<li><code>'Ed448'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-2\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n<li><code>'ECDH'</code></li>\n<li><code>'X25519'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-3\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n<li><code>'X448'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-4\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n<li><code>'HMAC'</code></li>\n<li><code>'AES-CTR'</code></li>\n<li><code>'AES-CBC'</code></li>\n<li><code>'AES-GCM'</code></li>\n<li><code>'AES-KW'</code></li>\n</ul>"
             },
             {
               "textRaw": "`subtle.verify(algorithm, key, signature, data)`",
@@ -1946,14 +1440,20 @@
                 "added": [
                   "v15.0.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v18.4.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/42507",
+                    "description": "Added `'Ed25519'`, and `'Ed448'` algorithms."
+                  }
+                ]
               },
               "signatures": [
                 {
                   "params": []
                 }
               ],
-              "desc": "<!--lint disable maximum-line-length remark-lint-->\n<ul>\n<li><code>algorithm</code>: <a href=\"webcrypto.html#class-rsasignparams\" class=\"type\">&lt;RsaSignParams&gt;</a> | <a href=\"webcrypto.html#class-rsapssparams\" class=\"type\">&lt;RsaPssParams&gt;</a> | <a href=\"webcrypto.html#class-ecdsaparams\" class=\"type\">&lt;EcdsaParams&gt;</a> | <a href=\"webcrypto.html#class-hmacparams\" class=\"type\">&lt;HmacParams&gt;</a> | <a href=\"webcrypto.html#class-nodedsasignparams\" class=\"type\">&lt;NodeDsaSignParams&gt;</a></li>\n<li><code>key</code>: <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a></li>\n<li><code>signature</code>: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer\" class=\"type\">&lt;ArrayBuffer&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray\" class=\"type\">&lt;TypedArray&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView\" class=\"type\">&lt;DataView&gt;</a> | <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a></li>\n<li><code>data</code>: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer\" class=\"type\">&lt;ArrayBuffer&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray\" class=\"type\">&lt;TypedArray&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView\" class=\"type\">&lt;DataView&gt;</a> | <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a></li>\n<li>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise\" class=\"type\">&lt;Promise&gt;</a> containing <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a></li>\n</ul>\n<!--lint enable maximum-line-length remark-lint-->\n<p>Using the method and parameters given in <code>algorithm</code> and the keying material\nprovided by <code>key</code>, <code>subtle.verify()</code> attempts to verify that <code>signature</code> is\na valid cryptographic signature of <code>data</code>. The returned promise is resolved\nwith either <code>true</code> or <code>false</code>.</p>\n<p>The algorithms currently supported include:</p>\n<ul>\n<li><code>'RSASSA-PKCS1-v1_5'</code></li>\n<li><code>'RSA-PSS'</code></li>\n<li><code>'ECDSA'</code></li>\n<li><code>'HMAC'</code></li>\n<li><code>'NODE-DSA'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n<li><code>'NODE-ED25519'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-2\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n<li><code>'NODE-ED448'</code><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-3\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n</ul>"
+              "desc": "<!--lint disable maximum-line-length remark-lint-->\n<ul>\n<li><code>algorithm</code>: <a href=\"webcrypto.html#class-algorithmidentifier\" class=\"type\">&lt;AlgorithmIdentifier&gt;</a> | <a href=\"webcrypto.html#class-rsapssparams\" class=\"type\">&lt;RsaPssParams&gt;</a> | <a href=\"webcrypto.html#class-ecdsaparams\" class=\"type\">&lt;EcdsaParams&gt;</a> | <a href=\"webcrypto.html#class-ed448params\" class=\"type\">&lt;Ed448Params&gt;</a></li>\n<li><code>key</code>: <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a></li>\n<li><code>signature</code>: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer\" class=\"type\">&lt;ArrayBuffer&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray\" class=\"type\">&lt;TypedArray&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView\" class=\"type\">&lt;DataView&gt;</a> | <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a></li>\n<li><code>data</code>: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer\" class=\"type\">&lt;ArrayBuffer&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray\" class=\"type\">&lt;TypedArray&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView\" class=\"type\">&lt;DataView&gt;</a> | <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a></li>\n<li>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise\" class=\"type\">&lt;Promise&gt;</a> containing <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a></li>\n</ul>\n<!--lint enable maximum-line-length remark-lint-->\n<p>Using the method and parameters given in <code>algorithm</code> and the keying material\nprovided by <code>key</code>, <code>subtle.verify()</code> attempts to verify that <code>signature</code> is\na valid cryptographic signature of <code>data</code>. The returned promise is resolved\nwith either <code>true</code> or <code>false</code>.</p>\n<p>The algorithms currently supported include:</p>\n<ul>\n<li><code>'RSASSA-PKCS1-v1_5'</code></li>\n<li><code>'RSA-PSS'</code></li>\n<li><code>'ECDSA'</code></li>\n<li><code>'Ed25519'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n<li><code>'Ed448'</code> <span class=\"experimental-inline\"></span><sup><a href=\"#user-content-fn-1\" id=\"user-content-fnref-1-2\" data-footnote-ref aria-describedby=\"footnote-label\">1</a></sup></li>\n<li><code>'HMAC'</code></li>\n</ul>"
             },
             {
               "textRaw": "`subtle.wrapKey(format, key, wrappingKey, wrapAlgo)`",
@@ -1967,38 +1467,10 @@
               },
               "signatures": [
                 {
-                  "return": {
-                    "textRaw": "Returns: {Promise} containing {ArrayBuffer}",
-                    "name": "return",
-                    "type": "Promise",
-                    "desc": "containing {ArrayBuffer}"
-                  },
-                  "params": [
-                    {
-                      "textRaw": "`format`: {string} Must be one of `'raw'`, `'pkcs8'`, `'spki'`, or `'jwk'`.",
-                      "name": "format",
-                      "type": "string",
-                      "desc": "Must be one of `'raw'`, `'pkcs8'`, `'spki'`, or `'jwk'`."
-                    },
-                    {
-                      "textRaw": "`key`: {CryptoKey}",
-                      "name": "key",
-                      "type": "CryptoKey"
-                    },
-                    {
-                      "textRaw": "`wrappingKey`: {CryptoKey}",
-                      "name": "wrappingKey",
-                      "type": "CryptoKey"
-                    },
-                    {
-                      "textRaw": "`wrapAlgo`: {RsaOaepParams|AesCtrParams|AesCbcParams|AesGcmParams|AesKwParams}",
-                      "name": "wrapAlgo",
-                      "type": "RsaOaepParams|AesCtrParams|AesCbcParams|AesGcmParams|AesKwParams"
-                    }
-                  ]
+                  "params": []
                 }
               ],
-              "desc": "<p>In cryptography, \"wrapping a key\" refers to exporting and then encrypting the\nkeying material. The <code>subtle.wrapKey()</code> method exports the keying material into\nthe format identified by <code>format</code>, then encrypts it using the method and\nparameters specified by <code>wrapAlgo</code> and the keying material provided by\n<code>wrappingKey</code>. It is the equivalent to calling <code>subtle.exportKey()</code> using\n<code>format</code> and <code>key</code> as the arguments, then passing the result to the\n<code>subtle.encrypt()</code> method using <code>wrappingKey</code> and <code>wrapAlgo</code> as inputs. If\nsuccessful, the returned promise will be resolved with an <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer\" class=\"type\">&lt;ArrayBuffer&gt;</a>\ncontaining the encrypted key data.</p>\n<p>The wrapping algorithms currently supported include:</p>\n<ul>\n<li><code>'RSA-OAEP'</code></li>\n<li><code>'AES-CTR'</code></li>\n<li><code>'AES-CBC'</code></li>\n<li><code>'AES-GCM'</code></li>\n<li><code>'AES-KW'</code></li>\n</ul>"
+              "desc": "<!--lint disable maximum-line-length remark-lint-->\n<ul>\n<li><code>format</code>: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> Must be one of <code>'raw'</code>, <code>'pkcs8'</code>, <code>'spki'</code>, or <code>'jwk'</code>.</li>\n<li><code>key</code>: <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a></li>\n<li><code>wrappingKey</code>: <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a></li>\n<li><code>wrapAlgo</code>: <a href=\"webcrypto.html#class-algorithmidentifier\" class=\"type\">&lt;AlgorithmIdentifier&gt;</a> | <a href=\"webcrypto.html#class-rsaoaepparams\" class=\"type\">&lt;RsaOaepParams&gt;</a> | <a href=\"webcrypto.html#class-aesctrparams\" class=\"type\">&lt;AesCtrParams&gt;</a> | <a href=\"webcrypto.html#class-aescbcparams\" class=\"type\">&lt;AesCbcParams&gt;</a> | <a href=\"webcrypto.html#class-aesgcmparams\" class=\"type\">&lt;AesGcmParams&gt;</a></li>\n<li>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise\" class=\"type\">&lt;Promise&gt;</a> containing <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer\" class=\"type\">&lt;ArrayBuffer&gt;</a></li>\n</ul>\n<!--lint enable maximum-line-length remark-lint-->\n<p>In cryptography, \"wrapping a key\" refers to exporting and then encrypting the\nkeying material. The <code>subtle.wrapKey()</code> method exports the keying material into\nthe format identified by <code>format</code>, then encrypts it using the method and\nparameters specified by <code>wrapAlgo</code> and the keying material provided by\n<code>wrappingKey</code>. It is the equivalent to calling <code>subtle.exportKey()</code> using\n<code>format</code> and <code>key</code> as the arguments, then passing the result to the\n<code>subtle.encrypt()</code> method using <code>wrappingKey</code> and <code>wrapAlgo</code> as inputs. If\nsuccessful, the returned promise will be resolved with an <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer\" class=\"type\">&lt;ArrayBuffer&gt;</a>\ncontaining the encrypted key data.</p>\n<p>The wrapping algorithms currently supported include:</p>\n<ul>\n<li><code>'RSA-OAEP'</code></li>\n<li><code>'AES-CTR'</code></li>\n<li><code>'AES-CBC'</code></li>\n<li><code>'AES-GCM'</code></li>\n<li><code>'AES-KW'</code></li>\n</ul>"
             }
           ]
         }

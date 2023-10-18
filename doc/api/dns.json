@@ -8,7 +8,7 @@
       "introduced_in": "v0.10.0",
       "stability": 2,
       "stabilityText": "Stable",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v16.15.1/lib/dns.js\">lib/dns.js</a></p>\n<p>The <code>dns</code> module enables name resolution. For example, use it to look up IP\naddresses of host names.</p>\n<p>Although named for the <a href=\"https://en.wikipedia.org/wiki/Domain_Name_System\">Domain Name System (DNS)</a>, it does not always use the\nDNS protocol for lookups. <a href=\"#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a> uses the operating system\nfacilities to perform name resolution. It may not need to perform any network\ncommunication. To perform name resolution the way other applications on the same\nsystem do, use <a href=\"#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a>.</p>\n<pre><code class=\"language-js\">const dns = require('dns');\n\ndns.lookup('example.org', (err, address, family) => {\n  console.log('address: %j family: IPv%s', address, family);\n});\n// address: \"93.184.216.34\" family: IPv4\n</code></pre>\n<p>All other functions in the <code>dns</code> module connect to an actual DNS server to\nperform name resolution. They will always use the network to perform DNS\nqueries. These functions do not use the same set of configuration files used by\n<a href=\"#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a> (e.g. <code>/etc/hosts</code>). Use these functions to always perform\nDNS queries, bypassing other name-resolution facilities.</p>\n<pre><code class=\"language-js\">const dns = require('dns');\n\ndns.resolve4('archive.org', (err, addresses) => {\n  if (err) throw err;\n\n  console.log(`addresses: ${JSON.stringify(addresses)}`);\n\n  addresses.forEach((a) => {\n    dns.reverse(a, (err, hostnames) => {\n      if (err) {\n        throw err;\n      }\n      console.log(`reverse for ${a}: ${JSON.stringify(hostnames)}`);\n    });\n  });\n});\n</code></pre>\n<p>See the <a href=\"#implementation-considerations\">Implementation considerations section</a> for more information.</p>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.13.0/lib/dns.js\">lib/dns.js</a></p>\n<p>The <code>node:dns</code> module enables name resolution. For example, use it to look up IP\naddresses of host names.</p>\n<p>Although named for the <a href=\"https://en.wikipedia.org/wiki/Domain_Name_System\">Domain Name System (DNS)</a>, it does not always use the\nDNS protocol for lookups. <a href=\"#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a> uses the operating system\nfacilities to perform name resolution. It may not need to perform any network\ncommunication. To perform name resolution the way other applications on the same\nsystem do, use <a href=\"#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a>.</p>\n<pre><code class=\"language-js\">const dns = require('node:dns');\n\ndns.lookup('example.org', (err, address, family) => {\n  console.log('address: %j family: IPv%s', address, family);\n});\n// address: \"93.184.216.34\" family: IPv4\n</code></pre>\n<p>All other functions in the <code>node:dns</code> module connect to an actual DNS server to\nperform name resolution. They will always use the network to perform DNS\nqueries. These functions do not use the same set of configuration files used by\n<a href=\"#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a> (e.g. <code>/etc/hosts</code>). Use these functions to always perform\nDNS queries, bypassing other name-resolution facilities.</p>\n<pre><code class=\"language-js\">const dns = require('node:dns');\n\ndns.resolve4('archive.org', (err, addresses) => {\n  if (err) throw err;\n\n  console.log(`addresses: ${JSON.stringify(addresses)}`);\n\n  addresses.forEach((a) => {\n    dns.reverse(a, (err, hostnames) => {\n      if (err) {\n        throw err;\n      }\n      console.log(`reverse for ${a}: ${JSON.stringify(hostnames)}`);\n    });\n  });\n});\n</code></pre>\n<p>See the <a href=\"#implementation-considerations\">Implementation considerations section</a> for more information.</p>",
       "classes": [
         {
           "textRaw": "Class: `dns.Resolver`",
@@ -20,7 +20,7 @@
             ],
             "changes": []
           },
-          "desc": "<p>An independent resolver for DNS requests.</p>\n<p>Creating a new resolver uses the default server settings. Setting\nthe servers used for a resolver using\n<a href=\"#dnssetserversservers\"><code>resolver.setServers()</code></a> does not affect\nother resolvers:</p>\n<pre><code class=\"language-js\">const { Resolver } = require('dns');\nconst resolver = new Resolver();\nresolver.setServers(['4.4.4.4']);\n\n// This request will use the server at 4.4.4.4, independent of global settings.\nresolver.resolve4('example.org', (err, addresses) => {\n  // ...\n});\n</code></pre>\n<p>The following methods from the <code>dns</code> module are available:</p>\n<ul>\n<li><a href=\"#dnsgetservers\"><code>resolver.getServers()</code></a></li>\n<li><a href=\"#dnsresolvehostname-rrtype-callback\"><code>resolver.resolve()</code></a></li>\n<li><a href=\"#dnsresolve4hostname-options-callback\"><code>resolver.resolve4()</code></a></li>\n<li><a href=\"#dnsresolve6hostname-options-callback\"><code>resolver.resolve6()</code></a></li>\n<li><a href=\"#dnsresolveanyhostname-callback\"><code>resolver.resolveAny()</code></a></li>\n<li><a href=\"#dnsresolvecaahostname-callback\"><code>resolver.resolveCaa()</code></a></li>\n<li><a href=\"#dnsresolvecnamehostname-callback\"><code>resolver.resolveCname()</code></a></li>\n<li><a href=\"#dnsresolvemxhostname-callback\"><code>resolver.resolveMx()</code></a></li>\n<li><a href=\"#dnsresolvenaptrhostname-callback\"><code>resolver.resolveNaptr()</code></a></li>\n<li><a href=\"#dnsresolvenshostname-callback\"><code>resolver.resolveNs()</code></a></li>\n<li><a href=\"#dnsresolveptrhostname-callback\"><code>resolver.resolvePtr()</code></a></li>\n<li><a href=\"#dnsresolvesoahostname-callback\"><code>resolver.resolveSoa()</code></a></li>\n<li><a href=\"#dnsresolvesrvhostname-callback\"><code>resolver.resolveSrv()</code></a></li>\n<li><a href=\"#dnsresolvetxthostname-callback\"><code>resolver.resolveTxt()</code></a></li>\n<li><a href=\"#dnsreverseip-callback\"><code>resolver.reverse()</code></a></li>\n<li><a href=\"#dnssetserversservers\"><code>resolver.setServers()</code></a></li>\n</ul>",
+          "desc": "<p>An independent resolver for DNS requests.</p>\n<p>Creating a new resolver uses the default server settings. Setting\nthe servers used for a resolver using\n<a href=\"#dnssetserversservers\"><code>resolver.setServers()</code></a> does not affect\nother resolvers:</p>\n<pre><code class=\"language-js\">const { Resolver } = require('node:dns');\nconst resolver = new Resolver();\nresolver.setServers(['4.4.4.4']);\n\n// This request will use the server at 4.4.4.4, independent of global settings.\nresolver.resolve4('example.org', (err, addresses) => {\n  // ...\n});\n</code></pre>\n<p>The following methods from the <code>node:dns</code> module are available:</p>\n<ul>\n<li><a href=\"#dnsgetservers\"><code>resolver.getServers()</code></a></li>\n<li><a href=\"#dnsresolvehostname-rrtype-callback\"><code>resolver.resolve()</code></a></li>\n<li><a href=\"#dnsresolve4hostname-options-callback\"><code>resolver.resolve4()</code></a></li>\n<li><a href=\"#dnsresolve6hostname-options-callback\"><code>resolver.resolve6()</code></a></li>\n<li><a href=\"#dnsresolveanyhostname-callback\"><code>resolver.resolveAny()</code></a></li>\n<li><a href=\"#dnsresolvecaahostname-callback\"><code>resolver.resolveCaa()</code></a></li>\n<li><a href=\"#dnsresolvecnamehostname-callback\"><code>resolver.resolveCname()</code></a></li>\n<li><a href=\"#dnsresolvemxhostname-callback\"><code>resolver.resolveMx()</code></a></li>\n<li><a href=\"#dnsresolvenaptrhostname-callback\"><code>resolver.resolveNaptr()</code></a></li>\n<li><a href=\"#dnsresolvenshostname-callback\"><code>resolver.resolveNs()</code></a></li>\n<li><a href=\"#dnsresolveptrhostname-callback\"><code>resolver.resolvePtr()</code></a></li>\n<li><a href=\"#dnsresolvesoahostname-callback\"><code>resolver.resolveSoa()</code></a></li>\n<li><a href=\"#dnsresolvesrvhostname-callback\"><code>resolver.resolveSrv()</code></a></li>\n<li><a href=\"#dnsresolvetxthostname-callback\"><code>resolver.resolveTxt()</code></a></li>\n<li><a href=\"#dnsreverseip-callback\"><code>resolver.reverse()</code></a></li>\n<li><a href=\"#dnssetserversservers\"><code>resolver.setServers()</code></a></li>\n</ul>",
           "methods": [
             {
               "textRaw": "`Resolver([options])`",
@@ -32,7 +32,10 @@
                 ],
                 "changes": [
                   {
-                    "version": "v16.7.0",
+                    "version": [
+                      "v16.7.0",
+                      "v14.18.0"
+                    ],
                     "pr-url": "https://github.com/nodejs/node/pull/39610",
                     "description": "The `options` object now accepts a `tries` option."
                   },
@@ -73,7 +76,8 @@
               "name": "setLocalAddress",
               "meta": {
                 "added": [
-                  "v15.1.0"
+                  "v15.1.0",
+                  "v14.17.0"
                 ],
                 "changes": []
               },
@@ -97,7 +101,7 @@
                   ]
                 }
               ],
-              "desc": "<p>The resolver instance will send its requests from the specified IP address.\nThis allows programs to specify outbound interfaces when used on multi-homed\nsystems.</p>\n<p>If a v4 or v6 address is not specified, it is set to the default, and the\noperating system will choose a local address automatically.</p>\n<p>The resolver will use the v4 local address when making requests to IPv4 DNS\nservers, and the v6 local address when making requests to IPv6 DNS servers.\nThe <code>rrtype</code> of resolution requests has no impact on the local address used.</p>"
+              "desc": "<p>The resolver instance will send its requests from the specified IP address.\nThis allows programs to specify outbound interfaces when used on multi-homed\nsystems.</p>\n<p>If a v4 or v6 address is not specified, it is set to the default and the\noperating system will choose a local address automatically.</p>\n<p>The resolver will use the v4 local address when making requests to IPv4 DNS\nservers, and the v6 local address when making requests to IPv6 DNS servers.\nThe <code>rrtype</code> of resolution requests has no impact on the local address used.</p>"
             }
           ]
         }
@@ -135,6 +139,21 @@
             ],
             "changes": [
               {
+                "version": "v18.4.0",
+                "pr-url": "https://github.com/nodejs/node/pull/43054",
+                "description": "For compatibility with `node:net`, when passing an option object the `family` option can be the string `'IPv4'` or the string `'IPv6'`."
+              },
+              {
+                "version": "v18.0.0",
+                "pr-url": "https://github.com/nodejs/node/pull/41678",
+                "description": "Passing an invalid callback to the `callback` argument now throws `ERR_INVALID_ARG_TYPE` instead of `ERR_INVALID_CALLBACK`."
+              },
+              {
+                "version": "v17.0.0",
+                "pr-url": "https://github.com/nodejs/node/pull/39987",
+                "description": "The `verbatim` options defaults to `true` now."
+              },
+              {
                 "version": "v8.5.0",
                 "pr-url": "https://github.com/nodejs/node/pull/14731",
                 "description": "The `verbatim` option is supported now."
@@ -160,11 +179,11 @@
                   "type": "integer | Object",
                   "options": [
                     {
-                      "textRaw": "`family` {integer} The record family. Must be `4`, `6`, or `0`. The value `0` indicates that IPv4 and IPv6 addresses are both returned. **Default:** `0`.",
+                      "textRaw": "`family` {integer|string} The record family. Must be `4`, `6`, or `0`. For backward compatibility reasons,`'IPv4'` and `'IPv6'` are interpreted as `4` and `6` respectively. The value `0` indicates that IPv4 and IPv6 addresses are both returned. **Default:** `0`.",
                       "name": "family",
-                      "type": "integer",
+                      "type": "integer|string",
                       "default": "`0`",
-                      "desc": "The record family. Must be `4`, `6`, or `0`. The value `0` indicates that IPv4 and IPv6 addresses are both returned."
+                      "desc": "The record family. Must be `4`, `6`, or `0`. For backward compatibility reasons,`'IPv4'` and `'IPv6'` are interpreted as `4` and `6` respectively. The value `0` indicates that IPv4 and IPv6 addresses are both returned."
                     },
                     {
                       "textRaw": "`hints` {number} One or more [supported `getaddrinfo` flags][]. Multiple flags may be passed by bitwise `OR`ing their values.",
@@ -180,10 +199,10 @@
                       "desc": "When `true`, the callback returns all resolved addresses in an array. Otherwise, returns a single address."
                     },
                     {
-                      "textRaw": "`verbatim` {boolean} When `true`, the callback receives IPv4 and IPv6 addresses in the order the DNS resolver returned them. When `false`, IPv4 addresses are placed before IPv6 addresses. **Default:** currently `false` (addresses are reordered) but this is expected to change in the not too distant future. Default value is configurable using [`dns.setDefaultResultOrder()`][] or [`--dns-result-order`][]. New code should use `{ verbatim: true }`.",
+                      "textRaw": "`verbatim` {boolean} When `true`, the callback receives IPv4 and IPv6 addresses in the order the DNS resolver returned them. When `false`, IPv4 addresses are placed before IPv6 addresses. **Default:** `true` (addresses are not reordered). Default value is configurable using [`dns.setDefaultResultOrder()`][] or [`--dns-result-order`][].",
                       "name": "verbatim",
                       "type": "boolean",
-                      "default": "currently `false` (addresses are reordered) but this is expected to change in the not too distant future. Default value is configurable using [`dns.setDefaultResultOrder()`][] or [`--dns-result-order`][]. New code should use `{ verbatim: true }`",
+                      "default": "`true` (addresses are not reordered). Default value is configurable using [`dns.setDefaultResultOrder()`][] or [`--dns-result-order`][]",
                       "desc": "When `true`, the callback receives IPv4 and IPv6 addresses in the order the DNS resolver returned them. When `false`, IPv4 addresses are placed before IPv6 addresses."
                     }
                   ]
@@ -215,7 +234,7 @@
               ]
             }
           ],
-          "desc": "<p>Resolves a host name (e.g. <code>'nodejs.org'</code>) into the first found A (IPv4) or\nAAAA (IPv6) record. All <code>option</code> properties are optional. If <code>options</code> is an\ninteger, then it must be <code>4</code> or <code>6</code> – if <code>options</code> is not provided, then IPv4\nand IPv6 addresses are both returned if found.</p>\n<p>With the <code>all</code> option set to <code>true</code>, the arguments for <code>callback</code> change to\n<code>(err, addresses)</code>, with <code>addresses</code> being an array of objects with the\nproperties <code>address</code> and <code>family</code>.</p>\n<p>On error, <code>err</code> is an <a href=\"errors.html#class-error\"><code>Error</code></a> object, where <code>err.code</code> is the error code.\nKeep in mind that <code>err.code</code> will be set to <code>'ENOTFOUND'</code> not only when\nthe host name does not exist but also when the lookup fails in other ways\nsuch as no available file descriptors.</p>\n<p><code>dns.lookup()</code> does not necessarily have anything to do with the DNS protocol.\nThe implementation uses an operating system facility that can associate names\nwith addresses, and vice versa. This implementation can have subtle but\nimportant consequences on the behavior of any Node.js program. Please take some\ntime to consult the <a href=\"#implementation-considerations\">Implementation considerations section</a> before using\n<code>dns.lookup()</code>.</p>\n<p>Example usage:</p>\n<pre><code class=\"language-js\">const dns = require('dns');\nconst options = {\n  family: 6,\n  hints: dns.ADDRCONFIG | dns.V4MAPPED,\n};\ndns.lookup('example.com', options, (err, address, family) =>\n  console.log('address: %j family: IPv%s', address, family));\n// address: \"2606:2800:220:1:248:1893:25c8:1946\" family: IPv6\n\n// When options.all is true, the result will be an Array.\noptions.all = true;\ndns.lookup('example.com', options, (err, addresses) =>\n  console.log('addresses: %j', addresses));\n// addresses: [{\"address\":\"2606:2800:220:1:248:1893:25c8:1946\",\"family\":6}]\n</code></pre>\n<p>If this method is invoked as its <a href=\"util.html#utilpromisifyoriginal\"><code>util.promisify()</code></a>ed version, and <code>all</code>\nis not set to <code>true</code>, it returns a <code>Promise</code> for an <code>Object</code> with <code>address</code> and\n<code>family</code> properties.</p>",
+          "desc": "<p>Resolves a host name (e.g. <code>'nodejs.org'</code>) into the first found A (IPv4) or\nAAAA (IPv6) record. All <code>option</code> properties are optional. If <code>options</code> is an\ninteger, then it must be <code>4</code> or <code>6</code> – if <code>options</code> is <code>0</code> or not provided, then\nIPv4 and IPv6 addresses are both returned if found.</p>\n<p>With the <code>all</code> option set to <code>true</code>, the arguments for <code>callback</code> change to\n<code>(err, addresses)</code>, with <code>addresses</code> being an array of objects with the\nproperties <code>address</code> and <code>family</code>.</p>\n<p>On error, <code>err</code> is an <a href=\"errors.html#class-error\"><code>Error</code></a> object, where <code>err.code</code> is the error code.\nKeep in mind that <code>err.code</code> will be set to <code>'ENOTFOUND'</code> not only when\nthe host name does not exist but also when the lookup fails in other ways\nsuch as no available file descriptors.</p>\n<p><code>dns.lookup()</code> does not necessarily have anything to do with the DNS protocol.\nThe implementation uses an operating system facility that can associate names\nwith addresses and vice versa. This implementation can have subtle but\nimportant consequences on the behavior of any Node.js program. Please take some\ntime to consult the <a href=\"#implementation-considerations\">Implementation considerations section</a> before using\n<code>dns.lookup()</code>.</p>\n<p>Example usage:</p>\n<pre><code class=\"language-js\">const dns = require('node:dns');\nconst options = {\n  family: 6,\n  hints: dns.ADDRCONFIG | dns.V4MAPPED,\n};\ndns.lookup('example.com', options, (err, address, family) =>\n  console.log('address: %j family: IPv%s', address, family));\n// address: \"2606:2800:220:1:248:1893:25c8:1946\" family: IPv6\n\n// When options.all is true, the result will be an Array.\noptions.all = true;\ndns.lookup('example.com', options, (err, addresses) =>\n  console.log('addresses: %j', addresses));\n// addresses: [{\"address\":\"2606:2800:220:1:248:1893:25c8:1946\",\"family\":6}]\n</code></pre>\n<p>If this method is invoked as its <a href=\"util.html#utilpromisifyoriginal\"><code>util.promisify()</code></a>ed version, and <code>all</code>\nis not set to <code>true</code>, it returns a <code>Promise</code> for an <code>Object</code> with <code>address</code> and\n<code>family</code> properties.</p>",
           "modules": [
             {
               "textRaw": "Supported getaddrinfo flags",
@@ -232,7 +251,7 @@
                   }
                 ]
               },
-              "desc": "<p>The following flags can be passed as hints to <a href=\"#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a>.</p>\n<ul>\n<li><code>dns.ADDRCONFIG</code>: Limits returned address types to the types of non-loopback\naddresses configured on the system. For example, IPv4 addresses are only\nreturned if the current system has at least one IPv4 address configured.</li>\n<li><code>dns.V4MAPPED</code>: If the IPv6 family was specified, but no IPv6 addresses were\nfound, then return IPv4 mapped IPv6 addresses. It is not supported\non some operating systems (e.g FreeBSD 10.1).</li>\n<li><code>dns.ALL</code>: If <code>dns.V4MAPPED</code> is specified, return resolved IPv6 addresses as\nwell as IPv4 mapped IPv6 addresses.</li>\n</ul>",
+              "desc": "<p>The following flags can be passed as hints to <a href=\"#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a>.</p>\n<ul>\n<li><code>dns.ADDRCONFIG</code>: Limits returned address types to the types of non-loopback\naddresses configured on the system. For example, IPv4 addresses are only\nreturned if the current system has at least one IPv4 address configured.</li>\n<li><code>dns.V4MAPPED</code>: If the IPv6 family was specified, but no IPv6 addresses were\nfound, then return IPv4 mapped IPv6 addresses. It is not supported\non some operating systems (e.g. FreeBSD 10.1).</li>\n<li><code>dns.ALL</code>: If <code>dns.V4MAPPED</code> is specified, return resolved IPv6 addresses as\nwell as IPv4 mapped IPv6 addresses.</li>\n</ul>",
               "type": "module",
               "displayName": "Supported getaddrinfo flags"
             }
@@ -246,7 +265,13 @@
             "added": [
               "v0.11.14"
             ],
-            "changes": []
+            "changes": [
+              {
+                "version": "v18.0.0",
+                "pr-url": "https://github.com/nodejs/node/pull/41678",
+                "description": "Passing an invalid callback to the `callback` argument now throws `ERR_INVALID_ARG_TYPE` instead of `ERR_INVALID_CALLBACK`."
+              }
+            ]
           },
           "signatures": [
             {
@@ -288,7 +313,7 @@
               ]
             }
           ],
-          "desc": "<p>Resolves the given <code>address</code> and <code>port</code> into a host name and service using\nthe operating system's underlying <code>getnameinfo</code> implementation.</p>\n<p>If <code>address</code> is not a valid IP address, a <code>TypeError</code> will be thrown.\nThe <code>port</code> will be coerced to a number. If it is not a legal port, a <code>TypeError</code>\nwill be thrown.</p>\n<p>On an error, <code>err</code> is an <a href=\"errors.html#class-error\"><code>Error</code></a> object, where <code>err.code</code> is the error code.</p>\n<pre><code class=\"language-js\">const dns = require('dns');\ndns.lookupService('127.0.0.1', 22, (err, hostname, service) => {\n  console.log(hostname, service);\n  // Prints: localhost ssh\n});\n</code></pre>\n<p>If this method is invoked as its <a href=\"util.html#utilpromisifyoriginal\"><code>util.promisify()</code></a>ed version, it returns a\n<code>Promise</code> for an <code>Object</code> with <code>hostname</code> and <code>service</code> properties.</p>"
+          "desc": "<p>Resolves the given <code>address</code> and <code>port</code> into a host name and service using\nthe operating system's underlying <code>getnameinfo</code> implementation.</p>\n<p>If <code>address</code> is not a valid IP address, a <code>TypeError</code> will be thrown.\nThe <code>port</code> will be coerced to a number. If it is not a legal port, a <code>TypeError</code>\nwill be thrown.</p>\n<p>On an error, <code>err</code> is an <a href=\"errors.html#class-error\"><code>Error</code></a> object, where <code>err.code</code> is the error code.</p>\n<pre><code class=\"language-js\">const dns = require('node:dns');\ndns.lookupService('127.0.0.1', 22, (err, hostname, service) => {\n  console.log(hostname, service);\n  // Prints: localhost ssh\n});\n</code></pre>\n<p>If this method is invoked as its <a href=\"util.html#utilpromisifyoriginal\"><code>util.promisify()</code></a>ed version, it returns a\n<code>Promise</code> for an <code>Object</code> with <code>hostname</code> and <code>service</code> properties.</p>"
         },
         {
           "textRaw": "`dns.resolve(hostname[, rrtype], callback)`",
@@ -298,7 +323,13 @@
             "added": [
               "v0.1.27"
             ],
-            "changes": []
+            "changes": [
+              {
+                "version": "v18.0.0",
+                "pr-url": "https://github.com/nodejs/node/pull/41678",
+                "description": "Passing an invalid callback to the `callback` argument now throws `ERR_INVALID_ARG_TYPE` instead of `ERR_INVALID_CALLBACK`."
+              }
+            ]
           },
           "signatures": [
             {
@@ -348,6 +379,11 @@
             ],
             "changes": [
               {
+                "version": "v18.0.0",
+                "pr-url": "https://github.com/nodejs/node/pull/41678",
+                "description": "Passing an invalid callback to the `callback` argument now throws `ERR_INVALID_ARG_TYPE` instead of `ERR_INVALID_CALLBACK`."
+              },
+              {
                 "version": "v7.2.0",
                 "pr-url": "https://github.com/nodejs/node/pull/9296",
                 "description": "This method now supports passing `options`, specifically `options.ttl`."
@@ -369,10 +405,10 @@
                   "type": "Object",
                   "options": [
                     {
-                      "textRaw": "`ttl` {boolean} Retrieve the Time-To-Live value (TTL) of each record. When `true`, the callback receives an array of `{ address: '1.2.3.4', ttl: 60 }` objects rather than an array of strings, with the TTL expressed in seconds.",
+                      "textRaw": "`ttl` {boolean} Retrieves the Time-To-Live value (TTL) of each record. When `true`, the callback receives an array of `{ address: '1.2.3.4', ttl: 60 }` objects rather than an array of strings, with the TTL expressed in seconds.",
                       "name": "ttl",
                       "type": "boolean",
-                      "desc": "Retrieve the Time-To-Live value (TTL) of each record. When `true`, the callback receives an array of `{ address: '1.2.3.4', ttl: 60 }` objects rather than an array of strings, with the TTL expressed in seconds."
+                      "desc": "Retrieves the Time-To-Live value (TTL) of each record. When `true`, the callback receives an array of `{ address: '1.2.3.4', ttl: 60 }` objects rather than an array of strings, with the TTL expressed in seconds."
                     }
                   ]
                 },
@@ -407,6 +443,11 @@
               "v0.1.16"
             ],
             "changes": [
+              {
+                "version": "v18.0.0",
+                "pr-url": "https://github.com/nodejs/node/pull/41678",
+                "description": "Passing an invalid callback to the `callback` argument now throws `ERR_INVALID_ARG_TYPE` instead of `ERR_INVALID_CALLBACK`."
+              },
               {
                 "version": "v7.2.0",
                 "pr-url": "https://github.com/nodejs/node/pull/9296",
@@ -456,12 +497,21 @@
               ]
             }
           ],
-          "desc": "<p>Uses the DNS protocol to resolve a IPv6 addresses (<code>AAAA</code> records) for the\n<code>hostname</code>. The <code>addresses</code> argument passed to the <code>callback</code> function\nwill contain an array of IPv6 addresses.</p>"
+          "desc": "<p>Uses the DNS protocol to resolve IPv6 addresses (<code>AAAA</code> records) for the\n<code>hostname</code>. The <code>addresses</code> argument passed to the <code>callback</code> function\nwill contain an array of IPv6 addresses.</p>"
         },
         {
           "textRaw": "`dns.resolveAny(hostname, callback)`",
           "type": "method",
           "name": "resolveAny",
+          "meta": {
+            "changes": [
+              {
+                "version": "v18.0.0",
+                "pr-url": "https://github.com/nodejs/node/pull/41678",
+                "description": "Passing an invalid callback to the `callback` argument now throws `ERR_INVALID_ARG_TYPE` instead of `ERR_INVALID_CALLBACK`."
+              }
+            ]
+          },
           "signatures": [
             {
               "params": [
@@ -500,7 +550,13 @@
             "added": [
               "v0.3.2"
             ],
-            "changes": []
+            "changes": [
+              {
+                "version": "v18.0.0",
+                "pr-url": "https://github.com/nodejs/node/pull/41678",
+                "description": "Passing an invalid callback to the `callback` argument now throws `ERR_INVALID_ARG_TYPE` instead of `ERR_INVALID_CALLBACK`."
+              }
+            ]
           },
           "signatures": [
             {
@@ -538,9 +594,16 @@
           "name": "resolveCaa",
           "meta": {
             "added": [
-              "v15.0.0"
+              "v15.0.0",
+              "v14.17.0"
             ],
-            "changes": []
+            "changes": [
+              {
+                "version": "v18.0.0",
+                "pr-url": "https://github.com/nodejs/node/pull/41678",
+                "description": "Passing an invalid callback to the `callback` argument now throws `ERR_INVALID_ARG_TYPE` instead of `ERR_INVALID_CALLBACK`."
+              }
+            ]
           },
           "signatures": [
             {
@@ -580,7 +643,13 @@
             "added": [
               "v0.1.27"
             ],
-            "changes": []
+            "changes": [
+              {
+                "version": "v18.0.0",
+                "pr-url": "https://github.com/nodejs/node/pull/41678",
+                "description": "Passing an invalid callback to the `callback` argument now throws `ERR_INVALID_ARG_TYPE` instead of `ERR_INVALID_CALLBACK`."
+              }
+            ]
           },
           "signatures": [
             {
@@ -620,7 +689,13 @@
             "added": [
               "v0.9.12"
             ],
-            "changes": []
+            "changes": [
+              {
+                "version": "v18.0.0",
+                "pr-url": "https://github.com/nodejs/node/pull/41678",
+                "description": "Passing an invalid callback to the `callback` argument now throws `ERR_INVALID_ARG_TYPE` instead of `ERR_INVALID_CALLBACK`."
+              }
+            ]
           },
           "signatures": [
             {
@@ -650,7 +725,7 @@
               ]
             }
           ],
-          "desc": "<p>Uses the DNS protocol to resolve regular expression based records (<code>NAPTR</code>\nrecords) for the <code>hostname</code>. The <code>addresses</code> argument passed to the <code>callback</code>\nfunction will contain an array of objects with the following properties:</p>\n<ul>\n<li><code>flags</code></li>\n<li><code>service</code></li>\n<li><code>regexp</code></li>\n<li><code>replacement</code></li>\n<li><code>order</code></li>\n<li><code>preference</code></li>\n</ul>\n<!-- eslint-skip -->\n<pre><code class=\"language-js\">{\n  flags: 's',\n  service: 'SIP+D2U',\n  regexp: '',\n  replacement: '_sip._udp.example.com',\n  order: 30,\n  preference: 100\n}\n</code></pre>"
+          "desc": "<p>Uses the DNS protocol to resolve regular expression-based records (<code>NAPTR</code>\nrecords) for the <code>hostname</code>. The <code>addresses</code> argument passed to the <code>callback</code>\nfunction will contain an array of objects with the following properties:</p>\n<ul>\n<li><code>flags</code></li>\n<li><code>service</code></li>\n<li><code>regexp</code></li>\n<li><code>replacement</code></li>\n<li><code>order</code></li>\n<li><code>preference</code></li>\n</ul>\n<!-- eslint-skip -->\n<pre><code class=\"language-js\">{\n  flags: 's',\n  service: 'SIP+D2U',\n  regexp: '',\n  replacement: '_sip._udp.example.com',\n  order: 30,\n  preference: 100\n}\n</code></pre>"
         },
         {
           "textRaw": "`dns.resolveNs(hostname, callback)`",
@@ -660,7 +735,13 @@
             "added": [
               "v0.1.90"
             ],
-            "changes": []
+            "changes": [
+              {
+                "version": "v18.0.0",
+                "pr-url": "https://github.com/nodejs/node/pull/41678",
+                "description": "Passing an invalid callback to the `callback` argument now throws `ERR_INVALID_ARG_TYPE` instead of `ERR_INVALID_CALLBACK`."
+              }
+            ]
           },
           "signatures": [
             {
@@ -700,7 +781,13 @@
             "added": [
               "v6.0.0"
             ],
-            "changes": []
+            "changes": [
+              {
+                "version": "v18.0.0",
+                "pr-url": "https://github.com/nodejs/node/pull/41678",
+                "description": "Passing an invalid callback to the `callback` argument now throws `ERR_INVALID_ARG_TYPE` instead of `ERR_INVALID_CALLBACK`."
+              }
+            ]
           },
           "signatures": [
             {
@@ -740,7 +827,13 @@
             "added": [
               "v0.11.10"
             ],
-            "changes": []
+            "changes": [
+              {
+                "version": "v18.0.0",
+                "pr-url": "https://github.com/nodejs/node/pull/41678",
+                "description": "Passing an invalid callback to the `callback` argument now throws `ERR_INVALID_ARG_TYPE` instead of `ERR_INVALID_CALLBACK`."
+              }
+            ]
           },
           "signatures": [
             {
@@ -780,7 +873,13 @@
             "added": [
               "v0.1.27"
             ],
-            "changes": []
+            "changes": [
+              {
+                "version": "v18.0.0",
+                "pr-url": "https://github.com/nodejs/node/pull/41678",
+                "description": "Passing an invalid callback to the `callback` argument now throws `ERR_INVALID_ARG_TYPE` instead of `ERR_INVALID_CALLBACK`."
+              }
+            ]
           },
           "signatures": [
             {
@@ -820,7 +919,13 @@
             "added": [
               "v0.1.27"
             ],
-            "changes": []
+            "changes": [
+              {
+                "version": "v18.0.0",
+                "pr-url": "https://github.com/nodejs/node/pull/41678",
+                "description": "Passing an invalid callback to the `callback` argument now throws `ERR_INVALID_ARG_TYPE` instead of `ERR_INVALID_CALLBACK`."
+              }
+            ]
           },
           "signatures": [
             {
@@ -875,7 +980,8 @@
           "name": "setDefaultResultOrder",
           "meta": {
             "added": [
-              "v16.4.0"
+              "v16.4.0",
+              "v14.18.0"
             ],
             "changes": []
           },
@@ -942,7 +1048,7 @@
               }
             ]
           },
-          "desc": "<p>The <code>dns.promises</code> API provides an alternative set of asynchronous DNS methods\nthat return <code>Promise</code> objects rather than using callbacks. The API is accessible\nvia <code>require('dns').promises</code> or <code>require('dns/promises')</code>.</p>",
+          "desc": "<p>The <code>dns.promises</code> API provides an alternative set of asynchronous DNS methods\nthat return <code>Promise</code> objects rather than using callbacks. The API is accessible\nvia <code>require('node:dns').promises</code> or <code>require('node:dns/promises')</code>.</p>",
           "classes": [
             {
               "textRaw": "Class: `dnsPromises.Resolver`",
@@ -954,7 +1060,7 @@
                 ],
                 "changes": []
               },
-              "desc": "<p>An independent resolver for DNS requests.</p>\n<p>Creating a new resolver uses the default server settings. Setting\nthe servers used for a resolver using\n<a href=\"#dnspromisessetserversservers\"><code>resolver.setServers()</code></a> does not affect\nother resolvers:</p>\n<pre><code class=\"language-js\">const { Resolver } = require('dns').promises;\nconst resolver = new Resolver();\nresolver.setServers(['4.4.4.4']);\n\n// This request will use the server at 4.4.4.4, independent of global settings.\nresolver.resolve4('example.org').then((addresses) => {\n  // ...\n});\n\n// Alternatively, the same code can be written using async-await style.\n(async function() {\n  const addresses = await resolver.resolve4('example.org');\n})();\n</code></pre>\n<p>The following methods from the <code>dnsPromises</code> API are available:</p>\n<ul>\n<li><a href=\"#dnspromisesgetservers\"><code>resolver.getServers()</code></a></li>\n<li><a href=\"#dnspromisesresolvehostname-rrtype\"><code>resolver.resolve()</code></a></li>\n<li><a href=\"#dnspromisesresolve4hostname-options\"><code>resolver.resolve4()</code></a></li>\n<li><a href=\"#dnspromisesresolve6hostname-options\"><code>resolver.resolve6()</code></a></li>\n<li><a href=\"#dnspromisesresolveanyhostname\"><code>resolver.resolveAny()</code></a></li>\n<li><a href=\"#dnspromisesresolvecaahostname\"><code>resolver.resolveCaa()</code></a></li>\n<li><a href=\"#dnspromisesresolvecnamehostname\"><code>resolver.resolveCname()</code></a></li>\n<li><a href=\"#dnspromisesresolvemxhostname\"><code>resolver.resolveMx()</code></a></li>\n<li><a href=\"#dnspromisesresolvenaptrhostname\"><code>resolver.resolveNaptr()</code></a></li>\n<li><a href=\"#dnspromisesresolvenshostname\"><code>resolver.resolveNs()</code></a></li>\n<li><a href=\"#dnspromisesresolveptrhostname\"><code>resolver.resolvePtr()</code></a></li>\n<li><a href=\"#dnspromisesresolvesoahostname\"><code>resolver.resolveSoa()</code></a></li>\n<li><a href=\"#dnspromisesresolvesrvhostname\"><code>resolver.resolveSrv()</code></a></li>\n<li><a href=\"#dnspromisesresolvetxthostname\"><code>resolver.resolveTxt()</code></a></li>\n<li><a href=\"#dnspromisesreverseip\"><code>resolver.reverse()</code></a></li>\n<li><a href=\"#dnspromisessetserversservers\"><code>resolver.setServers()</code></a></li>\n</ul>"
+              "desc": "<p>An independent resolver for DNS requests.</p>\n<p>Creating a new resolver uses the default server settings. Setting\nthe servers used for a resolver using\n<a href=\"#dnspromisessetserversservers\"><code>resolver.setServers()</code></a> does not affect\nother resolvers:</p>\n<pre><code class=\"language-js\">const { Resolver } = require('node:dns').promises;\nconst resolver = new Resolver();\nresolver.setServers(['4.4.4.4']);\n\n// This request will use the server at 4.4.4.4, independent of global settings.\nresolver.resolve4('example.org').then((addresses) => {\n  // ...\n});\n\n// Alternatively, the same code can be written using async-await style.\n(async function() {\n  const addresses = await resolver.resolve4('example.org');\n})();\n</code></pre>\n<p>The following methods from the <code>dnsPromises</code> API are available:</p>\n<ul>\n<li><a href=\"#dnspromisesgetservers\"><code>resolver.getServers()</code></a></li>\n<li><a href=\"#dnspromisesresolvehostname-rrtype\"><code>resolver.resolve()</code></a></li>\n<li><a href=\"#dnspromisesresolve4hostname-options\"><code>resolver.resolve4()</code></a></li>\n<li><a href=\"#dnspromisesresolve6hostname-options\"><code>resolver.resolve6()</code></a></li>\n<li><a href=\"#dnspromisesresolveanyhostname\"><code>resolver.resolveAny()</code></a></li>\n<li><a href=\"#dnspromisesresolvecaahostname\"><code>resolver.resolveCaa()</code></a></li>\n<li><a href=\"#dnspromisesresolvecnamehostname\"><code>resolver.resolveCname()</code></a></li>\n<li><a href=\"#dnspromisesresolvemxhostname\"><code>resolver.resolveMx()</code></a></li>\n<li><a href=\"#dnspromisesresolvenaptrhostname\"><code>resolver.resolveNaptr()</code></a></li>\n<li><a href=\"#dnspromisesresolvenshostname\"><code>resolver.resolveNs()</code></a></li>\n<li><a href=\"#dnspromisesresolveptrhostname\"><code>resolver.resolvePtr()</code></a></li>\n<li><a href=\"#dnspromisesresolvesoahostname\"><code>resolver.resolveSoa()</code></a></li>\n<li><a href=\"#dnspromisesresolvesrvhostname\"><code>resolver.resolveSrv()</code></a></li>\n<li><a href=\"#dnspromisesresolvetxthostname\"><code>resolver.resolveTxt()</code></a></li>\n<li><a href=\"#dnspromisesreverseip\"><code>resolver.reverse()</code></a></li>\n<li><a href=\"#dnspromisessetserversservers\"><code>resolver.setServers()</code></a></li>\n</ul>"
             }
           ],
           "methods": [
@@ -964,7 +1070,8 @@
               "name": "cancel",
               "meta": {
                 "added": [
-                  "v15.3.0"
+                  "v15.3.0",
+                  "v14.17.0"
                 ],
                 "changes": []
               },
@@ -973,7 +1080,7 @@
                   "params": []
                 }
               ],
-              "desc": "<p>Cancel all outstanding DNS queries made by this resolver. The corresponding\npromises will be rejected with an error with code <code>ECANCELLED</code>.</p>"
+              "desc": "<p>Cancel all outstanding DNS queries made by this resolver. The corresponding\npromises will be rejected with an error with the code <code>ECANCELLED</code>.</p>"
             },
             {
               "textRaw": "`dnsPromises.getServers()`",
@@ -1052,7 +1159,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Resolves a host name (e.g. <code>'nodejs.org'</code>) into the first found A (IPv4) or\nAAAA (IPv6) record. All <code>option</code> properties are optional. If <code>options</code> is an\ninteger, then it must be <code>4</code> or <code>6</code> – if <code>options</code> is not provided, then IPv4\nand IPv6 addresses are both returned if found.</p>\n<p>With the <code>all</code> option set to <code>true</code>, the <code>Promise</code> is resolved with <code>addresses</code>\nbeing an array of objects with the properties <code>address</code> and <code>family</code>.</p>\n<p>On error, the <code>Promise</code> is rejected with an <a href=\"errors.html#class-error\"><code>Error</code></a> object, where <code>err.code</code>\nis the error code.\nKeep in mind that <code>err.code</code> will be set to <code>'ENOTFOUND'</code> not only when\nthe host name does not exist but also when the lookup fails in other ways\nsuch as no available file descriptors.</p>\n<p><a href=\"#dnspromiseslookuphostname-options\"><code>dnsPromises.lookup()</code></a> does not necessarily have anything to do with the DNS\nprotocol. The implementation uses an operating system facility that can\nassociate names with addresses, and vice versa. This implementation can have\nsubtle but important consequences on the behavior of any Node.js program. Please\ntake some time to consult the <a href=\"#implementation-considerations\">Implementation considerations section</a> before\nusing <code>dnsPromises.lookup()</code>.</p>\n<p>Example usage:</p>\n<pre><code class=\"language-js\">const dns = require('dns');\nconst dnsPromises = dns.promises;\nconst options = {\n  family: 6,\n  hints: dns.ADDRCONFIG | dns.V4MAPPED,\n};\n\ndnsPromises.lookup('example.com', options).then((result) => {\n  console.log('address: %j family: IPv%s', result.address, result.family);\n  // address: \"2606:2800:220:1:248:1893:25c8:1946\" family: IPv6\n});\n\n// When options.all is true, the result will be an Array.\noptions.all = true;\ndnsPromises.lookup('example.com', options).then((result) => {\n  console.log('addresses: %j', result);\n  // addresses: [{\"address\":\"2606:2800:220:1:248:1893:25c8:1946\",\"family\":6}]\n});\n</code></pre>"
+              "desc": "<p>Resolves a host name (e.g. <code>'nodejs.org'</code>) into the first found A (IPv4) or\nAAAA (IPv6) record. All <code>option</code> properties are optional. If <code>options</code> is an\ninteger, then it must be <code>4</code> or <code>6</code> – if <code>options</code> is not provided, then IPv4\nand IPv6 addresses are both returned if found.</p>\n<p>With the <code>all</code> option set to <code>true</code>, the <code>Promise</code> is resolved with <code>addresses</code>\nbeing an array of objects with the properties <code>address</code> and <code>family</code>.</p>\n<p>On error, the <code>Promise</code> is rejected with an <a href=\"errors.html#class-error\"><code>Error</code></a> object, where <code>err.code</code>\nis the error code.\nKeep in mind that <code>err.code</code> will be set to <code>'ENOTFOUND'</code> not only when\nthe host name does not exist but also when the lookup fails in other ways\nsuch as no available file descriptors.</p>\n<p><a href=\"#dnspromiseslookuphostname-options\"><code>dnsPromises.lookup()</code></a> does not necessarily have anything to do with the DNS\nprotocol. The implementation uses an operating system facility that can\nassociate names with addresses and vice versa. This implementation can have\nsubtle but important consequences on the behavior of any Node.js program. Please\ntake some time to consult the <a href=\"#implementation-considerations\">Implementation considerations section</a> before\nusing <code>dnsPromises.lookup()</code>.</p>\n<p>Example usage:</p>\n<pre><code class=\"language-js\">const dns = require('node:dns');\nconst dnsPromises = dns.promises;\nconst options = {\n  family: 6,\n  hints: dns.ADDRCONFIG | dns.V4MAPPED,\n};\n\ndnsPromises.lookup('example.com', options).then((result) => {\n  console.log('address: %j family: IPv%s', result.address, result.family);\n  // address: \"2606:2800:220:1:248:1893:25c8:1946\" family: IPv6\n});\n\n// When options.all is true, the result will be an Array.\noptions.all = true;\ndnsPromises.lookup('example.com', options).then((result) => {\n  console.log('addresses: %j', result);\n  // addresses: [{\"address\":\"2606:2800:220:1:248:1893:25c8:1946\",\"family\":6}]\n});\n</code></pre>"
             },
             {
               "textRaw": "`dnsPromises.lookupService(address, port)`",
@@ -1080,7 +1187,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Resolves the given <code>address</code> and <code>port</code> into a host name and service using\nthe operating system's underlying <code>getnameinfo</code> implementation.</p>\n<p>If <code>address</code> is not a valid IP address, a <code>TypeError</code> will be thrown.\nThe <code>port</code> will be coerced to a number. If it is not a legal port, a <code>TypeError</code>\nwill be thrown.</p>\n<p>On error, the <code>Promise</code> is rejected with an <a href=\"errors.html#class-error\"><code>Error</code></a> object, where <code>err.code</code>\nis the error code.</p>\n<pre><code class=\"language-js\">const dnsPromises = require('dns').promises;\ndnsPromises.lookupService('127.0.0.1', 22).then((result) => {\n  console.log(result.hostname, result.service);\n  // Prints: localhost ssh\n});\n</code></pre>"
+              "desc": "<p>Resolves the given <code>address</code> and <code>port</code> into a host name and service using\nthe operating system's underlying <code>getnameinfo</code> implementation.</p>\n<p>If <code>address</code> is not a valid IP address, a <code>TypeError</code> will be thrown.\nThe <code>port</code> will be coerced to a number. If it is not a legal port, a <code>TypeError</code>\nwill be thrown.</p>\n<p>On error, the <code>Promise</code> is rejected with an <a href=\"errors.html#class-error\"><code>Error</code></a> object, where <code>err.code</code>\nis the error code.</p>\n<pre><code class=\"language-js\">const dnsPromises = require('node:dns').promises;\ndnsPromises.lookupService('127.0.0.1', 22).then((result) => {\n  console.log(result.hostname, result.service);\n  // Prints: localhost ssh\n});\n</code></pre>"
             },
             {
               "textRaw": "`dnsPromises.resolve(hostname[, rrtype])`",
@@ -1216,7 +1323,8 @@
               "name": "resolveCaa",
               "meta": {
                 "added": [
-                  "v15.0.0"
+                  "v15.0.0",
+                  "v14.17.0"
                 ],
                 "changes": []
               },
@@ -1300,7 +1408,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Uses the DNS protocol to resolve regular expression based records (<code>NAPTR</code>\nrecords) for the <code>hostname</code>. On success, the <code>Promise</code> is resolved with an array\nof objects with the following properties:</p>\n<ul>\n<li><code>flags</code></li>\n<li><code>service</code></li>\n<li><code>regexp</code></li>\n<li><code>replacement</code></li>\n<li><code>order</code></li>\n<li><code>preference</code></li>\n</ul>\n<!-- eslint-skip -->\n<pre><code class=\"language-js\">{\n  flags: 's',\n  service: 'SIP+D2U',\n  regexp: '',\n  replacement: '_sip._udp.example.com',\n  order: 30,\n  preference: 100\n}\n</code></pre>"
+              "desc": "<p>Uses the DNS protocol to resolve regular expression-based records (<code>NAPTR</code>\nrecords) for the <code>hostname</code>. On success, the <code>Promise</code> is resolved with an array\nof objects with the following properties:</p>\n<ul>\n<li><code>flags</code></li>\n<li><code>service</code></li>\n<li><code>regexp</code></li>\n<li><code>replacement</code></li>\n<li><code>order</code></li>\n<li><code>preference</code></li>\n</ul>\n<!-- eslint-skip -->\n<pre><code class=\"language-js\">{\n  flags: 's',\n  service: 'SIP+D2U',\n  regexp: '',\n  replacement: '_sip._udp.example.com',\n  order: 30,\n  preference: 100\n}\n</code></pre>"
             },
             {
               "textRaw": "`dnsPromises.resolveNs(hostname)`",
@@ -1446,7 +1554,8 @@
               "name": "setDefaultResultOrder",
               "meta": {
                 "added": [
-                  "v16.4.0"
+                  "v16.4.0",
+                  "v14.18.0"
                 ],
                 "changes": []
               },
@@ -1495,7 +1604,7 @@
         {
           "textRaw": "Error codes",
           "name": "error_codes",
-          "desc": "<p>Each DNS query can return one of the following error codes:</p>\n<ul>\n<li><code>dns.NODATA</code>: DNS server returned answer with no data.</li>\n<li><code>dns.FORMERR</code>: DNS server claims query was misformatted.</li>\n<li><code>dns.SERVFAIL</code>: DNS server returned general failure.</li>\n<li><code>dns.NOTFOUND</code>: Domain name not found.</li>\n<li><code>dns.NOTIMP</code>: DNS server does not implement requested operation.</li>\n<li><code>dns.REFUSED</code>: DNS server refused query.</li>\n<li><code>dns.BADQUERY</code>: Misformatted DNS query.</li>\n<li><code>dns.BADNAME</code>: Misformatted host name.</li>\n<li><code>dns.BADFAMILY</code>: Unsupported address family.</li>\n<li><code>dns.BADRESP</code>: Misformatted DNS reply.</li>\n<li><code>dns.CONNREFUSED</code>: Could not contact DNS servers.</li>\n<li><code>dns.TIMEOUT</code>: Timeout while contacting DNS servers.</li>\n<li><code>dns.EOF</code>: End of file.</li>\n<li><code>dns.FILE</code>: Error reading file.</li>\n<li><code>dns.NOMEM</code>: Out of memory.</li>\n<li><code>dns.DESTRUCTION</code>: Channel is being destroyed.</li>\n<li><code>dns.BADSTR</code>: Misformatted string.</li>\n<li><code>dns.BADFLAGS</code>: Illegal flags specified.</li>\n<li><code>dns.NONAME</code>: Given host name is not numeric.</li>\n<li><code>dns.BADHINTS</code>: Illegal hints flags specified.</li>\n<li><code>dns.NOTINITIALIZED</code>: c-ares library initialization not yet performed.</li>\n<li><code>dns.LOADIPHLPAPI</code>: Error loading <code>iphlpapi.dll</code>.</li>\n<li><code>dns.ADDRGETNETWORKPARAMS</code>: Could not find <code>GetNetworkParams</code> function.</li>\n<li><code>dns.CANCELLED</code>: DNS query cancelled.</li>\n</ul>",
+          "desc": "<p>Each DNS query can return one of the following error codes:</p>\n<ul>\n<li><code>dns.NODATA</code>: DNS server returned an answer with no data.</li>\n<li><code>dns.FORMERR</code>: DNS server claims query was misformatted.</li>\n<li><code>dns.SERVFAIL</code>: DNS server returned general failure.</li>\n<li><code>dns.NOTFOUND</code>: Domain name not found.</li>\n<li><code>dns.NOTIMP</code>: DNS server does not implement the requested operation.</li>\n<li><code>dns.REFUSED</code>: DNS server refused query.</li>\n<li><code>dns.BADQUERY</code>: Misformatted DNS query.</li>\n<li><code>dns.BADNAME</code>: Misformatted host name.</li>\n<li><code>dns.BADFAMILY</code>: Unsupported address family.</li>\n<li><code>dns.BADRESP</code>: Misformatted DNS reply.</li>\n<li><code>dns.CONNREFUSED</code>: Could not contact DNS servers.</li>\n<li><code>dns.TIMEOUT</code>: Timeout while contacting DNS servers.</li>\n<li><code>dns.EOF</code>: End of file.</li>\n<li><code>dns.FILE</code>: Error reading file.</li>\n<li><code>dns.NOMEM</code>: Out of memory.</li>\n<li><code>dns.DESTRUCTION</code>: Channel is being destroyed.</li>\n<li><code>dns.BADSTR</code>: Misformatted string.</li>\n<li><code>dns.BADFLAGS</code>: Illegal flags specified.</li>\n<li><code>dns.NONAME</code>: Given host name is not numeric.</li>\n<li><code>dns.BADHINTS</code>: Illegal hints flags specified.</li>\n<li><code>dns.NOTINITIALIZED</code>: c-ares library initialization not yet performed.</li>\n<li><code>dns.LOADIPHLPAPI</code>: Error loading <code>iphlpapi.dll</code>.</li>\n<li><code>dns.ADDRGETNETWORKPARAMS</code>: Could not find <code>GetNetworkParams</code> function.</li>\n<li><code>dns.CANCELLED</code>: DNS query cancelled.</li>\n</ul>\n<p>The <code>dnsPromises</code> API also exports the above error codes, e.g., <code>dnsPromises.NODATA</code>.</p>",
           "type": "module",
           "displayName": "Error codes"
         },
@@ -1518,11 +1627,11 @@
           ],
           "modules": [
             {
-              "textRaw": "`dns.resolve()`, `dns.resolve*()` and `dns.reverse()`",
-              "name": "`dns.resolve()`,_`dns.resolve*()`_and_`dns.reverse()`",
-              "desc": "<p>These functions are implemented quite differently than <a href=\"#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a>. They\ndo not use <a href=\"http://man7.org/linux/man-pages/man3/getaddrinfo.3.html\"><code>getaddrinfo(3)</code></a> and they <em>always</em> perform a DNS query on the\nnetwork. This network communication is always done asynchronously, and does not\nuse libuv's threadpool.</p>\n<p>As a result, these functions cannot have the same negative impact on other\nprocessing that happens on libuv's threadpool that <a href=\"#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a> can have.</p>\n<p>They do not use the same set of configuration files than what <a href=\"#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a>\nuses. For instance, <em>they do not use the configuration from <code>/etc/hosts</code></em>.</p>",
+              "textRaw": "`dns.resolve()`, `dns.resolve*()`, and `dns.reverse()`",
+              "name": "`dns.resolve()`,_`dns.resolve*()`,_and_`dns.reverse()`",
+              "desc": "<p>These functions are implemented quite differently than <a href=\"#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a>. They\ndo not use <a href=\"http://man7.org/linux/man-pages/man3/getaddrinfo.3.html\"><code>getaddrinfo(3)</code></a> and they <em>always</em> perform a DNS query on the\nnetwork. This network communication is always done asynchronously and does not\nuse libuv's threadpool.</p>\n<p>As a result, these functions cannot have the same negative impact on other\nprocessing that happens on libuv's threadpool that <a href=\"#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a> can have.</p>\n<p>They do not use the same set of configuration files that <a href=\"#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a>\nuses. For instance, they do not use the configuration from <code>/etc/hosts</code>.</p>",
               "type": "module",
-              "displayName": "`dns.resolve()`, `dns.resolve*()` and `dns.reverse()`"
+              "displayName": "`dns.resolve()`, `dns.resolve*()`, and `dns.reverse()`"
             }
           ],
           "type": "module",

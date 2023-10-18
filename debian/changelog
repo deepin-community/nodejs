@@ -1,15 +1,293 @@
-nodejs (16.15.1+dfsg-2) UNRELEASED; urgency=medium
+nodejs (18.13.0+dfsg1-1) unstable; urgency=medium
 
-  * update
+  [ Bo YU ]
+  * Fix FTBFS on riscv64. Closes: 1028404
 
- -- Debian Javascript Maintainers <pkg-javascript-devel@alioth-lists.debian.net>  Wed, 03 Aug 2022 11:18:15 +0800
+  [ Jérémy Lal ]
+  * doc-generator: update types
+  * copyright: deps/v8/third_party/ittapi
+  * copyright: Files-Excluded snapshot.blob, new orig tarball
 
-nodejs (16.15.1+dfsg-2) unstable; urgency=medium
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 11 Jan 2023 17:42:19 +0100
 
-  * 删除依赖的版本号
-  * 修改lintian报错
+nodejs (18.13.0+dfsg-1) unstable; urgency=medium
 
- -- Angie.J <doucaixia@uniontech.com>  Wed, 03 Aug 2022 09:52:34 +0800
+  * New upstream version 18.13.0+dfsg
+  * Drop applied patches
+  * Add tracing, crypto headers to /usr/include/nodejs
+  * riscv64: mark flaky tests. Closes: 1026065
+  * copyright: remove uv/android* files
+  * Drop n/a lintian overrides for zlib
+  * lintian-overrides: update false source-is-missing
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 06 Jan 2023 21:15:20 +0100
+
+nodejs (18.12.1+dfsg-2) unstable; urgency=medium
+
+  * Patch: fix test suite for icu 72.1
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 09 Nov 2022 18:16:06 +0100
+
+nodejs (18.12.1+dfsg-1) unstable; urgency=medium
+
+  * New upstream version 18.12.1+dfsg
+  * Fixes CVE-2022-43548: DNS rebinding in --inspect via invalid
+    octal IP address (Medium).
+    Closes: #1023518.
+  * Build using gcc-11, g++-11, fixes mips64el and riscv64 builds,
+    https://github.com/nodejs/node/issues/44126
+  * Patch: fix link to home in html doc. Closes: #1018153
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 06 Nov 2022 00:14:11 +0100
+
+nodejs (18.12.0+dfsg-1) unstable; urgency=medium
+
+  * New upstream version 18.12.0+dfsg
+  * Add flaky new debugger test
+  * watch nodejs 18 LTS
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 27 Oct 2022 15:02:24 +0200
+
+nodejs (18.11.0+dfsg-4) experimental; urgency=medium
+
+  * Patch: fix mipsel build failure
+  * Patch: drop mips/no_jitless, fixed upstream
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 26 Oct 2022 01:23:22 +0200
+
+nodejs (18.11.0+dfsg-3) experimental; urgency=medium
+
+  * Revert "Build using gcc-11, g++-11"
+  * Skip buggy watch mode tests
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 17 Oct 2022 14:04:02 +0200
+
+nodejs (18.11.0+dfsg-2) experimental; urgency=medium
+
+  * Do not use --shared-ngctp2/http3 switch
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 14 Oct 2022 16:23:40 +0200
+
+nodejs (18.11.0+dfsg-1) experimental; urgency=medium
+
+  * New upstream version 18.11.0+dfsg
+  * armhf: minimal target is vfpv3-d16 (Closes: #1021546).
+  * copyright: update for a new file
+  * Drop nghttp3, ngtcp2 deps: useless without openssl-quic
+  * Refresh patches
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 14 Oct 2022 15:30:25 +0200
+
+nodejs (18.10.0+dfsg-6) unstable; urgency=medium
+
+  * Move builtins dependencies to libnode108 (Closes: #1021107).
+  * Mark another flaky test for riscv64
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 10 Oct 2022 10:49:19 +0200
+
+nodejs (18.10.0+dfsg-5) unstable; urgency=medium
+
+  * Breaks: node-jest (<< 29~)
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 09 Oct 2022 17:42:53 +0200
+
+nodejs (18.10.0+dfsg-4) unstable; urgency=medium
+
+  * Backport armel test failure fix
+  * Allow undici-related test failures on riscv64 for now
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 01 Oct 2022 15:05:49 +0200
+
+nodejs (18.10.0+dfsg-3) unstable; urgency=medium
+
+  * Avoid depending on node to build node. Fix build.
+  * Allow failure of another version of an already flaky test,
+    seen to be failing on i386 - possibly on 32-bits architectures.
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 30 Sep 2022 01:23:56 +0200
+
+nodejs (18.10.0+dfsg-2) unstable; urgency=medium
+
+  * Revert /etc/default/nodejs and wrapper - env is enough
+    Also avoids future bugs with node's process.execPath
+  * Depends on externalized builtins (Closes: #1020980)
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 29 Sep 2022 23:55:15 +0200
+
+nodejs (18.10.0+dfsg-1) unstable; urgency=medium
+
+  [ Yadd ]
+  * Drop /usr/lib/nodejs support
+
+  [ Jérémy Lal ]
+  * New upstream version 18.10.0+dfsg
+  * Configurable builtins paths:
+    + upstream patch implementing it
+    + augment upstream patch to support acorn, acorn-walk
+    + configure flags for acorn, undici, cjs-module-lexer
+    + use pkgjs-ln for system-installed modules
+    + exclude acorn, undici, cjs-module-lexer,
+      they are all distributed and built in their own package
+  * Allow custom flags to be set in /etc/defaults/nodejs
+  * Patch openssl.conf used for tests to allow smoil keys,
+    and disable some failing tests while waiting for upstream
+    to upgrade their test keys. (Closes: #1020592)
+  * Use shared ngtcp2, nghttp3
+  * doc-generator:
+    + fix node_modules setup using pkgjs-ln
+    + update type-parser.mjs
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 29 Sep 2022 11:50:59 +0200
+
+nodejs (18.8.0+dfsg-1) experimental; urgency=medium
+
+  * New upstream version 18.8.0+dfsg
+  * Drop patches applied upstream
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 03 Sep 2022 16:53:05 +0200
+
+nodejs (18.7.0+dfsg-5) unstable; urgency=medium
+
+  * Tighten dependency with armv6k-support
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 01 Sep 2022 18:33:49 +0200
+
+nodejs (18.7.0+dfsg-4) unstable; urgency=medium
+
+  * lintian overrides:
+    + fix embedded-library zlib
+    + slightly more info about source-is-missing  
+  * copyright: fix license short name for base64
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 30 Aug 2022 15:52:53 +0200
+
+nodejs (18.7.0+dfsg-3) unstable; urgency=medium
+
+  * Rename and DEP-3 latest armel patch
+  * Restore build using gcc 11,
+    it was removed by mistake in the previous upload
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 29 Aug 2022 17:03:45 +0200
+
+nodejs (18.7.0+dfsg-2) unstable; urgency=medium
+
+  * Build on armel where armv6k, vfpv2 is supported:
+    + control: add Architecture: armel
+    + control: depends armv6-support:armel, vfpv2-support:armel
+    + rules: set -march=armv6k
+    + patch: add --with-arm-version configure.py flag
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 29 Aug 2022 00:09:15 +0200
+
+nodejs (18.7.0+dfsg-1) unstable; urgency=medium
+
+  * New upstream version 18.7.0+dfsg
+  * Update flaky riscv64: sequential/test-cpu-prof-drained.
+    Closes: #1016707.
+  * copyright: deps/base64 BSD-2-clause
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 12 Aug 2022 17:21:50 +0200
+
+nodejs (18.6.0+dfsg-5) unstable; urgency=medium
+
+  * Build-Depends gcc-11, g++-11.
+    Allow transition while waiting for #1016628 to be sorted out.
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 04 Aug 2022 17:32:43 +0200
+
+nodejs (18.6.0+dfsg-4) unstable; urgency=medium
+
+  * Patches: Closes: #1016305
+    + upstream fix getaddrinfo without network
+    + fix test failing with libuv1 >= 1.44.2
+  * Patch: upstream fix ppc64 crash with regexp. Closes: #1016381.
+  * Drop RES_OPTIONS to avoid test failures with localhost
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 01 Aug 2022 22:37:57 +0200
+
+nodejs (18.6.0+dfsg-3) unstable; urgency=medium
+
+  * Patch: add sequential/test-worker-prof to failing riscv64 tests
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 18 Jul 2022 23:22:08 +0200
+
+nodejs (18.6.0+dfsg-2) experimental; urgency=medium
+
+  * Fix path where to look for @types/node
+    when fixing permissions.
+    Also use execute_after_dh_fixperms.
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 16 Jul 2022 17:38:26 +0200
+
+nodejs (18.6.0+dfsg-1) experimental; urgency=medium
+
+  * New upstream version 18.6.0+dfsg
+  * Patches:
+    + work around IPv6 getaddrinfo EAI_AGAIN localhost failure
+      with some tests on zandonai
+    + reenable global fetch and its tests
+  * Build-Depends node-undici
+  * Bump Standards-Version, no change
+  * Fix @types/node permissions
+  * lintian overrides:
+    + drop unneeded libnode108 lines
+    + update to new format
+    + ignore source-is-missing for regenerated doc
+  * copyright:
+    + tools/rpm/ no longer here
+    + fix order of paragraphs
+    + fix wildcard
+    + remove useless Licenses
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 16 Jul 2022 15:35:17 +0200
+
+nodejs (18.4.0+dfsg-2) experimental; urgency=medium
+
+  * Breaks libnode72 << 13 because of bullseye/security
+    (Closes: #1013968)
+  * Fix bash-completion link (Closes: #977792)
+  * Patch: disable fetch until undici is accepted (Closes: #1014214)
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 04 Jul 2022 11:37:13 +0200
+
+nodejs (18.4.0+dfsg-1) experimental; urgency=medium
+
+  * New upstream version 18.4.0+dfsg
+  * lintian-overrides:
+    + drop node-acorn/*, no longer a component
+    + improve embedded-library zlib and comment it
+  * copyright:
+    + remove useless files and paragraphs
+    + fix order of paragraphs
+  * patches:
+    + remove very old unapplied files
+    + fix non-utf8 encoding in one patch
+    + fix mipsel compilation failure
+  * unidici missing: do not crash, just have no exports
+  * postpone usr/include/nodejs renaming, do it
+    in libnode-dev.files.
+  * Fix badly reverted usr/include/nodejs rename:
+    /usr/include/node is for n-api, nodejs for old addons
+  * hardening flags: -pie is no longer needed
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 21 Jun 2022 21:14:28 +0200
+
+nodejs (18.3.0+dfsg-1) experimental; urgency=medium
+
+  * New upstream version 18.3.0+dfsg
+  * Follow upstream make install:
+    + let node install its own headers
+    + keep a symlink to /usr/include/nodejs,
+      will be removed when node-gyp is updated
+  * watch latest version
+  * gbp on master
+  * Add noautodbgsym to README.source profiles
+  * Clean debian/nodejs.bash-completion
+  * Drop openssl-cnf.patch, upstream use openssl 3
+  * Skip another test using undici
+  * Bump libnode abi
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 14 Jun 2022 10:40:33 +0200
 
 nodejs (16.15.1+dfsg-1) unstable; urgency=medium
 

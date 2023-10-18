@@ -3,12 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v16.15.1">
-  <title>HTTP/2 | Node.js v16.15.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v18.13.0">
+  <title>HTTP/2 | Node.js v18.13.0 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/http2.html">
+  <script async defer src="assets/api.js" type="text/javascript"></script>
+  
 </head>
 <body class="alt apidoc" id="api-section-http2">
   <div id="content" class="clearfix">
@@ -53,13 +55,13 @@
 <li><a href="intl.html" class="nav-intl">Internationalization</a></li>
 <li><a href="modules.html" class="nav-modules">Modules: CommonJS modules</a></li>
 <li><a href="esm.html" class="nav-esm">Modules: ECMAScript modules</a></li>
-<li><a href="module.html" class="nav-module">Modules: <code>module</code> API</a></li>
+<li><a href="module.html" class="nav-module">Modules: <code>node:module</code> API</a></li>
 <li><a href="packages.html" class="nav-packages">Modules: Packages</a></li>
 <li><a href="net.html" class="nav-net">Net</a></li>
 <li><a href="os.html" class="nav-os">OS</a></li>
 <li><a href="path.html" class="nav-path">Path</a></li>
 <li><a href="perf_hooks.html" class="nav-perf_hooks">Performance hooks</a></li>
-<li><a href="policy.html" class="nav-policy">Policies</a></li>
+<li><a href="permissions.html" class="nav-permissions">Permissions</a></li>
 <li><a href="process.html" class="nav-process">Process</a></li>
 <li><a href="punycode.html" class="nav-punycode">Punycode</a></li>
 <li><a href="querystring.html" class="nav-querystring">Query strings</a></li>
@@ -68,6 +70,7 @@
 <li><a href="report.html" class="nav-report">Report</a></li>
 <li><a href="stream.html" class="nav-stream">Stream</a></li>
 <li><a href="string_decoder.html" class="nav-string_decoder">String decoder</a></li>
+<li><a href="test.html" class="nav-test">Test runner</a></li>
 <li><a href="timers.html" class="nav-timers">Timers</a></li>
 <li><a href="tls.html" class="nav-tls">TLS/SSL</a></li>
 <li><a href="tracing.html" class="nav-tracing">Trace events</a></li>
@@ -92,7 +95,7 @@
     <div id="column1" data-id="http2" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v16.15.1 documentation</h1>
+          <h1>Node.js v18.13.0 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -107,6 +110,7 @@
         </div>
         <div id="gtoc">
           <ul>
+            <li class="pinned-header">Node.js v18.13.0</li>
             
     <li class="picker-header">
       <a href="#">
@@ -257,7 +261,7 @@
 <li><a href="#serverupdatesettingssettings_1"><code>server.updateSettings([settings])</code></a></li>
 </ul>
 </li>
-<li><a href="#http2createserveroptions-onrequesthandler"><code>http2.createServer(options[, onRequestHandler])</code></a></li>
+<li><a href="#http2createserveroptions-onrequesthandler"><code>http2.createServer([options][, onRequestHandler])</code></a></li>
 <li><a href="#http2createsecureserveroptions-onrequesthandler"><code>http2.createSecureServer(options[, onRequestHandler])</code></a></li>
 <li><a href="#http2connectauthority-options-listener"><code>http2.connect(authority[, options][, listener])</code></a></li>
 <li><a href="#http2constants"><code>http2.constants</code></a>
@@ -322,10 +326,7 @@
 <li><a href="#responsehasheadername"><code>response.hasHeader(name)</code></a></li>
 <li><a href="#responseheaderssent"><code>response.headersSent</code></a></li>
 <li><a href="#responseremoveheadername"><code>response.removeHeader(name)</code></a></li>
-</ul>
-</li>
-<li><a href="#responsereq"><code>response.req</code></a>
-<ul>
+<li><a href="#responsereq"><code>response.req</code></a></li>
 <li><a href="#responsesenddate"><code>response.sendDate</code></a></li>
 <li><a href="#responsesetheadername-value"><code>response.setHeader(name, value)</code></a></li>
 <li><a href="#responsesettimeoutmsecs-callback"><code>response.setTimeout(msecs[, callback])</code></a></li>
@@ -336,6 +337,7 @@
 <li><a href="#responsewritableended"><code>response.writableEnded</code></a></li>
 <li><a href="#responsewritechunk-encoding-callback"><code>response.write(chunk[, encoding][, callback])</code></a></li>
 <li><a href="#responsewritecontinue"><code>response.writeContinue()</code></a></li>
+<li><a href="#responsewriteearlyhintshints"><code>response.writeEarlyHints(hints)</code></a></li>
 <li><a href="#responsewriteheadstatuscode-statusmessage-headers"><code>response.writeHead(statusCode[, statusMessage][, headers])</code></a></li>
 </ul>
 </li>
@@ -395,13 +397,13 @@
 <li><a href="intl.html" class="nav-intl">Internationalization</a></li>
 <li><a href="modules.html" class="nav-modules">Modules: CommonJS modules</a></li>
 <li><a href="esm.html" class="nav-esm">Modules: ECMAScript modules</a></li>
-<li><a href="module.html" class="nav-module">Modules: <code>module</code> API</a></li>
+<li><a href="module.html" class="nav-module">Modules: <code>node:module</code> API</a></li>
 <li><a href="packages.html" class="nav-packages">Modules: Packages</a></li>
 <li><a href="net.html" class="nav-net">Net</a></li>
 <li><a href="os.html" class="nav-os">OS</a></li>
 <li><a href="path.html" class="nav-path">Path</a></li>
 <li><a href="perf_hooks.html" class="nav-perf_hooks">Performance hooks</a></li>
-<li><a href="policy.html" class="nav-policy">Policies</a></li>
+<li><a href="permissions.html" class="nav-permissions">Permissions</a></li>
 <li><a href="process.html" class="nav-process">Process</a></li>
 <li><a href="punycode.html" class="nav-punycode">Punycode</a></li>
 <li><a href="querystring.html" class="nav-querystring">Query strings</a></li>
@@ -410,6 +412,7 @@
 <li><a href="report.html" class="nav-report">Report</a></li>
 <li><a href="stream.html" class="nav-stream">Stream</a></li>
 <li><a href="string_decoder.html" class="nav-string_decoder">String decoder</a></li>
+<li><a href="test.html" class="nav-test">Test runner</a></li>
 <li><a href="timers.html" class="nav-timers">Timers</a></li>
 <li><a href="tls.html" class="nav-tls">TLS/SSL</a></li>
 <li><a href="tracing.html" class="nav-tracing">Trace events</a></li>
@@ -437,13 +440,14 @@
         <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v18.x/api/http2.html">18.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v19.x/api/http2.html">19.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v18.x/api/http2.html">18.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v17.x/api/http2.html">17.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v16.x/api/http2.html">16.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v15.x/api/http2.html">15.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v14.x/api/http2.html">14.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v13.x/api/http2.html">13.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v12.x/api/http2.html">12.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v12.x/api/http2.html">12.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v11.x/api/http2.html">11.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v10.x/api/http2.html">10.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v9.x/api/http2.html">9.x</a></li>
@@ -464,7 +468,7 @@
                   <li>
                     <a href="http2.json">View as JSON</a>
                   </li>
-                  <li class="edit_on_github"><a href="https://github.com/nodejs/node/edit/master/doc/api/http2.md">Edit on GitHub</a></li>    
+                  <li class="edit_on_github"><a href="https://github.com/nodejs/node/edit/main/doc/api/http2.md">Edit on GitHub</a></li>    
                 </ul>
               </div>
             </li>
@@ -616,7 +620,7 @@
 <li><a href="#serverupdatesettingssettings_1"><code>server.updateSettings([settings])</code></a></li>
 </ul>
 </li>
-<li><a href="#http2createserveroptions-onrequesthandler"><code>http2.createServer(options[, onRequestHandler])</code></a></li>
+<li><a href="#http2createserveroptions-onrequesthandler"><code>http2.createServer([options][, onRequestHandler])</code></a></li>
 <li><a href="#http2createsecureserveroptions-onrequesthandler"><code>http2.createSecureServer(options[, onRequestHandler])</code></a></li>
 <li><a href="#http2connectauthority-options-listener"><code>http2.connect(authority[, options][, listener])</code></a></li>
 <li><a href="#http2constants"><code>http2.constants</code></a>
@@ -681,10 +685,7 @@
 <li><a href="#responsehasheadername"><code>response.hasHeader(name)</code></a></li>
 <li><a href="#responseheaderssent"><code>response.headersSent</code></a></li>
 <li><a href="#responseremoveheadername"><code>response.removeHeader(name)</code></a></li>
-</ul>
-</li>
-<li><a href="#responsereq"><code>response.req</code></a>
-<ul>
+<li><a href="#responsereq"><code>response.req</code></a></li>
 <li><a href="#responsesenddate"><code>response.sendDate</code></a></li>
 <li><a href="#responsesetheadername-value"><code>response.setHeader(name, value)</code></a></li>
 <li><a href="#responsesettimeoutmsecs-callback"><code>response.setTimeout(msecs[, callback])</code></a></li>
@@ -695,6 +696,7 @@
 <li><a href="#responsewritableended"><code>response.writableEnded</code></a></li>
 <li><a href="#responsewritechunk-encoding-callback"><code>response.write(chunk[, encoding][, callback])</code></a></li>
 <li><a href="#responsewritecontinue"><code>response.writeContinue()</code></a></li>
+<li><a href="#responsewriteearlyhintshints"><code>response.writeEarlyHints(hints)</code></a></li>
 <li><a href="#responsewriteheadstatuscode-statusmessage-headers"><code>response.writeHead(statusCode[, statusMessage][, headers])</code></a></li>
 </ul>
 </li>
@@ -712,10 +714,10 @@
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v15.3.0</td>
-<td><p>It is possible to abort a request with an AbortSignal.</p></td></tr>
 <tr><td>v15.0.0</td>
 <td><p>Requests with the <code>host</code> header (with or without <code>:authority</code>) can now be sent/received.</p></td></tr>
+<tr><td>v15.3.0, v14.17.0</td>
+<td><p>It is possible to abort a request with an AbortSignal.</p></td></tr>
 <tr><td>v10.10.0</td>
 <td><p>HTTP/2 is now Stable. Previously, it had been Experimental.</p></td></tr>
 <tr><td>v8.4.0</td>
@@ -725,20 +727,20 @@
 </div>
 
 <p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v16.15.1/lib/http2.js">lib/http2.js</a></p>
-<p>The <code>http2</code> module provides an implementation of the <a href="https://tools.ietf.org/html/rfc7540">HTTP/2</a> protocol. It
-can be accessed using:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);</code></pre>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.13.0/lib/http2.js">lib/http2.js</a></p>
+<p>The <code>node:http2</code> module provides an implementation of the <a href="https://tools.ietf.org/html/rfc7540">HTTP/2</a> protocol.
+It can be accessed using:</p>
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);</code></pre>
 <section><h3>Determining if crypto support is unavailable<span><a class="mark" href="#determining-if-crypto-support-is-unavailable" id="determining-if-crypto-support-is-unavailable">#</a></span><a aria-hidden="true" class="legacy" id="http2_determining_if_crypto_support_is_unavailable"></a></h3>
 <p>It is possible for Node.js to be built without including support for the
-<code>crypto</code> module. In such cases, attempting to <code>import</code> from <code>http2</code> or
-calling <code>require('http2')</code> will result in an error being thrown.</p>
+<code>node:crypto</code> module. In such cases, attempting to <code>import</code> from <code>node:http2</code> or
+calling <code>require('node:http2')</code> will result in an error being thrown.</p>
 <p>When using CommonJS, the error thrown can be caught using try/catch:</p>
 <pre><code class="language-js cjs"><span class="hljs-keyword">let</span> http2;
 <span class="hljs-keyword">try</span> {
-  http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+  http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 } <span class="hljs-keyword">catch</span> (err) {
-  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'http2 support is disabled!'</span>);
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">'http2 support is disabled!'</span>);
 }</code></pre>
 <p>When using the lexical ESM <code>import</code> keyword, the error can only be
 caught if a handler for <code>process.on('uncaughtException')</code> is registered
@@ -746,12 +748,12 @@ caught if a handler for <code>process.on('uncaughtException')</code> is register
 a preload module).</p>
 <p>When using ESM, if there is a chance that the code may be run on a build
 of Node.js where crypto support is not enabled, consider using the
-<code>import()</code> function instead of the lexical <code>import</code> keyword:</p>
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import"><code>import()</code></a> function instead of the lexical <code>import</code> keyword:</p>
 <pre><code class="language-js mjs"><span class="hljs-keyword">let</span> http2;
 <span class="hljs-keyword">try</span> {
-  http2 = <span class="hljs-keyword">await</span> <span class="hljs-title function_">import</span>(<span class="hljs-string">'http2'</span>);
+  http2 = <span class="hljs-keyword">await</span> <span class="hljs-keyword">import</span>(<span class="hljs-string">'node:http2'</span>);
 } <span class="hljs-keyword">catch</span> (err) {
-  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'http2 support is disabled!'</span>);
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">'http2 support is disabled!'</span>);
 }</code></pre>
 </section><section><h3>Core API<span><a class="mark" href="#core-api" id="core-api">#</a></span><a aria-hidden="true" class="legacy" id="http2_core_api"></a></h3>
 <p>The Core API provides a low-level interface designed specifically around
@@ -767,12 +769,12 @@ Since there are no browsers known that support
 <a href="https://http2.github.io/faq/#does-http2-require-encryption">unencrypted HTTP/2</a>, the use of
 <a href="#http2createsecureserveroptions-onrequesthandler"><code>http2.createSecureServer()</code></a> is necessary when communicating
 with browser clients.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
-<span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
+<span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:fs'</span>);
 
 <span class="hljs-keyword">const</span> server = http2.<span class="hljs-title function_">createSecureServer</span>({
   <span class="hljs-attr">key</span>: fs.<span class="hljs-title function_">readFileSync</span>(<span class="hljs-string">'localhost-privkey.pem'</span>),
-  <span class="hljs-attr">cert</span>: fs.<span class="hljs-title function_">readFileSync</span>(<span class="hljs-string">'localhost-cert.pem'</span>)
+  <span class="hljs-attr">cert</span>: fs.<span class="hljs-title function_">readFileSync</span>(<span class="hljs-string">'localhost-cert.pem'</span>),
 });
 server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'error'</span>, <span class="hljs-function">(<span class="hljs-params">err</span>) =></span> <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(err));
 
@@ -780,7 +782,7 @@ server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'s
   <span class="hljs-comment">// stream is a Duplex</span>
   stream.<span class="hljs-title function_">respond</span>({
     <span class="hljs-string">'content-type'</span>: <span class="hljs-string">'text/html; charset=utf-8'</span>,
-    <span class="hljs-string">':status'</span>: <span class="hljs-number">200</span>
+    <span class="hljs-string">':status'</span>: <span class="hljs-number">200</span>,
   });
   stream.<span class="hljs-title function_">end</span>(<span class="hljs-string">'&#x3C;h1>Hello World&#x3C;/h1>'</span>);
 });
@@ -791,10 +793,10 @@ server.<span class="hljs-title function_">listen</span>(<span class="hljs-number
   -keyout localhost-privkey.pem -out localhost-cert.pem</code></pre>
 <h4>Client-side example<span><a class="mark" href="#client-side-example" id="client-side-example">#</a></span><a aria-hidden="true" class="legacy" id="http2_client_side_example"></a></h4>
 <p>The following illustrates an HTTP/2 client:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
-<span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
+<span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:fs'</span>);
 <span class="hljs-keyword">const</span> client = http2.<span class="hljs-title function_">connect</span>(<span class="hljs-string">'https://localhost:8443'</span>, {
-  <span class="hljs-attr">ca</span>: fs.<span class="hljs-title function_">readFileSync</span>(<span class="hljs-string">'localhost-cert.pem'</span>)
+  <span class="hljs-attr">ca</span>: fs.<span class="hljs-title function_">readFileSync</span>(<span class="hljs-string">'localhost-cert.pem'</span>),
 });
 client.<span class="hljs-title function_">on</span>(<span class="hljs-string">'error'</span>, <span class="hljs-function">(<span class="hljs-params">err</span>) =></span> <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(err));
 
@@ -953,14 +955,14 @@ from the connected peer.</p>
 their respective values.</li>
 </ul>
 <p>The <code>'stream'</code> event is emitted when a new <code>Http2Stream</code> is created.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 session.<span class="hljs-title function_">on</span>(<span class="hljs-string">'stream'</span>, <span class="hljs-function">(<span class="hljs-params">stream, headers, flags</span>) =></span> {
   <span class="hljs-keyword">const</span> method = headers[<span class="hljs-string">':method'</span>];
   <span class="hljs-keyword">const</span> path = headers[<span class="hljs-string">':path'</span>];
   <span class="hljs-comment">// ...</span>
   stream.<span class="hljs-title function_">respond</span>({
     <span class="hljs-string">':status'</span>: <span class="hljs-number">200</span>,
-    <span class="hljs-string">'content-type'</span>: <span class="hljs-string">'text/plain; charset=utf-8'</span>
+    <span class="hljs-string">'content-type'</span>: <span class="hljs-string">'text/plain; charset=utf-8'</span>,
   });
   stream.<span class="hljs-title function_">write</span>(<span class="hljs-string">'hello '</span>);
   stream.<span class="hljs-title function_">end</span>(<span class="hljs-string">'world'</span>);
@@ -969,7 +971,7 @@ session.<span class="hljs-title function_">on</span>(<span class="hljs-string">'
 and would instead register a handler for the <code>'stream'</code> event emitted by the
 <code>net.Server</code> or <code>tls.Server</code> instances returned by <code>http2.createServer()</code> and
 <code>http2.createSecureServer()</code>, respectively, as in the example below:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 
 <span class="hljs-comment">// Create an unencrypted HTTP/2 server</span>
 <span class="hljs-keyword">const</span> server = http2.<span class="hljs-title function_">createServer</span>();
@@ -977,7 +979,7 @@ and would instead register a handler for the <code>'stream'</code> event emitted
 server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'stream'</span>, <span class="hljs-function">(<span class="hljs-params">stream, headers</span>) =></span> {
   stream.<span class="hljs-title function_">respond</span>({
     <span class="hljs-string">'content-type'</span>: <span class="hljs-string">'text/html; charset=utf-8'</span>,
-    <span class="hljs-string">':status'</span>: <span class="hljs-number">200</span>
+    <span class="hljs-string">':status'</span>: <span class="hljs-number">200</span>,
   });
   stream.<span class="hljs-title function_">on</span>(<span class="hljs-string">'error'</span>, <span class="hljs-function">(<span class="hljs-params">error</span>) =></span> <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(error));
   stream.<span class="hljs-title function_">end</span>(<span class="hljs-string">'&#x3C;h1>Hello World&#x3C;/h1>'</span>);
@@ -1123,7 +1125,15 @@ a sent <code>SETTINGS</code> frame. Will be <code>true</code> after calling the
 frames have been acknowledged.</p>
 <h5><code>http2session.ping([payload, ]callback)</code><span><a class="mark" href="#http2sessionpingpayload-callback" id="http2sessionpingpayload-callback">#</a></span><a aria-hidden="true" class="legacy" id="http2_http2session_ping_payload_callback"></a></h5>
 <div class="api_metadata">
-<span>Added in: v8.9.3</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v18.0.0</td>
+<td><p>Passing an invalid callback to the <code>callback</code> argument now throws <code>ERR_INVALID_ARG_TYPE</code> instead of <code>ERR_INVALID_CALLBACK</code>.</p></td></tr>
+<tr><td>v8.9.3</td>
+<td><p><span>Added in: v8.9.3</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><code>payload</code> <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a> Optional ping payload.</li>
@@ -1168,7 +1178,7 @@ instance's underlying <a href="net.html#class-netsocket"><code>net.Socket</code>
 <code>Http2Session</code>. The remote settings are set by the <em>connected</em> HTTP/2 peer.</p>
 <h5><code>http2session.setLocalWindowSize(windowSize)</code><span><a class="mark" href="#http2sessionsetlocalwindowsizewindowsize" id="http2sessionsetlocalwindowsizewindowsize">#</a></span><a aria-hidden="true" class="legacy" id="http2_http2session_setlocalwindowsize_windowsize"></a></h5>
 <div class="api_metadata">
-<span>Added in: v15.3.0</span>
+<span>Added in: v15.3.0, v14.18.0</span>
 </div>
 <ul>
 <li><code>windowSize</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
@@ -1176,7 +1186,7 @@ instance's underlying <a href="net.html#class-netsocket"><code>net.Socket</code>
 <p>Sets the local endpoint's window size.
 The <code>windowSize</code> is the total window size to set, not
 the delta.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 
 <span class="hljs-keyword">const</span> server = http2.<span class="hljs-title function_">createServer</span>();
 <span class="hljs-keyword">const</span> expectedWindowSize = <span class="hljs-number">2</span> ** <span class="hljs-number">20</span>;
@@ -1187,7 +1197,15 @@ server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'c
 });</code></pre>
 <h5><code>http2session.setTimeout(msecs, callback)</code><span><a class="mark" href="#http2sessionsettimeoutmsecs-callback" id="http2sessionsettimeoutmsecs-callback">#</a></span><a aria-hidden="true" class="legacy" id="http2_http2session_settimeout_msecs_callback"></a></h5>
 <div class="api_metadata">
-<span>Added in: v8.4.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v18.0.0</td>
+<td><p>Passing an invalid callback to the <code>callback</code> argument now throws <code>ERR_INVALID_ARG_TYPE</code> instead of <code>ERR_INVALID_CALLBACK</code>.</p></td></tr>
+<tr><td>v8.4.0</td>
+<td><p><span>Added in: v8.4.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><code>msecs</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
@@ -1243,7 +1261,15 @@ inbound header compression state table.</li>
 <p>An object describing the current status of this <code>Http2Session</code>.</p>
 <h5><code>http2session.settings([settings][, callback])</code><span><a class="mark" href="#http2sessionsettingssettings-callback" id="http2sessionsettingssettings-callback">#</a></span><a aria-hidden="true" class="legacy" id="http2_http2session_settings_settings_callback"></a></h5>
 <div class="api_metadata">
-<span>Added in: v8.4.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v18.0.0</td>
+<td><p>Passing an invalid callback to the <code>callback</code> argument now throws <code>ERR_INVALID_ARG_TYPE</code> instead of <code>ERR_INVALID_CALLBACK</code>.</p></td></tr>
+<tr><td>v8.4.0</td>
+<td><p><span>Added in: v8.4.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><code>settings</code> <a href="http2.html#settings-object" class="type">&#x3C;HTTP/2 Settings Object></a></li>
@@ -1301,7 +1327,7 @@ identifier of an active <code>Http2Stream</code> as given by the <code>http2stre
 property.</li>
 </ul>
 <p>Submits an <code>ALTSVC</code> frame (as defined by <a href="https://tools.ietf.org/html/rfc7838">RFC 7838</a>) to the connected client.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 
 <span class="hljs-keyword">const</span> server = http2.<span class="hljs-title function_">createServer</span>();
 server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'session'</span>, <span class="hljs-function">(<span class="hljs-params">session</span>) =></span> {
@@ -1351,7 +1377,7 @@ separate arguments.</li>
 <p>Submits an <code>ORIGIN</code> frame (as defined by <a href="https://tools.ietf.org/html/rfc8336">RFC 8336</a>) to the connected client
 to advertise the set of origins for which the server is capable of providing
 authoritative responses.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 <span class="hljs-keyword">const</span> options = <span class="hljs-title function_">getSecureOptionsSomehow</span>();
 <span class="hljs-keyword">const</span> server = http2.<span class="hljs-title function_">createSecureServer</span>(options);
 server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'stream'</span>, <span class="hljs-function">(<span class="hljs-params">stream</span>) =></span> {
@@ -1372,7 +1398,7 @@ used. The value of the <code>origin</code> property <em>must</em> be a properly 
 ASCII origin.</p>
 <p>Alternatively, the <code>origins</code> option may be used when creating a new HTTP/2
 server using the <code>http2.createSecureServer()</code> method:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 <span class="hljs-keyword">const</span> options = <span class="hljs-title function_">getSecureOptionsSomehow</span>();
 options.<span class="hljs-property">origins</span> = [<span class="hljs-string">'https://example.com'</span>, <span class="hljs-string">'https://example.org'</span>];
 <span class="hljs-keyword">const</span> server = http2.<span class="hljs-title function_">createSecureServer</span>(options);
@@ -1400,7 +1426,7 @@ server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'s
 the client. The event is emitted with the <code>ALTSVC</code> value, origin, and stream
 ID. If no <code>origin</code> is provided in the <code>ALTSVC</code> frame, <code>origin</code> will
 be an empty string.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 <span class="hljs-keyword">const</span> client = http2.<span class="hljs-title function_">connect</span>(<span class="hljs-string">'https://example.org'</span>);
 
 client.<span class="hljs-title function_">on</span>(<span class="hljs-string">'altsvc'</span>, <span class="hljs-function">(<span class="hljs-params">alt, origin, streamId</span>) =></span> {
@@ -1419,7 +1445,7 @@ client.<span class="hljs-title function_">on</span>(<span class="hljs-string">'a
 the client. The event is emitted with an array of <code>origin</code> strings. The
 <code>http2session.originSet</code> will be updated to include the received
 origins.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 <span class="hljs-keyword">const</span> client = http2.<span class="hljs-title function_">connect</span>(<span class="hljs-string">'https://example.org'</span>);
 
 client.<span class="hljs-title function_">on</span>(<span class="hljs-string">'origin'</span>, <span class="hljs-function">(<span class="hljs-params">origins</span>) =></span> {
@@ -1470,11 +1496,11 @@ If the <code>session</code> is closed before the actual request be executed, an
 <code>ERR_HTTP2_GOAWAY_SESSION</code> is thrown.</p>
 <p>This method is only available if <code>http2session.type</code> is equal to
 <code>http2.constants.NGHTTP2_SESSION_CLIENT</code>.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 <span class="hljs-keyword">const</span> clientSession = http2.<span class="hljs-title function_">connect</span>(<span class="hljs-string">'https://localhost:1234'</span>);
 <span class="hljs-keyword">const</span> {
   <span class="hljs-title class_">HTTP2</span>_HEADER_PATH,
-  <span class="hljs-title class_">HTTP2</span>_HEADER_STATUS
+  <span class="hljs-title class_">HTTP2</span>_HEADER_STATUS,
 } = http2.<span class="hljs-property">constants</span>;
 
 <span class="hljs-keyword">const</span> req = clientSession.<span class="hljs-title function_">request</span>({ [<span class="hljs-title class_">HTTP2</span>_HEADER_PATH]: <span class="hljs-string">'/'</span> });
@@ -1524,13 +1550,12 @@ the Server or Client side, respectively.</p>
 <p>All <code>Http2Stream</code> instances are <a href="stream.html#class-streamduplex"><code>Duplex</code></a> streams. The <code>Writable</code> side of the
 <code>Duplex</code> is used to send data to the connected peer, while the <code>Readable</code> side
 is used to receive data sent by the connected peer.</p>
-<p>The default text character encoding for all <code>Http2Stream</code>s is UTF-8. As a best
-practice, it is recommended that when using an <code>Http2Stream</code> to send text,
-the <code>'content-type'</code> header should be set and should identify the character
-encoding used.</p>
+<p>The default text character encoding for an <code>Http2Stream</code> is UTF-8. When using an
+<code>Http2Stream</code> to send text, use the <code>'content-type'</code> header to set the character
+encoding.</p>
 <pre><code class="language-js">stream.<span class="hljs-title function_">respond</span>({
   <span class="hljs-string">'content-type'</span>: <span class="hljs-string">'text/html; charset=utf-8'</span>,
-  <span class="hljs-string">':status'</span>: <span class="hljs-number">200</span>
+  <span class="hljs-string">':status'</span>: <span class="hljs-number">200</span>,
 });</code></pre>
 <h5><code>Http2Stream</code> Lifecycle<span><a class="mark" href="#http2stream-lifecycle" id="http2stream-lifecycle">#</a></span><a aria-hidden="true" class="legacy" id="http2_http2stream_lifecycle"></a></h5>
 <h6>Creation<span><a class="mark" href="#creation" id="creation">#</a></span><a aria-hidden="true" class="legacy" id="http2_creation"></a></h6>
@@ -1671,7 +1696,15 @@ the <code>'aborted'</code> event will have been emitted.</p>
 See <a href="net.html#socketbuffersize"><code>net.Socket.bufferSize</code></a> for details.</p>
 <h5><code>http2stream.close(code[, callback])</code><span><a class="mark" href="#http2streamclosecode-callback" id="http2streamclosecode-callback">#</a></span><a aria-hidden="true" class="legacy" id="http2_http2stream_close_code_callback"></a></h5>
 <div class="api_metadata">
-<span>Added in: v8.4.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v18.0.0</td>
+<td><p>Passing an invalid callback to the <code>callback</code> argument now throws <code>ERR_INVALID_ARG_TYPE</code> instead of <code>ERR_INVALID_CALLBACK</code>.</p></td></tr>
+<tr><td>v8.4.0</td>
+<td><p><span>Added in: v8.4.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><code>code</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Unsigned 32-bit integer identifying the error code.
@@ -1795,13 +1828,21 @@ sent for this <code>Http2Stream</code>.</p>
 value will be <code>undefined</code> after the <code>Http2Stream</code> instance is destroyed.</p>
 <h5><code>http2stream.setTimeout(msecs, callback)</code><span><a class="mark" href="#http2streamsettimeoutmsecs-callback" id="http2streamsettimeoutmsecs-callback">#</a></span><a aria-hidden="true" class="legacy" id="http2_http2stream_settimeout_msecs_callback"></a></h5>
 <div class="api_metadata">
-<span>Added in: v8.4.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v18.0.0</td>
+<td><p>Passing an invalid callback to the <code>callback</code> argument now throws <code>ERR_INVALID_ARG_TYPE</code> instead of <code>ERR_INVALID_CALLBACK</code>.</p></td></tr>
+<tr><td>v8.4.0</td>
+<td><p><span>Added in: v8.4.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><code>msecs</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
 <li><code>callback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a></li>
 </ul>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 <span class="hljs-keyword">const</span> client = http2.<span class="hljs-title function_">connect</span>(<span class="hljs-string">'http://example.org:8000'</span>);
 <span class="hljs-keyword">const</span> { <span class="hljs-title class_">NGHTTP2</span>_CANCEL } = http2.<span class="hljs-property">constants</span>;
 <span class="hljs-keyword">const</span> req = client.<span class="hljs-title function_">request</span>({ <span class="hljs-string">':path'</span>: <span class="hljs-string">'/'</span> });
@@ -1845,7 +1886,7 @@ called after the <code>'wantTrailers'</code> event has been emitted. When sendin
 request or sending a response, the <code>options.waitForTrailers</code> option must be set
 in order to keep the <code>Http2Stream</code> open after the final <code>DATA</code> frame so that
 trailers can be sent.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 <span class="hljs-keyword">const</span> server = http2.<span class="hljs-title function_">createServer</span>();
 server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'stream'</span>, <span class="hljs-function">(<span class="hljs-params">stream</span>) =></span> {
   stream.<span class="hljs-title function_">respond</span>(<span class="hljs-literal">undefined</span>, { <span class="hljs-attr">waitForTrailers</span>: <span class="hljs-literal">true</span> });
@@ -1878,6 +1919,10 @@ the client should send the request body.</p>
 <div class="api_metadata">
 <span>Added in: v8.4.0</span>
 </div>
+<ul>
+<li><code>headers</code> <a href="http2.html#headers-object" class="type">&#x3C;HTTP/2 Headers Object></a></li>
+<li><code>flags</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
+</ul>
 <p>The <code>'headers'</code> event is emitted when an additional block of headers is received
 for a stream, such as when a block of <code>1xx</code> informational headers is received.
 The listener callback is passed the <a href="#headers-object">HTTP/2 Headers Object</a> and flags
@@ -1889,6 +1934,10 @@ associated with the headers.</p>
 <div class="api_metadata">
 <span>Added in: v8.4.0</span>
 </div>
+<ul>
+<li><code>headers</code> <a href="http2.html#headers-object" class="type">&#x3C;HTTP/2 Headers Object></a></li>
+<li><code>flags</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
+</ul>
 <p>The <code>'push'</code> event is emitted when response headers for a Server Push stream
 are received. The listener callback is passed the <a href="#headers-object">HTTP/2 Headers Object</a> and
 flags associated with the headers.</p>
@@ -1899,11 +1948,15 @@ flags associated with the headers.</p>
 <div class="api_metadata">
 <span>Added in: v8.4.0</span>
 </div>
+<ul>
+<li><code>headers</code> <a href="http2.html#headers-object" class="type">&#x3C;HTTP/2 Headers Object></a></li>
+<li><code>flags</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
+</ul>
 <p>The <code>'response'</code> event is emitted when a response <code>HEADERS</code> frame has been
 received for this stream from the connected HTTP/2 server. The listener is
 invoked with two arguments: an <code>Object</code> containing the received
 <a href="#headers-object">HTTP/2 Headers Object</a>, and flags associated with the headers.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 <span class="hljs-keyword">const</span> client = http2.<span class="hljs-title function_">connect</span>(<span class="hljs-string">'https://localhost'</span>);
 <span class="hljs-keyword">const</span> req = client.<span class="hljs-title function_">request</span>({ <span class="hljs-string">':path'</span>: <span class="hljs-string">'/'</span> });
 req.<span class="hljs-title function_">on</span>(<span class="hljs-string">'response'</span>, <span class="hljs-function">(<span class="hljs-params">headers, flags</span>) =></span> {
@@ -1949,7 +2002,15 @@ accepts push streams, <code>false</code> otherwise. Settings are the same for ev
 <code>Http2Stream</code> in the same <code>Http2Session</code>.</p>
 <h5><code>http2stream.pushStream(headers[, options], callback)</code><span><a class="mark" href="#http2streampushstreamheaders-options-callback" id="http2streampushstreamheaders-options-callback">#</a></span><a aria-hidden="true" class="legacy" id="http2_http2stream_pushstream_headers_options_callback"></a></h5>
 <div class="api_metadata">
-<span>Added in: v8.4.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v18.0.0</td>
+<td><p>Passing an invalid callback to the <code>callback</code> argument now throws <code>ERR_INVALID_ARG_TYPE</code> instead of <code>ERR_INVALID_CALLBACK</code>.</p></td></tr>
+<tr><td>v8.4.0</td>
+<td><p><span>Added in: v8.4.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><code>headers</code> <a href="http2.html#headers-object" class="type">&#x3C;HTTP/2 Headers Object></a></li>
@@ -1976,7 +2037,7 @@ initiated with.</li>
 <p>Initiates a push stream. The callback is invoked with the new <code>Http2Stream</code>
 instance created for the push stream passed as the second argument, or an
 <code>Error</code> passed as the first argument.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 <span class="hljs-keyword">const</span> server = http2.<span class="hljs-title function_">createServer</span>();
 server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'stream'</span>, <span class="hljs-function">(<span class="hljs-params">stream</span>) =></span> {
   stream.<span class="hljs-title function_">respond</span>({ <span class="hljs-string">':status'</span>: <span class="hljs-number">200</span> });
@@ -2015,21 +2076,21 @@ include payload data.</li>
 </ul>
 </li>
 </ul>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 <span class="hljs-keyword">const</span> server = http2.<span class="hljs-title function_">createServer</span>();
 server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'stream'</span>, <span class="hljs-function">(<span class="hljs-params">stream</span>) =></span> {
   stream.<span class="hljs-title function_">respond</span>({ <span class="hljs-string">':status'</span>: <span class="hljs-number">200</span> });
   stream.<span class="hljs-title function_">end</span>(<span class="hljs-string">'some data'</span>);
 });</code></pre>
-<p>When the <code>options.waitForTrailers</code> option is set, the <code>'wantTrailers'</code> event
-will be emitted immediately after queuing the last chunk of payload data to be
-sent. The <code>http2stream.sendTrailers()</code> method can then be used to sent trailing
-header fields to the peer.</p>
+<p>Initiates a response. When the <code>options.waitForTrailers</code> option is set, the
+<code>'wantTrailers'</code> event will be emitted immediately after queuing the last chunk
+of payload data to be sent. The <code>http2stream.sendTrailers()</code> method can then be
+used to sent trailing header fields to the peer.</p>
 <p>When <code>options.waitForTrailers</code> is set, the <code>Http2Stream</code> will not automatically
 close when the final <code>DATA</code> frame is transmitted. User code must call either
 <code>http2stream.sendTrailers()</code> or <code>http2stream.close()</code> to close the
 <code>Http2Stream</code>.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 <span class="hljs-keyword">const</span> server = http2.<span class="hljs-title function_">createServer</span>();
 server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'stream'</span>, <span class="hljs-function">(<span class="hljs-params">stream</span>) =></span> {
   stream.<span class="hljs-title function_">respond</span>({ <span class="hljs-string">':status'</span>: <span class="hljs-number">200</span> }, { <span class="hljs-attr">waitForTrailers</span>: <span class="hljs-literal">true</span> });
@@ -2073,8 +2134,8 @@ attempting to read data using the file descriptor, the <code>Http2Stream</code> 
 closed using an <code>RST_STREAM</code> frame using the standard <code>INTERNAL_ERROR</code> code.</p>
 <p>When used, the <code>Http2Stream</code> object's <code>Duplex</code> interface will be closed
 automatically.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
-<span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
+<span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:fs'</span>);
 
 <span class="hljs-keyword">const</span> server = http2.<span class="hljs-title function_">createServer</span>();
 server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'stream'</span>, <span class="hljs-function">(<span class="hljs-params">stream</span>) =></span> {
@@ -2084,7 +2145,7 @@ server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'s
   <span class="hljs-keyword">const</span> headers = {
     <span class="hljs-string">'content-length'</span>: stat.<span class="hljs-property">size</span>,
     <span class="hljs-string">'last-modified'</span>: stat.<span class="hljs-property">mtime</span>.<span class="hljs-title function_">toUTCString</span>(),
-    <span class="hljs-string">'content-type'</span>: <span class="hljs-string">'text/plain; charset=utf-8'</span>
+    <span class="hljs-string">'content-type'</span>: <span class="hljs-string">'text/plain; charset=utf-8'</span>,
   };
   stream.<span class="hljs-title function_">respondWithFD</span>(fd, headers);
   stream.<span class="hljs-title function_">on</span>(<span class="hljs-string">'close'</span>, <span class="hljs-function">() =></span> fs.<span class="hljs-title function_">closeSync</span>(fd));
@@ -2110,8 +2171,8 @@ header fields to the peer.</p>
 close when the final <code>DATA</code> frame is transmitted. User code <em>must</em> call either
 <code>http2stream.sendTrailers()</code> or <code>http2stream.close()</code> to close the
 <code>Http2Stream</code>.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
-<span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
+<span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:fs'</span>);
 
 <span class="hljs-keyword">const</span> server = http2.<span class="hljs-title function_">createServer</span>();
 server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'stream'</span>, <span class="hljs-function">(<span class="hljs-params">stream</span>) =></span> {
@@ -2121,7 +2182,7 @@ server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'s
   <span class="hljs-keyword">const</span> headers = {
     <span class="hljs-string">'content-length'</span>: stat.<span class="hljs-property">size</span>,
     <span class="hljs-string">'last-modified'</span>: stat.<span class="hljs-property">mtime</span>.<span class="hljs-title function_">toUTCString</span>(),
-    <span class="hljs-string">'content-type'</span>: <span class="hljs-string">'text/plain; charset=utf-8'</span>
+    <span class="hljs-string">'content-type'</span>: <span class="hljs-string">'text/plain; charset=utf-8'</span>,
   };
   stream.<span class="hljs-title function_">respondWithFD</span>(fd, headers, { <span class="hljs-attr">waitForTrailers</span>: <span class="hljs-literal">true</span> });
   stream.<span class="hljs-title function_">on</span>(<span class="hljs-string">'wantTrailers'</span>, <span class="hljs-function">() =></span> {
@@ -2171,7 +2232,7 @@ will be closed using an <code>RST_STREAM</code> frame using the standard <code>I
 code. If the <code>onError</code> callback is defined, then it will be called. Otherwise
 the stream will be destroyed.</p>
 <p>Example using a file path:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 <span class="hljs-keyword">const</span> server = http2.<span class="hljs-title function_">createServer</span>();
 server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'stream'</span>, <span class="hljs-function">(<span class="hljs-params">stream</span>) =></span> {
   <span class="hljs-keyword">function</span> <span class="hljs-title function_">statCheck</span>(<span class="hljs-params">stat, headers</span>) {
@@ -2189,7 +2250,7 @@ server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'s
       }
     } <span class="hljs-keyword">catch</span> (err) {
       <span class="hljs-comment">// Perform actual error handling.</span>
-      <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(err);
+      <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(err);
     }
     stream.<span class="hljs-title function_">end</span>();
   }
@@ -2202,7 +2263,7 @@ server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'s
 by returning <code>false</code>. For instance, a conditional request may check the stat
 results to determine if the file has been modified to return an appropriate
 <code>304</code> response:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 <span class="hljs-keyword">const</span> server = http2.<span class="hljs-title function_">createServer</span>();
 server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'stream'</span>, <span class="hljs-function">(<span class="hljs-params">stream</span>) =></span> {
   <span class="hljs-keyword">function</span> <span class="hljs-title function_">statCheck</span>(<span class="hljs-params">stat, headers</span>) {
@@ -2229,7 +2290,7 @@ header fields to the peer.</p>
 close when the final <code>DATA</code> frame is transmitted. User code must call either
 <code>http2stream.sendTrailers()</code> or <code>http2stream.close()</code> to close the
 <code>Http2Stream</code>.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 <span class="hljs-keyword">const</span> server = http2.<span class="hljs-title function_">createServer</span>();
 server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'stream'</span>, <span class="hljs-function">(<span class="hljs-params">stream</span>) =></span> {
   stream.<span class="hljs-title function_">respondWithFile</span>(<span class="hljs-string">'/some/file'</span>,
@@ -2247,8 +2308,8 @@ server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'s
 <li>Extends: <a href="net.html#class-netserver" class="type">&#x3C;net.Server></a></li>
 </ul>
 <p>Instances of <code>Http2Server</code> are created using the <code>http2.createServer()</code>
-function. The <code>Http2Server</code> class is not exported directly by the <code>http2</code>
-module.</p>
+function. The <code>Http2Server</code> class is not exported directly by the
+<code>node:http2</code> module.</p>
 <h5>Event: <code>'checkContinue'</code><span><a class="mark" href="#event-checkcontinue" id="event-checkcontinue">#</a></span><a aria-hidden="true" class="legacy" id="http2_event_checkcontinue"></a></h5>
 <div class="api_metadata">
 <span>Added in: v8.5.0</span>
@@ -2294,12 +2355,19 @@ per session. See the <a href="#compatibility-api">Compatibility API</a>.</p>
 <div class="api_metadata">
 <span>Added in: v8.4.0</span>
 </div>
+<ul>
+<li><code>session</code> <a href="http2.html#class-serverhttp2session" class="type">&#x3C;ServerHttp2Session></a></li>
+</ul>
 <p>The <code>'session'</code> event is emitted when a new <code>Http2Session</code> is created by the
 <code>Http2Server</code>.</p>
 <h5>Event: <code>'sessionError'</code><span><a class="mark" href="#event-sessionerror" id="event-sessionerror">#</a></span><a aria-hidden="true" class="legacy" id="http2_event_sessionerror"></a></h5>
 <div class="api_metadata">
 <span>Added in: v8.4.0</span>
 </div>
+<ul>
+<li><code>error</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error" class="type">&#x3C;Error></a></li>
+<li><code>session</code> <a href="http2.html#class-serverhttp2session" class="type">&#x3C;ServerHttp2Session></a></li>
+</ul>
 <p>The <code>'sessionError'</code> event is emitted when an <code>'error'</code> event is emitted by
 an <code>Http2Session</code> object associated with the <code>Http2Server</code>.</p>
 <h5>Event: <code>'stream'</code><span><a class="mark" href="#event-stream_1" id="event-stream_1">#</a></span><a aria-hidden="true" class="legacy" id="http2_event_stream_1"></a></h5>
@@ -2316,12 +2384,12 @@ their respective values.</li>
 <p>The <code>'stream'</code> event is emitted when a <code>'stream'</code> event has been emitted by
 an <code>Http2Session</code> associated with the server.</p>
 <p>See also <a href="#event-stream"><code>Http2Session</code>'s <code>'stream'</code> event</a>.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 <span class="hljs-keyword">const</span> {
   <span class="hljs-title class_">HTTP2</span>_HEADER_METHOD,
   <span class="hljs-title class_">HTTP2</span>_HEADER_PATH,
   <span class="hljs-title class_">HTTP2</span>_HEADER_STATUS,
-  <span class="hljs-title class_">HTTP2</span>_HEADER_CONTENT_TYPE
+  <span class="hljs-title class_">HTTP2</span>_HEADER_CONTENT_TYPE,
 } = http2.<span class="hljs-property">constants</span>;
 
 <span class="hljs-keyword">const</span> server = http2.<span class="hljs-title function_">createServer</span>();
@@ -2331,7 +2399,7 @@ server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'s
   <span class="hljs-comment">// ...</span>
   stream.<span class="hljs-title function_">respond</span>({
     [<span class="hljs-title class_">HTTP2</span>_HEADER_STATUS]: <span class="hljs-number">200</span>,
-    [<span class="hljs-title class_">HTTP2</span>_HEADER_CONTENT_TYPE]: <span class="hljs-string">'text/plain; charset=utf-8'</span>
+    [<span class="hljs-title class_">HTTP2</span>_HEADER_CONTENT_TYPE]: <span class="hljs-string">'text/plain; charset=utf-8'</span>,
   });
   stream.<span class="hljs-title function_">write</span>(<span class="hljs-string">'hello '</span>);
   stream.<span class="hljs-title function_">end</span>(<span class="hljs-string">'world'</span>);
@@ -2370,6 +2438,8 @@ closed, although the server has already stopped allowing new sessions. See
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v18.0.0</td>
+<td><p>Passing an invalid callback to the <code>callback</code> argument now throws <code>ERR_INVALID_ARG_TYPE</code> instead of <code>ERR_INVALID_CALLBACK</code>.</p></td></tr>
 <tr><td>v13.0.0</td>
 <td><p>The default timeout changed from 120s to 0 (no timeout).</p></td></tr>
 <tr><td>v8.4.0</td>
@@ -2386,7 +2456,7 @@ closed, although the server has already stopped allowing new sessions. See
 and sets a callback function that is called when there is no activity
 on the <code>Http2Server</code> after <code>msecs</code> milliseconds.</p>
 <p>The given callback is registered as a listener on the <code>'timeout'</code> event.</p>
-<p>In case if <code>callback</code> is not a function, a new <code>ERR_INVALID_CALLBACK</code>
+<p>In case if <code>callback</code> is not a function, a new <code>ERR_INVALID_ARG_TYPE</code>
 error will be thrown.</p>
 <h5><code>server.timeout</code><span><a class="mark" href="#servertimeout" id="servertimeout">#</a></span><a aria-hidden="true" class="legacy" id="http2_server_timeout"></a></h5>
 <div class="api_metadata">
@@ -2410,7 +2480,7 @@ to have timed out.</p>
 value only affects new connections to the server, not any existing connections.</p>
 <h5><code>server.updateSettings([settings])</code><span><a class="mark" href="#serverupdatesettingssettings" id="serverupdatesettingssettings">#</a></span><a aria-hidden="true" class="legacy" id="http2_server_updatesettings_settings"></a></h5>
 <div class="api_metadata">
-<span>Added in: v15.1.0</span>
+<span>Added in: v15.1.0, v14.17.0</span>
 </div>
 <ul>
 <li><code>settings</code> <a href="http2.html#settings-object" class="type">&#x3C;HTTP/2 Settings Object></a></li>
@@ -2427,7 +2497,7 @@ value only affects new connections to the server, not any existing connections.<
 </ul>
 <p>Instances of <code>Http2SecureServer</code> are created using the
 <code>http2.createSecureServer()</code> function. The <code>Http2SecureServer</code> class is not
-exported directly by the <code>http2</code> module.</p>
+exported directly by the <code>node:http2</code> module.</p>
 <h5>Event: <code>'checkContinue'</code><span><a class="mark" href="#event-checkcontinue_1" id="event-checkcontinue_1">#</a></span><a aria-hidden="true" class="legacy" id="http2_event_checkcontinue_1"></a></h5>
 <div class="api_metadata">
 <span>Added in: v8.5.0</span>
@@ -2473,12 +2543,19 @@ per session. See the <a href="#compatibility-api">Compatibility API</a>.</p>
 <div class="api_metadata">
 <span>Added in: v8.4.0</span>
 </div>
+<ul>
+<li><code>session</code> <a href="http2.html#class-serverhttp2session" class="type">&#x3C;ServerHttp2Session></a></li>
+</ul>
 <p>The <code>'session'</code> event is emitted when a new <code>Http2Session</code> is created by the
 <code>Http2SecureServer</code>.</p>
 <h5>Event: <code>'sessionError'</code><span><a class="mark" href="#event-sessionerror_1" id="event-sessionerror_1">#</a></span><a aria-hidden="true" class="legacy" id="http2_event_sessionerror_1"></a></h5>
 <div class="api_metadata">
 <span>Added in: v8.4.0</span>
 </div>
+<ul>
+<li><code>error</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error" class="type">&#x3C;Error></a></li>
+<li><code>session</code> <a href="http2.html#class-serverhttp2session" class="type">&#x3C;ServerHttp2Session></a></li>
+</ul>
 <p>The <code>'sessionError'</code> event is emitted when an <code>'error'</code> event is emitted by
 an <code>Http2Session</code> object associated with the <code>Http2SecureServer</code>.</p>
 <h5>Event: <code>'stream'</code><span><a class="mark" href="#event-stream_2" id="event-stream_2">#</a></span><a aria-hidden="true" class="legacy" id="http2_event_stream_2"></a></h5>
@@ -2495,12 +2572,12 @@ their respective values.</li>
 <p>The <code>'stream'</code> event is emitted when a <code>'stream'</code> event has been emitted by
 an <code>Http2Session</code> associated with the server.</p>
 <p>See also <a href="#event-stream"><code>Http2Session</code>'s <code>'stream'</code> event</a>.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 <span class="hljs-keyword">const</span> {
   <span class="hljs-title class_">HTTP2</span>_HEADER_METHOD,
   <span class="hljs-title class_">HTTP2</span>_HEADER_PATH,
   <span class="hljs-title class_">HTTP2</span>_HEADER_STATUS,
-  <span class="hljs-title class_">HTTP2</span>_HEADER_CONTENT_TYPE
+  <span class="hljs-title class_">HTTP2</span>_HEADER_CONTENT_TYPE,
 } = http2.<span class="hljs-property">constants</span>;
 
 <span class="hljs-keyword">const</span> options = <span class="hljs-title function_">getOptionsSomehow</span>();
@@ -2512,7 +2589,7 @@ server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'s
   <span class="hljs-comment">// ...</span>
   stream.<span class="hljs-title function_">respond</span>({
     [<span class="hljs-title class_">HTTP2</span>_HEADER_STATUS]: <span class="hljs-number">200</span>,
-    [<span class="hljs-title class_">HTTP2</span>_HEADER_CONTENT_TYPE]: <span class="hljs-string">'text/plain; charset=utf-8'</span>
+    [<span class="hljs-title class_">HTTP2</span>_HEADER_CONTENT_TYPE]: <span class="hljs-string">'text/plain; charset=utf-8'</span>,
   });
   stream.<span class="hljs-title function_">write</span>(<span class="hljs-string">'hello '</span>);
   stream.<span class="hljs-title function_">end</span>(<span class="hljs-string">'world'</span>);
@@ -2528,6 +2605,9 @@ a given number of milliseconds set using <code>http2secureServer.setTimeout()</c
 <div class="api_metadata">
 <span>Added in: v8.4.0</span>
 </div>
+<ul>
+<li><code>socket</code> <a href="stream.html#class-streamduplex" class="type">&#x3C;stream.Duplex></a></li>
+</ul>
 <p>The <code>'unknownProtocol'</code> event is emitted when a connecting client fails to
 negotiate an allowed protocol (i.e. HTTP/2 or HTTP/1.1). The event handler
 receives the socket for handling. If no listener is registered for this event,
@@ -2550,7 +2630,15 @@ closed, although the server has already stopped allowing new sessions. See
 <a href="tls.html#serverclosecallback"><code>tls.Server.close()</code></a> for more details.</p>
 <h5><code>server.setTimeout([msecs][, callback])</code><span><a class="mark" href="#serversettimeoutmsecs-callback_1" id="serversettimeoutmsecs-callback_1">#</a></span><a aria-hidden="true" class="legacy" id="http2_server_settimeout_msecs_callback_1"></a></h5>
 <div class="api_metadata">
-<span>Added in: v8.4.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v18.0.0</td>
+<td><p>Passing an invalid callback to the <code>callback</code> argument now throws <code>ERR_INVALID_ARG_TYPE</code> instead of <code>ERR_INVALID_CALLBACK</code>.</p></td></tr>
+<tr><td>v8.4.0</td>
+<td><p><span>Added in: v8.4.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><code>msecs</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> <strong>Default:</strong> <code>120000</code> (2 minutes)</li>
@@ -2561,7 +2649,7 @@ closed, although the server has already stopped allowing new sessions. See
 and sets a callback function that is called when there is no activity
 on the <code>Http2SecureServer</code> after <code>msecs</code> milliseconds.</p>
 <p>The given callback is registered as a listener on the <code>'timeout'</code> event.</p>
-<p>In case if <code>callback</code> is not a function, a new <code>ERR_INVALID_CALLBACK</code>
+<p>In case if <code>callback</code> is not a function, a new <code>ERR_INVALID_ARG_TYPE</code>
 error will be thrown.</p>
 <h5><code>server.timeout</code><span><a class="mark" href="#servertimeout_1" id="servertimeout_1">#</a></span><a aria-hidden="true" class="legacy" id="http2_server_timeout_1"></a></h5>
 <div class="api_metadata">
@@ -2585,7 +2673,7 @@ to have timed out.</p>
 value only affects new connections to the server, not any existing connections.</p>
 <h5><code>server.updateSettings([settings])</code><span><a class="mark" href="#serverupdatesettingssettings_1" id="serverupdatesettingssettings_1">#</a></span><a aria-hidden="true" class="legacy" id="http2_server_updatesettings_settings_1"></a></h5>
 <div class="api_metadata">
-<span>Added in: v15.1.0</span>
+<span>Added in: v15.1.0, v14.17.0</span>
 </div>
 <ul>
 <li><code>settings</code> <a href="http2.html#settings-object" class="type">&#x3C;HTTP/2 Settings Object></a></li>
@@ -2593,7 +2681,7 @@ value only affects new connections to the server, not any existing connections.<
 <p>Used to update the server with the provided settings.</p>
 <p>Throws <code>ERR_HTTP2_INVALID_SETTING_VALUE</code> for invalid <code>settings</code> values.</p>
 <p>Throws <code>ERR_INVALID_ARG_TYPE</code> for invalid <code>settings</code> argument.</p>
-<h4><code>http2.createServer(options[, onRequestHandler])</code><span><a class="mark" href="#http2createserveroptions-onrequesthandler" id="http2createserveroptions-onrequesthandler">#</a></span><a aria-hidden="true" class="legacy" id="http2_http2_createserver_options_onrequesthandler"></a></h4>
+<h4><code>http2.createServer([options][, onRequestHandler])</code><span><a class="mark" href="#http2createserveroptions-onrequesthandler" id="http2createserveroptions-onrequesthandler">#</a></span><a aria-hidden="true" class="legacy" id="http2_http2_createserver_options_onrequesthandler"></a></h4>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
 <table>
@@ -2638,9 +2726,9 @@ the current memory use of the header compression tables, current data
 queued to be sent, and unacknowledged <code>PING</code> and <code>SETTINGS</code> frames are all
 counted towards the current limit. <strong>Default:</strong> <code>10</code>.</li>
 <li><code>maxHeaderListPairs</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Sets the maximum number of header entries.
-This is similar to <a href="http.html#servermaxheaderscount"><code>http.Server#maxHeadersCount</code></a> or
-<a href="http.html#requestmaxheaderscount"><code>http.ClientRequest#maxHeadersCount</code></a>. The minimum value is <code>4</code>.
-<strong>Default:</strong> <code>128</code>.</li>
+This is similar to <a href="http.html#servermaxheaderscount"><code>server.maxHeadersCount</code></a> or
+<a href="http.html#requestmaxheaderscount"><code>request.maxHeadersCount</code></a> in the <code>node:http</code> module. The minimum value
+is <code>4</code>. <strong>Default:</strong> <code>128</code>.</li>
 <li><code>maxOutstandingPings</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Sets the maximum number of outstanding,
 unacknowledged pings. <strong>Default:</strong> <code>10</code>.</li>
 <li><code>maxSendHeaderBlockLength</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Sets the maximum allowed size for a
@@ -2711,7 +2799,7 @@ instances.</p>
 <a href="https://http2.github.io/faq/#does-http2-require-encryption">unencrypted HTTP/2</a>, the use of
 <a href="#http2createsecureserveroptions-onrequesthandler"><code>http2.createSecureServer()</code></a> is necessary when communicating
 with browser clients.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 
 <span class="hljs-comment">// Create an unencrypted HTTP/2 server.</span>
 <span class="hljs-comment">// Since there are no browsers known that support</span>
@@ -2722,7 +2810,7 @@ with browser clients.</p>
 server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'stream'</span>, <span class="hljs-function">(<span class="hljs-params">stream, headers</span>) =></span> {
   stream.<span class="hljs-title function_">respond</span>({
     <span class="hljs-string">'content-type'</span>: <span class="hljs-string">'text/html; charset=utf-8'</span>,
-    <span class="hljs-string">':status'</span>: <span class="hljs-number">200</span>
+    <span class="hljs-string">':status'</span>: <span class="hljs-number">200</span>,
   });
   stream.<span class="hljs-title function_">end</span>(<span class="hljs-string">'&#x3C;h1>Hello World&#x3C;/h1>'</span>);
 });
@@ -2775,9 +2863,9 @@ the current memory use of the header compression tables, current data
 queued to be sent, and unacknowledged <code>PING</code> and <code>SETTINGS</code> frames are all
 counted towards the current limit. <strong>Default:</strong> <code>10</code>.</li>
 <li><code>maxHeaderListPairs</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Sets the maximum number of header entries.
-This is similar to <a href="http.html#servermaxheaderscount"><code>http.Server#maxHeadersCount</code></a> or
-<a href="http.html#requestmaxheaderscount"><code>http.ClientRequest#maxHeadersCount</code></a>. The minimum value is <code>4</code>.
-<strong>Default:</strong> <code>128</code>.</li>
+This is similar to <a href="http.html#servermaxheaderscount"><code>server.maxHeadersCount</code></a> or
+<a href="http.html#requestmaxheaderscount"><code>request.maxHeadersCount</code></a> in the <code>node:http</code> module. The minimum value
+is <code>4</code>. <strong>Default:</strong> <code>128</code>.</li>
 <li><code>maxOutstandingPings</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Sets the maximum number of outstanding,
 unacknowledged pings. <strong>Default:</strong> <code>10</code>.</li>
 <li><code>maxSendHeaderBlockLength</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Sets the maximum allowed size for a
@@ -2830,12 +2918,12 @@ the socket has not been destroyed by that time the server will destroy it.
 </ul>
 <p>Returns a <code>tls.Server</code> instance that creates and manages <code>Http2Session</code>
 instances.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
-<span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
+<span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:fs'</span>);
 
 <span class="hljs-keyword">const</span> options = {
   <span class="hljs-attr">key</span>: fs.<span class="hljs-title function_">readFileSync</span>(<span class="hljs-string">'server-key.pem'</span>),
-  <span class="hljs-attr">cert</span>: fs.<span class="hljs-title function_">readFileSync</span>(<span class="hljs-string">'server-cert.pem'</span>)
+  <span class="hljs-attr">cert</span>: fs.<span class="hljs-title function_">readFileSync</span>(<span class="hljs-string">'server-cert.pem'</span>),
 };
 
 <span class="hljs-comment">// Create a secure HTTP/2 server</span>
@@ -2844,7 +2932,7 @@ instances.</p>
 server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'stream'</span>, <span class="hljs-function">(<span class="hljs-params">stream, headers</span>) =></span> {
   stream.<span class="hljs-title function_">respond</span>({
     <span class="hljs-string">'content-type'</span>: <span class="hljs-string">'text/html; charset=utf-8'</span>,
-    <span class="hljs-string">':status'</span>: <span class="hljs-number">200</span>
+    <span class="hljs-string">':status'</span>: <span class="hljs-number">200</span>,
   });
   stream.<span class="hljs-title function_">end</span>(<span class="hljs-string">'&#x3C;h1>Hello World&#x3C;/h1>'</span>);
 });
@@ -2892,16 +2980,16 @@ the current memory use of the header compression tables, current data
 queued to be sent, and unacknowledged <code>PING</code> and <code>SETTINGS</code> frames are all
 counted towards the current limit. <strong>Default:</strong> <code>10</code>.</li>
 <li><code>maxHeaderListPairs</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Sets the maximum number of header entries.
-This is similar to <a href="http.html#servermaxheaderscount"><code>http.Server#maxHeadersCount</code></a> or
-<a href="http.html#requestmaxheaderscount"><code>http.ClientRequest#maxHeadersCount</code></a>. The minimum value is <code>1</code>.
-<strong>Default:</strong> <code>128</code>.</li>
+This is similar to <a href="http.html#servermaxheaderscount"><code>server.maxHeadersCount</code></a> or
+<a href="http.html#requestmaxheaderscount"><code>request.maxHeadersCount</code></a> in the <code>node:http</code> module. The minimum value
+is <code>1</code>. <strong>Default:</strong> <code>128</code>.</li>
 <li><code>maxOutstandingPings</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Sets the maximum number of outstanding,
 unacknowledged pings. <strong>Default:</strong> <code>10</code>.</li>
 <li><code>maxReservedRemoteStreams</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Sets the maximum number of reserved push
 streams the client will accept at any given time. Once the current number of
 currently reserved push streams exceeds reaches this limit, new push streams
 sent by the server will be automatically rejected. The minimum allowed value
-is 0. The maximum allowed value is 22<sup>32</sup>-1. A negative value sets
+is 0. The maximum allowed value is 2<sup>32</sup>-1. A negative value sets
 this option to the maximum allowed value. <strong>Default:</strong> <code>200</code>.</li>
 <li><code>maxSendHeaderBlockLength</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Sets the maximum allowed size for a
 serialized, compressed block of headers. Attempts to send headers that
@@ -2947,7 +3035,7 @@ the socket has not been destroyed by that time the server will destroy it.
 <li>Returns: <a href="http2.html#class-clienthttp2session" class="type">&#x3C;ClientHttp2Session></a></li>
 </ul>
 <p>Returns a <code>ClientHttp2Session</code> instance.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 <span class="hljs-keyword">const</span> client = http2.<span class="hljs-title function_">connect</span>(<span class="hljs-string">'https://localhost:1234'</span>);
 
 <span class="hljs-comment">/* Use the client */</span>
@@ -3062,7 +3150,7 @@ so instances returned may be safely modified for use.</p>
 <p>Returns a <code>Buffer</code> instance containing serialized representation of the given
 HTTP/2 settings as specified in the <a href="https://tools.ietf.org/html/rfc7540">HTTP/2</a> specification. This is intended
 for use with the <code>HTTP2-Settings</code> header field.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 
 <span class="hljs-keyword">const</span> packed = http2.<span class="hljs-title function_">getPackedSettings</span>({ <span class="hljs-attr">enablePush</span>: <span class="hljs-literal">false</span> });
 
@@ -3080,7 +3168,7 @@ for use with the <code>HTTP2-Settings</code> header field.</p>
 the given <code>Buffer</code> as generated by <code>http2.getPackedSettings()</code>.</p>
 <h4><code>http2.sensitiveHeaders</code><span><a class="mark" href="#http2sensitiveheaders" id="http2sensitiveheaders">#</a></span><a aria-hidden="true" class="legacy" id="http2_http2_sensitiveheaders"></a></h4>
 <div class="api_metadata">
-<span>Added in: v15.0.0</span>
+<span>Added in: v15.0.0, v14.18.0</span>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Symbol_type" class="type">&#x3C;symbol></a></li>
@@ -3096,7 +3184,7 @@ to send more than one value per header field).</p>
 <pre><code class="language-js"><span class="hljs-keyword">const</span> headers = {
   <span class="hljs-string">':status'</span>: <span class="hljs-string">'200'</span>,
   <span class="hljs-string">'content-type'</span>: <span class="hljs-string">'text-plain'</span>,
-  <span class="hljs-string">'ABC'</span>: [<span class="hljs-string">'has'</span>, <span class="hljs-string">'more'</span>, <span class="hljs-string">'than'</span>, <span class="hljs-string">'one'</span>, <span class="hljs-string">'value'</span>]
+  <span class="hljs-string">'ABC'</span>: [<span class="hljs-string">'has'</span>, <span class="hljs-string">'more'</span>, <span class="hljs-string">'than'</span>, <span class="hljs-string">'one'</span>, <span class="hljs-string">'value'</span>],
 };
 
 stream.<span class="hljs-title function_">respond</span>(headers);</code></pre>
@@ -3121,7 +3209,7 @@ discarded.</li>
 <li>For duplicate <code>cookie</code> headers, the values are joined together with '; '.</li>
 <li>For all other headers, the values are joined together with ', '.</li>
 </ul>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 <span class="hljs-keyword">const</span> server = http2.<span class="hljs-title function_">createServer</span>();
 server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'stream'</span>, <span class="hljs-function">(<span class="hljs-params">stream, headers</span>) =></span> {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(headers[<span class="hljs-string">':path'</span>]);
@@ -3138,7 +3226,7 @@ the header name to the <code>[http2.sensitiveHeaders]</code> property as an arra
   <span class="hljs-string">'content-type'</span>: <span class="hljs-string">'text-plain'</span>,
   <span class="hljs-string">'cookie'</span>: <span class="hljs-string">'some-cookie'</span>,
   <span class="hljs-string">'other-sensitive-header'</span>: <span class="hljs-string">'very secret data'</span>,
-  [http2.<span class="hljs-property">sensitiveHeaders</span>]: [<span class="hljs-string">'cookie'</span>, <span class="hljs-string">'other-sensitive-header'</span>]
+  [http2.<span class="hljs-property">sensitiveHeaders</span>]: [<span class="hljs-string">'cookie'</span>, <span class="hljs-string">'other-sensitive-header'</span>],
 };
 
 stream.<span class="hljs-title function_">respond</span>(headers);</code></pre>
@@ -3170,7 +3258,7 @@ properties.</p>
 <ul>
 <li><code>headerTableSize</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Specifies the maximum number of bytes used for
 header compression. The minimum allowed value is 0. The maximum allowed value
-is 22<sup>32</sup>-1. <strong>Default:</strong> <code>4096</code>.</li>
+is 2<sup>32</sup>-1. <strong>Default:</strong> <code>4096</code>.</li>
 <li><code>enablePush</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> Specifies <code>true</code> if HTTP/2 Push Streams are to be
 permitted on the <code>Http2Session</code> instances. <strong>Default:</strong> <code>true</code>.</li>
 <li><code>initialWindowSize</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Specifies the <em>sender's</em> initial window size in
@@ -3178,7 +3266,7 @@ bytes for stream-level flow control. The minimum allowed value is 0. The
 maximum allowed value is 2<sup>32</sup>-1. <strong>Default:</strong> <code>65535</code>.</li>
 <li><code>maxFrameSize</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Specifies the size in bytes of the largest frame
 payload. The minimum allowed value is 16,384. The maximum allowed value is
-22<sup>24</sup>-1. <strong>Default:</strong> <code>16384</code>.</li>
+2<sup>24</sup>-1. <strong>Default:</strong> <code>16384</code>.</li>
 <li><code>maxConcurrentStreams</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Specifies the maximum number of concurrent
 streams permitted on an <code>Http2Session</code>. There is no default value which
 implies, at least theoretically, 2<sup>32</sup>-1 streams may be open
@@ -3187,7 +3275,7 @@ is 0. The maximum allowed value is 2<sup>32</sup>-1. <strong>Default:</strong>
 <code>4294967295</code>.</li>
 <li><code>maxHeaderListSize</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Specifies the maximum size (uncompressed octets)
 of header list that will be accepted. The minimum allowed value is 0. The
-maximum allowed value is 22<sup>32</sup>-1. <strong>Default:</strong> <code>65535</code>.</li>
+maximum allowed value is 2<sup>32</sup>-1. <strong>Default:</strong> <code>65535</code>.</li>
 <li><code>maxHeaderSize</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Alias for <code>maxHeaderListSize</code>.</li>
 <li><code>enableConnectProtocol</code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> Specifies <code>true</code> if the "Extended Connect
 Protocol" defined by <a href="https://tools.ietf.org/html/rfc8441">RFC 8441</a> is to be enabled. This setting is only
@@ -3198,7 +3286,7 @@ has been enabled for a given <code>Http2Session</code>, it cannot be disabled.
 <p>All additional properties on the settings object are ignored.</p>
 <h4>Error handling<span><a class="mark" href="#error-handling" id="error-handling">#</a></span><a aria-hidden="true" class="legacy" id="http2_error_handling"></a></h4>
 <p>There are several types of error conditions that may arise when using the
-<code>http2</code> module:</p>
+<code>node:http2</code> module:</p>
 <p>Validation errors occur when an incorrect argument, option, or setting value is
 passed in. These will always be reported by a synchronous <code>throw</code>.</p>
 <p>State errors occur when an action is attempted at an incorrect time (for
@@ -3230,7 +3318,7 @@ characters, per the requirements of the HTTP specification.</p>
 <h4>Push streams on the client<span><a class="mark" href="#push-streams-on-the-client" id="push-streams-on-the-client">#</a></span><a aria-hidden="true" class="legacy" id="http2_push_streams_on_the_client"></a></h4>
 <p>To receive pushed streams on the client, set a listener for the <code>'stream'</code>
 event on the <code>ClientHttp2Session</code>:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 
 <span class="hljs-keyword">const</span> client = http2.<span class="hljs-title function_">connect</span>(<span class="hljs-string">'http://localhost'</span>);
 
@@ -3246,7 +3334,7 @@ client.<span class="hljs-title function_">on</span>(<span class="hljs-string">'s
 <p>The <code>CONNECT</code> method is used to allow an HTTP/2 server to be used as a proxy
 for TCP/IP connections.</p>
 <p>A simple TCP Server:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> net = <span class="hljs-built_in">require</span>(<span class="hljs-string">'net'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> net = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:net'</span>);
 
 <span class="hljs-keyword">const</span> server = net.<span class="hljs-title function_">createServer</span>(<span class="hljs-function">(<span class="hljs-params">socket</span>) =></span> {
   <span class="hljs-keyword">let</span> name = <span class="hljs-string">''</span>;
@@ -3257,9 +3345,9 @@ for TCP/IP connections.</p>
 
 server.<span class="hljs-title function_">listen</span>(<span class="hljs-number">8000</span>);</code></pre>
 <p>An HTTP/2 CONNECT proxy:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 <span class="hljs-keyword">const</span> { <span class="hljs-title class_">NGHTTP2</span>_REFUSED_STREAM } = http2.<span class="hljs-property">constants</span>;
-<span class="hljs-keyword">const</span> net = <span class="hljs-built_in">require</span>(<span class="hljs-string">'net'</span>);
+<span class="hljs-keyword">const</span> net = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:net'</span>);
 
 <span class="hljs-keyword">const</span> proxy = http2.<span class="hljs-title function_">createServer</span>();
 proxy.<span class="hljs-title function_">on</span>(<span class="hljs-string">'stream'</span>, <span class="hljs-function">(<span class="hljs-params">stream, headers</span>) =></span> {
@@ -3283,7 +3371,7 @@ proxy.<span class="hljs-title function_">on</span>(<span class="hljs-string">'st
 
 proxy.<span class="hljs-title function_">listen</span>(<span class="hljs-number">8001</span>);</code></pre>
 <p>An HTTP/2 CONNECT client:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 
 <span class="hljs-keyword">const</span> client = http2.<span class="hljs-title function_">connect</span>(<span class="hljs-string">'http://localhost:8001'</span>);
 
@@ -3291,7 +3379,7 @@ proxy.<span class="hljs-title function_">listen</span>(<span class="hljs-number"
 <span class="hljs-comment">// for CONNECT requests or an error will be thrown.</span>
 <span class="hljs-keyword">const</span> req = client.<span class="hljs-title function_">request</span>({
   <span class="hljs-string">':method'</span>: <span class="hljs-string">'CONNECT'</span>,
-  <span class="hljs-string">':authority'</span>: <span class="hljs-string">`localhost:<span class="hljs-subst">${port}</span>`</span>
+  <span class="hljs-string">':authority'</span>: <span class="hljs-string">`localhost:<span class="hljs-subst">${port}</span>`</span>,
 });
 
 req.<span class="hljs-title function_">on</span>(<span class="hljs-string">'response'</span>, <span class="hljs-function">(<span class="hljs-params">headers</span>) =></span> {
@@ -3311,13 +3399,13 @@ may be used to bootstrap the use of an <code>Http2Stream</code> using the <code>
 method as a tunnel for other communication protocols (such as WebSockets).</p>
 <p>The use of the Extended CONNECT Protocol is enabled by HTTP/2 servers by using
 the <code>enableConnectProtocol</code> setting:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 <span class="hljs-keyword">const</span> settings = { <span class="hljs-attr">enableConnectProtocol</span>: <span class="hljs-literal">true</span> };
 <span class="hljs-keyword">const</span> server = http2.<span class="hljs-title function_">createServer</span>({ settings });</code></pre>
 <p>Once the client receives the <code>SETTINGS</code> frame from the server indicating that
 the extended CONNECT may be used, it may send <code>CONNECT</code> requests that use the
 <code>':protocol'</code> HTTP/2 pseudo-header:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 <span class="hljs-keyword">const</span> client = http2.<span class="hljs-title function_">connect</span>(<span class="hljs-string">'http://localhost:8080'</span>);
 client.<span class="hljs-title function_">on</span>(<span class="hljs-string">'remoteSettings'</span>, <span class="hljs-function">(<span class="hljs-params">settings</span>) =></span> {
   <span class="hljs-keyword">if</span> (settings.<span class="hljs-property">enableConnectProtocol</span>) {
@@ -3334,7 +3422,7 @@ methods or state, and those <em>are not supported</em> as it is a completely
 different implementation.</p>
 <p>The following example creates an HTTP/2 server using the compatibility
 API:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 <span class="hljs-keyword">const</span> server = http2.<span class="hljs-title function_">createServer</span>(<span class="hljs-function">(<span class="hljs-params">req, res</span>) =></span> {
   res.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'Content-Type'</span>, <span class="hljs-string">'text/html'</span>);
   res.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'X-Foo'</span>, <span class="hljs-string">'bar'</span>);
@@ -3355,15 +3443,15 @@ HTTP/2, and an application <strong>must</strong> restrict itself to the public A
 <a href="http.html">HTTP/1</a>, and detect if it is possible to use the more advanced
 features of HTTP/2.</p>
 <p>The following example creates a server that supports both protocols:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> { createSecureServer } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
-<span class="hljs-keyword">const</span> { readFileSync } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> { createSecureServer } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
+<span class="hljs-keyword">const</span> { readFileSync } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:fs'</span>);
 
 <span class="hljs-keyword">const</span> cert = <span class="hljs-title function_">readFileSync</span>(<span class="hljs-string">'./cert.pem'</span>);
 <span class="hljs-keyword">const</span> key = <span class="hljs-title function_">readFileSync</span>(<span class="hljs-string">'./key.pem'</span>);
 
 <span class="hljs-keyword">const</span> server = <span class="hljs-title function_">createSecureServer</span>(
   { cert, key, <span class="hljs-attr">allowHTTP1</span>: <span class="hljs-literal">true</span> },
-  onRequest
+  onRequest,
 ).<span class="hljs-title function_">listen</span>(<span class="hljs-number">4443</span>);
 
 <span class="hljs-keyword">function</span> <span class="hljs-title function_">onRequest</span>(<span class="hljs-params">req, res</span>) {
@@ -3373,7 +3461,7 @@ features of HTTP/2.</p>
   res.<span class="hljs-title function_">writeHead</span>(<span class="hljs-number">200</span>, { <span class="hljs-string">'content-type'</span>: <span class="hljs-string">'application/json'</span> });
   res.<span class="hljs-title function_">end</span>(<span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">stringify</span>({
     alpnProtocol,
-    <span class="hljs-attr">httpVersion</span>: req.<span class="hljs-property">httpVersion</span>
+    <span class="hljs-attr">httpVersion</span>: req.<span class="hljs-property">httpVersion</span>,
   }));
 }</code></pre>
 <p>The <code>'request'</code> event works identically on both <a href="https.html">HTTPS</a> and
@@ -3665,7 +3753,15 @@ will result in a <a href="errors.html#class-typeerror"><code>TypeError</code></a
 <p>See <a href="#responsesocket"><code>response.socket</code></a>.</p>
 <h5><code>response.createPushResponse(headers, callback)</code><span><a class="mark" href="#responsecreatepushresponseheaders-callback" id="responsecreatepushresponseheaders-callback">#</a></span><a aria-hidden="true" class="legacy" id="http2_response_createpushresponse_headers_callback"></a></h5>
 <div class="api_metadata">
-<span>Added in: v8.4.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v18.0.0</td>
+<td><p>Passing an invalid callback to the <code>callback</code> argument now throws <code>ERR_INVALID_ARG_TYPE</code> instead of <code>ERR_INVALID_CALLBACK</code>.</p></td></tr>
+<tr><td>v8.4.0</td>
+<td><p><span>Added in: v8.4.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><code>headers</code> <a href="http2.html#headers-object" class="type">&#x3C;HTTP/2 Headers Object></a> An object describing the headers</li>
@@ -3793,7 +3889,7 @@ outgoing headers. The header name matching is case-insensitive.</p>
 </ul>
 <p>Removes a header that has been queued for implicit sending.</p>
 <pre><code class="language-js">response.<span class="hljs-title function_">removeHeader</span>(<span class="hljs-string">'Content-Encoding'</span>);</code></pre>
-<h4><code>response.req</code><span><a class="mark" href="#responsereq" id="responsereq">#</a></span><a aria-hidden="true" class="legacy" id="http2_response_req"></a></h4>
+<h5><code>response.req</code><span><a class="mark" href="#responsereq" id="responsereq">#</a></span><a aria-hidden="true" class="legacy" id="http2_response_req"></a></h5>
 <div class="api_metadata">
 <span>Added in: v15.7.0</span>
 </div>
@@ -3872,7 +3968,7 @@ set on <code>response.stream</code>.</p>
 <code>ERR_HTTP2_NO_SOCKET_MANIPULATION</code>. See <a href="#http2session-and-sockets"><code>Http2Session</code> and Sockets</a> for
 more information.</p>
 <p>All other interactions will be routed directly to the socket.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http2'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);
 <span class="hljs-keyword">const</span> server = http2.<span class="hljs-title function_">createServer</span>(<span class="hljs-function">(<span class="hljs-params">req, res</span>) =></span> {
   <span class="hljs-keyword">const</span> ip = req.<span class="hljs-property">socket</span>.<span class="hljs-property">remoteAddress</span>;
   <span class="hljs-keyword">const</span> port = req.<span class="hljs-property">socket</span>.<span class="hljs-property">remotePort</span>;
@@ -3932,7 +4028,7 @@ does not indicate whether the data has been flushed, for this use
 it will switch to implicit header mode and flush the implicit headers.</p>
 <p>This sends a chunk of the response body. This method may
 be called multiple times to provide successive parts of the body.</p>
-<p>In the <code>http</code> module, the response body is omitted when the
+<p>In the <code>node:http</code> module, the response body is omitted when the
 request is a HEAD request. Similarly, the <code>204</code> and <code>304</code> responses
 <em>must not</em> include a message body.</p>
 <p><code>chunk</code> can be a string or a buffer. If <code>chunk</code> is a string,
@@ -3956,6 +4052,30 @@ buffer. Returns <code>false</code> if all or part of the data was queued in user
 <p>Sends a status <code>100 Continue</code> to the client, indicating that the request body
 should be sent. See the <a href="#event-checkcontinue"><code>'checkContinue'</code></a> event on <code>Http2Server</code> and
 <code>Http2SecureServer</code>.</p>
+<h5><code>response.writeEarlyHints(hints)</code><span><a class="mark" href="#responsewriteearlyhintshints" id="responsewriteearlyhintshints">#</a></span><a aria-hidden="true" class="legacy" id="http2_response_writeearlyhints_hints"></a></h5>
+<div class="api_metadata">
+<span>Added in: v18.11.0</span>
+</div>
+<ul>
+<li><code>hints</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a></li>
+</ul>
+<p>Sends a status <code>103 Early Hints</code> to the client with a Link header,
+indicating that the user agent can preload/preconnect the linked resources.
+The <code>hints</code> is an object containing the values of headers to be sent with
+early hints message.</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-js"><span class="hljs-keyword">const</span> earlyHintsLink = <span class="hljs-string">'&#x3C;/styles.css>; rel=preload; as=style'</span>;
+response.<span class="hljs-title function_">writeEarlyHints</span>({
+  <span class="hljs-string">'link'</span>: earlyHintsLink,
+});
+
+<span class="hljs-keyword">const</span> earlyHintsLinks = [
+  <span class="hljs-string">'&#x3C;/styles.css>; rel=preload; as=style'</span>,
+  <span class="hljs-string">'&#x3C;/scripts.js>; rel=preload; as=script'</span>,
+];
+response.<span class="hljs-title function_">writeEarlyHints</span>({
+  <span class="hljs-string">'link'</span>: earlyHintsLinks,
+});</code></pre>
 <h5><code>response.writeHead(statusCode[, statusMessage][, headers])</code><span><a class="mark" href="#responsewriteheadstatuscode-statusmessage-headers" id="responsewriteheadstatuscode-statusmessage-headers">#</a></span><a aria-hidden="true" class="legacy" id="http2_response_writehead_statuscode_statusmessage_headers"></a></h5>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
@@ -3971,7 +4091,7 @@ should be sent. See the <a href="#event-checkcontinue"><code>'checkContinue'</co
 <ul>
 <li><code>statusCode</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
 <li><code>statusMessage</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
-<li><code>headers</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a></li>
+<li><code>headers</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="type">&#x3C;Array></a></li>
 <li>Returns: <a href="http2.html#class-http2http2serverresponse" class="type">&#x3C;http2.Http2ServerResponse></a></li>
 </ul>
 <p>Sends a response header to the request. The status code is a 3-digit HTTP
@@ -4011,7 +4131,7 @@ will result in a <a href="errors.html#class-typeerror"><code>TypeError</code></a
 </section><section><h3>Collecting HTTP/2 performance metrics<span><a class="mark" href="#collecting-http2-performance-metrics" id="collecting-http2-performance-metrics">#</a></span><a aria-hidden="true" class="legacy" id="http2_collecting_http_2_performance_metrics"></a></h3>
 <p>The <a href="perf_hooks.html">Performance Observer</a> API can be used to collect basic performance
 metrics for each <code>Http2Session</code> and <code>Http2Stream</code> instance.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> { <span class="hljs-title class_">PerformanceObserver</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'perf_hooks'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">const</span> { <span class="hljs-title class_">PerformanceObserver</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:perf_hooks'</span>);
 
 <span class="hljs-keyword">const</span> obs = <span class="hljs-keyword">new</span> <span class="hljs-title class_">PerformanceObserver</span>(<span class="hljs-function">(<span class="hljs-params">items</span>) =></span> {
   <span class="hljs-keyword">const</span> entry = items.<span class="hljs-title function_">getEntries</span>()[<span class="hljs-number">0</span>];
@@ -4074,41 +4194,5 @@ you need to implement any fall-back behavior yourself.</p></section>
       </div>
     </div>
   </div>
-  <script>
-    'use strict';
-    {
-      const kCustomPreference = 'customDarkTheme';
-      const userSettings = sessionStorage.getItem(kCustomPreference);
-      const themeToggleButton = document.getElementById('theme-toggle-btn');
-      if (userSettings === null && window.matchMedia) {
-        const mq = window.matchMedia('(prefers-color-scheme: dark)');
-        if ('onchange' in mq) {
-          function mqChangeListener(e) {
-            document.documentElement.classList.toggle('dark-mode', e.matches);
-          }
-          mq.addEventListener('change', mqChangeListener);
-          if (themeToggleButton) {
-            themeToggleButton.addEventListener('click', function() {
-              mq.removeEventListener('change', mqChangeListener);
-            }, { once: true });
-          }
-        }
-        if (mq.matches) {
-          document.documentElement.classList.add('dark-mode');
-        }
-      } else if (userSettings === 'true') {
-        document.documentElement.classList.add('dark-mode');
-      }
-      if (themeToggleButton) {
-        themeToggleButton.hidden = false;
-        themeToggleButton.addEventListener('click', function() {
-          sessionStorage.setItem(
-            kCustomPreference,
-            document.documentElement.classList.toggle('dark-mode')
-          );
-        });
-      }
-    }
-  </script>
 </body>
 </html>

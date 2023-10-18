@@ -8,19 +8,19 @@
       "introduced_in": "v0.10.0",
       "stability": 2,
       "stabilityText": "Stable",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v16.15.1/lib/path.js\">lib/path.js</a></p>\n<p>The <code>path</code> module provides utilities for working with file and directory paths.\nIt can be accessed using:</p>\n<pre><code class=\"language-js\">const path = require('path');\n</code></pre>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.13.0/lib/path.js\">lib/path.js</a></p>\n<p>The <code>node:path</code> module provides utilities for working with file and directory\npaths. It can be accessed using:</p>\n<pre><code class=\"language-js\">const path = require('node:path');\n</code></pre>",
       "modules": [
         {
           "textRaw": "Windows vs. POSIX",
           "name": "windows_vs._posix",
-          "desc": "<p>The default operation of the <code>path</code> module varies based on the operating system\non which a Node.js application is running. Specifically, when running on a\nWindows operating system, the <code>path</code> module will assume that Windows-style\npaths are being used.</p>\n<p>So using <code>path.basename()</code> might yield different results on POSIX and Windows:</p>\n<p>On POSIX:</p>\n<pre><code class=\"language-js\">path.basename('C:\\\\temp\\\\myfile.html');\n// Returns: 'C:\\\\temp\\\\myfile.html'\n</code></pre>\n<p>On Windows:</p>\n<pre><code class=\"language-js\">path.basename('C:\\\\temp\\\\myfile.html');\n// Returns: 'myfile.html'\n</code></pre>\n<p>To achieve consistent results when working with Windows file paths on any\noperating system, use <a href=\"#pathwin32\"><code>path.win32</code></a>:</p>\n<p>On POSIX and Windows:</p>\n<pre><code class=\"language-js\">path.win32.basename('C:\\\\temp\\\\myfile.html');\n// Returns: 'myfile.html'\n</code></pre>\n<p>To achieve consistent results when working with POSIX file paths on any\noperating system, use <a href=\"#pathposix\"><code>path.posix</code></a>:</p>\n<p>On POSIX and Windows:</p>\n<pre><code class=\"language-js\">path.posix.basename('/tmp/myfile.html');\n// Returns: 'myfile.html'\n</code></pre>\n<p>On Windows Node.js follows the concept of per-drive working directory.\nThis behavior can be observed when using a drive path without a backslash. For\nexample, <code>path.resolve('C:\\\\')</code> can potentially return a different result than\n<code>path.resolve('C:')</code>. For more information, see\n<a href=\"https://docs.microsoft.com/en-us/windows/desktop/FileIO/naming-a-file#fully-qualified-vs-relative-paths\">this MSDN page</a>.</p>",
+          "desc": "<p>The default operation of the <code>node:path</code> module varies based on the operating\nsystem on which a Node.js application is running. Specifically, when running on\na Windows operating system, the <code>node:path</code> module will assume that\nWindows-style paths are being used.</p>\n<p>So using <code>path.basename()</code> might yield different results on POSIX and Windows:</p>\n<p>On POSIX:</p>\n<pre><code class=\"language-js\">path.basename('C:\\\\temp\\\\myfile.html');\n// Returns: 'C:\\\\temp\\\\myfile.html'\n</code></pre>\n<p>On Windows:</p>\n<pre><code class=\"language-js\">path.basename('C:\\\\temp\\\\myfile.html');\n// Returns: 'myfile.html'\n</code></pre>\n<p>To achieve consistent results when working with Windows file paths on any\noperating system, use <a href=\"#pathwin32\"><code>path.win32</code></a>:</p>\n<p>On POSIX and Windows:</p>\n<pre><code class=\"language-js\">path.win32.basename('C:\\\\temp\\\\myfile.html');\n// Returns: 'myfile.html'\n</code></pre>\n<p>To achieve consistent results when working with POSIX file paths on any\noperating system, use <a href=\"#pathposix\"><code>path.posix</code></a>:</p>\n<p>On POSIX and Windows:</p>\n<pre><code class=\"language-js\">path.posix.basename('/tmp/myfile.html');\n// Returns: 'myfile.html'\n</code></pre>\n<p>On Windows Node.js follows the concept of per-drive working directory.\nThis behavior can be observed when using a drive path without a backslash. For\nexample, <code>path.resolve('C:\\\\')</code> can potentially return a different result than\n<code>path.resolve('C:')</code>. For more information, see\n<a href=\"https://docs.microsoft.com/en-us/windows/desktop/FileIO/naming-a-file#fully-qualified-vs-relative-paths\">this MSDN page</a>.</p>",
           "type": "module",
           "displayName": "Windows vs. POSIX"
         }
       ],
       "methods": [
         {
-          "textRaw": "`path.basename(path[, ext])`",
+          "textRaw": "`path.basename(path[, suffix])`",
           "type": "method",
           "name": "basename",
           "meta": {
@@ -49,15 +49,15 @@
                   "type": "string"
                 },
                 {
-                  "textRaw": "`ext` {string} An optional file extension",
-                  "name": "ext",
+                  "textRaw": "`suffix` {string} An optional suffix to remove",
+                  "name": "suffix",
                   "type": "string",
-                  "desc": "An optional file extension"
+                  "desc": "An optional suffix to remove"
                 }
               ]
             }
           ],
-          "desc": "<p>The <code>path.basename()</code> method returns the last portion of a <code>path</code>, similar to\nthe Unix <code>basename</code> command. Trailing directory separators are ignored, see\n<a href=\"#pathsep\"><code>path.sep</code></a>.</p>\n<pre><code class=\"language-js\">path.basename('/foo/bar/baz/asdf/quux.html');\n// Returns: 'quux.html'\n\npath.basename('/foo/bar/baz/asdf/quux.html', '.html');\n// Returns: 'quux'\n</code></pre>\n<p>Although Windows usually treats file names, including file extensions, in a\ncase-insensitive manner, this function does not. For example, <code>C:\\\\foo.html</code> and\n<code>C:\\\\foo.HTML</code> refer to the same file, but <code>basename</code> treats the extension as a\ncase-sensitive string:</p>\n<pre><code class=\"language-js\">path.win32.basename('C:\\\\foo.html', '.html');\n// Returns: 'foo'\n\npath.win32.basename('C:\\\\foo.HTML', '.html');\n// Returns: 'foo.HTML'\n</code></pre>\n<p>A <a href=\"errors.html#class-typeerror\"><code>TypeError</code></a> is thrown if <code>path</code> is not a string or if <code>ext</code> is given\nand is not a string.</p>"
+          "desc": "<p>The <code>path.basename()</code> method returns the last portion of a <code>path</code>, similar to\nthe Unix <code>basename</code> command. Trailing <a href=\"#pathsep\">directory separators</a> are\nignored.</p>\n<pre><code class=\"language-js\">path.basename('/foo/bar/baz/asdf/quux.html');\n// Returns: 'quux.html'\n\npath.basename('/foo/bar/baz/asdf/quux.html', '.html');\n// Returns: 'quux'\n</code></pre>\n<p>Although Windows usually treats file names, including file extensions, in a\ncase-insensitive manner, this function does not. For example, <code>C:\\\\foo.html</code> and\n<code>C:\\\\foo.HTML</code> refer to the same file, but <code>basename</code> treats the extension as a\ncase-sensitive string:</p>\n<pre><code class=\"language-js\">path.win32.basename('C:\\\\foo.html', '.html');\n// Returns: 'foo'\n\npath.win32.basename('C:\\\\foo.HTML', '.html');\n// Returns: 'foo.HTML'\n</code></pre>\n<p>A <a href=\"errors.html#class-typeerror\"><code>TypeError</code></a> is thrown if <code>path</code> is not a string or if <code>suffix</code> is given\nand is not a string.</p>"
         },
         {
           "textRaw": "`path.dirname(path)`",
@@ -181,7 +181,7 @@
               ]
             }
           ],
-          "desc": "<p>The <code>path.format()</code> method returns a path string from an object. This is the\nopposite of <a href=\"#pathparsepath\"><code>path.parse()</code></a>.</p>\n<p>When providing properties to the <code>pathObject</code> remember that there are\ncombinations where one property has priority over another:</p>\n<ul>\n<li><code>pathObject.root</code> is ignored if <code>pathObject.dir</code> is provided</li>\n<li><code>pathObject.ext</code> and <code>pathObject.name</code> are ignored if <code>pathObject.base</code> exists</li>\n</ul>\n<p>For example, on POSIX:</p>\n<pre><code class=\"language-js\">// If `dir`, `root` and `base` are provided,\n// `${dir}${path.sep}${base}`\n// will be returned. `root` is ignored.\npath.format({\n  root: '/ignored',\n  dir: '/home/user/dir',\n  base: 'file.txt'\n});\n// Returns: '/home/user/dir/file.txt'\n\n// `root` will be used if `dir` is not specified.\n// If only `root` is provided or `dir` is equal to `root` then the\n// platform separator will not be included. `ext` will be ignored.\npath.format({\n  root: '/',\n  base: 'file.txt',\n  ext: 'ignored'\n});\n// Returns: '/file.txt'\n\n// `name` + `ext` will be used if `base` is not specified.\npath.format({\n  root: '/',\n  name: 'file',\n  ext: '.txt'\n});\n// Returns: '/file.txt'\n</code></pre>\n<p>On Windows:</p>\n<pre><code class=\"language-js\">path.format({\n  dir: 'C:\\\\path\\\\dir',\n  base: 'file.txt'\n});\n// Returns: 'C:\\\\path\\\\dir\\\\file.txt'\n</code></pre>"
+          "desc": "<p>The <code>path.format()</code> method returns a path string from an object. This is the\nopposite of <a href=\"#pathparsepath\"><code>path.parse()</code></a>.</p>\n<p>When providing properties to the <code>pathObject</code> remember that there are\ncombinations where one property has priority over another:</p>\n<ul>\n<li><code>pathObject.root</code> is ignored if <code>pathObject.dir</code> is provided</li>\n<li><code>pathObject.ext</code> and <code>pathObject.name</code> are ignored if <code>pathObject.base</code> exists</li>\n</ul>\n<p>For example, on POSIX:</p>\n<pre><code class=\"language-js\">// If `dir`, `root` and `base` are provided,\n// `${dir}${path.sep}${base}`\n// will be returned. `root` is ignored.\npath.format({\n  root: '/ignored',\n  dir: '/home/user/dir',\n  base: 'file.txt',\n});\n// Returns: '/home/user/dir/file.txt'\n\n// `root` will be used if `dir` is not specified.\n// If only `root` is provided or `dir` is equal to `root` then the\n// platform separator will not be included. `ext` will be ignored.\npath.format({\n  root: '/',\n  base: 'file.txt',\n  ext: 'ignored',\n});\n// Returns: '/file.txt'\n\n// `name` + `ext` will be used if `base` is not specified.\npath.format({\n  root: '/',\n  name: 'file',\n  ext: '.txt',\n});\n// Returns: '/file.txt'\n</code></pre>\n<p>On Windows:</p>\n<pre><code class=\"language-js\">path.format({\n  dir: 'C:\\\\path\\\\dir',\n  base: 'file.txt',\n});\n// Returns: 'C:\\\\path\\\\dir\\\\file.txt'\n</code></pre>"
         },
         {
           "textRaw": "`path.isAbsolute(path)`",
@@ -422,7 +422,7 @@
               }
             ]
           },
-          "desc": "<p>The <code>path.posix</code> property provides access to POSIX specific implementations\nof the <code>path</code> methods.</p>\n<p>The API is accessible via <code>require('path').posix</code> or <code>require('path/posix')</code>.</p>"
+          "desc": "<p>The <code>path.posix</code> property provides access to POSIX specific implementations\nof the <code>path</code> methods.</p>\n<p>The API is accessible via <code>require('node:path').posix</code> or <code>require('node:path/posix')</code>.</p>"
         },
         {
           "textRaw": "`sep` {string}",
@@ -452,7 +452,7 @@
               }
             ]
           },
-          "desc": "<p>The <code>path.win32</code> property provides access to Windows-specific implementations\nof the <code>path</code> methods.</p>\n<p>The API is accessible via <code>require('path').win32</code> or <code>require('path/win32')</code>.</p>"
+          "desc": "<p>The <code>path.win32</code> property provides access to Windows-specific implementations\nof the <code>path</code> methods.</p>\n<p>The API is accessible via <code>require('node:path').win32</code> or <code>require('node:path/win32')</code>.</p>"
         }
       ],
       "type": "module",

@@ -7,6 +7,7 @@ import errno
 import os
 import shutil
 import sys
+import re
 
 # set at init time
 node_prefix = '/usr/local' # PREFIX variable from Makefile
@@ -120,6 +121,17 @@ def corepack_files(action):
 #   'pnpx': 'dist/pnpx.js',
   })
 
+  # On z/OS, we install node-gyp for convenience, as some vendors don't have
+  # external access and may want to build native addons.
+  if sys.platform == 'zos':
+    link_path = abspath(install_path, 'bin/node-gyp')
+    if action == uninstall:
+      action([link_path], 'bin/node-gyp')
+    elif action == install:
+      try_symlink('../lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js', link_path)
+    else:
+      assert 0 # unhandled action type
+
 def subdir_files(path, dest, action):
   ret = {}
   for dirpath, dirnames, filenames in os.walk(path):
@@ -133,20 +145,38 @@ def files(action):
   output_file = 'node'
   output_prefix = 'out/Release/'
 
-  if 'false' == variables.get('node_shared'):
+  if is_windows:
+    output_file += '.exe'
+  action([output_prefix + output_file], 'bin/' + output_file)
+
+  if 'true' == variables.get('node_shared'):
     if is_windows:
-      output_file += '.exe'
-  else:
-    if is_windows:
-      output_file += '.dll'
+      action([output_prefix + 'libnode.dll'], 'bin/libnode.dll')
+      action([output_prefix + 'libnode.lib'], 'lib/libnode.lib')
+    elif sys.platform == 'zos':
+      # GYP will output to lib.target; see _InstallableTargetInstallPath
+      # function in tools/gyp/pylib/gyp/generator/make.py
+      output_prefix += 'lib.target/'
+
+      output_lib = 'libnode.' + variables.get('shlib_suffix')
+      action([output_prefix + output_lib], 'lib/' + output_lib)
+
+      # create libnode.x that references libnode.so (C++ addons compat)
+      os.system(os.path.dirname(os.path.realpath(__file__)) +
+                '/zos/modifysidedeck.sh ' +
+                abspath(install_path, 'lib/' + output_lib) + ' ' +
+                abspath(install_path, 'lib/libnode.x') + ' libnode.so')
+
+      # install libnode.version.so
+      so_name = 'libnode.' + re.sub(r'\.x$', '.so', variables.get('shlib_suffix'))
+      action([output_prefix + so_name], variables.get('libdir') + '/' + so_name)
+
+      # create symlink of libnode.so -> libnode.version.so (C++ addons compat)
+      link_path = abspath(install_path, 'lib/libnode.so')
+      try_symlink(so_name, link_path)
     else:
-      output_file = 'lib' + output_file + '.' + variables.get('shlib_suffix')
-
-  if 'false' == variables.get('node_shared'):
-    action([output_prefix + output_file], 'bin/' + output_file)
-  else:
-    action([output_prefix + output_file], 'lib/' + output_file)
-
+      output_lib = 'libnode.' + variables.get('shlib_suffix')
+      action([output_prefix + output_lib], variables.get('libdir') + '/' + output_lib)
   if 'true' == variables.get('node_use_dtrace'):
     action(['out/Release/node.d'], 'lib/dtrace/node.d')
 
@@ -177,10 +207,53 @@ def headers(action):
       'deps/v8/include/libplatform/libplatform-export.h',
       'deps/v8/include/libplatform/v8-tracing.h',
       'deps/v8/include/v8.h',
+      'deps/v8/include/v8-array-buffer.h',
+      'deps/v8/include/v8-callbacks.h',
+      'deps/v8/include/v8-container.h',
+      'deps/v8/include/v8-context.h',
+      'deps/v8/include/v8-data.h',
+      'deps/v8/include/v8-date.h',
+      'deps/v8/include/v8-debug.h',
+      'deps/v8/include/v8-embedder-heap.h',
+      'deps/v8/include/v8-embedder-state-scope.h',
+      'deps/v8/include/v8-exception.h',
+      'deps/v8/include/v8-extension.h',
+      'deps/v8/include/v8-external.h',
+      'deps/v8/include/v8-forward.h',
+      'deps/v8/include/v8-function-callback.h',
+      'deps/v8/include/v8-function.h',
+      'deps/v8/include/v8-initialization.h',
       'deps/v8/include/v8-internal.h',
+      'deps/v8/include/v8-isolate.h',
+      'deps/v8/include/v8-json.h',
+      'deps/v8/include/v8-local-handle.h',
+      'deps/v8/include/v8-locker.h',
+      'deps/v8/include/v8-maybe.h',
+      'deps/v8/include/v8-memory-span.h',
+      'deps/v8/include/v8-message.h',
+      'deps/v8/include/v8-microtask-queue.h',
+      'deps/v8/include/v8-microtask.h',
+      'deps/v8/include/v8-object.h',
+      'deps/v8/include/v8-persistent-handle.h',
       'deps/v8/include/v8-platform.h',
+      'deps/v8/include/v8-primitive-object.h',
+      'deps/v8/include/v8-primitive.h',
       'deps/v8/include/v8-profiler.h',
+      'deps/v8/include/v8-promise.h',
+      'deps/v8/include/v8-proxy.h',
+      'deps/v8/include/v8-regexp.h',
+      'deps/v8/include/v8-script.h',
+      'deps/v8/include/v8-snapshot.h',
+      'deps/v8/include/v8-statistics.h',
+      'deps/v8/include/v8-template.h',
+      'deps/v8/include/v8-traced-handle.h',
+      'deps/v8/include/v8-typed-array.h',
+      'deps/v8/include/v8-unwinder.h',
+      'deps/v8/include/v8-value-serializer.h',
+      'deps/v8/include/v8-value.h',
       'deps/v8/include/v8-version.h',
+      'deps/v8/include/v8-wasm.h',
+      'deps/v8/include/v8-weak-callback-info.h',
       'deps/v8/include/v8config.h',
     ]
     files_arg = [name for name in files_arg if name in v8_headers]
