@@ -1,0 +1,43 @@
+From 8eea2d3709090b9722cb16090abfd23b054689be Mon Sep 17 00:00:00 2001
+From: Kerem Kat <keremkat@gmail.com>
+Date: Fri, 27 Oct 2023 19:01:10 +0100
+Subject: [PATCH] test: fix crypto-dh error message for OpenSSL 3.x
+
+OpenSSL 3.0.12 and 3.1.4 changes the type of error short keys and IVs
+cause. The error message in test-crypto-dh for the "empty secret" is
+now 'Supplied key is too small' instead of
+'error:02800080:Diffie-Hellman routines::invalid secret'.
+
+Error message change is test-only and uses the right error message for
+versions >=3.0.12 in 3.0.x and >= 3.1.4 in 3.1.x series.
+
+ref. https://git.openssl.org/gitweb/?p=openssl.git;a=commitdiff;h=0df40630850fb2740e6be6890bb905d3fc623b2d
+ref. https://git.openssl.org/gitweb/?p=openssl.git;a=commitdiff;h=5f69f5c65e483928c4b28ed16af6e5742929f1ee
+ref. https://www.openssl.org/news/vulnerabilities.html#CVE-2023-5363
+
+PR-URL: https://github.com/nodejs/node/pull/50395
+Reviewed-By: Richard Lau <rlau@redhat.com>
+Reviewed-By: Luigi Pinca <luigipinca@gmail.com>
+--- a/test/parallel/test-crypto-dh.js
++++ b/test/parallel/test-crypto-dh.js
+@@ -163,11 +163,15 @@
+   }, wrongBlockLength);
+ }
+ 
+-assert.throws(() => {
+-  dh3.computeSecret('');
+-}, { message: common.hasOpenSSL3 ?
+-  'error:02800080:Diffie-Hellman routines::invalid secret' :
+-  'Supplied key is too small' });
++{
++  const v = crypto.constants.OPENSSL_VERSION_NUMBER;
++  const hasOpenSSL3WithNewErrorMessage = (v >= 0x300000c0 && v <= 0x30100000) || (v >= 0x30100040 && v <= 0x30200000);
++  assert.throws(() => {
++    dh3.computeSecret('');
++  }, { message: common.hasOpenSSL3 && !hasOpenSSL3WithNewErrorMessage ?
++    'error:02800080:Diffie-Hellman routines::invalid secret' :
++    'Supplied key is too small' });
++}
+ 
+ // Invalid test: curve argument is undefined
+ assert.throws(
