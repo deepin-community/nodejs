@@ -4,8 +4,8 @@ include /usr/share/dpkg/architecture.mk
 include /usr/share/dpkg/pkg-info.mk
 include /usr/share/dpkg/buildtools.mk
 
-export CC = gcc-11
-export CXX = g++-11
+export CC = gcc-13
+export CXX = g++-13
 
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
@@ -15,7 +15,7 @@ builtins := /usr/share/nodejs/node
 ABI = $(shell awk '/^#define NODE_MODULE_VERSION/ {print $$3}' src/node_version.h)
 
 # archs
-ARCHS := amd64 arm64 armel armhf i386 kfreebsd-i386 kfreebsd-amd64 mips mips64el mips64r6el mipsel ppc64 ppc64el riscv64 s390x
+ARCHS := amd64 arm64 armel armhf i386 kfreebsd-i386 kfreebsd-amd64 loong64 mips mips64el mips64r6el mipsel ppc64 ppc64el riscv64 s390x
 
 # branch
 BRANCH := $(word 1, $(subst .,$(space), $(DEB_UPSTREAM_VERSION)))
@@ -61,6 +61,7 @@ destCpu := $(or $(destCpu),$(if $(filter kfreebsd-amd64,$(DEB_HOST_ARCH)),x64))
 destCpu := $(or $(destCpu),$(if $(filter armel,$(DEB_HOST_ARCH)),arm))
 destCpu := $(or $(destCpu),$(if $(filter armhf,$(DEB_HOST_ARCH)),arm))
 destCpu := $(or $(destCpu),$(if $(filter aarch64,$(DEB_HOST_ARCH)),arm64))
+destCpu := $(or $(destCpu),$(if $(filter loong64,$(DEB_HOST_ARCH)),loong64))
 destCpu := $(or $(destCpu),$(if $(filter mipsel,$(DEB_HOST_ARCH)),mipsel))
 destCpu := $(or $(destCpu),$(if $(filter mips64el,$(DEB_HOST_ARCH)),mips64el))
 destCpu := $(or $(destCpu),$(if $(filter mips64r6el,$(DEB_HOST_ARCH)),mips64el))
