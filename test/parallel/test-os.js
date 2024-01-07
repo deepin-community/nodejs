@@ -81,6 +81,15 @@ const hostname = os.hostname();
 is.string(hostname);
 assert.ok(hostname.length > 0);
 
+// IBMi process priority is different.
+if (!common.isIBMi) {
+  const DUMMY_PRIORITY = 10;
+  os.setPriority(DUMMY_PRIORITY);
+  const priority = os.getPriority();
+  is.number(priority);
+  assert.strictEqual(priority, DUMMY_PRIORITY);
+}
+
 // On IBMi, os.uptime() returns 'undefined'
 if (!common.isIBMi) {
   const uptime = os.uptime();
@@ -255,6 +264,8 @@ if (!common.isIBMi) {
   is.number(os.uptime(), 'uptime');
 }
 
+is.number(+os.availableParallelism, 'availableParallelism');
+is.number(os.availableParallelism(), 'availableParallelism');
 is.number(+os.freemem, 'freemem');
 is.number(os.freemem(), 'freemem');
 
@@ -264,3 +275,5 @@ if (common.isWindows) {
 } else {
   assert.strictEqual(devNull, '/dev/null');
 }
+
+assert.ok(os.availableParallelism() > 0);

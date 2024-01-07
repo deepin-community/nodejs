@@ -26,6 +26,19 @@ The operating system-specific end-of-line marker.
 * `\n` on POSIX
 * `\r\n` on Windows
 
+## `os.availableParallelism()`
+
+<!-- YAML
+added: v18.14.0
+-->
+
+* Returns: {integer}
+
+Returns an estimate of the default amount of parallelism a program should use.
+Always returns a value greater than zero.
+
+This function is a small wrapper about libuv's [`uv_available_parallelism()`][].
+
 ## `os.arch()`
 
 <!-- YAML
@@ -61,6 +74,8 @@ added: v0.3.3
 * Returns: {Object\[]}
 
 Returns an array of objects containing information about each logical CPU core.
+The array will be empty if no CPU information is available, such as if the
+`/proc` file system is unavailable.
 
 The properties included on each object include:
 
@@ -126,6 +141,10 @@ The properties included on each object include:
 
 `nice` values are POSIX-only. On Windows, the `nice` values of all processors
 are always 0.
+
+`os.cpus().length` should not be used to calculate the amount of parallelism
+available to an application. Use
+[`os.availableParallelism()`](#osavailableparallelism) for this purpose.
 
 ## `os.devNull`
 
@@ -1338,3 +1357,4 @@ The following process scheduling constants are exported by
 [`process.arch`]: process.md#processarch
 [`process.platform`]: process.md#processplatform
 [`uname(3)`]: https://linux.die.net/man/3/uname
+[`uv_available_parallelism()`]: https://docs.libuv.org/en/v1.x/misc.html#c.uv_available_parallelism

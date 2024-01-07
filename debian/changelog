@@ -1,11 +1,91 @@
-nodejs (18.13.0+dfsg1-1deepin1) unstable; urgency=medium
+nodejs (18.19.0+dfsg-7) UNRELEASED; urgency=medium
 
-  * Fix FTBFS with openssl 3.0.12.
-    Ref: https://github.com/nodejs/node/pull/50395
-    Ref: https://bugs.debian.org/1055416
-    Ref: https://github.com/deepin-community/sig-deepin-sysdev-team/issues/536
+  * new architecture: loong64, thanks to Shi Pujin  
+  * patch:
+    + let loong64 have some failing tests
+    + more doc for localhost-no-addrconfig
+    + allow test-debugger-heap-profiler to fail
+  * fix boostrapping of nodejs package:
+    + update README.source
+    + nodoc: disable bash completion output
+    + patch: disable shared builtins when flag
+      node-builtin-modules-path is used
 
- -- Tianyu Chen <sweetyfish@deepin.org>  Wed, 15 Nov 2023 13:52:34 +0800
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 20 Dec 2023 23:19:51 +0100
+
+nodejs (18.19.0+dfsg-6) unstable; urgency=medium
+
+  * patch: remove useless and badly done icu_74 patch
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 03 Dec 2023 22:41:14 +0100
+
+nodejs (18.19.0+dfsg-5) unstable; urgency=medium
+
+  * patch: disable openssl test that depends on error message format
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 03 Dec 2023 22:41:00 +0100
+
+nodejs (18.19.0+dfsg-4) unstable; urgency=medium
+
+  * patch:
+    + remove a failed attempt for test dns-resolveany-bad-ancount
+      skip it, it uselessly hangs.
+    + disable some icu test to allow transition to 74
+    + fix test-crypto-dh.js to pass with openssl 3.0.11, 3.1.4
+    + riscv64: some tests have been fixed, but new ones fail
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 03 Dec 2023 15:00:35 +0100
+
+nodejs (18.19.0+dfsg-3) unstable; urgency=medium
+
+  * patch: drop fixed openssl test patch
+  * patch: allow bad-ancount test to fail
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 02 Dec 2023 02:12:25 +0100
+
+nodejs (18.19.0+dfsg-2) unstable; urgency=medium
+
+  * patch: fix test_dns_resolveany_bad_ancount_timeout.patch
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 01 Dec 2023 19:07:23 +0100
+
+nodejs (18.19.0+dfsg-1) experimental; urgency=medium
+
+  [ Jérémy Lal ]
+  * New upstream version 18.19.0+dfsg
+    + tests pass with openssl 3.1, closes: #1055416
+    + tests pass with libc-ares >= 1.23.0, closes: #1054690
+  * Harmonize stack size patch for arm64. Closes: 1030284
+  * Install dir usr/lib/<tripler>/nodejs. Fix #1035463
+  * No longer force gcc 11 for sid
+  * Fix Vcs fields to point to the right branch
+  * builtins: set correct version in builtins headers
+  * dfsg-exclude for non-preferred form for modification:
+    + deps/ada
+    + deps/minimatch
+    + test/fixtures/postject-copy
+  * component: ./ada
+  * copyright:
+    + add missing authors to histogram
+    + drop unnecessary snapshot.blob exclusion
+    + licenses for ada
+    + deps/cares now using Expat
+    + document some new files
+  * patches:
+    + test-process-versions must use system versions
+    + drop the test using postject
+    + build using ada component instead of deps/ada
+    + minimatch is actually not needed for build
+    + fix test-runner-output, forwarded
+    + mark parallel/test-debugger-preserve-breaks as flaky,
+      it is failing in sbuild for now
+    + fix test-dns-resolveany-bad-ancount to work with c-ares,
+      also to not hang the testsuite in sbuild
+
+  [ Yadd ]
+  * Declare compliance with policy 4.6.2
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 01 Dec 2023 01:23:44 +0100
 
 nodejs (18.13.0+dfsg1-1) unstable; urgency=medium
 
@@ -17,7 +97,7 @@ nodejs (18.13.0+dfsg1-1) unstable; urgency=medium
   * copyright: deps/v8/third_party/ittapi
   * copyright: Files-Excluded snapshot.blob, new orig tarball
 
- -- Jérémy Lal <kapouer@melix.org>  Wed, 11 Jan 2023 17:42:19 +0100
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 17 Feb 2023 00:39:15 +0100
 
 nodejs (18.13.0+dfsg-1) unstable; urgency=medium
 
@@ -165,7 +245,7 @@ nodejs (18.7.0+dfsg-4) unstable; urgency=medium
 
   * lintian overrides:
     + fix embedded-library zlib
-    + slightly more info about source-is-missing  
+    + slightly more info about source-is-missing
   * copyright: fix license short name for base64
 
  -- Jérémy Lal <kapouer@melix.org>  Tue, 30 Aug 2022 15:52:53 +0200
@@ -348,7 +428,7 @@ nodejs (16.14.2+dfsg-5) unstable; urgency=medium
 
 nodejs (16.14.2+dfsg-4) unstable; urgency=medium
 
-  * Upload to unstable 
+  * Upload to unstable
 
  -- Jérémy Lal <kapouer@melix.org>  Mon, 02 May 2022 10:49:50 +0200
 

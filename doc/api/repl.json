@@ -8,7 +8,7 @@
       "introduced_in": "v0.10.0",
       "stability": 2,
       "stabilityText": "Stable",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.13.0/lib/repl.js\">lib/repl.js</a></p>\n<p>The <code>node:repl</code> module provides a Read-Eval-Print-Loop (REPL) implementation\nthat is available both as a standalone program or includible in other\napplications. It can be accessed using:</p>\n<pre><code class=\"language-js\">const repl = require('node:repl');\n</code></pre>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.19.0/lib/repl.js\">lib/repl.js</a></p>\n<p>The <code>node:repl</code> module provides a Read-Eval-Print-Loop (REPL) implementation\nthat is available both as a standalone program or includible in other\napplications. It can be accessed using:</p>\n<pre><code class=\"language-js\">const repl = require('node:repl');\n</code></pre>",
       "modules": [
         {
           "textRaw": "Design and features",
@@ -76,14 +76,14 @@
                       }
                     ]
                   },
-                  "desc": "<p>The default evaluator will, by default, assign the result of the most recently\nevaluated expression to the special variable <code>_</code> (underscore).\nExplicitly setting <code>_</code> to a value will disable this behavior.</p>\n<pre><code class=\"language-console\">> [ 'a', 'b', 'c' ]\n[ 'a', 'b', 'c' ]\n> _.length\n3\n> _ += 1\nExpression assignment to _ now disabled.\n4\n> 1 + 1\n2\n> _\n4\n</code></pre>\n<p>Similarly, <code>_error</code> will refer to the last seen error, if there was any.\nExplicitly setting <code>_error</code> to a value will disable this behavior.</p>\n<pre><code class=\"language-console\">> throw new Error('foo');\nError: foo\n> _error.message\n'foo'\n</code></pre>",
+                  "desc": "<p>The default evaluator will, by default, assign the result of the most recently\nevaluated expression to the special variable <code>_</code> (underscore).\nExplicitly setting <code>_</code> to a value will disable this behavior.</p>\n<pre><code class=\"language-console\">> [ 'a', 'b', 'c' ]\n[ 'a', 'b', 'c' ]\n> _.length\n3\n> _ += 1\nExpression assignment to _ now disabled.\n4\n> 1 + 1\n2\n> _\n4\n</code></pre>\n<p>Similarly, <code>_error</code> will refer to the last seen error, if there was any.\nExplicitly setting <code>_error</code> to a value will disable this behavior.</p>\n<pre><code class=\"language-console\">> throw new Error('foo');\nUncaught Error: foo\n> _error.message\n'foo'\n</code></pre>",
                   "type": "module",
                   "displayName": "Assignment of the `_` (underscore) variable"
                 },
                 {
                   "textRaw": "`await` keyword",
                   "name": "`await`_keyword",
-                  "desc": "<p>Support for the <code>await</code> keyword is enabled at the top level.</p>\n<pre><code class=\"language-console\">> await Promise.resolve(123)\n123\n> await Promise.reject(new Error('REPL await'))\nError: REPL await\n    at repl:1:45\n> const timeout = util.promisify(setTimeout);\nundefined\n> const old = Date.now(); await timeout(1000); console.log(Date.now() - old);\n1002\nundefined\n</code></pre>\n<p>One known limitation of using the <code>await</code> keyword in the REPL is that\nit will invalidate the lexical scoping of the <code>const</code> and <code>let</code>\nkeywords.</p>\n<p>For example:</p>\n<pre><code class=\"language-console\">> const m = await Promise.resolve(123)\nundefined\n> m\n123\n> const m = await Promise.resolve(234)\nundefined\n> m\n234\n</code></pre>\n<p><a href=\"cli.html#--no-experimental-repl-await\"><code>--no-experimental-repl-await</code></a> shall disable top-level await in REPL.</p>",
+                  "desc": "<p>Support for the <code>await</code> keyword is enabled at the top level.</p>\n<pre><code class=\"language-console\">> await Promise.resolve(123)\n123\n> await Promise.reject(new Error('REPL await'))\nUncaught Error: REPL await\n    at REPL2:1:54\n> const timeout = util.promisify(setTimeout);\nundefined\n> const old = Date.now(); await timeout(1000); console.log(Date.now() - old);\n1002\nundefined\n</code></pre>\n<p>One known limitation of using the <code>await</code> keyword in the REPL is that\nit will invalidate the lexical scoping of the <code>const</code> and <code>let</code>\nkeywords.</p>\n<p>For example:</p>\n<pre><code class=\"language-console\">> const m = await Promise.resolve(123)\nundefined\n> m\n123\n> const m = await Promise.resolve(234)\nundefined\n> m\n234\n</code></pre>\n<p><a href=\"cli.html#--no-experimental-repl-await\"><code>--no-experimental-repl-await</code></a> shall disable top-level await in REPL.</p>",
                   "type": "module",
                   "displayName": "`await` keyword"
                 }

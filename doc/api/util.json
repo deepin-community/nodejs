@@ -8,7 +8,7 @@
       "introduced_in": "v0.10.0",
       "stability": 2,
       "stabilityText": "Stable",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.13.0/lib/util.js\">lib/util.js</a></p>\n<p>The <code>node:util</code> module supports the needs of Node.js internal APIs. Many of the\nutilities are useful for application and module developers as well. To access\nit:</p>\n<pre><code class=\"language-js\">const util = require('node:util');\n</code></pre>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.19.0/lib/util.js\">lib/util.js</a></p>\n<p>The <code>node:util</code> module supports the needs of Node.js internal APIs. Many of the\nutilities are useful for application and module developers as well. To access\nit:</p>\n<pre><code class=\"language-js\">const util = require('node:util');\n</code></pre>",
       "methods": [
         {
           "textRaw": "`util.callbackify(original)`",
@@ -1061,7 +1061,7 @@
             {
               "textRaw": "`parseArgs` `tokens`",
               "name": "`parseargs`_`tokens`",
-              "desc": "<p>Detailed parse information is available for adding custom behaviours by\nspecifying <code>tokens: true</code> in the configuration.\nThe returned tokens have properties describing:</p>\n<ul>\n<li>all tokens\n<ul>\n<li><code>kind</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> One of 'option', 'positional', or 'option-terminator'.</li>\n<li><code>index</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> Index of element in <code>args</code> containing token. So the\nsource argument for a token is <code>args[token.index]</code>.</li>\n</ul>\n</li>\n<li>option tokens\n<ul>\n<li><code>name</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> Long name of option.</li>\n<li><code>rawName</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> How option used in args, like <code>-f</code> of <code>--foo</code>.</li>\n<li><code>value</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type\" class=\"type\">&lt;undefined&gt;</a> Option value specified in args.\nUndefined for boolean options.</li>\n<li><code>inlineValue</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type\" class=\"type\">&lt;undefined&gt;</a> Whether option value specified inline,\nlike <code>--foo=bar</code>.</li>\n</ul>\n</li>\n<li>positional tokens\n<ul>\n<li><code>value</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> The value of the positional argument in args (i.e. <code>args[index]</code>).</li>\n</ul>\n</li>\n<li>option-terminator token</li>\n</ul>\n<p>The returned tokens are in the order encountered in the input args. Options\nthat appear more than once in args produce a token for each use. Short option\ngroups like <code>-xy</code> expand to a token for each option. So <code>-xxx</code> produces\nthree tokens.</p>\n<p>For example to use the returned tokens to add support for a negated option\nlike <code>--no-color</code>, the tokens can be reprocessed to change the value stored\nfor the negated option.</p>\n<pre><code class=\"language-mjs\">import { parseArgs } from 'node:util';\n\nconst options = {\n  'color': { type: 'boolean' },\n  'no-color': { type: 'boolean' },\n  'logfile': { type: 'string' },\n  'no-logfile': { type: 'boolean' },\n};\nconst { values, tokens } = parseArgs({ options, tokens: true });\n\n// Reprocess the option tokens and overwrite the returned values.\ntokens\n  .filter((token) => token.kind === 'option')\n  .forEach((token) => {\n    if (token.name.startsWith('no-')) {\n      // Store foo:false for --no-foo\n      const positiveName = token.name.slice(3);\n      values[positiveName] = false;\n      delete values[token.name];\n    } else {\n      // Resave value so last one wins if both --foo and --no-foo.\n      values[token.name] = token.value ?? true;\n    }\n  });\n\nconst color = values.color;\nconst logfile = values.logfile ?? 'default.log';\n\nconsole.log({ logfile, color });\n</code></pre>\n<pre><code class=\"language-cjs\">const { parseArgs } = require('node:util');\n\nconst options = {\n  'color': { type: 'boolean' },\n  'no-color': { type: 'boolean' },\n  'logfile': { type: 'string' },\n  'no-logfile': { type: 'boolean' },\n};\nconst { values, tokens } = parseArgs({ options, tokens: true });\n\n// Reprocess the option tokens and overwrite the returned values.\ntokens\n  .filter((token) => token.kind === 'option')\n  .forEach((token) => {\n    if (token.name.startsWith('no-')) {\n      // Store foo:false for --no-foo\n      const positiveName = token.name.slice(3);\n      values[positiveName] = false;\n      delete values[token.name];\n    } else {\n      // Resave value so last one wins if both --foo and --no-foo.\n      values[token.name] = token.value ?? true;\n    }\n  });\n\nconst color = values.color;\nconst logfile = values.logfile ?? 'default.log';\n\nconsole.log({ logfile, color });\n</code></pre>\n<p>Example usage showing negated options, and when an option is used\nmultiple ways then last one wins.</p>\n<pre><code class=\"language-console\">$ node negate.js\n{ logfile: 'default.log', color: undefined }\n$ node negate.js --no-logfile --no-color\n{ logfile: false, color: false }\n$ node negate.js --logfile=test.log --color\n{ logfile: 'test.log', color: true }\n$ node negate.js --no-logfile --logfile=test.log --color --no-color\n{ logfile: 'test.log', color: false }\n</code></pre>",
+              "desc": "<p>Detailed parse information is available for adding custom behaviors by\nspecifying <code>tokens: true</code> in the configuration.\nThe returned tokens have properties describing:</p>\n<ul>\n<li>all tokens\n<ul>\n<li><code>kind</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> One of 'option', 'positional', or 'option-terminator'.</li>\n<li><code>index</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> Index of element in <code>args</code> containing token. So the\nsource argument for a token is <code>args[token.index]</code>.</li>\n</ul>\n</li>\n<li>option tokens\n<ul>\n<li><code>name</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> Long name of option.</li>\n<li><code>rawName</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> How option used in args, like <code>-f</code> of <code>--foo</code>.</li>\n<li><code>value</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type\" class=\"type\">&lt;undefined&gt;</a> Option value specified in args.\nUndefined for boolean options.</li>\n<li><code>inlineValue</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type\" class=\"type\">&lt;undefined&gt;</a> Whether option value specified inline,\nlike <code>--foo=bar</code>.</li>\n</ul>\n</li>\n<li>positional tokens\n<ul>\n<li><code>value</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> The value of the positional argument in args (i.e. <code>args[index]</code>).</li>\n</ul>\n</li>\n<li>option-terminator token</li>\n</ul>\n<p>The returned tokens are in the order encountered in the input args. Options\nthat appear more than once in args produce a token for each use. Short option\ngroups like <code>-xy</code> expand to a token for each option. So <code>-xxx</code> produces\nthree tokens.</p>\n<p>For example to use the returned tokens to add support for a negated option\nlike <code>--no-color</code>, the tokens can be reprocessed to change the value stored\nfor the negated option.</p>\n<pre><code class=\"language-mjs\">import { parseArgs } from 'node:util';\n\nconst options = {\n  'color': { type: 'boolean' },\n  'no-color': { type: 'boolean' },\n  'logfile': { type: 'string' },\n  'no-logfile': { type: 'boolean' },\n};\nconst { values, tokens } = parseArgs({ options, tokens: true });\n\n// Reprocess the option tokens and overwrite the returned values.\ntokens\n  .filter((token) => token.kind === 'option')\n  .forEach((token) => {\n    if (token.name.startsWith('no-')) {\n      // Store foo:false for --no-foo\n      const positiveName = token.name.slice(3);\n      values[positiveName] = false;\n      delete values[token.name];\n    } else {\n      // Resave value so last one wins if both --foo and --no-foo.\n      values[token.name] = token.value ?? true;\n    }\n  });\n\nconst color = values.color;\nconst logfile = values.logfile ?? 'default.log';\n\nconsole.log({ logfile, color });\n</code></pre>\n<pre><code class=\"language-cjs\">const { parseArgs } = require('node:util');\n\nconst options = {\n  'color': { type: 'boolean' },\n  'no-color': { type: 'boolean' },\n  'logfile': { type: 'string' },\n  'no-logfile': { type: 'boolean' },\n};\nconst { values, tokens } = parseArgs({ options, tokens: true });\n\n// Reprocess the option tokens and overwrite the returned values.\ntokens\n  .filter((token) => token.kind === 'option')\n  .forEach((token) => {\n    if (token.name.startsWith('no-')) {\n      // Store foo:false for --no-foo\n      const positiveName = token.name.slice(3);\n      values[positiveName] = false;\n      delete values[token.name];\n    } else {\n      // Resave value so last one wins if both --foo and --no-foo.\n      values[token.name] = token.value ?? true;\n    }\n  });\n\nconst color = values.color;\nconst logfile = values.logfile ?? 'default.log';\n\nconsole.log({ logfile, color });\n</code></pre>\n<p>Example usage showing negated options, and when an option is used\nmultiple ways then last one wins.</p>\n<pre><code class=\"language-console\">$ node negate.js\n{ logfile: 'default.log', color: undefined }\n$ node negate.js --no-logfile --no-color\n{ logfile: false, color: false }\n$ node negate.js --logfile=test.log --color\n{ logfile: 'test.log', color: true }\n$ node negate.js --no-logfile --logfile=test.log --color --no-color\n{ logfile: 'test.log', color: false }\n</code></pre>",
               "type": "module",
               "displayName": "`parseArgs` `tokens`"
             }
@@ -1228,6 +1228,42 @@
             }
           ],
           "desc": "<p>Marks the given <a href=\"globals.html#class-abortsignal\" class=\"type\">&lt;AbortSignal&gt;</a> as transferable so that it can be used with\n<code>structuredClone()</code> and <code>postMessage()</code>.</p>\n<pre><code class=\"language-js\">const signal = transferableAbortSignal(AbortSignal.timeout(100));\nconst channel = new MessageChannel();\nchannel.port2.postMessage(signal, [signal]);\n</code></pre>"
+        },
+        {
+          "textRaw": "`util.aborted(signal, resource)`",
+          "type": "method",
+          "name": "aborted",
+          "meta": {
+            "added": [
+              "v18.16.0"
+            ],
+            "changes": []
+          },
+          "stability": 1,
+          "stabilityText": "Experimental",
+          "signatures": [
+            {
+              "return": {
+                "textRaw": "Returns: {Promise}",
+                "name": "return",
+                "type": "Promise"
+              },
+              "params": [
+                {
+                  "textRaw": "`signal` {AbortSignal}",
+                  "name": "signal",
+                  "type": "AbortSignal"
+                },
+                {
+                  "textRaw": "`resource` {Object} Any non-null entity, reference to which is held weakly.",
+                  "name": "resource",
+                  "type": "Object",
+                  "desc": "Any non-null entity, reference to which is held weakly."
+                }
+              ]
+            }
+          ],
+          "desc": "<p>Listens to abort event on the provided <code>signal</code> and\nreturns a promise that is fulfilled when the <code>signal</code> is\naborted. If the passed <code>resource</code> is garbage collected before the <code>signal</code> is\naborted, the returned promise shall remain pending indefinitely.</p>\n<pre><code class=\"language-cjs\">const { aborted } = require('node:util');\n\nconst dependent = obtainSomethingAbortable();\n\naborted(dependent.signal, dependent).then(() => {\n  // Do something when dependent is aborted.\n});\n\ndependent.on('event', () => {\n  dependent.abort();\n});\n</code></pre>\n<pre><code class=\"language-mjs\">import { aborted } from 'node:util';\n\nconst dependent = obtainSomethingAbortable();\n\naborted(dependent.signal, dependent).then(() => {\n  // Do something when dependent is aborted.\n});\n\ndependent.on('event', () => {\n  dependent.abort();\n});\n</code></pre>"
         }
       ],
       "classes": [
@@ -1244,167 +1280,64 @@
           "stability": 1,
           "stabilityText": "Experimental",
           "desc": "<p>An implementation of <a href=\"https://bmeck.github.io/node-proposal-mime-api/\">the MIMEType class</a>.</p>\n<p>In accordance with browser conventions, all properties of <code>MIMEType</code> objects\nare implemented as getters and setters on the class prototype, rather than as\ndata properties on the object itself.</p>\n<p>A MIME string is a structured string containing multiple meaningful\ncomponents. When parsed, a <code>MIMEType</code> object is returned containing\nproperties for each of these components.</p>",
-          "classes": [
+          "properties": [
             {
-              "textRaw": "Class: `util.MIMEParams`",
-              "type": "class",
-              "name": "util.MIMEParams",
-              "meta": {
-                "added": [
-                  "v18.13.0"
-                ],
-                "changes": []
-              },
-              "desc": "<p>The <code>MIMEParams</code> API provides read and write access to the parameters of a\n<code>MIMEType</code>.</p>",
-              "methods": [
-                {
-                  "textRaw": "`mimeParams.delete(name)`",
-                  "type": "method",
-                  "name": "delete",
-                  "signatures": [
-                    {
-                      "params": [
-                        {
-                          "textRaw": "`name` {string}",
-                          "name": "name",
-                          "type": "string"
-                        }
-                      ]
-                    }
-                  ],
-                  "desc": "<p>Remove all name-value pairs whose name is <code>name</code>.</p>"
-                },
-                {
-                  "textRaw": "`mimeParams.entries()`",
-                  "type": "method",
-                  "name": "entries",
-                  "signatures": [
-                    {
-                      "return": {
-                        "textRaw": "Returns: {Iterator}",
-                        "name": "return",
-                        "type": "Iterator"
-                      },
-                      "params": []
-                    }
-                  ],
-                  "desc": "<p>Returns an iterator over each of the name-value pairs in the parameters.\nEach item of the iterator is a JavaScript <code>Array</code>. The first item of the array\nis the <code>name</code>, the second item of the array is the <code>value</code>.</p>"
-                },
-                {
-                  "textRaw": "`mimeParams.get(name)`",
-                  "type": "method",
-                  "name": "get",
-                  "signatures": [
-                    {
-                      "return": {
-                        "textRaw": "Returns: {string} or `null` if there is no name-value pair with the given `name`.",
-                        "name": "return",
-                        "type": "string",
-                        "desc": "or `null` if there is no name-value pair with the given `name`."
-                      },
-                      "params": [
-                        {
-                          "textRaw": "`name` {string}",
-                          "name": "name",
-                          "type": "string"
-                        }
-                      ]
-                    }
-                  ],
-                  "desc": "<p>Returns the value of the first name-value pair whose name is <code>name</code>. If there\nare no such pairs, <code>null</code> is returned.</p>"
-                },
-                {
-                  "textRaw": "`mimeParams.has(name)`",
-                  "type": "method",
-                  "name": "has",
-                  "signatures": [
-                    {
-                      "return": {
-                        "textRaw": "Returns: {boolean}",
-                        "name": "return",
-                        "type": "boolean"
-                      },
-                      "params": [
-                        {
-                          "textRaw": "`name` {string}",
-                          "name": "name",
-                          "type": "string"
-                        }
-                      ]
-                    }
-                  ],
-                  "desc": "<p>Returns <code>true</code> if there is at least one name-value pair whose name is <code>name</code>.</p>"
-                },
-                {
-                  "textRaw": "`mimeParams.keys()`",
-                  "type": "method",
-                  "name": "keys",
-                  "signatures": [
-                    {
-                      "return": {
-                        "textRaw": "Returns: {Iterator}",
-                        "name": "return",
-                        "type": "Iterator"
-                      },
-                      "params": []
-                    }
-                  ],
-                  "desc": "<p>Returns an iterator over the names of each name-value pair.</p>\n<pre><code class=\"language-mjs\">import { MIMEType } from 'node:util';\n\nconst { params } = new MIMEType('text/plain;foo=0;bar=1');\nfor (const name of params.keys()) {\n  console.log(name);\n}\n// Prints:\n//   foo\n//   bar\n</code></pre>\n<pre><code class=\"language-cjs\">const { MIMEType } = require('node:util');\n\nconst { params } = new MIMEType('text/plain;foo=0;bar=1');\nfor (const name of params.keys()) {\n  console.log(name);\n}\n// Prints:\n//   foo\n//   bar\n</code></pre>"
-                },
-                {
-                  "textRaw": "`mimeParams.set(name, value)`",
-                  "type": "method",
-                  "name": "set",
-                  "signatures": [
-                    {
-                      "params": [
-                        {
-                          "textRaw": "`name` {string}",
-                          "name": "name",
-                          "type": "string"
-                        },
-                        {
-                          "textRaw": "`value` {string}",
-                          "name": "value",
-                          "type": "string"
-                        }
-                      ]
-                    }
-                  ],
-                  "desc": "<p>Sets the value in the <code>MIMEParams</code> object associated with <code>name</code> to\n<code>value</code>. If there are any pre-existing name-value pairs whose names are <code>name</code>,\nset the first such pair's value to <code>value</code>.</p>\n<pre><code class=\"language-mjs\">import { MIMEType } from 'node:util';\n\nconst { params } = new MIMEType('text/plain;foo=0;bar=1');\nparams.set('foo', 'def');\nparams.set('baz', 'xyz');\nconsole.log(params.toString());\n// Prints: foo=def&#x26;bar=1&#x26;baz=xyz\n</code></pre>\n<pre><code class=\"language-cjs\">const { MIMEType } = require('node:util');\n\nconst { params } = new MIMEType('text/plain;foo=0;bar=1');\nparams.set('foo', 'def');\nparams.set('baz', 'xyz');\nconsole.log(params.toString());\n// Prints: foo=def&#x26;bar=1&#x26;baz=xyz\n</code></pre>"
-                },
-                {
-                  "textRaw": "`mimeParams.values()`",
-                  "type": "method",
-                  "name": "values",
-                  "signatures": [
-                    {
-                      "return": {
-                        "textRaw": "Returns: {Iterator}",
-                        "name": "return",
-                        "type": "Iterator"
-                      },
-                      "params": []
-                    }
-                  ],
-                  "desc": "<p>Returns an iterator over the values of each name-value pair.</p>"
-                }
-              ],
-              "modules": [
-                {
-                  "textRaw": "`mimeParams[@@iterator]()`",
-                  "name": "`mimeparams[@@iterator]()`",
-                  "desc": "<ul>\n<li>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#The_iterator_protocol\" class=\"type\">&lt;Iterator&gt;</a></li>\n</ul>\n<p>Alias for <a href=\"#mimeparamsentries\"><code>mimeParams.entries()</code></a>.</p>\n<pre><code class=\"language-mjs\">import { MIMEType } from 'node:util';\n\nconst { params } = new MIMEType('text/plain;foo=bar;xyz=baz');\nfor (const [name, value] of params) {\n  console.log(name, value);\n}\n// Prints:\n//   foo bar\n//   xyz baz\n</code></pre>\n<pre><code class=\"language-cjs\">const { MIMEType } = require('node:util');\n\nconst { params } = new MIMEType('text/plain;foo=bar;xyz=baz');\nfor (const [name, value] of params) {\n  console.log(name, value);\n}\n// Prints:\n//   foo bar\n//   xyz baz\n</code></pre>",
-                  "type": "module",
-                  "displayName": "`mimeParams[@@iterator]()`"
-                }
-              ],
+              "textRaw": "`type` {string}",
+              "type": "string",
+              "name": "type",
+              "desc": "<p>Gets and sets the type portion of the MIME.</p>\n<pre><code class=\"language-mjs\">import { MIMEType } from 'node:util';\n\nconst myMIME = new MIMEType('text/javascript');\nconsole.log(myMIME.type);\n// Prints: text\nmyMIME.type = 'application';\nconsole.log(myMIME.type);\n// Prints: application\nconsole.log(String(myMIME));\n// Prints: application/javascript\n</code></pre>\n<pre><code class=\"language-cjs\">const { MIMEType } = require('node:util');\n\nconst myMIME = new MIMEType('text/javascript');\nconsole.log(myMIME.type);\n// Prints: text\nmyMIME.type = 'application';\nconsole.log(myMIME.type);\n// Prints: application\nconsole.log(String(myMIME));\n// Prints: application/javascript\n</code></pre>"
+            },
+            {
+              "textRaw": "`subtype` {string}",
+              "type": "string",
+              "name": "subtype",
+              "desc": "<p>Gets and sets the subtype portion of the MIME.</p>\n<pre><code class=\"language-mjs\">import { MIMEType } from 'node:util';\n\nconst myMIME = new MIMEType('text/ecmascript');\nconsole.log(myMIME.subtype);\n// Prints: ecmascript\nmyMIME.subtype = 'javascript';\nconsole.log(myMIME.subtype);\n// Prints: javascript\nconsole.log(String(myMIME));\n// Prints: text/javascript\n</code></pre>\n<pre><code class=\"language-cjs\">const { MIMEType } = require('node:util');\n\nconst myMIME = new MIMEType('text/ecmascript');\nconsole.log(myMIME.subtype);\n// Prints: ecmascript\nmyMIME.subtype = 'javascript';\nconsole.log(myMIME.subtype);\n// Prints: javascript\nconsole.log(String(myMIME));\n// Prints: text/javascript\n</code></pre>"
+            },
+            {
+              "textRaw": "`essence` {string}",
+              "type": "string",
+              "name": "essence",
+              "desc": "<p>Gets the essence of the MIME. This property is read only.\nUse <code>mime.type</code> or <code>mime.subtype</code> to alter the MIME.</p>\n<pre><code class=\"language-mjs\">import { MIMEType } from 'node:util';\n\nconst myMIME = new MIMEType('text/javascript;key=value');\nconsole.log(myMIME.essence);\n// Prints: text/javascript\nmyMIME.type = 'application';\nconsole.log(myMIME.essence);\n// Prints: application/javascript\nconsole.log(String(myMIME));\n// Prints: application/javascript;key=value\n</code></pre>\n<pre><code class=\"language-cjs\">const { MIMEType } = require('node:util');\n\nconst myMIME = new MIMEType('text/javascript;key=value');\nconsole.log(myMIME.essence);\n// Prints: text/javascript\nmyMIME.type = 'application';\nconsole.log(myMIME.essence);\n// Prints: application/javascript\nconsole.log(String(myMIME));\n// Prints: application/javascript;key=value\n</code></pre>"
+            },
+            {
+              "textRaw": "`params` {MIMEParams}",
+              "type": "MIMEParams",
+              "name": "params",
+              "desc": "<p>Gets the <a href=\"#class-utilmimeparams\"><code>MIMEParams</code></a> object representing the\nparameters of the MIME. This property is read-only. See\n<a href=\"#class-utilmimeparams\"><code>MIMEParams</code></a> documentation for details.</p>"
+            }
+          ],
+          "methods": [
+            {
+              "textRaw": "`mime.toString()`",
+              "type": "method",
+              "name": "toString",
               "signatures": [
                 {
-                  "params": [],
-                  "desc": "<p>Creates a new <code>MIMEParams</code> object by with empty parameters</p>\n<pre><code class=\"language-mjs\">import { MIMEParams } from 'node:util';\n\nconst myParams = new MIMEParams();\n</code></pre>\n<pre><code class=\"language-cjs\">const { MIMEParams } = require('node:util');\n\nconst myParams = new MIMEParams();\n</code></pre>"
+                  "return": {
+                    "textRaw": "Returns: {string}",
+                    "name": "return",
+                    "type": "string"
+                  },
+                  "params": []
                 }
-              ]
+              ],
+              "desc": "<p>The <code>toString()</code> method on the <code>MIMEType</code> object returns the serialized MIME.</p>\n<p>Because of the need for standard compliance, this method does not allow users\nto customize the serialization process of the MIME.</p>"
+            },
+            {
+              "textRaw": "`mime.toJSON()`",
+              "type": "method",
+              "name": "toJSON",
+              "signatures": [
+                {
+                  "return": {
+                    "textRaw": "Returns: {string}",
+                    "name": "return",
+                    "type": "string"
+                  },
+                  "params": []
+                }
+              ],
+              "desc": "<p>Alias for <a href=\"#mimetostring\"><code>mime.toString()</code></a>.</p>\n<p>This method is automatically called when an <code>MIMEType</code> object is serialized\nwith <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify\"><code>JSON.stringify()</code></a>.</p>\n<pre><code class=\"language-mjs\">import { MIMEType } from 'node:util';\n\nconst myMIMES = [\n  new MIMEType('image/png'),\n  new MIMEType('image/gif'),\n];\nconsole.log(JSON.stringify(myMIMES));\n// Prints: [\"image/png\", \"image/gif\"]\n</code></pre>\n<pre><code class=\"language-cjs\">const { MIMEType } = require('node:util');\n\nconst myMIMES = [\n  new MIMEType('image/png'),\n  new MIMEType('image/gif'),\n];\nconsole.log(JSON.stringify(myMIMES));\n// Prints: [\"image/png\", \"image/gif\"]\n</code></pre>"
             }
           ],
           "signatures": [
@@ -1418,6 +1351,167 @@
                 }
               ],
               "desc": "<p>Creates a new <code>MIMEType</code> object by parsing the <code>input</code>.</p>\n<pre><code class=\"language-mjs\">import { MIMEType } from 'node:util';\n\nconst myMIME = new MIMEType('text/plain');\n</code></pre>\n<pre><code class=\"language-cjs\">const { MIMEType } = require('node:util');\n\nconst myMIME = new MIMEType('text/plain');\n</code></pre>\n<p>A <code>TypeError</code> will be thrown if the <code>input</code> is not a valid MIME. Note\nthat an effort will be made to coerce the given values into strings. For\ninstance:</p>\n<pre><code class=\"language-mjs\">import { MIMEType } from 'node:util';\nconst myMIME = new MIMEType({ toString: () => 'text/plain' });\nconsole.log(String(myMIME));\n// Prints: text/plain\n</code></pre>\n<pre><code class=\"language-cjs\">const { MIMEType } = require('node:util');\nconst myMIME = new MIMEType({ toString: () => 'text/plain' });\nconsole.log(String(myMIME));\n// Prints: text/plain\n</code></pre>"
+            }
+          ]
+        },
+        {
+          "textRaw": "Class: `util.MIMEParams`",
+          "type": "class",
+          "name": "util.MIMEParams",
+          "meta": {
+            "added": [
+              "v18.13.0"
+            ],
+            "changes": []
+          },
+          "desc": "<p>The <code>MIMEParams</code> API provides read and write access to the parameters of a\n<code>MIMEType</code>.</p>",
+          "methods": [
+            {
+              "textRaw": "`mimeParams.delete(name)`",
+              "type": "method",
+              "name": "delete",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "textRaw": "`name` {string}",
+                      "name": "name",
+                      "type": "string"
+                    }
+                  ]
+                }
+              ],
+              "desc": "<p>Remove all name-value pairs whose name is <code>name</code>.</p>"
+            },
+            {
+              "textRaw": "`mimeParams.entries()`",
+              "type": "method",
+              "name": "entries",
+              "signatures": [
+                {
+                  "return": {
+                    "textRaw": "Returns: {Iterator}",
+                    "name": "return",
+                    "type": "Iterator"
+                  },
+                  "params": []
+                }
+              ],
+              "desc": "<p>Returns an iterator over each of the name-value pairs in the parameters.\nEach item of the iterator is a JavaScript <code>Array</code>. The first item of the array\nis the <code>name</code>, the second item of the array is the <code>value</code>.</p>"
+            },
+            {
+              "textRaw": "`mimeParams.get(name)`",
+              "type": "method",
+              "name": "get",
+              "signatures": [
+                {
+                  "return": {
+                    "textRaw": "Returns: {string} or `null` if there is no name-value pair with the given `name`.",
+                    "name": "return",
+                    "type": "string",
+                    "desc": "or `null` if there is no name-value pair with the given `name`."
+                  },
+                  "params": [
+                    {
+                      "textRaw": "`name` {string}",
+                      "name": "name",
+                      "type": "string"
+                    }
+                  ]
+                }
+              ],
+              "desc": "<p>Returns the value of the first name-value pair whose name is <code>name</code>. If there\nare no such pairs, <code>null</code> is returned.</p>"
+            },
+            {
+              "textRaw": "`mimeParams.has(name)`",
+              "type": "method",
+              "name": "has",
+              "signatures": [
+                {
+                  "return": {
+                    "textRaw": "Returns: {boolean}",
+                    "name": "return",
+                    "type": "boolean"
+                  },
+                  "params": [
+                    {
+                      "textRaw": "`name` {string}",
+                      "name": "name",
+                      "type": "string"
+                    }
+                  ]
+                }
+              ],
+              "desc": "<p>Returns <code>true</code> if there is at least one name-value pair whose name is <code>name</code>.</p>"
+            },
+            {
+              "textRaw": "`mimeParams.keys()`",
+              "type": "method",
+              "name": "keys",
+              "signatures": [
+                {
+                  "return": {
+                    "textRaw": "Returns: {Iterator}",
+                    "name": "return",
+                    "type": "Iterator"
+                  },
+                  "params": []
+                }
+              ],
+              "desc": "<p>Returns an iterator over the names of each name-value pair.</p>\n<pre><code class=\"language-mjs\">import { MIMEType } from 'node:util';\n\nconst { params } = new MIMEType('text/plain;foo=0;bar=1');\nfor (const name of params.keys()) {\n  console.log(name);\n}\n// Prints:\n//   foo\n//   bar\n</code></pre>\n<pre><code class=\"language-cjs\">const { MIMEType } = require('node:util');\n\nconst { params } = new MIMEType('text/plain;foo=0;bar=1');\nfor (const name of params.keys()) {\n  console.log(name);\n}\n// Prints:\n//   foo\n//   bar\n</code></pre>"
+            },
+            {
+              "textRaw": "`mimeParams.set(name, value)`",
+              "type": "method",
+              "name": "set",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "textRaw": "`name` {string}",
+                      "name": "name",
+                      "type": "string"
+                    },
+                    {
+                      "textRaw": "`value` {string}",
+                      "name": "value",
+                      "type": "string"
+                    }
+                  ]
+                }
+              ],
+              "desc": "<p>Sets the value in the <code>MIMEParams</code> object associated with <code>name</code> to\n<code>value</code>. If there are any pre-existing name-value pairs whose names are <code>name</code>,\nset the first such pair's value to <code>value</code>.</p>\n<pre><code class=\"language-mjs\">import { MIMEType } from 'node:util';\n\nconst { params } = new MIMEType('text/plain;foo=0;bar=1');\nparams.set('foo', 'def');\nparams.set('baz', 'xyz');\nconsole.log(params.toString());\n// Prints: foo=def&#x26;bar=1&#x26;baz=xyz\n</code></pre>\n<pre><code class=\"language-cjs\">const { MIMEType } = require('node:util');\n\nconst { params } = new MIMEType('text/plain;foo=0;bar=1');\nparams.set('foo', 'def');\nparams.set('baz', 'xyz');\nconsole.log(params.toString());\n// Prints: foo=def&#x26;bar=1&#x26;baz=xyz\n</code></pre>"
+            },
+            {
+              "textRaw": "`mimeParams.values()`",
+              "type": "method",
+              "name": "values",
+              "signatures": [
+                {
+                  "return": {
+                    "textRaw": "Returns: {Iterator}",
+                    "name": "return",
+                    "type": "Iterator"
+                  },
+                  "params": []
+                }
+              ],
+              "desc": "<p>Returns an iterator over the values of each name-value pair.</p>"
+            }
+          ],
+          "modules": [
+            {
+              "textRaw": "`mimeParams[@@iterator]()`",
+              "name": "`mimeparams[@@iterator]()`",
+              "desc": "<ul>\n<li>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#The_iterator_protocol\" class=\"type\">&lt;Iterator&gt;</a></li>\n</ul>\n<p>Alias for <a href=\"#mimeparamsentries\"><code>mimeParams.entries()</code></a>.</p>\n<pre><code class=\"language-mjs\">import { MIMEType } from 'node:util';\n\nconst { params } = new MIMEType('text/plain;foo=bar;xyz=baz');\nfor (const [name, value] of params) {\n  console.log(name, value);\n}\n// Prints:\n//   foo bar\n//   xyz baz\n</code></pre>\n<pre><code class=\"language-cjs\">const { MIMEType } = require('node:util');\n\nconst { params } = new MIMEType('text/plain;foo=bar;xyz=baz');\nfor (const [name, value] of params) {\n  console.log(name, value);\n}\n// Prints:\n//   foo bar\n//   xyz baz\n</code></pre>",
+              "type": "module",
+              "displayName": "`mimeParams[@@iterator]()`"
+            }
+          ],
+          "signatures": [
+            {
+              "params": [],
+              "desc": "<p>Creates a new <code>MIMEParams</code> object by with empty parameters</p>\n<pre><code class=\"language-mjs\">import { MIMEParams } from 'node:util';\n\nconst myParams = new MIMEParams();\n</code></pre>\n<pre><code class=\"language-cjs\">const { MIMEParams } = require('node:util');\n\nconst myParams = new MIMEParams();\n</code></pre>"
             }
           ]
         },
@@ -2371,7 +2465,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Returns <code>true</code> if the value is an instance of a built-in <a href=\"errors.html#class-error\"><code>Error</code></a> type.</p>\n<pre><code class=\"language-js\">util.types.isNativeError(new Error());  // Returns true\nutil.types.isNativeError(new TypeError());  // Returns true\nutil.types.isNativeError(new RangeError());  // Returns true\n</code></pre>"
+              "desc": "<p>Returns <code>true</code> if the value was returned by the constructor of a\n<a href=\"https://tc39.es/ecma262/#sec-error-objects\">built-in <code>Error</code> type</a>.</p>\n<pre><code class=\"language-js\">console.log(util.types.isNativeError(new Error()));  // true\nconsole.log(util.types.isNativeError(new TypeError()));  // true\nconsole.log(util.types.isNativeError(new RangeError()));  // true\n</code></pre>\n<p>Subclasses of the native error types are also native errors:</p>\n<pre><code class=\"language-js\">class MyError extends Error {}\nconsole.log(util.types.isNativeError(new MyError()));  // true\n</code></pre>\n<p>A value being <code>instanceof</code> a native error class is not equivalent to <code>isNativeError()</code>\nreturning <code>true</code> for that value. <code>isNativeError()</code> returns <code>true</code> for errors\nwhich come from a different <a href=\"https://tc39.es/ecma262/#realm\">realm</a> while <code>instanceof Error</code> returns <code>false</code>\nfor these errors:</p>\n<pre><code class=\"language-js\">const vm = require('node:vm');\nconst context = vm.createContext({});\nconst myError = vm.runInContext('new Error()', context);\nconsole.log(util.types.isNativeError(myError)); // true\nconsole.log(myError instanceof Error); // false\n</code></pre>\n<p>Conversely, <code>isNativeError()</code> returns <code>false</code> for all objects which were not\nreturned by the constructor of a native error. That includes values\nwhich are <code>instanceof</code> native errors:</p>\n<pre><code class=\"language-js\">const myError = { __proto__: Error.prototype };\nconsole.log(util.types.isNativeError(myError)); // false\nconsole.log(myError instanceof Error); // true\n</code></pre>"
             },
             {
               "textRaw": "`util.types.isNumberObject(value)`",

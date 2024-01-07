@@ -7,30 +7,7 @@ Last-Update: 2021-03-03
 
 --- a/Makefile
 +++ b/Makefile
-@@ -366,22 +366,10 @@
- test-check-deopts: all
- 	$(PYTHON) tools/test.py $(PARALLEL_ARGS) --mode=$(BUILDTYPE_LOWER) --check-deopts parallel sequential
- 
--DOCBUILDSTAMP_PREREQS = tools/doc/addon-verify.mjs doc/api/addons.md
- 
--ifeq ($(OSTYPE),aix)
--DOCBUILDSTAMP_PREREQS := $(DOCBUILDSTAMP_PREREQS) out/$(BUILDTYPE)/node.exp
--endif
- 
- node_use_openssl = $(call available-node,"-p" \
- 			 "process.versions.openssl != undefined")
--test/addons/.docbuildstamp: $(DOCBUILDSTAMP_PREREQS) tools/doc/node_modules
--	@if [ "$(shell $(node_use_openssl))" != "true" ]; then \
--		echo "Skipping .docbuildstamp (no crypto)"; \
--	else \
--		$(RM) -r test/addons/??_*/; \
--		[ -x $(NODE) ] && $(NODE) $< || node $< ; \
--		[ $$? -eq 0 ] && touch $@; \
--	fi
- 
- ADDONS_BINDING_GYPS := \
- 	$(filter-out test/addons/??_*/binding.gyp, \
-@@ -625,11 +613,6 @@
+@@ -635,11 +635,6 @@
  
  .PHONY: test-doc
  test-doc: doc-only lint-md ## Builds, lints, and verifies the docs.
@@ -42,7 +19,7 @@ Last-Update: 2021-03-03
  
  .PHONY: test-doc-ci
  test-doc-ci: doc-only
-@@ -752,12 +735,12 @@
+@@ -762,12 +757,12 @@
  	fi
  
  .PHONY: doc-only
@@ -57,7 +34,7 @@ Last-Update: 2021-03-03
  	fi
  
  .PHONY: doc
-@@ -770,7 +753,9 @@
+@@ -780,7 +775,9 @@
  # Just copy everything under doc/api over.
  out/doc/api: doc/api
  	mkdir -p $@
@@ -68,7 +45,7 @@ Last-Update: 2021-03-03
  
  # If it's a source tarball, assets are already in doc/api/assets
  out/doc/api/assets:
-@@ -786,50 +771,50 @@
+@@ -796,50 +793,50 @@
  
  LINK_DATA = out/doc/apilinks.json
  VERSIONS_DATA = out/previous-doc-versions.json

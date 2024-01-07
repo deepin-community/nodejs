@@ -1,0 +1,26 @@
+Description: Use system paths for builtins
+Last-Update: 2023-02-22
+Forwarded: not-needed
+Author: Jérémy Lal <kapouer@melix.org>
+--- a/test/parallel/test-process-versions.js
++++ b/test/parallel/test-process-versions.js
+@@ -3,8 +3,8 @@
+ const assert = require('assert');
+ 
+ // Import of pure js (non-shared) deps for comparison
+-const acorn = require('../../deps/acorn/acorn/package.json');
+-const cjs_module_lexer = require('../../deps/cjs-module-lexer/package.json');
++const acorn = require('/usr/share/nodejs/acorn/package.json');
++const cjs_module_lexer = require('/usr/share/nodejs/cjs-module-lexer/package.json');
+ 
+ const expected_keys = [
+   'ares',
+@@ -98,7 +98,7 @@
+                    process.versions.napi);
+ 
+ if (hasUndici) {
+-  const undici = require('../../deps/undici/src/package.json');
++  const undici = require('/usr/share/nodejs/undici/package.json');
+   const expectedUndiciVersion = undici.version;
+   assert.strictEqual(process.versions.undici, expectedUndiciVersion);
+ }

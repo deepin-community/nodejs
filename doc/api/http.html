@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.13.0">
-  <title>HTTP | Node.js v18.13.0 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v18.19.0">
+  <title>HTTP | Node.js v18.19.0 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/http.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
-  
+  <style>@media(max-width:694px){.with-59-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:622px){.with-50-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:510px){.with-36-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:502px){.with-35-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:494px){.with-34-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:606px){.with-48-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:518px){.with-37-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:638px){.with-52-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:646px){.with-53-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}</style>
 </head>
 <body class="alt apidoc" id="api-section-http">
   <div id="content" class="clearfix">
@@ -68,6 +68,7 @@
 <li><a href="readline.html" class="nav-readline">Readline</a></li>
 <li><a href="repl.html" class="nav-repl">REPL</a></li>
 <li><a href="report.html" class="nav-report">Report</a></li>
+<li><a href="single-executable-applications.html" class="nav-single-executable-applications">Single executable applications</a></li>
 <li><a href="stream.html" class="nav-stream">Stream</a></li>
 <li><a href="string_decoder.html" class="nav-string_decoder">String decoder</a></li>
 <li><a href="test.html" class="nav-test">Test runner</a></li>
@@ -95,7 +96,7 @@
     <div id="column1" data-id="http" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.13.0 documentation</h1>
+          <h1>Node.js v18.19.0 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -110,7 +111,7 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.13.0</li>
+            <li class="pinned-header">Node.js v18.19.0</li>
             
     <li class="picker-header">
       <a href="#">
@@ -232,6 +233,7 @@
 <li><a href="#responsesocket"><code>response.socket</code></a></li>
 <li><a href="#responsestatuscode"><code>response.statusCode</code></a></li>
 <li><a href="#responsestatusmessage"><code>response.statusMessage</code></a></li>
+<li><a href="#responsestrictcontentlength"><code>response.strictContentLength</code></a></li>
 <li><a href="#responseuncork"><code>response.uncork()</code></a></li>
 <li><a href="#responsewritableended"><code>response.writableEnded</code></a></li>
 <li><a href="#responsewritablefinished"><code>response.writableFinished</code></a></li>
@@ -285,6 +287,7 @@
 <li><a href="#outgoingmessagepipe"><code>outgoingMessage.pipe()</code></a></li>
 <li><a href="#outgoingmessageremoveheadername"><code>outgoingMessage.removeHeader(name)</code></a></li>
 <li><a href="#outgoingmessagesetheadername-value"><code>outgoingMessage.setHeader(name, value)</code></a></li>
+<li><a href="#outgoingmessagesetheadersheaders"><code>outgoingMessage.setHeaders(headers)</code></a></li>
 <li><a href="#outgoingmessagesettimeoutmsesc-callback"><code>outgoingMessage.setTimeout(msesc[, callback])</code></a></li>
 <li><a href="#outgoingmessagesocket"><code>outgoingMessage.socket</code></a></li>
 <li><a href="#outgoingmessageuncork"><code>outgoingMessage.uncork()</code></a></li>
@@ -306,9 +309,9 @@
 <li><a href="#httpmaxheadersize"><code>http.maxHeaderSize</code></a></li>
 <li><a href="#httprequestoptions-callback"><code>http.request(options[, callback])</code></a></li>
 <li><a href="#httprequesturl-options-callback"><code>http.request(url[, options][, callback])</code></a></li>
-<li><a href="#httpvalidateheadernamename"><code>http.validateHeaderName(name)</code></a></li>
+<li><a href="#httpvalidateheadernamename-label"><code>http.validateHeaderName(name[, label])</code></a></li>
 <li><a href="#httpvalidateheadervaluename-value"><code>http.validateHeaderValue(name, value)</code></a></li>
-<li><a href="#httpsetmaxidlehttpparsers"><code>http.setMaxIdleHTTPParsers</code></a></li>
+<li><a href="#httpsetmaxidlehttpparsersmax"><code>http.setMaxIdleHTTPParsers(max)</code></a></li>
 </ul>
 </li>
 </ul></div></div>
@@ -374,6 +377,7 @@
 <li><a href="readline.html" class="nav-readline">Readline</a></li>
 <li><a href="repl.html" class="nav-repl">REPL</a></li>
 <li><a href="report.html" class="nav-report">Report</a></li>
+<li><a href="single-executable-applications.html" class="nav-single-executable-applications">Single executable applications</a></li>
 <li><a href="stream.html" class="nav-stream">Stream</a></li>
 <li><a href="string_decoder.html" class="nav-string_decoder">String decoder</a></li>
 <li><a href="test.html" class="nav-test">Test runner</a></li>
@@ -404,12 +408,14 @@
         <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v19.x/api/http.html">19.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/http.html">21.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v20.x/api/http.html">20.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v19.x/api/http.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/http.html">18.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v17.x/api/http.html">17.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v16.x/api/http.html">16.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v16.x/api/http.html">16.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v15.x/api/http.html">15.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v14.x/api/http.html">14.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v14.x/api/http.html">14.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v13.x/api/http.html">13.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v12.x/api/http.html">12.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v11.x/api/http.html">11.x</a></li>
@@ -561,6 +567,7 @@
 <li><a href="#responsesocket"><code>response.socket</code></a></li>
 <li><a href="#responsestatuscode"><code>response.statusCode</code></a></li>
 <li><a href="#responsestatusmessage"><code>response.statusMessage</code></a></li>
+<li><a href="#responsestrictcontentlength"><code>response.strictContentLength</code></a></li>
 <li><a href="#responseuncork"><code>response.uncork()</code></a></li>
 <li><a href="#responsewritableended"><code>response.writableEnded</code></a></li>
 <li><a href="#responsewritablefinished"><code>response.writableFinished</code></a></li>
@@ -614,6 +621,7 @@
 <li><a href="#outgoingmessagepipe"><code>outgoingMessage.pipe()</code></a></li>
 <li><a href="#outgoingmessageremoveheadername"><code>outgoingMessage.removeHeader(name)</code></a></li>
 <li><a href="#outgoingmessagesetheadername-value"><code>outgoingMessage.setHeader(name, value)</code></a></li>
+<li><a href="#outgoingmessagesetheadersheaders"><code>outgoingMessage.setHeaders(headers)</code></a></li>
 <li><a href="#outgoingmessagesettimeoutmsesc-callback"><code>outgoingMessage.setTimeout(msesc[, callback])</code></a></li>
 <li><a href="#outgoingmessagesocket"><code>outgoingMessage.socket</code></a></li>
 <li><a href="#outgoingmessageuncork"><code>outgoingMessage.uncork()</code></a></li>
@@ -635,9 +643,9 @@
 <li><a href="#httpmaxheadersize"><code>http.maxHeaderSize</code></a></li>
 <li><a href="#httprequestoptions-callback"><code>http.request(options[, callback])</code></a></li>
 <li><a href="#httprequesturl-options-callback"><code>http.request(url[, options][, callback])</code></a></li>
-<li><a href="#httpvalidateheadernamename"><code>http.validateHeaderName(name)</code></a></li>
+<li><a href="#httpvalidateheadernamename-label"><code>http.validateHeaderName(name[, label])</code></a></li>
 <li><a href="#httpvalidateheadervaluename-value"><code>http.validateHeaderValue(name, value)</code></a></li>
-<li><a href="#httpsetmaxidlehttpparsers"><code>http.setMaxIdleHTTPParsers</code></a></li>
+<li><a href="#httpsetmaxidlehttpparsersmax"><code>http.setMaxIdleHTTPParsers(max)</code></a></li>
 </ul>
 </li>
 </ul></details>
@@ -646,7 +654,7 @@
         <h2>HTTP<span><a class="mark" href="#http" id="http">#</a></span><a aria-hidden="true" class="legacy" id="http_http"></a></h2>
 
 <p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.13.0/lib/http.js">lib/http.js</a></p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.19.0/lib/http.js">lib/http.js</a></p>
 <p>To use the HTTP server and client one must <code>require('node:http')</code>.</p>
 <p>The HTTP interfaces in Node.js are designed to support many features
 of the protocol which have been traditionally difficult to use.
@@ -659,7 +667,7 @@ user is able to stream data.</p>
   <span class="hljs-string">'content-type'</span>: <span class="hljs-string">'text/plain'</span>,
   <span class="hljs-string">'connection'</span>: <span class="hljs-string">'keep-alive'</span>,
   <span class="hljs-string">'host'</span>: <span class="hljs-string">'example.com'</span>,
-  <span class="hljs-string">'accept'</span>: <span class="hljs-string">'*/*'</span> }</code></pre>
+  <span class="hljs-string">'accept'</span>: <span class="hljs-string">'*/*'</span> }</code> <button class="copy-button">copy</button></pre>
 <p>Keys are lowercased. Values are not modified.</p>
 <p>In order to support the full spectrum of possible HTTP applications, the Node.js
 HTTP API is very low-level. It deals with stream handling and message
@@ -676,7 +684,7 @@ list like the following:</p>
   <span class="hljs-string">'content-type'</span>, <span class="hljs-string">'text/plain'</span>,
   <span class="hljs-string">'CONNECTION'</span>, <span class="hljs-string">'keep-alive'</span>,
   <span class="hljs-string">'Host'</span>, <span class="hljs-string">'example.com'</span>,
-  <span class="hljs-string">'accepT'</span>, <span class="hljs-string">'*/*'</span> ]</code></pre>
+  <span class="hljs-string">'accepT'</span>, <span class="hljs-string">'*/*'</span> ]</code> <button class="copy-button">copy</button></pre>
 <section><h3>Class: <code>http.Agent</code><span><a class="mark" href="#class-httpagent" id="class-httpagent">#</a></span><a aria-hidden="true" class="legacy" id="http_class_http_agent"></a></h3>
 <div class="api_metadata">
 <span>Added in: v0.3.4</span>
@@ -709,7 +717,7 @@ like the following may be done:</p>
   <span class="hljs-comment">// Do stuff</span>
 }).<span class="hljs-title function_">on</span>(<span class="hljs-string">'socket'</span>, <span class="hljs-function">(<span class="hljs-params">socket</span>) =></span> {
   socket.<span class="hljs-title function_">emit</span>(<span class="hljs-string">'agentRemove'</span>);
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <p>An agent may also be used for an individual request. By providing
 <code>{agent: false}</code> as an option to the <code>http.get()</code> or <code>http.request()</code>
 functions, a one-time use <code>Agent</code> with default options will be used
@@ -722,7 +730,7 @@ for the client connection.</p>
   <span class="hljs-attr">agent</span>: <span class="hljs-literal">false</span>,  <span class="hljs-comment">// Create a new agent just for this one request</span>
 }, <span class="hljs-function">(<span class="hljs-params">res</span>) =></span> {
   <span class="hljs-comment">// Do stuff with response</span>
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <h4><code>new Agent([options])</code><span><a class="mark" href="#new-agentoptions" id="new-agentoptions">#</a></span><a aria-hidden="true" class="legacy" id="http_new_agent_options"></a></h4>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
@@ -792,10 +800,14 @@ This will set the timeout when the socket is created.</li>
 <p>The default <a href="#httpglobalagent"><code>http.globalAgent</code></a> that is used by <a href="#httprequestoptions-callback"><code>http.request()</code></a> has all
 of these values set to their respective defaults.</p>
 <p>To configure any of them, a custom <a href="#class-httpagent"><code>http.Agent</code></a> instance must be created.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
+
+<pre class="with-59-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Agent</span>, request } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:http'</span>;
+<span class="hljs-keyword">const</span> keepAliveAgent = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Agent</span>({ <span class="hljs-attr">keepAlive</span>: <span class="hljs-literal">true</span> });
+options.<span class="hljs-property">agent</span> = keepAliveAgent;
+<span class="hljs-title function_">request</span>(options, onResponseCallback);</code><code class="language-js cjs"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
 <span class="hljs-keyword">const</span> keepAliveAgent = <span class="hljs-keyword">new</span> http.<span class="hljs-title class_">Agent</span>({ <span class="hljs-attr">keepAlive</span>: <span class="hljs-literal">true</span> });
 options.<span class="hljs-property">agent</span> = keepAliveAgent;
-http.<span class="hljs-title function_">request</span>(options, onResponseCallback);</code></pre>
+http.<span class="hljs-title function_">request</span>(options, onResponseCallback);</code><button class="copy-button">copy</button></pre>
 <h4><code>agent.createConnection(options[, callback])</code><span><a class="mark" href="#agentcreateconnectionoptions-callback" id="agentcreateconnectionoptions-callback">#</a></span><a aria-hidden="true" class="legacy" id="http_agent_createconnection_options_callback"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.11.4</span>
@@ -826,7 +838,7 @@ type other than <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket
 <code>Agent</code>. Default behavior is to:</p>
 <pre><code class="language-js">socket.<span class="hljs-title function_">setKeepAlive</span>(<span class="hljs-literal">true</span>, <span class="hljs-variable language_">this</span>.<span class="hljs-property">keepAliveMsecs</span>);
 socket.<span class="hljs-title function_">unref</span>();
-<span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;</code></pre>
+<span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;</code> <button class="copy-button">copy</button></pre>
 <p>This method can be overridden by a particular <code>Agent</code> subclass. If this
 method returns a falsy value, the socket will be destroyed instead of persisting
 it for use with the next request.</p>
@@ -842,7 +854,7 @@ it for use with the next request.</p>
 </ul>
 <p>Called when <code>socket</code> is attached to <code>request</code> after being persisted because of
 the keep-alive options. Default behavior is to:</p>
-<pre><code class="language-js">socket.<span class="hljs-title function_">ref</span>();</code></pre>
+<pre><code class="language-js">socket.<span class="hljs-title function_">ref</span>();</code> <button class="copy-button">copy</button></pre>
 <p>This method can be overridden by a particular <code>Agent</code> subclass.</p>
 <p>The <code>socket</code> argument can be an instance of <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket></a>, a subclass of
 <a href="stream.html#class-streamduplex" class="type">&#x3C;stream.Duplex></a>.</p>
@@ -995,8 +1007,9 @@ the data is read it will consume memory that can eventually lead to a
 'process out of memory' error.</p>
 <p>For backward compatibility, <code>res</code> will only emit <code>'error'</code> if there is an
 <code>'error'</code> listener registered.</p>
-<p>Set <code>Content-Length</code> header to limit the response body size. Mismatching the
-<code>Content-Length</code> header value will result in an [<code>Error</code>][] being thrown,
+<p>Set <code>Content-Length</code> header to limit the response body size.
+If <a href="#responsestrictcontentlength"><code>response.strictContentLength</code></a> is set to <code>true</code>, mismatching the
+<code>Content-Length</code> header value will result in an <code>Error</code> being thrown,
 identified by <code>code:</code> <a href="errors.html#err_http_content_length_mismatch"><code>'ERR_HTTP_CONTENT_LENGTH_MISMATCH'</code></a>.</p>
 <p><code>Content-Length</code> value should be in bytes, not characters. Use
 <a href="buffer.html#static-method-bufferbytelengthstring-encoding"><code>Buffer.byteLength()</code></a> to determine the length of the body in bytes.</p>
@@ -1029,7 +1042,59 @@ have their connections closed.</p>
 a subclass of <a href="stream.html#class-streamduplex" class="type">&#x3C;stream.Duplex></a>, unless the user specifies a socket
 type other than <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket></a>.</p>
 <p>A client and server pair demonstrating how to listen for the <code>'connect'</code> event:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
+
+<pre class="with-50-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { createServer, request } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:http'</span>;
+<span class="hljs-keyword">import</span> { connect } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:net'</span>;
+<span class="hljs-keyword">import</span> { <span class="hljs-variable constant_">URL</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:url'</span>;
+
+<span class="hljs-comment">// Create an HTTP tunneling proxy</span>
+<span class="hljs-keyword">const</span> proxy = <span class="hljs-title function_">createServer</span>(<span class="hljs-function">(<span class="hljs-params">req, res</span>) =></span> {
+  res.<span class="hljs-title function_">writeHead</span>(<span class="hljs-number">200</span>, { <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'text/plain'</span> });
+  res.<span class="hljs-title function_">end</span>(<span class="hljs-string">'okay'</span>);
+});
+proxy.<span class="hljs-title function_">on</span>(<span class="hljs-string">'connect'</span>, <span class="hljs-function">(<span class="hljs-params">req, clientSocket, head</span>) =></span> {
+  <span class="hljs-comment">// Connect to an origin server</span>
+  <span class="hljs-keyword">const</span> { port, hostname } = <span class="hljs-keyword">new</span> <span class="hljs-title function_">URL</span>(<span class="hljs-string">`http://<span class="hljs-subst">${req.url}</span>`</span>);
+  <span class="hljs-keyword">const</span> serverSocket = <span class="hljs-title function_">connect</span>(port || <span class="hljs-number">80</span>, hostname, <span class="hljs-function">() =></span> {
+    clientSocket.<span class="hljs-title function_">write</span>(<span class="hljs-string">'HTTP/1.1 200 Connection Established\r\n'</span> +
+                    <span class="hljs-string">'Proxy-agent: Node.js-Proxy\r\n'</span> +
+                    <span class="hljs-string">'\r\n'</span>);
+    serverSocket.<span class="hljs-title function_">write</span>(head);
+    serverSocket.<span class="hljs-title function_">pipe</span>(clientSocket);
+    clientSocket.<span class="hljs-title function_">pipe</span>(serverSocket);
+  });
+});
+
+<span class="hljs-comment">// Now that proxy is running</span>
+proxy.<span class="hljs-title function_">listen</span>(<span class="hljs-number">1337</span>, <span class="hljs-string">'127.0.0.1'</span>, <span class="hljs-function">() =></span> {
+
+  <span class="hljs-comment">// Make a request to a tunneling proxy</span>
+  <span class="hljs-keyword">const</span> options = {
+    <span class="hljs-attr">port</span>: <span class="hljs-number">1337</span>,
+    <span class="hljs-attr">host</span>: <span class="hljs-string">'127.0.0.1'</span>,
+    <span class="hljs-attr">method</span>: <span class="hljs-string">'CONNECT'</span>,
+    <span class="hljs-attr">path</span>: <span class="hljs-string">'www.google.com:80'</span>,
+  };
+
+  <span class="hljs-keyword">const</span> req = <span class="hljs-title function_">request</span>(options);
+  req.<span class="hljs-title function_">end</span>();
+
+  req.<span class="hljs-title function_">on</span>(<span class="hljs-string">'connect'</span>, <span class="hljs-function">(<span class="hljs-params">res, socket, head</span>) =></span> {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'got connected!'</span>);
+
+    <span class="hljs-comment">// Make a request over an HTTP tunnel</span>
+    socket.<span class="hljs-title function_">write</span>(<span class="hljs-string">'GET / HTTP/1.1\r\n'</span> +
+                 <span class="hljs-string">'Host: www.google.com:80\r\n'</span> +
+                 <span class="hljs-string">'Connection: close\r\n'</span> +
+                 <span class="hljs-string">'\r\n'</span>);
+    socket.<span class="hljs-title function_">on</span>(<span class="hljs-string">'data'</span>, <span class="hljs-function">(<span class="hljs-params">chunk</span>) =></span> {
+      <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(chunk.<span class="hljs-title function_">toString</span>());
+    });
+    socket.<span class="hljs-title function_">on</span>(<span class="hljs-string">'end'</span>, <span class="hljs-function">() =></span> {
+      proxy.<span class="hljs-title function_">close</span>();
+    });
+  });
+});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
 <span class="hljs-keyword">const</span> net = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:net'</span>);
 <span class="hljs-keyword">const</span> { <span class="hljs-variable constant_">URL</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:url'</span>);
 
@@ -1080,7 +1145,7 @@ proxy.<span class="hljs-title function_">listen</span>(<span class="hljs-number"
       proxy.<span class="hljs-title function_">close</span>();
     });
   });
-});</code></pre>
+});</code><button class="copy-button">copy</button></pre>
 <h4>Event: <code>'continue'</code><span><a class="mark" href="#event-continue" id="event-continue">#</a></span><a aria-hidden="true" class="legacy" id="http_event_continue"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.3.2</span>
@@ -1117,7 +1182,22 @@ the server has received anything yet.</p>
 Upgrade). The listeners of this event will receive an object containing the
 HTTP version, status code, status message, key-value headers object,
 and array with the raw header names followed by their respective values.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
+
+<pre class="with-36-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { request } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:http'</span>;
+
+<span class="hljs-keyword">const</span> options = {
+  <span class="hljs-attr">host</span>: <span class="hljs-string">'127.0.0.1'</span>,
+  <span class="hljs-attr">port</span>: <span class="hljs-number">8080</span>,
+  <span class="hljs-attr">path</span>: <span class="hljs-string">'/length_request'</span>,
+};
+
+<span class="hljs-comment">// Make a request</span>
+<span class="hljs-keyword">const</span> req = <span class="hljs-title function_">request</span>(options);
+req.<span class="hljs-title function_">end</span>();
+
+req.<span class="hljs-title function_">on</span>(<span class="hljs-string">'information'</span>, <span class="hljs-function">(<span class="hljs-params">info</span>) =></span> {
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`Got information prior to main response: <span class="hljs-subst">${info.statusCode}</span>`</span>);
+});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
 
 <span class="hljs-keyword">const</span> options = {
   <span class="hljs-attr">host</span>: <span class="hljs-string">'127.0.0.1'</span>,
@@ -1131,7 +1211,7 @@ req.<span class="hljs-title function_">end</span>();
 
 req.<span class="hljs-title function_">on</span>(<span class="hljs-string">'information'</span>, <span class="hljs-function">(<span class="hljs-params">info</span>) =></span> {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`Got information prior to main response: <span class="hljs-subst">${info.statusCode}</span>`</span>);
-});</code></pre>
+});</code><button class="copy-button">copy</button></pre>
 <p>101 Upgrade statuses do not fire this event due to their break from the
 traditional HTTP request/response chain, such as web sockets, in-place TLS
 upgrades, or HTTP 2.0. To be notified of 101 Upgrade notices, listen for the
@@ -1179,7 +1259,9 @@ closed.</p>
 a subclass of <a href="stream.html#class-streamduplex" class="type">&#x3C;stream.Duplex></a>, unless the user specifies a socket
 type other than <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket></a>.</p>
 <p>A client server pair demonstrating how to listen for the <code>'upgrade'</code> event.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
+
+<pre class="with-35-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> http <span class="hljs-keyword">from</span> <span class="hljs-string">'node:http'</span>;
+<span class="hljs-keyword">import</span> process <span class="hljs-keyword">from</span> <span class="hljs-string">'node:process'</span>;
 
 <span class="hljs-comment">// Create an HTTP server</span>
 <span class="hljs-keyword">const</span> server = http.<span class="hljs-title function_">createServer</span>(<span class="hljs-function">(<span class="hljs-params">req, res</span>) =></span> {
@@ -1216,7 +1298,44 @@ server.<span class="hljs-title function_">listen</span>(<span class="hljs-number
     socket.<span class="hljs-title function_">end</span>();
     process.<span class="hljs-title function_">exit</span>(<span class="hljs-number">0</span>);
   });
-});</code></pre>
+});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
+
+<span class="hljs-comment">// Create an HTTP server</span>
+<span class="hljs-keyword">const</span> server = http.<span class="hljs-title function_">createServer</span>(<span class="hljs-function">(<span class="hljs-params">req, res</span>) =></span> {
+  res.<span class="hljs-title function_">writeHead</span>(<span class="hljs-number">200</span>, { <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'text/plain'</span> });
+  res.<span class="hljs-title function_">end</span>(<span class="hljs-string">'okay'</span>);
+});
+server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'upgrade'</span>, <span class="hljs-function">(<span class="hljs-params">req, socket, head</span>) =></span> {
+  socket.<span class="hljs-title function_">write</span>(<span class="hljs-string">'HTTP/1.1 101 Web Socket Protocol Handshake\r\n'</span> +
+               <span class="hljs-string">'Upgrade: WebSocket\r\n'</span> +
+               <span class="hljs-string">'Connection: Upgrade\r\n'</span> +
+               <span class="hljs-string">'\r\n'</span>);
+
+  socket.<span class="hljs-title function_">pipe</span>(socket); <span class="hljs-comment">// echo back</span>
+});
+
+<span class="hljs-comment">// Now that server is running</span>
+server.<span class="hljs-title function_">listen</span>(<span class="hljs-number">1337</span>, <span class="hljs-string">'127.0.0.1'</span>, <span class="hljs-function">() =></span> {
+
+  <span class="hljs-comment">// make a request</span>
+  <span class="hljs-keyword">const</span> options = {
+    <span class="hljs-attr">port</span>: <span class="hljs-number">1337</span>,
+    <span class="hljs-attr">host</span>: <span class="hljs-string">'127.0.0.1'</span>,
+    <span class="hljs-attr">headers</span>: {
+      <span class="hljs-string">'Connection'</span>: <span class="hljs-string">'Upgrade'</span>,
+      <span class="hljs-string">'Upgrade'</span>: <span class="hljs-string">'websocket'</span>,
+    },
+  };
+
+  <span class="hljs-keyword">const</span> req = http.<span class="hljs-title function_">request</span>(options);
+  req.<span class="hljs-title function_">end</span>();
+
+  req.<span class="hljs-title function_">on</span>(<span class="hljs-string">'upgrade'</span>, <span class="hljs-function">(<span class="hljs-params">res, socket, upgradeHead</span>) =></span> {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'got upgraded!'</span>);
+    socket.<span class="hljs-title function_">end</span>();
+    process.<span class="hljs-title function_">exit</span>(<span class="hljs-number">0</span>);
+  });
+});</code><button class="copy-button">copy</button></pre>
 <h4><code>request.abort()</code><span><a class="mark" href="#requestabort" id="requestabort">#</a></span><a aria-hidden="true" class="legacy" id="http_request_abort"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.3.8</span><span>Deprecated since: v14.1.0, v13.14.0</span>
@@ -1355,7 +1474,7 @@ request.<span class="hljs-title function_">setHeader</span>(<span class="hljs-st
 <span class="hljs-keyword">const</span> contentLength = request.<span class="hljs-title function_">getHeader</span>(<span class="hljs-string">'Content-Length'</span>);
 <span class="hljs-comment">// 'contentLength' is of type number</span>
 <span class="hljs-keyword">const</span> cookie = request.<span class="hljs-title function_">getHeader</span>(<span class="hljs-string">'Cookie'</span>);
-<span class="hljs-comment">// 'cookie' is of type string[]</span></code></pre>
+<span class="hljs-comment">// 'cookie' is of type string[]</span></code> <button class="copy-button">copy</button></pre>
 <h4><code>request.getHeaderNames()</code><span><a class="mark" href="#requestgetheadernames" id="requestgetheadernames">#</a></span><a aria-hidden="true" class="legacy" id="http_request_getheadernames"></a></h4>
 <div class="api_metadata">
 <span>Added in: v7.7.0</span>
@@ -1369,7 +1488,7 @@ All header names are lowercase.</p>
 request.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'Cookie'</span>, [<span class="hljs-string">'foo=bar'</span>, <span class="hljs-string">'bar=baz'</span>]);
 
 <span class="hljs-keyword">const</span> headerNames = request.<span class="hljs-title function_">getHeaderNames</span>();
-<span class="hljs-comment">// headerNames === ['foo', 'cookie']</span></code></pre>
+<span class="hljs-comment">// headerNames === ['foo', 'cookie']</span></code> <button class="copy-button">copy</button></pre>
 <h4><code>request.getHeaders()</code><span><a class="mark" href="#requestgetheaders" id="requestgetheaders">#</a></span><a aria-hidden="true" class="legacy" id="http_request_getheaders"></a></h4>
 <div class="api_metadata">
 <span>Added in: v7.7.0</span>
@@ -1390,7 +1509,7 @@ are not defined and <em>will not work</em>.</p>
 request.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'Cookie'</span>, [<span class="hljs-string">'foo=bar'</span>, <span class="hljs-string">'bar=baz'</span>]);
 
 <span class="hljs-keyword">const</span> headers = request.<span class="hljs-title function_">getHeaders</span>();
-<span class="hljs-comment">// headers === { foo: 'bar', 'cookie': ['foo=bar', 'bar=baz'] }</span></code></pre>
+<span class="hljs-comment">// headers === { foo: 'bar', 'cookie': ['foo=bar', 'bar=baz'] }</span></code> <button class="copy-button">copy</button></pre>
 <h4><code>request.getRawHeaderNames()</code><span><a class="mark" href="#requestgetrawheadernames" id="requestgetrawheadernames">#</a></span><a aria-hidden="true" class="legacy" id="http_request_getrawheadernames"></a></h4>
 <div class="api_metadata">
 <span>Added in: v15.13.0, v14.17.0</span>
@@ -1404,7 +1523,7 @@ headers. Header names are returned with their exact casing being set.</p>
 request.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'Set-Cookie'</span>, [<span class="hljs-string">'foo=bar'</span>, <span class="hljs-string">'bar=baz'</span>]);
 
 <span class="hljs-keyword">const</span> headerNames = request.<span class="hljs-title function_">getRawHeaderNames</span>();
-<span class="hljs-comment">// headerNames === ['Foo', 'Set-Cookie']</span></code></pre>
+<span class="hljs-comment">// headerNames === ['Foo', 'Set-Cookie']</span></code> <button class="copy-button">copy</button></pre>
 <h4><code>request.hasHeader(name)</code><span><a class="mark" href="#requesthasheadername" id="requesthasheadername">#</a></span><a aria-hidden="true" class="legacy" id="http_request_hasheader_name"></a></h4>
 <div class="api_metadata">
 <span>Added in: v7.7.0</span>
@@ -1415,7 +1534,7 @@ request.<span class="hljs-title function_">setHeader</span>(<span class="hljs-st
 </ul>
 <p>Returns <code>true</code> if the header identified by <code>name</code> is currently set in the
 outgoing headers. The header name matching is case-insensitive.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> hasContentType = request.<span class="hljs-title function_">hasHeader</span>(<span class="hljs-string">'content-type'</span>);</code></pre>
+<pre><code class="language-js"><span class="hljs-keyword">const</span> hasContentType = request.<span class="hljs-title function_">hasHeader</span>(<span class="hljs-string">'content-type'</span>);</code> <button class="copy-button">copy</button></pre>
 <h4><code>request.maxHeadersCount</code><span><a class="mark" href="#requestmaxheaderscount" id="requestmaxheaderscount">#</a></span><a aria-hidden="true" class="legacy" id="http_request_maxheaderscount"></a></h4>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> <strong>Default:</strong> <code>2000</code></li>
@@ -1457,7 +1576,7 @@ outgoing headers. The header name matching is case-insensitive.</p>
 <li><code>name</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
 </ul>
 <p>Removes a header that's already defined into headers object.</p>
-<pre><code class="language-js">request.<span class="hljs-title function_">removeHeader</span>(<span class="hljs-string">'Content-Type'</span>);</code></pre>
+<pre><code class="language-js">request.<span class="hljs-title function_">removeHeader</span>(<span class="hljs-string">'Content-Type'</span>);</code> <button class="copy-button">copy</button></pre>
 <h4><code>request.reusedSocket</code><span><a class="mark" href="#requestreusedsocket" id="requestreusedsocket">#</a></span><a aria-hidden="true" class="legacy" id="http_request_reusedsocket"></a></h4>
 <div class="api_metadata">
 <span>Added in: v13.0.0, v12.16.0</span>
@@ -1468,7 +1587,8 @@ outgoing headers. The header name matching is case-insensitive.</p>
 <p>When sending request through a keep-alive enabled agent, the underlying socket
 might be reused. But if server closes connection at unfortunate time, client
 may run into a 'ECONNRESET' error.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
+
+<pre class="with-34-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> http <span class="hljs-keyword">from</span> <span class="hljs-string">'node:http'</span>;
 
 <span class="hljs-comment">// Server has a 5 seconds keep-alive timeout by default</span>
 http
@@ -1485,10 +1605,28 @@ http
       <span class="hljs-comment">// Do nothing</span>
     });
   });
-}, <span class="hljs-number">5000</span>); <span class="hljs-comment">// Sending request on 5s interval so it's easy to hit idle timeout</span></code></pre>
+}, <span class="hljs-number">5000</span>); <span class="hljs-comment">// Sending request on 5s interval so it's easy to hit idle timeout</span></code><code class="language-js cjs"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
+
+<span class="hljs-comment">// Server has a 5 seconds keep-alive timeout by default</span>
+http
+  .<span class="hljs-title function_">createServer</span>(<span class="hljs-function">(<span class="hljs-params">req, res</span>) =></span> {
+    res.<span class="hljs-title function_">write</span>(<span class="hljs-string">'hello\n'</span>);
+    res.<span class="hljs-title function_">end</span>();
+  })
+  .<span class="hljs-title function_">listen</span>(<span class="hljs-number">3000</span>);
+
+<span class="hljs-built_in">setInterval</span>(<span class="hljs-function">() =></span> {
+  <span class="hljs-comment">// Adapting a keep-alive agent</span>
+  http.<span class="hljs-title function_">get</span>(<span class="hljs-string">'http://localhost:3000'</span>, { agent }, <span class="hljs-function">(<span class="hljs-params">res</span>) =></span> {
+    res.<span class="hljs-title function_">on</span>(<span class="hljs-string">'data'</span>, <span class="hljs-function">(<span class="hljs-params">data</span>) =></span> {
+      <span class="hljs-comment">// Do nothing</span>
+    });
+  });
+}, <span class="hljs-number">5000</span>); <span class="hljs-comment">// Sending request on 5s interval so it's easy to hit idle timeout</span></code><button class="copy-button">copy</button></pre>
 <p>By marking a request whether it reused socket or not, we can do
 automatic error retry base on it.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
+
+<pre class="with-50-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> http <span class="hljs-keyword">from</span> <span class="hljs-string">'node:http'</span>;
 <span class="hljs-keyword">const</span> agent = <span class="hljs-keyword">new</span> http.<span class="hljs-title class_">Agent</span>({ <span class="hljs-attr">keepAlive</span>: <span class="hljs-literal">true</span> });
 
 <span class="hljs-keyword">function</span> <span class="hljs-title function_">retriableRequest</span>(<span class="hljs-params"></span>) {
@@ -1504,7 +1642,23 @@ automatic error retry base on it.</p>
     });
 }
 
-<span class="hljs-title function_">retriableRequest</span>();</code></pre>
+<span class="hljs-title function_">retriableRequest</span>();</code><code class="language-js cjs"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
+<span class="hljs-keyword">const</span> agent = <span class="hljs-keyword">new</span> http.<span class="hljs-title class_">Agent</span>({ <span class="hljs-attr">keepAlive</span>: <span class="hljs-literal">true</span> });
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">retriableRequest</span>(<span class="hljs-params"></span>) {
+  <span class="hljs-keyword">const</span> req = http
+    .<span class="hljs-title function_">get</span>(<span class="hljs-string">'http://localhost:3000'</span>, { agent }, <span class="hljs-function">(<span class="hljs-params">res</span>) =></span> {
+      <span class="hljs-comment">// ...</span>
+    })
+    .<span class="hljs-title function_">on</span>(<span class="hljs-string">'error'</span>, <span class="hljs-function">(<span class="hljs-params">err</span>) =></span> {
+      <span class="hljs-comment">// Check if retry is needed</span>
+      <span class="hljs-keyword">if</span> (req.<span class="hljs-property">reusedSocket</span> &#x26;&#x26; err.<span class="hljs-property">code</span> === <span class="hljs-string">'ECONNRESET'</span>) {
+        <span class="hljs-title function_">retriableRequest</span>();
+      }
+    });
+}
+
+<span class="hljs-title function_">retriableRequest</span>();</code><button class="copy-button">copy</button></pre>
 <h4><code>request.setHeader(name, value)</code><span><a class="mark" href="#requestsetheadername-value" id="requestsetheadername-value">#</a></span><a aria-hidden="true" class="legacy" id="http_request_setheader_name_value"></a></h4>
 <div class="api_metadata">
 <span>Added in: v1.6.0</span>
@@ -1519,15 +1673,15 @@ here to send multiple headers with the same name. Non-string values will be
 stored without modification. Therefore, <a href="#requestgetheadername"><code>request.getHeader()</code></a> may return
 non-string values. However, the non-string values will be converted to strings
 for network transmission.</p>
-<pre><code class="language-js">request.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'Content-Type'</span>, <span class="hljs-string">'application/json'</span>);</code></pre>
+<pre><code class="language-js">request.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'Content-Type'</span>, <span class="hljs-string">'application/json'</span>);</code> <button class="copy-button">copy</button></pre>
 <p>or</p>
-<pre><code class="language-js">request.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'Cookie'</span>, [<span class="hljs-string">'type=ninja'</span>, <span class="hljs-string">'language=javascript'</span>]);</code></pre>
+<pre><code class="language-js">request.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'Cookie'</span>, [<span class="hljs-string">'type=ninja'</span>, <span class="hljs-string">'language=javascript'</span>]);</code> <button class="copy-button">copy</button></pre>
 <p>When the value is a string an exception will be thrown if it contains
 characters outside the <code>latin1</code> encoding.</p>
 <p>If you need to pass UTF-8 characters in the value please encode the value
 using the <a href="https://www.rfc-editor.org/rfc/rfc8187.txt">RFC 8187</a> standard.</p>
 <pre><code class="language-js"><span class="hljs-keyword">const</span> filename = <span class="hljs-string">'Rock 🎵.txt'</span>;
-request.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'Content-Disposition'</span>, <span class="hljs-string">`attachment; filename*=utf-8''<span class="hljs-subst">${<span class="hljs-built_in">encodeURIComponent</span>(filename)}</span>`</span>);</code></pre>
+request.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'Content-Disposition'</span>, <span class="hljs-string">`attachment; filename*=utf-8''<span class="hljs-subst">${<span class="hljs-built_in">encodeURIComponent</span>(filename)}</span>`</span>);</code> <button class="copy-button">copy</button></pre>
 <h4><code>request.setNoDelay([noDelay])</code><span><a class="mark" href="#requestsetnodelaynodelay" id="requestsetnodelaynodelay">#</a></span><a aria-hidden="true" class="legacy" id="http_request_setnodelay_nodelay"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.5.9</span>
@@ -1577,7 +1731,8 @@ Same as binding to the <code>'timeout'</code> event.</li>
 <p>Reference to the underlying socket. Usually users will not want to access
 this property. In particular, the socket will not emit <code>'readable'</code> events
 because of how the protocol parser attaches to the socket.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
+
+<pre class="with-34-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> http <span class="hljs-keyword">from</span> <span class="hljs-string">'node:http'</span>;
 <span class="hljs-keyword">const</span> options = {
   <span class="hljs-attr">host</span>: <span class="hljs-string">'www.google.com'</span>,
 };
@@ -1588,7 +1743,18 @@ req.<span class="hljs-title function_">once</span>(<span class="hljs-string">'re
   <span class="hljs-keyword">const</span> port = req.<span class="hljs-property">socket</span>.<span class="hljs-property">localPort</span>;
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`Your IP address is <span class="hljs-subst">${ip}</span> and your source port is <span class="hljs-subst">${port}</span>.`</span>);
   <span class="hljs-comment">// Consume response object</span>
-});</code></pre>
+});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
+<span class="hljs-keyword">const</span> options = {
+  <span class="hljs-attr">host</span>: <span class="hljs-string">'www.google.com'</span>,
+};
+<span class="hljs-keyword">const</span> req = http.<span class="hljs-title function_">get</span>(options);
+req.<span class="hljs-title function_">end</span>();
+req.<span class="hljs-title function_">once</span>(<span class="hljs-string">'response'</span>, <span class="hljs-function">(<span class="hljs-params">res</span>) =></span> {
+  <span class="hljs-keyword">const</span> ip = req.<span class="hljs-property">socket</span>.<span class="hljs-property">localAddress</span>;
+  <span class="hljs-keyword">const</span> port = req.<span class="hljs-property">socket</span>.<span class="hljs-property">localPort</span>;
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`Your IP address is <span class="hljs-subst">${ip}</span> and your source port is <span class="hljs-subst">${port}</span>.`</span>);
+  <span class="hljs-comment">// Consume response object</span>
+});</code><button class="copy-button">copy</button></pre>
 <p>This property is guaranteed to be an instance of the <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket></a> class,
 a subclass of <a href="stream.html#class-streamduplex" class="type">&#x3C;stream.Duplex></a>, unless the user specified a socket
 type other than <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket></a>.</p>
@@ -1708,7 +1874,8 @@ not be emitted.</p>
 <p>If a client connection emits an <code>'error'</code> event, it will be forwarded here.
 Listener of this event is responsible for closing/destroying the underlying
 socket. For example, one may wish to more gracefully close the socket with a
-custom HTTP response instead of abruptly severing the connection.</p>
+custom HTTP response instead of abruptly severing the connection. The socket
+<strong>must be closed or destroyed</strong> before the listener ends.</p>
 <p>This event is guaranteed to be passed an instance of the <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket></a> class,
 a subclass of <a href="stream.html#class-streamduplex" class="type">&#x3C;stream.Duplex></a>, unless the user specifies a socket
 type other than <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket></a>.</p>
@@ -1718,7 +1885,8 @@ or a HTTP '431 Request Header Fields Too Large' in the case of a
 of the current attached <a href="#class-httpserverresponse"><code>http.ServerResponse</code></a> has been sent, it is
 immediately destroyed.</p>
 <p><code>socket</code> is the <a href="net.html#class-netsocket"><code>net.Socket</code></a> object that the error originated from.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
+
+<pre class="with-34-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> http <span class="hljs-keyword">from</span> <span class="hljs-string">'node:http'</span>;
 
 <span class="hljs-keyword">const</span> server = http.<span class="hljs-title function_">createServer</span>(<span class="hljs-function">(<span class="hljs-params">req, res</span>) =></span> {
   res.<span class="hljs-title function_">end</span>();
@@ -1726,7 +1894,15 @@ immediately destroyed.</p>
 server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'clientError'</span>, <span class="hljs-function">(<span class="hljs-params">err, socket</span>) =></span> {
   socket.<span class="hljs-title function_">end</span>(<span class="hljs-string">'HTTP/1.1 400 Bad Request\r\n\r\n'</span>);
 });
-server.<span class="hljs-title function_">listen</span>(<span class="hljs-number">8000</span>);</code></pre>
+server.<span class="hljs-title function_">listen</span>(<span class="hljs-number">8000</span>);</code><code class="language-js cjs"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
+
+<span class="hljs-keyword">const</span> server = http.<span class="hljs-title function_">createServer</span>(<span class="hljs-function">(<span class="hljs-params">req, res</span>) =></span> {
+  res.<span class="hljs-title function_">end</span>();
+});
+server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'clientError'</span>, <span class="hljs-function">(<span class="hljs-params">err, socket</span>) =></span> {
+  socket.<span class="hljs-title function_">end</span>(<span class="hljs-string">'HTTP/1.1 400 Bad Request\r\n\r\n'</span>);
+});
+server.<span class="hljs-title function_">listen</span>(<span class="hljs-number">8000</span>);</code><button class="copy-button">copy</button></pre>
 <p>When the <code>'clientError'</code> event occurs, there is no <code>request</code> or <code>response</code>
 object, so any HTTP response sent, including response headers and payload,
 <em>must</em> be written directly to the <code>socket</code> object. Care must be taken to
@@ -1747,7 +1923,7 @@ writable.</p>
   }
 
   socket.<span class="hljs-title function_">end</span>(<span class="hljs-string">'HTTP/1.1 400 Bad Request\r\n\r\n'</span>);
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <h4>Event: <code>'close'</code><span><a class="mark" href="#event-close_1" id="event-close_1">#</a></span><a aria-hidden="true" class="legacy" id="http_event_close_1"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.1.4</span>
@@ -1861,10 +2037,18 @@ type other than <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket
 or waiting for a response.</p>
 <h4><code>server.headersTimeout</code><span><a class="mark" href="#serverheaderstimeout" id="serverheaderstimeout">#</a></span><a aria-hidden="true" class="legacy" id="http_server_headerstimeout"></a></h4>
 <div class="api_metadata">
-<span>Added in: v11.3.0, v10.14.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v18.14.0</td>
+<td><p>The default is now set to the minimum between 60000 (60 seconds) or <code>requestTimeout</code>.</p></td></tr>
+<tr><td>v11.3.0, v10.14.0</td>
+<td><p><span>Added in: v11.3.0, v10.14.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
-<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> <strong>Default:</strong> <code>60000</code></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> <strong>Default:</strong> The minimum between <a href="#serverrequesttimeout"><code>server.requestTimeout</code></a> or <code>60000</code>.</li>
 </ul>
 <p>Limit the amount of time the parser will wait to receive the complete HTTP
 headers.</p>
@@ -2030,7 +2214,7 @@ emit trailers, with a list of the header fields in its value. E.g.,</p>
                           <span class="hljs-string">'Trailer'</span>: <span class="hljs-string">'Content-MD5'</span> });
 response.<span class="hljs-title function_">write</span>(fileData);
 response.<span class="hljs-title function_">addTrailers</span>({ <span class="hljs-string">'Content-MD5'</span>: <span class="hljs-string">'7895bf4b8828b55ceaf47747b4bca667'</span> });
-response.<span class="hljs-title function_">end</span>();</code></pre>
+response.<span class="hljs-title function_">end</span>();</code> <button class="copy-button">copy</button></pre>
 <p>Attempting to set a header field name or value that contains invalid characters
 will result in a <a href="errors.html#class-typeerror"><code>TypeError</code></a> being thrown.</p>
 <h4><code>response.connection</code><span><a class="mark" href="#responseconnection" id="responseconnection">#</a></span><a aria-hidden="true" class="legacy" id="http_response_connection"></a></h4>
@@ -2108,7 +2292,7 @@ response.<span class="hljs-title function_">setHeader</span>(<span class="hljs-s
 <span class="hljs-keyword">const</span> contentLength = response.<span class="hljs-title function_">getHeader</span>(<span class="hljs-string">'Content-Length'</span>);
 <span class="hljs-comment">// contentLength is of type number</span>
 <span class="hljs-keyword">const</span> setCookie = response.<span class="hljs-title function_">getHeader</span>(<span class="hljs-string">'set-cookie'</span>);
-<span class="hljs-comment">// setCookie is of type string[]</span></code></pre>
+<span class="hljs-comment">// setCookie is of type string[]</span></code> <button class="copy-button">copy</button></pre>
 <h4><code>response.getHeaderNames()</code><span><a class="mark" href="#responsegetheadernames" id="responsegetheadernames">#</a></span><a aria-hidden="true" class="legacy" id="http_response_getheadernames"></a></h4>
 <div class="api_metadata">
 <span>Added in: v7.7.0</span>
@@ -2122,7 +2306,7 @@ All header names are lowercase.</p>
 response.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'Set-Cookie'</span>, [<span class="hljs-string">'foo=bar'</span>, <span class="hljs-string">'bar=baz'</span>]);
 
 <span class="hljs-keyword">const</span> headerNames = response.<span class="hljs-title function_">getHeaderNames</span>();
-<span class="hljs-comment">// headerNames === ['foo', 'set-cookie']</span></code></pre>
+<span class="hljs-comment">// headerNames === ['foo', 'set-cookie']</span></code> <button class="copy-button">copy</button></pre>
 <h4><code>response.getHeaders()</code><span><a class="mark" href="#responsegetheaders" id="responsegetheaders">#</a></span><a aria-hidden="true" class="legacy" id="http_response_getheaders"></a></h4>
 <div class="api_metadata">
 <span>Added in: v7.7.0</span>
@@ -2143,7 +2327,7 @@ are not defined and <em>will not work</em>.</p>
 response.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'Set-Cookie'</span>, [<span class="hljs-string">'foo=bar'</span>, <span class="hljs-string">'bar=baz'</span>]);
 
 <span class="hljs-keyword">const</span> headers = response.<span class="hljs-title function_">getHeaders</span>();
-<span class="hljs-comment">// headers === { foo: 'bar', 'set-cookie': ['foo=bar', 'bar=baz'] }</span></code></pre>
+<span class="hljs-comment">// headers === { foo: 'bar', 'set-cookie': ['foo=bar', 'bar=baz'] }</span></code> <button class="copy-button">copy</button></pre>
 <h4><code>response.hasHeader(name)</code><span><a class="mark" href="#responsehasheadername" id="responsehasheadername">#</a></span><a aria-hidden="true" class="legacy" id="http_response_hasheader_name"></a></h4>
 <div class="api_metadata">
 <span>Added in: v7.7.0</span>
@@ -2154,7 +2338,7 @@ response.<span class="hljs-title function_">setHeader</span>(<span class="hljs-s
 </ul>
 <p>Returns <code>true</code> if the header identified by <code>name</code> is currently set in the
 outgoing headers. The header name matching is case-insensitive.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> hasContentType = response.<span class="hljs-title function_">hasHeader</span>(<span class="hljs-string">'content-type'</span>);</code></pre>
+<pre><code class="language-js"><span class="hljs-keyword">const</span> hasContentType = response.<span class="hljs-title function_">hasHeader</span>(<span class="hljs-string">'content-type'</span>);</code> <button class="copy-button">copy</button></pre>
 <h4><code>response.headersSent</code><span><a class="mark" href="#responseheaderssent" id="responseheaderssent">#</a></span><a aria-hidden="true" class="legacy" id="http_response_headerssent"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.9.3</span>
@@ -2171,7 +2355,7 @@ outgoing headers. The header name matching is case-insensitive.</p>
 <li><code>name</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
 </ul>
 <p>Removes a header that's queued for implicit sending.</p>
-<pre><code class="language-js">response.<span class="hljs-title function_">removeHeader</span>(<span class="hljs-string">'Content-Encoding'</span>);</code></pre>
+<pre><code class="language-js">response.<span class="hljs-title function_">removeHeader</span>(<span class="hljs-string">'Content-Encoding'</span>);</code> <button class="copy-button">copy</button></pre>
 <h4><code>response.req</code><span><a class="mark" href="#responsereq" id="responsereq">#</a></span><a aria-hidden="true" class="legacy" id="http_response_req"></a></h4>
 <div class="api_metadata">
 <span>Added in: v15.7.0</span>
@@ -2208,9 +2392,9 @@ stored without modification. Therefore, <a href="#responsegetheadername"><code>r
 non-string values. However, the non-string values will be converted to strings
 for network transmission. The same response object is returned to the caller,
 to enable call chaining.</p>
-<pre><code class="language-js">response.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'Content-Type'</span>, <span class="hljs-string">'text/html'</span>);</code></pre>
+<pre><code class="language-js">response.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'Content-Type'</span>, <span class="hljs-string">'text/html'</span>);</code> <button class="copy-button">copy</button></pre>
 <p>or</p>
-<pre><code class="language-js">response.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'Set-Cookie'</span>, [<span class="hljs-string">'type=ninja'</span>, <span class="hljs-string">'language=javascript'</span>]);</code></pre>
+<pre><code class="language-js">response.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'Set-Cookie'</span>, [<span class="hljs-string">'type=ninja'</span>, <span class="hljs-string">'language=javascript'</span>]);</code> <button class="copy-button">copy</button></pre>
 <p>Attempting to set a header field name or value that contains invalid characters
 will result in a <a href="errors.html#class-typeerror"><code>TypeError</code></a> being thrown.</p>
 <p>When headers have been set with <a href="#responsesetheadername-value"><code>response.setHeader()</code></a>, they will be merged
@@ -2222,7 +2406,7 @@ to <a href="#responsewriteheadstatuscode-statusmessage-headers"><code>response.w
   res.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'X-Foo'</span>, <span class="hljs-string">'bar'</span>);
   res.<span class="hljs-title function_">writeHead</span>(<span class="hljs-number">200</span>, { <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'text/plain'</span> });
   res.<span class="hljs-title function_">end</span>(<span class="hljs-string">'ok'</span>);
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <p>If <a href="#responsewriteheadstatuscode-statusmessage-headers"><code>response.writeHead()</code></a> method is called and this method has not been
 called, it will directly write the supplied header values onto the network
 channel without caching internally, and the <a href="#responsegetheadername"><code>response.getHeader()</code></a> on the
@@ -2256,12 +2440,18 @@ timed out sockets must be handled explicitly.</p>
 this property. In particular, the socket will not emit <code>'readable'</code> events
 because of how the protocol parser attaches to the socket. After
 <code>response.end()</code>, the property is nulled.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
+
+<pre class="with-48-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> http <span class="hljs-keyword">from</span> <span class="hljs-string">'node:http'</span>;
 <span class="hljs-keyword">const</span> server = http.<span class="hljs-title function_">createServer</span>(<span class="hljs-function">(<span class="hljs-params">req, res</span>) =></span> {
   <span class="hljs-keyword">const</span> ip = res.<span class="hljs-property">socket</span>.<span class="hljs-property">remoteAddress</span>;
   <span class="hljs-keyword">const</span> port = res.<span class="hljs-property">socket</span>.<span class="hljs-property">remotePort</span>;
   res.<span class="hljs-title function_">end</span>(<span class="hljs-string">`Your IP address is <span class="hljs-subst">${ip}</span> and your source port is <span class="hljs-subst">${port}</span>.`</span>);
-}).<span class="hljs-title function_">listen</span>(<span class="hljs-number">3000</span>);</code></pre>
+}).<span class="hljs-title function_">listen</span>(<span class="hljs-number">3000</span>);</code><code class="language-js cjs"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
+<span class="hljs-keyword">const</span> server = http.<span class="hljs-title function_">createServer</span>(<span class="hljs-function">(<span class="hljs-params">req, res</span>) =></span> {
+  <span class="hljs-keyword">const</span> ip = res.<span class="hljs-property">socket</span>.<span class="hljs-property">remoteAddress</span>;
+  <span class="hljs-keyword">const</span> port = res.<span class="hljs-property">socket</span>.<span class="hljs-property">remotePort</span>;
+  res.<span class="hljs-title function_">end</span>(<span class="hljs-string">`Your IP address is <span class="hljs-subst">${ip}</span> and your source port is <span class="hljs-subst">${port}</span>.`</span>);
+}).<span class="hljs-title function_">listen</span>(<span class="hljs-number">3000</span>);</code><button class="copy-button">copy</button></pre>
 <p>This property is guaranteed to be an instance of the <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket></a> class,
 a subclass of <a href="stream.html#class-streamduplex" class="type">&#x3C;stream.Duplex></a>, unless the user specified a socket
 type other than <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket></a>.</p>
@@ -2275,7 +2465,7 @@ type other than <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket
 <p>When using implicit headers (not calling <a href="#responsewriteheadstatuscode-statusmessage-headers"><code>response.writeHead()</code></a> explicitly),
 this property controls the status code that will be sent to the client when
 the headers get flushed.</p>
-<pre><code class="language-js">response.<span class="hljs-property">statusCode</span> = <span class="hljs-number">404</span>;</code></pre>
+<pre><code class="language-js">response.<span class="hljs-property">statusCode</span> = <span class="hljs-number">404</span>;</code> <button class="copy-button">copy</button></pre>
 <p>After response header was sent to the client, this property indicates the
 status code which was sent out.</p>
 <h4><code>response.statusMessage</code><span><a class="mark" href="#responsestatusmessage" id="responsestatusmessage">#</a></span><a aria-hidden="true" class="legacy" id="http_response_statusmessage"></a></h4>
@@ -2289,9 +2479,20 @@ status code which was sent out.</p>
 this property controls the status message that will be sent to the client when
 the headers get flushed. If this is left as <code>undefined</code> then the standard
 message for the status code will be used.</p>
-<pre><code class="language-js">response.<span class="hljs-property">statusMessage</span> = <span class="hljs-string">'Not found'</span>;</code></pre>
+<pre><code class="language-js">response.<span class="hljs-property">statusMessage</span> = <span class="hljs-string">'Not found'</span>;</code> <button class="copy-button">copy</button></pre>
 <p>After response header was sent to the client, this property indicates the
 status message which was sent out.</p>
+<h4><code>response.strictContentLength</code><span><a class="mark" href="#responsestrictcontentlength" id="responsestrictcontentlength">#</a></span><a aria-hidden="true" class="legacy" id="http_response_strictcontentlength"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.10.0, v16.18.0</span>
+</div>
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> <strong>Default:</strong> <code>false</code></li>
+</ul>
+<p>If set to <code>true</code>, Node.js will check whether the <code>Content-Length</code>
+header value and the size of the body, in bytes, are equal.
+Mismatching the <code>Content-Length</code> header value will result
+in an <code>Error</code> being thrown, identified by <code>code:</code> <a href="errors.html#err_http_content_length_mismatch"><code>'ERR_HTTP_CONTENT_LENGTH_MISMATCH'</code></a>.</p>
 <h4><code>response.uncork()</code><span><a class="mark" href="#responseuncork" id="responseuncork">#</a></span><a aria-hidden="true" class="legacy" id="http_response_uncork"></a></h4>
 <div class="api_metadata">
 <span>Added in: v13.2.0, v12.16.0</span>
@@ -2338,9 +2539,10 @@ before the <a href="#event-finish"><code>'finish'</code></a> event is emitted.</
 it will switch to implicit header mode and flush the implicit headers.</p>
 <p>This sends a chunk of the response body. This method may
 be called multiple times to provide successive parts of the body.</p>
-<p>In the <code>node:http</code> module, the response body is omitted when the
-request is a HEAD request. Similarly, the <code>204</code> and <code>304</code> responses
-<em>must not</em> include a message body.</p>
+<p>Writing to the body is not allowed when the request method or response status
+do not support content. If an attempt is made to write to the body for a
+HEAD request or as part of a <code>204</code> or <code>304</code>response, a synchronous <code>Error</code>
+with the code <code>ERR_HTTP_BODY_NOT_ALLOWED</code> is thrown.</p>
 <p><code>chunk</code> can be a string or a buffer. If <code>chunk</code> is a string,
 the second parameter specifies how to encode it into a byte stream.
 <code>callback</code> will be called when this chunk of data is flushed.</p>
@@ -2400,7 +2602,7 @@ response.<span class="hljs-title function_">writeEarlyHints</span>({
 <span class="hljs-keyword">const</span> <span class="hljs-title function_">earlyHintsCallback</span> = (<span class="hljs-params"></span>) => <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'early hints message sent'</span>);
 response.<span class="hljs-title function_">writeEarlyHints</span>({
   <span class="hljs-string">'link'</span>: earlyHintsLinks,
-}, earlyHintsCallback);</code></pre>
+}, earlyHintsCallback);</code> <button class="copy-button">copy</button></pre>
 <h4><code>response.writeHead(statusCode[, statusMessage][, headers])</code><span><a class="mark" href="#responsewriteheadstatuscode-statusmessage-headers" id="responsewriteheadstatuscode-statusmessage-headers">#</a></span><a aria-hidden="true" class="legacy" id="http_response_writehead_statuscode_statusmessage_headers"></a></h4>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
@@ -2438,7 +2640,7 @@ response
     <span class="hljs-string">'Content-Length'</span>: <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">byteLength</span>(body),
     <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'text/plain'</span>,
   })
-  .<span class="hljs-title function_">end</span>(body);</code></pre>
+  .<span class="hljs-title function_">end</span>(body);</code> <button class="copy-button">copy</button></pre>
 <p>This method must only be called once on a message and it must
 be called before <a href="#responseenddata-encoding-callback"><code>response.end()</code></a> is called.</p>
 <p>If <a href="#responsewritechunk-encoding-callback"><code>response.write()</code></a> or <a href="#responseenddata-encoding-callback"><code>response.end()</code></a> are called before calling
@@ -2458,7 +2660,7 @@ desired with potential future retrieval and modification, use
   res.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'X-Foo'</span>, <span class="hljs-string">'bar'</span>);
   res.<span class="hljs-title function_">writeHead</span>(<span class="hljs-number">200</span>, { <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'text/plain'</span> });
   res.<span class="hljs-title function_">end</span>(<span class="hljs-string">'ok'</span>);
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <p><code>Content-Length</code> is read in bytes, not characters. Use
 <a href="buffer.html#static-method-bufferbytelengthstring-encoding"><code>Buffer.byteLength()</code></a> to determine the length of the body in bytes. Node.js
 will check whether <code>Content-Length</code> and the length of the body which has
@@ -2547,7 +2749,7 @@ server fully transmitted a message before a connection was terminated:</p>
       <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(
         <span class="hljs-string">'The connection was terminated while the message was still being sent'</span>);
   });
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <h4><code>message.connection</code><span><a class="mark" href="#messageconnection" id="messageconnection">#</a></span><a aria-hidden="true" class="legacy" id="http_message_connection"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.1.90</span><span>Deprecated since: v16.0.0</span>
@@ -2578,6 +2780,8 @@ as an argument to any listeners on the event.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v18.14.0</td>
+<td><p>The <code>joinDuplicateHeaders</code> option in the <code>http.request()</code> and <code>http.createServer()</code> functions ensures that duplicate headers are not discarded, but rather combined using a comma separator, in accordance with RFC 9110 Section 5.3.</p></td></tr>
 <tr><td>v15.1.0</td>
 <td><p><code>message.headers</code> is now lazily computed using an accessor property on the prototype and is no longer enumerable.</p></td></tr>
 <tr><td>v0.1.5</td>
@@ -2595,14 +2799,18 @@ as an argument to any listeners on the event.</p>
 <span class="hljs-comment">// { 'user-agent': 'curl/7.22.0',</span>
 <span class="hljs-comment">//   host: '127.0.0.1:8000',</span>
 <span class="hljs-comment">//   accept: '*/*' }</span>
-<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(request.<span class="hljs-property">headers</span>);</code></pre>
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(request.<span class="hljs-property">headers</span>);</code> <button class="copy-button">copy</button></pre>
 <p>Duplicates in raw headers are handled in the following ways, depending on the
 header name:</p>
 <ul>
 <li>Duplicates of <code>age</code>, <code>authorization</code>, <code>content-length</code>, <code>content-type</code>,
 <code>etag</code>, <code>expires</code>, <code>from</code>, <code>host</code>, <code>if-modified-since</code>, <code>if-unmodified-since</code>,
 <code>last-modified</code>, <code>location</code>, <code>max-forwards</code>, <code>proxy-authorization</code>, <code>referer</code>,
-<code>retry-after</code>, <code>server</code>, or <code>user-agent</code> are discarded.</li>
+<code>retry-after</code>, <code>server</code>, or <code>user-agent</code> are discarded.
+To allow duplicate values of the headers listed above to be joined,
+use the option <code>joinDuplicateHeaders</code> in <a href="#httprequestoptions-callback"><code>http.request()</code></a>
+and <a href="#httpcreateserveroptions-requestlistener"><code>http.createServer()</code></a>. See RFC 9110 Section 5.3 for more
+information.</li>
 <li><code>set-cookie</code> is always an array. Duplicates are added to the array.</li>
 <li>For duplicate <code>cookie</code> headers, the values are joined together with <code>; </code>.</li>
 <li>For all other headers, the values are joined together with <code>, </code>.</li>
@@ -2621,7 +2829,7 @@ always arrays of strings, even for headers received just once.</p>
 <span class="hljs-comment">// { 'user-agent': ['curl/7.22.0'],</span>
 <span class="hljs-comment">//   host: ['127.0.0.1:8000'],</span>
 <span class="hljs-comment">//   accept: ['*/*'] }</span>
-<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(request.<span class="hljs-property">headersDistinct</span>);</code></pre>
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(request.<span class="hljs-property">headersDistinct</span>);</code> <button class="copy-button">copy</button></pre>
 <h4><code>message.httpVersion</code><span><a class="mark" href="#messagehttpversion" id="messagehttpversion">#</a></span><a aria-hidden="true" class="legacy" id="http_message_httpversion"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.1.1</span>
@@ -2665,7 +2873,7 @@ odd-numbered offsets are the associated values.</p>
 <span class="hljs-comment">//   '127.0.0.1:8000',</span>
 <span class="hljs-comment">//   'ACCEPT',</span>
 <span class="hljs-comment">//   '*/*' ]</span>
-<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(request.<span class="hljs-property">rawHeaders</span>);</code></pre>
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(request.<span class="hljs-property">rawHeaders</span>);</code> <button class="copy-button">copy</button></pre>
 <h4><code>message.rawTrailers</code><span><a class="mark" href="#messagerawtrailers" id="messagerawtrailers">#</a></span><a aria-hidden="true" class="legacy" id="http_message_rawtrailers"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.11.6</span>
@@ -2745,9 +2953,9 @@ Only populated at the <code>'end'</code> event.</p>
 <p>Request URL string. This contains only the URL that is present in the actual
 HTTP request. Take the following request:</p>
 <pre><code class="language-http"><span class="hljs-keyword">GET</span> <span class="hljs-string">/status?name=ryan</span> <span class="hljs-meta">HTTP/1.1</span>
-<span class="hljs-attribute">Accept</span><span class="hljs-punctuation">: </span>text/plain</code></pre>
+<span class="hljs-attribute">Accept</span><span class="hljs-punctuation">: </span>text/plain</code> <button class="copy-button">copy</button></pre>
 <p>To parse the URL into its parts:</p>
-<pre><code class="language-js"><span class="hljs-keyword">new</span> <span class="hljs-title function_">URL</span>(request.<span class="hljs-property">url</span>, <span class="hljs-string">`http://<span class="hljs-subst">${request.headers.host}</span>`</span>);</code></pre>
+<pre><code class="language-js"><span class="hljs-keyword">new</span> <span class="hljs-title function_">URL</span>(request.<span class="hljs-property">url</span>, <span class="hljs-string">`http://<span class="hljs-subst">${request.headers.host}</span>`</span>);</code> <button class="copy-button">copy</button></pre>
 <p>When <code>request.url</code> is <code>'/status?name=ryan'</code> and <code>request.headers.host</code> is
 <code>'localhost:3000'</code>:</p>
 <pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">node</span>
@@ -2765,7 +2973,7 @@ URL {
   search: '?name=ryan',
   searchParams: URLSearchParams { 'name' => 'ryan' },
   hash: ''
-}</code></pre>
+}</code> <button class="copy-button">copy</button></pre>
 </section><section><h3>Class: <code>http.OutgoingMessage</code><span><a class="mark" href="#class-httpoutgoingmessage" id="class-httpoutgoingmessage">#</a></span><a aria-hidden="true" class="legacy" id="http_class_http_outgoingmessage"></a></h3>
 <div class="api_metadata">
 <span>Added in: v0.1.17</span>
@@ -2809,7 +3017,7 @@ with a list of header field names in its value, e.g.</p>
                          <span class="hljs-string">'Trailer'</span>: <span class="hljs-string">'Content-MD5'</span> });
 message.<span class="hljs-title function_">write</span>(fileData);
 message.<span class="hljs-title function_">addTrailers</span>({ <span class="hljs-string">'Content-MD5'</span>: <span class="hljs-string">'7895bf4b8828b55ceaf47747b4bca667'</span> });
-message.<span class="hljs-title function_">end</span>();</code></pre>
+message.<span class="hljs-title function_">end</span>();</code> <button class="copy-button">copy</button></pre>
 <p>Attempting to set a header field name or value that contains invalid characters
 will result in a <code>TypeError</code> being thrown.</p>
 <h4><code>outgoingMessage.appendHeader(name, value)</code><span><a class="mark" href="#outgoingmessageappendheadername-value" id="outgoingmessageappendheadername-value">#</a></span><a aria-hidden="true" class="legacy" id="http_outgoingmessage_appendheader_name_value"></a></h4>
@@ -2929,7 +3137,7 @@ and others are not defined and will not work.</p>
 outgoingMessage.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'Set-Cookie'</span>, [<span class="hljs-string">'foo=bar'</span>, <span class="hljs-string">'bar=baz'</span>]);
 
 <span class="hljs-keyword">const</span> headers = outgoingMessage.<span class="hljs-title function_">getHeaders</span>();
-<span class="hljs-comment">// headers === { foo: 'bar', 'set-cookie': ['foo=bar', 'bar=baz'] }</span></code></pre>
+<span class="hljs-comment">// headers === { foo: 'bar', 'set-cookie': ['foo=bar', 'bar=baz'] }</span></code> <button class="copy-button">copy</button></pre>
 <h4><code>outgoingMessage.hasHeader(name)</code><span><a class="mark" href="#outgoingmessagehasheadername" id="outgoingmessagehasheadername">#</a></span><a aria-hidden="true" class="legacy" id="http_outgoingmessage_hasheader_name"></a></h4>
 <div class="api_metadata">
 <span>Added in: v7.7.0</span>
@@ -2940,7 +3148,7 @@ outgoingMessage.<span class="hljs-title function_">setHeader</span>(<span class=
 </ul>
 <p>Returns <code>true</code> if the header identified by <code>name</code> is currently set in the
 outgoing headers. The header name is case-insensitive.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> hasContentType = outgoingMessage.<span class="hljs-title function_">hasHeader</span>(<span class="hljs-string">'content-type'</span>);</code></pre>
+<pre><code class="language-js"><span class="hljs-keyword">const</span> hasContentType = outgoingMessage.<span class="hljs-title function_">hasHeader</span>(<span class="hljs-string">'content-type'</span>);</code> <button class="copy-button">copy</button></pre>
 <h4><code>outgoingMessage.headersSent</code><span><a class="mark" href="#outgoingmessageheaderssent" id="outgoingmessageheaderssent">#</a></span><a aria-hidden="true" class="legacy" id="http_outgoingmessage_headerssent"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.9.3</span>
@@ -2965,7 +3173,7 @@ write-only stream.</p>
 <li><code>name</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Header name</li>
 </ul>
 <p>Removes a header that is queued for implicit sending.</p>
-<pre><code class="language-js">outgoingMessage.<span class="hljs-title function_">removeHeader</span>(<span class="hljs-string">'Content-Encoding'</span>);</code></pre>
+<pre><code class="language-js">outgoingMessage.<span class="hljs-title function_">removeHeader</span>(<span class="hljs-string">'Content-Encoding'</span>);</code> <button class="copy-button">copy</button></pre>
 <h4><code>outgoingMessage.setHeader(name, value)</code><span><a class="mark" href="#outgoingmessagesetheadername-value" id="outgoingmessagesetheadername-value">#</a></span><a aria-hidden="true" class="legacy" id="http_outgoingmessage_setheader_name_value"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.4.0</span>
@@ -2978,6 +3186,34 @@ write-only stream.</p>
 <p>Sets a single header value. If the header already exists in the to-be-sent
 headers, its value will be replaced. Use an array of strings to send multiple
 headers with the same name.</p>
+<h4><code>outgoingMessage.setHeaders(headers)</code><span><a class="mark" href="#outgoingmessagesetheadersheaders" id="outgoingmessagesetheadersheaders">#</a></span><a aria-hidden="true" class="legacy" id="http_outgoingmessage_setheaders_headers"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.15.0</span>
+</div>
+<ul>
+<li><code>headers</code> <a href="https://developer.mozilla.org/en-US/docs/Web/API/Headers" class="type">&#x3C;Headers></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map" class="type">&#x3C;Map></a></li>
+<li>Returns: <a href="http.html#class-httpserverresponse" class="type">&#x3C;http.ServerResponse></a></li>
+</ul>
+<p>Returns the response object.</p>
+<p>Sets multiple header values for implicit headers.
+<code>headers</code> must be an instance of <a href="globals.html#class-headers"><code>Headers</code></a> or <code>Map</code>,
+if a header already exists in the to-be-sent headers,
+its value will be replaced.</p>
+<pre><code class="language-js"><span class="hljs-keyword">const</span> headers = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Headers</span>({ <span class="hljs-attr">foo</span>: <span class="hljs-string">'bar'</span> });
+response.<span class="hljs-title function_">setHeaders</span>(headers);</code> <button class="copy-button">copy</button></pre>
+<p>or</p>
+<pre><code class="language-js"><span class="hljs-keyword">const</span> headers = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Map</span>([[<span class="hljs-string">'foo'</span>, <span class="hljs-string">'bar'</span>]]);
+res.<span class="hljs-title function_">setHeaders</span>(headers);</code> <button class="copy-button">copy</button></pre>
+<p>When headers have been set with <a href="#outgoingmessagesetheadersheaders"><code>outgoingMessage.setHeaders()</code></a>,
+they will be merged with any headers passed to <a href="#responsewriteheadstatuscode-statusmessage-headers"><code>response.writeHead()</code></a>,
+with the headers passed to <a href="#responsewriteheadstatuscode-statusmessage-headers"><code>response.writeHead()</code></a> given precedence.</p>
+<pre><code class="language-js"><span class="hljs-comment">// Returns content-type = text/plain</span>
+<span class="hljs-keyword">const</span> server = http.<span class="hljs-title function_">createServer</span>(<span class="hljs-function">(<span class="hljs-params">req, res</span>) =></span> {
+  <span class="hljs-keyword">const</span> headers = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Headers</span>({ <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'text/html'</span> });
+  res.<span class="hljs-title function_">setHeaders</span>(headers);
+  res.<span class="hljs-title function_">writeHead</span>(<span class="hljs-number">200</span>, { <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'text/plain'</span> });
+  res.<span class="hljs-title function_">end</span>(<span class="hljs-string">'ok'</span>);
+});</code> <button class="copy-button">copy</button></pre>
 <h4><code>outgoingMessage.setTimeout(msesc[, callback])</code><span><a class="mark" href="#outgoingmessagesettimeoutmsesc-callback" id="outgoingmessagesettimeoutmsesc-callback">#</a></span><a aria-hidden="true" class="legacy" id="http_outgoingmessage_settimeout_msesc_callback"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.9.12</span>
@@ -3106,6 +3342,8 @@ short description of each. For example, <code>http.STATUS_CODES[404] === 'Not Fo
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v18.17.0</td>
+<td><p>The <code>highWaterMark</code> option is supported now.</p></td></tr>
 <tr><td>v18.0.0</td>
 <td><p>The <code>requestTimeout</code>, <code>headersTimeout</code>, <code>keepAliveTimeout</code>, and <code>connectionsCheckingInterval</code> options are supported now.</p></td></tr>
 <tr><td>v18.0.0</td>
@@ -3127,39 +3365,28 @@ short description of each. For example, <code>http.STATUS_CODES[404] === 'Not Fo
 <li>
 <p><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a></p>
 <ul>
-<li><code>IncomingMessage</code> <a href="http.html#class-httpincomingmessage" class="type">&#x3C;http.IncomingMessage></a> Specifies the <code>IncomingMessage</code>
-class to be used. Useful for extending the original <code>IncomingMessage</code>.
-<strong>Default:</strong> <code>IncomingMessage</code>.</li>
-<li><code>ServerResponse</code> <a href="http.html#class-httpserverresponse" class="type">&#x3C;http.ServerResponse></a> Specifies the <code>ServerResponse</code> class
-to be used. Useful for extending the original <code>ServerResponse</code>. <strong>Default:</strong>
-<code>ServerResponse</code>.</li>
-<li><code>requestTimeout</code>: Sets the timeout value in milliseconds for receiving
-the entire request from the client.
-See <a href="#serverrequesttimeout"><code>server.requestTimeout</code></a> for more information.
-<strong>Default:</strong> <code>300000</code>.</li>
+<li><code>connectionsCheckingInterval</code>: Sets the interval value in milliseconds to
+check for request and headers timeout in incomplete requests.
+<strong>Default:</strong> <code>30000</code>.</li>
 <li><code>headersTimeout</code>: Sets the timeout value in milliseconds for receiving
 the complete HTTP headers from the client.
 See <a href="#serverheaderstimeout"><code>server.headersTimeout</code></a> for more information.
 <strong>Default:</strong> <code>60000</code>.</li>
-<li><code>keepAliveTimeout</code>: The number of milliseconds of inactivity a server
-needs to wait for additional incoming data, after it has finished writing
-the last response, before a socket will be destroyed.
-See <a href="#serverkeepalivetimeout"><code>server.keepAliveTimeout</code></a> for more information.
-<strong>Default:</strong> <code>5000</code>.</li>
-<li><code>connectionsCheckingInterval</code>: Sets the interval value in milliseconds to
-check for request and headers timeout in incomplete requests.
-<strong>Default:</strong> <code>30000</code>.</li>
+<li><code>highWaterMark</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Optionally overrides all <code>socket</code>s'
+<code>readableHighWaterMark</code> and <code>writableHighWaterMark</code>. This affects
+<code>highWaterMark</code> property of both <code>IncomingMessage</code> and <code>ServerResponse</code>.
+<strong>Default:</strong> See <a href="stream.html#streamgetdefaulthighwatermarkobjectmode"><code>stream.getDefaultHighWaterMark()</code></a>.</li>
 <li><code>insecureHTTPParser</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> Use an insecure HTTP parser that accepts
 invalid HTTP headers when <code>true</code>. Using the insecure parser should be
 avoided. See <a href="cli.html#--insecure-http-parser"><code>--insecure-http-parser</code></a> for more information.
-<strong>Default:</strong> <code>false</code></li>
-<li><code>maxHeaderSize</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Optionally overrides the value of
-<a href="cli.html#--max-http-header-sizesize"><code>--max-http-header-size</code></a> for requests received by this server, i.e.
-the maximum length of request headers in bytes.
-<strong>Default:</strong> 16384 (16 KiB).</li>
-<li><code>noDelay</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If set to <code>true</code>, it disables the use of Nagle's
-algorithm immediately after a new incoming connection is received.
-<strong>Default:</strong> <code>true</code>.</li>
+<strong>Default:</strong> <code>false</code>.</li>
+<li><code>IncomingMessage</code> <a href="http.html#class-httpincomingmessage" class="type">&#x3C;http.IncomingMessage></a> Specifies the <code>IncomingMessage</code>
+class to be used. Useful for extending the original <code>IncomingMessage</code>.
+<strong>Default:</strong> <code>IncomingMessage</code>.</li>
+<li><code>joinDuplicateHeaders</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> It joins the field line values of multiple
+headers in a request with <code>, </code> instead of discarding the duplicates.
+See <a href="#messageheaders"><code>message.headers</code></a> for more information.
+<strong>Default:</strong> <code>false</code>.</li>
 <li><code>keepAlive</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If set to <code>true</code>, it enables keep-alive functionality
 on the socket immediately after a new incoming connection is received,
 similarly on what is done in [<code>socket.setKeepAlive([enable][, initialDelay])</code>][<code>socket.setKeepAlive(enable, initialDelay)</code>].
@@ -3167,6 +3394,13 @@ similarly on what is done in [<code>socket.setKeepAlive([enable][, initialDelay]
 <li><code>keepAliveInitialDelay</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> If set to a positive number, it sets the
 initial delay before the first keepalive probe is sent on an idle socket.
 <strong>Default:</strong> <code>0</code>.</li>
+<li><code>requestTimeout</code>: Sets the timeout value in milliseconds for receiving
+the entire request from the client.
+See <a href="#serverrequesttimeout"><code>server.requestTimeout</code></a> for more information.
+<strong>Default:</strong> <code>300000</code>.</li>
+<li><code>ServerResponse</code> <a href="http.html#class-httpserverresponse" class="type">&#x3C;http.ServerResponse></a> Specifies the <code>ServerResponse</code> class
+to be used. Useful for extending the original <code>ServerResponse</code>. <strong>Default:</strong>
+<code>ServerResponse</code>.</li>
 <li><code>uniqueHeaders</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="type">&#x3C;Array></a> A list of response headers that should be sent only
 once. If the header's value is an array, the items will be joined
 using <code>; </code>.</li>
@@ -3182,7 +3416,8 @@ using <code>; </code>.</li>
 <p>Returns a new instance of <a href="#class-httpserver"><code>http.Server</code></a>.</p>
 <p>The <code>requestListener</code> is a function which is automatically
 added to the <a href="#event-request"><code>'request'</code></a> event.</p>
-<pre><code class="language-js cjs"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
+
+<pre class="with-34-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> http <span class="hljs-keyword">from</span> <span class="hljs-string">'node:http'</span>;
 
 <span class="hljs-comment">// Create a local server to receive data from</span>
 <span class="hljs-keyword">const</span> server = http.<span class="hljs-title function_">createServer</span>(<span class="hljs-function">(<span class="hljs-params">req, res</span>) =></span> {
@@ -3192,8 +3427,19 @@ added to the <a href="#event-request"><code>'request'</code></a> event.</p>
   }));
 });
 
-server.<span class="hljs-title function_">listen</span>(<span class="hljs-number">8000</span>);</code></pre>
-<pre><code class="language-js cjs"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
+server.<span class="hljs-title function_">listen</span>(<span class="hljs-number">8000</span>);</code><code class="language-js cjs"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
+
+<span class="hljs-comment">// Create a local server to receive data from</span>
+<span class="hljs-keyword">const</span> server = http.<span class="hljs-title function_">createServer</span>(<span class="hljs-function">(<span class="hljs-params">req, res</span>) =></span> {
+  res.<span class="hljs-title function_">writeHead</span>(<span class="hljs-number">200</span>, { <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'application/json'</span> });
+  res.<span class="hljs-title function_">end</span>(<span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">stringify</span>({
+    <span class="hljs-attr">data</span>: <span class="hljs-string">'Hello World!'</span>,
+  }));
+});
+
+server.<span class="hljs-title function_">listen</span>(<span class="hljs-number">8000</span>);</code><button class="copy-button">copy</button></pre>
+
+<pre class="with-34-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> http <span class="hljs-keyword">from</span> <span class="hljs-string">'node:http'</span>;
 
 <span class="hljs-comment">// Create a local server to receive data from</span>
 <span class="hljs-keyword">const</span> server = http.<span class="hljs-title function_">createServer</span>();
@@ -3206,7 +3452,20 @@ server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'r
   }));
 });
 
-server.<span class="hljs-title function_">listen</span>(<span class="hljs-number">8000</span>);</code></pre>
+server.<span class="hljs-title function_">listen</span>(<span class="hljs-number">8000</span>);</code><code class="language-js cjs"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
+
+<span class="hljs-comment">// Create a local server to receive data from</span>
+<span class="hljs-keyword">const</span> server = http.<span class="hljs-title function_">createServer</span>();
+
+<span class="hljs-comment">// Listen to the request event</span>
+server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'request'</span>, <span class="hljs-function">(<span class="hljs-params">request, res</span>) =></span> {
+  res.<span class="hljs-title function_">writeHead</span>(<span class="hljs-number">200</span>, { <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'application/json'</span> });
+  res.<span class="hljs-title function_">end</span>(<span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">stringify</span>({
+    <span class="hljs-attr">data</span>: <span class="hljs-string">'Hello World!'</span>,
+  }));
+});
+
+server.<span class="hljs-title function_">listen</span>(<span class="hljs-number">8000</span>);</code><button class="copy-button">copy</button></pre>
 </section><section><h3><code>http.get(options[, callback])</code><span><a class="mark" href="#httpgetoptions-callback" id="httpgetoptions-callback">#</a></span><a aria-hidden="true" class="legacy" id="http_http_get_options_callback"></a></h3>
 </section><section><h3><code>http.get(url[, options][, callback])</code><span><a class="mark" href="#httpgeturl-options-callback" id="httpgeturl-options-callback">#</a></span><a aria-hidden="true" class="legacy" id="http_http_get_url_options_callback"></a></h3>
 <div class="api_metadata">
@@ -3225,14 +3484,13 @@ server.<span class="hljs-title function_">listen</span>(<span class="hljs-number
 <ul>
 <li><code>url</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="url.html#the-whatwg-url-api" class="type">&#x3C;URL></a></li>
 <li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> Accepts the same <code>options</code> as
-<a href="#httprequestoptions-callback"><code>http.request()</code></a>, with the <code>method</code> always set to <code>GET</code>.
-Properties that are inherited from the prototype are ignored.</li>
+<a href="#httprequestoptions-callback"><code>http.request()</code></a>, with the method set to GET by default.</li>
 <li><code>callback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a></li>
 <li>Returns: <a href="http.html#class-httpclientrequest" class="type">&#x3C;http.ClientRequest></a></li>
 </ul>
 <p>Since most requests are GET requests without bodies, Node.js provides this
 convenience method. The only difference between this method and
-<a href="#httprequestoptions-callback"><code>http.request()</code></a> is that it sets the method to GET and calls <code>req.end()</code>
+<a href="#httprequestoptions-callback"><code>http.request()</code></a> is that it sets the method to GET by default and calls <code>req.end()</code>
 automatically. The callback must take care to consume the response
 data for reasons stated in <a href="#class-httpclientrequest"><code>http.ClientRequest</code></a> section.</p>
 <p>The <code>callback</code> is invoked with a single argument that is an instance of
@@ -3282,7 +3540,7 @@ data for reasons stated in <a href="#class-httpclientrequest"><code>http.ClientR
   }));
 });
 
-server.<span class="hljs-title function_">listen</span>(<span class="hljs-number">8000</span>);</code></pre>
+server.<span class="hljs-title function_">listen</span>(<span class="hljs-number">8000</span>);</code> <button class="copy-button">copy</button></pre>
 </section><section><h3><code>http.globalAgent</code><span><a class="mark" href="#httpglobalagent" id="httpglobalagent">#</a></span><a aria-hidden="true" class="legacy" id="http_http_globalagent"></a></h3>
 <div class="api_metadata">
 <span>Added in: v0.5.9</span>
@@ -3361,6 +3619,10 @@ request to. <strong>Default:</strong> <code>'localhost'</code>.</li>
 invalid HTTP headers when <code>true</code>. Using the insecure parser should be
 avoided. See <a href="cli.html#--insecure-http-parser"><code>--insecure-http-parser</code></a> for more information.
 <strong>Default:</strong> <code>false</code></li>
+<li><code>joinDuplicateHeaders</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> It joins the field line values of
+multiple headers in a request with <code>, </code> instead of discarding
+the duplicates. See <a href="#messageheaders"><code>message.headers</code></a> for more information.
+<strong>Default:</strong> <code>false</code>.</li>
 <li><code>localAddress</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Local interface to bind for network connections.</li>
 <li><code>localPort</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Local port to connect from.</li>
 <li><code>lookup</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> Custom lookup function. <strong>Default:</strong> <a href="dns.html#dnslookuphostname-options-callback"><code>dns.lookup()</code></a>.</li>
@@ -3406,7 +3668,9 @@ the <a href="#event-response"><code>'response'</code></a> event.</p>
 <p><code>http.request()</code> returns an instance of the <a href="#class-httpclientrequest"><code>http.ClientRequest</code></a>
 class. The <code>ClientRequest</code> instance is a writable stream. If one needs to
 upload a file with a POST request, then write to the <code>ClientRequest</code> object.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
+
+<pre class="with-37-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> http <span class="hljs-keyword">from</span> <span class="hljs-string">'node:http'</span>;
+<span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> postData = <span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">stringify</span>({
   <span class="hljs-string">'msg'</span>: <span class="hljs-string">'Hello World!'</span>,
@@ -3441,7 +3705,42 @@ req.<span class="hljs-title function_">on</span>(<span class="hljs-string">'erro
 
 <span class="hljs-comment">// Write data to request body</span>
 req.<span class="hljs-title function_">write</span>(postData);
-req.<span class="hljs-title function_">end</span>();</code></pre>
+req.<span class="hljs-title function_">end</span>();</code><code class="language-js cjs"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
+
+<span class="hljs-keyword">const</span> postData = <span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">stringify</span>({
+  <span class="hljs-string">'msg'</span>: <span class="hljs-string">'Hello World!'</span>,
+});
+
+<span class="hljs-keyword">const</span> options = {
+  <span class="hljs-attr">hostname</span>: <span class="hljs-string">'www.google.com'</span>,
+  <span class="hljs-attr">port</span>: <span class="hljs-number">80</span>,
+  <span class="hljs-attr">path</span>: <span class="hljs-string">'/upload'</span>,
+  <span class="hljs-attr">method</span>: <span class="hljs-string">'POST'</span>,
+  <span class="hljs-attr">headers</span>: {
+    <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'application/json'</span>,
+    <span class="hljs-string">'Content-Length'</span>: <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">byteLength</span>(postData),
+  },
+};
+
+<span class="hljs-keyword">const</span> req = http.<span class="hljs-title function_">request</span>(options, <span class="hljs-function">(<span class="hljs-params">res</span>) =></span> {
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`STATUS: <span class="hljs-subst">${res.statusCode}</span>`</span>);
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`HEADERS: <span class="hljs-subst">${<span class="hljs-built_in">JSON</span>.stringify(res.headers)}</span>`</span>);
+  res.<span class="hljs-title function_">setEncoding</span>(<span class="hljs-string">'utf8'</span>);
+  res.<span class="hljs-title function_">on</span>(<span class="hljs-string">'data'</span>, <span class="hljs-function">(<span class="hljs-params">chunk</span>) =></span> {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`BODY: <span class="hljs-subst">${chunk}</span>`</span>);
+  });
+  res.<span class="hljs-title function_">on</span>(<span class="hljs-string">'end'</span>, <span class="hljs-function">() =></span> {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'No more data in response.'</span>);
+  });
+});
+
+req.<span class="hljs-title function_">on</span>(<span class="hljs-string">'error'</span>, <span class="hljs-function">(<span class="hljs-params">e</span>) =></span> {
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">`problem with request: <span class="hljs-subst">${e.message}</span>`</span>);
+});
+
+<span class="hljs-comment">// Write data to request body</span>
+req.<span class="hljs-title function_">write</span>(postData);
+req.<span class="hljs-title function_">end</span>();</code><button class="copy-button">copy</button></pre>
 <p>In the example <code>req.end()</code> was called. With <code>http.request()</code> one
 must always call <code>req.end()</code> to signify the end of the request -
 even if there is no data being written to the request body.</p>
@@ -3474,7 +3773,7 @@ to compute basic authentication.</p>
 
 <span class="hljs-keyword">const</span> req = http.<span class="hljs-title function_">request</span>(options, <span class="hljs-function">(<span class="hljs-params">res</span>) =></span> {
   <span class="hljs-comment">// ...</span>
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <p>In a successful request, the following events will be emitted in the following
 order:</p>
 <ul>
@@ -3515,7 +3814,7 @@ the following events will be emitted in the following order:</p>
 <li>(connection closed here)</li>
 <li><code>'aborted'</code> on the <code>res</code> object</li>
 <li><code>'error'</code> on the <code>res</code> object with an error with message
-<code>'Error: aborted'</code> and code <code>'ECONNRESET'</code>.</li>
+<code>'Error: aborted'</code> and code <code>'ECONNRESET'</code></li>
 <li><code>'close'</code></li>
 <li><code>'close'</code> on the <code>res</code> object</li>
 </ul>
@@ -3524,7 +3823,7 @@ events will be emitted in the following order:</p>
 <ul>
 <li>(<code>req.destroy()</code> called here)</li>
 <li><code>'error'</code> with an error with message <code>'Error: socket hang up'</code> and code
-<code>'ECONNRESET'</code></li>
+<code>'ECONNRESET'</code>, or the error with which <code>req.destroy()</code> was called</li>
 <li><code>'close'</code></li>
 </ul>
 <p>If <code>req.destroy()</code> is called before the connection succeeds, the following
@@ -3533,7 +3832,7 @@ events will be emitted in the following order:</p>
 <li><code>'socket'</code></li>
 <li>(<code>req.destroy()</code> called here)</li>
 <li><code>'error'</code> with an error with message <code>'Error: socket hang up'</code> and code
-<code>'ECONNRESET'</code></li>
+<code>'ECONNRESET'</code>, or the error with which <code>req.destroy()</code> was called</li>
 <li><code>'close'</code></li>
 </ul>
 <p>If <code>req.destroy()</code> is called after the response is received, the following
@@ -3547,8 +3846,8 @@ events will be emitted in the following order:</p>
 </li>
 <li>(<code>req.destroy()</code> called here)</li>
 <li><code>'aborted'</code> on the <code>res</code> object</li>
-<li><code>'error'</code> on the <code>res</code> object with an error with message
-<code>'Error: aborted'</code> and code <code>'ECONNRESET'</code>.</li>
+<li><code>'error'</code> on the <code>res</code> object with an error with message <code>'Error: aborted'</code>
+and code <code>'ECONNRESET'</code>, or the error with which <code>req.destroy()</code> was called</li>
 <li><code>'close'</code></li>
 <li><code>'close'</code> on the <code>res</code> object</li>
 </ul>
@@ -3588,15 +3887,26 @@ events will be emitted in the following order:</p>
 </ul>
 <p>Setting the <code>timeout</code> option or using the <code>setTimeout()</code> function will
 not abort the request or do anything besides add a <code>'timeout'</code> event.</p>
-<p>Passing an <code>AbortSignal</code> and then calling <code>abort</code> on the corresponding
+<p>Passing an <code>AbortSignal</code> and then calling <code>abort()</code> on the corresponding
 <code>AbortController</code> will behave the same way as calling <code>.destroy()</code> on the
-request itself.</p>
-</section><section><h3><code>http.validateHeaderName(name)</code><span><a class="mark" href="#httpvalidateheadernamename" id="httpvalidateheadernamename">#</a></span><a aria-hidden="true" class="legacy" id="http_http_validateheadername_name"></a></h3>
+request. Specifically, the <code>'error'</code> event will be emitted with an error with
+the message <code>'AbortError: The operation was aborted'</code>, the code <code>'ABORT_ERR'</code>
+and the <code>cause</code>, if one was provided.</p>
+</section><section><h3><code>http.validateHeaderName(name[, label])</code><span><a class="mark" href="#httpvalidateheadernamename-label" id="httpvalidateheadernamename-label">#</a></span><a aria-hidden="true" class="legacy" id="http_http_validateheadername_name_label"></a></h3>
 <div class="api_metadata">
-<span>Added in: v14.3.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v18.14.0</td>
+<td><p>The <code>label</code> parameter is added.</p></td></tr>
+<tr><td>v14.3.0</td>
+<td><p><span>Added in: v14.3.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><code>name</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
+<li><code>label</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Label for error message. <strong>Default:</strong> <code>'Header name'</code>.</li>
 </ul>
 <p>Performs the low-level validations on the provided <code>name</code> that are done when
 <code>res.setHeader(name, value)</code> is called.</p>
@@ -3606,15 +3916,24 @@ identified by <code>code: 'ERR_INVALID_HTTP_TOKEN'</code>.</p>
 or response. The HTTP module will automatically validate such headers.
 Examples:</p>
 <p>Example:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> { validateHeaderName } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
+
+<pre class="with-52-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { validateHeaderName } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:http'</span>;
 
 <span class="hljs-keyword">try</span> {
   <span class="hljs-title function_">validateHeaderName</span>(<span class="hljs-string">''</span>);
 } <span class="hljs-keyword">catch</span> (err) {
-  err <span class="hljs-keyword">instanceof</span> <span class="hljs-title class_">TypeError</span>; <span class="hljs-comment">// --> true</span>
-  err.<span class="hljs-property">code</span>; <span class="hljs-comment">// --> 'ERR_INVALID_HTTP_TOKEN'</span>
-  err.<span class="hljs-property">message</span>; <span class="hljs-comment">// --> 'Header name must be a valid HTTP token [""]'</span>
-}</code></pre>
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(err <span class="hljs-keyword">instanceof</span> <span class="hljs-title class_">TypeError</span>); <span class="hljs-comment">// --> true</span>
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(err.<span class="hljs-property">code</span>); <span class="hljs-comment">// --> 'ERR_INVALID_HTTP_TOKEN'</span>
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(err.<span class="hljs-property">message</span>); <span class="hljs-comment">// --> 'Header name must be a valid HTTP token [""]'</span>
+}</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { validateHeaderName } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
+
+<span class="hljs-keyword">try</span> {
+  <span class="hljs-title function_">validateHeaderName</span>(<span class="hljs-string">''</span>);
+} <span class="hljs-keyword">catch</span> (err) {
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(err <span class="hljs-keyword">instanceof</span> <span class="hljs-title class_">TypeError</span>); <span class="hljs-comment">// --> true</span>
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(err.<span class="hljs-property">code</span>); <span class="hljs-comment">// --> 'ERR_INVALID_HTTP_TOKEN'</span>
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(err.<span class="hljs-property">message</span>); <span class="hljs-comment">// --> 'Header name must be a valid HTTP token [""]'</span>
+}</code><button class="copy-button">copy</button></pre>
 </section><section><h3><code>http.validateHeaderValue(name, value)</code><span><a class="mark" href="#httpvalidateheadervaluename-value" id="httpvalidateheadervaluename-value">#</a></span><a aria-hidden="true" class="legacy" id="http_http_validateheadervalue_name_value"></a></h3>
 <div class="api_metadata">
 <span>Added in: v14.3.0</span>
@@ -3633,31 +3952,48 @@ Examples:</p>
 <p>It is not necessary to use this method before passing headers to an HTTP request
 or response. The HTTP module will automatically validate such headers.</p>
 <p>Examples:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> { validateHeaderValue } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
+
+<pre class="with-53-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { validateHeaderValue } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:http'</span>;
 
 <span class="hljs-keyword">try</span> {
   <span class="hljs-title function_">validateHeaderValue</span>(<span class="hljs-string">'x-my-header'</span>, <span class="hljs-literal">undefined</span>);
 } <span class="hljs-keyword">catch</span> (err) {
-  err <span class="hljs-keyword">instanceof</span> <span class="hljs-title class_">TypeError</span>; <span class="hljs-comment">// --> true</span>
-  err.<span class="hljs-property">code</span> === <span class="hljs-string">'ERR_HTTP_INVALID_HEADER_VALUE'</span>; <span class="hljs-comment">// --> true</span>
-  err.<span class="hljs-property">message</span>; <span class="hljs-comment">// --> 'Invalid value "undefined" for header "x-my-header"'</span>
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(err <span class="hljs-keyword">instanceof</span> <span class="hljs-title class_">TypeError</span>); <span class="hljs-comment">// --> true</span>
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(err.<span class="hljs-property">code</span> === <span class="hljs-string">'ERR_HTTP_INVALID_HEADER_VALUE'</span>); <span class="hljs-comment">// --> true</span>
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(err.<span class="hljs-property">message</span>); <span class="hljs-comment">// --> 'Invalid value "undefined" for header "x-my-header"'</span>
 }
 
 <span class="hljs-keyword">try</span> {
   <span class="hljs-title function_">validateHeaderValue</span>(<span class="hljs-string">'x-my-header'</span>, <span class="hljs-string">'oʊmɪɡə'</span>);
 } <span class="hljs-keyword">catch</span> (err) {
-  err <span class="hljs-keyword">instanceof</span> <span class="hljs-title class_">TypeError</span>; <span class="hljs-comment">// --> true</span>
-  err.<span class="hljs-property">code</span> === <span class="hljs-string">'ERR_INVALID_CHAR'</span>; <span class="hljs-comment">// --> true</span>
-  err.<span class="hljs-property">message</span>; <span class="hljs-comment">// --> 'Invalid character in header content ["x-my-header"]'</span>
-}</code></pre>
-</section><section><h3><code>http.setMaxIdleHTTPParsers</code><span><a class="mark" href="#httpsetmaxidlehttpparsers" id="httpsetmaxidlehttpparsers">#</a></span><a aria-hidden="true" class="legacy" id="http_http_setmaxidlehttpparsers"></a></h3>
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(err <span class="hljs-keyword">instanceof</span> <span class="hljs-title class_">TypeError</span>); <span class="hljs-comment">// --> true</span>
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(err.<span class="hljs-property">code</span> === <span class="hljs-string">'ERR_INVALID_CHAR'</span>); <span class="hljs-comment">// --> true</span>
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(err.<span class="hljs-property">message</span>); <span class="hljs-comment">// --> 'Invalid character in header content ["x-my-header"]'</span>
+}</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { validateHeaderValue } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http'</span>);
+
+<span class="hljs-keyword">try</span> {
+  <span class="hljs-title function_">validateHeaderValue</span>(<span class="hljs-string">'x-my-header'</span>, <span class="hljs-literal">undefined</span>);
+} <span class="hljs-keyword">catch</span> (err) {
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(err <span class="hljs-keyword">instanceof</span> <span class="hljs-title class_">TypeError</span>); <span class="hljs-comment">// --> true</span>
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(err.<span class="hljs-property">code</span> === <span class="hljs-string">'ERR_HTTP_INVALID_HEADER_VALUE'</span>); <span class="hljs-comment">// --> true</span>
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(err.<span class="hljs-property">message</span>); <span class="hljs-comment">// --> 'Invalid value "undefined" for header "x-my-header"'</span>
+}
+
+<span class="hljs-keyword">try</span> {
+  <span class="hljs-title function_">validateHeaderValue</span>(<span class="hljs-string">'x-my-header'</span>, <span class="hljs-string">'oʊmɪɡə'</span>);
+} <span class="hljs-keyword">catch</span> (err) {
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(err <span class="hljs-keyword">instanceof</span> <span class="hljs-title class_">TypeError</span>); <span class="hljs-comment">// --> true</span>
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(err.<span class="hljs-property">code</span> === <span class="hljs-string">'ERR_INVALID_CHAR'</span>); <span class="hljs-comment">// --> true</span>
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(err.<span class="hljs-property">message</span>); <span class="hljs-comment">// --> 'Invalid character in header content ["x-my-header"]'</span>
+}</code><button class="copy-button">copy</button></pre>
+</section><section><h3><code>http.setMaxIdleHTTPParsers(max)</code><span><a class="mark" href="#httpsetmaxidlehttpparsersmax" id="httpsetmaxidlehttpparsersmax">#</a></span><a aria-hidden="true" class="legacy" id="http_http_setmaxidlehttpparsers_max"></a></h3>
 <div class="api_metadata">
 <span>Added in: v18.8.0</span>
 </div>
 <ul>
-<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
+<li><code>max</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> <strong>Default:</strong> <code>1000</code>.</li>
 </ul>
-<p>Set the maximum number of idle HTTP parsers. <strong>Default:</strong> <code>1000</code>.</p></section>
+<p>Set the maximum number of idle HTTP parsers.</p></section>
         <!-- API END -->
       </div>
     </div>

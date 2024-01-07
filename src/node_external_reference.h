@@ -74,6 +74,7 @@ class ExternalReferenceRegistry {
   V(heap_utils)                                                                \
   V(messaging)                                                                 \
   V(mksnapshot)                                                                \
+  V(module_wrap)                                                               \
   V(options)                                                                   \
   V(os)                                                                        \
   V(performance)                                                               \
@@ -86,6 +87,7 @@ class ExternalReferenceRegistry {
   V(url)                                                                       \
   V(util)                                                                      \
   V(pipe_wrap)                                                                 \
+  V(sea)                                                                       \
   V(serdes)                                                                    \
   V(string_decoder)                                                            \
   V(stream_wrap)                                                               \
@@ -135,14 +137,14 @@ class ExternalReferenceRegistry {
 }  // namespace node
 
 // Declare all the external reference registration functions here,
-// and define them later with #NODE_MODULE_EXTERNAL_REFERENCE(modname, func);
+// and define them later with #NODE_BINDING_EXTERNAL_REFERENCE(modname, func);
 #define V(modname)                                                             \
   void _register_external_reference_##modname(                                 \
       node::ExternalReferenceRegistry* registry);
 EXTERNAL_REFERENCE_BINDING_LIST(V)
 #undef V
 
-#define NODE_MODULE_EXTERNAL_REFERENCE(modname, func)                          \
+#define NODE_BINDING_EXTERNAL_REFERENCE(modname, func)                         \
   void _register_external_reference_##modname(                                 \
       node::ExternalReferenceRegistry* registry) {                             \
     func(registry);                                                            \

@@ -20,7 +20,7 @@
           }
         ]
       },
-      "desc": "<p>A utility class used to signal cancelation in selected <code>Promise</code>-based APIs.\nThe API is based on the Web API <a href=\"https://developer.mozilla.org/en-US/docs/Web/API/AbortController\"><code>AbortController</code></a>.</p>\n<pre><code class=\"language-js\">const ac = new AbortController();\n\nac.signal.addEventListener('abort', () => console.log('Aborted!'),\n                           { once: true });\n\nac.abort();\n\nconsole.log(ac.signal.aborted);  // Prints True\n</code></pre>",
+      "desc": "<p>A utility class used to signal cancelation in selected <code>Promise</code>-based APIs.\nThe API is based on the Web API <a href=\"https://developer.mozilla.org/en-US/docs/Web/API/AbortController\"><code>AbortController</code></a>.</p>\n<pre><code class=\"language-js\">const ac = new AbortController();\n\nac.signal.addEventListener('abort', () => console.log('Aborted!'),\n                           { once: true });\n\nac.abort();\n\nconsole.log(ac.signal.aborted);  // Prints true\n</code></pre>",
       "methods": [
         {
           "textRaw": "`abortController.abort([reason])`",
@@ -147,6 +147,30 @@
                 }
               ],
               "desc": "<p>Returns a new <code>AbortSignal</code> which will be aborted in <code>delay</code> milliseconds.</p>"
+            },
+            {
+              "textRaw": "Static method: `AbortSignal.any(signals)`",
+              "type": "classMethod",
+              "name": "any",
+              "meta": {
+                "added": [
+                  "v18.17.0"
+                ],
+                "changes": []
+              },
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "textRaw": "`signals` {AbortSignal\\[]} The `AbortSignal`s of which to compose a new `AbortSignal`.",
+                      "name": "signals",
+                      "type": "AbortSignal\\[]",
+                      "desc": "The `AbortSignal`s of which to compose a new `AbortSignal`."
+                    }
+                  ]
+                }
+              ],
+              "desc": "<p>Returns a new <code>AbortSignal</code> which will be aborted if any of the provided\nsignals are aborted. Its <a href=\"#abortsignalreason\"><code>abortSignal.reason</code></a> will be set to whichever\none of the <code>signals</code> caused it to be aborted.</p>"
             }
           ],
           "events": [
@@ -203,7 +227,7 @@
                 ],
                 "changes": []
               },
-              "desc": "<p>An optional reason specified when the <code>AbortSignal</code> was triggered.</p>\n<pre><code class=\"language-js\">const ac = new AbortController();\nac.abort(new Error('boom!'));\nconsole.log(ac.signal.reason);  // Error('boom!');\n</code></pre>"
+              "desc": "<p>An optional reason specified when the <code>AbortSignal</code> was triggered.</p>\n<pre><code class=\"language-js\">const ac = new AbortController();\nac.abort(new Error('boom!'));\nconsole.log(ac.signal.reason);  // Error: boom!\n</code></pre>"
             }
           ],
           "methods": [
@@ -360,7 +384,9 @@
         "changes": []
       },
       "type": "global",
-      "desc": "<ul>\n<li><a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object\" class=\"type\">&lt;Object&gt;</a> The global namespace object.</li>\n</ul>\n<p>In browsers, the top-level scope is the global scope. This means that\nwithin the browser <code>var something</code> will define a new global variable. In\nNode.js this is different. The top-level scope is not the global scope;\n<code>var something</code> inside a Node.js module will be local to that module.</p>"
+      "stability": 3,
+      "stabilityText": "Legacy. Use [`globalThis`][] instead.",
+      "desc": "<ul>\n<li><a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object\" class=\"type\">&lt;Object&gt;</a> The global namespace object.</li>\n</ul>\n<p>In browsers, the top-level scope has traditionally been the global scope. This\nmeans that <code>var something</code> will define a new global variable, except within\nECMAScript modules. In Node.js, this is different. The top-level scope is not\nthe global scope; <code>var something</code> inside a Node.js module will be local to that\nmodule, regardless of whether it is a <a href=\"modules.html\">CommonJS module</a> or an\n<a href=\"esm.html\">ECMAScript module</a>.</p>"
     },
     {
       "textRaw": "`MessageChannel`",
@@ -859,7 +885,7 @@
               }
             ]
           },
-          "desc": "<p>A utility class used to signal cancelation in selected <code>Promise</code>-based APIs.\nThe API is based on the Web API <a href=\"https://developer.mozilla.org/en-US/docs/Web/API/AbortController\"><code>AbortController</code></a>.</p>\n<pre><code class=\"language-js\">const ac = new AbortController();\n\nac.signal.addEventListener('abort', () => console.log('Aborted!'),\n                           { once: true });\n\nac.abort();\n\nconsole.log(ac.signal.aborted);  // Prints True\n</code></pre>",
+          "desc": "<p>A utility class used to signal cancelation in selected <code>Promise</code>-based APIs.\nThe API is based on the Web API <a href=\"https://developer.mozilla.org/en-US/docs/Web/API/AbortController\"><code>AbortController</code></a>.</p>\n<pre><code class=\"language-js\">const ac = new AbortController();\n\nac.signal.addEventListener('abort', () => console.log('Aborted!'),\n                           { once: true });\n\nac.abort();\n\nconsole.log(ac.signal.aborted);  // Prints true\n</code></pre>",
           "methods": [
             {
               "textRaw": "`abortController.abort([reason])`",
@@ -986,6 +1012,30 @@
                     }
                   ],
                   "desc": "<p>Returns a new <code>AbortSignal</code> which will be aborted in <code>delay</code> milliseconds.</p>"
+                },
+                {
+                  "textRaw": "Static method: `AbortSignal.any(signals)`",
+                  "type": "classMethod",
+                  "name": "any",
+                  "meta": {
+                    "added": [
+                      "v18.17.0"
+                    ],
+                    "changes": []
+                  },
+                  "signatures": [
+                    {
+                      "params": [
+                        {
+                          "textRaw": "`signals` {AbortSignal\\[]} The `AbortSignal`s of which to compose a new `AbortSignal`.",
+                          "name": "signals",
+                          "type": "AbortSignal\\[]",
+                          "desc": "The `AbortSignal`s of which to compose a new `AbortSignal`."
+                        }
+                      ]
+                    }
+                  ],
+                  "desc": "<p>Returns a new <code>AbortSignal</code> which will be aborted if any of the provided\nsignals are aborted. Its <a href=\"#abortsignalreason\"><code>abortSignal.reason</code></a> will be set to whichever\none of the <code>signals</code> caused it to be aborted.</p>"
                 }
               ],
               "events": [
@@ -1042,7 +1092,7 @@
                     ],
                     "changes": []
                   },
-                  "desc": "<p>An optional reason specified when the <code>AbortSignal</code> was triggered.</p>\n<pre><code class=\"language-js\">const ac = new AbortController();\nac.abort(new Error('boom!'));\nconsole.log(ac.signal.reason);  // Error('boom!');\n</code></pre>"
+                  "desc": "<p>An optional reason specified when the <code>AbortSignal</code> was triggered.</p>\n<pre><code class=\"language-js\">const ac = new AbortController();\nac.abort(new Error('boom!'));\nconsole.log(ac.signal.reason);  // Error: boom!\n</code></pre>"
                 }
               ],
               "methods": [
@@ -1199,7 +1249,9 @@
             "changes": []
           },
           "type": "global",
-          "desc": "<ul>\n<li><a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object\" class=\"type\">&lt;Object&gt;</a> The global namespace object.</li>\n</ul>\n<p>In browsers, the top-level scope is the global scope. This means that\nwithin the browser <code>var something</code> will define a new global variable. In\nNode.js this is different. The top-level scope is not the global scope;\n<code>var something</code> inside a Node.js module will be local to that module.</p>"
+          "stability": 3,
+          "stabilityText": "Legacy. Use [`globalThis`][] instead.",
+          "desc": "<ul>\n<li><a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object\" class=\"type\">&lt;Object&gt;</a> The global namespace object.</li>\n</ul>\n<p>In browsers, the top-level scope has traditionally been the global scope. This\nmeans that <code>var something</code> will define a new global variable, except within\nECMAScript modules. In Node.js, this is different. The top-level scope is not\nthe global scope; <code>var something</code> inside a Node.js module will be local to that\nmodule, regardless of whether it is a <a href=\"modules.html\">CommonJS module</a> or an\n<a href=\"esm.html\">ECMAScript module</a>.</p>"
         },
         {
           "textRaw": "`MessageChannel`",

@@ -24,7 +24,7 @@
 
 #if defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
 
-#include "aliased_buffer.h"
+#include "aliased_buffer-inl.h"
 #include "callback_queue-inl.h"
 #include "env.h"
 #include "node.h"
@@ -197,48 +197,6 @@ inline Environment* Environment::GetCurrent(
   return GetCurrent(info.GetIsolate()->GetCurrentContext());
 }
 
-template <typename T, typename U>
-inline T* Environment::GetBindingData(const v8::PropertyCallbackInfo<U>& info) {
-  return GetBindingData<T>(info.GetIsolate()->GetCurrentContext());
-}
-
-template <typename T>
-inline T* Environment::GetBindingData(
-    const v8::FunctionCallbackInfo<v8::Value>& info) {
-  return GetBindingData<T>(info.GetIsolate()->GetCurrentContext());
-}
-
-template <typename T>
-inline T* Environment::GetBindingData(v8::Local<v8::Context> context) {
-  BindingDataStore* map = static_cast<BindingDataStore*>(
-      context->GetAlignedPointerFromEmbedderData(
-          ContextEmbedderIndex::kBindingListIndex));
-  DCHECK_NOT_NULL(map);
-  auto it = map->find(T::type_name);
-  if (UNLIKELY(it == map->end())) return nullptr;
-  T* result = static_cast<T*>(it->second.get());
-  DCHECK_NOT_NULL(result);
-  DCHECK_EQ(result->env(), GetCurrent(context));
-  return result;
-}
-
-template <typename T>
-inline T* Environment::AddBindingData(
-    v8::Local<v8::Context> context,
-    v8::Local<v8::Object> target) {
-  DCHECK_EQ(GetCurrent(context), this);
-  // This won't compile if T is not a BaseObject subclass.
-  BaseObjectPtr<T> item = MakeDetachedBaseObject<T>(this, target);
-  BindingDataStore* map = static_cast<BindingDataStore*>(
-      context->GetAlignedPointerFromEmbedderData(
-          ContextEmbedderIndex::kBindingListIndex));
-  DCHECK_NOT_NULL(map);
-  auto result = map->emplace(T::type_name, item);
-  CHECK(result.second);
-  DCHECK_EQ(GetBindingData<T>(context), item.get());
-  return item.get();
-}
-
 inline v8::Isolate* Environment::isolate() const {
   return isolate_;
 }
@@ -321,6 +279,10 @@ inline AsyncHooks* Environment::async_hooks() {
 
 inline ImmediateInfo* Environment::immediate_info() {
   return &immediate_info_;
+}
+
+inline AliasedInt32Array& Environment::timeout_info() {
+  return timeout_info_;
 }
 
 inline TickInfo* Environment::tick_info() {
@@ -424,6 +386,10 @@ inline bool Environment::inside_should_not_abort_on_uncaught_scope() const {
 
 inline std::vector<double>* Environment::destroy_async_id_list() {
   return &destroy_async_id_list_;
+}
+
+inline builtins::BuiltinLoader* Environment::builtin_loader() {
+  return &builtin_loader_;
 }
 
 inline double Environment::new_async_id() {
@@ -795,11 +761,6 @@ void Environment::RemoveCleanupHook(CleanupQueue::Callback fn, void* arg) {
   cleanup_queue_.Remove(fn, arg);
 }
 
-void Environment::set_main_utf16(std::unique_ptr<v8::String::Value> str) {
-  CHECK(!main_utf16_);
-  main_utf16_ = std::move(str);
-}
-
 void Environment::set_process_exit_handler(
     std::function<void(Environment*, int)>&& handler) {
   process_exit_handler_ = std::move(handler);
@@ -821,6 +782,7 @@ void Environment::set_process_exit_handler(
 #undef VY
 #undef VP
 
+#define VM(PropertyName) V(PropertyName##_binding, v8::FunctionTemplate)
 #define V(PropertyName, TypeName)                                              \
   inline v8::Local<TypeName> IsolateData::PropertyName() const {               \
     return PropertyName##_.Get(isolate_);                                      \
@@ -829,7 +791,9 @@ void Environment::set_process_exit_handler(
     PropertyName##_.Set(isolate_, value);                                      \
   }
   PER_ISOLATE_TEMPLATE_PROPERTIES(V)
+  NODE_BINDINGS_WITH_PER_ISOLATE_INIT(VM)
 #undef V
+#undef VM
 
 #define VP(PropertyName, StringValue) V(v8::Private, PropertyName)
 #define VY(PropertyName, StringValue) V(v8::Symbol, PropertyName)

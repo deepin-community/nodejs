@@ -163,6 +163,7 @@ class KeyObjectData : public MemoryRetainer {
 
 class KeyObjectHandle : public BaseObject {
  public:
+  static bool HasInstance(Environment* env, v8::Local<v8::Value> value);
   static v8::Local<v8::Function> Initialize(Environment* env);
   static void RegisterExternalReferences(ExternalReferenceRegistry* registry);
 
@@ -191,6 +192,9 @@ class KeyObjectHandle : public BaseObject {
   static void GetAsymmetricKeyType(
       const v8::FunctionCallbackInfo<v8::Value>& args);
   v8::Local<v8::Value> GetAsymmetricKeyType() const;
+
+  static void CheckEcKeyData(const v8::FunctionCallbackInfo<v8::Value>& args);
+  bool CheckEcKeyData() const;
 
   static void GetSymmetricKeySize(
       const v8::FunctionCallbackInfo<v8::Value>& args);

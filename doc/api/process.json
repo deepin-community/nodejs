@@ -7,7 +7,7 @@
       "name": "Process",
       "introduced_in": "v0.10.0",
       "type": "global",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.13.0/lib/process.js\">lib/process.js</a></p>\n<p>The <code>process</code> object provides information about, and control over, the current\nNode.js process.</p>\n<pre><code class=\"language-mjs\">import process from 'node:process';\n</code></pre>\n<pre><code class=\"language-cjs\">const process = require('node:process');\n</code></pre>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.19.0/lib/process.js\">lib/process.js</a></p>\n<p>The <code>process</code> object provides information about, and control over, the current\nNode.js process.</p>\n<pre><code class=\"language-mjs\">import process from 'node:process';\n</code></pre>\n<pre><code class=\"language-cjs\">const process = require('node:process');\n</code></pre>",
       "modules": [
         {
           "textRaw": "Process events",
@@ -387,6 +387,30 @@
             }
           ],
           "desc": "<p>The <code>process.chdir()</code> method changes the current working directory of the\nNode.js process or throws an exception if doing so fails (for instance, if\nthe specified <code>directory</code> does not exist).</p>\n<pre><code class=\"language-mjs\">import { chdir, cwd } from 'node:process';\n\nconsole.log(`Starting directory: ${cwd()}`);\ntry {\n  chdir('/tmp');\n  console.log(`New directory: ${cwd()}`);\n} catch (err) {\n  console.error(`chdir: ${err}`);\n}\n</code></pre>\n<pre><code class=\"language-cjs\">const { chdir, cwd } = require('node:process');\n\nconsole.log(`Starting directory: ${cwd()}`);\ntry {\n  chdir('/tmp');\n  console.log(`New directory: ${cwd()}`);\n} catch (err) {\n  console.error(`chdir: ${err}`);\n}\n</code></pre>\n<p>This feature is not available in <a href=\"worker_threads.html#class-worker\"><code>Worker</code></a> threads.</p>"
+        },
+        {
+          "textRaw": "`process.constrainedMemory()`",
+          "type": "method",
+          "name": "constrainedMemory",
+          "meta": {
+            "added": [
+              "v18.15.0"
+            ],
+            "changes": []
+          },
+          "stability": 1,
+          "stabilityText": "Experimental",
+          "signatures": [
+            {
+              "params": [
+                {
+                  "textRaw": "{number|undefined}",
+                  "type": "number|undefined"
+                }
+              ]
+            }
+          ],
+          "desc": "<p>Gets the amount of memory available to the process (in bytes) based on\nlimits imposed by the OS. If there is no such constraint, or the constraint\nis unknown, <code>undefined</code> is returned.</p>\n<p>See <a href=\"https://docs.libuv.org/en/v1.x/misc.html#c.uv_get_constrained_memory\"><code>uv_get_constrained_memory</code></a> for more\ninformation.</p>"
         },
         {
           "textRaw": "`process.cpuUsage([previousValue])`",
@@ -993,7 +1017,7 @@
               "params": []
             }
           ],
-          "desc": "<p>The <code>process.memoryUsage.rss()</code> method returns an integer representing the\nResident Set Size (RSS) in bytes.</p>\n<p>The Resident Set Size, is the amount of space occupied in the main\nmemory device (that is a subset of the total allocated memory) for the\nprocess, including all C++ and JavaScript objects and code.</p>\n<p>This is the same value as the <code>rss</code> property provided by <code>process.memoryUsage()</code>\nbut <code>process.memoryUsage.rss()</code> is faster.</p>\n<pre><code class=\"language-mjs\">import { memoryUsage } from 'node:process';\n\nconsole.log(memoryUsage.rss());\n// 35655680\n</code></pre>\n<pre><code class=\"language-cjs\">const { rss } = require('node:process');\n\nconsole.log(memoryUsage.rss());\n// 35655680\n</code></pre>"
+          "desc": "<p>The <code>process.memoryUsage.rss()</code> method returns an integer representing the\nResident Set Size (RSS) in bytes.</p>\n<p>The Resident Set Size, is the amount of space occupied in the main\nmemory device (that is a subset of the total allocated memory) for the\nprocess, including all C++ and JavaScript objects and code.</p>\n<p>This is the same value as the <code>rss</code> property provided by <code>process.memoryUsage()</code>\nbut <code>process.memoryUsage.rss()</code> is faster.</p>\n<pre><code class=\"language-mjs\">import { memoryUsage } from 'node:process';\n\nconsole.log(memoryUsage.rss());\n// 35655680\n</code></pre>\n<pre><code class=\"language-cjs\">const { memoryUsage } = require('node:process');\n\nconsole.log(memoryUsage.rss());\n// 35655680\n</code></pre>"
         },
         {
           "textRaw": "`process.nextTick(callback[, ...args])`",
@@ -1625,7 +1649,7 @@
               }
             ]
           },
-          "desc": "<p>The <code>process.env</code> property returns an object containing the user environment.\nSee <a href=\"http://man7.org/linux/man-pages/man7/environ.7.html\"><code>environ(7)</code></a>.</p>\n<p>An example of this object looks like:</p>\n<!-- eslint-skip -->\n<pre><code class=\"language-js\">{\n  TERM: 'xterm-256color',\n  SHELL: '/usr/local/bin/bash',\n  USER: 'maciej',\n  PATH: '~/.bin/:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin',\n  PWD: '/Users/maciej',\n  EDITOR: 'vim',\n  SHLVL: '1',\n  HOME: '/Users/maciej',\n  LOGNAME: 'maciej',\n  _: '/usr/local/bin/node'\n}\n</code></pre>\n<p>It is possible to modify this object, but such modifications will not be\nreflected outside the Node.js process, or (unless explicitly requested)\nto other <a href=\"worker_threads.html#class-worker\"><code>Worker</code></a> threads.\nIn other words, the following example would not work:</p>\n<pre><code class=\"language-console\">$ node -e 'process.env.foo = \"bar\"' &#x26;&#x26; echo $foo\n</code></pre>\n<p>While the following will:</p>\n<pre><code class=\"language-mjs\">import { env } from 'node:process';\n\nenv.foo = 'bar';\nconsole.log(env.foo);\n</code></pre>\n<pre><code class=\"language-cjs\">const { env } = require('node:process');\n\nenv.foo = 'bar';\nconsole.log(env.foo);\n</code></pre>\n<p>Assigning a property on <code>process.env</code> will implicitly convert the value\nto a string. <strong>This behavior is deprecated.</strong> Future versions of Node.js may\nthrow an error when the value is not a string, number, or boolean.</p>\n<pre><code class=\"language-mjs\">import { env } from 'node:process';\n\nenv.test = null;\nconsole.log(env.test);\n// => 'null'\nenv.test = undefined;\nconsole.log(env.test);\n// => 'undefined'\n</code></pre>\n<pre><code class=\"language-cjs\">const { env } = require('node:process');\n\nenv.test = null;\nconsole.log(env.test);\n// => 'null'\nenv.test = undefined;\nconsole.log(env.test);\n// => 'undefined'\n</code></pre>\n<p>Use <code>delete</code> to delete a property from <code>process.env</code>.</p>\n<pre><code class=\"language-mjs\">import { env } from 'node:process';\n\nenv.TEST = 1;\ndelete env.TEST;\nconsole.log(env.TEST);\n// => undefined\n</code></pre>\n<pre><code class=\"language-cjs\">const { env } = require('node:process');\n\nenv.TEST = 1;\ndelete env.TEST;\nconsole.log(env.TEST);\n// => undefined\n</code></pre>\n<p>On Windows operating systems, environment variables are case-insensitive.</p>\n<pre><code class=\"language-mjs\">import { env } from 'node:process';\n\nenv.TEST = 1;\nconsole.log(env.test);\n// => 1\n</code></pre>\n<pre><code class=\"language-cjs\">const { env } = require('node:process');\n\nenv.TEST = 1;\nconsole.log(env.test);\n// => 1\n</code></pre>\n<p>Unless explicitly specified when creating a <a href=\"worker_threads.html#class-worker\"><code>Worker</code></a> instance,\neach <a href=\"worker_threads.html#class-worker\"><code>Worker</code></a> thread has its own copy of <code>process.env</code>, based on its\nparent thread's <code>process.env</code>, or whatever was specified as the <code>env</code> option\nto the <a href=\"worker_threads.html#class-worker\"><code>Worker</code></a> constructor. Changes to <code>process.env</code> will not be visible\nacross <a href=\"worker_threads.html#class-worker\"><code>Worker</code></a> threads, and only the main thread can make changes that\nare visible to the operating system or to native add-ons.</p>"
+          "desc": "<p>The <code>process.env</code> property returns an object containing the user environment.\nSee <a href=\"http://man7.org/linux/man-pages/man7/environ.7.html\"><code>environ(7)</code></a>.</p>\n<p>An example of this object looks like:</p>\n<!-- eslint-skip -->\n<pre><code class=\"language-js\">{\n  TERM: 'xterm-256color',\n  SHELL: '/usr/local/bin/bash',\n  USER: 'maciej',\n  PATH: '~/.bin/:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin',\n  PWD: '/Users/maciej',\n  EDITOR: 'vim',\n  SHLVL: '1',\n  HOME: '/Users/maciej',\n  LOGNAME: 'maciej',\n  _: '/usr/local/bin/node'\n}\n</code></pre>\n<p>It is possible to modify this object, but such modifications will not be\nreflected outside the Node.js process, or (unless explicitly requested)\nto other <a href=\"worker_threads.html#class-worker\"><code>Worker</code></a> threads.\nIn other words, the following example would not work:</p>\n<pre><code class=\"language-console\">$ node -e 'process.env.foo = \"bar\"' &#x26;&#x26; echo $foo\n</code></pre>\n<p>While the following will:</p>\n<pre><code class=\"language-mjs\">import { env } from 'node:process';\n\nenv.foo = 'bar';\nconsole.log(env.foo);\n</code></pre>\n<pre><code class=\"language-cjs\">const { env } = require('node:process');\n\nenv.foo = 'bar';\nconsole.log(env.foo);\n</code></pre>\n<p>Assigning a property on <code>process.env</code> will implicitly convert the value\nto a string. <strong>This behavior is deprecated.</strong> Future versions of Node.js may\nthrow an error when the value is not a string, number, or boolean.</p>\n<pre><code class=\"language-mjs\">import { env } from 'node:process';\n\nenv.test = null;\nconsole.log(env.test);\n// => 'null'\nenv.test = undefined;\nconsole.log(env.test);\n// => 'undefined'\n</code></pre>\n<pre><code class=\"language-cjs\">const { env } = require('node:process');\n\nenv.test = null;\nconsole.log(env.test);\n// => 'null'\nenv.test = undefined;\nconsole.log(env.test);\n// => 'undefined'\n</code></pre>\n<p>Use <code>delete</code> to delete a property from <code>process.env</code>.</p>\n<pre><code class=\"language-mjs\">import { env } from 'node:process';\n\nenv.TEST = 1;\ndelete env.TEST;\nconsole.log(env.TEST);\n// => undefined\n</code></pre>\n<pre><code class=\"language-cjs\">const { env } = require('node:process');\n\nenv.TEST = 1;\ndelete env.TEST;\nconsole.log(env.TEST);\n// => undefined\n</code></pre>\n<p>On Windows operating systems, environment variables are case-insensitive.</p>\n<pre><code class=\"language-mjs\">import { env } from 'node:process';\n\nenv.TEST = 1;\nconsole.log(env.test);\n// => 1\n</code></pre>\n<pre><code class=\"language-cjs\">const { env } = require('node:process');\n\nenv.TEST = 1;\nconsole.log(env.test);\n// => 1\n</code></pre>\n<p>Unless explicitly specified when creating a <a href=\"worker_threads.html#class-worker\"><code>Worker</code></a> instance,\neach <a href=\"worker_threads.html#class-worker\"><code>Worker</code></a> thread has its own copy of <code>process.env</code>, based on its\nparent thread's <code>process.env</code>, or whatever was specified as the <code>env</code> option\nto the <a href=\"worker_threads.html#class-worker\"><code>Worker</code></a> constructor. Changes to <code>process.env</code> will not be visible\nacross <a href=\"worker_threads.html#class-worker\"><code>Worker</code></a> threads, and only the main thread can make changes that\nare visible to the operating system or to native add-ons. On Windows, a copy of\n<code>process.env</code> on a <a href=\"worker_threads.html#class-worker\"><code>Worker</code></a> instance operates in a case-sensitive manner\nunlike the main thread.</p>"
         },
         {
           "textRaw": "`execArgv` {string\\[]}",
@@ -1946,7 +1970,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Returns a JavaScript Object representation of a diagnostic report for the\nrunning process. The report's JavaScript stack trace is taken from <code>err</code>, if\npresent.</p>\n<pre><code class=\"language-mjs\">import { report } from 'node:process';\n\nconst data = report.getReport();\nconsole.log(data.header.nodejsVersion);\n\n// Similar to process.report.writeReport()\nimport fs from 'node:fs';\nfs.writeFileSync('my-report.log', util.inspect(data), 'utf8');\n</code></pre>\n<pre><code class=\"language-cjs\">const { report } = require('node:process');\n\nconst data = report.getReport();\nconsole.log(data.header.nodejsVersion);\n\n// Similar to process.report.writeReport()\nconst fs = require('node:fs');\nfs.writeFileSync('my-report.log', util.inspect(data), 'utf8');\n</code></pre>\n<p>Additional documentation is available in the <a href=\"report.html\">report documentation</a>.</p>"
+              "desc": "<p>Returns a JavaScript Object representation of a diagnostic report for the\nrunning process. The report's JavaScript stack trace is taken from <code>err</code>, if\npresent.</p>\n<pre><code class=\"language-mjs\">import { report } from 'node:process';\nimport util from 'node:util';\n\nconst data = report.getReport();\nconsole.log(data.header.nodejsVersion);\n\n// Similar to process.report.writeReport()\nimport fs from 'node:fs';\nfs.writeFileSync('my-report.log', util.inspect(data), 'utf8');\n</code></pre>\n<pre><code class=\"language-cjs\">const { report } = require('node:process');\nconst util = require('node:util');\n\nconst data = report.getReport();\nconsole.log(data.header.nodejsVersion);\n\n// Similar to process.report.writeReport()\nconst fs = require('node:fs');\nfs.writeFileSync('my-report.log', util.inspect(data), 'utf8');\n</code></pre>\n<p>Additional documentation is available in the <a href=\"report.html\">report documentation</a>.</p>"
             },
             {
               "textRaw": "`process.report.writeReport([filename][, err])`",
@@ -1994,6 +2018,20 @@
               "desc": "<p>Writes a diagnostic report to a file. If <code>filename</code> is not provided, the default\nfilename includes the date, time, PID, and a sequence number. The report's\nJavaScript stack trace is taken from <code>err</code>, if present.</p>\n<p>If the value of <code>filename</code> is set to <code>'stdout'</code> or <code>'stderr'</code>, the report is\nwritten to the stdout or stderr of the process respectively.</p>\n<pre><code class=\"language-mjs\">import { report } from 'node:process';\n\nreport.writeReport();\n</code></pre>\n<pre><code class=\"language-cjs\">const { report } = require('node:process');\n\nreport.writeReport();\n</code></pre>\n<p>Additional documentation is available in the <a href=\"report.html\">report documentation</a>.</p>"
             }
           ]
+        },
+        {
+          "textRaw": "`sourceMapsEnabled` {boolean}",
+          "type": "boolean",
+          "name": "sourceMapsEnabled",
+          "meta": {
+            "added": [
+              "v18.19.0"
+            ],
+            "changes": []
+          },
+          "stability": 1,
+          "stabilityText": "Experimental",
+          "desc": "<p>The <code>process.sourceMapsEnabled</code> property returns whether the\n<a href=\"https://sourcemaps.info/spec.html\">Source Map v3</a> support for stack traces is enabled.</p>"
         },
         {
           "textRaw": "`stderr` {Stream}",

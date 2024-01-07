@@ -22,7 +22,7 @@ Last-Update: 2020-02-09
 
 --- a/Makefile
 +++ b/Makefile
-@@ -524,7 +524,7 @@
+@@ -540,7 +540,7 @@
  # This target should not use a native compiler at all
  # Related CI job: node-test-commit-arm-fanned
  test-ci-js: | clear-stalled
@@ -33,7 +33,7 @@ Last-Update: 2020-02-09
  	$(info Clean up any leftover processes, error if found.)
 --- a/test/parallel/parallel.status
 +++ b/test/parallel/parallel.status
-@@ -6,6 +6,43 @@
+@@ -6,6 +6,46 @@
  
  [true] # This section applies to all platforms
  
@@ -52,6 +52,7 @@ Last-Update: 2020-02-09
 +test-https-connect-address-family : SKIP 
 +test-tls-connect-address-family : SKIP
 +test-dns-cancel-reverse-lookup: SKIP
++test-dns-resolveany-bad-ancount: SKIP
 +
 +# https://bugs.debian.org/919588
 +## flaky on some user environments
@@ -65,6 +66,8 @@ Last-Update: 2020-02-09
 +# does not pass in autopkgtest ci env
 +test-cluster-bind-privileged-port: PASS,FLAKY
 +test-cluster-shared-handle-bind-privileged-port: PASS,FLAKY
++test-debugger-preserve-breaks: PASS,FLAKY
++test-debugger-heap-profiler: PASS,FLAKY
 +
 +# corepack is dfsg-excluded
 +test-corepack-yarn-install: SKIP
@@ -75,19 +78,19 @@ Last-Update: 2020-02-09
 +test-fs-utimes-y2K38: PASS,FLAKY
 +
  [$system==win32]
- # https://github.com/nodejs/node/issues/24497
- test-timers-immediate-queue: PASS,FLAKY
-@@ -30,6 +67,10 @@
- test-crypto-dh-stateless: SKIP
- test-crypto-keygen: SKIP
+ # https://github.com/nodejs/node/issues/41206
+ test-crypto-keygen: PASS,FLAKY
+@@ -54,6 +94,10 @@
+ # https://github.com/nodejs/node/issues/47297
+ test-wasm-web-api: SKIP
  
 +[$arch==mips64el]
 +# the debug flag is for hacking v8 internals
 +test-debug-args: PASS,FLAKY
 +
  [$system==solaris] # Also applies to SmartOS
- # https://github.com/nodejs/node/issues/43446
- test-net-connect-reset-until-connected: PASS, FLAKY
+ # https://github.com/nodejs/node/issues/43457
+ test-domain-no-error-handler-abort-on-uncaught-0: PASS, FLAKY
 --- a/test/sequential/sequential.status
 +++ b/test/sequential/sequential.status
 @@ -11,6 +11,24 @@
@@ -113,11 +116,11 @@ Last-Update: 2020-02-09
 +test-watch-mode-inspect: SKIP
 +
  [$system==win32]
- 
- [$system==linux]
+ # https://github.com/nodejs/node/issues/47116
+ test-http-max-sockets: PASS, FLAKY
 --- a/tools/test.py
 +++ b/tools/test.py
-@@ -936,25 +936,7 @@
+@@ -934,25 +934,7 @@
      self.node_has_crypto = True
  
    def GetVm(self, arch, mode):
@@ -146,27 +149,27 @@ Last-Update: 2020-02-09
      timeout = self.timeout * TIMEOUT_SCALEFACTOR[ARCH_GUESS or 'ia32'][mode]
 --- a/test/common/index.js
 +++ b/test/common/index.js
-@@ -251,17 +251,13 @@
+@@ -259,16 +259,15 @@
  
  function platformTimeout(ms) {
    const multipliers = typeof ms === 'bigint' ?
 -    { two: 2n, four: 4n, seven: 7n } : { two: 2, four: 4, seven: 7 };
--
--  if (process.features.debug)
++    { fast: 2n, slow: 4n } : { fast: 3, slow: 5 };
++ 
++  if (process.arch.startsWith('arm') || process.arch.startsWith('mips') || process.arch.startsWith('riscv'))
++    ms = multipliers.slow * ms;
++  else
++    ms = multipliers.fast * ms;
+ 
+   if (process.features.debug)
 -    ms = multipliers.two * ms;
 -
--  if (isAIX)
+-  if (exports.isAIX || exports.isIBMi)
 -    return multipliers.two * ms; // Default localhost speed is slower on AIX
 -
 -  if (isPi)
 -    return multipliers.two * ms;  // Raspberry Pi devices
-+    { fast: 6n, slow: 12n } : { fast: 6, slow: 12 };
- 
-+  if (process.arch.startsWith('arm') || process.arch.startsWith('mips'))
 +    ms = multipliers.slow * ms;
-+  else
-+    ms = multipliers.fast * ms;
-+ 
+ 
    return ms;
  }
- 

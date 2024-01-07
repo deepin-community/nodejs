@@ -1,0 +1,26 @@
+Description: Harmonize V8 stack sizes on ARM architectures to match almost all other architectures
+Author: James Addison <jay@jp-hosting.net>
+Last-Update: 2023-02-28
+Forwarded: https://github.com/nodejs/node/issues/41163
+--- a/deps/v8/src/common/globals.h
++++ b/deps/v8/src/common/globals.h
+@@ -71,19 +71,9 @@
+ #define V8_EMBEDDED_CONSTANT_POOL false
+ #endif
+ 
+-#if V8_TARGET_ARCH_ARM || V8_TARGET_ARCH_ARM64
+-// Set stack limit lower for ARM and ARM64 than for other architectures because:
+-//  - on Arm stack allocating MacroAssembler takes 120K bytes.
+-//    See issue crbug.com/405338
+-//  - on Arm64 when running in single-process mode for Android WebView, when
+-//    initializing V8 we already have a large stack and so have to set the
+-//    limit lower. See issue crbug.com/v8/10575
+-#define V8_DEFAULT_STACK_SIZE_KB 864
+-#else
+ // Slightly less than 1MB, since Windows' default stack size for
+ // the main execution thread is 1MB for both 32 and 64-bit.
+ #define V8_DEFAULT_STACK_SIZE_KB 984
+-#endif
+ 
+ // Helper macros to enable handling of direct C calls in the simulator.
+ #if defined(USE_SIMULATOR) && defined(V8_TARGET_ARCH_ARM64)

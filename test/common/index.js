@@ -33,7 +33,7 @@ const { inspect } = require('util');
 const { isMainThread } = require('worker_threads');
 
 const tmpdir = require('./tmpdir');
-const bits = ['arm64', 'mips', 'mipsel', 'ppc64', 'riscv64', 's390x', 'x64']
+const bits = ['arm64', 'loong64', 'mips', 'mipsel', 'ppc64', 'riscv64', 's390x', 'x64']
   .includes(process.arch) ? 64 : 32;
 const hasIntl = !!process.config.variables.v8_enable_i18n_support;
 
@@ -56,9 +56,37 @@ const hasCrypto = Boolean(process.versions.openssl) &&
                   !process.env.NODE_SKIP_CRYPTO;
 
 const hasOpenSSL3 = hasCrypto &&
-    require('crypto').constants.OPENSSL_VERSION_NUMBER >= 805306368;
+    require('crypto').constants.OPENSSL_VERSION_NUMBER >= 0x30000000;
+
+const hasOpenSSL31 = hasCrypto &&
+    require('crypto').constants.OPENSSL_VERSION_NUMBER >= 0x30100000;
 
 const hasQuic = hasCrypto && !!process.config.variables.openssl_quic;
+
+function parseTestFlags(filename = process.argv[1]) {
+  // The copyright notice is relatively big and the flags could come afterwards.
+  const bytesToRead = 1500;
+  const buffer = Buffer.allocUnsafe(bytesToRead);
+  const fd = fs.openSync(filename, 'r');
+  const bytesRead = fs.readSync(fd, buffer, 0, bytesToRead);
+  fs.closeSync(fd);
+  const source = buffer.toString('utf8', 0, bytesRead);
+
+  const flagStart = source.search(/\/\/ Flags:\s+--/) + 10;
+
+  if (flagStart === 9) {
+    return [];
+  }
+  let flagEnd = source.indexOf('\n', flagStart);
+  // Normalize different EOL.
+  if (source[flagEnd - 1] === '\r') {
+    flagEnd--;
+  }
+  return source
+    .substring(flagStart, flagEnd)
+    .split(/\s+/)
+    .filter(Boolean);
+}
 
 // Check for flags. Skip this for workers (both, the `cluster` module and
 // `worker_threads`) and child processes.
@@ -70,56 +98,36 @@ if (process.argv.length === 2 &&
     hasCrypto &&
     require('cluster').isPrimary &&
     fs.existsSync(process.argv[1])) {
-  // The copyright notice is relatively big and the flags could come afterwards.
-  const bytesToRead = 1500;
-  const buffer = Buffer.allocUnsafe(bytesToRead);
-  const fd = fs.openSync(process.argv[1], 'r');
-  const bytesRead = fs.readSync(fd, buffer, 0, bytesToRead);
-  fs.closeSync(fd);
-  const source = buffer.toString('utf8', 0, bytesRead);
-
-  const flagStart = source.indexOf('// Flags: --') + 10;
-  if (flagStart !== 9) {
-    let flagEnd = source.indexOf('\n', flagStart);
-    // Normalize different EOL.
-    if (source[flagEnd - 1] === '\r') {
-      flagEnd--;
-    }
-    const flags = source
-      .substring(flagStart, flagEnd)
-      .replace(/_/g, '-')
-      .split(' ');
-    const args = process.execArgv.map((arg) => arg.replace(/_/g, '-'));
-    for (const flag of flags) {
-      if (!args.includes(flag) &&
-          // If the binary is build without `intl` the inspect option is
-          // invalid. The test itself should handle this case.
-          (process.features.inspector || !flag.startsWith('--inspect'))) {
-        console.log(
-          'NOTE: The test started as a child_process using these flags:',
-          inspect(flags),
-          'Use NODE_SKIP_FLAG_CHECK to run the test with the original flags.',
-        );
-        const args = [...flags, ...process.execArgv, ...process.argv.slice(1)];
-        const options = { encoding: 'utf8', stdio: 'inherit' };
-        const result = spawnSync(process.execPath, args, options);
-        if (result.signal) {
-          process.kill(0, result.signal);
-        } else {
-          process.exit(result.status);
-        }
+  const flags = parseTestFlags();
+  for (const flag of flags) {
+    if (!process.execArgv.includes(flag) &&
+        // If the binary is build without `intl` the inspect option is
+        // invalid. The test itself should handle this case.
+        (process.features.inspector || !flag.startsWith('--inspect'))) {
+      console.log(
+        'NOTE: The test started as a child_process using these flags:',
+        inspect(flags),
+        'Use NODE_SKIP_FLAG_CHECK to run the test with the original flags.',
+      );
+      const args = [...flags, ...process.execArgv, ...process.argv.slice(1)];
+      const options = { encoding: 'utf8', stdio: 'inherit' };
+      const result = spawnSync(process.execPath, args, options);
+      if (result.signal) {
+        process.kill(0, result.signal);
+      } else {
+        process.exit(result.status);
       }
     }
   }
 }
 
 const isWindows = process.platform === 'win32';
-const isAIX = process.platform === 'aix';
 const isSunOS = process.platform === 'sunos';
 const isFreeBSD = process.platform === 'freebsd';
 const isOpenBSD = process.platform === 'openbsd';
 const isLinux = process.platform === 'linux';
 const isOSX = process.platform === 'darwin';
+const isAsan = process.env.ASAN !== undefined;
 const isPi = (() => {
   try {
     // Normal Raspberry Pi detection is to find the `Raspberry Pi` string in
@@ -256,7 +264,7 @@ function platformTimeout(ms) {
   if (process.features.debug)
     ms = multipliers.two * ms;
 
-  if (isAIX)
+  if (exports.isAIX || exports.isIBMi)
     return multipliers.two * ms; // Default localhost speed is slower on AIX
 
   if (isPi)
@@ -893,11 +901,12 @@ const common = {
   hasIntl,
   hasCrypto,
   hasOpenSSL3,
+  hasOpenSSL31,
   hasQuic,
   hasMultiLocalhost,
   invalidArgTypeHelper,
-  isAIX,
   isAlive,
+  isAsan,
   isDumbTerminal,
   isFreeBSD,
   isLinux,
@@ -915,6 +924,7 @@ const common = {
   mustSucceed,
   nodeProcessAborted,
   PIPE,
+  parseTestFlags,
   platformTimeout,
   printSkipMessage,
   pwdCommand,
@@ -938,7 +948,14 @@ const common = {
 
   get hasIPv6() {
     const iFaces = require('os').networkInterfaces();
-    const re = isWindows ? /Loopback Pseudo-Interface/ : /lo/;
+    let re;
+    if (isWindows) {
+      re = /Loopback Pseudo-Interface/;
+    } else if (this.isIBMi) {
+      re = /\*LOOPBACK/;
+    } else {
+      re = /lo/;
+    }
     return Object.keys(iFaces).some((name) => {
       return re.test(name) &&
              iFaces[name].some(({ family }) => family === 'IPv6');
@@ -958,7 +975,12 @@ const common = {
   },
 
   // On IBMi, process.platform and os.platform() both return 'aix',
+  // when built with Python versions earlier than 3.9.
   // It is not enough to differentiate between IBMi and real AIX system.
+  get isAIX() {
+    return require('os').type() === 'AIX';
+  },
+
   get isIBMi() {
     return require('os').type() === 'OS400';
   },

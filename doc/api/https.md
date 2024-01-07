@@ -176,9 +176,14 @@ See [`server.maxHeadersCount`][] in the `node:http` module.
 
 <!-- YAML
 added: v14.11.0
+changes:
+  - version: v18.0.0
+    pr-url: https://github.com/nodejs/node/pull/41263
+    description: The default request timeout changed
+                 from no timeout to 300s (5 minutes).
 -->
 
-* {number} **Default:** `0`
+* {number} **Default:** `300000`
 
 See [`server.requestTimeout`][] in the `node:http` module.
 
@@ -280,7 +285,7 @@ changes:
 
 * `url` {string | URL}
 * `options` {Object | string | URL} Accepts the same `options` as
-  [`https.request()`][], with the `method` always set to `GET`.
+  [`https.request()`][], with the method set to GET by default.
 * `callback` {Function}
 
 Like [`http.get()`][] but for HTTPS.

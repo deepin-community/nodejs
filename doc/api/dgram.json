@@ -8,7 +8,7 @@
       "introduced_in": "v0.10.0",
       "stability": 2,
       "stabilityText": "Stable",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.13.0/lib/dgram.js\">lib/dgram.js</a></p>\n<p>The <code>node:dgram</code> module provides an implementation of UDP datagram sockets.</p>\n<pre><code class=\"language-mjs\">import dgram from 'node:dgram';\n\nconst server = dgram.createSocket('udp4');\n\nserver.on('error', (err) => {\n  console.error(`server error:\\n${err.stack}`);\n  server.close();\n});\n\nserver.on('message', (msg, rinfo) => {\n  console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);\n});\n\nserver.on('listening', () => {\n  const address = server.address();\n  console.log(`server listening ${address.address}:${address.port}`);\n});\n\nserver.bind(41234);\n// Prints: server listening 0.0.0.0:41234\n</code></pre>\n<pre><code class=\"language-cjs\">const dgram = require('node:dgram');\nconst server = dgram.createSocket('udp4');\n\nserver.on('error', (err) => {\n  console.error(`server error:\\n${err.stack}`);\n  server.close();\n});\n\nserver.on('message', (msg, rinfo) => {\n  console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);\n});\n\nserver.on('listening', () => {\n  const address = server.address();\n  console.log(`server listening ${address.address}:${address.port}`);\n});\n\nserver.bind(41234);\n// Prints: server listening 0.0.0.0:41234\n</code></pre>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.19.0/lib/dgram.js\">lib/dgram.js</a></p>\n<p>The <code>node:dgram</code> module provides an implementation of UDP datagram sockets.</p>\n<pre><code class=\"language-mjs\">import dgram from 'node:dgram';\n\nconst server = dgram.createSocket('udp4');\n\nserver.on('error', (err) => {\n  console.error(`server error:\\n${err.stack}`);\n  server.close();\n});\n\nserver.on('message', (msg, rinfo) => {\n  console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);\n});\n\nserver.on('listening', () => {\n  const address = server.address();\n  console.log(`server listening ${address.address}:${address.port}`);\n});\n\nserver.bind(41234);\n// Prints: server listening 0.0.0.0:41234\n</code></pre>\n<pre><code class=\"language-cjs\">const dgram = require('node:dgram');\nconst server = dgram.createSocket('udp4');\n\nserver.on('error', (err) => {\n  console.error(`server error:\\n${err.stack}`);\n  server.close();\n});\n\nserver.on('message', (msg, rinfo) => {\n  console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);\n});\n\nserver.on('listening', () => {\n  const address = server.address();\n  console.log(`server listening ${address.address}:${address.port}`);\n});\n\nserver.bind(41234);\n// Prints: server listening 0.0.0.0:41234\n</code></pre>",
       "classes": [
         {
           "textRaw": "Class: `dgram.Socket`",
@@ -304,6 +304,25 @@
                 }
               ],
               "desc": "<p>Close the underlying socket and stop listening for data on it. If a callback is\nprovided, it is added as a listener for the <a href=\"#event-close\"><code>'close'</code></a> event.</p>"
+            },
+            {
+              "textRaw": "`socket[Symbol.asyncDispose]()`",
+              "type": "method",
+              "name": "[Symbol.asyncDispose]",
+              "meta": {
+                "added": [
+                  "v18.18.0"
+                ],
+                "changes": []
+              },
+              "stability": 1,
+              "stabilityText": "Experimental",
+              "signatures": [
+                {
+                  "params": []
+                }
+              ],
+              "desc": "<p>Calls <a href=\"#socketclosecallback\"><code>socket.close()</code></a> and returns a promise that fulfills when the\nsocket has closed.</p>"
             },
             {
               "textRaw": "`socket.connect(port[, address][, callback])`",

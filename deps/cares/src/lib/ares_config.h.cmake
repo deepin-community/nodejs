@@ -1,3 +1,7 @@
+/* Copyright (C) The c-ares project and its contributors
+ * SPDX-License-Identifier: MIT
+ */
+
 /* Generated from ares_config.h.cmake */
 
 /* Define if building universal (internal helper macro) */
@@ -122,6 +126,9 @@
 
 /* Define to 1 if you have the getnameinfo function. */
 #cmakedefine HAVE_GETNAMEINFO
+
+/* Define to 1 if you have the getrandom function. */
+#cmakedefine HAVE_GETRANDOM
 
 /* Define to 1 if you have the getservbyport_r function. */
 #cmakedefine HAVE_GETSERVBYPORT_R
@@ -345,6 +352,9 @@
 
 /* Define to 1 if you need the memory.h header file even with stdlib.h */
 #cmakedefine NEED_MEMORY_H
+
+/* Define if have arc4random_buf() */
+#cmakedefine HAVE_ARC4RANDOM_BUF
 
 /* a suitable file/device to read random data from */
 #cmakedefine CARES_RANDOM_FILE "@CARES_RANDOM_FILE@"

@@ -2,7 +2,9 @@
 #include "node_snapshotable.h"
 #include <iostream>
 #include <sstream>
+#include <vector>
 #include "base_object-inl.h"
+#include "blob_serializer_deserializer-inl.h"
 #include "debug_utils-inl.h"
 #include "env-inl.h"
 #include "node_blob.h"
@@ -16,6 +18,7 @@
 #include "node_metadata.h"
 #include "node_process.h"
 #include "node_snapshot_builder.h"
+#include "node_url.h"
 #include "node_util.h"
 #include "node_v8.h"
 #include "node_v8_platform-inl.h"
@@ -99,6 +102,9 @@ std::ostream& operator<<(std::ostream& output,
 
 std::ostream& operator<<(std::ostream& output, const RealmSerializeInfo& i) {
   output << "{\n"
+         << "// -- builtins begins --\n"
+         << i.builtins << ",\n"
+         << "// -- builtins ends --\n"
          << "// -- persistent_values begins --\n"
          << i.persistent_values << ",\n"
          << "// -- persistent_values ends --\n"
@@ -112,14 +118,12 @@ std::ostream& operator<<(std::ostream& output, const RealmSerializeInfo& i) {
 
 std::ostream& operator<<(std::ostream& output, const EnvSerializeInfo& i) {
   output << "{\n"
-         << "// -- builtins begins --\n"
-         << i.builtins << ",\n"
-         << "// -- builtins ends --\n"
          << "// -- async_hooks begins --\n"
          << i.async_hooks << ",\n"
          << "// -- async_hooks ends --\n"
          << i.tick_info << ",  // tick_info\n"
          << i.immediate_info << ",  // immediate_info\n"
+         << i.timeout_info << ",  // timeout_info\n"
          << "// -- performance_state begins --\n"
          << i.performance_state << ",\n"
          << "// -- performance_state ends --\n"
@@ -134,11 +138,10 @@ std::ostream& operator<<(std::ostream& output, const EnvSerializeInfo& i) {
   return output;
 }
 
-class FileIO {
+class SnapshotSerializerDeserializer {
  public:
-  explicit FileIO(FILE* file)
-      : f(file),
-        is_debug(per_process::enabled_debug_list.enabled(
+  SnapshotSerializerDeserializer()
+      : is_debug(per_process::enabled_debug_list.enabled(
             DebugCategory::MKSNAPSHOT)) {}
 
   template <typename... Args>
@@ -162,32 +165,29 @@ class FileIO {
   V(std::string)
 
 #define V(TypeName)                                                            \
-  if (std::is_same_v<T, TypeName>) {                                           \
+  if constexpr (std::is_same_v<T, TypeName>) {                                 \
     return #TypeName;                                                          \
-  }
+  } else  // NOLINT(readability/braces)
     TYPE_LIST(V)
 #undef V
 
-    std::string name;
-    if (std::is_arithmetic_v<T>) {
-      if (!std::is_signed_v<T>) {
-        name += "u";
-      }
-      name += std::is_integral_v<T> ? "int" : "float";
-      name += std::to_string(sizeof(T) * 8);
-      name += "_t";
+    if constexpr (std::is_arithmetic_v<T>) {
+      return (std::is_unsigned_v<T>   ? "uint"
+              : std::is_integral_v<T> ? "int"
+                                      : "float") +
+             std::to_string(sizeof(T) * 8) + "_t";
     }
-    return name;
+    return "";
   }
 
-  FILE* f = nullptr;
   bool is_debug = false;
 };
 
-class FileReader : public FileIO {
+class SnapshotDeserializer : public SnapshotSerializerDeserializer {
  public:
-  explicit FileReader(FILE* file) : FileIO(file) {}
-  ~FileReader() {}
+  explicit SnapshotDeserializer(const std::vector<char>& s)
+      : SnapshotSerializerDeserializer(), sink(s) {}
+  ~SnapshotDeserializer() {}
 
   // Helper for reading numeric types.
   template <typename T>
@@ -232,19 +232,19 @@ class FileReader : public FileIO {
 
     CHECK_GT(length, 0);  // There should be no empty strings.
     MallocedBuffer<char> buf(length + 1);
-    size_t r = fread(buf.data, 1, length + 1, f);
-    CHECK_EQ(r, length + 1);
+    memcpy(buf.data, sink.data() + read_total, length + 1);
     std::string result(buf.data, length);  // This creates a copy of buf.data.
 
     if (is_debug) {
-      Debug("\"%s\", read %d bytes\n", result.c_str(), r);
+      Debug("\"%s\", read %zu bytes\n", result.c_str(), length + 1);
     }
 
-    read_total += r;
+    read_total += length + 1;
     return result;
   }
 
   size_t read_total = 0;
+  const std::vector<char>& sink;
 
  private:
   // Helper for reading an array of numeric types.
@@ -257,15 +257,15 @@ class FileReader : public FileIO {
       Debug("Read<%s>()(%d-byte), count=%d: ", name.c_str(), sizeof(T), count);
     }
 
-    size_t r = fread(out, sizeof(T), count, f);
-    CHECK_EQ(r, count);
+    size_t size = sizeof(T) * count;
+    memcpy(out, sink.data() + read_total, size);
 
     if (is_debug) {
       std::string str =
           "{ " + std::to_string(out[0]) + (count > 1 ? ", ... }" : " }");
-      Debug("%s, read %d bytes\n", str.c_str(), r);
+      Debug("%s, read %zu bytes\n", str.c_str(), size);
     }
-    read_total += r;
+    read_total += size;
   }
 
   // Helper for reading numeric vectors.
@@ -299,10 +299,15 @@ class FileReader : public FileIO {
   }
 };
 
-class FileWriter : public FileIO {
+class SnapshotSerializer : public SnapshotSerializerDeserializer {
  public:
-  explicit FileWriter(FILE* file) : FileIO(file) {}
-  ~FileWriter() {}
+  SnapshotSerializer() : SnapshotSerializerDeserializer() {
+    // Currently the snapshot blob built with an empty script is around 4MB.
+    // So use that as the default sink size.
+    sink.reserve(4 * 1024 * 1024);
+  }
+  ~SnapshotSerializer() {}
+  std::vector<char> sink;
 
   // Helper for writing numeric types.
   template <typename T>
@@ -348,15 +353,16 @@ class FileWriter : public FileIO {
     size_t written_total = Write<size_t>(data.size());
     if (is_debug) {
       std::string str = ToStr(data);
-      Debug("WriteString(), length=%d: \"%s\"\n", data.size(), data.c_str());
+      Debug("WriteString(), length=%zu: \"%s\"\n", data.size(), data.c_str());
     }
 
-    size_t r = fwrite(data.c_str(), 1, data.size() + 1, f);
-    CHECK_EQ(r, data.size() + 1);
-    written_total += r;
+    // Write the null-terminated string.
+    size_t length = data.size() + 1;
+    sink.insert(sink.end(), data.c_str(), data.c_str() + length);
+    written_total += length;
 
     if (is_debug) {
-      Debug("WriteString() wrote %d bytes\n", written_total);
+      Debug("WriteString() wrote %zu bytes\n", written_total);
     }
 
     return written_total;
@@ -371,20 +377,21 @@ class FileWriter : public FileIO {
       std::string str =
           "{ " + std::to_string(data[0]) + (count > 1 ? ", ... }" : " }");
       std::string name = GetName<T>();
-      Debug("Write<%s>() (%d-byte), count=%d: %s",
+      Debug("Write<%s>() (%zu-byte), count=%zu: %s",
             name.c_str(),
             sizeof(T),
             count,
             str.c_str());
     }
 
-    size_t r = fwrite(data, sizeof(T), count, f);
-    CHECK_EQ(r, count);
+    size_t size = sizeof(T) * count;
+    const char* pos = reinterpret_cast<const char*>(data);
+    sink.insert(sink.end(), pos, pos + size);
 
     if (is_debug) {
-      Debug(", wrote %d bytes\n", r);
+      Debug(", wrote %zu bytes\n", size);
     }
-    return r;
+    return size;
   }
 
   // Helper for writing numeric vectors.
@@ -417,11 +424,11 @@ class FileWriter : public FileIO {
 // [  4/8 bytes     ] length
 // [ |length| bytes ] contents
 template <>
-std::string FileReader::Read() {
+std::string SnapshotDeserializer::Read() {
   return ReadString();
 }
 template <>
-size_t FileWriter::Write(const std::string& data) {
+size_t SnapshotSerializer::Write(const std::string& data) {
   return WriteString(data);
 }
 
@@ -429,7 +436,7 @@ size_t FileWriter::Write(const std::string& data) {
 // [  4/8 bytes       ] raw_size
 // [ |raw_size| bytes ] contents
 template <>
-v8::StartupData FileReader::Read() {
+v8::StartupData SnapshotDeserializer::Read() {
   Debug("Read<v8::StartupData>()\n");
 
   int raw_size = Read<int>();
@@ -444,7 +451,7 @@ v8::StartupData FileReader::Read() {
 }
 
 template <>
-size_t FileWriter::Write(const v8::StartupData& data) {
+size_t SnapshotSerializer::Write(const v8::StartupData& data) {
   Debug("\nWrite<v8::StartupData>() size=%d\n", data.raw_size);
 
   CHECK_GT(data.raw_size, 0);  // There should be no startup data of size 0.
@@ -461,7 +468,7 @@ size_t FileWriter::Write(const v8::StartupData& data) {
 // [  4/8 bytes ]  length of module code cache
 // [    ...     ]  |length| bytes of module code cache
 template <>
-builtins::CodeCacheInfo FileReader::Read() {
+builtins::CodeCacheInfo SnapshotDeserializer::Read() {
   Debug("Read<builtins::CodeCacheInfo>()\n");
 
   builtins::CodeCacheInfo result{ReadString(), ReadVector<uint8_t>()};
@@ -474,7 +481,7 @@ builtins::CodeCacheInfo FileReader::Read() {
 }
 
 template <>
-size_t FileWriter::Write(const builtins::CodeCacheInfo& data) {
+size_t SnapshotSerializer::Write(const builtins::CodeCacheInfo& data) {
   Debug("\nWrite<builtins::CodeCacheInfo>() id = %s"
         ", size=%d\n",
         data.id.c_str(),
@@ -494,7 +501,7 @@ size_t FileWriter::Write(const builtins::CodeCacheInfo& data) {
 // [ 4/8 bytes ]  index in the snapshot blob, can be used with
 //                GetDataFromSnapshotOnce().
 template <>
-PropInfo FileReader::Read() {
+PropInfo SnapshotDeserializer::Read() {
   Debug("Read<PropInfo>()\n");
 
   PropInfo result;
@@ -511,7 +518,7 @@ PropInfo FileReader::Read() {
 }
 
 template <>
-size_t FileWriter::Write(const PropInfo& data) {
+size_t SnapshotSerializer::Write(const PropInfo& data) {
   if (is_debug) {
     std::string str = ToStr(data);
     Debug("Write<PropInfo>() %s\n", str.c_str());
@@ -534,7 +541,7 @@ size_t FileWriter::Write(const PropInfo& data) {
 // [   ...     ]  snapshot indices of each element in
 //                native_execution_async_resources
 template <>
-AsyncHooks::SerializeInfo FileReader::Read() {
+AsyncHooks::SerializeInfo SnapshotDeserializer::Read() {
   Debug("Read<AsyncHooks::SerializeInfo>()\n");
 
   AsyncHooks::SerializeInfo result;
@@ -552,7 +559,7 @@ AsyncHooks::SerializeInfo FileReader::Read() {
   return result;
 }
 template <>
-size_t FileWriter::Write(const AsyncHooks::SerializeInfo& data) {
+size_t SnapshotSerializer::Write(const AsyncHooks::SerializeInfo& data) {
   if (is_debug) {
     std::string str = ToStr(data);
     Debug("Write<AsyncHooks::SerializeInfo>() %s\n", str.c_str());
@@ -572,7 +579,7 @@ size_t FileWriter::Write(const AsyncHooks::SerializeInfo& data) {
 // Layout of TickInfo::SerializeInfo
 // [ 4/8 bytes ]  snapshot index of fields
 template <>
-TickInfo::SerializeInfo FileReader::Read() {
+TickInfo::SerializeInfo SnapshotDeserializer::Read() {
   Debug("Read<TickInfo::SerializeInfo>()\n");
 
   TickInfo::SerializeInfo result;
@@ -587,7 +594,7 @@ TickInfo::SerializeInfo FileReader::Read() {
 }
 
 template <>
-size_t FileWriter::Write(const TickInfo::SerializeInfo& data) {
+size_t SnapshotSerializer::Write(const TickInfo::SerializeInfo& data) {
   if (is_debug) {
     std::string str = ToStr(data);
     Debug("Write<TickInfo::SerializeInfo>() %s\n", str.c_str());
@@ -602,7 +609,7 @@ size_t FileWriter::Write(const TickInfo::SerializeInfo& data) {
 // Layout of TickInfo::SerializeInfo
 // [ 4/8 bytes ]  snapshot index of fields
 template <>
-ImmediateInfo::SerializeInfo FileReader::Read() {
+ImmediateInfo::SerializeInfo SnapshotDeserializer::Read() {
   per_process::Debug(DebugCategory::MKSNAPSHOT,
                      "Read<ImmediateInfo::SerializeInfo>()\n");
 
@@ -616,15 +623,15 @@ ImmediateInfo::SerializeInfo FileReader::Read() {
 }
 
 template <>
-size_t FileWriter::Write(const ImmediateInfo::SerializeInfo& data) {
+size_t SnapshotSerializer::Write(const ImmediateInfo::SerializeInfo& data) {
   if (is_debug) {
     std::string str = ToStr(data);
-    Debug("Write<ImmeidateInfo::SerializeInfo>() %s\n", str.c_str());
+    Debug("Write<ImmediateInfo::SerializeInfo>() %s\n", str.c_str());
   }
 
   size_t written_total = Write<AliasedBufferIndex>(data.fields);
 
-  Debug("Write<ImmeidateInfo::SerializeInfo>() wrote %d bytes\n",
+  Debug("Write<ImmediateInfo::SerializeInfo>() wrote %d bytes\n",
         written_total);
   return written_total;
 }
@@ -634,7 +641,7 @@ size_t FileWriter::Write(const ImmediateInfo::SerializeInfo& data) {
 // [ 4/8 bytes ]  snapshot index of milestones
 // [ 4/8 bytes ]  snapshot index of observers
 template <>
-performance::PerformanceState::SerializeInfo FileReader::Read() {
+performance::PerformanceState::SerializeInfo SnapshotDeserializer::Read() {
   per_process::Debug(DebugCategory::MKSNAPSHOT,
                      "Read<PerformanceState::SerializeInfo>()\n");
 
@@ -650,7 +657,7 @@ performance::PerformanceState::SerializeInfo FileReader::Read() {
 }
 
 template <>
-size_t FileWriter::Write(
+size_t SnapshotSerializer::Write(
     const performance::PerformanceState::SerializeInfo& data) {
   if (is_debug) {
     std::string str = ToStr(data);
@@ -672,7 +679,7 @@ size_t FileWriter::Write(
 // [ 4/8 bytes ]  length of template_values vector
 // [    ...    ]  |length| of PropInfo data
 template <>
-IsolateDataSerializeInfo FileReader::Read() {
+IsolateDataSerializeInfo SnapshotDeserializer::Read() {
   per_process::Debug(DebugCategory::MKSNAPSHOT,
                      "Read<IsolateDataSerializeInfo>()\n");
 
@@ -687,7 +694,7 @@ IsolateDataSerializeInfo FileReader::Read() {
 }
 
 template <>
-size_t FileWriter::Write(const IsolateDataSerializeInfo& data) {
+size_t SnapshotSerializer::Write(const IsolateDataSerializeInfo& data) {
   if (is_debug) {
     std::string str = ToStr(data);
     Debug("Write<IsolateDataSerializeInfo>() %s\n", str.c_str());
@@ -701,9 +708,10 @@ size_t FileWriter::Write(const IsolateDataSerializeInfo& data) {
 }
 
 template <>
-RealmSerializeInfo FileReader::Read() {
+RealmSerializeInfo SnapshotDeserializer::Read() {
   per_process::Debug(DebugCategory::MKSNAPSHOT, "Read<RealmSerializeInfo>()\n");
   RealmSerializeInfo result;
+  result.builtins = ReadVector<std::string>();
   result.persistent_values = ReadVector<PropInfo>();
   result.native_objects = ReadVector<PropInfo>();
   result.context = Read<SnapshotIndex>();
@@ -711,14 +719,15 @@ RealmSerializeInfo FileReader::Read() {
 }
 
 template <>
-size_t FileWriter::Write(const RealmSerializeInfo& data) {
+size_t SnapshotSerializer::Write(const RealmSerializeInfo& data) {
   if (is_debug) {
     std::string str = ToStr(data);
     Debug("\nWrite<RealmSerializeInfo>() %s\n", str.c_str());
   }
 
   // Use += here to ensure order of evaluation.
-  size_t written_total = WriteVector<PropInfo>(data.persistent_values);
+  size_t written_total = WriteVector<std::string>(data.builtins);
+  written_total += WriteVector<PropInfo>(data.persistent_values);
   written_total += WriteVector<PropInfo>(data.native_objects);
   written_total += Write<SnapshotIndex>(data.context);
 
@@ -727,13 +736,13 @@ size_t FileWriter::Write(const RealmSerializeInfo& data) {
 }
 
 template <>
-EnvSerializeInfo FileReader::Read() {
+EnvSerializeInfo SnapshotDeserializer::Read() {
   per_process::Debug(DebugCategory::MKSNAPSHOT, "Read<EnvSerializeInfo>()\n");
   EnvSerializeInfo result;
-  result.builtins = ReadVector<std::string>();
   result.async_hooks = Read<AsyncHooks::SerializeInfo>();
   result.tick_info = Read<TickInfo::SerializeInfo>();
   result.immediate_info = Read<ImmediateInfo::SerializeInfo>();
+  result.timeout_info = Read<AliasedBufferIndex>();
   result.performance_state =
       Read<performance::PerformanceState::SerializeInfo>();
   result.exiting = Read<AliasedBufferIndex>();
@@ -744,17 +753,17 @@ EnvSerializeInfo FileReader::Read() {
 }
 
 template <>
-size_t FileWriter::Write(const EnvSerializeInfo& data) {
+size_t SnapshotSerializer::Write(const EnvSerializeInfo& data) {
   if (is_debug) {
     std::string str = ToStr(data);
     Debug("\nWrite<EnvSerializeInfo>() %s\n", str.c_str());
   }
 
   // Use += here to ensure order of evaluation.
-  size_t written_total = WriteVector<std::string>(data.builtins);
-  written_total += Write<AsyncHooks::SerializeInfo>(data.async_hooks);
+  size_t written_total = Write<AsyncHooks::SerializeInfo>(data.async_hooks);
   written_total += Write<TickInfo::SerializeInfo>(data.tick_info);
   written_total += Write<ImmediateInfo::SerializeInfo>(data.immediate_info);
+  written_total += Write<AliasedBufferIndex>(data.timeout_info);
   written_total += Write<performance::PerformanceState::SerializeInfo>(
       data.performance_state);
   written_total += Write<AliasedBufferIndex>(data.exiting);
@@ -777,7 +786,7 @@ size_t FileWriter::Write(const EnvSerializeInfo& data) {
 // [    ...    ]  |length| bytes of node platform
 // [  4 bytes  ]  v8 cache version tag
 template <>
-SnapshotMetadata FileReader::Read() {
+SnapshotMetadata SnapshotDeserializer::Read() {
   per_process::Debug(DebugCategory::MKSNAPSHOT, "Read<SnapshotMetadata>()\n");
 
   SnapshotMetadata result;
@@ -795,7 +804,7 @@ SnapshotMetadata FileReader::Read() {
 }
 
 template <>
-size_t FileWriter::Write(const SnapshotMetadata& data) {
+size_t SnapshotSerializer::Write(const SnapshotMetadata& data) {
   if (is_debug) {
     std::string str = ToStr(data);
     Debug("\nWrite<SnapshotMetadata>() %s\n", str.c_str());
@@ -830,7 +839,7 @@ size_t FileWriter::Write(const SnapshotMetadata& data) {
 // [    ...       ]  code_cache
 
 void SnapshotData::ToBlob(FILE* out) const {
-  FileWriter w(out);
+  SnapshotSerializer w;
   w.Debug("SnapshotData::ToBlob()\n");
 
   size_t written_total = 0;
@@ -847,11 +856,26 @@ void SnapshotData::ToBlob(FILE* out) const {
   written_total += w.Write<EnvSerializeInfo>(env_info);
   w.Debug("Write code_cache\n");
   written_total += w.WriteVector<builtins::CodeCacheInfo>(code_cache);
+  size_t num_written = fwrite(w.sink.data(), w.sink.size(), 1, out);
+  CHECK_EQ(num_written, 1);
   w.Debug("SnapshotData::ToBlob() Wrote %d bytes\n", written_total);
+  CHECK_EQ(fflush(out), 0);
 }
 
 bool SnapshotData::FromBlob(SnapshotData* out, FILE* in) {
-  FileReader r(in);
+  CHECK_EQ(ftell(in), 0);
+  int err = fseek(in, 0, SEEK_END);
+  CHECK_EQ(err, 0);
+  size_t size = ftell(in);
+  CHECK_NE(size, static_cast<size_t>(-1L));
+  err = fseek(in, 0, SEEK_SET);
+  CHECK_EQ(err, 0);
+
+  std::vector<char> sink(size);
+  size_t num_read = fread(sink.data(), size, 1, in);
+  CHECK_EQ(num_read, 1);
+
+  SnapshotDeserializer r(sink);
   r.Debug("SnapshotData::FromBlob()\n");
 
   DCHECK_EQ(out->data_ownership, SnapshotData::DataOwnership::kOwned);
@@ -1015,10 +1039,10 @@ static const int v8_snapshot_blob_size = )"
   // -- v8_snapshot_blob_data begins --
   { v8_snapshot_blob_data, v8_snapshot_blob_size },
   // -- v8_snapshot_blob_data ends --
-  // -- isolate_data_indices begins --
+  // -- isolate_data_info begins --
 )" << data->isolate_data_info
      << R"(
-  // -- isolate_data_indices ends --
+  // -- isolate_data_info ends --
   ,
   // -- env_info begins --
 )" << data->env_info
@@ -1156,16 +1180,21 @@ int SnapshotBuilder::Generate(SnapshotData* out,
       Context::Scope context_scope(main_context);
 
       // Create the environment.
-      env = new Environment(main_instance->isolate_data(),
-                            main_context,
-                            args,
-                            exec_args,
-                            nullptr,
-                            node::EnvironmentFlags::kDefaultFlags,
-                            {});
+      // It's not guaranteed that a context that goes through
+      // v8_inspector::V8Inspector::contextCreated() is runtime-independent,
+      // so do not start the inspector on the main context when building
+      // the default snapshot.
+      uint64_t env_flags = EnvironmentFlags::kDefaultFlags |
+                           EnvironmentFlags::kNoCreateInspector;
 
-      // Run scripts in lib/internal/bootstrap/
-      if (env->principal_realm()->RunBootstrapping().IsEmpty()) {
+      env = CreateEnvironment(main_instance->isolate_data(),
+                              main_context,
+                              args,
+                              exec_args,
+                              static_cast<EnvironmentFlags::Flags>(env_flags));
+
+      // This already ran scripts in lib/internal/bootstrap/, if it fails return
+      if (env == nullptr) {
         return BOOTSTRAP_ERROR;
       }
       // If --build-snapshot is true, lib/internal/main/mksnapshot.js would be
@@ -1202,10 +1231,10 @@ int SnapshotBuilder::Generate(SnapshotData* out,
 
 #ifdef NODE_USE_NODE_CODE_CACHE
       // Regenerate all the code cache.
-      if (!builtins::BuiltinLoader::CompileAllBuiltins(main_context)) {
+      if (!env->builtin_loader()->CompileAllBuiltins(main_context)) {
         return UNCAUGHT_EXCEPTION_ERROR;
       }
-      builtins::BuiltinLoader::CopyCodeCache(&(out->code_cache));
+      env->builtin_loader()->CopyCodeCache(&(out->code_cache));
       for (const auto& item : out->code_cache) {
         std::string size_str = FormatSize(item.data.size());
         per_process::Debug(DebugCategory::MKSNAPSHOT,
@@ -1274,17 +1303,16 @@ int SnapshotBuilder::Generate(std::ostream& out,
   return exit_code;
 }
 
-SnapshotableObject::SnapshotableObject(Environment* env,
+SnapshotableObject::SnapshotableObject(Realm* realm,
                                        Local<Object> wrap,
                                        EmbedderObjectType type)
-    : BaseObject(env, wrap), type_(type) {
-}
+    : BaseObject(realm, wrap), type_(type) {}
 
-const char* SnapshotableObject::GetTypeNameChars() const {
+std::string SnapshotableObject::GetTypeName() const {
   switch (type_) {
 #define V(PropertyName, NativeTypeName)                                        \
   case EmbedderObjectType::k_##PropertyName: {                                 \
-    return NativeTypeName::type_name.c_str();                                  \
+    return #NativeTypeName;                                                    \
   }
     SERIALIZABLE_OBJECT_TYPES(V)
 #undef V
@@ -1325,7 +1353,7 @@ void DeserializeNodeInternalFields(Local<Object> holder,
     per_process::Debug(DebugCategory::MKSNAPSHOT,                              \
                        "Object %p is %s\n",                                    \
                        (*holder),                                              \
-                       NativeTypeName::type_name.c_str());                     \
+                       #NativeTypeName);                                       \
     env_ptr->EnqueueDeserializeRequest(                                        \
         NativeTypeName::Deserialize,                                           \
         holder,                                                                \
@@ -1387,7 +1415,7 @@ StartupData SerializeNodeContextInternalFields(Local<Object> holder,
   per_process::Debug(DebugCategory::MKSNAPSHOT,
                      "Object %p is %s, ",
                      *holder,
-                     obj->GetTypeNameChars());
+                     obj->GetTypeName());
   InternalFieldInfoBase* info = obj->Serialize(index);
 
   per_process::Debug(DebugCategory::MKSNAPSHOT,
@@ -1412,7 +1440,7 @@ void SerializeSnapshotableObjects(Realm* realm,
     }
     SnapshotableObject* ptr = static_cast<SnapshotableObject*>(obj);
 
-    const char* type_name = ptr->GetTypeNameChars();
+    std::string type_name = ptr->GetTypeName();
     per_process::Debug(DebugCategory::MKSNAPSHOT,
                        "Serialize snapshotable object %i (%p), "
                        "object=%p, type=%s\n",
@@ -1456,7 +1484,7 @@ void CompileSerializeMain(const FunctionCallbackInfo<Value>& args) {
                                       parameters.data(),
                                       0,
                                       nullptr,
-                                      ScriptCompiler::kEagerCompile)
+                                      ScriptCompiler::kNoCompileOptions)
           .ToLocal(&fn)) {
     args.GetReturnValue().Set(fn);
   }
@@ -1505,6 +1533,6 @@ void RegisterExternalReferences(ExternalReferenceRegistry* registry) {
 }  // namespace mksnapshot
 }  // namespace node
 
-NODE_MODULE_CONTEXT_AWARE_INTERNAL(mksnapshot, node::mksnapshot::Initialize)
-NODE_MODULE_EXTERNAL_REFERENCE(mksnapshot,
-                               node::mksnapshot::RegisterExternalReferences)
+NODE_BINDING_CONTEXT_AWARE_INTERNAL(mksnapshot, node::mksnapshot::Initialize)
+NODE_BINDING_EXTERNAL_REFERENCE(mksnapshot,
+                                node::mksnapshot::RegisterExternalReferences)

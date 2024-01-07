@@ -1186,9 +1186,10 @@ property is `false`.
 
 The `'error'` event is emitted whenever:
 
-1. The process could not be spawned, or
-2. The process could not be killed, or
-3. Sending a message to the child process failed.
+* The process could not be spawned.
+* The process could not be killed.
+* Sending a message to the child process failed.
+* The child process was aborted via the `signal` option.
 
 The `'exit'` event may or may not fire after an error has occurred. When
 listening to both the `'exit'` and `'error'` events, guard
@@ -1400,6 +1401,16 @@ setTimeout(() => {
   subprocess.kill(); // Does not terminate the Node.js process in the shell.
 }, 2000);
 ```
+
+### `subprocess[Symbol.dispose]()`
+
+<!-- YAML
+added: v18.18.0
+-->
+
+> Stability: 1 - Experimental
+
+Calls [`subprocess.kill()`][] with `'SIGTERM'`.
 
 ### `subprocess.killed`
 

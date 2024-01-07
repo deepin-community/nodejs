@@ -57,6 +57,8 @@ const customTypesMap = {
   'Module Namespace Object':
     'https://tc39.github.io/ecma262/#sec-module-namespace-exotic-objects',
 
+  'AsyncLocalStorage': 'async_context.html#class-asynclocalstorage',
+
   'AsyncHook': 'async_hooks.html#async_hookscreatehookcallbacks',
   'AsyncResource': 'async_hooks.html#class-asyncresource',
 
@@ -108,6 +110,7 @@ const customTypesMap = {
   'dgram.Socket': 'dgram.html#class-dgramsocket',
 
   'Channel': 'diagnostics_channel.html#class-channel',
+  'TracingChannel': 'diagnostics_channel.html#class-tracingchannel',
 
   'Domain': 'domain.html#class-domain',
 
@@ -127,6 +130,7 @@ const customTypesMap = {
   'fs.FSWatcher': 'fs.html#class-fsfswatcher',
   'fs.ReadStream': 'fs.html#class-fsreadstream',
   'fs.Stats': 'fs.html#class-fsstats',
+  'fs.StatFs': 'fs.html#class-fsstatfs',
   'fs.StatWatcher': 'fs.html#class-fsstatwatcher',
   'fs.WriteStream': 'fs.html#class-fswritestream',
 
@@ -207,7 +211,7 @@ const customTypesMap = {
   'Timeout': 'timers.html#class-timeout',
   'Timer': 'timers.html#timers',
 
-  'TapStream': 'test.html#class-tapstream',
+  'TestsStream': 'test.html#class-testsstream',
 
   'tls.SecureContext': 'tls.html#tlscreatesecurecontextoptions',
   'tls.Server': 'tls.html#class-tlsserver',
@@ -266,13 +270,14 @@ const customTypesMap = {
   'Headers': 'https://developer.mozilla.org/en-US/docs/Web/API/Headers',
   'Response': 'https://developer.mozilla.org/en-US/docs/Web/API/Response',
   'Request': 'https://developer.mozilla.org/en-US/docs/Web/API/Request',
+  'Disposable': 'https://tc39.es/proposal-explicit-resource-management/#sec-disposable-interface',
 };
 
 const arrayPart = /(?:\[])+$/;
 
 export function toLink(typeInput) {
   const typeLinks = [];
-  typeInput = typeInput.replace('{', '').replace('}', '').replace(/\\/g, '');
+  typeInput = typeInput.replace('{', '').replace('}', '');
   const typeTexts = typeInput.split('|');
 
   typeTexts.forEach((typeText) => {

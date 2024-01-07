@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.13.0">
-  <title>Errors | Node.js v18.13.0 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v18.19.0">
+  <title>Errors | Node.js v18.19.0 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
@@ -68,6 +68,7 @@
 <li><a href="readline.html" class="nav-readline">Readline</a></li>
 <li><a href="repl.html" class="nav-repl">REPL</a></li>
 <li><a href="report.html" class="nav-report">Report</a></li>
+<li><a href="single-executable-applications.html" class="nav-single-executable-applications">Single executable applications</a></li>
 <li><a href="stream.html" class="nav-stream">Stream</a></li>
 <li><a href="string_decoder.html" class="nav-string_decoder">String decoder</a></li>
 <li><a href="test.html" class="nav-test">Test runner</a></li>
@@ -95,7 +96,7 @@
     <div id="column1" data-id="errors" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.13.0 documentation</h1>
+          <h1>Node.js v18.19.0 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -110,7 +111,7 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.13.0</li>
+            <li class="pinned-header">Node.js v18.19.0</li>
             
     <li class="picker-header">
       <a href="#">
@@ -121,11 +122,7 @@
       <div class="picker"><div class="toc"><ul>
 <li><a href="#errors">Errors</a>
 <ul>
-<li><a href="#error-propagation-and-interception">Error propagation and interception</a>
-<ul>
-<li><a href="#error-first-callbacks">Error-first callbacks</a></li>
-</ul>
-</li>
+<li><a href="#error-propagation-and-interception">Error propagation and interception</a></li>
 <li><a href="#class-error">Class: <code>Error</code></a>
 <ul>
 <li><a href="#new-errormessage-options"><code>new Error(message[, options])</code></a></li>
@@ -168,10 +165,10 @@
 <li><a href="#nodejs-error-codes">Node.js error codes</a>
 <ul>
 <li><a href="#abort_err"><code>ABORT_ERR</code></a></li>
+<li><a href="#err_access_denied"><code>ERR_ACCESS_DENIED</code></a></li>
 <li><a href="#err_ambiguous_argument"><code>ERR_AMBIGUOUS_ARGUMENT</code></a></li>
 <li><a href="#err_arg_not_iterable"><code>ERR_ARG_NOT_ITERABLE</code></a></li>
 <li><a href="#err_assertion"><code>ERR_ASSERTION</code></a></li>
-<li><a href="#err_assert_snapshot_not_supported"><code>ERR_ASSERT_SNAPSHOT_NOT_SUPPORTED</code></a></li>
 <li><a href="#err_async_callback"><code>ERR_ASYNC_CALLBACK</code></a></li>
 <li><a href="#err_async_type"><code>ERR_ASYNC_TYPE</code></a></li>
 <li><a href="#err_brotli_compression_failed"><code>ERR_BROTLI_COMPRESSION_FAILED</code></a></li>
@@ -245,6 +242,7 @@
 <li><a href="#err_fs_cp_dir_to_non_dir"><code>ERR_FS_CP_DIR_TO_NON_DIR</code></a></li>
 <li><a href="#err_fs_cp_eexist"><code>ERR_FS_CP_EEXIST</code></a></li>
 <li><a href="#err_fs_cp_einval"><code>ERR_FS_CP_EINVAL</code></a></li>
+<li><a href="#err_http_body_not_allowed"><code>ERR_HTTP_BODY_NOT_ALLOWED</code></a></li>
 <li><a href="#err_http_content_length_mismatch"><code>ERR_HTTP_CONTENT_LENGTH_MISMATCH</code></a></li>
 <li><a href="#err_fs_cp_fifo_pipe"><code>ERR_FS_CP_FIFO_PIPE</code></a></li>
 <li><a href="#err_fs_cp_non_dir_to_dir"><code>ERR_FS_CP_NON_DIR_TO_DIR</code></a></li>
@@ -258,6 +256,7 @@
 <li><a href="#err_http_invalid_header_value"><code>ERR_HTTP_INVALID_HEADER_VALUE</code></a></li>
 <li><a href="#err_http_invalid_status_code"><code>ERR_HTTP_INVALID_STATUS_CODE</code></a></li>
 <li><a href="#err_http_request_timeout"><code>ERR_HTTP_REQUEST_TIMEOUT</code></a></li>
+<li><a href="#err_http_socket_assigned"><code>ERR_HTTP_SOCKET_ASSIGNED</code></a></li>
 <li><a href="#err_http_socket_encoding"><code>ERR_HTTP_SOCKET_ENCODING</code></a></li>
 <li><a href="#err_http_trailer_invalid"><code>ERR_HTTP_TRAILER_INVALID</code></a></li>
 <li><a href="#err_http2_altsvc_invalid_origin"><code>ERR_HTTP2_ALTSVC_INVALID_ORIGIN</code></a></li>
@@ -310,6 +309,7 @@
 <li><a href="#err_import_assertion_type_failed"><code>ERR_IMPORT_ASSERTION_TYPE_FAILED</code></a></li>
 <li><a href="#err_import_assertion_type_missing"><code>ERR_IMPORT_ASSERTION_TYPE_MISSING</code></a></li>
 <li><a href="#err_import_assertion_type_unsupported"><code>ERR_IMPORT_ASSERTION_TYPE_UNSUPPORTED</code></a></li>
+<li><a href="#err_import_attribute_unsupported"><code>ERR_IMPORT_ATTRIBUTE_UNSUPPORTED</code></a></li>
 <li><a href="#err_incompatible_option_pair"><code>ERR_INCOMPATIBLE_OPTION_PAIR</code></a></li>
 <li><span class="stability_1"><a href="#err_input_type_not_allowed"><code>ERR_INPUT_TYPE_NOT_ALLOWED</code></a></span></li>
 <li><a href="#err_inspector_already_activated"><code>ERR_INSPECTOR_ALREADY_ACTIVATED</code></a></li>
@@ -411,6 +411,7 @@
 <li><a href="#err_socket_bad_type"><code>ERR_SOCKET_BAD_TYPE</code></a></li>
 <li><a href="#err_socket_buffer_size"><code>ERR_SOCKET_BUFFER_SIZE</code></a></li>
 <li><a href="#err_socket_closed"><code>ERR_SOCKET_CLOSED</code></a></li>
+<li><a href="#err_socket_closed_before_connection"><code>ERR_SOCKET_CLOSED_BEFORE_CONNECTION</code></a></li>
 <li><a href="#err_socket_dgram_is_connected"><code>ERR_SOCKET_DGRAM_IS_CONNECTED</code></a></li>
 <li><a href="#err_socket_dgram_not_connected"><code>ERR_SOCKET_DGRAM_NOT_CONNECTED</code></a></li>
 <li><a href="#err_socket_dgram_not_running"><code>ERR_SOCKET_DGRAM_NOT_RUNNING</code></a></li>
@@ -431,6 +432,8 @@
 <li><a href="#err_tap_parser_error"><code>ERR_TAP_PARSER_ERROR</code></a></li>
 <li><a href="#err_tap_validation_error"><code>ERR_TAP_VALIDATION_ERROR</code></a></li>
 <li><a href="#err_test_failure"><code>ERR_TEST_FAILURE</code></a></li>
+<li><a href="#err_tls_alpn_callback_invalid_result"><code>ERR_TLS_ALPN_CALLBACK_INVALID_RESULT</code></a></li>
+<li><a href="#err_tls_alpn_callback_with_protocols"><code>ERR_TLS_ALPN_CALLBACK_WITH_PROTOCOLS</code></a></li>
 <li><a href="#err_tls_cert_altname_format"><code>ERR_TLS_CERT_ALTNAME_FORMAT</code></a></li>
 <li><a href="#err_tls_cert_altname_invalid"><code>ERR_TLS_CERT_ALTNAME_INVALID</code></a></li>
 <li><a href="#err_tls_dh_param_size"><code>ERR_TLS_DH_PARAM_SIZE</code></a></li>
@@ -591,6 +594,7 @@
 <li><a href="readline.html" class="nav-readline">Readline</a></li>
 <li><a href="repl.html" class="nav-repl">REPL</a></li>
 <li><a href="report.html" class="nav-report">Report</a></li>
+<li><a href="single-executable-applications.html" class="nav-single-executable-applications">Single executable applications</a></li>
 <li><a href="stream.html" class="nav-stream">Stream</a></li>
 <li><a href="string_decoder.html" class="nav-string_decoder">String decoder</a></li>
 <li><a href="test.html" class="nav-test">Test runner</a></li>
@@ -621,12 +625,14 @@
         <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v19.x/api/errors.html">19.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/errors.html">21.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v20.x/api/errors.html">20.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v19.x/api/errors.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/errors.html">18.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v17.x/api/errors.html">17.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v16.x/api/errors.html">16.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v16.x/api/errors.html">16.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v15.x/api/errors.html">15.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v14.x/api/errors.html">14.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v14.x/api/errors.html">14.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v13.x/api/errors.html">13.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v12.x/api/errors.html">12.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v11.x/api/errors.html">11.x</a></li>
@@ -665,11 +671,7 @@
       <details id="toc" open><summary>Table of contents</summary><ul>
 <li><a href="#errors">Errors</a>
 <ul>
-<li><a href="#error-propagation-and-interception">Error propagation and interception</a>
-<ul>
-<li><a href="#error-first-callbacks">Error-first callbacks</a></li>
-</ul>
-</li>
+<li><a href="#error-propagation-and-interception">Error propagation and interception</a></li>
 <li><a href="#class-error">Class: <code>Error</code></a>
 <ul>
 <li><a href="#new-errormessage-options"><code>new Error(message[, options])</code></a></li>
@@ -712,10 +714,10 @@
 <li><a href="#nodejs-error-codes">Node.js error codes</a>
 <ul>
 <li><a href="#abort_err"><code>ABORT_ERR</code></a></li>
+<li><a href="#err_access_denied"><code>ERR_ACCESS_DENIED</code></a></li>
 <li><a href="#err_ambiguous_argument"><code>ERR_AMBIGUOUS_ARGUMENT</code></a></li>
 <li><a href="#err_arg_not_iterable"><code>ERR_ARG_NOT_ITERABLE</code></a></li>
 <li><a href="#err_assertion"><code>ERR_ASSERTION</code></a></li>
-<li><a href="#err_assert_snapshot_not_supported"><code>ERR_ASSERT_SNAPSHOT_NOT_SUPPORTED</code></a></li>
 <li><a href="#err_async_callback"><code>ERR_ASYNC_CALLBACK</code></a></li>
 <li><a href="#err_async_type"><code>ERR_ASYNC_TYPE</code></a></li>
 <li><a href="#err_brotli_compression_failed"><code>ERR_BROTLI_COMPRESSION_FAILED</code></a></li>
@@ -789,6 +791,7 @@
 <li><a href="#err_fs_cp_dir_to_non_dir"><code>ERR_FS_CP_DIR_TO_NON_DIR</code></a></li>
 <li><a href="#err_fs_cp_eexist"><code>ERR_FS_CP_EEXIST</code></a></li>
 <li><a href="#err_fs_cp_einval"><code>ERR_FS_CP_EINVAL</code></a></li>
+<li><a href="#err_http_body_not_allowed"><code>ERR_HTTP_BODY_NOT_ALLOWED</code></a></li>
 <li><a href="#err_http_content_length_mismatch"><code>ERR_HTTP_CONTENT_LENGTH_MISMATCH</code></a></li>
 <li><a href="#err_fs_cp_fifo_pipe"><code>ERR_FS_CP_FIFO_PIPE</code></a></li>
 <li><a href="#err_fs_cp_non_dir_to_dir"><code>ERR_FS_CP_NON_DIR_TO_DIR</code></a></li>
@@ -802,6 +805,7 @@
 <li><a href="#err_http_invalid_header_value"><code>ERR_HTTP_INVALID_HEADER_VALUE</code></a></li>
 <li><a href="#err_http_invalid_status_code"><code>ERR_HTTP_INVALID_STATUS_CODE</code></a></li>
 <li><a href="#err_http_request_timeout"><code>ERR_HTTP_REQUEST_TIMEOUT</code></a></li>
+<li><a href="#err_http_socket_assigned"><code>ERR_HTTP_SOCKET_ASSIGNED</code></a></li>
 <li><a href="#err_http_socket_encoding"><code>ERR_HTTP_SOCKET_ENCODING</code></a></li>
 <li><a href="#err_http_trailer_invalid"><code>ERR_HTTP_TRAILER_INVALID</code></a></li>
 <li><a href="#err_http2_altsvc_invalid_origin"><code>ERR_HTTP2_ALTSVC_INVALID_ORIGIN</code></a></li>
@@ -854,6 +858,7 @@
 <li><a href="#err_import_assertion_type_failed"><code>ERR_IMPORT_ASSERTION_TYPE_FAILED</code></a></li>
 <li><a href="#err_import_assertion_type_missing"><code>ERR_IMPORT_ASSERTION_TYPE_MISSING</code></a></li>
 <li><a href="#err_import_assertion_type_unsupported"><code>ERR_IMPORT_ASSERTION_TYPE_UNSUPPORTED</code></a></li>
+<li><a href="#err_import_attribute_unsupported"><code>ERR_IMPORT_ATTRIBUTE_UNSUPPORTED</code></a></li>
 <li><a href="#err_incompatible_option_pair"><code>ERR_INCOMPATIBLE_OPTION_PAIR</code></a></li>
 <li><span class="stability_1"><a href="#err_input_type_not_allowed"><code>ERR_INPUT_TYPE_NOT_ALLOWED</code></a></span></li>
 <li><a href="#err_inspector_already_activated"><code>ERR_INSPECTOR_ALREADY_ACTIVATED</code></a></li>
@@ -955,6 +960,7 @@
 <li><a href="#err_socket_bad_type"><code>ERR_SOCKET_BAD_TYPE</code></a></li>
 <li><a href="#err_socket_buffer_size"><code>ERR_SOCKET_BUFFER_SIZE</code></a></li>
 <li><a href="#err_socket_closed"><code>ERR_SOCKET_CLOSED</code></a></li>
+<li><a href="#err_socket_closed_before_connection"><code>ERR_SOCKET_CLOSED_BEFORE_CONNECTION</code></a></li>
 <li><a href="#err_socket_dgram_is_connected"><code>ERR_SOCKET_DGRAM_IS_CONNECTED</code></a></li>
 <li><a href="#err_socket_dgram_not_connected"><code>ERR_SOCKET_DGRAM_NOT_CONNECTED</code></a></li>
 <li><a href="#err_socket_dgram_not_running"><code>ERR_SOCKET_DGRAM_NOT_RUNNING</code></a></li>
@@ -975,6 +981,8 @@
 <li><a href="#err_tap_parser_error"><code>ERR_TAP_PARSER_ERROR</code></a></li>
 <li><a href="#err_tap_validation_error"><code>ERR_TAP_VALIDATION_ERROR</code></a></li>
 <li><a href="#err_test_failure"><code>ERR_TEST_FAILURE</code></a></li>
+<li><a href="#err_tls_alpn_callback_invalid_result"><code>ERR_TLS_ALPN_CALLBACK_INVALID_RESULT</code></a></li>
+<li><a href="#err_tls_alpn_callback_with_protocols"><code>ERR_TLS_ALPN_CALLBACK_WITH_PROTOCOLS</code></a></li>
 <li><a href="#err_tls_cert_altname_format"><code>ERR_TLS_CERT_ALTNAME_FORMAT</code></a></li>
 <li><a href="#err_tls_cert_altname_invalid"><code>ERR_TLS_CERT_ALTNAME_INVALID</code></a></li>
 <li><a href="#err_tls_dh_param_size"><code>ERR_TLS_DH_PARAM_SIZE</code></a></li>
@@ -1110,15 +1118,32 @@ JavaScript language.</p>
   <span class="hljs-keyword">const</span> n = m + z;
 } <span class="hljs-keyword">catch</span> (err) {
   <span class="hljs-comment">// Handle the error here.</span>
-}</code></pre>
+}</code> <button class="copy-button">copy</button></pre>
 <p>Any use of the JavaScript <code>throw</code> mechanism will raise an exception that
-<em>must</em> be handled using <code>try…catch</code> or the Node.js process will exit
-immediately.</p>
+<em>must</em> be handled or the Node.js process will exit immediately.</p>
 <p>With few exceptions, <em>Synchronous</em> APIs (any blocking method that does not
-accept a <code>callback</code> function, such as <a href="fs.html#fsreadfilesyncpath-options"><code>fs.readFileSync</code></a>), will use <code>throw</code>
-to report errors.</p>
+return a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> nor accept a <code>callback</code> function, such as
+<a href="fs.html#fsreadfilesyncpath-options"><code>fs.readFileSync</code></a>), will use <code>throw</code> to report errors.</p>
 <p>Errors that occur within <em>Asynchronous APIs</em> may be reported in multiple ways:</p>
 <ul>
+<li>
+<p>Some asynchronous methods returns a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a>, you should always take into
+account that it might be rejected. See <a href="cli.html#--unhandled-rejectionsmode"><code>--unhandled-rejections</code></a> flag for
+how the process will react to an unhandled promise rejection.</p>
+<!-- eslint-disable no-useless-return -->
+<pre><code class="language-js"><span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs/promises'</span>);
+
+(<span class="hljs-keyword">async</span> () => {
+  <span class="hljs-keyword">let</span> data;
+  <span class="hljs-keyword">try</span> {
+    data = <span class="hljs-keyword">await</span> fs.<span class="hljs-title function_">readFile</span>(<span class="hljs-string">'a file that does not exist'</span>);
+  } <span class="hljs-keyword">catch</span> (err) {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">'There was an error reading the file!'</span>, err);
+    <span class="hljs-keyword">return</span>;
+  }
+  <span class="hljs-comment">// Otherwise handle the data</span>
+})();</code> <button class="copy-button">copy</button></pre>
+</li>
 <li>
 <p>Most asynchronous methods that accept a <code>callback</code> function will accept an
 <code>Error</code> object passed as the first argument to that function. If that first
@@ -1132,7 +1157,7 @@ fs.<span class="hljs-title function_">readFile</span>(<span class="hljs-string">
     <span class="hljs-keyword">return</span>;
   }
   <span class="hljs-comment">// Otherwise handle the data</span>
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 </li>
 <li>
 <p>When an asynchronous method is called on an object that is an
@@ -1148,7 +1173,7 @@ connection.<span class="hljs-title function_">on</span>(<span class="hljs-string
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(err);
 });
 
-connection.<span class="hljs-title function_">pipe</span>(process.<span class="hljs-property">stdout</span>);</code></pre>
+connection.<span class="hljs-title function_">pipe</span>(process.<span class="hljs-property">stdout</span>);</code> <button class="copy-button">copy</button></pre>
 </li>
 <li>
 <p>A handful of typically asynchronous methods in the Node.js API may still
@@ -1164,9 +1189,9 @@ asynchronous operations over time (as opposed to a single operation that may
 pass or fail).</p>
 <p>For <em>all</em> <a href="events.html#class-eventemitter"><code>EventEmitter</code></a> objects, if an <code>'error'</code> event handler is not
 provided, the error will be thrown, causing the Node.js process to report an
-uncaught exception and crash unless either: The <a href="domain.html"><code>domain</code></a> module is
-used appropriately or a handler has been registered for the
-<a href="process.html#event-uncaughtexception"><code>'uncaughtException'</code></a> event.</p>
+uncaught exception and crash unless either: a handler has been registered for
+the <a href="process.html#event-uncaughtexception"><code>'uncaughtException'</code></a> event, or the deprecated <a href="domain.html"><code>node:domain</code></a>
+module is used.</p>
 <pre><code class="language-js"><span class="hljs-keyword">const</span> <span class="hljs-title class_">EventEmitter</span> = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:events'</span>);
 <span class="hljs-keyword">const</span> ee = <span class="hljs-keyword">new</span> <span class="hljs-title class_">EventEmitter</span>();
 
@@ -1174,54 +1199,11 @@ used appropriately or a handler has been registered for the
   <span class="hljs-comment">// This will crash the process because no 'error' event</span>
   <span class="hljs-comment">// handler has been added.</span>
   ee.<span class="hljs-title function_">emit</span>(<span class="hljs-string">'error'</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">'This will crash'</span>));
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <p>Errors generated in this way <em>cannot</em> be intercepted using <code>try…catch</code> as
 they are thrown <em>after</em> the calling code has already exited.</p>
 <p>Developers must refer to the documentation for each method to determine
 exactly how errors raised by those methods are propagated.</p>
-<h4>Error-first callbacks<span><a class="mark" href="#error-first-callbacks" id="error-first-callbacks">#</a></span><a aria-hidden="true" class="legacy" id="errors_error_first_callbacks"></a></h4>
-
-<p>Most asynchronous methods exposed by the Node.js core API follow an idiomatic
-pattern referred to as an <em>error-first callback</em>. With this pattern, a callback
-function is passed to the method as an argument. When the operation either
-completes or an error is raised, the callback function is called with the
-<code>Error</code> object (if any) passed as the first argument. If no error was raised,
-the first argument will be passed as <code>null</code>.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:fs'</span>);
-
-<span class="hljs-keyword">function</span> <span class="hljs-title function_">errorFirstCallback</span>(<span class="hljs-params">err, data</span>) {
-  <span class="hljs-keyword">if</span> (err) {
-    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">'There was an error'</span>, err);
-    <span class="hljs-keyword">return</span>;
-  }
-  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(data);
-}
-
-fs.<span class="hljs-title function_">readFile</span>(<span class="hljs-string">'/some/file/that/does-not-exist'</span>, errorFirstCallback);
-fs.<span class="hljs-title function_">readFile</span>(<span class="hljs-string">'/some/file/that/does-exist'</span>, errorFirstCallback);</code></pre>
-<p>The JavaScript <code>try…catch</code> mechanism <strong>cannot</strong> be used to intercept errors
-generated by asynchronous APIs. A common mistake for beginners is to try to
-use <code>throw</code> inside an error-first callback:</p>
-<pre><code class="language-js"><span class="hljs-comment">// THIS WILL NOT WORK:</span>
-<span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:fs'</span>);
-
-<span class="hljs-keyword">try</span> {
-  fs.<span class="hljs-title function_">readFile</span>(<span class="hljs-string">'/some/file/that/does-not-exist'</span>, <span class="hljs-function">(<span class="hljs-params">err, data</span>) =></span> {
-    <span class="hljs-comment">// Mistaken assumption: throwing here...</span>
-    <span class="hljs-keyword">if</span> (err) {
-      <span class="hljs-keyword">throw</span> err;
-    }
-  });
-} <span class="hljs-keyword">catch</span> (err) {
-  <span class="hljs-comment">// This will not catch the throw!</span>
-  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(err);
-}</code></pre>
-<p>This will not work because the callback function passed to <code>fs.readFile()</code> is
-called asynchronously. By the time the callback has been called, the
-surrounding code, including the <code>try…catch</code> block, will have already exited.
-Throwing an error inside the callback <strong>can crash the Node.js process</strong> in most
-cases. If <a href="domain.html">domains</a> are enabled, or a handler has been registered with
-<code>process.on('uncaughtException')</code>, such errors can be intercepted.</p>
 </section><section><h3>Class: <code>Error</code><span><a class="mark" href="#class-error" id="class-error">#</a></span><a aria-hidden="true" class="legacy" id="errors_class_error"></a></h3>
 
 <p>A generic JavaScript <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error" class="type">&#x3C;Error></a> object that does not denote any specific
@@ -1257,7 +1239,7 @@ a string representing the location in the code at which
 <code>Error.captureStackTrace()</code> was called.</p>
 <pre><code class="language-js"><span class="hljs-keyword">const</span> myObject = {};
 <span class="hljs-title class_">Error</span>.<span class="hljs-title function_">captureStackTrace</span>(myObject);
-myObject.<span class="hljs-property">stack</span>;  <span class="hljs-comment">// Similar to `new Error().stack`</span></code></pre>
+myObject.<span class="hljs-property">stack</span>;  <span class="hljs-comment">// Similar to `new Error().stack`</span></code> <button class="copy-button">copy</button></pre>
 <p>The first line of the trace will be prefixed with
 <code>${myObject.name}: ${myObject.message}</code>.</p>
 <p>The optional <code>constructorOpt</code> argument accepts a function. If given, all frames
@@ -1265,14 +1247,27 @@ above <code>constructorOpt</code>, including <code>constructorOpt</code>, will b
 generated stack trace.</p>
 <p>The <code>constructorOpt</code> argument is useful for hiding implementation
 details of error generation from the user. For instance:</p>
-<pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">MyError</span>(<span class="hljs-params"></span>) {
-  <span class="hljs-title class_">Error</span>.<span class="hljs-title function_">captureStackTrace</span>(<span class="hljs-variable language_">this</span>, <span class="hljs-title class_">MyError</span>);
+<pre><code class="language-js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">a</span>(<span class="hljs-params"></span>) {
+  <span class="hljs-title function_">b</span>();
 }
 
-<span class="hljs-comment">// Without passing MyError to captureStackTrace, the MyError</span>
-<span class="hljs-comment">// frame would show up in the .stack property. By passing</span>
-<span class="hljs-comment">// the constructor, we omit that frame, and retain all frames below it.</span>
-<span class="hljs-keyword">new</span> <span class="hljs-title class_">MyError</span>().<span class="hljs-property">stack</span>;</code></pre>
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">b</span>(<span class="hljs-params"></span>) {
+  <span class="hljs-title function_">c</span>();
+}
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">c</span>(<span class="hljs-params"></span>) {
+  <span class="hljs-comment">// Create an error without stack trace to avoid calculating the stack trace twice.</span>
+  <span class="hljs-keyword">const</span> { stackTraceLimit } = <span class="hljs-title class_">Error</span>;
+  <span class="hljs-title class_">Error</span>.<span class="hljs-property">stackTraceLimit</span> = <span class="hljs-number">0</span>;
+  <span class="hljs-keyword">const</span> error = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>();
+  <span class="hljs-title class_">Error</span>.<span class="hljs-property">stackTraceLimit</span> = stackTraceLimit;
+
+  <span class="hljs-comment">// Capture the stack trace above function b</span>
+  <span class="hljs-title class_">Error</span>.<span class="hljs-title function_">captureStackTrace</span>(error, b); <span class="hljs-comment">// Neither function c, nor b is included in the stack trace</span>
+  <span class="hljs-keyword">throw</span> error;
+}
+
+<span class="hljs-title function_">a</span>();</code> <button class="copy-button">copy</button></pre>
 <h4><code>Error.stackTraceLimit</code><span><a class="mark" href="#errorstacktracelimit" id="errorstacktracelimit">#</a></span><a aria-hidden="true" class="legacy" id="errors_error_stacktracelimit"></a></h4>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
@@ -1319,7 +1314,7 @@ message or code in order to still have access to the original error.</p>
 <span class="hljs-comment">//         at REPLServer.emit (node:events:549:35)</span>
 <span class="hljs-comment">//         at REPLServer.emit (node:domain:482:12)</span>
 <span class="hljs-comment">//         at [_onLine] [as _onLine] (node:internal/readline/interface:425:12)</span>
-<span class="hljs-comment">//         at [_line] [as _line] (node:internal/readline/interface:886:18)</span></code></pre>
+<span class="hljs-comment">//         at [_line] [as _line] (node:internal/readline/interface:886:18)</span></code> <button class="copy-button">copy</button></pre>
 <h4><code>error.code</code><span><a class="mark" href="#errorcode" id="errorcode">#</a></span><a aria-hidden="true" class="legacy" id="errors_error_code"></a></h4>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
@@ -1341,7 +1336,7 @@ line of the stack trace (for example, when <code>error.stack</code> is read befo
 property is changed).</p>
 <pre><code class="language-js"><span class="hljs-keyword">const</span> err = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">'The message'</span>);
 <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(err.<span class="hljs-property">message</span>);
-<span class="hljs-comment">// Prints: The message</span></code></pre>
+<span class="hljs-comment">// Prints: The message</span></code> <button class="copy-button">copy</button></pre>
 <h4><code>error.stack</code><span><a class="mark" href="#errorstack" id="errorstack">#</a></span><a aria-hidden="true" class="legacy" id="errors_error_stack"></a></h4>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
@@ -1352,7 +1347,7 @@ the <code>Error</code> was instantiated.</p>
    at /home/gbusey/file.js:525:2
    at Frobnicator.refrobulate (/home/gbusey/business-logic.js:424:21)
    at Actor.&#x3C;anonymous> (/home/gbusey/actors.js:400:8)
-   at increaseSynergy (/home/gbusey/actors.js:701:6)</code></pre>
+   at increaseSynergy (/home/gbusey/actors.js:701:6)</code> <button class="copy-button">copy</button></pre>
 <p>The first line is formatted as <code>&#x3C;error class name>: &#x3C;error message></code>, and
 is followed by a series of stack frames (each line beginning with "at ").
 Each frame describes a call site within the code that lead to the error being
@@ -1390,7 +1385,7 @@ will not be present in the stack traces:</p>
 <span class="hljs-comment">//       at Function.Module._load (module.js:312:12)</span>
 <span class="hljs-comment">//       at Function.Module.runMain (module.js:497:10)</span>
 <span class="hljs-comment">//       at startup (node.js:119:16)</span>
-<span class="hljs-comment">//       at node.js:906:3</span></code></pre>
+<span class="hljs-comment">//       at node.js:906:3</span></code> <button class="copy-button">copy</button></pre>
 <p>The location information will be one of:</p>
 <ul>
 <li><code>native</code>, if the frame represents a call internal to V8 (as in <code>[].forEach</code>).</li>
@@ -1421,7 +1416,7 @@ loop tick.</p>
 acceptable values for a function; whether that is a numeric range, or
 outside the set of options for a given function parameter.</p>
 <pre><code class="language-js"><span class="hljs-built_in">require</span>(<span class="hljs-string">'node:net'</span>).<span class="hljs-title function_">connect</span>(-<span class="hljs-number">1</span>);
-<span class="hljs-comment">// Throws "RangeError: "port" option should be >= 0 and &#x3C; 65536: -1"</span></code></pre>
+<span class="hljs-comment">// Throws "RangeError: "port" option should be >= 0 and &#x3C; 65536: -1"</span></code> <button class="copy-button">copy</button></pre>
 <p>Node.js will generate and throw <code>RangeError</code> instances <em>immediately</em> as a form
 of argument validation.</p>
 </section><section><h3>Class: <code>ReferenceError</code><span><a class="mark" href="#class-referenceerror" id="class-referenceerror">#</a></span><a aria-hidden="true" class="legacy" id="errors_class_referenceerror"></a></h3>
@@ -1434,7 +1429,7 @@ program.</p>
 <p>While client code may generate and propagate these errors, in practice, only V8
 will do so.</p>
 <pre><code class="language-js">doesNotExist;
-<span class="hljs-comment">// Throws ReferenceError, doesNotExist is not a variable in this program.</span></code></pre>
+<span class="hljs-comment">// Throws ReferenceError, doesNotExist is not a variable in this program.</span></code> <button class="copy-button">copy</button></pre>
 <p>Unless an application is dynamically generating and running code,
 <code>ReferenceError</code> instances indicate a bug in the code or its dependencies.</p>
 </section><section><h3>Class: <code>SyntaxError</code><span><a class="mark" href="#class-syntaxerror" id="class-syntaxerror">#</a></span><a aria-hidden="true" class="legacy" id="errors_class_syntaxerror"></a></h3>
@@ -1449,7 +1444,7 @@ are almost always indicative of a broken program.</p>
   <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:vm'</span>).<span class="hljs-title function_">runInThisContext</span>(<span class="hljs-string">'binary ! isNotOk'</span>);
 } <span class="hljs-keyword">catch</span> (err) {
   <span class="hljs-comment">// 'err' will be a SyntaxError.</span>
-}</code></pre>
+}</code> <button class="copy-button">copy</button></pre>
 <p><code>SyntaxError</code> instances are unrecoverable in the context that created them –
 they may only be caught by other contexts.</p>
 </section><section><h3>Class: <code>SystemError</code><span><a class="mark" href="#class-systemerror" id="class-systemerror">#</a></span><a aria-hidden="true" class="legacy" id="errors_class_systemerror"></a></h3>
@@ -1606,7 +1601,7 @@ was not properly called.</p>
 <p>Indicates that a provided argument is not an allowable type. For example,
 passing a function to a parameter which expects a string would be a <code>TypeError</code>.</p>
 <pre><code class="language-js"><span class="hljs-built_in">require</span>(<span class="hljs-string">'node:url'</span>).<span class="hljs-title function_">parse</span>(<span class="hljs-function">() =></span> { });
-<span class="hljs-comment">// Throws TypeError, since it expected a string.</span></code></pre>
+<span class="hljs-comment">// Throws TypeError, since it expected a string.</span></code> <button class="copy-button">copy</button></pre>
 <p>Node.js will generate and throw <code>TypeError</code> instances <em>immediately</em> as a form
 of argument validation.</p>
 </section><section><h3>Exceptions vs. errors<span><a class="mark" href="#exceptions-vs-errors" id="exceptions-vs-errors">#</a></span><a aria-hidden="true" class="legacy" id="errors_exceptions_vs_errors"></a></h3>
@@ -1643,6 +1638,11 @@ error originates from.</p>
 <p>APIs <em>not</em> using <code>AbortSignal</code>s typically do not raise an error with this code.</p>
 <p>This code does not use the regular <code>ERR_*</code> convention Node.js errors use in
 order to be compatible with the web platform's <code>AbortError</code>.</p>
+<p><a id="ERR_ACCESS_DENIED"></a></p>
+<h4><code>ERR_ACCESS_DENIED</code><span><a class="mark" href="#err_access_denied" id="err_access_denied">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_access_denied"></a></h4>
+<p>A special type of error that is triggered whenever Node.js tries to get access
+to a resource restricted by the <a href="permissions.html#policies">policy</a> manifest.
+For example, <code>process.binding</code>.</p>
 <p><a id="ERR_AMBIGUOUS_ARGUMENT"></a></p>
 <h4><code>ERR_AMBIGUOUS_ARGUMENT</code><span><a class="mark" href="#err_ambiguous_argument" id="err_ambiguous_argument">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_ambiguous_argument"></a></h4>
 <p>A function argument is being used in a way that suggests that the function
@@ -1660,10 +1660,6 @@ required, but not provided to a Node.js API.</p>
 <p>A special type of error that can be triggered whenever Node.js detects an
 exceptional logic violation that should never occur. These are raised typically
 by the <code>node:assert</code> module.</p>
-<p><a id="ERR_ASSERT_SNAPSHOT_NOT_SUPPORTED"></a></p>
-<h4><code>ERR_ASSERT_SNAPSHOT_NOT_SUPPORTED</code><span><a class="mark" href="#err_assert_snapshot_not_supported" id="err_assert_snapshot_not_supported">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_assert_snapshot_not_supported"></a></h4>
-<p>An attempt was made to use <code>assert.snapshot()</code> in an environment that
-does not support snapshots, such as the REPL, or when using <code>node --eval</code>.</p>
 <p><a id="ERR_ASYNC_CALLBACK"></a></p>
 <h4><code>ERR_ASYNC_CALLBACK</code><span><a class="mark" href="#err_async_callback" id="err_async_callback">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_async_callback"></a></h4>
 <p>An attempt was made to register something that is not a function as an
@@ -1747,8 +1743,9 @@ context, for example, when the allocation fails or the maximum call stack
 size is reached when the context is created.</p>
 <p><a id="ERR_CRYPTO_CUSTOM_ENGINE_NOT_SUPPORTED"></a></p>
 <h4><code>ERR_CRYPTO_CUSTOM_ENGINE_NOT_SUPPORTED</code><span><a class="mark" href="#err_crypto_custom_engine_not_supported" id="err_crypto_custom_engine_not_supported">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_crypto_custom_engine_not_supported"></a></h4>
-<p>A client certificate engine was requested that is not supported by the version
-of OpenSSL being used.</p>
+<p>An OpenSSL engine was requested (for example, through the <code>clientCertEngine</code> or
+<code>privateKeyEngine</code> TLS options) that is not supported by the version of OpenSSL
+being used, likely due to the compile-time flag <code>OPENSSL_NO_ENGINE</code>.</p>
 <p><a id="ERR_CRYPTO_ECDH_INVALID_FORMAT"></a></p>
 <h4><code>ERR_CRYPTO_ECDH_INVALID_FORMAT</code><span><a class="mark" href="#err_crypto_ecdh_invalid_format" id="err_crypto_ecdh_invalid_format">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_crypto_ecdh_invalid_format"></a></h4>
 <p>An invalid value for the <code>format</code> argument was passed to the <code>crypto.ECDH()</code>
@@ -2021,6 +2018,9 @@ added: v16.7.0
 -->
 <p>When using <a href="fs.html#fscpsrc-dest-options-callback"><code>fs.cp()</code></a>, <code>src</code> or <code>dest</code> pointed to an invalid path.</p>
 <p><a id="ERR_FS_CP_FIFO_PIPE"></a></p>
+<h4><code>ERR_HTTP_BODY_NOT_ALLOWED</code><span><a class="mark" href="#err_http_body_not_allowed" id="err_http_body_not_allowed">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_http_body_not_allowed"></a></h4>
+<p>An error is thrown when writing to an HTTP response which does not allow
+contents. <a id="ERR_HTTP_BODY_NOT_ALLOWED"></a></p>
 <h4><code>ERR_HTTP_CONTENT_LENGTH_MISMATCH</code><span><a class="mark" href="#err_http_content_length_mismatch" id="err_http_content_length_mismatch">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_http_content_length_mismatch"></a></h4>
 <p>Response body size doesn't match with the specified content-length header value.</p>
 <p><a id="ERR_HTTP_CONTENT_LENGTH_MISMATCH"></a></p>
@@ -2078,6 +2078,9 @@ allowed size for a <code>Buffer</code>.</p>
 <p><a id="ERR_HTTP_REQUEST_TIMEOUT"></a></p>
 <h4><code>ERR_HTTP_REQUEST_TIMEOUT</code><span><a class="mark" href="#err_http_request_timeout" id="err_http_request_timeout">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_http_request_timeout"></a></h4>
 <p>The client has not sent the entire request within the allowed time.</p>
+<p><a id="ERR_HTTP_SOCKET_ASSIGNED"></a></p>
+<h4><code>ERR_HTTP_SOCKET_ASSIGNED</code><span><a class="mark" href="#err_http_socket_assigned" id="err_http_socket_assigned">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_http_socket_assigned"></a></h4>
+<p>The given <a href="http.html#class-httpserverresponse"><code>ServerResponse</code></a> was already assigned a socket.</p>
 <p><a id="ERR_HTTP_SOCKET_ENCODING"></a></p>
 <h4><code>ERR_HTTP_SOCKET_ENCODING</code><span><a class="mark" href="#err_http_socket_encoding" id="err_http_socket_encoding">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_http_socket_encoding"></a></h4>
 <p>Changing the socket encoding is not allowed per <a href="https://tools.ietf.org/html/rfc7230#section-3">RFC 7230 Section 3</a>.</p>
@@ -2270,19 +2273,26 @@ is set for the <code>Http2Stream</code>.</p>
 <div class="api_metadata">
 <span>Added in: v17.1.0, v16.14.0</span>
 </div>
-<p>An import assertion has failed, preventing the specified module to be imported.</p>
+<p>An import <code>type</code> attribute was provided, but the specified module is of a
+different type.</p>
 <p><a id="ERR_IMPORT_ASSERTION_TYPE_MISSING"></a></p>
 <h4><code>ERR_IMPORT_ASSERTION_TYPE_MISSING</code><span><a class="mark" href="#err_import_assertion_type_missing" id="err_import_assertion_type_missing">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_import_assertion_type_missing"></a></h4>
 <div class="api_metadata">
 <span>Added in: v17.1.0, v16.14.0</span>
 </div>
-<p>An import assertion is missing, preventing the specified module to be imported.</p>
+<p>An import attribute is missing, preventing the specified module to be imported.</p>
 <p><a id="ERR_IMPORT_ASSERTION_TYPE_UNSUPPORTED"></a></p>
 <h4><code>ERR_IMPORT_ASSERTION_TYPE_UNSUPPORTED</code><span><a class="mark" href="#err_import_assertion_type_unsupported" id="err_import_assertion_type_unsupported">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_import_assertion_type_unsupported"></a></h4>
 <div class="api_metadata">
 <span>Added in: v17.1.0, v16.14.0</span>
 </div>
-<p>An import assertion is not supported by this version of Node.js.</p>
+<p>An import attribute is not supported by this version of Node.js.</p>
+<p><a id="ERR_IMPORT_ATTRIBUTE_UNSUPPORTED"></a></p>
+<h4><code>ERR_IMPORT_ATTRIBUTE_UNSUPPORTED</code><span><a class="mark" href="#err_import_attribute_unsupported" id="err_import_attribute_unsupported">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_import_attribute_unsupported"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.19.0</span>
+</div>
+<p>An import attribute is not supported by this version of Node.js.</p>
 <p><a id="ERR_INCOMPATIBLE_OPTION_PAIR"></a></p>
 <h4><code>ERR_INCOMPATIBLE_OPTION_PAIR</code><span><a class="mark" href="#err_incompatible_option_pair" id="err_incompatible_option_pair">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_incompatible_option_pair"></a></h4>
 <p>An option pair is incompatible with each other and cannot be used at the same
@@ -2450,7 +2460,7 @@ for more information.</p>
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">alloc</span>(<span class="hljs-number">1</span>);
 urlSearchParams.<span class="hljs-property">has</span>.<span class="hljs-title function_">call</span>(buf, <span class="hljs-string">'foo'</span>);
-<span class="hljs-comment">// Throws a TypeError with code 'ERR_INVALID_THIS'</span></code></pre>
+<span class="hljs-comment">// Throws a TypeError with code 'ERR_INVALID_THIS'</span></code> <button class="copy-button">copy</button></pre>
 <p><a id="ERR_INVALID_TRANSFER_OBJECT"></a></p>
 <h4><code>ERR_INVALID_TRANSFER_OBJECT</code><span><a class="mark" href="#err_invalid_transfer_object" id="err_invalid_transfer_object">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_invalid_transfer_object"></a></h4>
 <p>An invalid transfer object was passed to <code>postMessage()</code>.</p>
@@ -2729,6 +2739,10 @@ could not be determined.</p>
 <p><a id="ERR_SOCKET_CLOSED"></a></p>
 <h4><code>ERR_SOCKET_CLOSED</code><span><a class="mark" href="#err_socket_closed" id="err_socket_closed">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_socket_closed"></a></h4>
 <p>An attempt was made to operate on an already closed socket.</p>
+<p><a id="ERR_SOCKET_CLOSED_BEFORE_CONNECTION"></a></p>
+<h4><code>ERR_SOCKET_CLOSED_BEFORE_CONNECTION</code><span><a class="mark" href="#err_socket_closed_before_connection" id="err_socket_closed_before_connection">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_socket_closed_before_connection"></a></h4>
+<p>When calling <a href="net.html#socketwritedata-encoding-callback"><code>net.Socket.write()</code></a> on a connecting socket and the socket was
+closed before the connection was established.</p>
 <p><a id="ERR_SOCKET_DGRAM_IS_CONNECTED"></a></p>
 <h4><code>ERR_SOCKET_DGRAM_IS_CONNECTED</code><span><a class="mark" href="#err_socket_dgram_is_connected" id="err_socket_dgram_is_connected">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_socket_dgram_is_connected"></a></h4>
 <p>A <a href="dgram.html#socketconnectport-address-callback"><code>dgram.connect()</code></a> call was made on an already connected socket.</p>
@@ -2777,7 +2791,7 @@ is in <code>objectMode</code>.</p>
 <pre><code class="language-js"><span class="hljs-keyword">const</span> <span class="hljs-title class_">Socket</span> = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:net'</span>).<span class="hljs-property">Socket</span>;
 <span class="hljs-keyword">const</span> instance = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Socket</span>();
 
-instance.<span class="hljs-title function_">setEncoding</span>(<span class="hljs-string">'utf8'</span>);</code></pre>
+instance.<span class="hljs-title function_">setEncoding</span>(<span class="hljs-string">'utf8'</span>);</code> <button class="copy-button">copy</button></pre>
 <p><a id="ERR_STREAM_WRITE_AFTER_END"></a></p>
 <h4><code>ERR_STREAM_WRITE_AFTER_END</code><span><a class="mark" href="#err_stream_write_after_end" id="err_stream_write_after_end">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_stream_write_after_end"></a></h4>
 <p>An attempt was made to call <a href="stream.html#writablewritechunk-encoding-callback"><code>stream.write()</code></a> after <code>stream.end()</code> has been
@@ -2810,6 +2824,14 @@ the token causing the error is available via the <code>cause</code> property.</p
 <p>This error represents a failed test. Additional information about the failure
 is available via the <code>cause</code> property. The <code>failureType</code> property specifies
 what the test was doing when the failure occurred.</p>
+<p><a id="ERR_TLS_ALPN_CALLBACK_INVALID_RESULT"></a></p>
+<h4><code>ERR_TLS_ALPN_CALLBACK_INVALID_RESULT</code><span><a class="mark" href="#err_tls_alpn_callback_invalid_result" id="err_tls_alpn_callback_invalid_result">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_tls_alpn_callback_invalid_result"></a></h4>
+<p>This error is thrown when an <code>ALPNCallback</code> returns a value that is not in the
+list of ALPN protocols offered by the client.</p>
+<p><a id="ERR_TLS_ALPN_CALLBACK_WITH_PROTOCOLS"></a></p>
+<h4><code>ERR_TLS_ALPN_CALLBACK_WITH_PROTOCOLS</code><span><a class="mark" href="#err_tls_alpn_callback_with_protocols" id="err_tls_alpn_callback_with_protocols">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_tls_alpn_callback_with_protocols"></a></h4>
+<p>This error is thrown when creating a <code>TLSServer</code> if the TLS options include
+both <code>ALPNProtocols</code> and <code>ALPNCallback</code>. These options are mutually exclusive.</p>
 <p><a id="ERR_TLS_CERT_ALTNAME_FORMAT"></a></p>
 <h4><code>ERR_TLS_CERT_ALTNAME_FORMAT</code><span><a class="mark" href="#err_tls_cert_altname_format" id="err_tls_cert_altname_format">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_tls_cert_altname_format"></a></h4>
 <p>This error is thrown by <code>checkServerIdentity</code> if a user-supplied
@@ -2859,7 +2881,8 @@ attempt to set the <code>secureProtocol</code> explicitly. Use one mechanism or 
 <p>Failed to set PSK identity hint. Hint may be too long.</p>
 <p><a id="ERR_TLS_RENEGOTIATION_DISABLED"></a></p>
 <h4><code>ERR_TLS_RENEGOTIATION_DISABLED</code><span><a class="mark" href="#err_tls_renegotiation_disabled" id="err_tls_renegotiation_disabled">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_tls_renegotiation_disabled"></a></h4>
-<p>An attempt was made to renegotiate TLS on a socket instance with TLS disabled.</p>
+<p>An attempt was made to renegotiate TLS on a socket instance with renegotiation
+disabled.</p>
 <p><a id="ERR_TLS_REQUIRED_SERVER_NAME"></a></p>
 <h4><code>ERR_TLS_REQUIRED_SERVER_NAME</code><span><a class="mark" href="#err_tls_required_server_name" id="err_tls_required_server_name">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_tls_required_server_name"></a></h4>
 <p>While using TLS, the <code>server.addContext()</code> method was called without providing
@@ -2938,7 +2961,7 @@ the <a href="packages.html#exports"><code>"exports"</code></a> field of the <a h
 <!-- eslint-skip -->
 <pre><code class="language-js"><span class="hljs-keyword">import</span> <span class="hljs-string">'./'</span>; <span class="hljs-comment">// unsupported</span>
 <span class="hljs-keyword">import</span> <span class="hljs-string">'./index.js'</span>; <span class="hljs-comment">// supported</span>
-<span class="hljs-keyword">import</span> <span class="hljs-string">'package-name'</span>; <span class="hljs-comment">// supported</span></code></pre>
+<span class="hljs-keyword">import</span> <span class="hljs-string">'package-name'</span>; <span class="hljs-comment">// supported</span></code> <button class="copy-button">copy</button></pre>
 <p><a id="ERR_UNSUPPORTED_ESM_URL_SCHEME"></a></p>
 <h4><code>ERR_UNSUPPORTED_ESM_URL_SCHEME</code><span><a class="mark" href="#err_unsupported_esm_url_scheme" id="err_unsupported_esm_url_scheme">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_unsupported_esm_url_scheme"></a></h4>
 <p><code>import</code> with URL schemes other than <code>file</code> and <code>data</code> is unsupported.</p>

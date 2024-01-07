@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.13.0">
-  <title>Child process | Node.js v18.13.0 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v18.19.0">
+  <title>Child process | Node.js v18.19.0 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
@@ -68,6 +68,7 @@
 <li><a href="readline.html" class="nav-readline">Readline</a></li>
 <li><a href="repl.html" class="nav-repl">REPL</a></li>
 <li><a href="report.html" class="nav-report">Report</a></li>
+<li><a href="single-executable-applications.html" class="nav-single-executable-applications">Single executable applications</a></li>
 <li><a href="stream.html" class="nav-stream">Stream</a></li>
 <li><a href="string_decoder.html" class="nav-string_decoder">String decoder</a></li>
 <li><a href="test.html" class="nav-test">Test runner</a></li>
@@ -95,7 +96,7 @@
     <div id="column1" data-id="child_process" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.13.0 documentation</h1>
+          <h1>Node.js v18.19.0 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -110,7 +111,7 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.13.0</li>
+            <li class="pinned-header">Node.js v18.19.0</li>
             
     <li class="picker-header">
       <a href="#">
@@ -160,6 +161,7 @@
 <li><a href="#subprocessdisconnect"><code>subprocess.disconnect()</code></a></li>
 <li><a href="#subprocessexitcode"><code>subprocess.exitCode</code></a></li>
 <li><a href="#subprocesskillsignal"><code>subprocess.kill([signal])</code></a></li>
+<li><span class="stability_1"><a href="#subprocesssymboldispose"><code>subprocess[Symbol.dispose]()</code></a></span></li>
 <li><a href="#subprocesskilled"><code>subprocess.killed</code></a></li>
 <li><a href="#subprocesspid"><code>subprocess.pid</code></a></li>
 <li><a href="#subprocessref"><code>subprocess.ref()</code></a></li>
@@ -248,6 +250,7 @@
 <li><a href="readline.html" class="nav-readline">Readline</a></li>
 <li><a href="repl.html" class="nav-repl">REPL</a></li>
 <li><a href="report.html" class="nav-report">Report</a></li>
+<li><a href="single-executable-applications.html" class="nav-single-executable-applications">Single executable applications</a></li>
 <li><a href="stream.html" class="nav-stream">Stream</a></li>
 <li><a href="string_decoder.html" class="nav-string_decoder">String decoder</a></li>
 <li><a href="test.html" class="nav-test">Test runner</a></li>
@@ -278,12 +281,14 @@
         <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v19.x/api/child_process.html">19.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/child_process.html">21.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v20.x/api/child_process.html">20.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v19.x/api/child_process.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/child_process.html">18.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v17.x/api/child_process.html">17.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v16.x/api/child_process.html">16.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v16.x/api/child_process.html">16.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v15.x/api/child_process.html">15.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v14.x/api/child_process.html">14.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v14.x/api/child_process.html">14.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v13.x/api/child_process.html">13.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v12.x/api/child_process.html">12.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v11.x/api/child_process.html">11.x</a></li>
@@ -363,6 +368,7 @@
 <li><a href="#subprocessdisconnect"><code>subprocess.disconnect()</code></a></li>
 <li><a href="#subprocessexitcode"><code>subprocess.exitCode</code></a></li>
 <li><a href="#subprocesskillsignal"><code>subprocess.kill([signal])</code></a></li>
+<li><span class="stability_1"><a href="#subprocesssymboldispose"><code>subprocess[Symbol.dispose]()</code></a></span></li>
 <li><a href="#subprocesskilled"><code>subprocess.killed</code></a></li>
 <li><a href="#subprocesspid"><code>subprocess.pid</code></a></li>
 <li><a href="#subprocessref"><code>subprocess.ref()</code></a></li>
@@ -394,7 +400,7 @@
         <h2>Child process<span><a class="mark" href="#child-process" id="child-process">#</a></span><a aria-hidden="true" class="legacy" id="child_process_child_process"></a></h2>
 
 <p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.13.0/lib/child_process.js">lib/child_process.js</a></p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.19.0/lib/child_process.js">lib/child_process.js</a></p>
 <p>The <code>node:child_process</code> module provides the ability to spawn subprocesses in
 a manner that is similar, but not identical, to <a href="http://man7.org/linux/man-pages/man3/popen.3.html"><code>popen(3)</code></a>. This capability
 is primarily provided by the <a href="#child_processspawncommand-args-options"><code>child_process.spawn()</code></a> function:</p>
@@ -411,7 +417,7 @@ ls.<span class="hljs-property">stderr</span>.<span class="hljs-title function_">
 
 ls.<span class="hljs-title function_">on</span>(<span class="hljs-string">'close'</span>, <span class="hljs-function">(<span class="hljs-params">code</span>) =></span> {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`child process exited with code <span class="hljs-subst">${code}</span>`</span>);
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <p>By default, pipes for <code>stdin</code>, <code>stdout</code>, and <code>stderr</code> are established between
 the parent Node.js process and the spawned subprocess. These pipes have
 limited (and platform-specific) capacity. If the subprocess writes to
@@ -496,7 +502,7 @@ bat.<span class="hljs-property">stderr</span>.<span class="hljs-title function_"
 
 bat.<span class="hljs-title function_">on</span>(<span class="hljs-string">'exit'</span>, <span class="hljs-function">(<span class="hljs-params">code</span>) =></span> {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`Child exited with code <span class="hljs-subst">${code}</span>`</span>);
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <pre><code class="language-js"><span class="hljs-comment">// OR...</span>
 <span class="hljs-keyword">const</span> { exec, spawn } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:child_process'</span>);
 <span class="hljs-title function_">exec</span>(<span class="hljs-string">'my.bat'</span>, <span class="hljs-function">(<span class="hljs-params">err, stdout, stderr</span>) =></span> {
@@ -512,7 +518,7 @@ bat.<span class="hljs-title function_">on</span>(<span class="hljs-string">'exit
 <span class="hljs-comment">// or:</span>
 <span class="hljs-title function_">exec</span>(<span class="hljs-string">'"my script.cmd" a b'</span>, <span class="hljs-function">(<span class="hljs-params">err, stdout, stderr</span>) =></span> {
   <span class="hljs-comment">// ...</span>
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <h4><code>child_process.exec(command[, options][, callback])</code><span><a class="mark" href="#child_processexeccommand-options-callback" id="child_processexeccommand-options-callback">#</a></span><a aria-hidden="true" class="legacy" id="child_process_child_process_exec_command_options_callback"></a></h4>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
@@ -575,7 +581,7 @@ need to be dealt with accordingly:</p>
 <span class="hljs-comment">// a delimiter of multiple arguments.</span>
 
 <span class="hljs-title function_">exec</span>(<span class="hljs-string">'echo "The \\$HOME variable is $HOME"'</span>);
-<span class="hljs-comment">// The $HOME variable is escaped in the first instance, but not in the second.</span></code></pre>
+<span class="hljs-comment">// The $HOME variable is escaped in the first instance, but not in the second.</span></code> <button class="copy-button">copy</button></pre>
 <p><strong>Never pass unsanitized user input to this function. Any input containing shell
 metacharacters may be used to trigger arbitrary command execution.</strong></p>
 <p>If a <code>callback</code> function is provided, it is called with the arguments
@@ -598,7 +604,7 @@ encoding, <code>Buffer</code> objects will be passed to the callback instead.</p
   }
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`stdout: <span class="hljs-subst">${stdout}</span>`</span>);
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">`stderr: <span class="hljs-subst">${stderr}</span>`</span>);
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <p>If <code>timeout</code> is greater than <code>0</code>, the parent will send the signal
 identified by the <code>killSignal</code> property (the default is <code>'SIGTERM'</code>) if the
 child runs longer than <code>timeout</code> milliseconds.</p>
@@ -618,7 +624,7 @@ callback, but with two additional properties <code>stdout</code> and <code>stder
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'stdout:'</span>, stdout);
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">'stderr:'</span>, stderr);
 }
-<span class="hljs-title function_">lsExample</span>();</code></pre>
+<span class="hljs-title function_">lsExample</span>();</code> <button class="copy-button">copy</button></pre>
 <p>If the <code>signal</code> option is enabled, calling <code>.abort()</code> on the corresponding
 <code>AbortController</code> is similar to calling <code>.kill()</code> on the child process except
 the error passed to the callback will be an <code>AbortError</code>:</p>
@@ -628,7 +634,7 @@ the error passed to the callback will be an <code>AbortError</code>:</p>
 <span class="hljs-keyword">const</span> child = <span class="hljs-title function_">exec</span>(<span class="hljs-string">'grep ssh'</span>, { signal }, <span class="hljs-function">(<span class="hljs-params">error</span>) =></span> {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(error); <span class="hljs-comment">// an AbortError</span>
 });
-controller.<span class="hljs-title function_">abort</span>();</code></pre>
+controller.<span class="hljs-title function_">abort</span>();</code> <button class="copy-button">copy</button></pre>
 <h4><code>child_process.execFile(file[, args][, options][, callback])</code><span><a class="mark" href="#child_processexecfilefile-args-options-callback" id="child_processexecfilefile-args-options-callback">#</a></span><a aria-hidden="true" class="legacy" id="child_process_child_process_execfile_file_args_options_callback"></a></h4>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
@@ -695,7 +701,7 @@ supported.</p>
     <span class="hljs-keyword">throw</span> error;
   }
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(stdout);
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <p>The <code>stdout</code> and <code>stderr</code> arguments passed to the callback will contain the
 stdout and stderr output of the child process. By default, Node.js will decode
 the output as UTF-8 and pass strings to the callback. The <code>encoding</code> option
@@ -714,7 +720,7 @@ callback, but with two additional properties <code>stdout</code> and <code>stder
   <span class="hljs-keyword">const</span> { stdout } = <span class="hljs-keyword">await</span> <span class="hljs-title function_">execFile</span>(<span class="hljs-string">'node'</span>, [<span class="hljs-string">'--version'</span>]);
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(stdout);
 }
-<span class="hljs-title function_">getVersion</span>();</code></pre>
+<span class="hljs-title function_">getVersion</span>();</code> <button class="copy-button">copy</button></pre>
 <p><strong>If the <code>shell</code> option is enabled, do not pass unsanitized user input to this
 function. Any input containing shell metacharacters may be used to trigger
 arbitrary command execution.</strong></p>
@@ -727,7 +733,7 @@ the error passed to the callback will be an <code>AbortError</code>:</p>
 <span class="hljs-keyword">const</span> child = <span class="hljs-title function_">execFile</span>(<span class="hljs-string">'node'</span>, [<span class="hljs-string">'--version'</span>], { signal }, <span class="hljs-function">(<span class="hljs-params">error</span>) =></span> {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(error); <span class="hljs-comment">// an AbortError</span>
 });
-controller.<span class="hljs-title function_">abort</span>();</code></pre>
+controller.<span class="hljs-title function_">abort</span>();</code> <button class="copy-button">copy</button></pre>
 <h4><code>child_process.fork(modulePath[, args][, options])</code><span><a class="mark" href="#child_processforkmodulepath-args-options" id="child_processforkmodulepath-args-options">#</a></span><a aria-hidden="true" class="legacy" id="child_process_child_process_fork_modulepath_args_options"></a></h4>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
@@ -830,7 +836,7 @@ the error passed to the callback will be an <code>AbortError</code>:</p>
     <span class="hljs-comment">// This will be called with err being an AbortError if the controller aborts</span>
   });
   controller.<span class="hljs-title function_">abort</span>(); <span class="hljs-comment">// Stops the child process</span>
-}</code></pre>
+}</code> <button class="copy-button">copy</button></pre>
 <h4><code>child_process.spawn(command[, args][, options])</code><span><a class="mark" href="#child_processspawncommand-args-options" id="child_processspawncommand-args-options">#</a></span><a aria-hidden="true" class="legacy" id="child_process_child_process_spawn_command_args_options"></a></h4>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
@@ -905,7 +911,7 @@ arbitrary command execution.</strong></p>
 <pre><code class="language-js"><span class="hljs-keyword">const</span> defaults = {
   <span class="hljs-attr">cwd</span>: <span class="hljs-literal">undefined</span>,
   <span class="hljs-attr">env</span>: process.<span class="hljs-property">env</span>,
-};</code></pre>
+};</code> <button class="copy-button">copy</button></pre>
 <p>Use <code>cwd</code> to specify the working directory from which the process is spawned.
 If not given, the default is to inherit the current working directory. If given,
 but the path does not exist, the child process emits an <code>ENOENT</code> error
@@ -929,7 +935,7 @@ ls.<span class="hljs-property">stderr</span>.<span class="hljs-title function_">
 
 ls.<span class="hljs-title function_">on</span>(<span class="hljs-string">'close'</span>, <span class="hljs-function">(<span class="hljs-params">code</span>) =></span> {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`child process exited with code <span class="hljs-subst">${code}</span>`</span>);
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <p>Example: A very elaborate way to run <code>ps ax | grep ssh</code></p>
 <pre><code class="language-js"><span class="hljs-keyword">const</span> { spawn } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:child_process'</span>);
 <span class="hljs-keyword">const</span> ps = <span class="hljs-title function_">spawn</span>(<span class="hljs-string">'ps'</span>, [<span class="hljs-string">'ax'</span>]);
@@ -962,14 +968,14 @@ grep.<span class="hljs-title function_">on</span>(<span class="hljs-string">'clo
   <span class="hljs-keyword">if</span> (code !== <span class="hljs-number">0</span>) {
     <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`grep process exited with code <span class="hljs-subst">${code}</span>`</span>);
   }
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <p>Example of checking for failed <code>spawn</code>:</p>
 <pre><code class="language-js"><span class="hljs-keyword">const</span> { spawn } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:child_process'</span>);
 <span class="hljs-keyword">const</span> subprocess = <span class="hljs-title function_">spawn</span>(<span class="hljs-string">'bad_command'</span>);
 
 subprocess.<span class="hljs-title function_">on</span>(<span class="hljs-string">'error'</span>, <span class="hljs-function">(<span class="hljs-params">err</span>) =></span> {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">'Failed to start subprocess.'</span>);
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <p>Certain platforms (macOS, Linux) will use the value of <code>argv[0]</code> for the process
 title while others (Windows, SunOS) will use <code>command</code>.</p>
 <p>Node.js overwrites <code>argv[0]</code> with <code>process.execPath</code> on startup, so
@@ -986,7 +992,7 @@ the error passed to the callback will be an <code>AbortError</code>:</p>
 grep.<span class="hljs-title function_">on</span>(<span class="hljs-string">'error'</span>, <span class="hljs-function">(<span class="hljs-params">err</span>) =></span> {
   <span class="hljs-comment">// This will be called with err being an AbortError if the controller aborts</span>
 });
-controller.<span class="hljs-title function_">abort</span>(); <span class="hljs-comment">// Stops the child process</span></code></pre>
+controller.<span class="hljs-title function_">abort</span>(); <span class="hljs-comment">// Stops the child process</span></code> <button class="copy-button">copy</button></pre>
 <h5><code>options.detached</code><span><a class="mark" href="#optionsdetached" id="optionsdetached">#</a></span><a aria-hidden="true" class="legacy" id="child_process_options_detached"></a></h5>
 <div class="api_metadata">
 <span>Added in: v0.7.10</span>
@@ -1019,7 +1025,7 @@ controlling terminal.</p>
   <span class="hljs-attr">stdio</span>: <span class="hljs-string">'ignore'</span>,
 });
 
-subprocess.<span class="hljs-title function_">unref</span>();</code></pre>
+subprocess.<span class="hljs-title function_">unref</span>();</code> <button class="copy-button">copy</button></pre>
 <p>Alternatively one can redirect the child process' output into files:</p>
 <pre><code class="language-js"><span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:fs'</span>);
 <span class="hljs-keyword">const</span> { spawn } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:child_process'</span>);
@@ -1031,7 +1037,7 @@ subprocess.<span class="hljs-title function_">unref</span>();</code></pre>
   <span class="hljs-attr">stdio</span>: [ <span class="hljs-string">'ignore'</span>, out, err ],
 });
 
-subprocess.<span class="hljs-title function_">unref</span>();</code></pre>
+subprocess.<span class="hljs-title function_">unref</span>();</code> <button class="copy-button">copy</button></pre>
 <h5><code>options.stdio</code><span><a class="mark" href="#optionsstdio" id="optionsstdio">#</a></span><a aria-hidden="true" class="legacy" id="child_process_options_stdio"></a></h5>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
@@ -1136,7 +1142,7 @@ default is <code>'ignore'</code>.</p>
 
 <span class="hljs-comment">// Open an extra fd=4, to interact with programs presenting a</span>
 <span class="hljs-comment">// startd-style interface.</span>
-<span class="hljs-title function_">spawn</span>(<span class="hljs-string">'prg'</span>, [], { <span class="hljs-attr">stdio</span>: [<span class="hljs-string">'pipe'</span>, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>, <span class="hljs-string">'pipe'</span>] });</code></pre>
+<span class="hljs-title function_">spawn</span>(<span class="hljs-string">'prg'</span>, [], { <span class="hljs-attr">stdio</span>: [<span class="hljs-string">'pipe'</span>, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>, <span class="hljs-string">'pipe'</span>] });</code> <button class="copy-button">copy</button></pre>
 <p><em>It is worth noting that when an IPC channel is established between the
 parent and child processes, and the child is a Node.js process, the child
 is launched with the IPC channel unreferenced (using <code>unref()</code>) until the
@@ -1408,7 +1414,7 @@ ls.<span class="hljs-title function_">on</span>(<span class="hljs-string">'close
 
 ls.<span class="hljs-title function_">on</span>(<span class="hljs-string">'exit'</span>, <span class="hljs-function">(<span class="hljs-params">code</span>) =></span> {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`child process exited with code <span class="hljs-subst">${code}</span>`</span>);
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <h4>Event: <code>'disconnect'</code><span><a class="mark" href="#event-disconnect" id="event-disconnect">#</a></span><a aria-hidden="true" class="legacy" id="child_process_event_disconnect"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.7.2</span>
@@ -1423,11 +1429,12 @@ property is <code>false</code>.</p>
 <li><code>err</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error" class="type">&#x3C;Error></a> The error.</li>
 </ul>
 <p>The <code>'error'</code> event is emitted whenever:</p>
-<ol>
-<li>The process could not be spawned, or</li>
-<li>The process could not be killed, or</li>
+<ul>
+<li>The process could not be spawned.</li>
+<li>The process could not be killed.</li>
 <li>Sending a message to the child process failed.</li>
-</ol>
+<li>The child process was aborted via the <code>signal</code> option.</li>
+</ul>
 <p>The <code>'exit'</code> event may or may not fire after an error has occurred. When
 listening to both the <code>'exit'</code> and <code>'error'</code> events, guard
 against accidentally invoking handler functions multiple times.</p>
@@ -1562,7 +1569,7 @@ grep.<span class="hljs-title function_">on</span>(<span class="hljs-string">'clo
 });
 
 <span class="hljs-comment">// Send SIGHUP to process.</span>
-grep.<span class="hljs-title function_">kill</span>(<span class="hljs-string">'SIGHUP'</span>);</code></pre>
+grep.<span class="hljs-title function_">kill</span>(<span class="hljs-string">'SIGHUP'</span>);</code> <button class="copy-button">copy</button></pre>
 <p>The <a href="#class-childprocess"><code>ChildProcess</code></a> object may emit an <a href="#event-error"><code>'error'</code></a> event if the signal
 cannot be delivered. Sending a signal to a child process that has already exited
 is not an error but may have unforeseen consequences. Specifically, if the
@@ -1595,7 +1602,13 @@ new process in a shell or with the use of the <code>shell</code> option of <code
 
 <span class="hljs-built_in">setTimeout</span>(<span class="hljs-function">() =></span> {
   subprocess.<span class="hljs-title function_">kill</span>(); <span class="hljs-comment">// Does not terminate the Node.js process in the shell.</span>
-}, <span class="hljs-number">2000</span>);</code></pre>
+}, <span class="hljs-number">2000</span>);</code> <button class="copy-button">copy</button></pre>
+<h4><code>subprocess[Symbol.dispose]()</code><span><a class="mark" href="#subprocesssymboldispose" id="subprocesssymboldispose">#</a></span><a aria-hidden="true" class="legacy" id="child_process_subprocess_symbol_dispose"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.18.0</span>
+</div>
+<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
+<p>Calls <a href="#subprocesskillsignal"><code>subprocess.kill()</code></a> with <code>'SIGTERM'</code>.</p>
 <h4><code>subprocess.killed</code><span><a class="mark" href="#subprocesskilled" id="subprocesskilled">#</a></span><a aria-hidden="true" class="legacy" id="child_process_subprocess_killed"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.5.10</span>
@@ -1621,7 +1634,7 @@ emitted.</p>
 <span class="hljs-keyword">const</span> grep = <span class="hljs-title function_">spawn</span>(<span class="hljs-string">'grep'</span>, [<span class="hljs-string">'ssh'</span>]);
 
 <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`Spawned child pid: <span class="hljs-subst">${grep.pid}</span>`</span>);
-grep.<span class="hljs-property">stdin</span>.<span class="hljs-title function_">end</span>();</code></pre>
+grep.<span class="hljs-property">stdin</span>.<span class="hljs-title function_">end</span>();</code> <button class="copy-button">copy</button></pre>
 <h4><code>subprocess.ref()</code><span><a class="mark" href="#subprocessref" id="subprocessref">#</a></span><a aria-hidden="true" class="legacy" id="child_process_subprocess_ref"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.7.10</span>
@@ -1637,7 +1650,7 @@ to wait for the child to exit before exiting itself.</p>
 });
 
 subprocess.<span class="hljs-title function_">unref</span>();
-subprocess.<span class="hljs-title function_">ref</span>();</code></pre>
+subprocess.<span class="hljs-title function_">ref</span>();</code> <button class="copy-button">copy</button></pre>
 <h4><code>subprocess.send(message[, sendHandle[, options]][, callback])</code><span><a class="mark" href="#subprocesssendmessage-sendhandle-options-callback" id="subprocesssendmessage-sendhandle-options-callback">#</a></span><a aria-hidden="true" class="legacy" id="child_process_subprocess_send_message_sendhandle_options_callback"></a></h4>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
@@ -1684,14 +1697,14 @@ n.<span class="hljs-title function_">on</span>(<span class="hljs-string">'messag
 });
 
 <span class="hljs-comment">// Causes the child to print: CHILD got message: { hello: 'world' }</span>
-n.<span class="hljs-title function_">send</span>({ <span class="hljs-attr">hello</span>: <span class="hljs-string">'world'</span> });</code></pre>
+n.<span class="hljs-title function_">send</span>({ <span class="hljs-attr">hello</span>: <span class="hljs-string">'world'</span> });</code> <button class="copy-button">copy</button></pre>
 <p>And then the child script, <code>'sub.js'</code> might look like this:</p>
 <pre><code class="language-js">process.<span class="hljs-title function_">on</span>(<span class="hljs-string">'message'</span>, <span class="hljs-function">(<span class="hljs-params">m</span>) =></span> {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'CHILD got message:'</span>, m);
 });
 
 <span class="hljs-comment">// Causes the parent to print: PARENT got message: { foo: 'bar', baz: null }</span>
-process.<span class="hljs-title function_">send</span>({ <span class="hljs-attr">foo</span>: <span class="hljs-string">'bar'</span>, <span class="hljs-attr">baz</span>: <span class="hljs-title class_">NaN</span> });</code></pre>
+process.<span class="hljs-title function_">send</span>({ <span class="hljs-attr">foo</span>: <span class="hljs-string">'bar'</span>, <span class="hljs-attr">baz</span>: <span class="hljs-title class_">NaN</span> });</code> <button class="copy-button">copy</button></pre>
 <p>Child Node.js processes will have a <a href="process.html#processsendmessage-sendhandle-options-callback"><code>process.send()</code></a> method of their own
 that allows the child to send messages back to the parent.</p>
 <p>There is a special case when sending a <code>{cmd: 'NODE_foo'}</code> message. Messages
@@ -1728,7 +1741,7 @@ server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'c
 });
 server.<span class="hljs-title function_">listen</span>(<span class="hljs-number">1337</span>, <span class="hljs-function">() =></span> {
   subprocess.<span class="hljs-title function_">send</span>(<span class="hljs-string">'server'</span>, server);
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <p>The child would then receive the server object as:</p>
 <pre><code class="language-js">process.<span class="hljs-title function_">on</span>(<span class="hljs-string">'message'</span>, <span class="hljs-function">(<span class="hljs-params">m, server</span>) =></span> {
   <span class="hljs-keyword">if</span> (m === <span class="hljs-string">'server'</span>) {
@@ -1736,7 +1749,7 @@ server.<span class="hljs-title function_">listen</span>(<span class="hljs-number
       socket.<span class="hljs-title function_">end</span>(<span class="hljs-string">'handled by child'</span>);
     });
   }
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <p>Once the server is now shared between the parent and child, some connections
 can be handled by the parent and some by the child.</p>
 <p>While the example above uses a server created using the <code>node:net</code> module,
@@ -1765,7 +1778,7 @@ server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'c
   <span class="hljs-comment">// This is normal priority.</span>
   normal.<span class="hljs-title function_">send</span>(<span class="hljs-string">'socket'</span>, socket);
 });
-server.<span class="hljs-title function_">listen</span>(<span class="hljs-number">1337</span>);</code></pre>
+server.<span class="hljs-title function_">listen</span>(<span class="hljs-number">1337</span>);</code> <button class="copy-button">copy</button></pre>
 <p>The <code>subprocess.js</code> would receive the socket handle as the second argument
 passed to the event callback function:</p>
 <pre><code class="language-js">process.<span class="hljs-title function_">on</span>(<span class="hljs-string">'message'</span>, <span class="hljs-function">(<span class="hljs-params">m, socket</span>) =></span> {
@@ -1777,7 +1790,7 @@ passed to the event callback function:</p>
       socket.<span class="hljs-title function_">end</span>(<span class="hljs-string">`Request handled with <span class="hljs-subst">${process.argv[<span class="hljs-number">2</span>]}</span> priority`</span>);
     }
   }
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <p>Do not use <code>.maxConnections</code> on a socket that has been passed to a subprocess.
 The parent cannot track when the socket is destroyed.</p>
 <p>Any <code>'message'</code> handlers in the subprocess should verify that <code>socket</code> exists,
@@ -1871,7 +1884,7 @@ assert.<span class="hljs-title function_">strictEqual</span>(subprocess.<span cl
 assert.<span class="hljs-title function_">strictEqual</span>(subprocess.<span class="hljs-property">stdio</span>[<span class="hljs-number">1</span>], subprocess.<span class="hljs-property">stdout</span>);
 
 assert.<span class="hljs-title function_">strictEqual</span>(subprocess.<span class="hljs-property">stdio</span>[<span class="hljs-number">2</span>], <span class="hljs-literal">null</span>);
-assert.<span class="hljs-title function_">strictEqual</span>(subprocess.<span class="hljs-property">stdio</span>[<span class="hljs-number">2</span>], subprocess.<span class="hljs-property">stderr</span>);</code></pre>
+assert.<span class="hljs-title function_">strictEqual</span>(subprocess.<span class="hljs-property">stdio</span>[<span class="hljs-number">2</span>], subprocess.<span class="hljs-property">stderr</span>);</code> <button class="copy-button">copy</button></pre>
 <p>The <code>subprocess.stdio</code> property can be <code>undefined</code> if the child process could
 not be successfully spawned.</p>
 <h4><code>subprocess.stdout</code><span><a class="mark" href="#subprocessstdout" id="subprocessstdout">#</a></span><a aria-hidden="true" class="legacy" id="child_process_subprocess_stdout"></a></h4>
@@ -1892,7 +1905,7 @@ refer to the same value.</p>
 
 subprocess.<span class="hljs-property">stdout</span>.<span class="hljs-title function_">on</span>(<span class="hljs-string">'data'</span>, <span class="hljs-function">(<span class="hljs-params">data</span>) =></span> {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`Received chunk <span class="hljs-subst">${data}</span>`</span>);
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <p>The <code>subprocess.stdout</code> property can be <code>null</code> or <code>undefined</code>
 if the child process could not be successfully spawned.</p>
 <h4><code>subprocess.unref()</code><span><a class="mark" href="#subprocessunref" id="subprocessunref">#</a></span><a aria-hidden="true" class="legacy" id="child_process_subprocess_unref"></a></h4>
@@ -1912,7 +1925,7 @@ the child and the parent.</p>
   <span class="hljs-attr">stdio</span>: <span class="hljs-string">'ignore'</span>,
 });
 
-subprocess.<span class="hljs-title function_">unref</span>();</code></pre>
+subprocess.<span class="hljs-title function_">unref</span>();</code> <button class="copy-button">copy</button></pre>
 </section><section><h3><code>maxBuffer</code> and Unicode<span><a class="mark" href="#maxbuffer-and-unicode" id="maxbuffer-and-unicode">#</a></span><a aria-hidden="true" class="legacy" id="child_process_maxbuffer_and_unicode"></a></h3>
 <p>The <code>maxBuffer</code> option specifies the largest number of bytes allowed on <code>stdout</code>
 or <code>stderr</code>. If this value is exceeded, then the child process is terminated.

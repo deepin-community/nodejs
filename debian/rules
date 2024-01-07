@@ -4,8 +4,6 @@ include /usr/share/dpkg/architecture.mk
 include /usr/share/dpkg/pkg-info.mk
 include /usr/share/dpkg/buildtools.mk
 
-export CC = gcc-11
-export CXX = g++-11
 
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
@@ -15,7 +13,7 @@ builtins := /usr/share/nodejs/node
 ABI = $(shell awk '/^#define NODE_MODULE_VERSION/ {print $$3}' src/node_version.h)
 
 # archs
-ARCHS := amd64 arm64 armel armhf i386 kfreebsd-i386 kfreebsd-amd64 mips mips64el mips64r6el mipsel ppc64 ppc64el riscv64 s390x
+ARCHS := amd64 arm64 armel armhf i386 kfreebsd-i386 kfreebsd-amd64 mips mips64el mips64r6el mipsel loong64 ppc64 ppc64el riscv64 s390x
 
 # branch
 BRANCH := $(word 1, $(subst .,$(space), $(DEB_UPSTREAM_VERSION)))
@@ -65,6 +63,7 @@ destCpu := $(or $(destCpu),$(if $(filter mipsel,$(DEB_HOST_ARCH)),mipsel))
 destCpu := $(or $(destCpu),$(if $(filter mips64el,$(DEB_HOST_ARCH)),mips64el))
 destCpu := $(or $(destCpu),$(if $(filter mips64r6el,$(DEB_HOST_ARCH)),mips64el))
 destCpu := $(or $(destCpu),$(if $(filter mips,$(DEB_HOST_ARCH)),mips))
+destCpu := $(or $(destCpu),$(if $(filter loong64,$(DEB_HOST_ARCH)),loong64))
 destCpu := $(or $(destCpu),$(if $(filter powerpc,$(DEB_HOST_ARCH)),ppc))
 destCpu := $(or $(destCpu),$(if $(filter ppc64,$(DEB_HOST_ARCH)),ppc64))
 destCpu := $(or $(destCpu),$(if $(filter riscv64,$(DEB_HOST_ARCH)),riscv64))
@@ -193,8 +192,7 @@ export PYTHON = python3
 	dh $@ --with bash-completion $(DH_FLAGS)
 
 # properly clean files from build, test, python
-override_dh_auto_clean:
-	dh_auto_clean
+execute_after_dh_auto_clean:
 	rm -f node_trace.1.log
 	rm -f icu_config.gypi
 	rm -rf test/addons/doc-*
@@ -215,8 +213,7 @@ override_dh_auto_clean:
 	rm -f debian/nodejs.bash-completion
 
 # remove *.json files from documentation
-override_dh_installdocs:
-	dh_installdocs
+execute_after_dh_installdocs:
 	find debian/nodejs-doc/usr/share/doc/nodejs-doc -name *.json -delete || true
 
 override_dh_auto_configure:
@@ -231,15 +228,25 @@ else
 	./configure $(DEB_CONFIGURE_EXTRA_FLAGS)
 endif
 
-override_dh_auto_build-arch:
-	dh_auto_build
+execute_before_dh_auto_build-arch:
+	pkver=`dpkg-query --showformat='$${source:Upstream-Version}' --show node-acorn | sed -E 's/^([0-9]+\.[0-9]+\.[0-9]+).*/\1/g'`; \
+	sed -i -e "s/[0-9]\+\.[0-9]\+\.[0-9]\+/$${pkver}/" src/acorn_version.h
+	pkver=`dpkg-query --showformat='$${source:Upstream-Version}' --show node-cjs-module-lexer | sed -E 's/^([0-9]+\.[0-9]+\.[0-9]+).*/\1/g'`; \
+	sed -i -e "s/[0-9]\+\.[0-9]\+\.[0-9]\+/$${pkver}/" src/cjs_module_lexer_version.h
+	pkver=`dpkg-query --showformat='$${source:Upstream-Version}' --show node-undici | sed -E 's/^([0-9]+\.[0-9]+\.[0-9]+).*/\1/g'`; \
+	sed -i -e "s/[0-9]\+\.[0-9]\+\.[0-9]\+/$${pkver}/" src/undici_version.h
+
+execute_after_dh_auto_build-arch:
+ifneq ($(filter nodoc,$(DEB_BUILD_PROFILES)),)
 	./out/Release/node --completion-bash > ./debian/nodejs.bash-completion
+endif
 
 override_dh_auto_build-indep:
 	mkdir -p node_modules
 	ln -sf /usr/share/nodejs/marked node_modules/
 	ln -sf /usr/share/nodejs/acorn node_modules/
 	ln -sf /usr/share/nodejs/js-yaml node_modules/
+	ln -sf /usr/share/nodejs/cjs-module-lexer node_modules/
 	$(MAKE) doc-only
 
 override_dh_auto_test-indep:
@@ -266,7 +273,7 @@ override_dh_install-arch:
 	cp debian/nodejs.install.in debian/nodejs.install
 ifneq ($(filter pkg.nodejs.nobuiltin,$(DEB_BUILD_PROFILES)),)
 	echo "./lib $(builtins)/" >> debian/nodejs.install
-	deps_files="$(shell $(PYTHON) -c "import ast; d = ast.literal_eval(open('node.gyp').read()); print(' '.join(d['variables']['deps_files']));")"; \
+	deps_files="$(shell $(PYTHON) -c "import ast; d = ast.literal_eval(open('node.gyp').read()); print(' '.join(d['variables']['deps_files'][:-1]));")"; \
 	for src in $$deps_files; do \
 		dst=`dirname $$src`; \
 		echo "./$$src $(builtins)/$$dst" >> debian/nodejs.install; \

@@ -39,6 +39,7 @@
 #include "node_realm-inl.h"
 #include "node_report.h"
 #include "node_revert.h"
+#include "node_sea.h"
 #include "node_snapshot_builder.h"
 #include "node_v8_platform-inl.h"
 #include "node_version.h"
@@ -126,11 +127,10 @@
 #include <cstring>
 
 #include <string>
+#include <tuple>
 #include <vector>
 
 namespace node {
-
-using builtins::BuiltinLoader;
 
 using v8::EscapableHandleScope;
 using v8::Isolate;
@@ -273,15 +273,7 @@ MaybeLocal<Value> StartExecution(Environment* env, const char* main_script_id) {
   CHECK_NOT_NULL(main_script_id);
   Realm* realm = env->principal_realm();
 
-  // Arguments must match the parameters specified in
-  // BuiltinLoader::LookupAndCompile().
-  std::vector<Local<Value>> arguments = {env->process_object(),
-                                         env->builtin_module_require(),
-                                         env->internal_binding_loader(),
-                                         env->primordials()};
-
-  return scope.EscapeMaybe(
-      realm->ExecuteBootstrapper(main_script_id, &arguments));
+  return scope.EscapeMaybe(realm->ExecuteBootstrapper(main_script_id));
 }
 
 MaybeLocal<Value> StartExecution(Environment* env, StartExecutionCallback cb) {
@@ -320,6 +312,18 @@ MaybeLocal<Value> StartExecution(Environment* env, StartExecutionCallback cb) {
   if (env->argv().size() > 1) {
     first_argv = env->argv()[1];
   }
+
+#ifndef DISABLE_SINGLE_EXECUTABLE_APPLICATION
+  if (sea::IsSingleExecutable()) {
+    // TODO(addaleax): Find a way to reuse:
+    //
+    // LoadEnvironment(Environment*, const char*)
+    //
+    // instead and not add yet another main entry point here because this
+    // already duplicates existing code.
+    return StartExecution(env, "internal/main/single_executable_application");
+  }
+#endif
 
   if (first_argv == "inspect") {
     return StartExecution(env, "internal/main/inspect");
@@ -379,10 +383,19 @@ static LONG TrapWebAssemblyOrContinue(EXCEPTION_POINTERS* exception) {
 }
 #else
 static std::atomic<sigaction_cb> previous_sigsegv_action;
+// TODO(align behavior between macos and other in next major version)
+#if defined(__APPLE__)
+static std::atomic<sigaction_cb> previous_sigbus_action;
+#endif  // __APPLE__
 
 void TrapWebAssemblyOrContinue(int signo, siginfo_t* info, void* ucontext) {
   if (!v8::TryHandleWebAssemblyTrapPosix(signo, info, ucontext)) {
+#if defined(__APPLE__)
+    sigaction_cb prev = signo == SIGBUS ? previous_sigbus_action.load()
+                                        : previous_sigsegv_action.load();
+#else
     sigaction_cb prev = previous_sigsegv_action.load();
+#endif  // __APPLE__
     if (prev != nullptr) {
       prev(signo, info, ucontext);
     } else {
@@ -412,6 +425,15 @@ void RegisterSignalHandler(int signal,
     previous_sigsegv_action.store(handler);
     return;
   }
+// TODO(align behavior between macos and other in next major version)
+#if defined(__APPLE__)
+  if (signal == SIGBUS) {
+    CHECK(previous_sigbus_action.is_lock_free());
+    CHECK(!reset_handler);
+    previous_sigbus_action.store(handler);
+    return;
+  }
+#endif  // __APPLE__
 #endif  // NODE_USE_V8_WASM_TRAP_HANDLER
   struct sigaction sa;
   memset(&sa, 0, sizeof(sa));
@@ -444,6 +466,17 @@ void ResetSignalHandlers() {
     if (nr == SIGKILL || nr == SIGSTOP)
       continue;
     act.sa_handler = (nr == SIGPIPE || nr == SIGXFSZ) ? SIG_IGN : SIG_DFL;
+    if (act.sa_handler == SIG_DFL) {
+      // The only bad handler value we can inhert from before exec is SIG_IGN
+      // (any actual function pointer is reset to SIG_DFL during exec).
+      // If that's the case, we want to reset it back to SIG_DFL.
+      // However, it's also possible that an embeder (or an LD_PRELOAD-ed
+      // library) has set up own signal handler for own purposes
+      // (e.g. profiling). If that's the case, we want to keep it intact.
+      struct sigaction old;
+      CHECK_EQ(0, sigaction(nr, nullptr, &old));
+      if ((old.sa_flags & SA_SIGINFO) || old.sa_handler != SIG_IGN) continue;
+    }
     CHECK_EQ(0, sigaction(nr, &act, nullptr));
   }
 #endif  // __POSIX__
@@ -551,7 +584,7 @@ static void PlatformInit(ProcessInitializationFlags::Flags flags) {
 #else
     // Tell V8 to disable emitting WebAssembly
     // memory bounds checks. This means that we have
-    // to catch the SIGSEGV in TrapWebAssemblyOrContinue
+    // to catch the SIGSEGV/SIGBUS in TrapWebAssemblyOrContinue
     // and pass the signal context to V8.
     {
       struct sigaction sa;
@@ -559,6 +592,10 @@ static void PlatformInit(ProcessInitializationFlags::Flags flags) {
       sa.sa_sigaction = TrapWebAssemblyOrContinue;
       sa.sa_flags = SA_SIGINFO;
       CHECK_EQ(sigaction(SIGSEGV, &sa, nullptr), 0);
+// TODO(align behavior between macos and other in next major version)
+#if defined(__APPLE__)
+      CHECK_EQ(sigaction(SIGBUS, &sa, nullptr), 0);
+#endif
     }
 #endif  // defined(_WIN32)
     V8::EnableWebAssemblyTrapHandler(false);
@@ -729,9 +766,9 @@ int ProcessGlobalArgs(std::vector<std::string>* args,
   std::vector<char*> v8_args_as_char_ptr(v8_args.size());
   if (v8_args.size() > 0) {
     for (size_t i = 0; i < v8_args.size(); ++i)
-      v8_args_as_char_ptr[i] = &v8_args[i][0];
+      v8_args_as_char_ptr[i] = v8_args[i].data();
     int argc = v8_args.size();
-    V8::SetFlagsFromCommandLine(&argc, &v8_args_as_char_ptr[0], true);
+    V8::SetFlagsFromCommandLine(&argc, v8_args_as_char_ptr.data(), true);
     v8_args_as_char_ptr.resize(argc);
   }
 
@@ -765,8 +802,8 @@ int InitializeNodeWithArgs(std::vector<std::string>* argv,
   // Initialize node_start_time to get relative uptime.
   per_process::node_start_time = uv_hrtime();
 
-  // Register built-in modules
-  binding::RegisterBuiltinModules();
+  // Register built-in bindings
+  binding::RegisterBuiltinBindings();
 
   // Make inherited handles noninheritable.
   if (!(flags & ProcessInitializationFlags::kEnableStdioInheritance) &&
@@ -803,7 +840,7 @@ int InitializeNodeWithArgs(std::vector<std::string>* argv,
       const int exit_code = ProcessGlobalArgs(&env_argv,
                                               nullptr,
                                               errors,
-                                              kAllowedInEnvironment);
+                                              kAllowedInEnvvar);
       if (exit_code != 0) return exit_code;
     }
   }
@@ -813,7 +850,7 @@ int InitializeNodeWithArgs(std::vector<std::string>* argv,
     const int exit_code = ProcessGlobalArgs(argv,
                                             exec_argv,
                                             errors,
-                                            kDisallowedInEnvironment);
+                                            kDisallowedInEnvvar);
     if (exit_code != 0) return exit_code;
   }
 
@@ -944,11 +981,6 @@ std::unique_ptr<InitializationResult> InitializeOncePerProcess(
       return ret;
     };
 
-    {
-      std::string extra_ca_certs;
-      if (credentials::SafeGetenv("NODE_EXTRA_CA_CERTS", &extra_ca_certs))
-        crypto::UseExtraCaCerts(extra_ca_certs);
-    }
     // In the case of FIPS builds we should make sure
     // the random source is properly initialized first.
 #if OPENSSL_VERSION_MAJOR >= 3
@@ -1033,6 +1065,12 @@ std::unique_ptr<InitializationResult> InitializeOncePerProcess(
       CHECK(crypto::CSPRNG(buffer, length).is_ok());
       return true;
     });
+
+    {
+      std::string extra_ca_certs;
+      if (credentials::SafeGetenv("NODE_EXTRA_CA_CERTS", &extra_ca_certs))
+        crypto::UseExtraCaCerts(extra_ca_certs);
+    }
 #endif  // HAVE_OPENSSL && !defined(OPENSSL_IS_BORINGSSL)
   }
 
@@ -1154,13 +1192,14 @@ int LoadSnapshotDataAndRun(const SnapshotData** snapshot_data_ptr,
       return exit_code;
     }
     std::unique_ptr<SnapshotData> read_data = std::make_unique<SnapshotData>();
-    if (!SnapshotData::FromBlob(read_data.get(), fp)) {
+    bool ok = SnapshotData::FromBlob(read_data.get(), fp);
+    fclose(fp);
+    if (!ok) {
       // If we fail to read the customized snapshot, simply exit with 1.
       exit_code = 1;
       return exit_code;
     }
     *snapshot_data_ptr = read_data.release();
-    fclose(fp);
   } else if (per_process::cli_options->node_snapshot) {
     // If --snapshot-blob is not specified, we are reading the embedded
     // snapshot, but we will skip it if --no-node-snapshot is specified.
@@ -1173,9 +1212,6 @@ int LoadSnapshotDataAndRun(const SnapshotData** snapshot_data_ptr,
     }
   }
 
-  if ((*snapshot_data_ptr) != nullptr) {
-    BuiltinLoader::RefreshCodeCache((*snapshot_data_ptr)->code_cache);
-  }
   NodeMainInstance main_instance(*snapshot_data_ptr,
                                  uv_default_loop(),
                                  per_process::v8_platform.Platform(),
@@ -1186,6 +1222,10 @@ int LoadSnapshotDataAndRun(const SnapshotData** snapshot_data_ptr,
 }
 
 int Start(int argc, char** argv) {
+#ifndef DISABLE_SINGLE_EXECUTABLE_APPLICATION
+  std::tie(argc, argv) = sea::FixupArgsForSEA(argc, argv);
+#endif
+
   CHECK_GT(argc, 0);
 
   // Hack around with the argv pointer. Used for process.title = "blah".
@@ -1230,7 +1270,11 @@ int Start(int argc, char** argv) {
 }
 
 int Stop(Environment* env) {
-  env->ExitEnv();
+  return Stop(env, StopFlags::kNoFlags);
+}
+
+int Stop(Environment* env, StopFlags::Flags flags) {
+  env->ExitEnv(flags);
   return 0;
 }
 
@@ -1239,5 +1283,5 @@ int Stop(Environment* env) {
 #if !HAVE_INSPECTOR
 void Initialize() {}
 
-NODE_MODULE_CONTEXT_AWARE_INTERNAL(inspector, Initialize)
+NODE_BINDING_CONTEXT_AWARE_INTERNAL(inspector, Initialize)
 #endif  // !HAVE_INSPECTOR

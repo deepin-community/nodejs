@@ -4,6 +4,7 @@
 #if defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
 
 #include <v8.h>
+#include <unordered_map>
 #include "cleanup_queue.h"
 #include "env_properties.h"
 #include "memory_tracker.h"
@@ -12,12 +13,17 @@
 namespace node {
 
 struct RealmSerializeInfo {
+  std::vector<std::string> builtins;
   std::vector<PropInfo> persistent_values;
   std::vector<PropInfo> native_objects;
 
   SnapshotIndex context;
   friend std::ostream& operator<<(std::ostream& o, const RealmSerializeInfo& i);
 };
+
+using BindingDataStore = std::array<BaseObjectPtr<BaseObject>,
+                     static_cast<size_t>(
+                         BindingDataType::kBindingDataTypeCount)>;
 
 /**
  * node::Realm is a container for a set of JavaScript objects and functions
@@ -55,16 +61,14 @@ class Realm : public MemoryRetainer {
   Realm& operator=(Realm&&) = delete;
 
   SET_MEMORY_INFO_NAME(Realm)
-  SET_SELF_SIZE(Realm);
+  SET_SELF_SIZE(Realm)
   void MemoryInfo(MemoryTracker* tracker) const override;
 
   void CreateProperties();
   RealmSerializeInfo Serialize(v8::SnapshotCreator* creator);
   void DeserializeProperties(const RealmSerializeInfo* info);
 
-  v8::MaybeLocal<v8::Value> ExecuteBootstrapper(
-      const char* id, std::vector<v8::Local<v8::Value>>* arguments);
-  v8::MaybeLocal<v8::Value> BootstrapInternalLoaders();
+  v8::MaybeLocal<v8::Value> ExecuteBootstrapper(const char* id);
   v8::MaybeLocal<v8::Value> BootstrapNode();
   v8::MaybeLocal<v8::Value> RunBootstrapping();
 
@@ -85,6 +89,21 @@ class Realm : public MemoryRetainer {
   inline v8::Local<v8::Context> context() const;
   inline bool has_run_bootstrapping_code() const;
 
+  // Methods created using SetMethod(), SetPrototypeMethod(), etc. inside
+  // this scope can access the created T* object using
+  // GetBindingData<T>(args) later.
+  template <typename T>
+  T* AddBindingData(v8::Local<v8::Context> context,
+                    v8::Local<v8::Object> target);
+  template <typename T, typename U>
+  static inline T* GetBindingData(const v8::PropertyCallbackInfo<U>& info);
+  template <typename T>
+  static inline T* GetBindingData(
+      const v8::FunctionCallbackInfo<v8::Value>& info);
+  template <typename T>
+  static inline T* GetBindingData(v8::Local<v8::Context> context);
+  inline BindingDataStore* binding_data_store();
+
   // The BaseObject count is a debugging helper that makes sure that there are
   // no memory leaks caused by BaseObjects staying alive longer than expected
   // (in particular, no circular BaseObjectPtr references).
@@ -100,6 +119,13 @@ class Realm : public MemoryRetainer {
   PER_REALM_STRONG_PERSISTENT_VALUES(V)
 #undef V
 
+  std::set<struct node_module*> internal_bindings;
+  std::set<std::string> builtins_with_cache;
+  std::set<std::string> builtins_without_cache;
+  // This is only filled during deserialization. We use a vector since
+  // it's only used for tests.
+  std::vector<std::string> builtins_in_snapshot;
+
  private:
   void InitializeContext(v8::Local<v8::Context> context,
                          const RealmSerializeInfo* realm_info);
@@ -113,6 +139,8 @@ class Realm : public MemoryRetainer {
 
   int64_t base_object_count_ = 0;
   int64_t base_object_created_by_bootstrap_ = 0;
+
+  BindingDataStore binding_data_store_;
 
   CleanupQueue cleanup_queue_;
 

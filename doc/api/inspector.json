@@ -8,7 +8,7 @@
       "introduced_in": "v8.0.0",
       "stability": 2,
       "stabilityText": "Stable",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.13.0/lib/inspector.js\">lib/inspector.js</a></p>\n<p>The <code>node:inspector</code> module provides an API for interacting with the V8\ninspector.</p>\n<p>It can be accessed using:</p>\n<pre><code class=\"language-js\">const inspector = require('node:inspector');\n</code></pre>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.19.0/lib/inspector.js\">lib/inspector.js</a></p>\n<p>The <code>node:inspector</code> module provides an API for interacting with the V8\ninspector.</p>\n<p>It can be accessed using:</p>\n<pre><code class=\"language-js\">const inspector = require('node:inspector');\n</code></pre>",
       "methods": [
         {
           "textRaw": "`inspector.close()`",
@@ -31,7 +31,7 @@
               "params": []
             }
           ],
-          "desc": "<p>Deactivate the inspector. Blocks until there are no active connections.</p>"
+          "desc": "<p>Deactivate the inspector. Blocks until there are no active connections.</p>\n<p>When using <code>Session</code>, the object outputted by the console API will not be\nreleased, unless we performed manually <code>Runtime.DiscardConsoleEntries</code>\ncommand.</p>"
         },
         {
           "textRaw": "`inspector.open([port[, host[, wait]]])`",
@@ -244,7 +244,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Posts a message to the inspector back-end. <code>callback</code> will be notified when\na response is received. <code>callback</code> is a function that accepts two optional\narguments: error and message-specific result.</p>\n<pre><code class=\"language-js\">session.post('Runtime.evaluate', { expression: '2 + 2' },\n             (error, { result }) => console.log(result));\n// Output: { type: 'number', value: 4, description: '4' }\n</code></pre>\n<p>The latest version of the V8 inspector protocol is published on the\n<a href=\"https://chromedevtools.github.io/devtools-protocol/v8/\">Chrome DevTools Protocol Viewer</a>.</p>\n<p>Node.js inspector supports all the Chrome DevTools Protocol domains declared\nby V8. Chrome DevTools Protocol domain provides an interface for interacting\nwith one of the runtime agents used to inspect the application state and listen\nto the run-time events.</p>\n<h2>Example usage</h2>\n<p>Apart from the debugger, various V8 Profilers are available through the DevTools\nprotocol.</p>"
+              "desc": "<p>Posts a message to the inspector back-end. <code>callback</code> will be notified when\na response is received. <code>callback</code> is a function that accepts two optional\narguments: error and message-specific result.</p>\n<pre><code class=\"language-js\">session.post('Runtime.evaluate', { expression: '2 + 2' },\n             (error, { result }) => console.log(result));\n// Output: { type: 'number', value: 4, description: '4' }\n</code></pre>\n<p>The latest version of the V8 inspector protocol is published on the\n<a href=\"https://chromedevtools.github.io/devtools-protocol/v8/\">Chrome DevTools Protocol Viewer</a>.</p>\n<p>Node.js inspector supports all the Chrome DevTools Protocol domains declared\nby V8. Chrome DevTools Protocol domain provides an interface for interacting\nwith one of the runtime agents used to inspect the application state and listen\nto the run-time events.</p>\n<p>You can not set <code>reportProgress</code> to <code>true</code> when sending a\n<code>HeapProfiler.takeHeapSnapshot</code> or <code>HeapProfiler.stopTrackingHeapObjects</code>\ncommand to V8.</p>\n<h4>Example usage</h4>\n<p>Apart from the debugger, various V8 Profilers are available through the DevTools\nprotocol.</p>"
             }
           ],
           "modules": [
@@ -266,7 +266,7 @@
           "signatures": [
             {
               "params": [],
-              "desc": "<p>Create a new instance of the <code>inspector.Session</code> class. The inspector session\nneeds to be connected through <a href=\"#sessionconnect\"><code>session.connect()</code></a> before the messages\ncan be dispatched to the inspector backend.</p>"
+              "desc": "<p>Create a new instance of the <code>inspector.Session</code> class. The inspector session\nneeds to be connected through <a href=\"#sessionconnect\"><code>session.connect()</code></a> before the messages\ncan be dispatched to the inspector backend.</p>\n<p>When using <code>Session</code>, the object outputted by the console API will not be\nreleased, unless we performed manually <code>Runtime.DiscardConsoleEntries</code>\ncommand.</p>"
             }
           ]
         }

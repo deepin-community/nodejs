@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.13.0">
-  <title>OS | Node.js v18.13.0 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v18.19.0">
+  <title>OS | Node.js v18.19.0 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
@@ -68,6 +68,7 @@
 <li><a href="readline.html" class="nav-readline">Readline</a></li>
 <li><a href="repl.html" class="nav-repl">REPL</a></li>
 <li><a href="report.html" class="nav-report">Report</a></li>
+<li><a href="single-executable-applications.html" class="nav-single-executable-applications">Single executable applications</a></li>
 <li><a href="stream.html" class="nav-stream">Stream</a></li>
 <li><a href="string_decoder.html" class="nav-string_decoder">String decoder</a></li>
 <li><a href="test.html" class="nav-test">Test runner</a></li>
@@ -95,7 +96,7 @@
     <div id="column1" data-id="os" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.13.0 documentation</h1>
+          <h1>Node.js v18.19.0 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -110,7 +111,7 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.13.0</li>
+            <li class="pinned-header">Node.js v18.19.0</li>
             
     <li class="picker-header">
       <a href="#">
@@ -122,6 +123,7 @@
 <li><span class="stability_2"><a href="#os">OS</a></span>
 <ul>
 <li><a href="#oseol"><code>os.EOL</code></a></li>
+<li><a href="#osavailableparallelism"><code>os.availableParallelism()</code></a></li>
 <li><a href="#osarch"><code>os.arch()</code></a></li>
 <li><a href="#osconstants"><code>os.constants</code></a></li>
 <li><a href="#oscpus"><code>os.cpus()</code></a></li>
@@ -222,6 +224,7 @@
 <li><a href="readline.html" class="nav-readline">Readline</a></li>
 <li><a href="repl.html" class="nav-repl">REPL</a></li>
 <li><a href="report.html" class="nav-report">Report</a></li>
+<li><a href="single-executable-applications.html" class="nav-single-executable-applications">Single executable applications</a></li>
 <li><a href="stream.html" class="nav-stream">Stream</a></li>
 <li><a href="string_decoder.html" class="nav-string_decoder">String decoder</a></li>
 <li><a href="test.html" class="nav-test">Test runner</a></li>
@@ -252,12 +255,14 @@
         <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v19.x/api/os.html">19.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/os.html">21.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v20.x/api/os.html">20.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v19.x/api/os.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/os.html">18.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v17.x/api/os.html">17.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v16.x/api/os.html">16.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v16.x/api/os.html">16.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v15.x/api/os.html">15.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v14.x/api/os.html">14.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v14.x/api/os.html">14.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v13.x/api/os.html">13.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v12.x/api/os.html">12.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v11.x/api/os.html">11.x</a></li>
@@ -299,6 +304,7 @@
 <li><span class="stability_2"><a href="#os">OS</a></span>
 <ul>
 <li><a href="#oseol"><code>os.EOL</code></a></li>
+<li><a href="#osavailableparallelism"><code>os.availableParallelism()</code></a></li>
 <li><a href="#osarch"><code>os.arch()</code></a></li>
 <li><a href="#osconstants"><code>os.constants</code></a></li>
 <li><a href="#oscpus"><code>os.cpus()</code></a></li>
@@ -342,10 +348,10 @@
         <h2>OS<span><a class="mark" href="#os" id="os">#</a></span><a aria-hidden="true" class="legacy" id="os_os"></a></h2>
 
 <p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.13.0/lib/os.js">lib/os.js</a></p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.19.0/lib/os.js">lib/os.js</a></p>
 <p>The <code>node:os</code> module provides operating system-related utility methods and
 properties. It can be accessed using:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> os = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:os'</span>);</code></pre>
+<pre><code class="language-js"><span class="hljs-keyword">const</span> os = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:os'</span>);</code> <button class="copy-button">copy</button></pre>
 <section><h3><code>os.EOL</code><span><a class="mark" href="#oseol" id="oseol">#</a></span><a aria-hidden="true" class="legacy" id="os_os_eol"></a></h3>
 <div class="api_metadata">
 <span>Added in: v0.7.8</span>
@@ -358,6 +364,16 @@ properties. It can be accessed using:</p>
 <li><code>\n</code> on POSIX</li>
 <li><code>\r\n</code> on Windows</li>
 </ul>
+</section><section><h3><code>os.availableParallelism()</code><span><a class="mark" href="#osavailableparallelism" id="osavailableparallelism">#</a></span><a aria-hidden="true" class="legacy" id="os_os_availableparallelism"></a></h3>
+<div class="api_metadata">
+<span>Added in: v18.14.0</span>
+</div>
+<ul>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a></li>
+</ul>
+<p>Returns an estimate of the default amount of parallelism a program should use.
+Always returns a value greater than zero.</p>
+<p>This function is a small wrapper about libuv's <a href="https://docs.libuv.org/en/v1.x/misc.html#c.uv_available_parallelism"><code>uv_available_parallelism()</code></a>.</p>
 </section><section><h3><code>os.arch()</code><span><a class="mark" href="#osarch" id="osarch">#</a></span><a aria-hidden="true" class="legacy" id="os_os_arch"></a></h3>
 <div class="api_metadata">
 <span>Added in: v0.5.0</span>
@@ -386,7 +402,9 @@ process signals, and so on. The specific constants defined are described in
 <ul>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object[]></a></li>
 </ul>
-<p>Returns an array of objects containing information about each logical CPU core.</p>
+<p>Returns an array of objects containing information about each logical CPU core.
+The array will be empty if no CPU information is available, such as if the
+<code>/proc</code> file system is unavailable.</p>
 <p>The properties included on each object include:</p>
 <ul>
 <li><code>model</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
@@ -447,9 +465,12 @@ process signals, and so on. The specific constants defined are described in
       <span class="hljs-attr">irq</span>: <span class="hljs-number">20</span>,
     },
   },
-]</code></pre>
+]</code> <button class="copy-button">copy</button></pre>
 <p><code>nice</code> values are POSIX-only. On Windows, the <code>nice</code> values of all processors
 are always 0.</p>
+<p><code>os.cpus().length</code> should not be used to calculate the amount of parallelism
+available to an application. Use
+<a href="#osavailableparallelism"><code>os.availableParallelism()</code></a> for this purpose.</p>
 </section><section><h3><code>os.devNull</code><span><a class="mark" href="#osdevnull" id="osdevnull">#</a></span><a aria-hidden="true" class="legacy" id="os_os_devnull"></a></h3>
 <div class="api_metadata">
 <span>Added in: v16.3.0, v14.18.0</span>
@@ -611,7 +632,7 @@ to <code>null</code>.</li>
       <span class="hljs-attr">cidr</span>: <span class="hljs-string">'fe80::a00:27ff:fe4e:66a1/64'</span>
     }
   ]
-}</code></pre>
+}</code> <button class="copy-button">copy</button></pre>
 </section><section><h3><code>os.platform()</code><span><a class="mark" href="#osplatform" id="osplatform">#</a></span><a aria-hidden="true" class="legacy" id="os_os_platform"></a></h3>
 <div class="api_metadata">
 <span>Added in: v0.5.0</span>

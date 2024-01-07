@@ -1,0 +1,64 @@
+From 42bd83feaea075b2c136e2c4ab1507c785e7bcc7 Mon Sep 17 00:00:00 2001
+From: Brad House <brad@brad-house.com>
+Date: Wed, 15 Nov 2023 09:33:47 -0500
+Subject: [PATCH] test: fix dns test case failures after c-ares update to
+ 1.21.0+
+
+c-ares has made intentional changes to the behavior of TXT records
+to comply with RFC 7208, which concatenates multiple strings for
+the same TXT record into a single string.  Multiple TXT records
+are not concatenated.
+
+Also, response handling has changed, such that a response which is
+completely invalid in formatting is thrown away as a malicious
+forged/spoofed packet rather than returning EBADRESP.  This is one
+step toward RFC 9018 (EDNS COOKIES) which will require the message
+to at least be structurally valid to validate against spoofed
+records.
+
+Fix By: Brad House (@bradh352)
+
+PR-URL: https://github.com/nodejs/node/pull/50743
+Reviewed-By: Luigi Pinca <luigipinca@gmail.com>
+Reviewed-By: James M Snell <jasnell@gmail.com>
+Fixes: https://github.com/nodejs/node/issues/50741
+Refs: https://github.com/nodejs/node/issues/50444
+---
+ test/parallel/test-dns-resolveany-bad-ancount.js | 5 +++--
+ test/parallel/test-dns-resolveany.js             | 2 +-
+ 2 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/test/parallel/test-dns-resolveany-bad-ancount.js b/test/parallel/test-dns-resolveany-bad-ancount.js
+index 71fcbe03cd58f1..5cea388ad6a9f0 100644
+--- a/test/parallel/test-dns-resolveany-bad-ancount.js
++++ b/test/parallel/test-dns-resolveany-bad-ancount.js
+@@ -30,13 +30,14 @@ server.bind(0, common.mustCall(async () => {
+   dnsPromises.resolveAny('example.org')
+     .then(common.mustNotCall())
+     .catch(common.expectsError({
+-      code: 'EBADRESP',
++      // May return EBADRESP or ETIMEOUT
++      code: /^(?:EBADRESP|ETIMEOUT)$/,
+       syscall: 'queryAny',
+       hostname: 'example.org'
+     }));
+ 
+   dns.resolveAny('example.org', common.mustCall((err) => {
+-    assert.strictEqual(err.code, 'EBADRESP');
++    assert.notStrictEqual(err.code, 'SUCCESS');
+     assert.strictEqual(err.syscall, 'queryAny');
+     assert.strictEqual(err.hostname, 'example.org');
+     const descriptor = Object.getOwnPropertyDescriptor(err, 'message');
+diff --git a/test/parallel/test-dns-resolveany.js b/test/parallel/test-dns-resolveany.js
+index 0bbfe8f9f18432..f64dbfc93e2da8 100644
+--- a/test/parallel/test-dns-resolveany.js
++++ b/test/parallel/test-dns-resolveany.js
+@@ -11,7 +11,7 @@ const answers = [
+   { type: 'AAAA', address: '::42', ttl: 123 },
+   { type: 'MX', priority: 42, exchange: 'foobar.com', ttl: 124 },
+   { type: 'NS', value: 'foobar.org', ttl: 457 },
+-  { type: 'TXT', entries: [ 'v=spf1 ~all', 'xyz\0foo' ] },
++  { type: 'TXT', entries: [ 'v=spf1 ~all xyz\0foo' ] },
+   { type: 'PTR', value: 'baz.org', ttl: 987 },
+   {
+     type: 'SOA',

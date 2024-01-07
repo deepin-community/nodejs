@@ -20,6 +20,7 @@
 namespace node {
 using errors::TryCatchScope;
 using v8::Array;
+using v8::Boolean;
 using v8::Context;
 using v8::EscapableHandleScope;
 using v8::Function;
@@ -64,7 +65,18 @@ MaybeLocal<Value> PrepareStackTraceCallback(Local<Context> context,
   if (env == nullptr) {
     return exception->ToString(context).FromMaybe(Local<Value>());
   }
-  Local<Function> prepare = env->prepare_stack_trace_callback();
+  Realm* realm = Realm::GetCurrent(context);
+  Local<Function> prepare;
+  if (realm != nullptr) {
+    // If we are in a Realm, call the realm specific prepareStackTrace callback
+    // to avoid passing the JS objects (the exception and trace) across the
+    // realm boundary with the `Error.prepareStackTrace` override.
+    prepare = realm->prepare_stack_trace_callback();
+  } else {
+    // The context is created with ContextifyContext, call the principal
+    // realm's prepareStackTrace callback.
+    prepare = env->principal_realm()->prepare_stack_trace_callback();
+  }
   if (prepare.IsEmpty()) {
     return exception->ToString(context).FromMaybe(Local<Value>());
   }
@@ -218,7 +230,8 @@ void SetIsolateCreateParamsForNode(Isolate::CreateParams* params) {
   const uint64_t total_memory = constrained_memory > 0 ?
       std::min(uv_get_total_memory(), constrained_memory) :
       uv_get_total_memory();
-  if (total_memory > 0) {
+  if (total_memory > 0 &&
+      params->constraints.max_old_generation_size_in_bytes() == 0) {
     // V8 defaults to 700MB or 1.4GB on 32 and 64 bit platforms respectively.
     // This default is based on browser use-cases. Tell V8 to configure the
     // heap based on the actual physical memory.
@@ -262,8 +275,16 @@ void SetIsolateMiscHandlers(v8::Isolate* isolate, const IsolateSettings& s) {
   auto* allow_wasm_codegen_cb = s.allow_wasm_code_generation_callback ?
     s.allow_wasm_code_generation_callback : AllowWasmCodeGenerationCallback;
   isolate->SetAllowWasmCodeGenerationCallback(allow_wasm_codegen_cb);
+
+  auto* modify_code_generation_from_strings_callback =
+      ModifyCodeGenerationFromStrings;
+  if (s.flags & ALLOW_MODIFY_CODE_GENERATION_FROM_STRINGS_CALLBACK &&
+      s.modify_code_generation_from_strings_callback) {
+    modify_code_generation_from_strings_callback =
+        s.modify_code_generation_from_strings_callback;
+  }
   isolate->SetModifyCodeGenerationFromStringsCallback(
-      ModifyCodeGenerationFromStrings);
+      modify_code_generation_from_strings_callback);
 
   Mutex::ScopedLock lock(node::per_process::cli_options_mutex);
   if (per_process::cli_options->get_per_isolate_options()
@@ -303,9 +324,21 @@ void SetIsolateUpForNode(v8::Isolate* isolate) {
 // careful about what we override in the params.
 Isolate* NewIsolate(Isolate::CreateParams* params,
                     uv_loop_t* event_loop,
-                    MultiIsolatePlatform* platform) {
+                    MultiIsolatePlatform* platform,
+                    bool has_snapshot_data) {
   Isolate* isolate = Isolate::Allocate();
   if (isolate == nullptr) return nullptr;
+#ifdef NODE_V8_SHARED_RO_HEAP
+  {
+    // In shared-readonly-heap mode, V8 requires all snapshots used for
+    // creating Isolates to be identical. This isn't really memory-safe
+    // but also otherwise just doesn't work, and the only real alternative
+    // is disabling shared-readonly-heap mode altogether.
+    static Isolate::CreateParams first_params = *params;
+    params->snapshot_blob = first_params.snapshot_blob;
+    params->external_references = first_params.external_references;
+  }
+#endif
 
   // Register the isolate on the platform before the isolate gets initialized,
   // so that the isolate can access the platform during initialization.
@@ -313,7 +346,13 @@ Isolate* NewIsolate(Isolate::CreateParams* params,
 
   SetIsolateCreateParamsForNode(params);
   Isolate::Initialize(isolate, *params);
-  SetIsolateUpForNode(isolate);
+  if (!has_snapshot_data) {
+    // If in deserialize mode, delay until after the deserialization is
+    // complete.
+    SetIsolateUpForNode(isolate);
+  } else {
+    SetIsolateMiscHandlers(isolate, {});
+  }
 
   return isolate;
 }
@@ -373,12 +412,13 @@ Environment* CreateEnvironment(
   // options than the global parse call.
   Environment* env = new Environment(
       isolate_data, context, args, exec_args, nullptr, flags, thread_id);
+
 #if HAVE_INSPECTOR
   if (env->should_create_inspector()) {
     if (inspector_parent_handle) {
-      env->InitializeInspector(
-          std::move(static_cast<InspectorParentHandleImpl*>(
-              inspector_parent_handle.get())->impl));
+      env->InitializeInspector(std::move(
+          static_cast<InspectorParentHandleImpl*>(inspector_parent_handle.get())
+              ->impl));
     } else {
       env->InitializeInspector({});
     }
@@ -402,6 +442,9 @@ void FreeEnvironment(Environment* env) {
     Context::Scope context_scope(env->context());
     SealHandleScope seal_handle_scope(isolate);
 
+    // Set the flag in accordance with the DisallowJavascriptExecutionScope
+    // above.
+    env->set_can_call_into_js(false);
     env->set_stopping(true);
     env->stop_sub_worker_contexts();
     env->RunCleanup();
@@ -422,11 +465,20 @@ NODE_EXTERN std::unique_ptr<InspectorParentHandle> GetInspectorParentHandle(
     Environment* env,
     ThreadId thread_id,
     const char* url) {
+  return GetInspectorParentHandle(env, thread_id, url, "");
+}
+
+NODE_EXTERN std::unique_ptr<InspectorParentHandle> GetInspectorParentHandle(
+    Environment* env, ThreadId thread_id, const char* url, const char* name) {
   CHECK_NOT_NULL(env);
+  if (name == nullptr) name = "";
   CHECK_NE(thread_id.id, static_cast<uint64_t>(-1));
+  if (!env->should_create_inspector()) {
+    return nullptr;
+  }
 #if HAVE_INSPECTOR
   return std::make_unique<InspectorParentHandleImpl>(
-      env->inspector_agent()->GetParentHandle(thread_id.id, url));
+      env->inspector_agent()->GetParentHandle(thread_id.id, url, name));
 #else
   return {};
 #endif
@@ -445,28 +497,13 @@ MaybeLocal<Value> LoadEnvironment(
     Environment* env,
     const char* main_script_source_utf8) {
   CHECK_NOT_NULL(main_script_source_utf8);
-  Isolate* isolate = env->isolate();
   return LoadEnvironment(
-      env,
-      [&](const StartExecutionCallbackInfo& info) -> MaybeLocal<Value> {
-        // This is a slightly hacky way to convert UTF-8 to UTF-16.
-        Local<String> str =
-            String::NewFromUtf8(isolate,
-                                main_script_source_utf8).ToLocalChecked();
-        auto main_utf16 = std::make_unique<String::Value>(isolate, str);
-
-        // TODO(addaleax): Avoid having a global table for all scripts.
+      env, [&](const StartExecutionCallbackInfo& info) -> MaybeLocal<Value> {
         std::string name = "embedder_main_" + std::to_string(env->thread_id());
-        builtins::BuiltinLoader::Add(
-            name.c_str(), UnionBytes(**main_utf16, main_utf16->length()));
-        env->set_main_utf16(std::move(main_utf16));
+        env->builtin_loader()->Add(name.c_str(), main_script_source_utf8);
         Realm* realm = env->principal_realm();
 
-        // Arguments must match the parameters specified in
-        // BuiltinLoader::LookupAndCompile().
-        std::vector<Local<Value>> args = {realm->process_object(),
-                                          realm->builtin_module_require()};
-        return realm->ExecuteBootstrapper(name.c_str(), &args);
+        return realm->ExecuteBootstrapper(name.c_str());
       });
 }
 
@@ -576,7 +613,7 @@ Maybe<bool> InitializeContextRuntime(Local<Context> context) {
   context->AllowCodeGenerationFromStrings(false);
   context->SetEmbedderData(
       ContextEmbedderIndex::kAllowCodeGenerationFromStrings,
-      is_code_generation_from_strings_allowed ? True(isolate) : False(isolate));
+      Boolean::New(isolate, is_code_generation_from_strings_allowed));
 
   if (per_process::cli_options->disable_proto == "") {
     return Just(true);
@@ -634,8 +671,7 @@ Maybe<bool> InitializeContextRuntime(Local<Context> context) {
     }
   } else if (per_process::cli_options->disable_proto != "") {
     // Validated in ProcessGlobalArgs
-    FatalError("InitializeContextRuntime()",
-               "invalid --disable-proto mode");
+    OnFatalError("InitializeContextRuntime()", "invalid --disable-proto mode");
   }
 
   return Just(true);
@@ -704,20 +740,19 @@ Maybe<bool> InitializePrimordials(Local<Context> context) {
                                         "internal/per_context/messageport",
                                         nullptr};
 
+  // We do not have access to a per-Environment BuiltinLoader instance
+  // at this point, because this code runs before an Environment exists
+  // in the first place. However, creating BuiltinLoader instances is
+  // relatively cheap and all the scripts that we may want to run at
+  // startup are always present in it.
+  thread_local builtins::BuiltinLoader builtin_loader;
   for (const char** module = context_files; *module != nullptr; module++) {
-    // Arguments must match the parameters specified in
-    // BuiltinLoader::LookupAndCompile().
     Local<Value> arguments[] = {exports, primordials};
-    MaybeLocal<Function> maybe_fn =
-        builtins::BuiltinLoader::LookupAndCompile(context, *module, nullptr);
-    Local<Function> fn;
-    if (!maybe_fn.ToLocal(&fn)) {
-      return Nothing<bool>();
-    }
-    MaybeLocal<Value> result =
-        fn->Call(context, Undefined(isolate), arraysize(arguments), arguments);
-    // Execution failed during context creation.
-    if (result.IsEmpty()) {
+    if (builtin_loader
+            .CompileAndCall(
+                context, *module, arraysize(arguments), arguments, nullptr)
+            .IsEmpty()) {
+      // Execution failed during context creation.
       return Nothing<bool>();
     }
   }
@@ -754,7 +789,9 @@ void AddLinkedBinding(Environment* env, const node_module& mod) {
 }
 
 void AddLinkedBinding(Environment* env, const napi_module& mod) {
-  AddLinkedBinding(env, napi_module_to_node_module(&mod));
+  node_module node_mod = napi_module_to_node_module(&mod);
+  node_mod.nm_flags = NM_F_LINKED;
+  AddLinkedBinding(env, node_mod);
 }
 
 void AddLinkedBinding(Environment* env,
@@ -775,6 +812,24 @@ void AddLinkedBinding(Environment* env,
   AddLinkedBinding(env, mod);
 }
 
+void AddLinkedBinding(Environment* env,
+                      const char* name,
+                      napi_addon_register_func fn,
+                      int32_t module_api_version) {
+  node_module mod = {
+      -1,           // nm_version for Node-API
+      NM_F_LINKED,  // nm_flags
+      nullptr,      // nm_dso_handle
+      nullptr,      // nm_filename
+      nullptr,      // nm_register_func
+      get_node_api_context_register_func(env, name, module_api_version),
+      name,                         // nm_modname
+      reinterpret_cast<void*>(fn),  // nm_priv
+      nullptr                       // nm_link
+  };
+  AddLinkedBinding(env, mod);
+}
+
 static std::atomic<uint64_t> next_thread_id{0};
 
 ThreadId AllocateEnvironmentThreadId() {
@@ -782,9 +837,14 @@ ThreadId AllocateEnvironmentThreadId() {
 }
 
 void DefaultProcessExitHandler(Environment* env, int exit_code) {
+  env->set_stopping(true);
   env->set_can_call_into_js(false);
   env->stop_sub_worker_contexts();
   env->isolate()->DumpAndResetStats();
+  // The tracing agent could be in the process of writing data using the
+  // threadpool. Stop it before shutting down libuv. The rest of the tracing
+  // agent disposal will be performed in DisposePlatform().
+  per_process::v8_platform.StopTracingAgent();
   // When the process exits, the tasks in the thread pool may also need to
   // access the data of V8Platform, such as trace agent, or a field
   // added in the future. So make sure the thread pool exits first.

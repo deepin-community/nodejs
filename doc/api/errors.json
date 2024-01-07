@@ -29,7 +29,7 @@
               ]
             }
           ],
-          "desc": "<p>Creates a <code>.stack</code> property on <code>targetObject</code>, which when accessed returns\na string representing the location in the code at which\n<code>Error.captureStackTrace()</code> was called.</p>\n<pre><code class=\"language-js\">const myObject = {};\nError.captureStackTrace(myObject);\nmyObject.stack;  // Similar to `new Error().stack`\n</code></pre>\n<p>The first line of the trace will be prefixed with\n<code>${myObject.name}: ${myObject.message}</code>.</p>\n<p>The optional <code>constructorOpt</code> argument accepts a function. If given, all frames\nabove <code>constructorOpt</code>, including <code>constructorOpt</code>, will be omitted from the\ngenerated stack trace.</p>\n<p>The <code>constructorOpt</code> argument is useful for hiding implementation\ndetails of error generation from the user. For instance:</p>\n<pre><code class=\"language-js\">function MyError() {\n  Error.captureStackTrace(this, MyError);\n}\n\n// Without passing MyError to captureStackTrace, the MyError\n// frame would show up in the .stack property. By passing\n// the constructor, we omit that frame, and retain all frames below it.\nnew MyError().stack;\n</code></pre>"
+          "desc": "<p>Creates a <code>.stack</code> property on <code>targetObject</code>, which when accessed returns\na string representing the location in the code at which\n<code>Error.captureStackTrace()</code> was called.</p>\n<pre><code class=\"language-js\">const myObject = {};\nError.captureStackTrace(myObject);\nmyObject.stack;  // Similar to `new Error().stack`\n</code></pre>\n<p>The first line of the trace will be prefixed with\n<code>${myObject.name}: ${myObject.message}</code>.</p>\n<p>The optional <code>constructorOpt</code> argument accepts a function. If given, all frames\nabove <code>constructorOpt</code>, including <code>constructorOpt</code>, will be omitted from the\ngenerated stack trace.</p>\n<p>The <code>constructorOpt</code> argument is useful for hiding implementation\ndetails of error generation from the user. For instance:</p>\n<pre><code class=\"language-js\">function a() {\n  b();\n}\n\nfunction b() {\n  c();\n}\n\nfunction c() {\n  // Create an error without stack trace to avoid calculating the stack trace twice.\n  const { stackTraceLimit } = Error;\n  Error.stackTraceLimit = 0;\n  const error = new Error();\n  Error.stackTraceLimit = stackTraceLimit;\n\n  // Capture the stack trace above function b\n  Error.captureStackTrace(error, b); // Neither function c, nor b is included in the stack trace\n  throw error;\n}\n\na();\n</code></pre>"
         }
       ],
       "properties": [
@@ -210,15 +210,7 @@
           "textRaw": "Error propagation and interception",
           "name": "Error propagation and interception",
           "type": "misc",
-          "desc": "<p>Node.js supports several mechanisms for propagating and handling errors that\noccur while an application is running. How these errors are reported and\nhandled depends entirely on the type of <code>Error</code> and the style of the API that is\ncalled.</p>\n<p>All JavaScript errors are handled as exceptions that <em>immediately</em> generate\nand throw an error using the standard JavaScript <code>throw</code> mechanism. These\nare handled using the <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/try...catch\"><code>try…catch</code> construct</a> provided by the\nJavaScript language.</p>\n<pre><code class=\"language-js\">// Throws with a ReferenceError because z is not defined.\ntry {\n  const m = 1;\n  const n = m + z;\n} catch (err) {\n  // Handle the error here.\n}\n</code></pre>\n<p>Any use of the JavaScript <code>throw</code> mechanism will raise an exception that\n<em>must</em> be handled using <code>try…catch</code> or the Node.js process will exit\nimmediately.</p>\n<p>With few exceptions, <em>Synchronous</em> APIs (any blocking method that does not\naccept a <code>callback</code> function, such as <a href=\"fs.html#fsreadfilesyncpath-options\"><code>fs.readFileSync</code></a>), will use <code>throw</code>\nto report errors.</p>\n<p>Errors that occur within <em>Asynchronous APIs</em> may be reported in multiple ways:</p>\n<ul>\n<li>\n<p>Most asynchronous methods that accept a <code>callback</code> function will accept an\n<code>Error</code> object passed as the first argument to that function. If that first\nargument is not <code>null</code> and is an instance of <code>Error</code>, then an error occurred\nthat should be handled.</p>\n<!-- eslint-disable no-useless-return -->\n<pre><code class=\"language-js\">const fs = require('node:fs');\nfs.readFile('a file that does not exist', (err, data) => {\n  if (err) {\n    console.error('There was an error reading the file!', err);\n    return;\n  }\n  // Otherwise handle the data\n});\n</code></pre>\n</li>\n<li>\n<p>When an asynchronous method is called on an object that is an\n<a href=\"events.html#class-eventemitter\"><code>EventEmitter</code></a>, errors can be routed to that object's <code>'error'</code> event.</p>\n<pre><code class=\"language-js\">const net = require('node:net');\nconst connection = net.connect('localhost');\n\n// Adding an 'error' event handler to a stream:\nconnection.on('error', (err) => {\n  // If the connection is reset by the server, or if it can't\n  // connect at all, or on any sort of error encountered by\n  // the connection, the error will be sent here.\n  console.error(err);\n});\n\nconnection.pipe(process.stdout);\n</code></pre>\n</li>\n<li>\n<p>A handful of typically asynchronous methods in the Node.js API may still\nuse the <code>throw</code> mechanism to raise exceptions that must be handled using\n<code>try…catch</code>. There is no comprehensive list of such methods; please\nrefer to the documentation of each method to determine the appropriate\nerror handling mechanism required.</p>\n</li>\n</ul>\n<p>The use of the <code>'error'</code> event mechanism is most common for <a href=\"stream.html\">stream-based</a>\nand <a href=\"events.html#class-eventemitter\">event emitter-based</a> APIs, which themselves represent a series of\nasynchronous operations over time (as opposed to a single operation that may\npass or fail).</p>\n<p>For <em>all</em> <a href=\"events.html#class-eventemitter\"><code>EventEmitter</code></a> objects, if an <code>'error'</code> event handler is not\nprovided, the error will be thrown, causing the Node.js process to report an\nuncaught exception and crash unless either: The <a href=\"domain.html\"><code>domain</code></a> module is\nused appropriately or a handler has been registered for the\n<a href=\"process.html#event-uncaughtexception\"><code>'uncaughtException'</code></a> event.</p>\n<pre><code class=\"language-js\">const EventEmitter = require('node:events');\nconst ee = new EventEmitter();\n\nsetImmediate(() => {\n  // This will crash the process because no 'error' event\n  // handler has been added.\n  ee.emit('error', new Error('This will crash'));\n});\n</code></pre>\n<p>Errors generated in this way <em>cannot</em> be intercepted using <code>try…catch</code> as\nthey are thrown <em>after</em> the calling code has already exited.</p>\n<p>Developers must refer to the documentation for each method to determine\nexactly how errors raised by those methods are propagated.</p>",
-          "miscs": [
-            {
-              "textRaw": "Error-first callbacks",
-              "name": "Error-first callbacks",
-              "type": "misc",
-              "desc": "<p>Most asynchronous methods exposed by the Node.js core API follow an idiomatic\npattern referred to as an <em>error-first callback</em>. With this pattern, a callback\nfunction is passed to the method as an argument. When the operation either\ncompletes or an error is raised, the callback function is called with the\n<code>Error</code> object (if any) passed as the first argument. If no error was raised,\nthe first argument will be passed as <code>null</code>.</p>\n<pre><code class=\"language-js\">const fs = require('node:fs');\n\nfunction errorFirstCallback(err, data) {\n  if (err) {\n    console.error('There was an error', err);\n    return;\n  }\n  console.log(data);\n}\n\nfs.readFile('/some/file/that/does-not-exist', errorFirstCallback);\nfs.readFile('/some/file/that/does-exist', errorFirstCallback);\n</code></pre>\n<p>The JavaScript <code>try…catch</code> mechanism <strong>cannot</strong> be used to intercept errors\ngenerated by asynchronous APIs. A common mistake for beginners is to try to\nuse <code>throw</code> inside an error-first callback:</p>\n<pre><code class=\"language-js\">// THIS WILL NOT WORK:\nconst fs = require('node:fs');\n\ntry {\n  fs.readFile('/some/file/that/does-not-exist', (err, data) => {\n    // Mistaken assumption: throwing here...\n    if (err) {\n      throw err;\n    }\n  });\n} catch (err) {\n  // This will not catch the throw!\n  console.error(err);\n}\n</code></pre>\n<p>This will not work because the callback function passed to <code>fs.readFile()</code> is\ncalled asynchronously. By the time the callback has been called, the\nsurrounding code, including the <code>try…catch</code> block, will have already exited.\nThrowing an error inside the callback <strong>can crash the Node.js process</strong> in most\ncases. If <a href=\"domain.html\">domains</a> are enabled, or a handler has been registered with\n<code>process.on('uncaughtException')</code>, such errors can be intercepted.</p>"
-            }
-          ]
+          "desc": "<p>Node.js supports several mechanisms for propagating and handling errors that\noccur while an application is running. How these errors are reported and\nhandled depends entirely on the type of <code>Error</code> and the style of the API that is\ncalled.</p>\n<p>All JavaScript errors are handled as exceptions that <em>immediately</em> generate\nand throw an error using the standard JavaScript <code>throw</code> mechanism. These\nare handled using the <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/try...catch\"><code>try…catch</code> construct</a> provided by the\nJavaScript language.</p>\n<pre><code class=\"language-js\">// Throws with a ReferenceError because z is not defined.\ntry {\n  const m = 1;\n  const n = m + z;\n} catch (err) {\n  // Handle the error here.\n}\n</code></pre>\n<p>Any use of the JavaScript <code>throw</code> mechanism will raise an exception that\n<em>must</em> be handled or the Node.js process will exit immediately.</p>\n<p>With few exceptions, <em>Synchronous</em> APIs (any blocking method that does not\nreturn a <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise\" class=\"type\">&lt;Promise&gt;</a> nor accept a <code>callback</code> function, such as\n<a href=\"fs.html#fsreadfilesyncpath-options\"><code>fs.readFileSync</code></a>), will use <code>throw</code> to report errors.</p>\n<p>Errors that occur within <em>Asynchronous APIs</em> may be reported in multiple ways:</p>\n<ul>\n<li>\n<p>Some asynchronous methods returns a <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise\" class=\"type\">&lt;Promise&gt;</a>, you should always take into\naccount that it might be rejected. See <a href=\"cli.html#--unhandled-rejectionsmode\"><code>--unhandled-rejections</code></a> flag for\nhow the process will react to an unhandled promise rejection.</p>\n<!-- eslint-disable no-useless-return -->\n<pre><code class=\"language-js\">const fs = require('fs/promises');\n\n(async () => {\n  let data;\n  try {\n    data = await fs.readFile('a file that does not exist');\n  } catch (err) {\n    console.error('There was an error reading the file!', err);\n    return;\n  }\n  // Otherwise handle the data\n})();\n</code></pre>\n</li>\n<li>\n<p>Most asynchronous methods that accept a <code>callback</code> function will accept an\n<code>Error</code> object passed as the first argument to that function. If that first\nargument is not <code>null</code> and is an instance of <code>Error</code>, then an error occurred\nthat should be handled.</p>\n<!-- eslint-disable no-useless-return -->\n<pre><code class=\"language-js\">const fs = require('node:fs');\nfs.readFile('a file that does not exist', (err, data) => {\n  if (err) {\n    console.error('There was an error reading the file!', err);\n    return;\n  }\n  // Otherwise handle the data\n});\n</code></pre>\n</li>\n<li>\n<p>When an asynchronous method is called on an object that is an\n<a href=\"events.html#class-eventemitter\"><code>EventEmitter</code></a>, errors can be routed to that object's <code>'error'</code> event.</p>\n<pre><code class=\"language-js\">const net = require('node:net');\nconst connection = net.connect('localhost');\n\n// Adding an 'error' event handler to a stream:\nconnection.on('error', (err) => {\n  // If the connection is reset by the server, or if it can't\n  // connect at all, or on any sort of error encountered by\n  // the connection, the error will be sent here.\n  console.error(err);\n});\n\nconnection.pipe(process.stdout);\n</code></pre>\n</li>\n<li>\n<p>A handful of typically asynchronous methods in the Node.js API may still\nuse the <code>throw</code> mechanism to raise exceptions that must be handled using\n<code>try…catch</code>. There is no comprehensive list of such methods; please\nrefer to the documentation of each method to determine the appropriate\nerror handling mechanism required.</p>\n</li>\n</ul>\n<p>The use of the <code>'error'</code> event mechanism is most common for <a href=\"stream.html\">stream-based</a>\nand <a href=\"events.html#class-eventemitter\">event emitter-based</a> APIs, which themselves represent a series of\nasynchronous operations over time (as opposed to a single operation that may\npass or fail).</p>\n<p>For <em>all</em> <a href=\"events.html#class-eventemitter\"><code>EventEmitter</code></a> objects, if an <code>'error'</code> event handler is not\nprovided, the error will be thrown, causing the Node.js process to report an\nuncaught exception and crash unless either: a handler has been registered for\nthe <a href=\"process.html#event-uncaughtexception\"><code>'uncaughtException'</code></a> event, or the deprecated <a href=\"domain.html\"><code>node:domain</code></a>\nmodule is used.</p>\n<pre><code class=\"language-js\">const EventEmitter = require('node:events');\nconst ee = new EventEmitter();\n\nsetImmediate(() => {\n  // This will crash the process because no 'error' event\n  // handler has been added.\n  ee.emit('error', new Error('This will crash'));\n});\n</code></pre>\n<p>Errors generated in this way <em>cannot</em> be intercepted using <code>try…catch</code> as\nthey are thrown <em>after</em> the calling code has already exited.</p>\n<p>Developers must refer to the documentation for each method to determine\nexactly how errors raised by those methods are propagated.</p>"
         },
         {
           "textRaw": "Exceptions vs. errors",
@@ -269,9 +261,16 @@
                 ],
                 "changes": []
               },
-              "desc": "<p>Used when an operation has been aborted (typically using an <code>AbortController</code>).</p>\n<p>APIs <em>not</em> using <code>AbortSignal</code>s typically do not raise an error with this code.</p>\n<p>This code does not use the regular <code>ERR_*</code> convention Node.js errors use in\norder to be compatible with the web platform's <code>AbortError</code>.</p>\n<p><a id=\"ERR_AMBIGUOUS_ARGUMENT\"></a></p>",
+              "desc": "<p>Used when an operation has been aborted (typically using an <code>AbortController</code>).</p>\n<p>APIs <em>not</em> using <code>AbortSignal</code>s typically do not raise an error with this code.</p>\n<p>This code does not use the regular <code>ERR_*</code> convention Node.js errors use in\norder to be compatible with the web platform's <code>AbortError</code>.</p>\n<p><a id=\"ERR_ACCESS_DENIED\"></a></p>",
               "type": "module",
               "displayName": "`ABORT_ERR`"
+            },
+            {
+              "textRaw": "`ERR_ACCESS_DENIED`",
+              "name": "`err_access_denied`",
+              "desc": "<p>A special type of error that is triggered whenever Node.js tries to get access\nto a resource restricted by the <a href=\"permissions.html#policies\">policy</a> manifest.\nFor example, <code>process.binding</code>.</p>\n<p><a id=\"ERR_AMBIGUOUS_ARGUMENT\"></a></p>",
+              "type": "module",
+              "displayName": "`ERR_ACCESS_DENIED`"
             },
             {
               "textRaw": "`ERR_AMBIGUOUS_ARGUMENT`",
@@ -290,16 +289,9 @@
             {
               "textRaw": "`ERR_ASSERTION`",
               "name": "`err_assertion`",
-              "desc": "<p>A special type of error that can be triggered whenever Node.js detects an\nexceptional logic violation that should never occur. These are raised typically\nby the <code>node:assert</code> module.</p>\n<p><a id=\"ERR_ASSERT_SNAPSHOT_NOT_SUPPORTED\"></a></p>",
+              "desc": "<p>A special type of error that can be triggered whenever Node.js detects an\nexceptional logic violation that should never occur. These are raised typically\nby the <code>node:assert</code> module.</p>\n<p><a id=\"ERR_ASYNC_CALLBACK\"></a></p>",
               "type": "module",
               "displayName": "`ERR_ASSERTION`"
-            },
-            {
-              "textRaw": "`ERR_ASSERT_SNAPSHOT_NOT_SUPPORTED`",
-              "name": "`err_assert_snapshot_not_supported`",
-              "desc": "<p>An attempt was made to use <code>assert.snapshot()</code> in an environment that\ndoes not support snapshots, such as the REPL, or when using <code>node --eval</code>.</p>\n<p><a id=\"ERR_ASYNC_CALLBACK\"></a></p>",
-              "type": "module",
-              "displayName": "`ERR_ASSERT_SNAPSHOT_NOT_SUPPORTED`"
             },
             {
               "textRaw": "`ERR_ASYNC_CALLBACK`",
@@ -416,7 +408,7 @@
             {
               "textRaw": "`ERR_CRYPTO_CUSTOM_ENGINE_NOT_SUPPORTED`",
               "name": "`err_crypto_custom_engine_not_supported`",
-              "desc": "<p>A client certificate engine was requested that is not supported by the version\nof OpenSSL being used.</p>\n<p><a id=\"ERR_CRYPTO_ECDH_INVALID_FORMAT\"></a></p>",
+              "desc": "<p>An OpenSSL engine was requested (for example, through the <code>clientCertEngine</code> or\n<code>privateKeyEngine</code> TLS options) that is not supported by the version of OpenSSL\nbeing used, likely due to the compile-time flag <code>OPENSSL_NO_ENGINE</code>.</p>\n<p><a id=\"ERR_CRYPTO_ECDH_INVALID_FORMAT\"></a></p>",
               "type": "module",
               "displayName": "`ERR_CRYPTO_CUSTOM_ENGINE_NOT_SUPPORTED`"
             },
@@ -943,6 +935,13 @@
               "displayName": "`ERR_FS_CP_EINVAL`"
             },
             {
+              "textRaw": "`ERR_HTTP_BODY_NOT_ALLOWED`",
+              "name": "`err_http_body_not_allowed`",
+              "desc": "<p>An error is thrown when writing to an HTTP response which does not allow\ncontents. <a id=\"ERR_HTTP_BODY_NOT_ALLOWED\"></a></p>",
+              "type": "module",
+              "displayName": "`ERR_HTTP_BODY_NOT_ALLOWED`"
+            },
+            {
               "textRaw": "`ERR_HTTP_CONTENT_LENGTH_MISMATCH`",
               "name": "`err_http_content_length_mismatch`",
               "desc": "<p>Response body size doesn't match with the specified content-length header value.</p>\n<p><a id=\"ERR_HTTP_CONTENT_LENGTH_MISMATCH\"></a></p>",
@@ -1029,9 +1028,16 @@
             {
               "textRaw": "`ERR_HTTP_REQUEST_TIMEOUT`",
               "name": "`err_http_request_timeout`",
-              "desc": "<p>The client has not sent the entire request within the allowed time.</p>\n<p><a id=\"ERR_HTTP_SOCKET_ENCODING\"></a></p>",
+              "desc": "<p>The client has not sent the entire request within the allowed time.</p>\n<p><a id=\"ERR_HTTP_SOCKET_ASSIGNED\"></a></p>",
               "type": "module",
               "displayName": "`ERR_HTTP_REQUEST_TIMEOUT`"
+            },
+            {
+              "textRaw": "`ERR_HTTP_SOCKET_ASSIGNED`",
+              "name": "`err_http_socket_assigned`",
+              "desc": "<p>The given <a href=\"http.html#class-httpserverresponse\"><code>ServerResponse</code></a> was already assigned a socket.</p>\n<p><a id=\"ERR_HTTP_SOCKET_ENCODING\"></a></p>",
+              "type": "module",
+              "displayName": "`ERR_HTTP_SOCKET_ASSIGNED`"
             },
             {
               "textRaw": "`ERR_HTTP_SOCKET_ENCODING`",
@@ -1386,7 +1392,7 @@
                 ],
                 "changes": []
               },
-              "desc": "<p>An import assertion has failed, preventing the specified module to be imported.</p>\n<p><a id=\"ERR_IMPORT_ASSERTION_TYPE_MISSING\"></a></p>",
+              "desc": "<p>An import <code>type</code> attribute was provided, but the specified module is of a\ndifferent type.</p>\n<p><a id=\"ERR_IMPORT_ASSERTION_TYPE_MISSING\"></a></p>",
               "type": "module",
               "displayName": "`ERR_IMPORT_ASSERTION_TYPE_FAILED`"
             },
@@ -1400,7 +1406,7 @@
                 ],
                 "changes": []
               },
-              "desc": "<p>An import assertion is missing, preventing the specified module to be imported.</p>\n<p><a id=\"ERR_IMPORT_ASSERTION_TYPE_UNSUPPORTED\"></a></p>",
+              "desc": "<p>An import attribute is missing, preventing the specified module to be imported.</p>\n<p><a id=\"ERR_IMPORT_ASSERTION_TYPE_UNSUPPORTED\"></a></p>",
               "type": "module",
               "displayName": "`ERR_IMPORT_ASSERTION_TYPE_MISSING`"
             },
@@ -1414,9 +1420,22 @@
                 ],
                 "changes": []
               },
-              "desc": "<p>An import assertion is not supported by this version of Node.js.</p>\n<p><a id=\"ERR_INCOMPATIBLE_OPTION_PAIR\"></a></p>",
+              "desc": "<p>An import attribute is not supported by this version of Node.js.</p>\n<p><a id=\"ERR_IMPORT_ATTRIBUTE_UNSUPPORTED\"></a></p>",
               "type": "module",
               "displayName": "`ERR_IMPORT_ASSERTION_TYPE_UNSUPPORTED`"
+            },
+            {
+              "textRaw": "`ERR_IMPORT_ATTRIBUTE_UNSUPPORTED`",
+              "name": "`err_import_attribute_unsupported`",
+              "meta": {
+                "added": [
+                  "v18.19.0"
+                ],
+                "changes": []
+              },
+              "desc": "<p>An import attribute is not supported by this version of Node.js.</p>\n<p><a id=\"ERR_INCOMPATIBLE_OPTION_PAIR\"></a></p>",
+              "type": "module",
+              "displayName": "`ERR_IMPORT_ATTRIBUTE_UNSUPPORTED`"
             },
             {
               "textRaw": "`ERR_INCOMPATIBLE_OPTION_PAIR`",
@@ -2175,9 +2194,16 @@
             {
               "textRaw": "`ERR_SOCKET_CLOSED`",
               "name": "`err_socket_closed`",
-              "desc": "<p>An attempt was made to operate on an already closed socket.</p>\n<p><a id=\"ERR_SOCKET_DGRAM_IS_CONNECTED\"></a></p>",
+              "desc": "<p>An attempt was made to operate on an already closed socket.</p>\n<p><a id=\"ERR_SOCKET_CLOSED_BEFORE_CONNECTION\"></a></p>",
               "type": "module",
               "displayName": "`ERR_SOCKET_CLOSED`"
+            },
+            {
+              "textRaw": "`ERR_SOCKET_CLOSED_BEFORE_CONNECTION`",
+              "name": "`err_socket_closed_before_connection`",
+              "desc": "<p>When calling <a href=\"net.html#socketwritedata-encoding-callback\"><code>net.Socket.write()</code></a> on a connecting socket and the socket was\nclosed before the connection was established.</p>\n<p><a id=\"ERR_SOCKET_DGRAM_IS_CONNECTED\"></a></p>",
+              "type": "module",
+              "displayName": "`ERR_SOCKET_CLOSED_BEFORE_CONNECTION`"
             },
             {
               "textRaw": "`ERR_SOCKET_DGRAM_IS_CONNECTED`",
@@ -2315,9 +2341,23 @@
             {
               "textRaw": "`ERR_TEST_FAILURE`",
               "name": "`err_test_failure`",
-              "desc": "<p>This error represents a failed test. Additional information about the failure\nis available via the <code>cause</code> property. The <code>failureType</code> property specifies\nwhat the test was doing when the failure occurred.</p>\n<p><a id=\"ERR_TLS_CERT_ALTNAME_FORMAT\"></a></p>",
+              "desc": "<p>This error represents a failed test. Additional information about the failure\nis available via the <code>cause</code> property. The <code>failureType</code> property specifies\nwhat the test was doing when the failure occurred.</p>\n<p><a id=\"ERR_TLS_ALPN_CALLBACK_INVALID_RESULT\"></a></p>",
               "type": "module",
               "displayName": "`ERR_TEST_FAILURE`"
+            },
+            {
+              "textRaw": "`ERR_TLS_ALPN_CALLBACK_INVALID_RESULT`",
+              "name": "`err_tls_alpn_callback_invalid_result`",
+              "desc": "<p>This error is thrown when an <code>ALPNCallback</code> returns a value that is not in the\nlist of ALPN protocols offered by the client.</p>\n<p><a id=\"ERR_TLS_ALPN_CALLBACK_WITH_PROTOCOLS\"></a></p>",
+              "type": "module",
+              "displayName": "`ERR_TLS_ALPN_CALLBACK_INVALID_RESULT`"
+            },
+            {
+              "textRaw": "`ERR_TLS_ALPN_CALLBACK_WITH_PROTOCOLS`",
+              "name": "`err_tls_alpn_callback_with_protocols`",
+              "desc": "<p>This error is thrown when creating a <code>TLSServer</code> if the TLS options include\nboth <code>ALPNProtocols</code> and <code>ALPNCallback</code>. These options are mutually exclusive.</p>\n<p><a id=\"ERR_TLS_CERT_ALTNAME_FORMAT\"></a></p>",
+              "type": "module",
+              "displayName": "`ERR_TLS_ALPN_CALLBACK_WITH_PROTOCOLS`"
             },
             {
               "textRaw": "`ERR_TLS_CERT_ALTNAME_FORMAT`",
@@ -2405,7 +2445,7 @@
             {
               "textRaw": "`ERR_TLS_RENEGOTIATION_DISABLED`",
               "name": "`err_tls_renegotiation_disabled`",
-              "desc": "<p>An attempt was made to renegotiate TLS on a socket instance with TLS disabled.</p>\n<p><a id=\"ERR_TLS_REQUIRED_SERVER_NAME\"></a></p>",
+              "desc": "<p>An attempt was made to renegotiate TLS on a socket instance with renegotiation\ndisabled.</p>\n<p><a id=\"ERR_TLS_REQUIRED_SERVER_NAME\"></a></p>",
               "type": "module",
               "displayName": "`ERR_TLS_RENEGOTIATION_DISABLED`"
             },
@@ -3285,7 +3325,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Creates a <code>.stack</code> property on <code>targetObject</code>, which when accessed returns\na string representing the location in the code at which\n<code>Error.captureStackTrace()</code> was called.</p>\n<pre><code class=\"language-js\">const myObject = {};\nError.captureStackTrace(myObject);\nmyObject.stack;  // Similar to `new Error().stack`\n</code></pre>\n<p>The first line of the trace will be prefixed with\n<code>${myObject.name}: ${myObject.message}</code>.</p>\n<p>The optional <code>constructorOpt</code> argument accepts a function. If given, all frames\nabove <code>constructorOpt</code>, including <code>constructorOpt</code>, will be omitted from the\ngenerated stack trace.</p>\n<p>The <code>constructorOpt</code> argument is useful for hiding implementation\ndetails of error generation from the user. For instance:</p>\n<pre><code class=\"language-js\">function MyError() {\n  Error.captureStackTrace(this, MyError);\n}\n\n// Without passing MyError to captureStackTrace, the MyError\n// frame would show up in the .stack property. By passing\n// the constructor, we omit that frame, and retain all frames below it.\nnew MyError().stack;\n</code></pre>"
+              "desc": "<p>Creates a <code>.stack</code> property on <code>targetObject</code>, which when accessed returns\na string representing the location in the code at which\n<code>Error.captureStackTrace()</code> was called.</p>\n<pre><code class=\"language-js\">const myObject = {};\nError.captureStackTrace(myObject);\nmyObject.stack;  // Similar to `new Error().stack`\n</code></pre>\n<p>The first line of the trace will be prefixed with\n<code>${myObject.name}: ${myObject.message}</code>.</p>\n<p>The optional <code>constructorOpt</code> argument accepts a function. If given, all frames\nabove <code>constructorOpt</code>, including <code>constructorOpt</code>, will be omitted from the\ngenerated stack trace.</p>\n<p>The <code>constructorOpt</code> argument is useful for hiding implementation\ndetails of error generation from the user. For instance:</p>\n<pre><code class=\"language-js\">function a() {\n  b();\n}\n\nfunction b() {\n  c();\n}\n\nfunction c() {\n  // Create an error without stack trace to avoid calculating the stack trace twice.\n  const { stackTraceLimit } = Error;\n  Error.stackTraceLimit = 0;\n  const error = new Error();\n  Error.stackTraceLimit = stackTraceLimit;\n\n  // Capture the stack trace above function b\n  Error.captureStackTrace(error, b); // Neither function c, nor b is included in the stack trace\n  throw error;\n}\n\na();\n</code></pre>"
             }
           ],
           "properties": [
