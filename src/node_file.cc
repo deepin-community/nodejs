@@ -20,7 +20,7 @@
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "node_file.h"  // NOLINT(build/include_inline)
 #include "node_file-inl.h"
-#include "aliased_buffer.h"
+#include "aliased_buffer-inl.h"
 #include "memory_tracker-inl.h"
 #include "node_buffer.h"
 #include "node_external_reference.h"
@@ -70,7 +70,6 @@ using v8::Object;
 using v8::ObjectTemplate;
 using v8::Promise;
 using v8::String;
-using v8::Symbol;
 using v8::Undefined;
 using v8::Value;
 
@@ -253,7 +252,7 @@ FileHandle* FileHandle::New(BindingData* binding_data,
 }
 
 void FileHandle::New(const FunctionCallbackInfo<Value>& args) {
-  BindingData* binding_data = Environment::GetBindingData<BindingData>(args);
+  BindingData* binding_data = Realm::GetBindingData<BindingData>(args);
   Environment* env = binding_data->env();
   CHECK(args.IsConstructCall());
   CHECK(args[0]->IsInt32());
@@ -313,7 +312,7 @@ BaseObjectPtr<BaseObject> FileHandle::TransferData::Deserialize(
     Environment* env,
     v8::Local<v8::Context> context,
     std::unique_ptr<worker::TransferData> self) {
-  BindingData* bd = Environment::GetBindingData<BindingData>(context);
+  BindingData* bd = Realm::GetBindingData<BindingData>(context);
   if (bd == nullptr) return {};
 
   int fd = fd_;
@@ -688,6 +687,10 @@ void FSReqCallback::ResolveStat(const uv_stat_t* stat) {
   Resolve(FillGlobalStatsArray(binding_data(), use_bigint(), stat));
 }
 
+void FSReqCallback::ResolveStatFs(const uv_statfs_t* stat) {
+  Resolve(FillGlobalStatFsArray(binding_data(), use_bigint(), stat));
+}
+
 void FSReqCallback::Resolve(Local<Value> value) {
   Local<Value> argv[2] {
     Null(env()->isolate()),
@@ -704,7 +707,7 @@ void FSReqCallback::SetReturnValue(const FunctionCallbackInfo<Value>& args) {
 
 void NewFSReqCallback(const FunctionCallbackInfo<Value>& args) {
   CHECK(args.IsConstructCall());
-  BindingData* binding_data = Environment::GetBindingData<BindingData>(args);
+  BindingData* binding_data = Realm::GetBindingData<BindingData>(args);
   new FSReqCallback(binding_data, args.This(), args[0]->IsTrue());
 }
 
@@ -777,6 +780,16 @@ void AfterStat(uv_fs_t* req) {
       req->fs_type, req_wrap, "result", static_cast<int>(req->result))
   if (after.Proceed()) {
     req_wrap->ResolveStat(&req->statbuf);
+  }
+}
+
+void AfterStatFs(uv_fs_t* req) {
+  FSReqBase* req_wrap = FSReqBase::from_req(req);
+  FSReqAfterScope after(req_wrap, req);
+  FS_ASYNC_TRACE_END1(
+      req->fs_type, req_wrap, "result", static_cast<int>(req->result))
+  if (after.Proceed()) {
+    req_wrap->ResolveStatFs(static_cast<uv_statfs_t*>(req->ptr));
   }
 }
 
@@ -1036,11 +1049,12 @@ static void InternalModuleReadJSON(const FunctionCallbackInfo<Value>& args) {
   } while (static_cast<size_t>(numchars) == kBlockSize);
 
   size_t start = 0;
-  if (offset >= 3 && 0 == memcmp(&chars[0], "\xEF\xBB\xBF", 3)) {
+  if (offset >= 3 && 0 == memcmp(chars.data(), "\xEF\xBB\xBF", 3)) {
     start = 3;  // Skip UTF-8 BOM.
   }
-
   const size_t size = offset - start;
+
+  // TODO(anonrig): Follow-up on removing the following changes for AIX.
   char* p = &chars[start];
   char* pe = &chars[size];
   char* pos[2];
@@ -1068,16 +1082,14 @@ static void InternalModuleReadJSON(const FunctionCallbackInfo<Value>& args) {
     }
   }
 
-
   Local<Value> return_value[] = {
-    String::NewFromUtf8(isolate,
-                        &chars[start],
-                        v8::NewStringType::kNormal,
-                        size).ToLocalChecked(),
-    Boolean::New(isolate, p < pe ? true : false)
-  };
+      String::NewFromUtf8(
+          isolate, &chars[start], v8::NewStringType::kNormal, size)
+          .ToLocalChecked(),
+      Boolean::New(isolate, p < pe ? true : false)};
+
   args.GetReturnValue().Set(
-    Array::New(isolate, return_value, arraysize(return_value)));
+      Array::New(isolate, return_value, arraysize(return_value)));
 }
 
 // Used to speed up module loading.  Returns 0 if the path refers to
@@ -1101,7 +1113,7 @@ static void InternalModuleStat(const FunctionCallbackInfo<Value>& args) {
 }
 
 static void Stat(const FunctionCallbackInfo<Value>& args) {
-  BindingData* binding_data = Environment::GetBindingData<BindingData>(args);
+  BindingData* binding_data = Realm::GetBindingData<BindingData>(args);
   Environment* env = binding_data->env();
 
   const int argc = args.Length();
@@ -1134,7 +1146,7 @@ static void Stat(const FunctionCallbackInfo<Value>& args) {
 }
 
 static void LStat(const FunctionCallbackInfo<Value>& args) {
-  BindingData* binding_data = Environment::GetBindingData<BindingData>(args);
+  BindingData* binding_data = Realm::GetBindingData<BindingData>(args);
   Environment* env = binding_data->env();
 
   const int argc = args.Length();
@@ -1168,7 +1180,7 @@ static void LStat(const FunctionCallbackInfo<Value>& args) {
 }
 
 static void FStat(const FunctionCallbackInfo<Value>& args) {
-  BindingData* binding_data = Environment::GetBindingData<BindingData>(args);
+  BindingData* binding_data = Realm::GetBindingData<BindingData>(args);
   Environment* env = binding_data->env();
 
   const int argc = args.Length();
@@ -1199,6 +1211,48 @@ static void FStat(const FunctionCallbackInfo<Value>& args) {
   }
 }
 
+static void StatFs(const FunctionCallbackInfo<Value>& args) {
+  BindingData* binding_data = Realm::GetBindingData<BindingData>(args);
+  Environment* env = binding_data->env();
+
+  const int argc = args.Length();
+  CHECK_GE(argc, 2);
+
+  BufferValue path(env->isolate(), args[0]);
+  CHECK_NOT_NULL(*path);
+
+  bool use_bigint = args[1]->IsTrue();
+  FSReqBase* req_wrap_async = GetReqWrap(args, 2, use_bigint);
+  if (req_wrap_async != nullptr) {  // statfs(path, use_bigint, req)
+    FS_ASYNC_TRACE_BEGIN1(
+        UV_FS_STATFS, req_wrap_async, "path", TRACE_STR_COPY(*path))
+    AsyncCall(env,
+              req_wrap_async,
+              args,
+              "statfs",
+              UTF8,
+              AfterStatFs,
+              uv_fs_statfs,
+              *path);
+  } else {  // statfs(path, use_bigint, undefined, ctx)
+    CHECK_EQ(argc, 4);
+    FSReqWrapSync req_wrap_sync;
+    FS_SYNC_TRACE_BEGIN(statfs);
+    int err =
+        SyncCall(env, args[3], &req_wrap_sync, "statfs", uv_fs_statfs, *path);
+    FS_SYNC_TRACE_END(statfs);
+    if (err != 0) {
+      return;  // error info is in ctx
+    }
+
+    Local<Value> arr = FillGlobalStatFsArray(
+        binding_data,
+        use_bigint,
+        static_cast<const uv_statfs_t*>(req_wrap_sync.req.ptr));
+    args.GetReturnValue().Set(arr);
+  }
+}
+
 static void Symlink(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
   Isolate* isolate = env->isolate();
@@ -1224,7 +1278,7 @@ static void Symlink(const FunctionCallbackInfo<Value>& args) {
                           TRACE_STR_COPY(*path))
     AsyncDestCall(env, req_wrap_async, args, "symlink", *path, path.length(),
                   UTF8, AfterNoArgs, uv_fs_symlink, *target, *path, flags);
-  } else {  // symlink(target, path, flags, undefinec, ctx)
+  } else {  // symlink(target, path, flags, undefined, ctx)
     CHECK_EQ(argc, 5);
     FSReqWrapSync req_wrap_sync;
     FS_SYNC_TRACE_BEGIN(symlink);
@@ -1873,7 +1927,7 @@ static void Open(const FunctionCallbackInfo<Value>& args) {
 }
 
 static void OpenFileHandle(const FunctionCallbackInfo<Value>& args) {
-  BindingData* binding_data = Environment::GetBindingData<BindingData>(args);
+  BindingData* binding_data = Realm::GetBindingData<BindingData>(args);
   Environment* env = binding_data->env();
   Isolate* isolate = env->isolate();
 
@@ -2557,22 +2611,38 @@ static void Mkdtemp(const FunctionCallbackInfo<Value>& args) {
 void BindingData::MemoryInfo(MemoryTracker* tracker) const {
   tracker->TrackField("stats_field_array", stats_field_array);
   tracker->TrackField("stats_field_bigint_array", stats_field_bigint_array);
+  tracker->TrackField("statfs_field_array", statfs_field_array);
+  tracker->TrackField("statfs_field_bigint_array", statfs_field_bigint_array);
   tracker->TrackField("file_handle_read_wrap_freelist",
                       file_handle_read_wrap_freelist);
 }
 
-BindingData::BindingData(Environment* env, v8::Local<v8::Object> wrap)
-    : SnapshotableObject(env, wrap, type_int),
-      stats_field_array(env->isolate(), kFsStatsBufferLength),
-      stats_field_bigint_array(env->isolate(), kFsStatsBufferLength) {
-  wrap->Set(env->context(),
-            FIXED_ONE_BYTE_STRING(env->isolate(), "statValues"),
+BindingData::BindingData(Realm* realm, v8::Local<v8::Object> wrap)
+    : SnapshotableObject(realm, wrap, type_int),
+      stats_field_array(realm->isolate(), kFsStatsBufferLength),
+      stats_field_bigint_array(realm->isolate(), kFsStatsBufferLength),
+      statfs_field_array(realm->isolate(), kFsStatFsBufferLength),
+      statfs_field_bigint_array(realm->isolate(), kFsStatFsBufferLength) {
+  Isolate* isolate = realm->isolate();
+  Local<Context> context = realm->context();
+  wrap->Set(context,
+            FIXED_ONE_BYTE_STRING(isolate, "statValues"),
             stats_field_array.GetJSArray())
       .Check();
 
-  wrap->Set(env->context(),
-            FIXED_ONE_BYTE_STRING(env->isolate(), "bigintStatValues"),
+  wrap->Set(context,
+            FIXED_ONE_BYTE_STRING(isolate, "bigintStatValues"),
             stats_field_bigint_array.GetJSArray())
+      .Check();
+
+  wrap->Set(context,
+            FIXED_ONE_BYTE_STRING(isolate, "statFsValues"),
+            statfs_field_array.GetJSArray())
+      .Check();
+
+  wrap->Set(context,
+            FIXED_ONE_BYTE_STRING(isolate, "bigintStatFsValues"),
+            statfs_field_bigint_array.GetJSArray())
       .Check();
 }
 
@@ -2582,8 +2652,8 @@ void BindingData::Deserialize(Local<Context> context,
                               InternalFieldInfoBase* info) {
   DCHECK_EQ(index, BaseObject::kEmbedderType);
   HandleScope scope(context->GetIsolate());
-  Environment* env = Environment::GetCurrent(context);
-  BindingData* binding = env->AddBindingData<BindingData>(context, holder);
+  Realm* realm = Realm::GetCurrent(context);
+  BindingData* binding = realm->AddBindingData<BindingData>(context, holder);
   CHECK_NOT_NULL(binding);
 }
 
@@ -2594,6 +2664,8 @@ bool BindingData::PrepareForSerialization(Local<Context> context,
   // contents can be thrown away once consumed in the previous call.
   stats_field_array.Release();
   stats_field_bigint_array.Release();
+  statfs_field_array.Release();
+  statfs_field_bigint_array.Release();
   // Return true because we need to maintain the reference to the binding from
   // JS land.
   return true;
@@ -2610,10 +2682,11 @@ void Initialize(Local<Object> target,
                 Local<Value> unused,
                 Local<Context> context,
                 void* priv) {
-  Environment* env = Environment::GetCurrent(context);
+  Realm* realm = Realm::GetCurrent(context);
+  Environment* env = realm->env();
   Isolate* isolate = env->isolate();
   BindingData* const binding_data =
-      env->AddBindingData<BindingData>(context, target);
+      realm->AddBindingData<BindingData>(context, target);
   if (binding_data == nullptr) return;
 
   SetMethod(context, target, "access", Access);
@@ -2634,6 +2707,7 @@ void Initialize(Local<Object> target,
   SetMethod(context, target, "stat", Stat);
   SetMethod(context, target, "lstat", LStat);
   SetMethod(context, target, "fstat", FStat);
+  SetMethod(context, target, "statfs", StatFs);
   SetMethod(context, target, "link", Link);
   SetMethod(context, target, "symlink", Symlink);
   SetMethod(context, target, "readlink", ReadLink);
@@ -2716,13 +2790,9 @@ void Initialize(Local<Object> target,
   fdcloset->SetInternalFieldCount(FSReqBase::kInternalFieldCount);
   env->set_fdclose_constructor_template(fdcloset);
 
-  Local<Symbol> use_promises_symbol =
-    Symbol::New(isolate,
-                FIXED_ONE_BYTE_STRING(isolate, "use promises"));
-  env->set_fs_use_promises_symbol(use_promises_symbol);
   target->Set(context,
               FIXED_ONE_BYTE_STRING(isolate, "kUsePromises"),
-              use_promises_symbol).Check();
+              env->fs_use_promises_symbol()).Check();
 }
 
 BindingData* FSReqBase::binding_data() {
@@ -2750,6 +2820,7 @@ void RegisterExternalReferences(ExternalReferenceRegistry* registry) {
   registry->Register(Stat);
   registry->Register(LStat);
   registry->Register(FStat);
+  registry->Register(StatFs);
   registry->Register(Link);
   registry->Register(Symlink);
   registry->Register(ReadLink);
@@ -2784,5 +2855,5 @@ void RegisterExternalReferences(ExternalReferenceRegistry* registry) {
 
 }  // end namespace node
 
-NODE_MODULE_CONTEXT_AWARE_INTERNAL(fs, node::fs::Initialize)
-NODE_MODULE_EXTERNAL_REFERENCE(fs, node::fs::RegisterExternalReferences)
+NODE_BINDING_CONTEXT_AWARE_INTERNAL(fs, node::fs::Initialize)
+NODE_BINDING_EXTERNAL_REFERENCE(fs, node::fs::RegisterExternalReferences)

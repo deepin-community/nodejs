@@ -7,7 +7,7 @@ Last-Update: 2020-03-04
 
 --- a/lib/internal/modules/cjs/loader.js
 +++ b/lib/internal/modules/cjs/loader.js
-@@ -1346,6 +1346,7 @@
+@@ -1509,6 +1509,7 @@
  Module._initPaths = function() {
    const homeDir = isWindows ? process.env.USERPROFILE : safeGetenv('HOME');
    const nodePath = isWindows ? process.env.NODE_PATH : safeGetenv('NODE_PATH');
@@ -15,7 +15,7 @@ Last-Update: 2020-03-04
  
    // process.execPath is $PREFIX/bin/node except on Windows where it is
    // $PREFIX\node.exe where $PREFIX is the root of the Node.js installation.
-@@ -1353,7 +1354,18 @@
+@@ -1516,7 +1517,18 @@
      path.resolve(process.execPath, '..') :
      path.resolve(process.execPath, '..', '..');
  
@@ -37,7 +37,7 @@ Last-Update: 2020-03-04
      ArrayPrototypeUnshift(paths, path.resolve(homeDir, '.node_libraries'));
 --- a/configure.py
 +++ b/configure.py
-@@ -95,6 +95,12 @@
+@@ -96,6 +96,12 @@
      default=None,
      help='Build node with code coverage enabled')
  
@@ -50,7 +50,7 @@ Last-Update: 2020-03-04
  parser.add_argument('--debug',
      action='store_true',
      dest='debug',
-@@ -142,6 +148,13 @@
+@@ -143,6 +149,13 @@
      default=None,
      help='add gdb support')
  
@@ -64,7 +64,7 @@ Last-Update: 2020-03-04
  parser.add_argument('--no-ifaddrs',
      action='store_true',
      dest='no_ifaddrs',
-@@ -1477,6 +1490,17 @@
+@@ -1490,6 +1503,17 @@
    version = getnapibuildversion.get_napi_version()
    output['variables']['napi_build_version'] = version
  
@@ -82,7 +82,7 @@ Last-Update: 2020-03-04
  def configure_library(lib, output, pkgname=None):
    shared_lib = 'shared_' + lib
    output['variables']['node_' + shared_lib] = b(getattr(options, shared_lib))
-@@ -2053,6 +2077,7 @@
+@@ -2069,6 +2093,7 @@
  configure_node(output)
  configure_node_lib_files(output)
  configure_napi(output)

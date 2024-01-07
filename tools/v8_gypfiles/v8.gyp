@@ -1068,7 +1068,7 @@
             '<(V8_ROOT)/src/base/platform/platform-posix.h',
           ],
           'conditions': [
-            ['OS != "aix" and OS != "solaris"', {
+            ['OS != "aix" and OS != "os400" and OS != "solaris"', {
               'sources': [
                 '<(V8_ROOT)/src/base/platform/platform-posix-time.cc',
                 '<(V8_ROOT)/src/base/platform/platform-posix-time.h',
@@ -1088,7 +1088,7 @@
             ],
           },
         }],
-        ['OS=="aix"', {
+        ['OS in "aix os400"', {
           'variables': {
             # Used to differentiate `AIX` and `OS400`(IBM i).
             'aix_variant_name': '<!(uname -s)',
@@ -1401,6 +1401,10 @@
         ['want_separate_host_toolset', {
           'toolsets': ['host'],
         }],
+        # Avoid excessive LTO
+        ['enable_lto=="true"', {
+          'ldflags': [ '-fno-lto' ],
+        }],
       ],
       'defines!': [
         'BUILDING_V8_SHARED=1',
@@ -1437,6 +1441,18 @@
         ['want_separate_host_toolset', {
           'toolsets': ['host'],
         }],
+        ['OS=="win"', {
+          'msvs_precompiled_header': '<(V8_ROOT)/../../tools/msvs/pch/v8_pch.h',
+          'msvs_precompiled_source': '<(V8_ROOT)/../../tools/msvs/pch/v8_pch.cc',
+          'sources': [
+            '<(_msvs_precompiled_header)',
+            '<(_msvs_precompiled_source)',
+          ],
+        }],
+        # Avoid excessive LTO
+        ['enable_lto=="true"', {
+          'ldflags': [ '-fno-lto' ],
+        }],
       ],
     },  # mksnapshot
     {
@@ -1449,6 +1465,10 @@
       'conditions': [
         ['want_separate_host_toolset', {
           'toolsets': ['host'],
+        }],
+        # Avoid excessive LTO
+        ['enable_lto=="true"', {
+          'ldflags': [ '-fno-lto' ],
         }],
       ],
       'defines!': [
@@ -1484,6 +1504,10 @@
         ['want_separate_host_toolset', {
           'toolsets': ['host'],
         }],
+        # Avoid excessive LTO
+        ['enable_lto=="true"', {
+          'ldflags': [ '-fno-lto' ],
+        }],
       ],
       'dependencies': [
         'torque_base',
@@ -1516,6 +1540,10 @@
         ['want_separate_host_toolset', {
           'toolsets': ['host'],
         }],
+        # Avoid excessive LTO
+        ['enable_lto=="true"', {
+          'ldflags': [ '-fno-lto' ],
+        }],
       ],
       'sources': [
         "<(V8_ROOT)/src/regexp/gen-regexp-special-case.cc",
@@ -1531,6 +1559,10 @@
           'dependencies': ['gen-regexp-special-case#host'],
         }, {
           'dependencies': ['gen-regexp-special-case#target'],
+        }],
+        # Avoid excessive LTO
+        ['enable_lto=="true"', {
+          'ldflags': [ '-fno-lto' ],
         }],
       ],
       'actions': [
@@ -1646,7 +1678,7 @@
               }],
               ['_toolset == "host" and host_arch == "riscv64" or _toolset == "target" and target_arch=="riscv64"', {
                 'sources': [
-                  '<(V8_ROOT)/src/heap/base/asm/riscv/push_registers_asm.cc',
+                  '<(V8_ROOT)/src/heap/base/asm/riscv64/push_registers_asm.cc',
                 ],
               }],
               ['_toolset == "host" and host_arch == "loong64" or _toolset == "target" and target_arch=="loong64"', {

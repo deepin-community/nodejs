@@ -6,7 +6,7 @@
       "textRaw": "V8",
       "name": "v8",
       "introduced_in": "v4.0.0",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.13.0/lib/v8.js\">lib/v8.js</a></p>\n<p>The <code>node:v8</code> module exposes APIs that are specific to the version of <a href=\"https://developers.google.com/v8/\">V8</a>\nbuilt into the Node.js binary. It can be accessed using:</p>\n<pre><code class=\"language-js\">const v8 = require('node:v8');\n</code></pre>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.19.0/lib/v8.js\">lib/v8.js</a></p>\n<p>The <code>node:v8</code> module exposes APIs that are specific to the version of <a href=\"https://developers.google.com/v8/\">V8</a>\nbuilt into the Node.js binary. It can be accessed using:</p>\n<pre><code class=\"language-js\">const v8 = require('node:v8');\n</code></pre>",
       "methods": [
         {
           "textRaw": "`v8.cachedDataVersionTag()`",
@@ -1037,7 +1037,7 @@
           },
           "stability": 1,
           "stabilityText": "Experimental",
-          "desc": "<p>The <code>v8.startupSnapshot</code> interface can be used to add serialization and\ndeserialization hooks for custom startup snapshots. Currently the startup\nsnapshots can only be built into the Node.js binary from source.</p>\n<pre><code class=\"language-console\">$ cd /path/to/node\n$ ./configure --node-snapshot-main=entry.js\n$ make node\n# This binary contains the result of the execution of entry.js\n$ out/Release/node\n</code></pre>\n<p>In the example above, <code>entry.js</code> can use methods from the <code>v8.startupSnapshot</code>\ninterface to specify how to save information for custom objects in the snapshot\nduring serialization and how the information can be used to synchronize these\nobjects during deserialization of the snapshot. For example, if the <code>entry.js</code>\ncontains the following script:</p>\n<pre><code class=\"language-cjs\">'use strict';\n\nconst fs = require('node:fs');\nconst zlib = require('node:zlib');\nconst path = require('node:path');\nconst assert = require('node:assert');\n\nconst {\n  isBuildingSnapshot,\n  addSerializeCallback,\n  addDeserializeCallback,\n  setDeserializeMainFunction,\n} = require('node:v8').startupSnapshot;\n\nconst filePath = path.resolve(__dirname, '../x1024.txt');\nconst storage = {};\n\nassert(isBuildingSnapshot());\n\naddSerializeCallback(({ filePath }) => {\n  storage[filePath] = zlib.gzipSync(fs.readFileSync(filePath));\n}, { filePath });\n\naddDeserializeCallback(({ filePath }) => {\n  storage[filePath] = zlib.gunzipSync(storage[filePath]);\n}, { filePath });\n\nsetDeserializeMainFunction(({ filePath }) => {\n  console.log(storage[filePath].toString());\n}, { filePath });\n</code></pre>\n<p>The resulted binary will simply print the data deserialized from the snapshot\nduring start up:</p>\n<pre><code class=\"language-console\">$ out/Release/node\n# Prints content of ./test/fixtures/x1024.txt\n</code></pre>\n<p>Currently the API is only available to a Node.js instance launched from the\ndefault snapshot, that is, the application deserialized from a user-land\nsnapshot cannot use these APIs again.</p>",
+          "desc": "<p>The <code>v8.startupSnapshot</code> interface can be used to add serialization and\ndeserialization hooks for custom startup snapshots.</p>\n<pre><code class=\"language-console\">$ node --snapshot-blob snapshot.blob --build-snapshot entry.js\n# This launches a process with the snapshot\n$ node --snapshot-blob snapshot.blob\n</code></pre>\n<p>In the example above, <code>entry.js</code> can use methods from the <code>v8.startupSnapshot</code>\ninterface to specify how to save information for custom objects in the snapshot\nduring serialization and how the information can be used to synchronize these\nobjects during deserialization of the snapshot. For example, if the <code>entry.js</code>\ncontains the following script:</p>\n<pre><code class=\"language-cjs\">'use strict';\n\nconst fs = require('node:fs');\nconst zlib = require('node:zlib');\nconst path = require('node:path');\nconst assert = require('node:assert');\n\nconst v8 = require('node:v8');\n\nclass BookShelf {\n  storage = new Map();\n\n  // Reading a series of files from directory and store them into storage.\n  constructor(directory, books) {\n    for (const book of books) {\n      this.storage.set(book, fs.readFileSync(path.join(directory, book)));\n    }\n  }\n\n  static compressAll(shelf) {\n    for (const [ book, content ] of shelf.storage) {\n      shelf.storage.set(book, zlib.gzipSync(content));\n    }\n  }\n\n  static decompressAll(shelf) {\n    for (const [ book, content ] of shelf.storage) {\n      shelf.storage.set(book, zlib.gunzipSync(content));\n    }\n  }\n}\n\n// __dirname here is where the snapshot script is placed\n// during snapshot building time.\nconst shelf = new BookShelf(__dirname, [\n  'book1.en_US.txt',\n  'book1.es_ES.txt',\n  'book2.zh_CN.txt',\n]);\n\nassert(v8.startupSnapshot.isBuildingSnapshot());\n// On snapshot serialization, compress the books to reduce size.\nv8.startupSnapshot.addSerializeCallback(BookShelf.compressAll, shelf);\n// On snapshot deserialization, decompress the books.\nv8.startupSnapshot.addDeserializeCallback(BookShelf.decompressAll, shelf);\nv8.startupSnapshot.setDeserializeMainFunction((shelf) => {\n  // process.env and process.argv are refreshed during snapshot\n  // deserialization.\n  const lang = process.env.BOOK_LANG || 'en_US';\n  const book = process.argv[1];\n  const name = `${book}.${lang}.txt`;\n  console.log(shelf.storage.get(name));\n}, shelf);\n</code></pre>\n<p>The resulted binary will get print the data deserialized from the snapshot\nduring start up, using the refreshed <code>process.env</code> and <code>process.argv</code> of\nthe launched process:</p>\n<pre><code class=\"language-console\">$ BOOK_LANG=es_ES node --snapshot-blob snapshot.blob book1\n# Prints content of book1.es_ES.txt deserialized from the snapshot.\n</code></pre>\n<p>Currently the application deserialized from a user-land snapshot cannot\nbe snapshotted again, so these APIs are only available to applications\nthat are not deserialized from a user-land snapshot.</p>",
           "methods": [
             {
               "textRaw": "`v8.startupSnapshot.addSerializeCallback(callback[, data])`",
@@ -1154,6 +1154,62 @@
           ],
           "type": "module",
           "displayName": "Startup Snapshot API"
+        }
+      ],
+      "classes": [
+        {
+          "textRaw": "Class: `v8.GCProfiler`",
+          "type": "class",
+          "name": "v8.GCProfiler",
+          "meta": {
+            "added": [
+              "v18.15.0"
+            ],
+            "changes": []
+          },
+          "desc": "<p>This API collects GC data in current thread.</p>",
+          "methods": [
+            {
+              "textRaw": "`profiler.start()`",
+              "type": "method",
+              "name": "start",
+              "meta": {
+                "added": [
+                  "v18.15.0"
+                ],
+                "changes": []
+              },
+              "signatures": [
+                {
+                  "params": []
+                }
+              ],
+              "desc": "<p>Start collecting GC data.</p>"
+            },
+            {
+              "textRaw": "`profiler.stop()`",
+              "type": "method",
+              "name": "stop",
+              "meta": {
+                "added": [
+                  "v18.15.0"
+                ],
+                "changes": []
+              },
+              "signatures": [
+                {
+                  "params": []
+                }
+              ],
+              "desc": "<p>Stop collecting GC data and return an object.The content of object\nis as follows.</p>\n<pre><code class=\"language-json\">{\n  \"version\": 1,\n  \"startTime\": 1674059033862,\n  \"statistics\": [\n    {\n      \"gcType\": \"Scavenge\",\n      \"beforeGC\": {\n        \"heapStatistics\": {\n          \"totalHeapSize\": 5005312,\n          \"totalHeapSizeExecutable\": 524288,\n          \"totalPhysicalSize\": 5226496,\n          \"totalAvailableSize\": 4341325216,\n          \"totalGlobalHandlesSize\": 8192,\n          \"usedGlobalHandlesSize\": 2112,\n          \"usedHeapSize\": 4883840,\n          \"heapSizeLimit\": 4345298944,\n          \"mallocedMemory\": 254128,\n          \"externalMemory\": 225138,\n          \"peakMallocedMemory\": 181760\n        },\n        \"heapSpaceStatistics\": [\n          {\n            \"spaceName\": \"read_only_space\",\n            \"spaceSize\": 0,\n            \"spaceUsedSize\": 0,\n            \"spaceAvailableSize\": 0,\n            \"physicalSpaceSize\": 0\n          }\n        ]\n      },\n      \"cost\": 1574.14,\n      \"afterGC\": {\n        \"heapStatistics\": {\n          \"totalHeapSize\": 6053888,\n          \"totalHeapSizeExecutable\": 524288,\n          \"totalPhysicalSize\": 5500928,\n          \"totalAvailableSize\": 4341101384,\n          \"totalGlobalHandlesSize\": 8192,\n          \"usedGlobalHandlesSize\": 2112,\n          \"usedHeapSize\": 4059096,\n          \"heapSizeLimit\": 4345298944,\n          \"mallocedMemory\": 254128,\n          \"externalMemory\": 225138,\n          \"peakMallocedMemory\": 181760\n        },\n        \"heapSpaceStatistics\": [\n          {\n            \"spaceName\": \"read_only_space\",\n            \"spaceSize\": 0,\n            \"spaceUsedSize\": 0,\n            \"spaceAvailableSize\": 0,\n            \"physicalSpaceSize\": 0\n          }\n        ]\n      }\n    }\n  ],\n  \"endTime\": 1674059036865\n}\n</code></pre>\n<p>Here's an example.</p>\n<pre><code class=\"language-js\">const { GCProfiler } = require('v8');\nconst profiler = new GCProfiler();\nprofiler.start();\nsetTimeout(() => {\n  console.log(profiler.stop());\n}, 1000);\n</code></pre>"
+            }
+          ],
+          "signatures": [
+            {
+              "params": [],
+              "desc": "<p>Create a new instance of the <code>v8.GCProfiler</code> class.</p>"
+            }
+          ]
         }
       ],
       "type": "module",

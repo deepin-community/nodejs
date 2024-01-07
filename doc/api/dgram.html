@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.13.0">
-  <title>UDP/datagram sockets | Node.js v18.13.0 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v18.19.0">
+  <title>UDP/datagram sockets | Node.js v18.19.0 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
@@ -68,6 +68,7 @@
 <li><a href="readline.html" class="nav-readline">Readline</a></li>
 <li><a href="repl.html" class="nav-repl">REPL</a></li>
 <li><a href="report.html" class="nav-report">Report</a></li>
+<li><a href="single-executable-applications.html" class="nav-single-executable-applications">Single executable applications</a></li>
 <li><a href="stream.html" class="nav-stream">Stream</a></li>
 <li><a href="string_decoder.html" class="nav-string_decoder">String decoder</a></li>
 <li><a href="test.html" class="nav-test">Test runner</a></li>
@@ -95,7 +96,7 @@
     <div id="column1" data-id="dgram" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.13.0 documentation</h1>
+          <h1>Node.js v18.19.0 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -110,7 +111,7 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.13.0</li>
+            <li class="pinned-header">Node.js v18.19.0</li>
             
     <li class="picker-header">
       <a href="#">
@@ -134,6 +135,7 @@
 <li><a href="#socketbindport-address-callback"><code>socket.bind([port][, address][, callback])</code></a></li>
 <li><a href="#socketbindoptions-callback"><code>socket.bind(options[, callback])</code></a></li>
 <li><a href="#socketclosecallback"><code>socket.close([callback])</code></a></li>
+<li><span class="stability_1"><a href="#socketsymbolasyncdispose"><code>socket[Symbol.asyncDispose]()</code></a></span></li>
 <li><a href="#socketconnectport-address-callback"><code>socket.connect(port[, address][, callback])</code></a></li>
 <li><a href="#socketdisconnect"><code>socket.disconnect()</code></a></li>
 <li><a href="#socketdropmembershipmulticastaddress-multicastinterface"><code>socket.dropMembership(multicastAddress[, multicastInterface])</code></a></li>
@@ -236,6 +238,7 @@
 <li><a href="readline.html" class="nav-readline">Readline</a></li>
 <li><a href="repl.html" class="nav-repl">REPL</a></li>
 <li><a href="report.html" class="nav-report">Report</a></li>
+<li><a href="single-executable-applications.html" class="nav-single-executable-applications">Single executable applications</a></li>
 <li><a href="stream.html" class="nav-stream">Stream</a></li>
 <li><a href="string_decoder.html" class="nav-string_decoder">String decoder</a></li>
 <li><a href="test.html" class="nav-test">Test runner</a></li>
@@ -266,12 +269,14 @@
         <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v19.x/api/dgram.html">19.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/dgram.html">21.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v20.x/api/dgram.html">20.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v19.x/api/dgram.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/dgram.html">18.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v17.x/api/dgram.html">17.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v16.x/api/dgram.html">16.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v16.x/api/dgram.html">16.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v15.x/api/dgram.html">15.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v14.x/api/dgram.html">14.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v14.x/api/dgram.html">14.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v13.x/api/dgram.html">13.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v12.x/api/dgram.html">12.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v11.x/api/dgram.html">11.x</a></li>
@@ -325,6 +330,7 @@
 <li><a href="#socketbindport-address-callback"><code>socket.bind([port][, address][, callback])</code></a></li>
 <li><a href="#socketbindoptions-callback"><code>socket.bind(options[, callback])</code></a></li>
 <li><a href="#socketclosecallback"><code>socket.close([callback])</code></a></li>
+<li><span class="stability_1"><a href="#socketsymbolasyncdispose"><code>socket[Symbol.asyncDispose]()</code></a></span></li>
 <li><a href="#socketconnectport-address-callback"><code>socket.connect(port[, address][, callback])</code></a></li>
 <li><a href="#socketdisconnect"><code>socket.disconnect()</code></a></li>
 <li><a href="#socketdropmembershipmulticastaddress-multicastinterface"><code>socket.dropMembership(multicastAddress[, multicastInterface])</code></a></li>
@@ -371,7 +377,7 @@
 
 <p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
 
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.13.0/lib/dgram.js">lib/dgram.js</a></p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.19.0/lib/dgram.js">lib/dgram.js</a></p>
 <p>The <code>node:dgram</code> module provides an implementation of UDP datagram sockets.</p>
 
 <pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> dgram <span class="hljs-keyword">from</span> <span class="hljs-string">'node:dgram'</span>;
@@ -411,7 +417,7 @@ server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'l
 });
 
 server.<span class="hljs-title function_">bind</span>(<span class="hljs-number">41234</span>);
-<span class="hljs-comment">// Prints: server listening 0.0.0.0:41234</span></code></pre>
+<span class="hljs-comment">// Prints: server listening 0.0.0.0:41234</span></code><button class="copy-button">copy</button></pre>
 <section><h3>Class: <code>dgram.Socket</code><span><a class="mark" href="#class-dgramsocket" id="class-dgramsocket">#</a></span><a aria-hidden="true" class="legacy" id="dgram_class_dgram_socket"></a></h3>
 <div class="api_metadata">
 <span>Added in: v0.1.99</span>
@@ -525,7 +531,7 @@ port, listening on all interfaces.</p>
   s.<span class="hljs-title function_">bind</span>(<span class="hljs-number">1234</span>, <span class="hljs-function">() =></span> {
     s.<span class="hljs-title function_">addMembership</span>(<span class="hljs-string">'224.0.0.114'</span>);
   });
-}</code></pre>
+}</code><button class="copy-button">copy</button></pre>
 <h4><code>socket.addSourceSpecificMembership(sourceAddress, groupAddress[, multicastInterface])</code><span><a class="mark" href="#socketaddsourcespecificmembershipsourceaddress-groupaddress-multicastinterface" id="socketaddsourcespecificmembershipsourceaddress-groupaddress-multicastinterface">#</a></span><a aria-hidden="true" class="legacy" id="dgram_socket_addsourcespecificmembership_sourceaddress_groupaddress_multicastinterface"></a></h4>
 <div class="api_metadata">
 <span>Added in: v13.1.0, v12.16.0</span>
@@ -624,7 +630,7 @@ server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'l
 });
 
 server.<span class="hljs-title function_">bind</span>(<span class="hljs-number">41234</span>);
-<span class="hljs-comment">// Prints: server listening 0.0.0.0:41234</span></code></pre>
+<span class="hljs-comment">// Prints: server listening 0.0.0.0:41234</span></code><button class="copy-button">copy</button></pre>
 <h4><code>socket.bind(options[, callback])</code><span><a class="mark" href="#socketbindoptions-callback" id="socketbindoptions-callback">#</a></span><a aria-hidden="true" class="legacy" id="dgram_socket_bind_options_callback"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.11.14</span>
@@ -670,7 +676,7 @@ attempting to bind with a closed socket), an <a href="errors.html#class-error"><
   <span class="hljs-attr">address</span>: <span class="hljs-string">'localhost'</span>,
   <span class="hljs-attr">port</span>: <span class="hljs-number">8000</span>,
   <span class="hljs-attr">exclusive</span>: <span class="hljs-literal">true</span>,
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <h4><code>socket.close([callback])</code><span><a class="mark" href="#socketclosecallback" id="socketclosecallback">#</a></span><a aria-hidden="true" class="legacy" id="dgram_socket_close_callback"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.1.99</span>
@@ -680,6 +686,13 @@ attempting to bind with a closed socket), an <a href="errors.html#class-error"><
 </ul>
 <p>Close the underlying socket and stop listening for data on it. If a callback is
 provided, it is added as a listener for the <a href="#event-close"><code>'close'</code></a> event.</p>
+<h4><code>socket[Symbol.asyncDispose]()</code><span><a class="mark" href="#socketsymbolasyncdispose" id="socketsymbolasyncdispose">#</a></span><a aria-hidden="true" class="legacy" id="dgram_socket_symbol_asyncdispose"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.18.0</span>
+</div>
+<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
+<p>Calls <a href="#socketclosecallback"><code>socket.close()</code></a> and returns a promise that fulfills when the
+socket has closed.</p>
 <h4><code>socket.connect(port[, address][, callback])</code><span><a class="mark" href="#socketconnectport-address-callback" id="socketconnectport-address-callback">#</a></span><a aria-hidden="true" class="legacy" id="dgram_socket_connect_port_address_callback"></a></h4>
 <div class="api_metadata">
 <span>Added in: v12.0.0</span>
@@ -873,7 +886,7 @@ client.<span class="hljs-title function_">send</span>(message, <span class="hljs
 <span class="hljs-keyword">const</span> client = dgram.<span class="hljs-title function_">createSocket</span>(<span class="hljs-string">'udp4'</span>);
 client.<span class="hljs-title function_">send</span>(message, <span class="hljs-number">41234</span>, <span class="hljs-string">'localhost'</span>, <span class="hljs-function">(<span class="hljs-params">err</span>) =></span> {
   client.<span class="hljs-title function_">close</span>();
-});</code></pre>
+});</code><button class="copy-button">copy</button></pre>
 <p>Example of sending a UDP packet composed of multiple buffers to a port on
 <code>127.0.0.1</code>;</p>
 
@@ -893,7 +906,7 @@ client.<span class="hljs-title function_">send</span>([buf1, buf2], <span class=
 <span class="hljs-keyword">const</span> client = dgram.<span class="hljs-title function_">createSocket</span>(<span class="hljs-string">'udp4'</span>);
 client.<span class="hljs-title function_">send</span>([buf1, buf2], <span class="hljs-number">41234</span>, <span class="hljs-function">(<span class="hljs-params">err</span>) =></span> {
   client.<span class="hljs-title function_">close</span>();
-});</code></pre>
+});</code><button class="copy-button">copy</button></pre>
 <p>Sending multiple buffers might be faster or slower depending on the
 application and operating system. Run benchmarks to
 determine the optimal strategy on a case-by-case basis. Generally speaking,
@@ -919,7 +932,7 @@ client.<span class="hljs-title function_">connect</span>(<span class="hljs-numbe
   client.<span class="hljs-title function_">send</span>(message, <span class="hljs-function">(<span class="hljs-params">err</span>) =></span> {
     client.<span class="hljs-title function_">close</span>();
   });
-});</code></pre>
+});</code><button class="copy-button">copy</button></pre>
 <h5>Note about UDP datagram size<span><a class="mark" href="#note-about-udp-datagram-size" id="note-about-udp-datagram-size">#</a></span><a aria-hidden="true" class="legacy" id="dgram_note_about_udp_datagram_size"></a></h5>
 <p>The maximum size of an IPv4/v6 datagram depends on the <code>MTU</code>
 (Maximum Transmission Unit) and on the <code>Payload Length</code> field size.</p>
@@ -986,20 +999,20 @@ successful use of this call.</p>
 
 socket.<span class="hljs-title function_">bind</span>(<span class="hljs-number">1234</span>, <span class="hljs-function">() =></span> {
   socket.<span class="hljs-title function_">setMulticastInterface</span>(<span class="hljs-string">'::%eth1'</span>);
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <p>On Windows, where scope format uses an interface number:</p>
 <pre><code class="language-js"><span class="hljs-keyword">const</span> socket = dgram.<span class="hljs-title function_">createSocket</span>(<span class="hljs-string">'udp6'</span>);
 
 socket.<span class="hljs-title function_">bind</span>(<span class="hljs-number">1234</span>, <span class="hljs-function">() =></span> {
   socket.<span class="hljs-title function_">setMulticastInterface</span>(<span class="hljs-string">'::%2'</span>);
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <h5>Example: IPv4 outgoing multicast interface<span><a class="mark" href="#example-ipv4-outgoing-multicast-interface" id="example-ipv4-outgoing-multicast-interface">#</a></span><a aria-hidden="true" class="legacy" id="dgram_example_ipv4_outgoing_multicast_interface"></a></h5>
 <p>All systems use an IP of the host on the desired physical interface:</p>
 <pre><code class="language-js"><span class="hljs-keyword">const</span> socket = dgram.<span class="hljs-title function_">createSocket</span>(<span class="hljs-string">'udp4'</span>);
 
 socket.<span class="hljs-title function_">bind</span>(<span class="hljs-number">1234</span>, <span class="hljs-function">() =></span> {
   socket.<span class="hljs-title function_">setMulticastInterface</span>(<span class="hljs-string">'10.0.0.2'</span>);
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <h5>Call results<span><a class="mark" href="#call-results" id="call-results">#</a></span><a aria-hidden="true" class="legacy" id="dgram_call_results"></a></h5>
 <p>A call on a socket that is not ready to send or no longer open may throw a <em>Not
 running</em> <a href="errors.html#class-error"><code>Error</code></a>.</p>
@@ -1142,7 +1155,7 @@ server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'m
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`server got: <span class="hljs-subst">${msg}</span> from <span class="hljs-subst">${rinfo.address}</span>:<span class="hljs-subst">${rinfo.port}</span>`</span>);
 });
 <span class="hljs-comment">// Later, when you want to close the server.</span>
-controller.<span class="hljs-title function_">abort</span>();</code></pre>
+controller.<span class="hljs-title function_">abort</span>();</code> <button class="copy-button">copy</button></pre>
 <h4><code>dgram.createSocket(type[, callback])</code><span><a class="mark" href="#dgramcreatesockettype-callback" id="dgramcreatesockettype-callback">#</a></span><a aria-hidden="true" class="legacy" id="dgram_dgram_createsocket_type_callback"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.1.99</span>

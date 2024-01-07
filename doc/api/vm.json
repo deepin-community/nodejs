@@ -8,7 +8,7 @@
       "introduced_in": "v0.10.0",
       "stability": 2,
       "stabilityText": "Stable",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.13.0/lib/vm.js\">lib/vm.js</a></p>\n<p>The <code>node:vm</code> module enables compiling and running code within V8 Virtual\nMachine contexts.</p>\n<p><strong class=\"critical\">The <code>node:vm</code> module is not a security\nmechanism. Do not use it to run untrusted code.</strong></p>\n<p>JavaScript code can be compiled and run immediately or\ncompiled, saved, and run later.</p>\n<p>A common use case is to run the code in a different V8 Context. This means\ninvoked code has a different global object than the invoking code.</p>\n<p>One can provide the context by <a href=\"#what-does-it-mean-to-contextify-an-object\"><em>contextifying</em></a> an\nobject. The invoked code treats any property in the context like a\nglobal variable. Any changes to global variables caused by the invoked\ncode are reflected in the context object.</p>\n<pre><code class=\"language-js\">const vm = require('node:vm');\n\nconst x = 1;\n\nconst context = { x: 2 };\nvm.createContext(context); // Contextify the object.\n\nconst code = 'x += 40; var y = 17;';\n// `x` and `y` are global variables in the context.\n// Initially, x has the value 2 because that is the value of context.x.\nvm.runInContext(code, context);\n\nconsole.log(context.x); // 42\nconsole.log(context.y); // 17\n\nconsole.log(x); // 1; y is not defined.\n</code></pre>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.19.0/lib/vm.js\">lib/vm.js</a></p>\n<p>The <code>node:vm</code> module enables compiling and running code within V8 Virtual\nMachine contexts.</p>\n<p><strong class=\"critical\">The <code>node:vm</code> module is not a security\nmechanism. Do not use it to run untrusted code.</strong></p>\n<p>JavaScript code can be compiled and run immediately or\ncompiled, saved, and run later.</p>\n<p>A common use case is to run the code in a different V8 Context. This means\ninvoked code has a different global object than the invoking code.</p>\n<p>One can provide the context by <a href=\"#what-does-it-mean-to-contextify-an-object\"><em>contextifying</em></a> an\nobject. The invoked code treats any property in the context like a\nglobal variable. Any changes to global variables caused by the invoked\ncode are reflected in the context object.</p>\n<pre><code class=\"language-js\">const vm = require('node:vm');\n\nconst x = 1;\n\nconst context = { x: 2 };\nvm.createContext(context); // Contextify the object.\n\nconst code = 'x += 40; var y = 17;';\n// `x` and `y` are global variables in the context.\n// Initially, x has the value 2 because that is the value of context.x.\nvm.runInContext(code, context);\n\nconsole.log(context.x); // 42\nconsole.log(context.y); // 17\n\nconsole.log(x); // 1; y is not defined.\n</code></pre>",
       "classes": [
         {
           "textRaw": "Class: `vm.Script`",
@@ -371,8 +371,8 @@
                           "type": "vm.Script"
                         },
                         {
-                          "textRaw": "`importAssertions` {Object} The `\"assert\"` value passed to the [`optionsExpression`][] optional parameter, or an empty object if no value was provided.",
-                          "name": "importAssertions",
+                          "textRaw": "`importAttributes` {Object} The `\"assert\"` value passed to the [`optionsExpression`][] optional parameter, or an empty object if no value was provided.",
+                          "name": "importAttributes",
                           "type": "Object",
                           "desc": "The `\"assert\"` value passed to the [`optionsExpression`][] optional parameter, or an empty object if no value was provided."
                         },
@@ -480,6 +480,15 @@
               "textRaw": "`module.link(linker)`",
               "type": "method",
               "name": "link",
+              "meta": {
+                "changes": [
+                  {
+                    "version": "v18.19.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/50141",
+                    "description": "The option `extra.assert` is renamed to `extra.attributes`. The former name is still provided for backward compatibility."
+                  }
+                ]
+              },
               "signatures": [
                 {
                   "return": {
@@ -511,10 +520,16 @@
                           "type": "Object",
                           "options": [
                             {
-                              "textRaw": "`assert` {Object} The data from the assertion:```js import foo from 'foo' assert { name: 'value' }; // ^^^^^^^^^^^^^^^^^ the assertion ```Per ECMA-262, hosts are expected to ignore assertions that they do not support, as opposed to, for example, triggering an error if an unsupported assertion is present.",
+                              "textRaw": "`attributes` {Object} The data from the attribute:```mjs import foo from 'foo' assert { name: 'value' }; // ^^^^^^^^^^^^^^^^^ the attribute ```Per ECMA-262, hosts are expected to trigger an error if an unsupported attribute is present.",
+                              "name": "attributes",
+                              "type": "Object",
+                              "desc": "The data from the attribute:```mjs import foo from 'foo' assert { name: 'value' }; // ^^^^^^^^^^^^^^^^^ the attribute ```Per ECMA-262, hosts are expected to trigger an error if an unsupported attribute is present."
+                            },
+                            {
+                              "textRaw": "`assert` {Object} Alias for `extra.attributes`.",
                               "name": "assert",
                               "type": "Object",
-                              "desc": "The data from the assertion:```js import foo from 'foo' assert { name: 'value' }; // ^^^^^^^^^^^^^^^^^ the assertion ```Per ECMA-262, hosts are expected to ignore assertions that they do not support, as opposed to, for example, triggering an error if an unsupported assertion is present."
+                              "desc": "Alias for `extra.attributes`."
                             }
                           ]
                         },
@@ -597,10 +612,10 @@
                       "desc": "Provides an optional `Buffer` or `TypedArray`, or `DataView` with V8's code cache data for the supplied source. The `code` must be the same as the module from which this `cachedData` was created."
                     },
                     {
-                      "textRaw": "`context` {Object} The [contextified][] object as returned by the `vm.createContext()` method, to compile and evaluate this `Module` in.",
+                      "textRaw": "`context` {Object} The [contextified][] object as returned by the `vm.createContext()` method, to compile and evaluate this `Module` in. If no context is specified, the module is evaluated in the current execution context.",
                       "name": "context",
                       "type": "Object",
-                      "desc": "The [contextified][] object as returned by the `vm.createContext()` method, to compile and evaluate this `Module` in."
+                      "desc": "The [contextified][] object as returned by the `vm.createContext()` method, to compile and evaluate this `Module` in. If no context is specified, the module is evaluated in the current execution context."
                     },
                     {
                       "textRaw": "`lineOffset` {integer} Specifies the line number offset that is displayed in stack traces produced by this `Module`. **Default:** `0`.",
@@ -652,8 +667,8 @@
                           "type": "vm.Module"
                         },
                         {
-                          "textRaw": "`importAssertions` {Object} The `\"assert\"` value passed to the [`optionsExpression`][] optional parameter, or an empty object if no value was provided.",
-                          "name": "importAssertions",
+                          "textRaw": "`importAttributes` {Object} The `\"assert\"` value passed to the [`optionsExpression`][] optional parameter, or an empty object if no value was provided.",
+                          "name": "importAttributes",
                           "type": "Object",
                           "desc": "The `\"assert\"` value passed to the [`optionsExpression`][] optional parameter, or an empty object if no value was provided."
                         },
@@ -771,11 +786,18 @@
             "changes": [
               {
                 "version": [
+                  "v18.15.0"
+                ],
+                "pr-url": "https://github.com/nodejs/node/pull/46320",
+                "description": "The return value now includes `cachedDataRejected` with the same semantics as the `vm.Script` version if the `cachedData` option was passed."
+              },
+              {
+                "version": [
                   "v17.0.0",
                   "v16.12.0"
                 ],
                 "pr-url": "https://github.com/nodejs/node/pull/40249",
-                "description": "Added support for import assertions to the `importModuleDynamically` parameter."
+                "description": "Added support for import attributes to the `importModuleDynamically` parameter."
               },
               {
                 "version": "v15.9.0",
@@ -844,10 +866,10 @@
                       "desc": "Specifies the first-line column number offset that is displayed in stack traces produced by this script."
                     },
                     {
-                      "textRaw": "`cachedData` {Buffer|TypedArray|DataView} Provides an optional `Buffer` or `TypedArray`, or `DataView` with V8's code cache data for the supplied source.",
+                      "textRaw": "`cachedData` {Buffer|TypedArray|DataView} Provides an optional `Buffer` or `TypedArray`, or `DataView` with V8's code cache data for the supplied source. This must be produced by a prior call to [`vm.compileFunction()`][] with the same `code` and `params`.",
                       "name": "cachedData",
                       "type": "Buffer|TypedArray|DataView",
-                      "desc": "Provides an optional `Buffer` or `TypedArray`, or `DataView` with V8's code cache data for the supplied source."
+                      "desc": "Provides an optional `Buffer` or `TypedArray`, or `DataView` with V8's code cache data for the supplied source. This must be produced by a prior call to [`vm.compileFunction()`][] with the same `code` and `params`."
                     },
                     {
                       "textRaw": "`produceCachedData` {boolean} Specifies whether to produce new cache data. **Default:** `false`.",
@@ -887,8 +909,8 @@
                           "type": "Function"
                         },
                         {
-                          "textRaw": "`importAssertions` {Object} The `\"assert\"` value passed to the [`optionsExpression`][] optional parameter, or an empty object if no value was provided.",
-                          "name": "importAssertions",
+                          "textRaw": "`importAttributes` {Object} The `\"assert\"` value passed to the [`optionsExpression`][] optional parameter, or an empty object if no value was provided.",
+                          "name": "importAttributes",
                           "type": "Object",
                           "desc": "The `\"assert\"` value passed to the [`optionsExpression`][] optional parameter, or an empty object if no value was provided."
                         },
@@ -1045,7 +1067,7 @@
               "params": []
             }
           ],
-          "desc": "<p>Measure the memory known to V8 and used by all contexts known to the\ncurrent V8 isolate, or the main context.</p>\n<ul>\n<li><code>options</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object\" class=\"type\">&lt;Object&gt;</a> Optional.\n<ul>\n<li><code>mode</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> Either <code>'summary'</code> or <code>'detailed'</code>. In summary mode,\nonly the memory measured for the main context will be returned. In\ndetailed mode, the memory measured for all contexts known to the\ncurrent V8 isolate will be returned.\n<strong>Default:</strong> <code>'summary'</code></li>\n<li><code>execution</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> Either <code>'default'</code> or <code>'eager'</code>. With default\nexecution, the promise will not resolve until after the next scheduled\ngarbage collection starts, which may take a while (or never if the program\nexits before the next GC). With eager execution, the GC will be started\nright away to measure the memory.\n<strong>Default:</strong> <code>'default'</code></li>\n</ul>\n</li>\n<li>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise\" class=\"type\">&lt;Promise&gt;</a> If the memory is successfully measured the promise will\nresolve with an object containing information about the memory usage.</li>\n</ul>\n<p>The format of the object that the returned Promise may resolve with is\nspecific to the V8 engine and may change from one version of V8 to the next.</p>\n<p>The returned result is different from the statistics returned by\n<code>v8.getHeapSpaceStatistics()</code> in that <code>vm.measureMemory()</code> measure the\nmemory reachable by each V8 specific contexts in the current instance of\nthe V8 engine, while the result of <code>v8.getHeapSpaceStatistics()</code> measure\nthe memory occupied by each heap space in the current V8 instance.</p>\n<pre><code class=\"language-js\">const vm = require('node:vm');\n// Measure the memory used by the main context.\nvm.measureMemory({ mode: 'summary' })\n  // This is the same as vm.measureMemory()\n  .then((result) => {\n    // The current format is:\n    // {\n    //   total: {\n    //      jsMemoryEstimate: 2418479, jsMemoryRange: [ 2418479, 2745799 ]\n    //    }\n    // }\n    console.log(result);\n  });\n\nconst context = vm.createContext({ a: 1 });\nvm.measureMemory({ mode: 'detailed', execution: 'eager' })\n  .then((result) => {\n    // Reference the context here so that it won't be GC'ed\n    // until the measurement is complete.\n    console.log(context.a);\n    // {\n    //   total: {\n    //     jsMemoryEstimate: 2574732,\n    //     jsMemoryRange: [ 2574732, 2904372 ]\n    //   },\n    //   current: {\n    //     jsMemoryEstimate: 2438996,\n    //     jsMemoryRange: [ 2438996, 2768636 ]\n    //   },\n    //   other: [\n    //     {\n    //       jsMemoryEstimate: 135736,\n    //       jsMemoryRange: [ 135736, 465376 ]\n    //     }\n    //   ]\n    // }\n    console.log(result);\n  });\n</code></pre>"
+          "desc": "<p>Measure the memory known to V8 and used by all contexts known to the\ncurrent V8 isolate, or the main context.</p>\n<ul>\n<li><code>options</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object\" class=\"type\">&lt;Object&gt;</a> Optional.\n<ul>\n<li><code>mode</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> Either <code>'summary'</code> or <code>'detailed'</code>. In summary mode,\nonly the memory measured for the main context will be returned. In\ndetailed mode, the memory measured for all contexts known to the\ncurrent V8 isolate will be returned.\n<strong>Default:</strong> <code>'summary'</code></li>\n<li><code>execution</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> Either <code>'default'</code> or <code>'eager'</code>. With default\nexecution, the promise will not resolve until after the next scheduled\ngarbage collection starts, which may take a while (or never if the program\nexits before the next GC). With eager execution, the GC will be started\nright away to measure the memory.\n<strong>Default:</strong> <code>'default'</code></li>\n</ul>\n</li>\n<li>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise\" class=\"type\">&lt;Promise&gt;</a> If the memory is successfully measured, the promise will\nresolve with an object containing information about the memory usage.\nOtherwise it will be rejected with an <code>ERR_CONTEXT_NOT_INITIALIZED</code> error.</li>\n</ul>\n<p>The format of the object that the returned Promise may resolve with is\nspecific to the V8 engine and may change from one version of V8 to the next.</p>\n<p>The returned result is different from the statistics returned by\n<code>v8.getHeapSpaceStatistics()</code> in that <code>vm.measureMemory()</code> measure the\nmemory reachable by each V8 specific contexts in the current instance of\nthe V8 engine, while the result of <code>v8.getHeapSpaceStatistics()</code> measure\nthe memory occupied by each heap space in the current V8 instance.</p>\n<pre><code class=\"language-js\">const vm = require('node:vm');\n// Measure the memory used by the main context.\nvm.measureMemory({ mode: 'summary' })\n  // This is the same as vm.measureMemory()\n  .then((result) => {\n    // The current format is:\n    // {\n    //   total: {\n    //      jsMemoryEstimate: 2418479, jsMemoryRange: [ 2418479, 2745799 ]\n    //    }\n    // }\n    console.log(result);\n  });\n\nconst context = vm.createContext({ a: 1 });\nvm.measureMemory({ mode: 'detailed', execution: 'eager' })\n  .then((result) => {\n    // Reference the context here so that it won't be GC'ed\n    // until the measurement is complete.\n    console.log(context.a);\n    // {\n    //   total: {\n    //     jsMemoryEstimate: 2574732,\n    //     jsMemoryRange: [ 2574732, 2904372 ]\n    //   },\n    //   current: {\n    //     jsMemoryEstimate: 2438996,\n    //     jsMemoryRange: [ 2438996, 2768636 ]\n    //   },\n    //   other: [\n    //     {\n    //       jsMemoryEstimate: 135736,\n    //       jsMemoryRange: [ 135736, 465376 ]\n    //     }\n    //   ]\n    // }\n    console.log(result);\n  });\n</code></pre>"
         },
         {
           "textRaw": "`vm.runInContext(code, contextifiedObject[, options])`",
@@ -1062,7 +1084,7 @@
                   "v16.12.0"
                 ],
                 "pr-url": "https://github.com/nodejs/node/pull/40249",
-                "description": "Added support for import assertions to the `importModuleDynamically` parameter."
+                "description": "Added support for import attributes to the `importModuleDynamically` parameter."
               },
               {
                 "version": "v6.3.0",
@@ -1162,8 +1184,8 @@
                           "type": "vm.Script"
                         },
                         {
-                          "textRaw": "`importAssertions` {Object} The `\"assert\"` value passed to the [`optionsExpression`][] optional parameter, or an empty object if no value was provided.",
-                          "name": "importAssertions",
+                          "textRaw": "`importAttributes` {Object} The `\"assert\"` value passed to the [`optionsExpression`][] optional parameter, or an empty object if no value was provided.",
+                          "name": "importAttributes",
                           "type": "Object",
                           "desc": "The `\"assert\"` value passed to the [`optionsExpression`][] optional parameter, or an empty object if no value was provided."
                         },
@@ -1197,7 +1219,7 @@
                   "v16.12.0"
                 ],
                 "pr-url": "https://github.com/nodejs/node/pull/40249",
-                "description": "Added support for import assertions to the `importModuleDynamically` parameter."
+                "description": "Added support for import attributes to the `importModuleDynamically` parameter."
               },
               {
                 "version": "v14.6.0",
@@ -1342,8 +1364,8 @@
                           "type": "vm.Script"
                         },
                         {
-                          "textRaw": "`importAssertions` {Object} The `\"assert\"` value passed to the [`optionsExpression`][] optional parameter, or an empty object if no value was provided.",
-                          "name": "importAssertions",
+                          "textRaw": "`importAttributes` {Object} The `\"assert\"` value passed to the [`optionsExpression`][] optional parameter, or an empty object if no value was provided.",
+                          "name": "importAttributes",
                           "type": "Object",
                           "desc": "The `\"assert\"` value passed to the [`optionsExpression`][] optional parameter, or an empty object if no value was provided."
                         },
@@ -1383,7 +1405,7 @@
                   "v16.12.0"
                 ],
                 "pr-url": "https://github.com/nodejs/node/pull/40249",
-                "description": "Added support for import assertions to the `importModuleDynamically` parameter."
+                "description": "Added support for import attributes to the `importModuleDynamically` parameter."
               },
               {
                 "version": "v6.3.0",
@@ -1477,8 +1499,8 @@
                           "type": "vm.Script"
                         },
                         {
-                          "textRaw": "`importAssertions` {Object} The `\"assert\"` value passed to the [`optionsExpression`][] optional parameter, or an empty object if no value was provided.",
-                          "name": "importAssertions",
+                          "textRaw": "`importAttributes` {Object} The `\"assert\"` value passed to the [`optionsExpression`][] optional parameter, or an empty object if no value was provided.",
+                          "name": "importAttributes",
                           "type": "Object",
                           "desc": "The `\"assert\"` value passed to the [`optionsExpression`][] optional parameter, or an empty object if no value was provided."
                         },

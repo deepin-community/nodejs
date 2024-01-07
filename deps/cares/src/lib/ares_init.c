@@ -1,18 +1,28 @@
-
-/* Copyright 1998 by the Massachusetts Institute of Technology.
- * Copyright (C) 2007-2013 by Daniel Stenberg
+/* MIT License
  *
- * Permission to use, copy, modify, and distribute this
- * software and its documentation for any purpose and without
- * fee is hereby granted, provided that the above copyright
- * notice appear in all copies and that both that copyright
- * notice and this permission notice appear in supporting
- * documentation, and that the name of M.I.T. not be used in
- * advertising or publicity pertaining to distribution of the
- * software without specific, written prior permission.
- * M.I.T. makes no representations about the suitability of
- * this software for any purpose.  It is provided "as is"
- * without express or implied warranty.
+ * Copyright (c) 1998 Massachusetts Institute of Technology
+ * Copyright (c) 2007 Daniel Stenberg
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice (including the next
+ * paragraph) shall be included in all copies or substantial portions of the
+ * Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * SPDX-License-Identifier: MIT
  */
 
 #include "ares_setup.h"
@@ -47,9 +57,12 @@
 #include <resolv.h>
 #endif
 
+#if defined(USE_WINSOCK)
+#  include <iphlpapi.h>
+#endif
+
 #include "ares.h"
 #include "ares_inet_net_pton.h"
-#include "ares_library_init.h"
 #include "ares_nowarn.h"
 #include "ares_platform.h"
 #include "ares_private.h"
@@ -57,6 +70,7 @@
 #ifdef WATT32
 #undef WIN32  /* Redefined in MingW/MSVC headers */
 #endif
+
 
 static int init_by_options(ares_channel channel,
                            const struct ares_options *options,
@@ -67,12 +81,11 @@ static int init_by_defaults(ares_channel channel);
 
 #ifndef WATT32
 static int config_nameserver(struct server_state **servers, int *nservers,
-                             char *str);
+                             const char *str);
 #endif
 static int set_search(ares_channel channel, const char *str);
 static int set_options(ares_channel channel, const char *str);
 static const char *try_option(const char *p, const char *q, const char *opt);
-static int init_id_key(rc4_key* key,int key_data_len);
 
 static int config_sortlist(struct apattern **sortlist, int *nsort,
                            const char *str);
@@ -100,24 +113,40 @@ int ares_init(ares_channel *channelptr)
   return ares_init_options(channelptr, NULL, 0);
 }
 
+static int ares_query_timeout_cmp_cb(const void *arg1, const void *arg2)
+{
+  const struct query *q1 = arg1;
+  const struct query *q2 = arg2;
+
+  if (q1->timeout.tv_sec > q2->timeout.tv_sec)
+    return 1;
+  if (q1->timeout.tv_sec < q2->timeout.tv_sec)
+    return -1;
+
+  if (q1->timeout.tv_usec > q2->timeout.tv_usec)
+    return 1;
+  if (q1->timeout.tv_usec < q2->timeout.tv_usec)
+    return -1;
+
+  return 0;
+}
+
 int ares_init_options(ares_channel *channelptr, struct ares_options *options,
                       int optmask)
 {
   ares_channel channel;
-  int i;
   int status = ARES_SUCCESS;
-  struct timeval now;
 
   if (ares_library_initialized() != ARES_SUCCESS)
     return ARES_ENOTINITIALIZED;  /* LCOV_EXCL_LINE: n/a on non-WinSock */
 
-  channel = ares_malloc(sizeof(struct ares_channeldata));
+  channel = ares_malloc(sizeof(*channel));
   if (!channel) {
     *channelptr = NULL;
     return ARES_ENOMEM;
   }
 
-  now = ares__tvnow();
+  memset(channel, 0, sizeof(*channel));
 
   /* Set everything to distinguished values so we know they haven't
    * been set yet.
@@ -135,38 +164,43 @@ int ares_init_options(ares_channel *channelptr, struct ares_options *options,
   channel->nservers = -1;
   channel->ndomains = -1;
   channel->nsort = -1;
-  channel->tcp_connection_generation = 0;
-  channel->lookups = NULL;
-  channel->domains = NULL;
-  channel->sortlist = NULL;
-  channel->servers = NULL;
-  channel->sock_state_cb = NULL;
-  channel->sock_state_cb_data = NULL;
-  channel->sock_create_cb = NULL;
-  channel->sock_create_cb_data = NULL;
-  channel->sock_config_cb = NULL;
-  channel->sock_config_cb_data = NULL;
-  channel->sock_funcs = NULL;
-  channel->sock_func_cb_data = NULL;
-  channel->resolvconf_path = NULL;
 
-  channel->last_server = 0;
-  channel->last_timeout_processed = (time_t)now.tv_sec;
+  /* Generate random key */
 
-  memset(&channel->local_dev_name, 0, sizeof(channel->local_dev_name));
-  channel->local_ip4 = 0;
-  memset(&channel->local_ip6, 0, sizeof(channel->local_ip6));
+  channel->rand_state = ares__init_rand_state();
+  if (channel->rand_state == NULL) {
+    status = ARES_ENOMEM;
+    DEBUGF(fprintf(stderr, "Error: init_id_key failed: %s\n",
+          ares_strerror(status)));
+    goto done;
+  }
 
   /* Initialize our lists of queries */
-  ares__init_list_head(&(channel->all_queries));
-  for (i = 0; i < ARES_QID_TABLE_SIZE; i++)
-    {
-      ares__init_list_head(&(channel->queries_by_qid[i]));
-    }
-  for (i = 0; i < ARES_TIMEOUT_TABLE_SIZE; i++)
-    {
-      ares__init_list_head(&(channel->queries_by_timeout[i]));
-    }
+  channel->all_queries = ares__llist_create(NULL);
+  if (channel->all_queries == NULL) {
+    status = ARES_ENOMEM;
+    goto done;
+  }
+
+  channel->queries_by_qid = ares__htable_stvp_create(NULL);
+  if (channel->queries_by_qid == NULL) {
+    status = ARES_ENOMEM;
+    goto done;
+  }
+
+  channel->queries_by_timeout = ares__slist_create(channel->rand_state, 
+                                                   ares_query_timeout_cmp_cb,
+                                                   NULL);
+  if (channel->queries_by_timeout == NULL) {
+    status = ARES_ENOMEM;
+    goto done;
+  }
+
+  channel->connnode_by_socket = ares__htable_asvp_create(NULL);
+  if (channel->connnode_by_socket == NULL) {
+    status = ARES_ENOMEM;
+    goto done;
+  }
 
   /* Initialize configuration by each of the four sources, from highest
    * precedence to lowest.
@@ -199,40 +233,42 @@ int ares_init_options(ares_channel *channelptr, struct ares_options *options,
     DEBUGF(fprintf(stderr, "Error: init_by_defaults failed: %s\n",
                    ares_strerror(status)));
 
-  /* Generate random key */
+  /* Trim to one server if ARES_FLAG_PRIMARY is set. */
+  if ((channel->flags & ARES_FLAG_PRIMARY) && channel->nservers > 1)
+    channel->nservers = 1;
 
-  if (status == ARES_SUCCESS) {
-    status = init_id_key(&channel->id_key, ARES_ID_KEY_LEN);
-    if (status == ARES_SUCCESS)
-      channel->next_id = ares__generate_new_id(&channel->id_key);
-    else
-      DEBUGF(fprintf(stderr, "Error: init_id_key failed: %s\n",
-                     ares_strerror(status)));
+  status = ares__init_servers_state(channel);
+  if (status != ARES_SUCCESS) {
+    goto done;
   }
 
 done:
   if (status != ARES_SUCCESS)
     {
       /* Something failed; clean up memory we may have allocated. */
-      if (channel->servers)
+      if (channel->servers) {
         ares_free(channel->servers);
+      }
       if (channel->ndomains != -1)
-        ares_strsplit_free(channel->domains, channel->ndomains);
+        ares__strsplit_free(channel->domains, channel->ndomains);
       if (channel->sortlist)
         ares_free(channel->sortlist);
       if(channel->lookups)
         ares_free(channel->lookups);
       if(channel->resolvconf_path)
         ares_free(channel->resolvconf_path);
+      if(channel->hosts_path)
+        ares_free(channel->hosts_path);
+      if (channel->rand_state)
+        ares__destroy_rand_state(channel->rand_state);
+
+      ares__htable_stvp_destroy(channel->queries_by_qid);
+      ares__llist_destroy(channel->all_queries);
+      ares__slist_destroy(channel->queries_by_timeout);
+      ares__htable_asvp_destroy(channel->connnode_by_socket);
       ares_free(channel);
       return status;
     }
-
-  /* Trim to one server if ARES_FLAG_PRIMARY is set. */
-  if ((channel->flags & ARES_FLAG_PRIMARY) && channel->nservers > 1)
-    channel->nservers = 1;
-
-  ares__init_servers_state(channel);
 
   *channelptr = channel;
   return ARES_SUCCESS;
@@ -335,6 +371,9 @@ int ares_save_options(ares_channel channel, struct ares_options *options,
   if (channel->resolvconf_path)
     (*optmask) |= ARES_OPT_RESOLVCONF;
 
+  if (channel->hosts_path)
+    (*optmask) |= ARES_OPT_HOSTS_FILE;
+
   /* Copy easy stuff */
   options->flags   = channel->flags;
 
@@ -361,6 +400,7 @@ int ares_save_options(ares_channel channel, struct ares_options *options,
       options->servers = ares_malloc(ipv4_nservers * sizeof(struct in_addr));
       if (!options->servers)
         return ARES_ENOMEM;
+
       for (i = j = 0; i < channel->nservers; i++)
       {
         if ((channel->servers[i].addr.family == AF_INET) &&
@@ -414,6 +454,18 @@ int ares_save_options(ares_channel channel, struct ares_options *options,
       return ARES_ENOMEM;
   }
 
+  /* copy path for hosts file */
+  if (channel->hosts_path) {
+    options->hosts_path = ares_strdup(channel->hosts_path);
+    if (!options->hosts_path)
+      return ARES_ENOMEM;
+  }
+
+  if (channel->udp_max_queries > 0) {
+    (*optmask) |= ARES_OPT_UDP_MAX_QUERIES;
+    options->udp_max_queries = channel->udp_max_queries;
+  }
+
   return ARES_SUCCESS;
 }
 
@@ -464,9 +516,10 @@ static int init_by_options(ares_channel channel,
       if (options->nservers > 0)
         {
           channel->servers =
-            ares_malloc(options->nservers * sizeof(struct server_state));
+            ares_malloc(options->nservers * sizeof(*channel->servers));
           if (!channel->servers)
             return ARES_ENOMEM;
+          memset(channel->servers, 0, options->nservers * sizeof(*channel->servers));
           for (i = 0; i < options->nservers; i++)
             {
               channel->servers[i].addr.family = AF_INET;
@@ -529,6 +582,17 @@ static int init_by_options(ares_channel channel,
       if (!channel->resolvconf_path && options->resolvconf_path)
         return ARES_ENOMEM;
     }
+
+  /* Set path for hosts file, if given. */
+  if ((optmask & ARES_OPT_HOSTS_FILE) && !channel->hosts_path)
+    {
+      channel->hosts_path = ares_strdup(options->hosts_path);
+      if (!channel->hosts_path && options->hosts_path)
+        return ARES_ENOMEM;
+    }
+
+  if (optmask & ARES_OPT_UDP_MAX_QUERIES)
+    channel->udp_max_queries = options->udp_max_queries;
 
   channel->optmask = optmask;
 
@@ -608,227 +672,6 @@ static int get_REG_SZ(HKEY hKey, const char *leafKeyName, char **outptr)
   return 1;
 }
 
-/*
- * get_REG_SZ_9X()
- *
- * Functionally identical to get_REG_SZ()
- *
- * Supported on Windows 95, 98 and ME.
- */
-static int get_REG_SZ_9X(HKEY hKey, const char *leafKeyName, char **outptr)
-{
-  DWORD dataType = 0;
-  DWORD size = 0;
-  int   res;
-
-  *outptr = NULL;
-
-  /* Find out size of string stored in registry */
-  res = RegQueryValueExA(hKey, leafKeyName, 0, &dataType, NULL, &size);
-  if ((res != ERROR_SUCCESS && res != ERROR_MORE_DATA) || !size)
-    return 0;
-
-  /* Allocate buffer of indicated size plus one given that string
-     might have been stored without null termination */
-  *outptr = ares_malloc(size+1);
-  if (!*outptr)
-    return 0;
-
-  /* Get the value for real */
-  res = RegQueryValueExA(hKey, leafKeyName, 0, &dataType,
-                        (unsigned char *)*outptr, &size);
-  if ((res != ERROR_SUCCESS) || (size == 1))
-  {
-    ares_free(*outptr);
-    *outptr = NULL;
-    return 0;
-  }
-
-  /* Null terminate buffer allways */
-  *(*outptr + size) = '\0';
-
-  return 1;
-}
-
-/*
- * get_enum_REG_SZ()
- *
- * Given a 'hKeyParent' handle to an open registry key and a 'leafKeyName'
- * pointer to the name of the registry leaf key to be queried, parent key
- * is enumerated searching in child keys for given leaf key name and its
- * associated string value. When located, this returns a pointer in *outptr
- * to a newly allocated memory area holding it as a null-terminated string.
- *
- * Returns 0 and nullifies *outptr upon inability to return a string value.
- *
- * Returns 1 and sets *outptr when returning a dynamically allocated string.
- *
- * Supported on Windows NT 3.5 and newer.
- */
-static int get_enum_REG_SZ(HKEY hKeyParent, const char *leafKeyName,
-                           char **outptr)
-{
-  char  enumKeyName[256];
-  DWORD enumKeyNameBuffSize;
-  DWORD enumKeyIdx = 0;
-  HKEY  hKeyEnum;
-  int   gotString;
-  int   res;
-
-  *outptr = NULL;
-
-  for(;;)
-  {
-    enumKeyNameBuffSize = sizeof(enumKeyName);
-    res = RegEnumKeyExA(hKeyParent, enumKeyIdx++, enumKeyName,
-                       &enumKeyNameBuffSize, 0, NULL, NULL, NULL);
-    if (res != ERROR_SUCCESS)
-      break;
-    res = RegOpenKeyExA(hKeyParent, enumKeyName, 0, KEY_QUERY_VALUE,
-                       &hKeyEnum);
-    if (res != ERROR_SUCCESS)
-      continue;
-    gotString = get_REG_SZ(hKeyEnum, leafKeyName, outptr);
-    RegCloseKey(hKeyEnum);
-    if (gotString)
-      break;
-  }
-
-  if (!*outptr)
-    return 0;
-
-  return 1;
-}
-
-/*
- * get_DNS_Registry_9X()
- *
- * Functionally identical to get_DNS_Registry()
- *
- * Implementation supports Windows 95, 98 and ME.
- */
-static int get_DNS_Registry_9X(char **outptr)
-{
-  HKEY hKey_VxD_MStcp;
-  int  gotString;
-  int  res;
-
-  *outptr = NULL;
-
-  res = RegOpenKeyExA(HKEY_LOCAL_MACHINE, WIN_NS_9X, 0, KEY_READ,
-                     &hKey_VxD_MStcp);
-  if (res != ERROR_SUCCESS)
-    return 0;
-
-  gotString = get_REG_SZ_9X(hKey_VxD_MStcp, NAMESERVER, outptr);
-  RegCloseKey(hKey_VxD_MStcp);
-
-  if (!gotString || !*outptr)
-    return 0;
-
-  return 1;
-}
-
-/*
- * get_DNS_Registry_NT()
- *
- * Functionally identical to get_DNS_Registry()
- *
- * Refs: Microsoft Knowledge Base articles KB120642 and KB314053.
- *
- * Implementation supports Windows NT 3.5 and newer.
- */
-static int get_DNS_Registry_NT(char **outptr)
-{
-  HKEY hKey_Interfaces = NULL;
-  HKEY hKey_Tcpip_Parameters;
-  int  gotString;
-  int  res;
-
-  *outptr = NULL;
-
-  res = RegOpenKeyExA(HKEY_LOCAL_MACHINE, WIN_NS_NT_KEY, 0, KEY_READ,
-                     &hKey_Tcpip_Parameters);
-  if (res != ERROR_SUCCESS)
-    return 0;
-
-  /*
-  ** Global DNS settings override adapter specific parameters when both
-  ** are set. Additionally static DNS settings override DHCP-configured
-  ** parameters when both are set.
-  */
-
-  /* Global DNS static parameters */
-  gotString = get_REG_SZ(hKey_Tcpip_Parameters, NAMESERVER, outptr);
-  if (gotString)
-    goto done;
-
-  /* Global DNS DHCP-configured parameters */
-  gotString = get_REG_SZ(hKey_Tcpip_Parameters, DHCPNAMESERVER, outptr);
-  if (gotString)
-    goto done;
-
-  /* Try adapter specific parameters */
-  res = RegOpenKeyExA(hKey_Tcpip_Parameters, "Interfaces", 0,
-                     KEY_QUERY_VALUE | KEY_ENUMERATE_SUB_KEYS,
-                     &hKey_Interfaces);
-  if (res != ERROR_SUCCESS)
-  {
-    hKey_Interfaces = NULL;
-    goto done;
-  }
-
-  /* Adapter specific DNS static parameters */
-  gotString = get_enum_REG_SZ(hKey_Interfaces, NAMESERVER, outptr);
-  if (gotString)
-    goto done;
-
-  /* Adapter specific DNS DHCP-configured parameters */
-  gotString = get_enum_REG_SZ(hKey_Interfaces, DHCPNAMESERVER, outptr);
-
-done:
-  if (hKey_Interfaces)
-    RegCloseKey(hKey_Interfaces);
-
-  RegCloseKey(hKey_Tcpip_Parameters);
-
-  if (!gotString || !*outptr)
-    return 0;
-
-  return 1;
-}
-
-/*
- * get_DNS_Registry()
- *
- * Locates DNS info in the registry. When located, this returns a pointer
- * in *outptr to a newly allocated memory area holding a null-terminated
- * string with a space or comma seperated list of DNS IP addresses.
- *
- * Returns 0 and nullifies *outptr upon inability to return DNSes string.
- *
- * Returns 1 and sets *outptr when returning a dynamically allocated string.
- */
-static int get_DNS_Registry(char **outptr)
-{
-  win_platform platform;
-  int gotString = 0;
-
-  *outptr = NULL;
-
-  platform = ares__getplatform();
-
-  if (platform == WIN_NT)
-    gotString = get_DNS_Registry_NT(outptr);
-  else if (platform == WIN_9X)
-    gotString = get_DNS_Registry_9X(outptr);
-
-  if (!gotString)
-    return 0;
-
-  return 1;
-}
-
 static void commanjoin(char** dst, const char* const src, const size_t len)
 {
   char *newbuf;
@@ -857,106 +700,6 @@ static void commajoin(char **dst, const char *src)
   commanjoin(dst, src, strlen(src));
 }
 
-/*
- * get_DNS_NetworkParams()
- *
- * Locates DNS info using GetNetworkParams() function from the Internet
- * Protocol Helper (IP Helper) API. When located, this returns a pointer
- * in *outptr to a newly allocated memory area holding a null-terminated
- * string with a space or comma seperated list of DNS IP addresses.
- *
- * Returns 0 and nullifies *outptr upon inability to return DNSes string.
- *
- * Returns 1 and sets *outptr when returning a dynamically allocated string.
- *
- * Implementation supports Windows 98 and newer.
- *
- * Note: Ancient PSDK required in order to build a W98 target.
- */
-static int get_DNS_NetworkParams(char **outptr)
-{
-  FIXED_INFO       *fi, *newfi;
-  struct ares_addr namesrvr;
-  char             *txtaddr;
-  IP_ADDR_STRING   *ipAddr;
-  int              res;
-  DWORD            size = sizeof (*fi);
-
-  *outptr = NULL;
-
-  /* Verify run-time availability of GetNetworkParams() */
-  if (ares_fpGetNetworkParams == ZERO_NULL)
-    return 0;
-
-  fi = ares_malloc(size);
-  if (!fi)
-    return 0;
-
-  res = (*ares_fpGetNetworkParams) (fi, &size);
-  if ((res != ERROR_BUFFER_OVERFLOW) && (res != ERROR_SUCCESS))
-    goto done;
-
-  newfi = ares_realloc(fi, size);
-  if (!newfi)
-    goto done;
-
-  fi = newfi;
-  res = (*ares_fpGetNetworkParams) (fi, &size);
-  if (res != ERROR_SUCCESS)
-    goto done;
-
-  for (ipAddr = &fi->DnsServerList; ipAddr; ipAddr = ipAddr->Next)
-  {
-    txtaddr = &ipAddr->IpAddress.String[0];
-
-    /* Validate converting textual address to binary format. */
-    if (ares_inet_pton(AF_INET, txtaddr, &namesrvr.addrV4) == 1)
-    {
-      if ((namesrvr.addrV4.S_un.S_addr == INADDR_ANY) ||
-          (namesrvr.addrV4.S_un.S_addr == INADDR_NONE))
-        continue;
-    }
-    else if (ares_inet_pton(AF_INET6, txtaddr, &namesrvr.addrV6) == 1)
-    {
-      if (memcmp(&namesrvr.addrV6, &ares_in6addr_any,
-                 sizeof(namesrvr.addrV6)) == 0)
-        continue;
-    }
-    else
-      continue;
-
-    commajoin(outptr, txtaddr);
-
-    if (!*outptr)
-      break;
-  }
-
-done:
-  if (fi)
-    ares_free(fi);
-
-  if (!*outptr)
-    return 0;
-
-  return 1;
-}
-
-static BOOL ares_IsWindowsVistaOrGreater(void)
-{
-  OSVERSIONINFO vinfo;
-  memset(&vinfo, 0, sizeof(vinfo));
-  vinfo.dwOSVersionInfoSize = sizeof(vinfo);
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable:4996) /* warning C4996: 'GetVersionExW': was declared deprecated */
-#endif
-  if (!GetVersionEx(&vinfo) || vinfo.dwMajorVersion < 6)
-    return FALSE;
-  return TRUE;
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
-}
 
 /* A structure to hold the string form of IPv4 and IPv6 addresses so we can
  * sort them by a metric.
@@ -973,7 +716,7 @@ typedef struct
   /* Room enough for the string form of any IPv4 or IPv6 address that
    * ares_inet_ntop() will create.  Based on the existing c-ares practice.
    */
-  char text[sizeof("ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255")];
+  char text[INET6_ADDRSTRLEN + 8]; /* [%s]:NNNNN */
 } Address;
 
 /* Sort Address values \a left and \a right by metric, returning the usual
@@ -1031,23 +774,33 @@ static ULONG getBestRouteMetric(IF_LUID * const luid, /* Can't be const :( */
                                 const ULONG interfaceMetric)
 {
   /* On this interface, get the best route to that destination. */
+#if defined(__WATCOMC__)
+  /* OpenWatcom's builtin Windows SDK does not have a definition for
+   * MIB_IPFORWARD_ROW2, and also does not allow the usage of SOCKADDR_INET
+   * as a variable. Let's work around this by returning the worst possible
+   * metric, but only when using the OpenWatcom compiler.
+   * It may be worth investigating using a different version of the Windows
+   * SDK with OpenWatcom in the future, though this may be fixed in OpenWatcom
+   * 2.0.
+   */
+  return (ULONG)-1;
+#else
   MIB_IPFORWARD_ROW2 row;
   SOCKADDR_INET ignored;
-  if(!ares_fpGetBestRoute2 ||
-     ares_fpGetBestRoute2(/* The interface to use.  The index is ignored since we are
-                           * passing a LUID.
-                           */
-                           luid, 0,
-                           /* No specific source address. */
-                           NULL,
-                           /* Our destination address. */
-                           dest,
-                           /* No options. */
-                           0,
-                           /* The route row. */
-                           &row,
-                           /* The best source address, which we don't need. */
-                           &ignored) != NO_ERROR
+  if(GetBestRoute2(/* The interface to use.  The index is ignored since we are
+                    * passing a LUID.
+                    */
+                   luid, 0,
+                   /* No specific source address. */
+                   NULL,
+                   /* Our destination address. */
+                   dest,
+                   /* No options. */
+                   0,
+                   /* The route row. */
+                   &row,
+                   /* The best source address, which we don't need. */
+                   &ignored) != NO_ERROR
      /* If the metric is "unused" (-1) or too large for us to add the two
       * metrics, use the worst possible, thus sorting this last.
       */
@@ -1064,10 +817,11 @@ static ULONG getBestRouteMetric(IF_LUID * const luid, /* Can't be const :( */
    * which describes the combination as a "sum".
    */
   return row.Metric + interfaceMetric;
+#endif /* __WATCOMC__ */
 }
 
 /*
- * get_DNS_AdaptersAddresses()
+ * get_DNS_Windows()
  *
  * Locates DNS info using GetAdaptersAddresses() function from the Internet
  * Protocol Helper (IP Helper) API. When located, this returns a pointer
@@ -1082,7 +836,7 @@ static ULONG getBestRouteMetric(IF_LUID * const luid, /* Can't be const :( */
  */
 #define IPAA_INITIAL_BUF_SZ 15 * 1024
 #define IPAA_MAX_TRIES 3
-static int get_DNS_AdaptersAddresses(char **outptr)
+static int get_DNS_Windows(char **outptr)
 {
   IP_ADAPTER_DNS_SERVER_ADDRESS *ipaDNSAddr;
   IP_ADAPTER_ADDRESSES *ipaa, *newipaa, *ipaaEntry;
@@ -1107,10 +861,6 @@ static int get_DNS_AdaptersAddresses(char **outptr)
 
   *outptr = NULL;
 
-  /* Verify run-time availability of GetAdaptersAddresses() */
-  if (ares_fpGetAdaptersAddresses == ZERO_NULL)
-    return 0;
-
   ipaa = ares_malloc(Bufsz);
   if (!ipaa)
     return 0;
@@ -1127,8 +877,7 @@ static int get_DNS_AdaptersAddresses(char **outptr)
   }
 
   /* Usually this call suceeds with initial buffer size */
-  res = (*ares_fpGetAdaptersAddresses) (AF_UNSPEC, AddrFlags, NULL,
-                                        ipaa, &ReqBufsz);
+  res = GetAdaptersAddresses(AF_UNSPEC, AddrFlags, NULL, ipaa, &ReqBufsz);
   if ((res != ERROR_BUFFER_OVERFLOW) && (res != ERROR_SUCCESS))
     goto done;
 
@@ -1142,8 +891,7 @@ static int get_DNS_AdaptersAddresses(char **outptr)
       Bufsz = ReqBufsz;
       ipaa = newipaa;
     }
-    res = (*ares_fpGetAdaptersAddresses) (AF_UNSPEC, AddrFlags, NULL,
-                                          ipaa, &ReqBufsz);
+    res = GetAdaptersAddresses(AF_UNSPEC, AddrFlags, NULL, ipaa, &ReqBufsz);
     if (res == ERROR_SUCCESS)
       break;
   }
@@ -1165,6 +913,7 @@ static int get_DNS_AdaptersAddresses(char **outptr)
          ipaDNSAddr;
          ipaDNSAddr = ipaDNSAddr->Next)
     {
+      char ipaddr[INET6_ADDRSTRLEN] = "";
       namesrvr.sa = ipaDNSAddr->Address.lpSockaddr;
 
       if (namesrvr.sa->sa_family == AF_INET)
@@ -1185,28 +934,23 @@ static int get_DNS_AdaptersAddresses(char **outptr)
           addressesSize = newSize;
         }
 
-        /* Vista required for Luid or Ipv4Metric */
-        if (ares_IsWindowsVistaOrGreater())
-        {
-          /* Save the address as the next element in addresses. */
-          addresses[addressesIndex].metric =
-            getBestRouteMetric(&ipaaEntry->Luid,
-                               (SOCKADDR_INET*)(namesrvr.sa),
-                               ipaaEntry->Ipv4Metric);
-        }
-        else
-        {
-          addresses[addressesIndex].metric = (ULONG)-1;
-        }
+        addresses[addressesIndex].metric =
+          getBestRouteMetric(&ipaaEntry->Luid,
+                             (SOCKADDR_INET*)(namesrvr.sa),
+                             ipaaEntry->Ipv4Metric);
 
         /* Record insertion index to make qsort stable */
         addresses[addressesIndex].orig_idx = addressesIndex;
 
-        if (! ares_inet_ntop(AF_INET, &namesrvr.sa4->sin_addr,
-                             addresses[addressesIndex].text,
-                             sizeof(addresses[0].text))) {
+        if (!ares_inet_ntop(AF_INET, &namesrvr.sa4->sin_addr,
+                            ipaddr, sizeof(ipaddr))) {
           continue;
         }
+        snprintf(addresses[addressesIndex].text,
+                 sizeof(addresses[addressesIndex].text),
+                 "[%s]:%u",
+                 ipaddr,
+                 ntohs(namesrvr.sa4->sin_port));
         ++addressesIndex;
       }
       else if (namesrvr.sa->sa_family == AF_INET6)
@@ -1227,28 +971,23 @@ static int get_DNS_AdaptersAddresses(char **outptr)
           addressesSize = newSize;
         }
 
-        /* Vista required for Luid or Ipv4Metric */
-        if (ares_IsWindowsVistaOrGreater())
-        {
-          /* Save the address as the next element in addresses. */
-          addresses[addressesIndex].metric =
-            getBestRouteMetric(&ipaaEntry->Luid,
-                               (SOCKADDR_INET*)(namesrvr.sa),
-                               ipaaEntry->Ipv6Metric);
-        }
-        else
-        {
-          addresses[addressesIndex].metric = (ULONG)-1;
-        }
+        addresses[addressesIndex].metric =
+          getBestRouteMetric(&ipaaEntry->Luid,
+                             (SOCKADDR_INET*)(namesrvr.sa),
+                             ipaaEntry->Ipv6Metric);
 
         /* Record insertion index to make qsort stable */
         addresses[addressesIndex].orig_idx = addressesIndex;
 
-        if (! ares_inet_ntop(AF_INET6, &namesrvr.sa6->sin6_addr,
-                             addresses[addressesIndex].text,
-                             sizeof(addresses[0].text))) {
+        if (!ares_inet_ntop(AF_INET6, &namesrvr.sa6->sin6_addr,
+                            ipaddr, sizeof(ipaddr))) {
           continue;
         }
+        snprintf(addresses[addressesIndex].text,
+                 sizeof(addresses[addressesIndex].text),
+                 "[%s]:%u",
+                 ipaddr,
+                 ntohs(namesrvr.sa6->sin6_port));
         ++addressesIndex;
       }
       else {
@@ -1292,35 +1031,6 @@ done:
   }
 
   return 1;
-}
-
-/*
- * get_DNS_Windows()
- *
- * Locates DNS info from Windows employing most suitable methods available at
- * run-time no matter which Windows version it is. When located, this returns
- * a pointer in *outptr to a newly allocated memory area holding a string with
- * a space or comma seperated list of DNS IP addresses, null-terminated.
- *
- * Returns 0 and nullifies *outptr upon inability to return DNSes string.
- *
- * Returns 1 and sets *outptr when returning a dynamically allocated string.
- *
- * Implementation supports Windows 95 and newer.
- */
-static int get_DNS_Windows(char **outptr)
-{
-  /* Try using IP helper API GetAdaptersAddresses(). IPv4 + IPv6, also sorts
-   * DNS servers by interface route metrics to try to use the best DNS server. */
-  if (get_DNS_AdaptersAddresses(outptr))
-    return 1;
-
-  /* Try using IP helper API GetNetworkParams(). IPv4 only. */
-  if (get_DNS_NetworkParams(outptr))
-    return 1;
-
-  /* Fall-back to registry information */
-  return get_DNS_Registry(outptr);
 }
 
 /*
@@ -1491,11 +1201,11 @@ static int init_by_resolv_conf(ares_channel channel)
   }
 
   nservers = count4 + count6;
-  servers = ares_malloc(nservers * sizeof(struct server_state));
+  servers = ares_malloc(nservers * sizeof(*servers));
   if (!servers)
     return ARES_ENOMEM;
 
-  memset(servers, 0, nservers * sizeof(struct server_state));
+  memset(servers, 0, nservers * sizeof(*servers));
 
   pserver = servers;
   for (int i = 0; i < count4; ++i, ++pserver) {
@@ -1557,10 +1267,10 @@ static int init_by_resolv_conf(ares_channel channel)
     return ARES_SUCCESS; /* use localhost DNS server */
 
   nservers = i;
-  servers = ares_malloc(sizeof(struct server_state));
+  servers = ares_malloc(sizeof(*servers));
   if (!servers)
      return ARES_ENOMEM;
-  memset(servers, 0, sizeof(struct server_state));
+  memset(servers, 0, sizeof(*servers));
 
   for (i = 0; def_nameservers[i]; i++)
   {
@@ -1633,8 +1343,9 @@ static int init_by_resolv_conf(ares_channel channel)
 #  endif /* HAVE___SYSTEM_PROPERTY_GET */
 #elif defined(CARES_USE_LIBRESOLV)
   struct __res_state res;
+  int                result;
   memset(&res, 0, sizeof(res));
-  int result = res_ninit(&res);
+  result = res_ninit(&res);
   if (result == 0 && (res.options & RES_INIT)) {
     status = ARES_EOF;
 
@@ -1643,18 +1354,28 @@ static int init_by_resolv_conf(ares_channel channel)
       int nscount = res_getservers(&res, addr, MAXNS);
       int i;
       for (i = 0; i < nscount; ++i) {
-        char str[INET6_ADDRSTRLEN];
+        char ipaddr[INET6_ADDRSTRLEN] = "";
+        char ipaddr_port[INET6_ADDRSTRLEN + 8]; /* [%s]:NNNNN */
+        unsigned short port = 0;
         int config_status;
         sa_family_t family = addr[i].sin.sin_family;
         if (family == AF_INET) {
-          ares_inet_ntop(family, &addr[i].sin.sin_addr, str, sizeof(str));
+          ares_inet_ntop(family, &addr[i].sin.sin_addr, ipaddr, sizeof(ipaddr));
+          port = ntohs(addr[i].sin.sin_port);
         } else if (family == AF_INET6) {
-          ares_inet_ntop(family, &addr[i].sin6.sin6_addr, str, sizeof(str));
+          ares_inet_ntop(family, &addr[i].sin6.sin6_addr, ipaddr, sizeof(ipaddr));
+          port = ntohs(addr[i].sin6.sin6_port);
         } else {
           continue;
         }
 
-        config_status = config_nameserver(&servers, &nservers, str);
+        if (port) {
+          snprintf(ipaddr_port, sizeof(ipaddr_port), "[%s]:%u", ipaddr, port);
+        } else {
+          snprintf(ipaddr_port, sizeof(ipaddr_port), "%s", ipaddr);
+        }
+
+        config_status = config_nameserver(&servers, &nservers, ipaddr_port);
         if (config_status != ARES_SUCCESS) {
           status = config_status;
           break;
@@ -1686,8 +1407,12 @@ static int init_by_resolv_conf(ares_channel channel)
       channel->tries = res.retry;
     if (channel->rotate == -1)
       channel->rotate = res.options & RES_ROTATE;
-    if (channel->timeout == -1)
+    if (channel->timeout == -1) {
       channel->timeout = res.retrans * 1000;
+#ifdef __APPLE__
+      channel->timeout /= (res.retry + 1) * (res.nscount > 0 ? res.nscount : 1);
+#endif
+    }
 
     res_ndestroy(&res);
   }
@@ -1906,11 +1631,12 @@ static int init_by_defaults(ares_channel channel)
 
   if (channel->nservers == -1) {
     /* If nobody specified servers, try a local named. */
-    channel->servers = ares_malloc(sizeof(struct server_state));
+    channel->servers = ares_malloc(sizeof(*channel->servers));
     if (!channel->servers) {
       rc = ARES_ENOMEM;
       goto error;
     }
+    memset(channel->servers, 0, sizeof(*channel->servers));
     channel->servers[0].addr.family = AF_INET;
     channel->servers[0].addr.addrV4.s_addr = htonl(INADDR_LOOPBACK);
     channel->servers[0].addr.udp_port = 0;
@@ -2004,6 +1730,7 @@ static int init_by_defaults(ares_channel channel)
       ares_free(channel->servers);
       channel->servers = NULL;
     }
+    channel->nservers = 0;
 
     if(channel->domains && channel->domains[0])
       ares_free(channel->domains[0]);
@@ -2020,6 +1747,11 @@ static int init_by_defaults(ares_channel channel)
     if(channel->resolvconf_path) {
       ares_free(channel->resolvconf_path);
       channel->resolvconf_path = NULL;
+    }
+
+    if(channel->hosts_path) {
+      ares_free(channel->hosts_path);
+      channel->hosts_path = NULL;
     }
   }
 
@@ -2152,8 +1884,112 @@ static int ares_ipv6_server_blacklisted(const unsigned char ipaddr[16])
   return 0;
 }
 
-/* Add the IPv4 or IPv6 nameservers in str (separated by commas) to the
- * servers list, updating servers and nservers as required.
+/* Parse address and port in these formats, either ipv4 or ipv6 addresses
+ * are allowed:
+ *   ipaddr
+ *   [ipaddr]
+ *   [ipaddr]:port
+ *
+ * If a port is not specified, will set port to 0.
+ *
+ * Will fail if an IPv6 nameserver as detected by
+ * ares_ipv6_server_blacklisted()
+ *
+ * Returns an error code on failure, else ARES_SUCCESS
+ */
+static int parse_dnsaddrport(const char *str, size_t len,
+                             struct ares_addr *host, unsigned short *port)
+{
+  char ipaddr[INET6_ADDRSTRLEN] = "";
+  char ipport[6] = "";
+  size_t mylen;
+  const char *addr_start = NULL;
+  const char *addr_end   = NULL;
+  const char *port_start = NULL;
+  const char *port_end   = NULL;
+
+  /* Must start with [, hex digit or : */
+  if (len == 0 || (*str != '[' && !isxdigit(*str) && *str != ':')) {
+    return ARES_EBADSTR;
+  }
+
+  /* If it starts with a bracket, must end with a bracket */
+  if (*str == '[') {
+    const char *ptr;
+    addr_start = str+1;
+    ptr        = memchr(addr_start, ']', len-1);
+    if (ptr == NULL) {
+      return ARES_EBADSTR;
+    }
+    addr_end = ptr-1;
+
+    /* Try to pull off port */
+    if ((size_t)(ptr - str) < len) {
+      ptr++;
+      if (*ptr != ':') {
+        return ARES_EBADSTR;
+      }
+
+      /* Missing port number */
+      if ((size_t)(ptr - str) == len) {
+        return ARES_EBADSTR;
+      }
+
+      port_start = ptr+1;
+      port_end   = str+(len-1);
+    }
+  } else {
+    addr_start = str;
+    addr_end   = str+(len-1);
+  }
+
+  mylen = (addr_end-addr_start)+1;
+  /* Larger than buffer with null term */
+  if (mylen+1 > sizeof(ipaddr)) {
+    return ARES_EBADSTR;
+  }
+
+  memset(ipaddr, 0, sizeof(ipaddr));
+  memcpy(ipaddr, addr_start, mylen);
+
+  if (port_start) {
+    mylen = (port_end-port_start)+1;
+    /* Larger than buffer with null term */
+    if (mylen+1 > sizeof(ipport)) {
+      return ARES_EBADSTR;
+    }
+    memset(ipport, 0, sizeof(ipport));
+    memcpy(ipport, port_start, mylen);
+  } else {
+    snprintf(ipport, sizeof(ipport), "0");
+  }
+
+  /* Convert textual address to binary format. */
+  if (ares_inet_pton(AF_INET, ipaddr, &host->addrV4) == 1) {
+    host->family = AF_INET;
+  } else if (ares_inet_pton(AF_INET6, ipaddr, &host->addrV6) == 1
+           /* Silently skip blacklisted IPv6 servers. */
+           && !ares_ipv6_server_blacklisted(
+                 (const unsigned char *)&host->addrV6)) {
+    host->family = AF_INET6;
+  } else {
+    return ARES_EBADSTR;
+  }
+
+  *port = (unsigned short)atoi(ipport);
+  return ARES_SUCCESS;
+}
+
+/* Add the IPv4 or IPv6 nameservers in str (separated by commas or spaces) to
+ * the servers list, updating servers and nservers as required.
+ *
+ * If a nameserver is encapsulated in [ ] it may optionally include a port
+ * suffix, e.g.:
+ *    [127.0.0.1]:59591
+ *
+ * The extended format is required to support OpenBSD's resolv.conf format:
+ *   https://man.openbsd.org/OpenBSD-5.1/resolv.conf.5
+ * As well as MacOS libresolv that may include a non-default port number.
  *
  * This will silently ignore blacklisted IPv6 nameservers as detected by
  * ares_ipv6_server_blacklisted().
@@ -2161,16 +1997,18 @@ static int ares_ipv6_server_blacklisted(const unsigned char ipaddr[16])
  * Returns an error code on failure, else ARES_SUCCESS.
  */
 static int config_nameserver(struct server_state **servers, int *nservers,
-                             char *str)
+                             const char *str)
 {
   struct ares_addr host;
   struct server_state *newserv;
-  char *p, *txtaddr;
+  const char *p, *txtaddr;
   /* On Windows, there may be more than one nameserver specified in the same
    * registry key, so we parse input as a space or comma seperated list.
    */
   for (p = str; p;)
     {
+      unsigned short port;
+
       /* Skip whitespace and commas. */
       while (*p && (ISSPACE(*p) || (*p == ',')))
         p++;
@@ -2184,34 +2022,24 @@ static int config_nameserver(struct server_state **servers, int *nservers,
       /* Advance past this address. */
       while (*p && !ISSPACE(*p) && (*p != ','))
         p++;
-      if (*p)
-        /* Null terminate this address. */
-        *p++ = '\0';
-      else
-        /* Reached end of input, done when this address is processed. */
-        p = NULL;
 
-      /* Convert textual address to binary format. */
-      if (ares_inet_pton(AF_INET, txtaddr, &host.addrV4) == 1)
-        host.family = AF_INET;
-      else if (ares_inet_pton(AF_INET6, txtaddr, &host.addrV6) == 1
-               /* Silently skip blacklisted IPv6 servers. */
-               && !ares_ipv6_server_blacklisted(
-                    (const unsigned char *)&host.addrV6))
-        host.family = AF_INET6;
-      else
+      if (parse_dnsaddrport(txtaddr, p-txtaddr, &host, &port) !=
+          ARES_SUCCESS) {
         continue;
+      }
 
       /* Resize servers state array. */
       newserv = ares_realloc(*servers, (*nservers + 1) *
-                             sizeof(struct server_state));
+                             sizeof(*newserv));
       if (!newserv)
         return ARES_ENOMEM;
 
+      memset(((unsigned char *)newserv) + ((*nservers) * sizeof(*newserv)), 0, sizeof(*newserv));
+
       /* Store address data. */
       newserv[*nservers].addr.family = host.family;
-      newserv[*nservers].addr.udp_port = 0;
-      newserv[*nservers].addr.tcp_port = 0;
+      newserv[*nservers].addr.udp_port = htons(port);
+      newserv[*nservers].addr.tcp_port = htons(port);
       if (host.family == AF_INET)
         memcpy(&newserv[*nservers].addr.addrV4, &host.addrV4,
                sizeof(host.addrV4));
@@ -2243,6 +2071,8 @@ static int config_sortlist(struct apattern **sortlist, int *nsort,
       q = str;
       while (*q && *q != '/' && *q != ';' && !ISSPACE(*q))
         q++;
+      if (q-str >= 16)
+        return ARES_EBADSTR;
       memcpy(ipbuf, str, q-str);
       ipbuf[q-str] = '\0';
       /* Find the prefix */
@@ -2251,6 +2081,8 @@ static int config_sortlist(struct apattern **sortlist, int *nsort,
           const char *str2 = q+1;
           while (*q && *q != ';' && !ISSPACE(*q))
             q++;
+          if (q-str >= 32)
+            return ARES_EBADSTR;
           memcpy(ipbufpfx, str, q-str);
           ipbufpfx[q-str] = '\0';
           str = str2;
@@ -2325,12 +2157,12 @@ static int set_search(ares_channel channel, const char *str)
   if(channel->ndomains != -1) {
     /* LCOV_EXCL_START: all callers check ndomains == -1 */
     /* if we already have some domains present, free them first */
-    ares_strsplit_free(channel->domains, channel->ndomains);
+    ares__strsplit_free(channel->domains, channel->ndomains);
     channel->domains = NULL;
     channel->ndomains = -1;
   } /* LCOV_EXCL_STOP */
 
-  channel->domains  = ares_strsplit(str, ", ", 1, &cnt);
+  channel->domains  = ares__strsplit(str, ", ", &cnt);
   channel->ndomains = (int)cnt;
   if (channel->domains == NULL || channel->ndomains == 0) {
     channel->domains  = NULL;
@@ -2495,75 +2327,6 @@ static int sortlist_alloc(struct apattern **sortlist, int *nsort,
   return 1;
 }
 
-/* initialize an rc4 key. If possible a cryptographically secure random key
-   is generated using a suitable function (for example win32's RtlGenRandom as
-   described in
-   http://blogs.msdn.com/michael_howard/archive/2005/01/14/353379.aspx
-   otherwise the code defaults to cross-platform albeit less secure mechanism
-   using rand
-*/
-static void randomize_key(unsigned char* key,int key_data_len)
-{
-  int randomized = 0;
-  int counter=0;
-#ifdef WIN32
-  BOOLEAN res;
-  if (ares_fpSystemFunction036)
-    {
-      res = (*ares_fpSystemFunction036) (key, key_data_len);
-      if (res)
-        randomized = 1;
-    }
-#else /* !WIN32 */
-#ifdef CARES_RANDOM_FILE
-  FILE *f = fopen(CARES_RANDOM_FILE, "rb");
-  if(f) {
-    setvbuf(f, NULL, _IONBF, 0);
-    counter = aresx_uztosi(fread(key, 1, key_data_len, f));
-    fclose(f);
-  }
-#endif
-#endif /* WIN32 */
-
-  if (!randomized) {
-    for (;counter<key_data_len;counter++)
-      key[counter]=(unsigned char)(rand() % 256);  /* LCOV_EXCL_LINE */
-  }
-}
-
-static int init_id_key(rc4_key* key,int key_data_len)
-{
-  unsigned char index1;
-  unsigned char index2;
-  unsigned char* state;
-  short counter;
-  unsigned char *key_data_ptr = 0;
-
-  key_data_ptr = ares_malloc(key_data_len);
-  if (!key_data_ptr)
-    return ARES_ENOMEM;
-  memset(key_data_ptr, 0, key_data_len);
-
-  state = &key->state[0];
-  for(counter = 0; counter < 256; counter++)
-    /* unnecessary AND but it keeps some compilers happier */
-    state[counter] = (unsigned char)(counter & 0xff);
-  randomize_key(key->state,key_data_len);
-  key->x = 0;
-  key->y = 0;
-  index1 = 0;
-  index2 = 0;
-  for(counter = 0; counter < 256; counter++)
-  {
-    index2 = (unsigned char)((key_data_ptr[index1] + state[counter] +
-                              index2) % 256);
-    ARES_SWAP_BYTE(&state[counter], &state[index2]);
-
-    index1 = (unsigned char)((index1 + 1) % key_data_len);
-  }
-  ares_free(key_data_ptr);
-  return ARES_SUCCESS;
-}
 
 void ares_set_local_ip4(ares_channel channel, unsigned int local_ip)
 {
@@ -2630,25 +2393,36 @@ int ares_set_sortlist(ares_channel channel, const char *sortstr)
   return status;
 }
 
-void ares__init_servers_state(ares_channel channel)
+int ares__init_servers_state(ares_channel channel)
 {
   struct server_state *server;
   int i;
 
-  for (i = 0; i < channel->nservers; i++)
-    {
-      server = &channel->servers[i];
-      server->udp_socket = ARES_SOCKET_BAD;
-      server->tcp_socket = ARES_SOCKET_BAD;
-      server->tcp_connection_generation = ++channel->tcp_connection_generation;
-      server->tcp_lenbuf_pos = 0;
-      server->tcp_buffer_pos = 0;
-      server->tcp_buffer = NULL;
-      server->tcp_length = 0;
-      server->qhead = NULL;
-      server->qtail = NULL;
-      ares__init_list_head(&server->queries_to_server);
-      server->channel = channel;
-      server->is_broken = 0;
+  for (i = 0; i < channel->nservers; i++) {
+    server = &channel->servers[i];
+
+    /* NOTE: Can't use memset() here because the server addresses have been
+     *       filled in already */
+    server->tcp_parser = ares__buf_create();
+    if (server->tcp_parser == NULL)
+      return ARES_ENOMEM;
+
+    server->tcp_send = ares__buf_create();
+    if (server->tcp_send == NULL) {
+      ares__buf_destroy(server->tcp_parser);
+      return ARES_ENOMEM;
     }
+
+    server->idx = i;
+    server->connections = ares__llist_create(NULL);
+    if (server->connections == NULL) {
+      ares__buf_destroy(server->tcp_parser);
+      ares__buf_destroy(server->tcp_send);
+      return ARES_ENOMEM;
+    }
+
+    server->tcp_connection_generation = ++channel->tcp_connection_generation;
+    server->channel = channel;
+  }
+  return ARES_SUCCESS;
 }

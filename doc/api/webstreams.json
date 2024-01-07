@@ -203,7 +203,7 @@
                   "desc": "<p>Connects this <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> to the pair of <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> and\n<a href=\"webstreams.html#class-writablestream\" class=\"type\">&lt;WritableStream&gt;</a> provided in the <code>transform</code> argument such that the\ndata from this <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> is written in to <code>transform.writable</code>,\npossibly transformed, then pushed to <code>transform.readable</code>. Once the\npipeline is configured, <code>transform.readable</code> is returned.</p>\n<p>Causes the <code>readableStream.locked</code> to be <code>true</code> while the pipe operation\nis active.</p>\n<pre><code class=\"language-mjs\">import {\n  ReadableStream,\n  TransformStream,\n} from 'node:stream/web';\n\nconst stream = new ReadableStream({\n  start(controller) {\n    controller.enqueue('a');\n  },\n});\n\nconst transform = new TransformStream({\n  transform(chunk, controller) {\n    controller.enqueue(chunk.toUpperCase());\n  },\n});\n\nconst transformedStream = stream.pipeThrough(transform);\n\nfor await (const chunk of transformedStream)\n  console.log(chunk);\n</code></pre>\n<pre><code class=\"language-cjs\">const {\n  ReadableStream,\n  TransformStream,\n} = require('node:stream/web');\n\nconst stream = new ReadableStream({\n  start(controller) {\n    controller.enqueue('a');\n  },\n});\n\nconst transform = new TransformStream({\n  transform(chunk, controller) {\n    controller.enqueue(chunk.toUpperCase());\n  },\n});\n\nconst transformedStream = stream.pipeThrough(transform);\n\n(async () => {\n  for await (const chunk of transformedStream)\n    console.log(chunk);\n})();\n</code></pre>"
                 },
                 {
-                  "textRaw": "`readableStream.pipeTo(destination, options)`",
+                  "textRaw": "`readableStream.pipeTo(destination[, options])`",
                   "type": "method",
                   "name": "pipeTo",
                   "meta": {
@@ -341,7 +341,7 @@
               "signatures": [
                 {
                   "params": [],
-                  "desc": "<!--lint disable maximum-line-length remark-lint-->\n<ul>\n<li><code>underlyingSource</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object\" class=\"type\">&lt;Object&gt;</a>\n<ul>\n<li><code>start</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function\" class=\"type\">&lt;Function&gt;</a> A user-defined function that is invoked immediately when\nthe <code>ReadableStream</code> is created.\n<ul>\n<li><code>controller</code> <a href=\"webstreams.html#class-readablestreamdefaultcontroller\" class=\"type\">&lt;ReadableStreamDefaultController&gt;</a> | <a href=\"webstreams.html#class-readablebytestreamcontroller\" class=\"type\">&lt;ReadableByteStreamController&gt;</a></li>\n<li>Returns: <code>undefined</code> or a promise fulfilled with <code>undefined</code>.</li>\n</ul>\n</li>\n<li><code>pull</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function\" class=\"type\">&lt;Function&gt;</a> A user-defined function that is called repeatedly when the\n<code>ReadableStream</code> internal queue is not full. The operation may be sync or\nasync. If async, the function will not be called again until the previously\nreturned promise is fulfilled.\n<ul>\n<li><code>controller</code> <a href=\"webstreams.html#class-readablestreamdefaultcontroller\" class=\"type\">&lt;ReadableStreamDefaultController&gt;</a> | <a href=\"webstreams.html#class-readablebytestreamcontroller\" class=\"type\">&lt;ReadableByteStreamController&gt;</a></li>\n<li>Returns: A promise fulfilled with <code>undefined</code>.</li>\n</ul>\n</li>\n<li><code>cancel</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function\" class=\"type\">&lt;Function&gt;</a> A user-defined function that is called when the\n<code>ReadableStream</code> is canceled.\n<ul>\n<li><code>reason</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types\" class=\"type\">&lt;any&gt;</a></li>\n<li>Returns: A promise fulfilled with <code>undefined</code>.</li>\n</ul>\n</li>\n<li><code>type</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> Must be <code>'bytes'</code> or <code>undefined</code>.</li>\n<li><code>autoAllocateChunkSize</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> Used only when <code>type</code> is equal to\n<code>'bytes'</code>.</li>\n</ul>\n</li>\n<li><code>strategy</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object\" class=\"type\">&lt;Object&gt;</a>\n<ul>\n<li><code>highWaterMark</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> The maximum internal queue size before backpressure\nis applied.</li>\n<li><code>size</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function\" class=\"type\">&lt;Function&gt;</a> A user-defined function used to identify the size of each\nchunk of data.\n<ul>\n<li><code>chunk</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types\" class=\"type\">&lt;any&gt;</a></li>\n<li>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a></li>\n</ul>\n</li>\n</ul>\n</li>\n</ul>\n<!--lint enable maximum-line-length remark-lint-->"
+                  "desc": "<!--lint disable maximum-line-length remark-lint-->\n<ul>\n<li><code>underlyingSource</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object\" class=\"type\">&lt;Object&gt;</a>\n<ul>\n<li><code>start</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function\" class=\"type\">&lt;Function&gt;</a> A user-defined function that is invoked immediately when\nthe <code>ReadableStream</code> is created.\n<ul>\n<li><code>controller</code> <a href=\"webstreams.html#class-readablestreamdefaultcontroller\" class=\"type\">&lt;ReadableStreamDefaultController&gt;</a> | <a href=\"webstreams.html#class-readablebytestreamcontroller\" class=\"type\">&lt;ReadableByteStreamController&gt;</a></li>\n<li>Returns: <code>undefined</code> or a promise fulfilled with <code>undefined</code>.</li>\n</ul>\n</li>\n<li><code>pull</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function\" class=\"type\">&lt;Function&gt;</a> A user-defined function that is called repeatedly when the\n<code>ReadableStream</code> internal queue is not full. The operation may be sync or\nasync. If async, the function will not be called again until the previously\nreturned promise is fulfilled.\n<ul>\n<li><code>controller</code> <a href=\"webstreams.html#class-readablestreamdefaultcontroller\" class=\"type\">&lt;ReadableStreamDefaultController&gt;</a> | <a href=\"webstreams.html#class-readablebytestreamcontroller\" class=\"type\">&lt;ReadableByteStreamController&gt;</a></li>\n<li>Returns: A promise fulfilled with <code>undefined</code>.</li>\n</ul>\n</li>\n<li><code>cancel</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function\" class=\"type\">&lt;Function&gt;</a> A user-defined function that is called when the\n<code>ReadableStream</code> is canceled.\n<ul>\n<li><code>reason</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types\" class=\"type\">&lt;any&gt;</a></li>\n<li>Returns: A promise fulfilled with <code>undefined</code>.</li>\n</ul>\n</li>\n<li><code>type</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> Must be <code>'bytes'</code> or <code>undefined</code>.</li>\n<li><code>autoAllocateChunkSize</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> Used only when <code>type</code> is equal to\n<code>'bytes'</code>. When set to a non-zero value a view buffer is automatically\nallocated to <code>ReadableByteStreamController.byobRequest</code>. When not set\none must use stream's internal queues to transfer data via the default\nreader <code>ReadableStreamDefaultReader</code>.</li>\n</ul>\n</li>\n<li><code>strategy</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object\" class=\"type\">&lt;Object&gt;</a>\n<ul>\n<li><code>highWaterMark</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> The maximum internal queue size before backpressure\nis applied.</li>\n<li><code>size</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function\" class=\"type\">&lt;Function&gt;</a> A user-defined function used to identify the size of each\nchunk of data.\n<ul>\n<li><code>chunk</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types\" class=\"type\">&lt;any&gt;</a></li>\n<li>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a></li>\n</ul>\n</li>\n</ul>\n</li>\n</ul>\n<!--lint enable maximum-line-length remark-lint-->"
                 }
               ]
             },
@@ -631,7 +631,7 @@
                   "desc": "<p>Closes the <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> to which this controller is associated.</p>"
                 },
                 {
-                  "textRaw": "`readableStreamDefaultController.enqueue(chunk)`",
+                  "textRaw": "`readableStreamDefaultController.enqueue([chunk])`",
                   "type": "method",
                   "name": "enqueue",
                   "meta": {
@@ -654,7 +654,7 @@
                   "desc": "<p>Appends a new chunk of data to the <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a>'s queue.</p>"
                 },
                 {
-                  "textRaw": "`readableStreamDefaultController.error(error)`",
+                  "textRaw": "`readableStreamDefaultController.error([error])`",
                   "type": "method",
                   "name": "error",
                   "meta": {
@@ -777,7 +777,7 @@
                   "desc": "<p>Appends a new chunk of data to the <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a>'s queue.</p>"
                 },
                 {
-                  "textRaw": "`readableByteStreamController.error(error)`",
+                  "textRaw": "`readableByteStreamController.error([error])`",
                   "type": "method",
                   "name": "error",
                   "meta": {
@@ -968,7 +968,7 @@
                       "params": []
                     }
                   ],
-                  "desc": "<p>Creates and creates a new writer instance that can be used to write\ndata into the <code>WritableStream</code>.</p>"
+                  "desc": "<p>Creates and returns a new writer instance that can be used to write\ndata into the <code>WritableStream</code>.</p>"
                 }
               ],
               "properties": [
@@ -1256,15 +1256,16 @@
                   "desc": "<p>The amount of data required to fill the <a href=\"webstreams.html#class-writablestream\" class=\"type\">&lt;WritableStream&gt;</a>'s queue.</p>"
                 },
                 {
-                  "textRaw": "`ready` type: A promise that is fulfilled with `undefined` when the writer is ready to be used.",
-                  "name": "type",
+                  "textRaw": "`ready` Type: {Promise} Fulfilled with `undefined` when the writer is ready to be used.",
+                  "type": "Promise",
+                  "name": "Type",
                   "meta": {
                     "added": [
                       "v16.5.0"
                     ],
                     "changes": []
                   },
-                  "desc": "A promise that is fulfilled with `undefined` when the writer is ready to be used."
+                  "desc": "Fulfilled with `undefined` when the writer is ready to be used."
                 }
               ],
               "signatures": [
@@ -1299,7 +1300,7 @@
               "desc": "<p>The <code>WritableStreamDefaultController</code> manage's the <a href=\"webstreams.html#class-writablestream\" class=\"type\">&lt;WritableStream&gt;</a>'s\ninternal state.</p>",
               "methods": [
                 {
-                  "textRaw": "`writableStreamDefaultController.error(error)`",
+                  "textRaw": "`writableStreamDefaultController.error([error])`",
                   "type": "method",
                   "name": "error",
                   "meta": {
@@ -1681,8 +1682,8 @@
                 {
                   "params": [
                     {
-                      "textRaw": "`options` {Object}",
-                      "name": "options",
+                      "textRaw": "`init` {Object}",
+                      "name": "init",
                       "type": "Object",
                       "options": [
                         {
@@ -1752,8 +1753,8 @@
                 {
                   "params": [
                     {
-                      "textRaw": "`options` {Object}",
-                      "name": "options",
+                      "textRaw": "`init` {Object}",
+                      "name": "init",
                       "type": "Object",
                       "options": [
                         {
@@ -2083,7 +2084,7 @@
                       ]
                     }
                   ],
-                  "desc": "<pre><code class=\"language-mjs\">import { buffer as arrayBuffer } from 'node:stream/consumers';\nimport { Readable } from 'node:stream';\nimport { TextEncoder } from 'node:util';\n\nconst encoder = new TextEncoder();\nconst dataArray = encoder.encode('hello world from consumers!');\n\nconst readable = Readable.from(dataArray);\nconst data = await arrayBuffer(readable);\nconsole.log(`from readable: ${data.byteLength}`);\n</code></pre>\n<pre><code class=\"language-cjs\">const { arrayBuffer } = require('node:stream/consumers');\nconst { Readable } = require('node:stream');\nconst { TextEncoder } = require('node:util');\n\nconst encoder = new TextEncoder();\nconst dataArray = encoder.encode(['hello world from consumers!']);\nconst readable = Readable.from(dataArray);\narrayBuffer(readable).then((data) => {\n  console.log(`from readable: ${data.byteLength}`);\n});\n</code></pre>"
+                  "desc": "<pre><code class=\"language-mjs\">import { arrayBuffer } from 'node:stream/consumers';\nimport { Readable } from 'node:stream';\nimport { TextEncoder } from 'node:util';\n\nconst encoder = new TextEncoder();\nconst dataArray = encoder.encode('hello world from consumers!');\n\nconst readable = Readable.from(dataArray);\nconst data = await arrayBuffer(readable);\nconsole.log(`from readable: ${data.byteLength}`);\n</code></pre>\n<pre><code class=\"language-cjs\">const { arrayBuffer } = require('node:stream/consumers');\nconst { Readable } = require('node:stream');\nconst { TextEncoder } = require('node:util');\n\nconst encoder = new TextEncoder();\nconst dataArray = encoder.encode('hello world from consumers!');\nconst readable = Readable.from(dataArray);\narrayBuffer(readable).then((data) => {\n  console.log(`from readable: ${data.byteLength}`);\n});\n</code></pre>"
                 },
                 {
                   "textRaw": "`streamConsumers.blob(stream)`",
@@ -2199,7 +2200,7 @@
                       ]
                     }
                   ],
-                  "desc": "<pre><code class=\"language-mjs\">import { json, text, blob, buffer } from 'node:stream/consumers';\nimport { Readable } from 'node:stream';\n\nconst readable = Readable.from('Hello world from consumers!');\nconst data = await text(readable);\nconsole.log(`from readable: ${data.length}`);\n</code></pre>\n<pre><code class=\"language-cjs\">const { text } = require('node:stream/consumers');\nconst { Readable } = require('node:stream');\n\nconst readable = Readable.from('Hello world from consumers!');\ntext(readable).then((data) => {\n  console.log(`from readable: ${data.length}`);\n});\n</code></pre>"
+                  "desc": "<pre><code class=\"language-mjs\">import { text } from 'node:stream/consumers';\nimport { Readable } from 'node:stream';\n\nconst readable = Readable.from('Hello world from consumers!');\nconst data = await text(readable);\nconsole.log(`from readable: ${data.length}`);\n</code></pre>\n<pre><code class=\"language-cjs\">const { text } = require('node:stream/consumers');\nconst { Readable } = require('node:stream');\n\nconst readable = Readable.from('Hello world from consumers!');\ntext(readable).then((data) => {\n  console.log(`from readable: ${data.length}`);\n});\n</code></pre>"
                 }
               ],
               "type": "module",

@@ -1,5 +1,5 @@
 #include "node_perf.h"
-#include "aliased_buffer.h"
+#include "aliased_buffer-inl.h"
 #include "env-inl.h"
 #include "histogram-inl.h"
 #include "memory_tracker-inl.h"
@@ -215,18 +215,6 @@ static void RemoveGarbageCollectionTracking(
   GarbageCollectionCleanupHook(env);
 }
 
-// Gets the name of a function
-inline Local<Value> GetName(Local<Function> fn) {
-  Local<Value> val = fn->GetDebugName();
-  if (val.IsEmpty() || val->IsUndefined()) {
-    Local<Value> boundFunction = fn->GetBoundFunction();
-    if (!boundFunction.IsEmpty() && !boundFunction->IsUndefined()) {
-      val = GetName(boundFunction.As<Function>());
-    }
-  }
-  return val;
-}
-
 // Notify a custom PerformanceEntry to observers
 void Notify(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
@@ -385,6 +373,6 @@ void RegisterExternalReferences(ExternalReferenceRegistry* registry) {
 }  // namespace performance
 }  // namespace node
 
-NODE_MODULE_CONTEXT_AWARE_INTERNAL(performance, node::performance::Initialize)
-NODE_MODULE_EXTERNAL_REFERENCE(performance,
-                               node::performance::RegisterExternalReferences)
+NODE_BINDING_CONTEXT_AWARE_INTERNAL(performance, node::performance::Initialize)
+NODE_BINDING_EXTERNAL_REFERENCE(performance,
+                                node::performance::RegisterExternalReferences)

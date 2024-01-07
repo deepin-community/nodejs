@@ -2208,6 +2208,9 @@ Type: Documentation-only (supports [`--pending-deprecation`][])
 
 `process.binding()` is for use by Node.js internal code only.
 
+While `process.binding()` has not reached End-of-Life status in general, it is
+unavailable when [policies][] are enabled.
+
 ### DEP0112: `dgram` private APIs
 
 <!-- YAML
@@ -2892,7 +2895,7 @@ Prefer [`message.socket`][] over [`message.connection`][].
 
 <!-- YAML
 changes:
-  - version: v18.10.0
+  - version: v19.0.0
     pr-url: https://github.com/nodejs/node/pull/43627
     description: End-of-Life.
   - version: v16.0.0
@@ -3134,7 +3137,7 @@ resources and not the actual references.
 
 <!-- YAML
 changes:
-  - version: v18.10.0
+  - version: v19.0.0
     pr-url: https://github.com/nodejs/node/pull/42796
     description: End-of-Life.
   - version: v18.0.0
@@ -3213,7 +3216,7 @@ The [`--trace-atomics-wait`][] flag is deprecated.
 
 <!-- YAML
 changes:
-  - version: v18.10.0
+  - version: v19.0.0
     pr-url: https://github.com/nodejs/node/pull/44495
     description: Runtime deprecation.
   - version: v18.10.0
@@ -3271,13 +3274,16 @@ Node-API callbacks.
 
 <!-- YAML
 changes:
+  - version: v18.17.0
+    pr-url: https://github.com/nodejs/node/pull/47203
+    description: Added support for `--pending-deprecation`.
   - version:
       - v18.13.0
     pr-url: https://github.com/nodejs/node/pull/44919
     description: Documentation-only deprecation.
 -->
 
-Type: Documentation-only
+Type: Documentation-only (supports [`--pending-deprecation`][])
 
 [`url.parse()`][] behavior is not standardized and prone to errors that
 have security implications. Use the [WHATWG URL API][] instead. CVEs are not
@@ -3364,7 +3370,7 @@ In a future version of Node.js, [`message.headers`][],
 [`dnsPromises.lookup()`]: dns.md#dnspromiseslookuphostname-options
 [`domain`]: domain.md
 [`ecdh.setPublicKey()`]: crypto.md#ecdhsetpublickeypublickey-encoding
-[`emitter.listenerCount(eventName)`]: events.md#emitterlistenercounteventname
+[`emitter.listenerCount(eventName)`]: events.md#emitterlistenercounteventname-listener
 [`events.listenerCount(emitter, eventName)`]: events.md#eventslistenercountemitter-eventname
 [`fs.FileHandle`]: fs.md#class-filehandle
 [`fs.access()`]: fs.md#fsaccesspath-mode-callback
@@ -3466,6 +3472,7 @@ In a future version of Node.js, [`message.headers`][],
 [from_string_encoding]: buffer.md#static-method-bufferfromstring-encoding
 [legacy URL API]: url.md#legacy-url-api
 [legacy `urlObject`]: url.md#legacy-urlobject
+[policies]: permissions.md#policies
 [static methods of `crypto.Certificate()`]: crypto.md#class-certificate
 [subpath exports]: packages.md#subpath-exports
 [subpath imports]: packages.md#subpath-imports

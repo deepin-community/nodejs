@@ -15,8 +15,8 @@
 #include <string>
 #include <vector>
 
-using node::kAllowedInEnvironment;
-using node::kDisallowedInEnvironment;
+using node::kAllowedInEnvvar;
+using node::kDisallowedInEnvvar;
 using v8::Array;
 using v8::ArrayBuffer;
 using v8::Boolean;
@@ -48,6 +48,7 @@ constexpr double kMB = 1024 * 1024;
 Worker::Worker(Environment* env,
                Local<Object> wrap,
                const std::string& url,
+               const std::string& name,
                std::shared_ptr<PerIsolateOptions> per_isolate_opts,
                std::vector<std::string>&& exec_argv,
                std::shared_ptr<KVStore> env_vars,
@@ -57,6 +58,7 @@ Worker::Worker(Environment* env,
       exec_argv_(exec_argv),
       platform_(env->isolate_data()->platform()),
       thread_id_(AllocateEnvironmentThreadId()),
+      name_(name),
       env_vars_(env_vars),
       snapshot_data_(snapshot_data) {
   Debug(this, "Creating new worker instance with thread id %llu",
@@ -81,8 +83,8 @@ Worker::Worker(Environment* env,
                 Number::New(env->isolate(), static_cast<double>(thread_id_.id)))
       .Check();
 
-  inspector_parent_handle_ = GetInspectorParentHandle(
-      env, thread_id_, url.c_str());
+  inspector_parent_handle_ =
+      GetInspectorParentHandle(env, thread_id_, url.c_str(), name.c_str());
 
   argv_ = std::vector<std::string>{env->argv()[0]};
   // Mark this Worker object as weak until we actually start the thread.
@@ -147,21 +149,15 @@ class WorkerThreadData {
         ArrayBufferAllocator::Create();
     Isolate::CreateParams params;
     SetIsolateCreateParamsForNode(&params);
-    params.array_buffer_allocator_shared = allocator;
-
-    if (w->snapshot_data() != nullptr) {
-      SnapshotBuilder::InitializeIsolateParams(w->snapshot_data(), &params);
-    }
     w->UpdateResourceConstraints(&params.constraints);
-
-    Isolate* isolate = Isolate::Allocate();
+    params.array_buffer_allocator_shared = allocator;
+    Isolate* isolate =
+        NewIsolate(&params, &loop_, w->platform_, w->snapshot_data());
     if (isolate == nullptr) {
       w->Exit(1, "ERR_WORKER_INIT_FAILED", "Failed to create new Isolate");
       return;
     }
 
-    w->platform_->RegisterIsolate(isolate, &loop_);
-    Isolate::Initialize(isolate, params);
     SetIsolateUpForNode(isolate);
 
     // Be sure it's called before Environment::InitializeDiagnostics()
@@ -262,11 +258,10 @@ size_t Worker::NearHeapLimit(void* data, size_t current_heap_limit,
 }
 
 void Worker::Run() {
-  std::string name = "WorkerThread ";
-  name += std::to_string(thread_id_.id);
+  std::string trace_name = "[worker " + std::to_string(thread_id_.id) + "]" +
+                           (name_ == "" ? "" : " " + name_);
   TRACE_EVENT_METADATA1(
-      "__metadata", "thread_name", "name",
-      TRACE_STR_COPY(name.c_str()));
+      "__metadata", "thread_name", "name", TRACE_STR_COPY(trace_name.c_str()));
   CHECK_NOT_NULL(platform_);
 
   Debug(this, "Creating isolate for worker with id %llu", thread_id_.id);
@@ -450,6 +445,8 @@ Worker::~Worker() {
 
 void Worker::New(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
+  auto is_internal = args[5];
+  CHECK(is_internal->IsBoolean());
   Isolate* isolate = args.GetIsolate();
 
   CHECK(args.IsConstructCall());
@@ -460,6 +457,7 @@ void Worker::New(const FunctionCallbackInfo<Value>& args) {
   }
 
   std::string url;
+  std::string name;
   std::shared_ptr<PerIsolateOptions> per_isolate_opts = nullptr;
   std::shared_ptr<KVStore> env_vars = nullptr;
 
@@ -470,6 +468,12 @@ void Worker::New(const FunctionCallbackInfo<Value>& args) {
     Utf8Value value(
         isolate, args[0]->ToString(env->context()).FromMaybe(Local<String>()));
     url.append(value.out(), value.length());
+  }
+
+  if (!args[6]->IsNullOrUndefined()) {
+    Utf8Value value(
+        isolate, args[6]->ToString(env->context()).FromMaybe(Local<String>()));
+    name.append(value.out(), value.length());
   }
 
   if (args[1]->IsNull()) {
@@ -508,7 +512,7 @@ void Worker::New(const FunctionCallbackInfo<Value>& args) {
                             nullptr,
                             &invalid_args,
                             per_isolate_opts.get(),
-                            kAllowedInEnvironment,
+                            kAllowedInEnvvar,
                             &errors);
       if (!errors.empty() && args[1]->IsObject()) {
         // Only fail for explicitly provided env, this protects from failures
@@ -550,13 +554,12 @@ void Worker::New(const FunctionCallbackInfo<Value>& args) {
     std::vector<std::string> errors{};
     // Using invalid_args as the v8_args argument as it stores unknown
     // options for the per isolate parser.
-    options_parser::Parse(
-        &exec_argv,
-        &exec_argv_out,
-        &invalid_args,
-        per_isolate_opts.get(),
-        kDisallowedInEnvironment,
-        &errors);
+    options_parser::Parse(&exec_argv,
+                          &exec_argv_out,
+                          &invalid_args,
+                          per_isolate_opts.get(),
+                          kDisallowedInEnvvar,
+                          &errors);
 
     // The first argument is program name.
     invalid_args.erase(invalid_args.begin());
@@ -585,6 +588,7 @@ void Worker::New(const FunctionCallbackInfo<Value>& args) {
   Worker* worker = new Worker(env,
                               args.This(),
                               url,
+                              name,
                               per_isolate_opts,
                               std::move(exec_argv_out),
                               env_vars,
@@ -957,5 +961,6 @@ void RegisterExternalReferences(ExternalReferenceRegistry* registry) {
 }  // namespace worker
 }  // namespace node
 
-NODE_MODULE_CONTEXT_AWARE_INTERNAL(worker, node::worker::InitWorker)
-NODE_MODULE_EXTERNAL_REFERENCE(worker, node::worker::RegisterExternalReferences)
+NODE_BINDING_CONTEXT_AWARE_INTERNAL(worker, node::worker::InitWorker)
+NODE_BINDING_EXTERNAL_REFERENCE(worker,
+                                node::worker::RegisterExternalReferences)

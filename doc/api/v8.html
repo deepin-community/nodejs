@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.13.0">
-  <title>V8 | Node.js v18.13.0 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v18.19.0">
+  <title>V8 | Node.js v18.19.0 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
@@ -68,6 +68,7 @@
 <li><a href="readline.html" class="nav-readline">Readline</a></li>
 <li><a href="repl.html" class="nav-repl">REPL</a></li>
 <li><a href="report.html" class="nav-report">Report</a></li>
+<li><a href="single-executable-applications.html" class="nav-single-executable-applications">Single executable applications</a></li>
 <li><a href="stream.html" class="nav-stream">Stream</a></li>
 <li><a href="string_decoder.html" class="nav-string_decoder">String decoder</a></li>
 <li><a href="test.html" class="nav-test">Test runner</a></li>
@@ -95,7 +96,7 @@
     <div id="column1" data-id="v8" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.13.0 documentation</h1>
+          <h1>Node.js v18.19.0 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -110,7 +111,7 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.13.0</li>
+            <li class="pinned-header">Node.js v18.19.0</li>
             
     <li class="picker-header">
       <a href="#">
@@ -195,6 +196,13 @@
 <li><a href="#v8startupsnapshotisbuildingsnapshot"><code>v8.startupSnapshot.isBuildingSnapshot()</code></a></li>
 </ul>
 </li>
+<li><a href="#class-v8gcprofiler">Class: <code>v8.GCProfiler</code></a>
+<ul>
+<li><a href="#new-v8gcprofiler"><code>new v8.GCProfiler()</code></a></li>
+<li><a href="#profilerstart"><code>profiler.start()</code></a></li>
+<li><a href="#profilerstop"><code>profiler.stop()</code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul></div></div>
@@ -260,6 +268,7 @@
 <li><a href="readline.html" class="nav-readline">Readline</a></li>
 <li><a href="repl.html" class="nav-repl">REPL</a></li>
 <li><a href="report.html" class="nav-report">Report</a></li>
+<li><a href="single-executable-applications.html" class="nav-single-executable-applications">Single executable applications</a></li>
 <li><a href="stream.html" class="nav-stream">Stream</a></li>
 <li><a href="string_decoder.html" class="nav-string_decoder">String decoder</a></li>
 <li><a href="test.html" class="nav-test">Test runner</a></li>
@@ -290,12 +299,14 @@
         <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v19.x/api/v8.html">19.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/v8.html">21.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v20.x/api/v8.html">20.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v19.x/api/v8.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/v8.html">18.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v17.x/api/v8.html">17.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v16.x/api/v8.html">16.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v16.x/api/v8.html">16.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v15.x/api/v8.html">15.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v14.x/api/v8.html">14.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v14.x/api/v8.html">14.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v13.x/api/v8.html">13.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v12.x/api/v8.html">12.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v11.x/api/v8.html">11.x</a></li>
@@ -408,6 +419,13 @@
 <li><a href="#v8startupsnapshotisbuildingsnapshot"><code>v8.startupSnapshot.isBuildingSnapshot()</code></a></li>
 </ul>
 </li>
+<li><a href="#class-v8gcprofiler">Class: <code>v8.GCProfiler</code></a>
+<ul>
+<li><a href="#new-v8gcprofiler"><code>new v8.GCProfiler()</code></a></li>
+<li><a href="#profilerstart"><code>profiler.start()</code></a></li>
+<li><a href="#profilerstop"><code>profiler.stop()</code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul></details>
@@ -415,10 +433,10 @@
       <div id="apicontent">
         <h2>V8<span><a class="mark" href="#v8" id="v8">#</a></span><a aria-hidden="true" class="legacy" id="v8_v8"></a></h2>
 
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.13.0/lib/v8.js">lib/v8.js</a></p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.19.0/lib/v8.js">lib/v8.js</a></p>
 <p>The <code>node:v8</code> module exposes APIs that are specific to the version of <a href="https://developers.google.com/v8/">V8</a>
 built into the Node.js binary. It can be accessed using:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> v8 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:v8'</span>);</code></pre>
+<pre><code class="language-js"><span class="hljs-keyword">const</span> v8 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:v8'</span>);</code> <button class="copy-button">copy</button></pre>
 <section><h3><code>v8.cachedDataVersionTag()</code><span><a class="mark" href="#v8cacheddataversiontag" id="v8cacheddataversiontag">#</a></span><a aria-hidden="true" class="legacy" id="v8_v8_cacheddataversiontag"></a></h3>
 <div class="api_metadata">
 <span>Added in: v8.0.0</span>
@@ -435,7 +453,7 @@ of V8.</p>
 <span class="hljs-comment">// version, command-line flags, and detected CPU features. Test that the value</span>
 <span class="hljs-comment">// does indeed update when flags are toggled.</span>
 v8.<span class="hljs-title function_">setFlagsFromString</span>(<span class="hljs-string">'--allow_natives_syntax'</span>);
-<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(v8.<span class="hljs-title function_">cachedDataVersionTag</span>()); <span class="hljs-comment">// 183726201</span></code></pre>
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(v8.<span class="hljs-title function_">cachedDataVersionTag</span>()); <span class="hljs-comment">// 183726201</span></code> <button class="copy-button">copy</button></pre>
 </section><section><h3><code>v8.getHeapCodeStatistics()</code><span><a class="mark" href="#v8getheapcodestatistics" id="v8getheapcodestatistics">#</a></span><a aria-hidden="true" class="legacy" id="v8_v8_getheapcodestatistics"></a></h3>
 <div class="api_metadata">
 <span>Added in: v12.8.0</span>
@@ -458,7 +476,7 @@ following properties:</p>
   <span class="hljs-attr">bytecode_and_metadata_size</span>: <span class="hljs-number">161368</span>,
   <span class="hljs-attr">external_script_source_size</span>: <span class="hljs-number">1410794</span>,
   <span class="hljs-attr">cpu_profiler_metadata_size</span>: <span class="hljs-number">0</span>,
-}</code></pre>
+}</code> <button class="copy-button">copy</button></pre>
 </section><section><h3><code>v8.getHeapSnapshot()</code><span><a class="mark" href="#v8getheapsnapshot" id="v8getheapsnapshot">#</a></span><a aria-hidden="true" class="legacy" id="v8_v8_getheapsnapshot"></a></h3>
 <div class="api_metadata">
 <span>Added in: v11.13.0</span>
@@ -479,7 +497,7 @@ for a duration depending on the heap size.</p>
 <pre><code class="language-js"><span class="hljs-comment">// Print heap snapshot to the console</span>
 <span class="hljs-keyword">const</span> v8 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:v8'</span>);
 <span class="hljs-keyword">const</span> stream = v8.<span class="hljs-title function_">getHeapSnapshot</span>();
-stream.<span class="hljs-title function_">pipe</span>(process.<span class="hljs-property">stdout</span>);</code></pre>
+stream.<span class="hljs-title function_">pipe</span>(process.<span class="hljs-property">stdout</span>);</code> <button class="copy-button">copy</button></pre>
 </section><section><h3><code>v8.getHeapSpaceStatistics()</code><span><a class="mark" href="#v8getheapspacestatistics" id="v8getheapspacestatistics">#</a></span><a aria-hidden="true" class="legacy" id="v8_v8_getheapspacestatistics"></a></h3>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
@@ -544,7 +562,7 @@ next.</p>
     <span class="hljs-attr">"space_available_size"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1490980608</span><span class="hljs-punctuation">,</span>
     <span class="hljs-attr">"physical_space_size"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span>
   <span class="hljs-punctuation">}</span>
-<span class="hljs-punctuation">]</span></code></pre>
+<span class="hljs-punctuation">]</span></code> <button class="copy-button">copy</button></pre>
 </section><section><h3><code>v8.getHeapStatistics()</code><span><a class="mark" href="#v8getheapstatistics" id="v8getheapstatistics">#</a></span><a aria-hidden="true" class="legacy" id="v8_v8_getheapstatistics"></a></h3>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
@@ -612,7 +630,7 @@ buffers and external strings.</p>
   <span class="hljs-attr">total_global_handles_size</span>: <span class="hljs-number">8192</span>,
   <span class="hljs-attr">used_global_handles_size</span>: <span class="hljs-number">3296</span>,
   <span class="hljs-attr">external_memory</span>: <span class="hljs-number">318824</span>
-}</code></pre>
+}</code> <button class="copy-button">copy</button></pre>
 </section><section><h3><code>v8.setFlagsFromString(flags)</code><span><a class="mark" href="#v8setflagsfromstringflags" id="v8setflagsfromstringflags">#</a></span><a aria-hidden="true" class="legacy" id="v8_v8_setflagsfromstring_flags"></a></h3>
 <div class="api_metadata">
 <span>Added in: v1.0.0</span>
@@ -630,7 +648,7 @@ crashes and data loss; or it may simply do nothing.</p>
 <pre><code class="language-js"><span class="hljs-comment">// Print GC events to stdout for one minute.</span>
 <span class="hljs-keyword">const</span> v8 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:v8'</span>);
 v8.<span class="hljs-title function_">setFlagsFromString</span>(<span class="hljs-string">'--trace_gc'</span>);
-<span class="hljs-built_in">setTimeout</span>(<span class="hljs-function">() =></span> { v8.<span class="hljs-title function_">setFlagsFromString</span>(<span class="hljs-string">'--notrace_gc'</span>); }, <span class="hljs-number">60e3</span>);</code></pre>
+<span class="hljs-built_in">setTimeout</span>(<span class="hljs-function">() =></span> { v8.<span class="hljs-title function_">setFlagsFromString</span>(<span class="hljs-string">'--notrace_gc'</span>); }, <span class="hljs-number">60e3</span>);</code> <button class="copy-button">copy</button></pre>
 </section><section><h3><code>v8.stopCoverage()</code><span><a class="mark" href="#v8stopcoverage" id="v8stopcoverage">#</a></span><a aria-hidden="true" class="legacy" id="v8_v8_stopcoverage"></a></h3>
 <div class="api_metadata">
 <span>Added in: v15.1.0, v14.18.0, v12.22.0</span>
@@ -711,7 +729,7 @@ for a duration depending on the heap size.</p>
       parentPort.<span class="hljs-title function_">postMessage</span>(<span class="hljs-title function_">writeHeapSnapshot</span>());
     }
   });
-}</code></pre>
+}</code> <button class="copy-button">copy</button></pre>
 </section><section><h3><code>v8.setHeapSnapshotNearHeapLimit(limit)</code><span><a class="mark" href="#v8setheapsnapshotnearheaplimitlimit" id="v8setheapsnapshotnearheaplimitlimit">#</a></span><a aria-hidden="true" class="legacy" id="v8_v8_setheapsnapshotnearheaplimit_limit"></a></h3>
 <div class="api_metadata">
 <span>Added in: v18.10.0</span>
@@ -975,7 +993,7 @@ async resources. For request context management, see <a href="async_context.html
 <span class="hljs-title function_">stopWatchingSettleds</span>();
 <span class="hljs-title function_">stopWatchingBefores</span>();
 <span class="hljs-title function_">stopWatchingAfters</span>();
-<span class="hljs-title function_">stopHookSet</span>();</code></pre>
+<span class="hljs-title function_">stopHookSet</span>();</code> <button class="copy-button">copy</button></pre>
 <h4><code>promiseHooks.onInit(init)</code><span><a class="mark" href="#promisehooksoninitinit" id="promisehooksoninitinit">#</a></span><a aria-hidden="true" class="legacy" id="v8_promisehooks_oninit_init"></a></h4>
 <div class="api_metadata">
 <span>Added in: v17.1.0, v16.14.0</span>
@@ -991,7 +1009,7 @@ throw as it would produce an infinite microtask loop.</strong></p>
 
 <span class="hljs-keyword">const</span> stop = promiseHooks.<span class="hljs-title function_">onInit</span>(<span class="hljs-function">(<span class="hljs-params">promise, parent</span>) =></span> {});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { promiseHooks } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:v8'</span>);
 
-<span class="hljs-keyword">const</span> stop = promiseHooks.<span class="hljs-title function_">onInit</span>(<span class="hljs-function">(<span class="hljs-params">promise, parent</span>) =></span> {});</code></pre>
+<span class="hljs-keyword">const</span> stop = promiseHooks.<span class="hljs-title function_">onInit</span>(<span class="hljs-function">(<span class="hljs-params">promise, parent</span>) =></span> {});</code><button class="copy-button">copy</button></pre>
 <h4><code>promiseHooks.onSettled(settled)</code><span><a class="mark" href="#promisehooksonsettledsettled" id="promisehooksonsettledsettled">#</a></span><a aria-hidden="true" class="legacy" id="v8_promisehooks_onsettled_settled"></a></h4>
 <div class="api_metadata">
 <span>Added in: v17.1.0, v16.14.0</span>
@@ -1008,7 +1026,7 @@ throw as it would produce an infinite microtask loop.</strong></p>
 
 <span class="hljs-keyword">const</span> stop = promiseHooks.<span class="hljs-title function_">onSettled</span>(<span class="hljs-function">(<span class="hljs-params">promise</span>) =></span> {});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { promiseHooks } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:v8'</span>);
 
-<span class="hljs-keyword">const</span> stop = promiseHooks.<span class="hljs-title function_">onSettled</span>(<span class="hljs-function">(<span class="hljs-params">promise</span>) =></span> {});</code></pre>
+<span class="hljs-keyword">const</span> stop = promiseHooks.<span class="hljs-title function_">onSettled</span>(<span class="hljs-function">(<span class="hljs-params">promise</span>) =></span> {});</code><button class="copy-button">copy</button></pre>
 <h4><code>promiseHooks.onBefore(before)</code><span><a class="mark" href="#promisehooksonbeforebefore" id="promisehooksonbeforebefore">#</a></span><a aria-hidden="true" class="legacy" id="v8_promisehooks_onbefore_before"></a></h4>
 <div class="api_metadata">
 <span>Added in: v17.1.0, v16.14.0</span>
@@ -1025,7 +1043,7 @@ throw as it would produce an infinite microtask loop.</strong></p>
 
 <span class="hljs-keyword">const</span> stop = promiseHooks.<span class="hljs-title function_">onBefore</span>(<span class="hljs-function">(<span class="hljs-params">promise</span>) =></span> {});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { promiseHooks } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:v8'</span>);
 
-<span class="hljs-keyword">const</span> stop = promiseHooks.<span class="hljs-title function_">onBefore</span>(<span class="hljs-function">(<span class="hljs-params">promise</span>) =></span> {});</code></pre>
+<span class="hljs-keyword">const</span> stop = promiseHooks.<span class="hljs-title function_">onBefore</span>(<span class="hljs-function">(<span class="hljs-params">promise</span>) =></span> {});</code><button class="copy-button">copy</button></pre>
 <h4><code>promiseHooks.onAfter(after)</code><span><a class="mark" href="#promisehooksonafterafter" id="promisehooksonafterafter">#</a></span><a aria-hidden="true" class="legacy" id="v8_promisehooks_onafter_after"></a></h4>
 <div class="api_metadata">
 <span>Added in: v17.1.0, v16.14.0</span>
@@ -1042,7 +1060,7 @@ throw as it would produce an infinite microtask loop.</strong></p>
 
 <span class="hljs-keyword">const</span> stop = promiseHooks.<span class="hljs-title function_">onAfter</span>(<span class="hljs-function">(<span class="hljs-params">promise</span>) =></span> {});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { promiseHooks } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:v8'</span>);
 
-<span class="hljs-keyword">const</span> stop = promiseHooks.<span class="hljs-title function_">onAfter</span>(<span class="hljs-function">(<span class="hljs-params">promise</span>) =></span> {});</code></pre>
+<span class="hljs-keyword">const</span> stop = promiseHooks.<span class="hljs-title function_">onAfter</span>(<span class="hljs-function">(<span class="hljs-params">promise</span>) =></span> {});</code><button class="copy-button">copy</button></pre>
 <h4><code>promiseHooks.createHook(callbacks)</code><span><a class="mark" href="#promisehookscreatehookcallbacks" id="promisehookscreatehookcallbacks">#</a></span><a aria-hidden="true" class="legacy" id="v8_promisehooks_createhook_callbacks"></a></h4>
 <div class="api_metadata">
 <span>Added in: v17.1.0, v16.14.0</span>
@@ -1076,7 +1094,7 @@ specifics of all functions that can be passed to <code>callbacks</code> is in th
 
 <span class="hljs-keyword">const</span> stopAll = promiseHooks.<span class="hljs-title function_">createHook</span>({
   <span class="hljs-title function_">init</span>(<span class="hljs-params">promise, parent</span>) {},
-});</code></pre>
+});</code><button class="copy-button">copy</button></pre>
 <h4>Hook callbacks<span><a class="mark" href="#hook-callbacks" id="hook-callbacks">#</a></span><a aria-hidden="true" class="legacy" id="v8_hook_callbacks"></a></h4>
 <p>Key events in the lifetime of a promise have been categorized into four areas:
 creation of a promise, before/after a continuation handler is called or around
@@ -1132,13 +1150,10 @@ occur synchronously in the case of <code>Promise.resolve()</code> or <code>Promi
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <p>The <code>v8.startupSnapshot</code> interface can be used to add serialization and
-deserialization hooks for custom startup snapshots. Currently the startup
-snapshots can only be built into the Node.js binary from source.</p>
-<pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">cd</span> /path/to/node</span>
-<span class="hljs-meta prompt_">$ </span><span class="language-bash">./configure --node-snapshot-main=entry.js</span>
-<span class="hljs-meta prompt_">$ </span><span class="language-bash">make node</span>
-<span class="hljs-meta prompt_"># </span><span class="language-bash">This binary contains the result of the execution of entry.js</span>
-<span class="hljs-meta prompt_">$ </span><span class="language-bash">out/Release/node</span></code></pre>
+deserialization hooks for custom startup snapshots.</p>
+<pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">node --snapshot-blob snapshot.blob --build-snapshot entry.js</span>
+<span class="hljs-meta prompt_"># </span><span class="language-bash">This launches a process with the snapshot</span>
+<span class="hljs-meta prompt_">$ </span><span class="language-bash">node --snapshot-blob snapshot.blob</span></code> <button class="copy-button">copy</button></pre>
 <p>In the example above, <code>entry.js</code> can use methods from the <code>v8.startupSnapshot</code>
 interface to specify how to save information for custom objects in the snapshot
 during serialization and how the information can be used to synchronize these
@@ -1151,36 +1166,60 @@ contains the following script:</p>
 <span class="hljs-keyword">const</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:path'</span>);
 <span class="hljs-keyword">const</span> assert = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:assert'</span>);
 
-<span class="hljs-keyword">const</span> {
-  isBuildingSnapshot,
-  addSerializeCallback,
-  addDeserializeCallback,
-  setDeserializeMainFunction,
-} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:v8'</span>).<span class="hljs-property">startupSnapshot</span>;
+<span class="hljs-keyword">const</span> v8 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:v8'</span>);
 
-<span class="hljs-keyword">const</span> filePath = path.<span class="hljs-title function_">resolve</span>(__dirname, <span class="hljs-string">'../x1024.txt'</span>);
-<span class="hljs-keyword">const</span> storage = {};
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">BookShelf</span> {
+  storage = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Map</span>();
 
-<span class="hljs-title function_">assert</span>(<span class="hljs-title function_">isBuildingSnapshot</span>());
+  <span class="hljs-comment">// Reading a series of files from directory and store them into storage.</span>
+  <span class="hljs-title function_">constructor</span>(<span class="hljs-params">directory, books</span>) {
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> book <span class="hljs-keyword">of</span> books) {
+      <span class="hljs-variable language_">this</span>.<span class="hljs-property">storage</span>.<span class="hljs-title function_">set</span>(book, fs.<span class="hljs-title function_">readFileSync</span>(path.<span class="hljs-title function_">join</span>(directory, book)));
+    }
+  }
 
-<span class="hljs-title function_">addSerializeCallback</span>(<span class="hljs-function">(<span class="hljs-params">{ filePath }</span>) =></span> {
-  storage[filePath] = zlib.<span class="hljs-title function_">gzipSync</span>(fs.<span class="hljs-title function_">readFileSync</span>(filePath));
-}, { filePath });
+  <span class="hljs-keyword">static</span> <span class="hljs-title function_">compressAll</span>(<span class="hljs-params">shelf</span>) {
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> [ book, content ] <span class="hljs-keyword">of</span> shelf.<span class="hljs-property">storage</span>) {
+      shelf.<span class="hljs-property">storage</span>.<span class="hljs-title function_">set</span>(book, zlib.<span class="hljs-title function_">gzipSync</span>(content));
+    }
+  }
 
-<span class="hljs-title function_">addDeserializeCallback</span>(<span class="hljs-function">(<span class="hljs-params">{ filePath }</span>) =></span> {
-  storage[filePath] = zlib.<span class="hljs-title function_">gunzipSync</span>(storage[filePath]);
-}, { filePath });
+  <span class="hljs-keyword">static</span> <span class="hljs-title function_">decompressAll</span>(<span class="hljs-params">shelf</span>) {
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> [ book, content ] <span class="hljs-keyword">of</span> shelf.<span class="hljs-property">storage</span>) {
+      shelf.<span class="hljs-property">storage</span>.<span class="hljs-title function_">set</span>(book, zlib.<span class="hljs-title function_">gunzipSync</span>(content));
+    }
+  }
+}
 
-<span class="hljs-title function_">setDeserializeMainFunction</span>(<span class="hljs-function">(<span class="hljs-params">{ filePath }</span>) =></span> {
-  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(storage[filePath].<span class="hljs-title function_">toString</span>());
-}, { filePath });</code></pre>
-<p>The resulted binary will simply print the data deserialized from the snapshot
-during start up:</p>
-<pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">out/Release/node</span>
-<span class="hljs-meta prompt_"># </span><span class="language-bash">Prints content of ./test/fixtures/x1024.txt</span></code></pre>
-<p>Currently the API is only available to a Node.js instance launched from the
-default snapshot, that is, the application deserialized from a user-land
-snapshot cannot use these APIs again.</p>
+<span class="hljs-comment">// __dirname here is where the snapshot script is placed</span>
+<span class="hljs-comment">// during snapshot building time.</span>
+<span class="hljs-keyword">const</span> shelf = <span class="hljs-keyword">new</span> <span class="hljs-title class_">BookShelf</span>(__dirname, [
+  <span class="hljs-string">'book1.en_US.txt'</span>,
+  <span class="hljs-string">'book1.es_ES.txt'</span>,
+  <span class="hljs-string">'book2.zh_CN.txt'</span>,
+]);
+
+<span class="hljs-title function_">assert</span>(v8.<span class="hljs-property">startupSnapshot</span>.<span class="hljs-title function_">isBuildingSnapshot</span>());
+<span class="hljs-comment">// On snapshot serialization, compress the books to reduce size.</span>
+v8.<span class="hljs-property">startupSnapshot</span>.<span class="hljs-title function_">addSerializeCallback</span>(<span class="hljs-title class_">BookShelf</span>.<span class="hljs-property">compressAll</span>, shelf);
+<span class="hljs-comment">// On snapshot deserialization, decompress the books.</span>
+v8.<span class="hljs-property">startupSnapshot</span>.<span class="hljs-title function_">addDeserializeCallback</span>(<span class="hljs-title class_">BookShelf</span>.<span class="hljs-property">decompressAll</span>, shelf);
+v8.<span class="hljs-property">startupSnapshot</span>.<span class="hljs-title function_">setDeserializeMainFunction</span>(<span class="hljs-function">(<span class="hljs-params">shelf</span>) =></span> {
+  <span class="hljs-comment">// process.env and process.argv are refreshed during snapshot</span>
+  <span class="hljs-comment">// deserialization.</span>
+  <span class="hljs-keyword">const</span> lang = process.<span class="hljs-property">env</span>.<span class="hljs-property">BOOK_LANG</span> || <span class="hljs-string">'en_US'</span>;
+  <span class="hljs-keyword">const</span> book = process.<span class="hljs-property">argv</span>[<span class="hljs-number">1</span>];
+  <span class="hljs-keyword">const</span> name = <span class="hljs-string">`<span class="hljs-subst">${book}</span>.<span class="hljs-subst">${lang}</span>.txt`</span>;
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(shelf.<span class="hljs-property">storage</span>.<span class="hljs-title function_">get</span>(name));
+}, shelf);</code> <button class="copy-button">copy</button></pre>
+<p>The resulted binary will get print the data deserialized from the snapshot
+during start up, using the refreshed <code>process.env</code> and <code>process.argv</code> of
+the launched process:</p>
+<pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">BOOK_LANG=es_ES node --snapshot-blob snapshot.blob book1</span>
+<span class="hljs-meta prompt_"># </span><span class="language-bash">Prints content of book1.es_ES.txt deserialized from the snapshot.</span></code> <button class="copy-button">copy</button></pre>
+<p>Currently the application deserialized from a user-land snapshot cannot
+be snapshotted again, so these APIs are only available to applications
+that are not deserialized from a user-land snapshot.</p>
 <h4><code>v8.startupSnapshot.addSerializeCallback(callback[, data])</code><span><a class="mark" href="#v8startupsnapshotaddserializecallbackcallback-data" id="v8startupsnapshotaddserializecallbackcallback-data">#</a></span><a aria-hidden="true" class="legacy" id="v8_v8_startupsnapshot_addserializecallback_callback_data"></a></h4>
 <div class="api_metadata">
 <span>Added in: v18.6.0</span>
@@ -1232,7 +1271,94 @@ needs to be provided to the deserialized application.</p>
 <ul>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a></li>
 </ul>
-<p>Returns true if the Node.js instance is run to build a snapshot.</p></section>
+<p>Returns true if the Node.js instance is run to build a snapshot.</p>
+</section><section><h3>Class: <code>v8.GCProfiler</code><span><a class="mark" href="#class-v8gcprofiler" id="class-v8gcprofiler">#</a></span><a aria-hidden="true" class="legacy" id="v8_class_v8_gcprofiler"></a></h3>
+<div class="api_metadata">
+<span>Added in: v18.15.0</span>
+</div>
+<p>This API collects GC data in current thread.</p>
+<h4><code>new v8.GCProfiler()</code><span><a class="mark" href="#new-v8gcprofiler" id="new-v8gcprofiler">#</a></span><a aria-hidden="true" class="legacy" id="v8_new_v8_gcprofiler"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.15.0</span>
+</div>
+<p>Create a new instance of the <code>v8.GCProfiler</code> class.</p>
+<h4><code>profiler.start()</code><span><a class="mark" href="#profilerstart" id="profilerstart">#</a></span><a aria-hidden="true" class="legacy" id="v8_profiler_start"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.15.0</span>
+</div>
+<p>Start collecting GC data.</p>
+<h4><code>profiler.stop()</code><span><a class="mark" href="#profilerstop" id="profilerstop">#</a></span><a aria-hidden="true" class="legacy" id="v8_profiler_stop"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.15.0</span>
+</div>
+<p>Stop collecting GC data and return an object.The content of object
+is as follows.</p>
+<pre><code class="language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">"version"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">"startTime"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1674059033862</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">"statistics"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+    <span class="hljs-punctuation">{</span>
+      <span class="hljs-attr">"gcType"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"Scavenge"</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">"beforeGC"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">"heapStatistics"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+          <span class="hljs-attr">"totalHeapSize"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">5005312</span><span class="hljs-punctuation">,</span>
+          <span class="hljs-attr">"totalHeapSizeExecutable"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">524288</span><span class="hljs-punctuation">,</span>
+          <span class="hljs-attr">"totalPhysicalSize"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">5226496</span><span class="hljs-punctuation">,</span>
+          <span class="hljs-attr">"totalAvailableSize"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">4341325216</span><span class="hljs-punctuation">,</span>
+          <span class="hljs-attr">"totalGlobalHandlesSize"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">8192</span><span class="hljs-punctuation">,</span>
+          <span class="hljs-attr">"usedGlobalHandlesSize"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">2112</span><span class="hljs-punctuation">,</span>
+          <span class="hljs-attr">"usedHeapSize"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">4883840</span><span class="hljs-punctuation">,</span>
+          <span class="hljs-attr">"heapSizeLimit"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">4345298944</span><span class="hljs-punctuation">,</span>
+          <span class="hljs-attr">"mallocedMemory"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">254128</span><span class="hljs-punctuation">,</span>
+          <span class="hljs-attr">"externalMemory"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">225138</span><span class="hljs-punctuation">,</span>
+          <span class="hljs-attr">"peakMallocedMemory"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">181760</span>
+        <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">"heapSpaceStatistics"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+          <span class="hljs-punctuation">{</span>
+            <span class="hljs-attr">"spaceName"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"read_only_space"</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-attr">"spaceSize"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-attr">"spaceUsedSize"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-attr">"spaceAvailableSize"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-attr">"physicalSpaceSize"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span>
+          <span class="hljs-punctuation">}</span>
+        <span class="hljs-punctuation">]</span>
+      <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">"cost"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1574.14</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">"afterGC"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">"heapStatistics"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+          <span class="hljs-attr">"totalHeapSize"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">6053888</span><span class="hljs-punctuation">,</span>
+          <span class="hljs-attr">"totalHeapSizeExecutable"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">524288</span><span class="hljs-punctuation">,</span>
+          <span class="hljs-attr">"totalPhysicalSize"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">5500928</span><span class="hljs-punctuation">,</span>
+          <span class="hljs-attr">"totalAvailableSize"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">4341101384</span><span class="hljs-punctuation">,</span>
+          <span class="hljs-attr">"totalGlobalHandlesSize"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">8192</span><span class="hljs-punctuation">,</span>
+          <span class="hljs-attr">"usedGlobalHandlesSize"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">2112</span><span class="hljs-punctuation">,</span>
+          <span class="hljs-attr">"usedHeapSize"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">4059096</span><span class="hljs-punctuation">,</span>
+          <span class="hljs-attr">"heapSizeLimit"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">4345298944</span><span class="hljs-punctuation">,</span>
+          <span class="hljs-attr">"mallocedMemory"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">254128</span><span class="hljs-punctuation">,</span>
+          <span class="hljs-attr">"externalMemory"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">225138</span><span class="hljs-punctuation">,</span>
+          <span class="hljs-attr">"peakMallocedMemory"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">181760</span>
+        <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">"heapSpaceStatistics"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+          <span class="hljs-punctuation">{</span>
+            <span class="hljs-attr">"spaceName"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"read_only_space"</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-attr">"spaceSize"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-attr">"spaceUsedSize"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-attr">"spaceAvailableSize"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-attr">"physicalSpaceSize"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span>
+          <span class="hljs-punctuation">}</span>
+        <span class="hljs-punctuation">]</span>
+      <span class="hljs-punctuation">}</span>
+    <span class="hljs-punctuation">}</span>
+  <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">"endTime"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1674059036865</span>
+<span class="hljs-punctuation">}</span></code> <button class="copy-button">copy</button></pre>
+<p>Here's an example.</p>
+<pre><code class="language-js"><span class="hljs-keyword">const</span> { <span class="hljs-title class_">GCProfiler</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'v8'</span>);
+<span class="hljs-keyword">const</span> profiler = <span class="hljs-keyword">new</span> <span class="hljs-title class_">GCProfiler</span>();
+profiler.<span class="hljs-title function_">start</span>();
+<span class="hljs-built_in">setTimeout</span>(<span class="hljs-function">() =></span> {
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(profiler.<span class="hljs-title function_">stop</span>());
+}, <span class="hljs-number">1000</span>);</code> <button class="copy-button">copy</button></pre></section>
         <!-- API END -->
       </div>
     </div>

@@ -24,11 +24,6 @@ const policyFilepath = path.join(tmpdir.path, 'policy');
 const depFilepath = require.resolve(`./build/${common.buildType}/binding.node`);
 const depURL = pathToFileURL(depFilepath);
 
-const tmpdirURL = pathToFileURL(tmpdir.path);
-if (!tmpdirURL.pathname.endsWith('/')) {
-  tmpdirURL.pathname += '/';
-}
-
 const depBody = fs.readFileSync(depURL);
 function writePolicy(...resources) {
   const manifest = { resources: {} };
@@ -57,9 +52,9 @@ function test(shouldFail, resources) {
 
 test(false, [{
   url: depURL,
-  integrity: `sha256-${hash('sha256', depBody)}`
+  integrity: `sha256-${hash('sha256', depBody)}`,
 }]);
 test(true, [{
   url: depURL,
-  integrity: `sha256akjsalkjdlaskjdk-${hash('sha256', depBody)}`
+  integrity: `sha256akjsalkjdlaskjdk-${hash('sha256', depBody)}`,
 }]);

@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.13.0">
-  <title>Net | Node.js v18.13.0 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v18.19.0">
+  <title>Net | Node.js v18.19.0 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
@@ -68,6 +68,7 @@
 <li><a href="readline.html" class="nav-readline">Readline</a></li>
 <li><a href="repl.html" class="nav-repl">REPL</a></li>
 <li><a href="report.html" class="nav-report">Report</a></li>
+<li><a href="single-executable-applications.html" class="nav-single-executable-applications">Single executable applications</a></li>
 <li><a href="stream.html" class="nav-stream">Stream</a></li>
 <li><a href="string_decoder.html" class="nav-string_decoder">String decoder</a></li>
 <li><a href="test.html" class="nav-test">Test runner</a></li>
@@ -95,7 +96,7 @@
     <div id="column1" data-id="net" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.13.0 documentation</h1>
+          <h1>Node.js v18.19.0 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -110,7 +111,7 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.13.0</li>
+            <li class="pinned-header">Node.js v18.19.0</li>
             
     <li class="picker-header">
       <a href="#">
@@ -154,6 +155,7 @@
 <li><a href="#event-drop">Event: <code>'drop'</code></a></li>
 <li><a href="#serveraddress"><code>server.address()</code></a></li>
 <li><a href="#serverclosecallback"><code>server.close([callback])</code></a></li>
+<li><span class="stability_1"><a href="#serversymbolasyncdispose"><code>server[Symbol.asyncDispose]()</code></a></span></li>
 <li><a href="#servergetconnectionscallback"><code>server.getConnections(callback)</code></a></li>
 <li><a href="#serverlisten"><code>server.listen()</code></a>
 <ul>
@@ -182,6 +184,7 @@
 <li><a href="#event-ready">Event: <code>'ready'</code></a></li>
 <li><a href="#event-timeout">Event: <code>'timeout'</code></a></li>
 <li><a href="#socketaddress"><code>socket.address()</code></a></li>
+<li><a href="#socketautoselectfamilyattemptedaddresses"><code>socket.autoSelectFamilyAttemptedAddresses</code></a></li>
 <li><span class="stability_0"><a href="#socketbuffersize"><code>socket.bufferSize</code></a></span></li>
 <li><a href="#socketbytesread"><code>socket.bytesRead</code></a></li>
 <li><a href="#socketbyteswritten"><code>socket.bytesWritten</code></a></li>
@@ -195,6 +198,7 @@
 <li><a href="#socketconnecting"><code>socket.connecting</code></a></li>
 <li><a href="#socketdestroyerror"><code>socket.destroy([error])</code></a></li>
 <li><a href="#socketdestroyed"><code>socket.destroyed</code></a></li>
+<li><a href="#socketdestroysoon"><code>socket.destroySoon()</code></a></li>
 <li><a href="#socketenddata-encoding-callback"><code>socket.end([data[, encoding]][, callback])</code></a></li>
 <li><a href="#socketlocaladdress"><code>socket.localAddress</code></a></li>
 <li><a href="#socketlocalport"><code>socket.localPort</code></a></li>
@@ -232,6 +236,10 @@
 </ul>
 </li>
 <li><a href="#netcreateserveroptions-connectionlistener"><code>net.createServer([options][, connectionListener])</code></a></li>
+<li><a href="#netgetdefaultautoselectfamily"><code>net.getDefaultAutoSelectFamily()</code></a></li>
+<li><a href="#netsetdefaultautoselectfamilyvalue"><code>net.setDefaultAutoSelectFamily(value)</code></a></li>
+<li><a href="#netgetdefaultautoselectfamilyattempttimeout"><code>net.getDefaultAutoSelectFamilyAttemptTimeout()</code></a></li>
+<li><a href="#netsetdefaultautoselectfamilyattempttimeoutvalue"><code>net.setDefaultAutoSelectFamilyAttemptTimeout(value)</code></a></li>
 <li><a href="#netisipinput"><code>net.isIP(input)</code></a></li>
 <li><a href="#netisipv4input"><code>net.isIPv4(input)</code></a></li>
 <li><a href="#netisipv6input"><code>net.isIPv6(input)</code></a></li>
@@ -300,6 +308,7 @@
 <li><a href="readline.html" class="nav-readline">Readline</a></li>
 <li><a href="repl.html" class="nav-repl">REPL</a></li>
 <li><a href="report.html" class="nav-report">Report</a></li>
+<li><a href="single-executable-applications.html" class="nav-single-executable-applications">Single executable applications</a></li>
 <li><a href="stream.html" class="nav-stream">Stream</a></li>
 <li><a href="string_decoder.html" class="nav-string_decoder">String decoder</a></li>
 <li><a href="test.html" class="nav-test">Test runner</a></li>
@@ -330,12 +339,14 @@
         <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v19.x/api/net.html">19.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/net.html">21.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v20.x/api/net.html">20.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v19.x/api/net.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/net.html">18.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v17.x/api/net.html">17.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v16.x/api/net.html">16.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v16.x/api/net.html">16.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v15.x/api/net.html">15.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v14.x/api/net.html">14.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v14.x/api/net.html">14.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v13.x/api/net.html">13.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v12.x/api/net.html">12.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v11.x/api/net.html">11.x</a></li>
@@ -409,6 +420,7 @@
 <li><a href="#event-drop">Event: <code>'drop'</code></a></li>
 <li><a href="#serveraddress"><code>server.address()</code></a></li>
 <li><a href="#serverclosecallback"><code>server.close([callback])</code></a></li>
+<li><span class="stability_1"><a href="#serversymbolasyncdispose"><code>server[Symbol.asyncDispose]()</code></a></span></li>
 <li><a href="#servergetconnectionscallback"><code>server.getConnections(callback)</code></a></li>
 <li><a href="#serverlisten"><code>server.listen()</code></a>
 <ul>
@@ -437,6 +449,7 @@
 <li><a href="#event-ready">Event: <code>'ready'</code></a></li>
 <li><a href="#event-timeout">Event: <code>'timeout'</code></a></li>
 <li><a href="#socketaddress"><code>socket.address()</code></a></li>
+<li><a href="#socketautoselectfamilyattemptedaddresses"><code>socket.autoSelectFamilyAttemptedAddresses</code></a></li>
 <li><span class="stability_0"><a href="#socketbuffersize"><code>socket.bufferSize</code></a></span></li>
 <li><a href="#socketbytesread"><code>socket.bytesRead</code></a></li>
 <li><a href="#socketbyteswritten"><code>socket.bytesWritten</code></a></li>
@@ -450,6 +463,7 @@
 <li><a href="#socketconnecting"><code>socket.connecting</code></a></li>
 <li><a href="#socketdestroyerror"><code>socket.destroy([error])</code></a></li>
 <li><a href="#socketdestroyed"><code>socket.destroyed</code></a></li>
+<li><a href="#socketdestroysoon"><code>socket.destroySoon()</code></a></li>
 <li><a href="#socketenddata-encoding-callback"><code>socket.end([data[, encoding]][, callback])</code></a></li>
 <li><a href="#socketlocaladdress"><code>socket.localAddress</code></a></li>
 <li><a href="#socketlocalport"><code>socket.localPort</code></a></li>
@@ -487,6 +501,10 @@
 </ul>
 </li>
 <li><a href="#netcreateserveroptions-connectionlistener"><code>net.createServer([options][, connectionListener])</code></a></li>
+<li><a href="#netgetdefaultautoselectfamily"><code>net.getDefaultAutoSelectFamily()</code></a></li>
+<li><a href="#netsetdefaultautoselectfamilyvalue"><code>net.setDefaultAutoSelectFamily(value)</code></a></li>
+<li><a href="#netgetdefaultautoselectfamilyattempttimeout"><code>net.getDefaultAutoSelectFamilyAttemptTimeout()</code></a></li>
+<li><a href="#netsetdefaultautoselectfamilyattempttimeoutvalue"><code>net.setDefaultAutoSelectFamilyAttemptTimeout(value)</code></a></li>
 <li><a href="#netisipinput"><code>net.isIP(input)</code></a></li>
 <li><a href="#netisipv4input"><code>net.isIPv4(input)</code></a></li>
 <li><a href="#netisipv6input"><code>net.isIPv6(input)</code></a></li>
@@ -499,12 +517,12 @@
 
 <!--lint disable maximum-line-length-->
 <p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.13.0/lib/net.js">lib/net.js</a></p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.19.0/lib/net.js">lib/net.js</a></p>
 <p>The <code>node:net</code> module provides an asynchronous network API for creating stream-based
 TCP or <a href="#ipc-support">IPC</a> servers (<a href="#netcreateserveroptions-connectionlistener"><code>net.createServer()</code></a>) and clients
 (<a href="#netcreateconnection"><code>net.createConnection()</code></a>).</p>
 <p>It can be accessed using:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> net = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:net'</span>);</code></pre>
+<pre><code class="language-js"><span class="hljs-keyword">const</span> net = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:net'</span>);</code> <button class="copy-button">copy</button></pre>
 <section><h3>IPC support<span><a class="mark" href="#ipc-support" id="ipc-support">#</a></span><a aria-hidden="true" class="legacy" id="net_ipc_support"></a></h3>
 <p>The <code>node:net</code> module supports IPC with named pipes on Windows, and Unix domain
 sockets on other operating systems.</p>
@@ -512,7 +530,7 @@ sockets on other operating systems.</p>
 <p><a href="#netconnect"><code>net.connect()</code></a>, <a href="#netcreateconnection"><code>net.createConnection()</code></a>, <a href="#serverlisten"><code>server.listen()</code></a>, and
 <a href="#socketconnect"><code>socket.connect()</code></a> take a <code>path</code> parameter to identify IPC endpoints.</p>
 <p>On Unix, the local domain is also known as the Unix domain. The path is a
-filesystem pathname. It gets truncated to an OS-dependent length of
+file system pathname. It gets truncated to an OS-dependent length of
 <code>sizeof(sockaddr_un.sun_path) - 1</code>. Typical values are 107 bytes on Linux and
 103 bytes on macOS. If a Node.js API abstraction creates the Unix domain socket,
 it will unlink the Unix domain socket as well. For example,
@@ -520,7 +538,7 @@ it will unlink the Unix domain socket as well. For example,
 <a href="#serverclosecallback"><code>server.close()</code></a> will unlink it. But if a user creates the Unix domain
 socket outside of these abstractions, the user will need to remove it. The same
 applies when a Node.js API creates a Unix domain socket but the program then
-crashes. In short, a Unix domain socket will be visible in the filesystem and
+crashes. In short, a Unix domain socket will be visible in the file system and
 will persist until unlinked.</p>
 <p>On Windows, the local domain is implemented using a named pipe. The path <em>must</em>
 refer to an entry in <code>\\?\pipe\</code> or <code>\\.\pipe\</code>. Any characters are permitted,
@@ -532,7 +550,7 @@ owning process exits.</p>
 <p>JavaScript string escaping requires paths to be specified with extra backslash
 escaping such as:</p>
 <pre><code class="language-js">net.<span class="hljs-title function_">createServer</span>().<span class="hljs-title function_">listen</span>(
-  path.<span class="hljs-title function_">join</span>(<span class="hljs-string">'\\\\?\\pipe'</span>, process.<span class="hljs-title function_">cwd</span>(), <span class="hljs-string">'myctl'</span>));</code></pre>
+  path.<span class="hljs-title function_">join</span>(<span class="hljs-string">'\\\\?\\pipe'</span>, process.<span class="hljs-title function_">cwd</span>(), <span class="hljs-string">'myctl'</span>));</code> <button class="copy-button">copy</button></pre>
 </section><section><h3>Class: <code>net.BlockList</code><span><a class="mark" href="#class-netblocklist" id="class-netblocklist">#</a></span><a aria-hidden="true" class="legacy" id="net_class_net_blocklist"></a></h3>
 <div class="api_metadata">
 <span>Added in: v15.0.0, v14.18.0</span>
@@ -595,7 +613,7 @@ blockList.<span class="hljs-title function_">addSubnet</span>(<span class="hljs-
 
 <span class="hljs-comment">// IPv6 notation for IPv4 addresses works:</span>
 <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(blockList.<span class="hljs-title function_">check</span>(<span class="hljs-string">'::ffff:7b7b:7b7b'</span>, <span class="hljs-string">'ipv6'</span>)); <span class="hljs-comment">// Prints: true</span>
-<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(blockList.<span class="hljs-title function_">check</span>(<span class="hljs-string">'::ffff:123.123.123.123'</span>, <span class="hljs-string">'ipv6'</span>)); <span class="hljs-comment">// Prints: true</span></code></pre>
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(blockList.<span class="hljs-title function_">check</span>(<span class="hljs-string">'::ffff:123.123.123.123'</span>, <span class="hljs-string">'ipv6'</span>)); <span class="hljs-comment">// Prints: true</span></code> <button class="copy-button">copy</button></pre>
 <h4><code>blockList.rules</code><span><a class="mark" href="#blocklistrules" id="blocklistrules">#</a></span><a aria-hidden="true" class="legacy" id="net_blocklist_rules"></a></h4>
 <div class="api_metadata">
 <span>Added in: v15.0.0, v14.18.0</span>
@@ -753,7 +771,7 @@ as a string.</p>
 <span class="hljs-comment">// Grab an arbitrary unused port.</span>
 server.<span class="hljs-title function_">listen</span>(<span class="hljs-function">() =></span> {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'opened server on'</span>, server.<span class="hljs-title function_">address</span>());
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <p><code>server.address()</code> returns <code>null</code> before the <code>'listening'</code> event has been
 emitted or after calling <code>server.close()</code>.</p>
 <h4><code>server.close([callback])</code><span><a class="mark" href="#serverclosecallback" id="serverclosecallback">#</a></span><a aria-hidden="true" class="legacy" id="net_server_close_callback"></a></h4>
@@ -770,6 +788,13 @@ when all connections are ended and the server emits a <a href="#event-close"><co
 The optional <code>callback</code> will be called once the <code>'close'</code> event occurs. Unlike
 that event, it will be called with an <code>Error</code> as its only argument if the server
 was not open when it was closed.</p>
+<h4><code>server[Symbol.asyncDispose]()</code><span><a class="mark" href="#serversymbolasyncdispose" id="serversymbolasyncdispose">#</a></span><a aria-hidden="true" class="legacy" id="net_server_symbol_asyncdispose"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.18.0</span>
+</div>
+<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
+<p>Calls <a href="#serverclosecallback"><code>server.close()</code></a> and returns a promise that fulfills when the
+server has closed.</p>
 <h4><code>server.getConnections(callback)</code><span><a class="mark" href="#servergetconnectionscallback" id="servergetconnectionscallback">#</a></span><a aria-hidden="true" class="legacy" id="net_server_getconnections_callback"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.9.7</span>
@@ -817,7 +842,7 @@ after a certain amount of time:</p>
       server.<span class="hljs-title function_">listen</span>(<span class="hljs-variable constant_">PORT</span>, <span class="hljs-variable constant_">HOST</span>);
     }, <span class="hljs-number">1000</span>);
   }
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <h5><code>server.listen(handle[, backlog][, callback])</code><span><a class="mark" href="#serverlistenhandle-backlog-callback" id="serverlistenhandle-backlog-callback">#</a></span><a aria-hidden="true" class="legacy" id="net_server_listen_handle_backlog_callback"></a></h5>
 <div class="api_metadata">
 <span>Added in: v0.5.10</span>
@@ -886,7 +911,7 @@ shown below.</p>
   <span class="hljs-attr">host</span>: <span class="hljs-string">'localhost'</span>,
   <span class="hljs-attr">port</span>: <span class="hljs-number">80</span>,
   <span class="hljs-attr">exclusive</span>: <span class="hljs-literal">true</span>,
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <p>When <code>exclusive</code> is <code>true</code> and the underlying handle is shared, it is
 possible that several workers query a handle with different backlogs.
 In this case, the first <code>backlog</code> passed to the master process will be used.</p>
@@ -902,7 +927,7 @@ server.<span class="hljs-title function_">listen</span>({
   <span class="hljs-attr">signal</span>: controller.<span class="hljs-property">signal</span>,
 });
 <span class="hljs-comment">// Later, when you want to close the server.</span>
-controller.<span class="hljs-title function_">abort</span>();</code></pre>
+controller.<span class="hljs-title function_">abort</span>();</code> <button class="copy-button">copy</button></pre>
 <h5><code>server.listen(path[, backlog][, callback])</code><span><a class="mark" href="#serverlistenpath-backlog-callback" id="serverlistenpath-backlog-callback">#</a></span><a aria-hidden="true" class="legacy" id="net_server_listen_path_backlog_callback"></a></h5>
 <div class="api_metadata">
 <span>Added in: v0.1.90</span>
@@ -1132,6 +1157,17 @@ the socket has been idle. The user must manually close the connection.</p>
 <p>Returns the bound <code>address</code>, the address <code>family</code> name and <code>port</code> of the
 socket as reported by the operating system:
 <code>{ port: 12346, family: 'IPv4', address: '127.0.0.1' }</code></p>
+<h4><code>socket.autoSelectFamilyAttemptedAddresses</code><span><a class="mark" href="#socketautoselectfamilyattemptedaddresses" id="socketautoselectfamilyattemptedaddresses">#</a></span><a aria-hidden="true" class="legacy" id="net_socket_autoselectfamilyattemptedaddresses"></a></h4>
+<div class="api_metadata">
+<span>Added in: v18.18.0</span>
+</div>
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string[]></a></li>
+</ul>
+<p>This property is only present if the family autoselection algorithm is enabled in
+<a href="#socketconnectoptions-connectlistener"><code>socket.connect(options)</code></a> and it is an array of the addresses that have been attempted.</p>
+<p>Each address is a string in the form of <code>$IP:$PORT</code>. If the connection was successful,
+then the last address is the one that the socket is currently connected to.</p>
 <h4><code>socket.bufferSize</code><span><a class="mark" href="#socketbuffersize" id="socketbuffersize">#</a></span><a aria-hidden="true" class="legacy" id="net_socket_buffersize"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.3.8</span><span>Deprecated since: v14.6.0</span>
@@ -1193,6 +1229,8 @@ behavior.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v18.18.0</td>
+<td><p>The default value for autoSelectFamily option can be changed at runtime using <code>setDefaultAutoSelectFamily</code> or via the command line option <code>--enable-network-family-autoselection</code>.</p></td></tr>
 <tr><td>v18.13.0</td>
 <td><p>Added the <code>autoSelectFamily</code> option.</p></td></tr>
 <tr><td>v17.7.0</td>
@@ -1239,16 +1277,18 @@ the first keepalive probe is sent on an idle socket.<strong>Default:</strong> <c
 that loosely implements section 5 of <a href="https://www.rfc-editor.org/rfc/rfc8305.txt">RFC 8305</a>.
 The <code>all</code> option passed to lookup is set to <code>true</code> and the sockets attempts to connect to all
 obtained IPv6 and IPv4 addresses, in sequence, until a connection is established.
-The first returned AAAA address is tried first, then the first returned A address and so on.
+The first returned AAAA address is tried first, then the first returned A address,
+then the second returned AAAA address and so on.
 Each connection attempt is given the amount of time specified by the <code>autoSelectFamilyAttemptTimeout</code>
 option before timing out and trying the next address.
 Ignored if the <code>family</code> option is not <code>0</code> or if <code>localAddress</code> is set.
 Connection errors are not emitted if at least one connection succeeds.
-<strong>Default:</strong> <code>false</code>.</li>
+<strong>Default:</strong> initially <code>false</code>, but it can be changed at runtime using <a href="#netsetdefaultautoselectfamilyvalue"><code>net.setDefaultAutoSelectFamily(value)</code></a>
+or via the command line option <code>--enable-network-family-autoselection</code>.</li>
 <li><code>autoSelectFamilyAttemptTimeout</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a>: The amount of time in milliseconds to wait
 for a connection attempt to finish before trying the next address when using the <code>autoSelectFamily</code> option.
 If set to a positive integer less than <code>10</code>, then the value <code>10</code> will be used instead.
-<strong>Default:</strong> <code>250</code>.</li>
+<strong>Default:</strong> initially <code>250</code>, but it can be changed at runtime using <a href="#netsetdefaultautoselectfamilyattempttimeoutvalue"><code>net.setDefaultAutoSelectFamilyAttemptTimeout(value)</code></a></li>
 </ul>
 <p>For <a href="#ipc-support">IPC</a> connections, available <code>options</code> are:</p>
 <ul>
@@ -1287,7 +1327,7 @@ net.<span class="hljs-title function_">connect</span>({
       <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(buf.<span class="hljs-title function_">toString</span>(<span class="hljs-string">'utf8'</span>, <span class="hljs-number">0</span>, nread));
     },
   },
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <h5><code>socket.connect(path[, connectListener])</code><span><a class="mark" href="#socketconnectpath-connectlistener" id="socketconnectpath-connectlistener">#</a></span><a aria-hidden="true" class="legacy" id="net_socket_connect_path_connectlistener"></a></h5>
 <ul>
 <li><code>path</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Path the client should connect to. See
@@ -1346,6 +1386,13 @@ Destroys the stream and closes the connection.</p>
 connection is destroyed no further data can be transferred using it.</li>
 </ul>
 <p>See <a href="stream.html#writabledestroyed"><code>writable.destroyed</code></a> for further details.</p>
+<h4><code>socket.destroySoon()</code><span><a class="mark" href="#socketdestroysoon" id="socketdestroysoon">#</a></span><a aria-hidden="true" class="legacy" id="net_socket_destroysoon"></a></h4>
+<div class="api_metadata">
+<span>Added in: v0.3.4</span>
+</div>
+<p>Destroys the socket after all data is written. If the <code>'finish'</code> event was
+already emitted the socket is destroyed immediately. If the socket is still
+writable it implicitly calls <code>socket.end()</code>.</p>
 <h4><code>socket.end([data[, encoding]][, callback])</code><span><a class="mark" href="#socketenddata-encoding-callback" id="socketenddata-encoding-callback">#</a></span><a aria-hidden="true" class="legacy" id="net_socket_end_data_encoding_callback"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.1.90</span>
@@ -1429,7 +1476,8 @@ the socket is destroyed (for example, if the client disconnected).</p>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
 </ul>
-<p>The string representation of the remote IP family. <code>'IPv4'</code> or <code>'IPv6'</code>.</p>
+<p>The string representation of the remote IP family. <code>'IPv4'</code> or <code>'IPv6'</code>. Value may be <code>undefined</code> if
+the socket is destroyed (for example, if the client disconnected).</p>
 <h4><code>socket.remotePort</code><span><a class="mark" href="#socketremoteport" id="socketremoteport">#</a></span><a aria-hidden="true" class="legacy" id="net_socket_remoteport"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.5.10</span>
@@ -1437,7 +1485,8 @@ the socket is destroyed (for example, if the client disconnected).</p>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a></li>
 </ul>
-<p>The numeric representation of the remote port. For example, <code>80</code> or <code>21</code>.</p>
+<p>The numeric representation of the remote port. For example, <code>80</code> or <code>21</code>. Value may be <code>undefined</code> if
+the socket is destroyed (for example, if the client disconnected).</p>
 <h4><code>socket.resetAndDestroy()</code><span><a class="mark" href="#socketresetanddestroy" id="socketresetanddestroy">#</a></span><a aria-hidden="true" class="legacy" id="net_socket_resetanddestroy"></a></h4>
 <div class="api_metadata">
 <span>Added in: v18.3.0</span>
@@ -1535,7 +1584,7 @@ event but the connection will not be severed. The user must manually call
 socket.<span class="hljs-title function_">on</span>(<span class="hljs-string">'timeout'</span>, <span class="hljs-function">() =></span> {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'socket timeout'</span>);
   socket.<span class="hljs-title function_">end</span>();
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <p>If <code>timeout</code> is 0, then the existing idle timeout is disabled.</p>
 <p>The optional <code>callback</code> parameter will be added as a one-time listener for the
 <a href="#event-timeout"><code>'timeout'</code></a> event.</p>
@@ -1689,9 +1738,9 @@ client.<span class="hljs-title function_">on</span>(<span class="hljs-string">'d
 });
 client.<span class="hljs-title function_">on</span>(<span class="hljs-string">'end'</span>, <span class="hljs-function">() =></span> {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'disconnected from server'</span>);
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <p>To connect on the socket <code>/tmp/echo.sock</code>:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> client = net.<span class="hljs-title function_">createConnection</span>({ <span class="hljs-attr">path</span>: <span class="hljs-string">'/tmp/echo.sock'</span> });</code></pre>
+<pre><code class="language-js"><span class="hljs-keyword">const</span> client = net.<span class="hljs-title function_">createConnection</span>({ <span class="hljs-attr">path</span>: <span class="hljs-string">'/tmp/echo.sock'</span> });</code> <button class="copy-button">copy</button></pre>
 <h4><code>net.createConnection(path[, connectListener])</code><span><a class="mark" href="#netcreateconnectionpath-connectlistener" id="netcreateconnectionpath-connectlistener">#</a></span><a aria-hidden="true" class="legacy" id="net_net_createconnection_path_connectlistener"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.1.90</span>
@@ -1737,6 +1786,8 @@ then returns the <code>net.Socket</code> that starts the connection.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v18.17.0</td>
+<td><p>The <code>highWaterMark</code> option is supported now.</p></td></tr>
 <tr><td>v17.7.0, v16.15.0</td>
 <td><p>The <code>noDelay</code>, <code>keepAlive</code>, and <code>keepAliveInitialDelay</code> options are supported now.</p></td></tr>
 <tr><td>v0.5.0</td>
@@ -1751,6 +1802,9 @@ then returns the <code>net.Socket</code> that starts the connection.</p>
 <li><code>allowHalfOpen</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If set to <code>false</code>, then the socket will
 automatically end the writable side when the readable side ends.
 <strong>Default:</strong> <code>false</code>.</li>
+<li><code>highWaterMark</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Optionally overrides all <a href="#class-netsocket"><code>net.Socket</code></a>s'
+<code>readableHighWaterMark</code> and <code>writableHighWaterMark</code>.
+<strong>Default:</strong> See <a href="stream.html#streamgetdefaulthighwatermarkobjectmode"><code>stream.getDefaultHighWaterMark()</code></a>.</li>
 <li><code>pauseOnConnect</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> Indicates whether the socket should be
 paused on incoming connections. <strong>Default:</strong> <code>false</code>.</li>
 <li><code>noDelay</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If set to <code>true</code>, it disables the use of Nagle's algorithm immediately
@@ -1803,15 +1857,48 @@ server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'e
 });
 server.<span class="hljs-title function_">listen</span>(<span class="hljs-number">8124</span>, <span class="hljs-function">() =></span> {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'server bound'</span>);
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <p>Test this by using <code>telnet</code>:</p>
-<pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">telnet localhost 8124</span></code></pre>
+<pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">telnet localhost 8124</span></code> <button class="copy-button">copy</button></pre>
 <p>To listen on the socket <code>/tmp/echo.sock</code>:</p>
 <pre><code class="language-js">server.<span class="hljs-title function_">listen</span>(<span class="hljs-string">'/tmp/echo.sock'</span>, <span class="hljs-function">() =></span> {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'server bound'</span>);
-});</code></pre>
+});</code> <button class="copy-button">copy</button></pre>
 <p>Use <code>nc</code> to connect to a Unix domain socket server:</p>
-<pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">nc -U /tmp/echo.sock</span></code></pre>
+<pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">nc -U /tmp/echo.sock</span></code> <button class="copy-button">copy</button></pre>
+</section><section><h3><code>net.getDefaultAutoSelectFamily()</code><span><a class="mark" href="#netgetdefaultautoselectfamily" id="netgetdefaultautoselectfamily">#</a></span><a aria-hidden="true" class="legacy" id="net_net_getdefaultautoselectfamily"></a></h3>
+<div class="api_metadata">
+<span>Added in: v19.4.0</span>
+</div>
+<p>Gets the current default value of the <code>autoSelectFamily</code> option of <a href="#socketconnectoptions-connectlistener"><code>socket.connect(options)</code></a>.</p>
+<ul>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> The current default value of the <code>autoSelectFamily</code> option.</li>
+</ul>
+</section><section><h3><code>net.setDefaultAutoSelectFamily(value)</code><span><a class="mark" href="#netsetdefaultautoselectfamilyvalue" id="netsetdefaultautoselectfamilyvalue">#</a></span><a aria-hidden="true" class="legacy" id="net_net_setdefaultautoselectfamily_value"></a></h3>
+<div class="api_metadata">
+<span>Added in: v19.4.0</span>
+</div>
+<p>Sets the default value of the <code>autoSelectFamily</code> option of <a href="#socketconnectoptions-connectlistener"><code>socket.connect(options)</code></a>.</p>
+<ul>
+<li><code>value</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> The new default value. The initial default value is <code>false</code>.</li>
+</ul>
+</section><section><h3><code>net.getDefaultAutoSelectFamilyAttemptTimeout()</code><span><a class="mark" href="#netgetdefaultautoselectfamilyattempttimeout" id="netgetdefaultautoselectfamilyattempttimeout">#</a></span><a aria-hidden="true" class="legacy" id="net_net_getdefaultautoselectfamilyattempttimeout"></a></h3>
+<div class="api_metadata">
+<span>Added in: v18.18.0</span>
+</div>
+<p>Gets the current default value of the <code>autoSelectFamilyAttemptTimeout</code> option of <a href="#socketconnectoptions-connectlistener"><code>socket.connect(options)</code></a>.</p>
+<ul>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The current default value of the <code>autoSelectFamilyAttemptTimeout</code> option.</li>
+</ul>
+</section><section><h3><code>net.setDefaultAutoSelectFamilyAttemptTimeout(value)</code><span><a class="mark" href="#netsetdefaultautoselectfamilyattempttimeoutvalue" id="netsetdefaultautoselectfamilyattempttimeoutvalue">#</a></span><a aria-hidden="true" class="legacy" id="net_net_setdefaultautoselectfamilyattempttimeout_value"></a></h3>
+<div class="api_metadata">
+<span>Added in: v18.18.0</span>
+</div>
+<p>Sets the default value of the <code>autoSelectFamilyAttemptTimeout</code> option of <a href="#socketconnectoptions-connectlistener"><code>socket.connect(options)</code></a>.</p>
+<ul>
+<li><code>value</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The new default value, which must be a positive number. If the number is less than <code>10</code>,
+the value <code>10</code> is used instead. The initial default value is <code>250</code>.</li>
+</ul>
 </section><section><h3><code>net.isIP(input)</code><span><a class="mark" href="#netisipinput" id="netisipinput">#</a></span><a aria-hidden="true" class="legacy" id="net_net_isip_input"></a></h3>
 <div class="api_metadata">
 <span>Added in: v0.3.0</span>
@@ -1827,7 +1914,7 @@ address in <a href="https://en.wikipedia.org/wiki/Dot-decimal_notation">dot-deci
 net.<span class="hljs-title function_">isIP</span>(<span class="hljs-string">'127.0.0.1'</span>); <span class="hljs-comment">// returns 4</span>
 net.<span class="hljs-title function_">isIP</span>(<span class="hljs-string">'127.000.000.001'</span>); <span class="hljs-comment">// returns 0</span>
 net.<span class="hljs-title function_">isIP</span>(<span class="hljs-string">'127.0.0.1/24'</span>); <span class="hljs-comment">// returns 0</span>
-net.<span class="hljs-title function_">isIP</span>(<span class="hljs-string">'fhqwhgads'</span>); <span class="hljs-comment">// returns 0</span></code></pre>
+net.<span class="hljs-title function_">isIP</span>(<span class="hljs-string">'fhqwhgads'</span>); <span class="hljs-comment">// returns 0</span></code> <button class="copy-button">copy</button></pre>
 </section><section><h3><code>net.isIPv4(input)</code><span><a class="mark" href="#netisipv4input" id="netisipv4input">#</a></span><a aria-hidden="true" class="legacy" id="net_net_isipv4_input"></a></h3>
 <div class="api_metadata">
 <span>Added in: v0.3.0</span>
@@ -1841,7 +1928,7 @@ leading zeroes. Otherwise, returns <code>false</code>.</p>
 <pre><code class="language-js">net.<span class="hljs-title function_">isIPv4</span>(<span class="hljs-string">'127.0.0.1'</span>); <span class="hljs-comment">// returns true</span>
 net.<span class="hljs-title function_">isIPv4</span>(<span class="hljs-string">'127.000.000.001'</span>); <span class="hljs-comment">// returns false</span>
 net.<span class="hljs-title function_">isIPv4</span>(<span class="hljs-string">'127.0.0.1/24'</span>); <span class="hljs-comment">// returns false</span>
-net.<span class="hljs-title function_">isIPv4</span>(<span class="hljs-string">'fhqwhgads'</span>); <span class="hljs-comment">// returns false</span></code></pre>
+net.<span class="hljs-title function_">isIPv4</span>(<span class="hljs-string">'fhqwhgads'</span>); <span class="hljs-comment">// returns false</span></code> <button class="copy-button">copy</button></pre>
 </section><section><h3><code>net.isIPv6(input)</code><span><a class="mark" href="#netisipv6input" id="netisipv6input">#</a></span><a aria-hidden="true" class="legacy" id="net_net_isipv6_input"></a></h3>
 <div class="api_metadata">
 <span>Added in: v0.3.0</span>
@@ -1852,7 +1939,7 @@ net.<span class="hljs-title function_">isIPv4</span>(<span class="hljs-string">'
 </ul>
 <p>Returns <code>true</code> if <code>input</code> is an IPv6 address. Otherwise, returns <code>false</code>.</p>
 <pre><code class="language-js">net.<span class="hljs-title function_">isIPv6</span>(<span class="hljs-string">'::1'</span>); <span class="hljs-comment">// returns true</span>
-net.<span class="hljs-title function_">isIPv6</span>(<span class="hljs-string">'fhqwhgads'</span>); <span class="hljs-comment">// returns false</span></code></pre></section>
+net.<span class="hljs-title function_">isIPv6</span>(<span class="hljs-string">'fhqwhgads'</span>); <span class="hljs-comment">// returns false</span></code> <button class="copy-button">copy</button></pre></section>
         <!-- API END -->
       </div>
     </div>

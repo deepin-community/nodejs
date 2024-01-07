@@ -794,12 +794,12 @@ static int GetColumnWidth(UChar32 codepoint,
         return 2;
       }
       // If ambiguous_as_full_width is false:
-      // Fall through
+      [[fallthrough]];
     case U_EA_NEUTRAL:
       if (u_hasBinaryProperty(codepoint, UCHAR_EMOJI_PRESENTATION)) {
         return 2;
       }
-      // Fall through
+      [[fallthrough]];
     case U_EA_HALFWIDTH:
     case U_EA_NARROW:
     default:
@@ -903,7 +903,7 @@ void RegisterExternalReferences(ExternalReferenceRegistry* registry) {
 }  // namespace i18n
 }  // namespace node
 
-NODE_MODULE_CONTEXT_AWARE_INTERNAL(icu, node::i18n::Initialize)
-NODE_MODULE_EXTERNAL_REFERENCE(icu, node::i18n::RegisterExternalReferences)
+NODE_BINDING_CONTEXT_AWARE_INTERNAL(icu, node::i18n::Initialize)
+NODE_BINDING_EXTERNAL_REFERENCE(icu, node::i18n::RegisterExternalReferences)
 
 #endif  // NODE_HAVE_I18N_SUPPORT

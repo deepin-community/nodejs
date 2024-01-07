@@ -1,34 +1,36 @@
-
-/* Copyright 1998 by the Massachusetts Institute of Technology.
- * Copyright (C) 2004-2009 by Daniel Stenberg
+/* MIT License
  *
- * Permission to use, copy, modify, and distribute this
- * software and its documentation for any purpose and without
- * fee is hereby granted, provided that the above copyright
- * notice appear in all copies and that both that copyright
- * notice and this permission notice appear in supporting
- * documentation, and that the name of M.I.T. not be used in
- * advertising or publicity pertaining to distribution of the
- * software without specific, written prior permission.
- * M.I.T. makes no representations about the suitability of
- * this software for any purpose.  It is provided "as is"
- * without express or implied warranty.
+ * Copyright (c) 1998 Massachusetts Institute of Technology
+ * Copyright (c) 2004 Daniel Stenberg
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice (including the next
+ * paragraph) shall be included in all copies or substantial portions of the
+ * Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * SPDX-License-Identifier: MIT
  */
 
 #include "ares_setup.h"
 
 #include "ares.h"
-#include "ares_library_init.h"
 #include "ares_private.h"
 
 /* library-private global and unique instance vars */
-
-#ifdef USE_WINSOCK
-fpGetNetworkParams_t ares_fpGetNetworkParams = ZERO_NULL;
-fpSystemFunction036_t ares_fpSystemFunction036 = ZERO_NULL;
-fpGetAdaptersAddresses_t ares_fpGetAdaptersAddresses = ZERO_NULL;
-fpGetBestRoute2_t ares_fpGetBestRoute2 = ZERO_NULL;
-#endif
 
 #if defined(ANDROID) || defined(__ANDROID__)
 #include "ares_android.h"
@@ -59,81 +61,8 @@ void *(*ares_malloc)(size_t size) = default_malloc;
 void *(*ares_realloc)(void *ptr, size_t size) = default_realloc;
 void (*ares_free)(void *ptr) = default_free;
 
-#ifdef USE_WINSOCK
-static HMODULE hnd_iphlpapi;
-static HMODULE hnd_advapi32;
-#endif
-
-
-static int ares_win32_init(void)
-{
-#ifdef USE_WINSOCK
-
-  hnd_iphlpapi = 0;
-  hnd_iphlpapi = LoadLibraryW(L"iphlpapi.dll");
-  if (!hnd_iphlpapi)
-    return ARES_ELOADIPHLPAPI;
-
-  ares_fpGetNetworkParams = (fpGetNetworkParams_t)
-    GetProcAddress(hnd_iphlpapi, "GetNetworkParams");
-  if (!ares_fpGetNetworkParams)
-    {
-      FreeLibrary(hnd_iphlpapi);
-      return ARES_EADDRGETNETWORKPARAMS;
-    }
-
-  ares_fpGetAdaptersAddresses = (fpGetAdaptersAddresses_t)
-    GetProcAddress(hnd_iphlpapi, "GetAdaptersAddresses");
-  if (!ares_fpGetAdaptersAddresses)
-    {
-      /* This can happen on clients before WinXP, I don't
-         think it should be an error, unless we don't want to
-         support Windows 2000 anymore */
-    }
-
-  ares_fpGetBestRoute2 = (fpGetBestRoute2_t)
-    GetProcAddress(hnd_iphlpapi, "GetBestRoute2");
-  if (!ares_fpGetBestRoute2)
-    {
-      /* This can happen on clients before Vista, I don't
-         think it should be an error, unless we don't want to
-         support Windows XP anymore */
-    }
-
-  /*
-   * When advapi32.dll is unavailable or advapi32.dll has no SystemFunction036,
-   * also known as RtlGenRandom, which is the case for Windows versions prior
-   * to WinXP then c-ares uses portable rand() function. Then don't error here.
-   */
-
-  hnd_advapi32 = 0;
-  hnd_advapi32 = LoadLibraryW(L"advapi32.dll");
-  if (hnd_advapi32)
-    {
-      ares_fpSystemFunction036 = (fpSystemFunction036_t)
-        GetProcAddress(hnd_advapi32, "SystemFunction036");
-    }
-
-#endif
-  return ARES_SUCCESS;
-}
-
-
-static void ares_win32_cleanup(void)
-{
-#ifdef USE_WINSOCK
-  if (hnd_advapi32)
-    FreeLibrary(hnd_advapi32);
-  if (hnd_iphlpapi)
-    FreeLibrary(hnd_iphlpapi);
-#endif
-}
-
-
 int ares_library_init(int flags)
 {
-  int res;
-
   if (ares_initialized)
     {
       ares_initialized++;
@@ -141,12 +70,7 @@ int ares_library_init(int flags)
     }
   ares_initialized++;
 
-  if (flags & ARES_LIB_INIT_WIN32)
-    {
-      res = ares_win32_init();
-      if (res != ARES_SUCCESS)
-        return res;  /* LCOV_EXCL_LINE: can't test Win32 init failure */
-    }
+  /* NOTE: ARES_LIB_INIT_WIN32 flag no longer used */
 
   ares_init_flags = flags;
 
@@ -176,8 +100,7 @@ void ares_library_cleanup(void)
   if (ares_initialized)
     return;
 
-  if (ares_init_flags & ARES_LIB_INIT_WIN32)
-    ares_win32_cleanup();
+  /* NOTE: ARES_LIB_INIT_WIN32 flag no longer used */
 
 #if defined(ANDROID) || defined(__ANDROID__)
   ares_library_cleanup_android();

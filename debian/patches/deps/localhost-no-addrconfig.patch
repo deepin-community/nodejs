@@ -1,6 +1,7 @@
 Description: do not use dns.ADDRCONFIG for localhost
  it fails on IPv6-only systems. Setting it with libc fails on linux.
  https://github.com/nodejs/node/issues/33279
+ https://lists.debian.org/debian-devel/2023/12/msg00011.html
 Author: Jérémy Lal <kapouer@melix.org>
 Last-Update: 2020-06-11
 Bug-Debian: https://bugs.debian.org/962318
@@ -13,8 +14,8 @@ Forwarded: https://github.com/nodejs/node/issues/33816
  //
  // Permission is hereby granted, free of charge, to any person obtaining a
  // copy of this software and associated documentation files (the
-@@ -1258,13 +1259,6 @@
-     hints: options.hints || 0
+@@ -1321,13 +1322,6 @@
+     hints: options.hints || 0,
    };
  
 -  if (!isWindows &&
@@ -38,5 +39,5 @@ Forwarded: https://github.com/nodejs/node/issues/33816
 +test-tls-securepair-client: PASS,FLAKY
 +
  [$system==win32]
- 
- [$system==linux]
+ # https://github.com/nodejs/node/issues/47116
+ test-http-max-sockets: PASS, FLAKY

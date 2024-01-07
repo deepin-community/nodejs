@@ -1,8 +1,10 @@
 import fs from 'fs';
-import path$1 from 'path';
-import { fileURLToPath, pathToFileURL, URL as URL$1 } from 'url';
-import proc from 'process';
+import path$2 from 'path';
+import { pathToFileURL } from 'url';
+import path$1 from 'node:path';
 import process$1 from 'node:process';
+import { fileURLToPath } from 'node:url';
+import fs$1 from 'node:fs';
 import os from 'node:os';
 import tty from 'node:tty';
 
@@ -14,16 +16,9 @@ function bail(error) {
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
-/*!
- * Determine if an object is a Buffer
- *
- * @author   Feross Aboukhadijeh <https://feross.org>
- * @license  MIT
- */
-var isBuffer = function isBuffer (obj) {
-  return obj != null && obj.constructor != null &&
-    typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
-};
+function getDefaultExportFromCjs (x) {
+	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
+}
 
 var hasOwn = Object.prototype.hasOwnProperty;
 var toStr = Object.prototype.toString;
@@ -108,6 +103,9 @@ var extend$1 = function extend() {
 	}
 	return target;
 };
+var extend$2 = getDefaultExportFromCjs(extend$1);
+
+function ok$B() {}
 
 function isPlainObject(value) {
 	if (typeof value !== 'object' || value === null) {
@@ -197,174 +195,208 @@ function wrap(middleware, callback) {
   }
 }
 
-function stringifyPosition(value) {
+function stringifyPosition$2(value) {
   if (!value || typeof value !== 'object') {
     return ''
   }
   if ('position' in value || 'type' in value) {
-    return position(value.position)
+    return position$2(value.position)
   }
   if ('start' in value || 'end' in value) {
-    return position(value)
+    return position$2(value)
   }
   if ('line' in value || 'column' in value) {
-    return point$1(value)
+    return point$4(value)
   }
   return ''
 }
-function point$1(point) {
-  return index(point && point.line) + ':' + index(point && point.column)
+function point$4(point) {
+  return index$2(point && point.line) + ':' + index$2(point && point.column)
 }
-function position(pos) {
-  return point$1(pos && pos.start) + '-' + point$1(pos && pos.end)
+function position$2(pos) {
+  return point$4(pos && pos.start) + '-' + point$4(pos && pos.end)
 }
-function index(value) {
+function index$2(value) {
   return value && typeof value === 'number' ? value : 1
 }
 
-class VFileMessage extends Error {
-  constructor(reason, place, origin) {
-    const parts = [null, null];
-    let position = {
-      start: {line: null, column: null},
-      end: {line: null, column: null}
-    };
+let VFileMessage$1 = class VFileMessage extends Error {
+  constructor(causeOrReason, optionsOrParentOrPlace, origin) {
     super();
-    if (typeof place === 'string') {
-      origin = place;
-      place = undefined;
+    if (typeof optionsOrParentOrPlace === 'string') {
+      origin = optionsOrParentOrPlace;
+      optionsOrParentOrPlace = undefined;
     }
-    if (typeof origin === 'string') {
+    let reason = '';
+    let options = {};
+    let legacyCause = false;
+    if (optionsOrParentOrPlace) {
+      if (
+        'line' in optionsOrParentOrPlace &&
+        'column' in optionsOrParentOrPlace
+      ) {
+        options = {place: optionsOrParentOrPlace};
+      }
+      else if (
+        'start' in optionsOrParentOrPlace &&
+        'end' in optionsOrParentOrPlace
+      ) {
+        options = {place: optionsOrParentOrPlace};
+      }
+      else if ('type' in optionsOrParentOrPlace) {
+        options = {
+          ancestors: [optionsOrParentOrPlace],
+          place: optionsOrParentOrPlace.position
+        };
+      }
+      else {
+        options = {...optionsOrParentOrPlace};
+      }
+    }
+    if (typeof causeOrReason === 'string') {
+      reason = causeOrReason;
+    }
+    else if (!options.cause && causeOrReason) {
+      legacyCause = true;
+      reason = causeOrReason.message;
+      options.cause = causeOrReason;
+    }
+    if (!options.ruleId && !options.source && typeof origin === 'string') {
       const index = origin.indexOf(':');
       if (index === -1) {
-        parts[1] = origin;
+        options.ruleId = origin;
       } else {
-        parts[0] = origin.slice(0, index);
-        parts[1] = origin.slice(index + 1);
+        options.source = origin.slice(0, index);
+        options.ruleId = origin.slice(index + 1);
       }
     }
-    if (place) {
-      if ('type' in place || 'position' in place) {
-        if (place.position) {
-          position = place.position;
-        }
-      }
-      else if ('start' in place || 'end' in place) {
-        position = place;
-      }
-      else if ('line' in place || 'column' in place) {
-        position.start = place;
+    if (!options.place && options.ancestors && options.ancestors) {
+      const parent = options.ancestors[options.ancestors.length - 1];
+      if (parent) {
+        options.place = parent.position;
       }
     }
-    this.name = stringifyPosition(place) || '1:1';
-    this.message = typeof reason === 'object' ? reason.message : reason;
-    this.stack = '';
-    if (typeof reason === 'object' && reason.stack) {
-      this.stack = reason.stack;
-    }
-    this.reason = this.message;
-    this.fatal;
-    this.line = position.start.line;
-    this.column = position.start.column;
-    this.position = position;
-    this.source = parts[0];
-    this.ruleId = parts[1];
+    const start =
+      options.place && 'start' in options.place
+        ? options.place.start
+        : options.place;
+    this.ancestors = options.ancestors || undefined;
+    this.cause = options.cause || undefined;
+    this.column = start ? start.column : undefined;
+    this.fatal = undefined;
     this.file;
+    this.message = reason;
+    this.line = start ? start.line : undefined;
+    this.name = stringifyPosition$2(options.place) || '1:1';
+    this.place = options.place || undefined;
+    this.reason = this.message;
+    this.ruleId = options.ruleId || undefined;
+    this.source = options.source || undefined;
+    this.stack =
+      legacyCause && options.cause && typeof options.cause.stack === 'string'
+        ? options.cause.stack
+        : '';
     this.actual;
     this.expected;
-    this.url;
     this.note;
+    this.url;
   }
-}
-VFileMessage.prototype.file = '';
-VFileMessage.prototype.name = '';
-VFileMessage.prototype.reason = '';
-VFileMessage.prototype.message = '';
-VFileMessage.prototype.stack = '';
-VFileMessage.prototype.fatal = null;
-VFileMessage.prototype.column = null;
-VFileMessage.prototype.line = null;
-VFileMessage.prototype.source = null;
-VFileMessage.prototype.ruleId = null;
-VFileMessage.prototype.position = null;
+};
+VFileMessage$1.prototype.file = '';
+VFileMessage$1.prototype.name = '';
+VFileMessage$1.prototype.reason = '';
+VFileMessage$1.prototype.message = '';
+VFileMessage$1.prototype.stack = '';
+VFileMessage$1.prototype.column = undefined;
+VFileMessage$1.prototype.line = undefined;
+VFileMessage$1.prototype.ancestors = undefined;
+VFileMessage$1.prototype.cause = undefined;
+VFileMessage$1.prototype.fatal = undefined;
+VFileMessage$1.prototype.place = undefined;
+VFileMessage$1.prototype.ruleId = undefined;
+VFileMessage$1.prototype.source = undefined;
 
-function isUrl(fileURLOrPath) {
-  return (
-    fileURLOrPath !== null &&
-    typeof fileURLOrPath === 'object' &&
-    fileURLOrPath.href &&
-    fileURLOrPath.origin
+function isUrl$1(fileUrlOrPath) {
+  return Boolean(
+    fileUrlOrPath !== null &&
+      typeof fileUrlOrPath === 'object' &&
+      'href' in fileUrlOrPath &&
+      fileUrlOrPath.href &&
+      'protocol' in fileUrlOrPath &&
+      fileUrlOrPath.protocol &&
+      fileUrlOrPath.auth === undefined
   )
 }
 
-const order = ['history', 'path', 'basename', 'stem', 'extname', 'dirname'];
-class VFile {
+const order$1 =  ([
+  'history',
+  'path',
+  'basename',
+  'stem',
+  'extname',
+  'dirname'
+]);
+let VFile$1 = class VFile {
   constructor(value) {
     let options;
     if (!value) {
       options = {};
-    } else if (typeof value === 'string' || isBuffer(value)) {
-      options = {value};
-    } else if (isUrl(value)) {
+    } else if (isUrl$1(value)) {
       options = {path: value};
+    } else if (typeof value === 'string' || isUint8Array$3(value)) {
+      options = {value};
     } else {
       options = value;
     }
+    this.cwd = process$1.cwd();
     this.data = {};
-    this.messages = [];
     this.history = [];
-    this.cwd = proc.cwd();
+    this.messages = [];
     this.value;
-    this.stored;
-    this.result;
     this.map;
+    this.result;
+    this.stored;
     let index = -1;
-    while (++index < order.length) {
-      const prop = order[index];
-      if (prop in options && options[prop] !== undefined) {
+    while (++index < order$1.length) {
+      const prop = order$1[index];
+      if (
+        prop in options &&
+        options[prop] !== undefined &&
+        options[prop] !== null
+      ) {
         this[prop] = prop === 'history' ? [...options[prop]] : options[prop];
       }
     }
     let prop;
     for (prop in options) {
-      if (!order.includes(prop)) this[prop] = options[prop];
+      if (!order$1.includes(prop)) {
+        this[prop] = options[prop];
+      }
     }
-  }
-  get path() {
-    return this.history[this.history.length - 1]
-  }
-  set path(path) {
-    if (isUrl(path)) {
-      path = fileURLToPath(path);
-    }
-    assertNonEmpty(path, 'path');
-    if (this.path !== path) {
-      this.history.push(path);
-    }
-  }
-  get dirname() {
-    return typeof this.path === 'string' ? path$1.dirname(this.path) : undefined
-  }
-  set dirname(dirname) {
-    assertPath(this.basename, 'dirname');
-    this.path = path$1.join(dirname || '', this.basename);
   }
   get basename() {
     return typeof this.path === 'string' ? path$1.basename(this.path) : undefined
   }
   set basename(basename) {
-    assertNonEmpty(basename, 'basename');
-    assertPart(basename, 'basename');
+    assertNonEmpty$1(basename, 'basename');
+    assertPart$1(basename, 'basename');
     this.path = path$1.join(this.dirname || '', basename);
+  }
+  get dirname() {
+    return typeof this.path === 'string' ? path$1.dirname(this.path) : undefined
+  }
+  set dirname(dirname) {
+    assertPath$1(this.basename, 'dirname');
+    this.path = path$1.join(dirname || '', this.basename);
   }
   get extname() {
     return typeof this.path === 'string' ? path$1.extname(this.path) : undefined
   }
   set extname(extname) {
-    assertPart(extname, 'extname');
-    assertPath(this.dirname, 'extname');
+    assertPart$1(extname, 'extname');
+    assertPath$1(this.dirname, 'extname');
     if (extname) {
-      if (extname.charCodeAt(0) !== 46 ) {
+      if (extname.codePointAt(0) !== 46 ) {
         throw new Error('`extname` must start with `.`')
       }
       if (extname.includes('.', 1)) {
@@ -373,21 +405,44 @@ class VFile {
     }
     this.path = path$1.join(this.dirname, this.stem + (extname || ''));
   }
+  get path() {
+    return this.history[this.history.length - 1]
+  }
+  set path(path) {
+    if (isUrl$1(path)) {
+      path = fileURLToPath(path);
+    }
+    assertNonEmpty$1(path, 'path');
+    if (this.path !== path) {
+      this.history.push(path);
+    }
+  }
   get stem() {
     return typeof this.path === 'string'
       ? path$1.basename(this.path, this.extname)
       : undefined
   }
   set stem(stem) {
-    assertNonEmpty(stem, 'stem');
-    assertPart(stem, 'stem');
+    assertNonEmpty$1(stem, 'stem');
+    assertPart$1(stem, 'stem');
     this.path = path$1.join(this.dirname || '', stem + (this.extname || ''));
   }
-  toString(encoding) {
-    return (this.value || '').toString(encoding)
+  fail(causeOrReason, optionsOrParentOrPlace, origin) {
+    const message = this.message(causeOrReason, optionsOrParentOrPlace, origin);
+    message.fatal = true;
+    throw message
   }
-  message(reason, place, origin) {
-    const message = new VFileMessage(reason, place, origin);
+  info(causeOrReason, optionsOrParentOrPlace, origin) {
+    const message = this.message(causeOrReason, optionsOrParentOrPlace, origin);
+    message.fatal = undefined;
+    return message
+  }
+  message(causeOrReason, optionsOrParentOrPlace, origin) {
+    const message = new VFileMessage$1(
+      causeOrReason,
+      optionsOrParentOrPlace,
+      origin
+    );
     if (this.path) {
       message.name = this.path + ':' + message.name;
       message.file = this.path;
@@ -396,107 +451,246 @@ class VFile {
     this.messages.push(message);
     return message
   }
-  info(reason, place, origin) {
-    const message = this.message(reason, place, origin);
-    message.fatal = null;
-    return message
+  toString(encoding) {
+    if (this.value === undefined) {
+      return ''
+    }
+    if (typeof this.value === 'string') {
+      return this.value
+    }
+    const decoder = new TextDecoder(encoding || undefined);
+    return decoder.decode(this.value)
   }
-  fail(reason, place, origin) {
-    const message = this.message(reason, place, origin);
-    message.fatal = true;
-    throw message
-  }
-}
-function assertPart(part, name) {
+};
+function assertPart$1(part, name) {
   if (part && part.includes(path$1.sep)) {
     throw new Error(
       '`' + name + '` cannot be a path: did not expect `' + path$1.sep + '`'
     )
   }
 }
-function assertNonEmpty(part, name) {
+function assertNonEmpty$1(part, name) {
   if (!part) {
     throw new Error('`' + name + '` cannot be empty')
   }
 }
-function assertPath(path, name) {
+function assertPath$1(path, name) {
   if (!path) {
     throw new Error('Setting `' + name + '` requires `path` to be set too')
   }
 }
+function isUint8Array$3(value) {
+  return Boolean(
+    value &&
+      typeof value === 'object' &&
+      'byteLength' in value &&
+      'byteOffset' in value
+  )
+}
 
-const unified = base().freeze();
-const own$7 = {}.hasOwnProperty;
-function base() {
-  const transformers = trough();
-  const attachers = [];
-  let namespace = {};
-  let frozen;
-  let freezeIndex = -1;
-  processor.data = data;
-  processor.Parser = undefined;
-  processor.Compiler = undefined;
-  processor.freeze = freeze;
-  processor.attachers = attachers;
-  processor.use = use;
-  processor.parse = parse;
-  processor.stringify = stringify;
-  processor.run = run;
-  processor.runSync = runSync;
-  processor.process = process;
-  processor.processSync = processSync;
-  return processor
-  function processor() {
-    const destination = base();
+const CallableInstance =
+  (
+    (
+      function (property) {
+        const self = this;
+        const constr = self.constructor;
+        const proto =  (
+          constr.prototype
+        );
+        const func = proto[property];
+        const apply = function () {
+          return func.apply(apply, arguments)
+        };
+        Object.setPrototypeOf(apply, proto);
+        const names = Object.getOwnPropertyNames(func);
+        for (const p of names) {
+          const descriptor = Object.getOwnPropertyDescriptor(func, p);
+          if (descriptor) Object.defineProperty(apply, p, descriptor);
+        }
+        return apply
+      }
+    )
+  );
+
+const own$6 = {}.hasOwnProperty;
+class Processor extends CallableInstance {
+  constructor() {
+    super('copy');
+    this.Compiler = undefined;
+    this.Parser = undefined;
+    this.attachers = [];
+    this.compiler = undefined;
+    this.freezeIndex = -1;
+    this.frozen = undefined;
+    this.namespace = {};
+    this.parser = undefined;
+    this.transformers = trough();
+  }
+  copy() {
+    const destination =
+       (
+        new Processor()
+      );
     let index = -1;
-    while (++index < attachers.length) {
-      destination.use(...attachers[index]);
+    while (++index < this.attachers.length) {
+      const attacher = this.attachers[index];
+      destination.use(...attacher);
     }
-    destination.data(extend$1(true, {}, namespace));
+    destination.data(extend$2(true, {}, this.namespace));
     return destination
   }
-  function data(key, value) {
+  data(key, value) {
     if (typeof key === 'string') {
       if (arguments.length === 2) {
-        assertUnfrozen('data', frozen);
-        namespace[key] = value;
-        return processor
+        assertUnfrozen('data', this.frozen);
+        this.namespace[key] = value;
+        return this
       }
-      return (own$7.call(namespace, key) && namespace[key]) || null
+      return (own$6.call(this.namespace, key) && this.namespace[key]) || undefined
     }
     if (key) {
-      assertUnfrozen('data', frozen);
-      namespace = key;
-      return processor
+      assertUnfrozen('data', this.frozen);
+      this.namespace = key;
+      return this
     }
-    return namespace
+    return this.namespace
   }
-  function freeze() {
-    if (frozen) {
-      return processor
+  freeze() {
+    if (this.frozen) {
+      return this
     }
-    while (++freezeIndex < attachers.length) {
-      const [attacher, ...options] = attachers[freezeIndex];
+    const self =  ( (this));
+    while (++this.freezeIndex < this.attachers.length) {
+      const [attacher, ...options] = this.attachers[this.freezeIndex];
       if (options[0] === false) {
         continue
       }
       if (options[0] === true) {
         options[0] = undefined;
       }
-      const transformer = attacher.call(processor, ...options);
+      const transformer = attacher.call(self, ...options);
       if (typeof transformer === 'function') {
-        transformers.use(transformer);
+        this.transformers.use(transformer);
       }
     }
-    frozen = true;
-    freezeIndex = Number.POSITIVE_INFINITY;
-    return processor
+    this.frozen = true;
+    this.freezeIndex = Number.POSITIVE_INFINITY;
+    return this
   }
-  function use(value, ...options) {
-    let settings;
-    assertUnfrozen('use', frozen);
+  parse(file) {
+    this.freeze();
+    const realFile = vfile(file);
+    const parser = this.parser || this.Parser;
+    assertParser('parse', parser);
+    return parser(String(realFile), realFile)
+  }
+  process(file, done) {
+    const self = this;
+    this.freeze();
+    assertParser('process', this.parser || this.Parser);
+    assertCompiler('process', this.compiler || this.Compiler);
+    return done ? executor(undefined, done) : new Promise(executor)
+    function executor(resolve, reject) {
+      const realFile = vfile(file);
+      const parseTree =
+         (
+           (self.parse(realFile))
+        );
+      self.run(parseTree, realFile, function (error, tree, file) {
+        if (error || !tree || !file) {
+          return realDone(error)
+        }
+        const compileTree =
+           (
+             (tree)
+          );
+        const compileResult = self.stringify(compileTree, file);
+        if (looksLikeAValue(compileResult)) {
+          file.value = compileResult;
+        } else {
+          file.result = compileResult;
+        }
+        realDone(error,  (file));
+      });
+      function realDone(error, file) {
+        if (error || !file) {
+          reject(error);
+        } else if (resolve) {
+          resolve(file);
+        } else {
+          done(undefined, file);
+        }
+      }
+    }
+  }
+  processSync(file) {
+    let complete = false;
+    let result;
+    this.freeze();
+    assertParser('processSync', this.parser || this.Parser);
+    assertCompiler('processSync', this.compiler || this.Compiler);
+    this.process(file, realDone);
+    assertDone('processSync', 'process', complete);
+    return result
+    function realDone(error, file) {
+      complete = true;
+      bail(error);
+      result = file;
+    }
+  }
+  run(tree, file, done) {
+    assertNode(tree);
+    this.freeze();
+    const transformers = this.transformers;
+    if (!done && typeof file === 'function') {
+      done = file;
+      file = undefined;
+    }
+    return done ? executor(undefined, done) : new Promise(executor)
+    function executor(resolve, reject) {
+      const realFile = vfile(file);
+      transformers.run(tree, realFile, realDone);
+      function realDone(error, outputTree, file) {
+        const resultingTree =
+           (
+            outputTree || tree
+          );
+        if (error) {
+          reject(error);
+        } else if (resolve) {
+          resolve(resultingTree);
+        } else {
+          done(undefined, resultingTree, file);
+        }
+      }
+    }
+  }
+  runSync(tree, file) {
+    let complete = false;
+    let result;
+    this.run(tree, file, realDone);
+    assertDone('runSync', 'run', complete);
+    return result
+    function realDone(error, tree) {
+      bail(error);
+      result = tree;
+      complete = true;
+    }
+  }
+  stringify(tree, file) {
+    this.freeze();
+    const realFile = vfile(file);
+    const compiler = this.compiler || this.Compiler;
+    assertCompiler('stringify', compiler);
+    assertNode(tree);
+    return compiler(tree, realFile)
+  }
+  use(value, ...parameters) {
+    const attachers = this.attachers;
+    const namespace = this.namespace;
+    assertUnfrozen('use', this.frozen);
     if (value === null || value === undefined) ; else if (typeof value === 'function') {
-      addPlugin(value, ...options);
+      addPlugin(value, parameters);
     } else if (typeof value === 'object') {
       if (Array.isArray(value)) {
         addList(value);
@@ -506,17 +700,15 @@ function base() {
     } else {
       throw new TypeError('Expected usable value, not `' + value + '`')
     }
-    if (settings) {
-      namespace.settings = Object.assign(namespace.settings || {}, settings);
-    }
-    return processor
+    return this
     function add(value) {
       if (typeof value === 'function') {
-        addPlugin(value);
+        addPlugin(value, []);
       } else if (typeof value === 'object') {
         if (Array.isArray(value)) {
-          const [plugin, ...options] = value;
-          addPlugin(plugin, ...options);
+          const [plugin, ...parameters] =
+             (value);
+          addPlugin(plugin, parameters);
         } else {
           addPreset(value);
         }
@@ -525,9 +717,14 @@ function base() {
       }
     }
     function addPreset(result) {
+      if (!('plugins' in result) && !('settings' in result)) {
+        throw new Error(
+          'Expected usable value but received an empty preset, which is probably a mistake: presets typically come with `plugins` and sometimes with `settings`, but this has neither'
+        )
+      }
       addList(result.plugins);
       if (result.settings) {
-        settings = Object.assign(settings || {}, result.settings);
+        namespace.settings = extend$2(true, namespace.settings, result.settings);
       }
     }
     function addList(plugins) {
@@ -541,156 +738,38 @@ function base() {
         throw new TypeError('Expected a list of plugins, not `' + plugins + '`')
       }
     }
-    function addPlugin(plugin, value) {
+    function addPlugin(plugin, parameters) {
       let index = -1;
-      let entry;
+      let entryIndex = -1;
       while (++index < attachers.length) {
         if (attachers[index][0] === plugin) {
-          entry = attachers[index];
+          entryIndex = index;
           break
         }
       }
-      if (entry) {
-        if (isPlainObject(entry[1]) && isPlainObject(value)) {
-          value = extend$1(true, entry[1], value);
+      if (entryIndex === -1) {
+        attachers.push([plugin, ...parameters]);
+      }
+      else if (parameters.length > 0) {
+        let [primary, ...rest] = parameters;
+        const currentPrimary = attachers[entryIndex][1];
+        if (isPlainObject(currentPrimary) && isPlainObject(primary)) {
+          primary = extend$2(true, currentPrimary, primary);
         }
-        entry[1] = value;
-      } else {
-        attachers.push([...arguments]);
+        attachers[entryIndex] = [plugin, primary, ...rest];
       }
     }
   }
-  function parse(doc) {
-    processor.freeze();
-    const file = vfile(doc);
-    const Parser = processor.Parser;
-    assertParser('parse', Parser);
-    if (newable(Parser, 'parse')) {
-      return new Parser(String(file), file).parse()
-    }
-    return Parser(String(file), file)
-  }
-  function stringify(node, doc) {
-    processor.freeze();
-    const file = vfile(doc);
-    const Compiler = processor.Compiler;
-    assertCompiler('stringify', Compiler);
-    assertNode(node);
-    if (newable(Compiler, 'compile')) {
-      return new Compiler(node, file).compile()
-    }
-    return Compiler(node, file)
-  }
-  function run(node, doc, callback) {
-    assertNode(node);
-    processor.freeze();
-    if (!callback && typeof doc === 'function') {
-      callback = doc;
-      doc = undefined;
-    }
-    if (!callback) {
-      return new Promise(executor)
-    }
-    executor(null, callback);
-    function executor(resolve, reject) {
-      transformers.run(node, vfile(doc), done);
-      function done(error, tree, file) {
-        tree = tree || node;
-        if (error) {
-          reject(error);
-        } else if (resolve) {
-          resolve(tree);
-        } else {
-          callback(null, tree, file);
-        }
-      }
-    }
-  }
-  function runSync(node, file) {
-    let result;
-    let complete;
-    processor.run(node, file, done);
-    assertDone('runSync', 'run', complete);
-    return result
-    function done(error, tree) {
-      bail(error);
-      result = tree;
-      complete = true;
-    }
-  }
-  function process(doc, callback) {
-    processor.freeze();
-    assertParser('process', processor.Parser);
-    assertCompiler('process', processor.Compiler);
-    if (!callback) {
-      return new Promise(executor)
-    }
-    executor(null, callback);
-    function executor(resolve, reject) {
-      const file = vfile(doc);
-      processor.run(processor.parse(file), file, (error, tree, file) => {
-        if (error || !tree || !file) {
-          done(error);
-        } else {
-          const result = processor.stringify(tree, file);
-          if (result === undefined || result === null) ; else if (looksLikeAVFileValue(result)) {
-            file.value = result;
-          } else {
-            file.result = result;
-          }
-          done(error, file);
-        }
-      });
-      function done(error, file) {
-        if (error || !file) {
-          reject(error);
-        } else if (resolve) {
-          resolve(file);
-        } else {
-          callback(null, file);
-        }
-      }
-    }
-  }
-  function processSync(doc) {
-    let complete;
-    processor.freeze();
-    assertParser('processSync', processor.Parser);
-    assertCompiler('processSync', processor.Compiler);
-    const file = vfile(doc);
-    processor.process(file, done);
-    assertDone('processSync', 'process', complete);
-    return file
-    function done(error) {
-      complete = true;
-      bail(error);
-    }
-  }
 }
-function newable(value, name) {
-  return (
-    typeof value === 'function' &&
-    value.prototype &&
-    (keys(value.prototype) || name in value.prototype)
-  )
-}
-function keys(value) {
-  let key;
-  for (key in value) {
-    if (own$7.call(value, key)) {
-      return true
-    }
-  }
-  return false
-}
+const unified = new Processor().freeze();
 function assertParser(name, value) {
   if (typeof value !== 'function') {
-    throw new TypeError('Cannot `' + name + '` without `Parser`')
+    throw new TypeError('Cannot `' + name + '` without `parser`')
   }
 }
 function assertCompiler(name, value) {
   if (typeof value !== 'function') {
-    throw new TypeError('Cannot `' + name + '` without `Compiler`')
+    throw new TypeError('Cannot `' + name + '` without `compiler`')
   }
 }
 function assertUnfrozen(name, frozen) {
@@ -715,7 +794,7 @@ function assertDone(name, asyncName, complete) {
   }
 }
 function vfile(value) {
-  return looksLikeAVFile$1(value) ? value : new VFile(value)
+  return looksLikeAVFile$1(value) ? value : new VFile$1(value)
 }
 function looksLikeAVFile$1(value) {
   return Boolean(
@@ -725,784 +804,56 @@ function looksLikeAVFile$1(value) {
       'messages' in value
   )
 }
-function looksLikeAVFileValue(value) {
-  return typeof value === 'string' || isBuffer(value)
+function looksLikeAValue(value) {
+  return typeof value === 'string' || isUint8Array$2(value)
 }
-
-function toString(node, options) {
-  var {includeImageAlt = true} = options || {};
-  return one(node, includeImageAlt)
-}
-function one(node, includeImageAlt) {
-  return (
-    (node &&
-      typeof node === 'object' &&
-      (node.value ||
-        (includeImageAlt ? node.alt : '') ||
-        ('children' in node && all(node.children, includeImageAlt)) ||
-        (Array.isArray(node) && all(node, includeImageAlt)))) ||
-    ''
+function isUint8Array$2(value) {
+  return Boolean(
+    value &&
+      typeof value === 'object' &&
+      'byteLength' in value &&
+      'byteOffset' in value
   )
 }
-function all(values, includeImageAlt) {
-  var result = [];
-  var index = -1;
+
+const emptyOptions$3 = {};
+function toString$2(value, options) {
+  const settings = options || emptyOptions$3;
+  const includeImageAlt =
+    typeof settings.includeImageAlt === 'boolean'
+      ? settings.includeImageAlt
+      : true;
+  const includeHtml =
+    typeof settings.includeHtml === 'boolean' ? settings.includeHtml : true;
+  return one$2(value, includeImageAlt, includeHtml)
+}
+function one$2(value, includeImageAlt, includeHtml) {
+  if (node$2(value)) {
+    if ('value' in value) {
+      return value.type === 'html' && !includeHtml ? '' : value.value
+    }
+    if (includeImageAlt && 'alt' in value && value.alt) {
+      return value.alt
+    }
+    if ('children' in value) {
+      return all$2(value.children, includeImageAlt, includeHtml)
+    }
+  }
+  if (Array.isArray(value)) {
+    return all$2(value, includeImageAlt, includeHtml)
+  }
+  return ''
+}
+function all$2(values, includeImageAlt, includeHtml) {
+  const result = [];
+  let index = -1;
   while (++index < values.length) {
-    result[index] = one(values[index], includeImageAlt);
+    result[index] = one$2(values[index], includeImageAlt, includeHtml);
   }
   return result.join('')
 }
-
-function splice(list, start, remove, items) {
-  const end = list.length;
-  let chunkStart = 0;
-  let parameters;
-  if (start < 0) {
-    start = -start > end ? 0 : end + start;
-  } else {
-    start = start > end ? end : start;
-  }
-  remove = remove > 0 ? remove : 0;
-  if (items.length < 10000) {
-    parameters = Array.from(items);
-    parameters.unshift(start, remove)
-    ;[].splice.apply(list, parameters);
-  } else {
-    if (remove) [].splice.apply(list, [start, remove]);
-    while (chunkStart < items.length) {
-      parameters = items.slice(chunkStart, chunkStart + 10000);
-      parameters.unshift(start, 0)
-      ;[].splice.apply(list, parameters);
-      chunkStart += 10000;
-      start += 10000;
-    }
-  }
-}
-function push(list, items) {
-  if (list.length > 0) {
-    splice(list, list.length, 0, items);
-    return list
-  }
-  return items
-}
-
-const hasOwnProperty = {}.hasOwnProperty;
-function combineExtensions(extensions) {
-  const all = {};
-  let index = -1;
-  while (++index < extensions.length) {
-    syntaxExtension(all, extensions[index]);
-  }
-  return all
-}
-function syntaxExtension(all, extension) {
-  let hook;
-  for (hook in extension) {
-    const maybe = hasOwnProperty.call(all, hook) ? all[hook] : undefined;
-    const left = maybe || (all[hook] = {});
-    const right = extension[hook];
-    let code;
-    for (code in right) {
-      if (!hasOwnProperty.call(left, code)) left[code] = [];
-      const value = right[code];
-      constructs(
-        left[code],
-        Array.isArray(value) ? value : value ? [value] : []
-      );
-    }
-  }
-}
-function constructs(existing, list) {
-  let index = -1;
-  const before = [];
-  while (++index < list.length) {
-(list[index].add === 'after' ? existing : before).push(list[index]);
-  }
-  splice(existing, 0, 0, before);
-}
-
-const unicodePunctuationRegex =
-  /[!-/:-@[-`{-~\u00A1\u00A7\u00AB\u00B6\u00B7\u00BB\u00BF\u037E\u0387\u055A-\u055F\u0589\u058A\u05BE\u05C0\u05C3\u05C6\u05F3\u05F4\u0609\u060A\u060C\u060D\u061B\u061E\u061F\u066A-\u066D\u06D4\u0700-\u070D\u07F7-\u07F9\u0830-\u083E\u085E\u0964\u0965\u0970\u09FD\u0A76\u0AF0\u0C77\u0C84\u0DF4\u0E4F\u0E5A\u0E5B\u0F04-\u0F12\u0F14\u0F3A-\u0F3D\u0F85\u0FD0-\u0FD4\u0FD9\u0FDA\u104A-\u104F\u10FB\u1360-\u1368\u1400\u166E\u169B\u169C\u16EB-\u16ED\u1735\u1736\u17D4-\u17D6\u17D8-\u17DA\u1800-\u180A\u1944\u1945\u1A1E\u1A1F\u1AA0-\u1AA6\u1AA8-\u1AAD\u1B5A-\u1B60\u1BFC-\u1BFF\u1C3B-\u1C3F\u1C7E\u1C7F\u1CC0-\u1CC7\u1CD3\u2010-\u2027\u2030-\u2043\u2045-\u2051\u2053-\u205E\u207D\u207E\u208D\u208E\u2308-\u230B\u2329\u232A\u2768-\u2775\u27C5\u27C6\u27E6-\u27EF\u2983-\u2998\u29D8-\u29DB\u29FC\u29FD\u2CF9-\u2CFC\u2CFE\u2CFF\u2D70\u2E00-\u2E2E\u2E30-\u2E4F\u2E52\u3001-\u3003\u3008-\u3011\u3014-\u301F\u3030\u303D\u30A0\u30FB\uA4FE\uA4FF\uA60D-\uA60F\uA673\uA67E\uA6F2-\uA6F7\uA874-\uA877\uA8CE\uA8CF\uA8F8-\uA8FA\uA8FC\uA92E\uA92F\uA95F\uA9C1-\uA9CD\uA9DE\uA9DF\uAA5C-\uAA5F\uAADE\uAADF\uAAF0\uAAF1\uABEB\uFD3E\uFD3F\uFE10-\uFE19\uFE30-\uFE52\uFE54-\uFE61\uFE63\uFE68\uFE6A\uFE6B\uFF01-\uFF03\uFF05-\uFF0A\uFF0C-\uFF0F\uFF1A\uFF1B\uFF1F\uFF20\uFF3B-\uFF3D\uFF3F\uFF5B\uFF5D\uFF5F-\uFF65]/;
-
-const asciiAlpha = regexCheck(/[A-Za-z]/);
-const asciiDigit = regexCheck(/\d/);
-const asciiHexDigit = regexCheck(/[\dA-Fa-f]/);
-const asciiAlphanumeric = regexCheck(/[\dA-Za-z]/);
-const asciiPunctuation = regexCheck(/[!-/:-@[-`{-~]/);
-const asciiAtext = regexCheck(/[#-'*+\--9=?A-Z^-~]/);
-function asciiControl(code) {
-  return (
-    code !== null && (code < 32 || code === 127)
-  )
-}
-function markdownLineEndingOrSpace(code) {
-  return code !== null && (code < 0 || code === 32)
-}
-function markdownLineEnding(code) {
-  return code !== null && code < -2
-}
-function markdownSpace(code) {
-  return code === -2 || code === -1 || code === 32
-}
-const unicodeWhitespace = regexCheck(/\s/);
-const unicodePunctuation = regexCheck(unicodePunctuationRegex);
-function regexCheck(regex) {
-  return check
-  function check(code) {
-    return code !== null && regex.test(String.fromCharCode(code))
-  }
-}
-
-function factorySpace(effects, ok, type, max) {
-  const limit = max ? max - 1 : Number.POSITIVE_INFINITY;
-  let size = 0;
-  return start
-  function start(code) {
-    if (markdownSpace(code)) {
-      effects.enter(type);
-      return prefix(code)
-    }
-    return ok(code)
-  }
-  function prefix(code) {
-    if (markdownSpace(code) && size++ < limit) {
-      effects.consume(code);
-      return prefix
-    }
-    effects.exit(type);
-    return ok(code)
-  }
-}
-
-const content$1 = {
-  tokenize: initializeContent
-};
-function initializeContent(effects) {
-  const contentStart = effects.attempt(
-    this.parser.constructs.contentInitial,
-    afterContentStartConstruct,
-    paragraphInitial
-  );
-  let previous;
-  return contentStart
-  function afterContentStartConstruct(code) {
-    if (code === null) {
-      effects.consume(code);
-      return
-    }
-    effects.enter('lineEnding');
-    effects.consume(code);
-    effects.exit('lineEnding');
-    return factorySpace(effects, contentStart, 'linePrefix')
-  }
-  function paragraphInitial(code) {
-    effects.enter('paragraph');
-    return lineStart(code)
-  }
-  function lineStart(code) {
-    const token = effects.enter('chunkText', {
-      contentType: 'text',
-      previous
-    });
-    if (previous) {
-      previous.next = token;
-    }
-    previous = token;
-    return data(code)
-  }
-  function data(code) {
-    if (code === null) {
-      effects.exit('chunkText');
-      effects.exit('paragraph');
-      effects.consume(code);
-      return
-    }
-    if (markdownLineEnding(code)) {
-      effects.consume(code);
-      effects.exit('chunkText');
-      return lineStart
-    }
-    effects.consume(code);
-    return data
-  }
-}
-
-const document$1 = {
-  tokenize: initializeDocument
-};
-const containerConstruct = {
-  tokenize: tokenizeContainer
-};
-function initializeDocument(effects) {
-  const self = this;
-  const stack = [];
-  let continued = 0;
-  let childFlow;
-  let childToken;
-  let lineStartOffset;
-  return start
-  function start(code) {
-    if (continued < stack.length) {
-      const item = stack[continued];
-      self.containerState = item[1];
-      return effects.attempt(
-        item[0].continuation,
-        documentContinue,
-        checkNewContainers
-      )(code)
-    }
-    return checkNewContainers(code)
-  }
-  function documentContinue(code) {
-    continued++;
-    if (self.containerState._closeFlow) {
-      self.containerState._closeFlow = undefined;
-      if (childFlow) {
-        closeFlow();
-      }
-      const indexBeforeExits = self.events.length;
-      let indexBeforeFlow = indexBeforeExits;
-      let point;
-      while (indexBeforeFlow--) {
-        if (
-          self.events[indexBeforeFlow][0] === 'exit' &&
-          self.events[indexBeforeFlow][1].type === 'chunkFlow'
-        ) {
-          point = self.events[indexBeforeFlow][1].end;
-          break
-        }
-      }
-      exitContainers(continued);
-      let index = indexBeforeExits;
-      while (index < self.events.length) {
-        self.events[index][1].end = Object.assign({}, point);
-        index++;
-      }
-      splice(
-        self.events,
-        indexBeforeFlow + 1,
-        0,
-        self.events.slice(indexBeforeExits)
-      );
-      self.events.length = index;
-      return checkNewContainers(code)
-    }
-    return start(code)
-  }
-  function checkNewContainers(code) {
-    if (continued === stack.length) {
-      if (!childFlow) {
-        return documentContinued(code)
-      }
-      if (childFlow.currentConstruct && childFlow.currentConstruct.concrete) {
-        return flowStart(code)
-      }
-      self.interrupt = Boolean(
-        childFlow.currentConstruct && !childFlow._gfmTableDynamicInterruptHack
-      );
-    }
-    self.containerState = {};
-    return effects.check(
-      containerConstruct,
-      thereIsANewContainer,
-      thereIsNoNewContainer
-    )(code)
-  }
-  function thereIsANewContainer(code) {
-    if (childFlow) closeFlow();
-    exitContainers(continued);
-    return documentContinued(code)
-  }
-  function thereIsNoNewContainer(code) {
-    self.parser.lazy[self.now().line] = continued !== stack.length;
-    lineStartOffset = self.now().offset;
-    return flowStart(code)
-  }
-  function documentContinued(code) {
-    self.containerState = {};
-    return effects.attempt(
-      containerConstruct,
-      containerContinue,
-      flowStart
-    )(code)
-  }
-  function containerContinue(code) {
-    continued++;
-    stack.push([self.currentConstruct, self.containerState]);
-    return documentContinued(code)
-  }
-  function flowStart(code) {
-    if (code === null) {
-      if (childFlow) closeFlow();
-      exitContainers(0);
-      effects.consume(code);
-      return
-    }
-    childFlow = childFlow || self.parser.flow(self.now());
-    effects.enter('chunkFlow', {
-      contentType: 'flow',
-      previous: childToken,
-      _tokenizer: childFlow
-    });
-    return flowContinue(code)
-  }
-  function flowContinue(code) {
-    if (code === null) {
-      writeToChild(effects.exit('chunkFlow'), true);
-      exitContainers(0);
-      effects.consume(code);
-      return
-    }
-    if (markdownLineEnding(code)) {
-      effects.consume(code);
-      writeToChild(effects.exit('chunkFlow'));
-      continued = 0;
-      self.interrupt = undefined;
-      return start
-    }
-    effects.consume(code);
-    return flowContinue
-  }
-  function writeToChild(token, eof) {
-    const stream = self.sliceStream(token);
-    if (eof) stream.push(null);
-    token.previous = childToken;
-    if (childToken) childToken.next = token;
-    childToken = token;
-    childFlow.defineSkip(token.start);
-    childFlow.write(stream);
-    if (self.parser.lazy[token.start.line]) {
-      let index = childFlow.events.length;
-      while (index--) {
-        if (
-          childFlow.events[index][1].start.offset < lineStartOffset &&
-          (!childFlow.events[index][1].end ||
-            childFlow.events[index][1].end.offset > lineStartOffset)
-        ) {
-          return
-        }
-      }
-      const indexBeforeExits = self.events.length;
-      let indexBeforeFlow = indexBeforeExits;
-      let seen;
-      let point;
-      while (indexBeforeFlow--) {
-        if (
-          self.events[indexBeforeFlow][0] === 'exit' &&
-          self.events[indexBeforeFlow][1].type === 'chunkFlow'
-        ) {
-          if (seen) {
-            point = self.events[indexBeforeFlow][1].end;
-            break
-          }
-          seen = true;
-        }
-      }
-      exitContainers(continued);
-      index = indexBeforeExits;
-      while (index < self.events.length) {
-        self.events[index][1].end = Object.assign({}, point);
-        index++;
-      }
-      splice(
-        self.events,
-        indexBeforeFlow + 1,
-        0,
-        self.events.slice(indexBeforeExits)
-      );
-      self.events.length = index;
-    }
-  }
-  function exitContainers(size) {
-    let index = stack.length;
-    while (index-- > size) {
-      const entry = stack[index];
-      self.containerState = entry[1];
-      entry[0].exit.call(self, effects);
-    }
-    stack.length = size;
-  }
-  function closeFlow() {
-    childFlow.write([null]);
-    childToken = undefined;
-    childFlow = undefined;
-    self.containerState._closeFlow = undefined;
-  }
-}
-function tokenizeContainer(effects, ok, nok) {
-  return factorySpace(
-    effects,
-    effects.attempt(this.parser.constructs.document, ok, nok),
-    'linePrefix',
-    this.parser.constructs.disable.null.includes('codeIndented') ? undefined : 4
-  )
-}
-
-function classifyCharacter(code) {
-  if (
-    code === null ||
-    markdownLineEndingOrSpace(code) ||
-    unicodeWhitespace(code)
-  ) {
-    return 1
-  }
-  if (unicodePunctuation(code)) {
-    return 2
-  }
-}
-
-function resolveAll(constructs, events, context) {
-  const called = [];
-  let index = -1;
-  while (++index < constructs.length) {
-    const resolve = constructs[index].resolveAll;
-    if (resolve && !called.includes(resolve)) {
-      events = resolve(events, context);
-      called.push(resolve);
-    }
-  }
-  return events
-}
-
-const attention = {
-  name: 'attention',
-  tokenize: tokenizeAttention,
-  resolveAll: resolveAllAttention
-};
-function resolveAllAttention(events, context) {
-  let index = -1;
-  let open;
-  let group;
-  let text;
-  let openingSequence;
-  let closingSequence;
-  let use;
-  let nextEvents;
-  let offset;
-  while (++index < events.length) {
-    if (
-      events[index][0] === 'enter' &&
-      events[index][1].type === 'attentionSequence' &&
-      events[index][1]._close
-    ) {
-      open = index;
-      while (open--) {
-        if (
-          events[open][0] === 'exit' &&
-          events[open][1].type === 'attentionSequence' &&
-          events[open][1]._open &&
-          context.sliceSerialize(events[open][1]).charCodeAt(0) ===
-            context.sliceSerialize(events[index][1]).charCodeAt(0)
-        ) {
-          if (
-            (events[open][1]._close || events[index][1]._open) &&
-            (events[index][1].end.offset - events[index][1].start.offset) % 3 &&
-            !(
-              (events[open][1].end.offset -
-                events[open][1].start.offset +
-                events[index][1].end.offset -
-                events[index][1].start.offset) %
-              3
-            )
-          ) {
-            continue
-          }
-          use =
-            events[open][1].end.offset - events[open][1].start.offset > 1 &&
-            events[index][1].end.offset - events[index][1].start.offset > 1
-              ? 2
-              : 1;
-          const start = Object.assign({}, events[open][1].end);
-          const end = Object.assign({}, events[index][1].start);
-          movePoint(start, -use);
-          movePoint(end, use);
-          openingSequence = {
-            type: use > 1 ? 'strongSequence' : 'emphasisSequence',
-            start,
-            end: Object.assign({}, events[open][1].end)
-          };
-          closingSequence = {
-            type: use > 1 ? 'strongSequence' : 'emphasisSequence',
-            start: Object.assign({}, events[index][1].start),
-            end
-          };
-          text = {
-            type: use > 1 ? 'strongText' : 'emphasisText',
-            start: Object.assign({}, events[open][1].end),
-            end: Object.assign({}, events[index][1].start)
-          };
-          group = {
-            type: use > 1 ? 'strong' : 'emphasis',
-            start: Object.assign({}, openingSequence.start),
-            end: Object.assign({}, closingSequence.end)
-          };
-          events[open][1].end = Object.assign({}, openingSequence.start);
-          events[index][1].start = Object.assign({}, closingSequence.end);
-          nextEvents = [];
-          if (events[open][1].end.offset - events[open][1].start.offset) {
-            nextEvents = push(nextEvents, [
-              ['enter', events[open][1], context],
-              ['exit', events[open][1], context]
-            ]);
-          }
-          nextEvents = push(nextEvents, [
-            ['enter', group, context],
-            ['enter', openingSequence, context],
-            ['exit', openingSequence, context],
-            ['enter', text, context]
-          ]);
-          nextEvents = push(
-            nextEvents,
-            resolveAll(
-              context.parser.constructs.insideSpan.null,
-              events.slice(open + 1, index),
-              context
-            )
-          );
-          nextEvents = push(nextEvents, [
-            ['exit', text, context],
-            ['enter', closingSequence, context],
-            ['exit', closingSequence, context],
-            ['exit', group, context]
-          ]);
-          if (events[index][1].end.offset - events[index][1].start.offset) {
-            offset = 2;
-            nextEvents = push(nextEvents, [
-              ['enter', events[index][1], context],
-              ['exit', events[index][1], context]
-            ]);
-          } else {
-            offset = 0;
-          }
-          splice(events, open - 1, index - open + 3, nextEvents);
-          index = open + nextEvents.length - offset - 2;
-          break
-        }
-      }
-    }
-  }
-  index = -1;
-  while (++index < events.length) {
-    if (events[index][1].type === 'attentionSequence') {
-      events[index][1].type = 'data';
-    }
-  }
-  return events
-}
-function tokenizeAttention(effects, ok) {
-  const attentionMarkers = this.parser.constructs.attentionMarkers.null;
-  const previous = this.previous;
-  const before = classifyCharacter(previous);
-  let marker;
-  return start
-  function start(code) {
-    effects.enter('attentionSequence');
-    marker = code;
-    return sequence(code)
-  }
-  function sequence(code) {
-    if (code === marker) {
-      effects.consume(code);
-      return sequence
-    }
-    const token = effects.exit('attentionSequence');
-    const after = classifyCharacter(code);
-    const open =
-      !after || (after === 2 && before) || attentionMarkers.includes(code);
-    const close =
-      !before || (before === 2 && after) || attentionMarkers.includes(previous);
-    token._open = Boolean(marker === 42 ? open : open && (before || !close));
-    token._close = Boolean(marker === 42 ? close : close && (after || !open));
-    return ok(code)
-  }
-}
-function movePoint(point, offset) {
-  point.column += offset;
-  point.offset += offset;
-  point._bufferIndex += offset;
-}
-
-const autolink = {
-  name: 'autolink',
-  tokenize: tokenizeAutolink
-};
-function tokenizeAutolink(effects, ok, nok) {
-  let size = 1;
-  return start
-  function start(code) {
-    effects.enter('autolink');
-    effects.enter('autolinkMarker');
-    effects.consume(code);
-    effects.exit('autolinkMarker');
-    effects.enter('autolinkProtocol');
-    return open
-  }
-  function open(code) {
-    if (asciiAlpha(code)) {
-      effects.consume(code);
-      return schemeOrEmailAtext
-    }
-    return asciiAtext(code) ? emailAtext(code) : nok(code)
-  }
-  function schemeOrEmailAtext(code) {
-    return code === 43 || code === 45 || code === 46 || asciiAlphanumeric(code)
-      ? schemeInsideOrEmailAtext(code)
-      : emailAtext(code)
-  }
-  function schemeInsideOrEmailAtext(code) {
-    if (code === 58) {
-      effects.consume(code);
-      return urlInside
-    }
-    if (
-      (code === 43 || code === 45 || code === 46 || asciiAlphanumeric(code)) &&
-      size++ < 32
-    ) {
-      effects.consume(code);
-      return schemeInsideOrEmailAtext
-    }
-    return emailAtext(code)
-  }
-  function urlInside(code) {
-    if (code === 62) {
-      effects.exit('autolinkProtocol');
-      return end(code)
-    }
-    if (code === null || code === 32 || code === 60 || asciiControl(code)) {
-      return nok(code)
-    }
-    effects.consume(code);
-    return urlInside
-  }
-  function emailAtext(code) {
-    if (code === 64) {
-      effects.consume(code);
-      size = 0;
-      return emailAtSignOrDot
-    }
-    if (asciiAtext(code)) {
-      effects.consume(code);
-      return emailAtext
-    }
-    return nok(code)
-  }
-  function emailAtSignOrDot(code) {
-    return asciiAlphanumeric(code) ? emailLabel(code) : nok(code)
-  }
-  function emailLabel(code) {
-    if (code === 46) {
-      effects.consume(code);
-      size = 0;
-      return emailAtSignOrDot
-    }
-    if (code === 62) {
-      effects.exit('autolinkProtocol').type = 'autolinkEmail';
-      return end(code)
-    }
-    return emailValue(code)
-  }
-  function emailValue(code) {
-    if ((code === 45 || asciiAlphanumeric(code)) && size++ < 63) {
-      effects.consume(code);
-      return code === 45 ? emailValue : emailLabel
-    }
-    return nok(code)
-  }
-  function end(code) {
-    effects.enter('autolinkMarker');
-    effects.consume(code);
-    effects.exit('autolinkMarker');
-    effects.exit('autolink');
-    return ok
-  }
-}
-
-const blankLine = {
-  tokenize: tokenizeBlankLine,
-  partial: true
-};
-function tokenizeBlankLine(effects, ok, nok) {
-  return factorySpace(effects, afterWhitespace, 'linePrefix')
-  function afterWhitespace(code) {
-    return code === null || markdownLineEnding(code) ? ok(code) : nok(code)
-  }
-}
-
-const blockQuote = {
-  name: 'blockQuote',
-  tokenize: tokenizeBlockQuoteStart,
-  continuation: {
-    tokenize: tokenizeBlockQuoteContinuation
-  },
-  exit: exit$1
-};
-function tokenizeBlockQuoteStart(effects, ok, nok) {
-  const self = this;
-  return start
-  function start(code) {
-    if (code === 62) {
-      const state = self.containerState;
-      if (!state.open) {
-        effects.enter('blockQuote', {
-          _container: true
-        });
-        state.open = true;
-      }
-      effects.enter('blockQuotePrefix');
-      effects.enter('blockQuoteMarker');
-      effects.consume(code);
-      effects.exit('blockQuoteMarker');
-      return after
-    }
-    return nok(code)
-  }
-  function after(code) {
-    if (markdownSpace(code)) {
-      effects.enter('blockQuotePrefixWhitespace');
-      effects.consume(code);
-      effects.exit('blockQuotePrefixWhitespace');
-      effects.exit('blockQuotePrefix');
-      return ok
-    }
-    effects.exit('blockQuotePrefix');
-    return ok(code)
-  }
-}
-function tokenizeBlockQuoteContinuation(effects, ok, nok) {
-  return factorySpace(
-    effects,
-    effects.attempt(blockQuote, ok, nok),
-    'linePrefix',
-    this.parser.constructs.disable.null.includes('codeIndented') ? undefined : 4
-  )
-}
-function exit$1(effects) {
-  effects.exit('blockQuote');
-}
-
-const characterEscape = {
-  name: 'characterEscape',
-  tokenize: tokenizeCharacterEscape
-};
-function tokenizeCharacterEscape(effects, ok, nok) {
-  return start
-  function start(code) {
-    effects.enter('characterEscape');
-    effects.enter('escapeMarker');
-    effects.consume(code);
-    effects.exit('escapeMarker');
-    return open
-  }
-  function open(code) {
-    if (asciiPunctuation(code)) {
-      effects.enter('characterEscapeValue');
-      effects.consume(code);
-      effects.exit('characterEscapeValue');
-      effects.exit('characterEscape');
-      return ok
-    }
-    return nok(code)
-  }
+function node$2(value) {
+  return Boolean(value && typeof value === 'object')
 }
 
 const characterEntities = {
@@ -3633,9 +2984,813 @@ const characterEntities = {
   zwnj: '‌'
 };
 
-const own$6 = {}.hasOwnProperty;
+const own$5 = {}.hasOwnProperty;
 function decodeNamedCharacterReference(value) {
-  return own$6.call(characterEntities, value) ? characterEntities[value] : false
+  return own$5.call(characterEntities, value) ? characterEntities[value] : false
+}
+
+function splice(list, start, remove, items) {
+  const end = list.length;
+  let chunkStart = 0;
+  let parameters;
+  if (start < 0) {
+    start = -start > end ? 0 : end + start;
+  } else {
+    start = start > end ? end : start;
+  }
+  remove = remove > 0 ? remove : 0;
+  if (items.length < 10000) {
+    parameters = Array.from(items);
+    parameters.unshift(start, remove);
+    list.splice(...parameters);
+  } else {
+    if (remove) list.splice(start, remove);
+    while (chunkStart < items.length) {
+      parameters = items.slice(chunkStart, chunkStart + 10000);
+      parameters.unshift(start, 0);
+      list.splice(...parameters);
+      chunkStart += 10000;
+      start += 10000;
+    }
+  }
+}
+function push(list, items) {
+  if (list.length > 0) {
+    splice(list, list.length, 0, items);
+    return list
+  }
+  return items
+}
+
+const hasOwnProperty = {}.hasOwnProperty;
+function combineExtensions(extensions) {
+  const all = {};
+  let index = -1;
+  while (++index < extensions.length) {
+    syntaxExtension(all, extensions[index]);
+  }
+  return all
+}
+function syntaxExtension(all, extension) {
+  let hook;
+  for (hook in extension) {
+    const maybe = hasOwnProperty.call(all, hook) ? all[hook] : undefined;
+    const left = maybe || (all[hook] = {});
+    const right = extension[hook];
+    let code;
+    if (right) {
+      for (code in right) {
+        if (!hasOwnProperty.call(left, code)) left[code] = [];
+        const value = right[code];
+        constructs(
+          left[code],
+          Array.isArray(value) ? value : value ? [value] : []
+        );
+      }
+    }
+  }
+}
+function constructs(existing, list) {
+  let index = -1;
+  const before = [];
+  while (++index < list.length) {
+(list[index].add === 'after' ? existing : before).push(list[index]);
+  }
+  splice(existing, 0, 0, before);
+}
+
+function decodeNumericCharacterReference(value, base) {
+  const code = Number.parseInt(value, base);
+  if (
+    code < 9 ||
+    code === 11 ||
+    (code > 13 && code < 32) ||
+    (code > 126 && code < 160) ||
+    (code > 55_295 && code < 57_344) ||
+    (code > 64_975 && code < 65_008)  ||
+    (code & 65_535) === 65_535 ||
+    (code & 65_535) === 65_534  ||
+    code > 1_114_111
+  ) {
+    return '\uFFFD'
+  }
+  return String.fromCharCode(code)
+}
+
+function normalizeIdentifier$1(value) {
+  return (
+    value
+      .replace(/[\t\n\r ]+/g, ' ')
+      .replace(/^ | $/g, '')
+      .toLowerCase()
+      .toUpperCase()
+  )
+}
+
+const unicodePunctuationInternal = regexCheck(/\p{P}/u);
+const asciiAlpha = regexCheck(/[A-Za-z]/);
+const asciiAlphanumeric = regexCheck(/[\dA-Za-z]/);
+const asciiAtext = regexCheck(/[#-'*+\--9=?A-Z^-~]/);
+function asciiControl(code) {
+  return (
+    code !== null && (code < 32 || code === 127)
+  )
+}
+const asciiDigit = regexCheck(/\d/);
+const asciiHexDigit = regexCheck(/[\dA-Fa-f]/);
+const asciiPunctuation = regexCheck(/[!-/:-@[-`{-~]/);
+function markdownLineEnding(code) {
+  return code !== null && code < -2
+}
+function markdownLineEndingOrSpace(code) {
+  return code !== null && (code < 0 || code === 32)
+}
+function markdownSpace(code) {
+  return code === -2 || code === -1 || code === 32
+}
+function unicodePunctuation(code) {
+  return asciiPunctuation(code) || unicodePunctuationInternal(code)
+}
+const unicodeWhitespace = regexCheck(/\s/);
+function regexCheck(regex) {
+  return check
+  function check(code) {
+    return code !== null && code > -1 && regex.test(String.fromCharCode(code))
+  }
+}
+
+function factorySpace(effects, ok, type, max) {
+  const limit = max ? max - 1 : Number.POSITIVE_INFINITY;
+  let size = 0;
+  return start
+  function start(code) {
+    if (markdownSpace(code)) {
+      effects.enter(type);
+      return prefix(code)
+    }
+    return ok(code)
+  }
+  function prefix(code) {
+    if (markdownSpace(code) && size++ < limit) {
+      effects.consume(code);
+      return prefix
+    }
+    effects.exit(type);
+    return ok(code)
+  }
+}
+
+const content$1 = {
+  tokenize: initializeContent
+};
+function initializeContent(effects) {
+  const contentStart = effects.attempt(
+    this.parser.constructs.contentInitial,
+    afterContentStartConstruct,
+    paragraphInitial
+  );
+  let previous;
+  return contentStart
+  function afterContentStartConstruct(code) {
+    if (code === null) {
+      effects.consume(code);
+      return
+    }
+    effects.enter('lineEnding');
+    effects.consume(code);
+    effects.exit('lineEnding');
+    return factorySpace(effects, contentStart, 'linePrefix')
+  }
+  function paragraphInitial(code) {
+    effects.enter('paragraph');
+    return lineStart(code)
+  }
+  function lineStart(code) {
+    const token = effects.enter('chunkText', {
+      contentType: 'text',
+      previous
+    });
+    if (previous) {
+      previous.next = token;
+    }
+    previous = token;
+    return data(code)
+  }
+  function data(code) {
+    if (code === null) {
+      effects.exit('chunkText');
+      effects.exit('paragraph');
+      effects.consume(code);
+      return
+    }
+    if (markdownLineEnding(code)) {
+      effects.consume(code);
+      effects.exit('chunkText');
+      return lineStart
+    }
+    effects.consume(code);
+    return data
+  }
+}
+
+const document$1 = {
+  tokenize: initializeDocument
+};
+const containerConstruct = {
+  tokenize: tokenizeContainer
+};
+function initializeDocument(effects) {
+  const self = this;
+  const stack = [];
+  let continued = 0;
+  let childFlow;
+  let childToken;
+  let lineStartOffset;
+  return start
+  function start(code) {
+    if (continued < stack.length) {
+      const item = stack[continued];
+      self.containerState = item[1];
+      return effects.attempt(
+        item[0].continuation,
+        documentContinue,
+        checkNewContainers
+      )(code)
+    }
+    return checkNewContainers(code)
+  }
+  function documentContinue(code) {
+    continued++;
+    if (self.containerState._closeFlow) {
+      self.containerState._closeFlow = undefined;
+      if (childFlow) {
+        closeFlow();
+      }
+      const indexBeforeExits = self.events.length;
+      let indexBeforeFlow = indexBeforeExits;
+      let point;
+      while (indexBeforeFlow--) {
+        if (
+          self.events[indexBeforeFlow][0] === 'exit' &&
+          self.events[indexBeforeFlow][1].type === 'chunkFlow'
+        ) {
+          point = self.events[indexBeforeFlow][1].end;
+          break
+        }
+      }
+      exitContainers(continued);
+      let index = indexBeforeExits;
+      while (index < self.events.length) {
+        self.events[index][1].end = Object.assign({}, point);
+        index++;
+      }
+      splice(
+        self.events,
+        indexBeforeFlow + 1,
+        0,
+        self.events.slice(indexBeforeExits)
+      );
+      self.events.length = index;
+      return checkNewContainers(code)
+    }
+    return start(code)
+  }
+  function checkNewContainers(code) {
+    if (continued === stack.length) {
+      if (!childFlow) {
+        return documentContinued(code)
+      }
+      if (childFlow.currentConstruct && childFlow.currentConstruct.concrete) {
+        return flowStart(code)
+      }
+      self.interrupt = Boolean(
+        childFlow.currentConstruct && !childFlow._gfmTableDynamicInterruptHack
+      );
+    }
+    self.containerState = {};
+    return effects.check(
+      containerConstruct,
+      thereIsANewContainer,
+      thereIsNoNewContainer
+    )(code)
+  }
+  function thereIsANewContainer(code) {
+    if (childFlow) closeFlow();
+    exitContainers(continued);
+    return documentContinued(code)
+  }
+  function thereIsNoNewContainer(code) {
+    self.parser.lazy[self.now().line] = continued !== stack.length;
+    lineStartOffset = self.now().offset;
+    return flowStart(code)
+  }
+  function documentContinued(code) {
+    self.containerState = {};
+    return effects.attempt(
+      containerConstruct,
+      containerContinue,
+      flowStart
+    )(code)
+  }
+  function containerContinue(code) {
+    continued++;
+    stack.push([self.currentConstruct, self.containerState]);
+    return documentContinued(code)
+  }
+  function flowStart(code) {
+    if (code === null) {
+      if (childFlow) closeFlow();
+      exitContainers(0);
+      effects.consume(code);
+      return
+    }
+    childFlow = childFlow || self.parser.flow(self.now());
+    effects.enter('chunkFlow', {
+      contentType: 'flow',
+      previous: childToken,
+      _tokenizer: childFlow
+    });
+    return flowContinue(code)
+  }
+  function flowContinue(code) {
+    if (code === null) {
+      writeToChild(effects.exit('chunkFlow'), true);
+      exitContainers(0);
+      effects.consume(code);
+      return
+    }
+    if (markdownLineEnding(code)) {
+      effects.consume(code);
+      writeToChild(effects.exit('chunkFlow'));
+      continued = 0;
+      self.interrupt = undefined;
+      return start
+    }
+    effects.consume(code);
+    return flowContinue
+  }
+  function writeToChild(token, eof) {
+    const stream = self.sliceStream(token);
+    if (eof) stream.push(null);
+    token.previous = childToken;
+    if (childToken) childToken.next = token;
+    childToken = token;
+    childFlow.defineSkip(token.start);
+    childFlow.write(stream);
+    if (self.parser.lazy[token.start.line]) {
+      let index = childFlow.events.length;
+      while (index--) {
+        if (
+          childFlow.events[index][1].start.offset < lineStartOffset &&
+          (!childFlow.events[index][1].end ||
+            childFlow.events[index][1].end.offset > lineStartOffset)
+        ) {
+          return
+        }
+      }
+      const indexBeforeExits = self.events.length;
+      let indexBeforeFlow = indexBeforeExits;
+      let seen;
+      let point;
+      while (indexBeforeFlow--) {
+        if (
+          self.events[indexBeforeFlow][0] === 'exit' &&
+          self.events[indexBeforeFlow][1].type === 'chunkFlow'
+        ) {
+          if (seen) {
+            point = self.events[indexBeforeFlow][1].end;
+            break
+          }
+          seen = true;
+        }
+      }
+      exitContainers(continued);
+      index = indexBeforeExits;
+      while (index < self.events.length) {
+        self.events[index][1].end = Object.assign({}, point);
+        index++;
+      }
+      splice(
+        self.events,
+        indexBeforeFlow + 1,
+        0,
+        self.events.slice(indexBeforeExits)
+      );
+      self.events.length = index;
+    }
+  }
+  function exitContainers(size) {
+    let index = stack.length;
+    while (index-- > size) {
+      const entry = stack[index];
+      self.containerState = entry[1];
+      entry[0].exit.call(self, effects);
+    }
+    stack.length = size;
+  }
+  function closeFlow() {
+    childFlow.write([null]);
+    childToken = undefined;
+    childFlow = undefined;
+    self.containerState._closeFlow = undefined;
+  }
+}
+function tokenizeContainer(effects, ok, nok) {
+  return factorySpace(
+    effects,
+    effects.attempt(this.parser.constructs.document, ok, nok),
+    'linePrefix',
+    this.parser.constructs.disable.null.includes('codeIndented') ? undefined : 4
+  )
+}
+
+function classifyCharacter(code) {
+  if (
+    code === null ||
+    markdownLineEndingOrSpace(code) ||
+    unicodeWhitespace(code)
+  ) {
+    return 1
+  }
+  if (unicodePunctuation(code)) {
+    return 2
+  }
+}
+
+function resolveAll(constructs, events, context) {
+  const called = [];
+  let index = -1;
+  while (++index < constructs.length) {
+    const resolve = constructs[index].resolveAll;
+    if (resolve && !called.includes(resolve)) {
+      events = resolve(events, context);
+      called.push(resolve);
+    }
+  }
+  return events
+}
+
+const attention = {
+  name: 'attention',
+  tokenize: tokenizeAttention,
+  resolveAll: resolveAllAttention
+};
+function resolveAllAttention(events, context) {
+  let index = -1;
+  let open;
+  let group;
+  let text;
+  let openingSequence;
+  let closingSequence;
+  let use;
+  let nextEvents;
+  let offset;
+  while (++index < events.length) {
+    if (
+      events[index][0] === 'enter' &&
+      events[index][1].type === 'attentionSequence' &&
+      events[index][1]._close
+    ) {
+      open = index;
+      while (open--) {
+        if (
+          events[open][0] === 'exit' &&
+          events[open][1].type === 'attentionSequence' &&
+          events[open][1]._open &&
+          context.sliceSerialize(events[open][1]).charCodeAt(0) ===
+            context.sliceSerialize(events[index][1]).charCodeAt(0)
+        ) {
+          if (
+            (events[open][1]._close || events[index][1]._open) &&
+            (events[index][1].end.offset - events[index][1].start.offset) % 3 &&
+            !(
+              (events[open][1].end.offset -
+                events[open][1].start.offset +
+                events[index][1].end.offset -
+                events[index][1].start.offset) %
+              3
+            )
+          ) {
+            continue
+          }
+          use =
+            events[open][1].end.offset - events[open][1].start.offset > 1 &&
+            events[index][1].end.offset - events[index][1].start.offset > 1
+              ? 2
+              : 1;
+          const start = Object.assign({}, events[open][1].end);
+          const end = Object.assign({}, events[index][1].start);
+          movePoint(start, -use);
+          movePoint(end, use);
+          openingSequence = {
+            type: use > 1 ? 'strongSequence' : 'emphasisSequence',
+            start,
+            end: Object.assign({}, events[open][1].end)
+          };
+          closingSequence = {
+            type: use > 1 ? 'strongSequence' : 'emphasisSequence',
+            start: Object.assign({}, events[index][1].start),
+            end
+          };
+          text = {
+            type: use > 1 ? 'strongText' : 'emphasisText',
+            start: Object.assign({}, events[open][1].end),
+            end: Object.assign({}, events[index][1].start)
+          };
+          group = {
+            type: use > 1 ? 'strong' : 'emphasis',
+            start: Object.assign({}, openingSequence.start),
+            end: Object.assign({}, closingSequence.end)
+          };
+          events[open][1].end = Object.assign({}, openingSequence.start);
+          events[index][1].start = Object.assign({}, closingSequence.end);
+          nextEvents = [];
+          if (events[open][1].end.offset - events[open][1].start.offset) {
+            nextEvents = push(nextEvents, [
+              ['enter', events[open][1], context],
+              ['exit', events[open][1], context]
+            ]);
+          }
+          nextEvents = push(nextEvents, [
+            ['enter', group, context],
+            ['enter', openingSequence, context],
+            ['exit', openingSequence, context],
+            ['enter', text, context]
+          ]);
+          nextEvents = push(
+            nextEvents,
+            resolveAll(
+              context.parser.constructs.insideSpan.null,
+              events.slice(open + 1, index),
+              context
+            )
+          );
+          nextEvents = push(nextEvents, [
+            ['exit', text, context],
+            ['enter', closingSequence, context],
+            ['exit', closingSequence, context],
+            ['exit', group, context]
+          ]);
+          if (events[index][1].end.offset - events[index][1].start.offset) {
+            offset = 2;
+            nextEvents = push(nextEvents, [
+              ['enter', events[index][1], context],
+              ['exit', events[index][1], context]
+            ]);
+          } else {
+            offset = 0;
+          }
+          splice(events, open - 1, index - open + 3, nextEvents);
+          index = open + nextEvents.length - offset - 2;
+          break
+        }
+      }
+    }
+  }
+  index = -1;
+  while (++index < events.length) {
+    if (events[index][1].type === 'attentionSequence') {
+      events[index][1].type = 'data';
+    }
+  }
+  return events
+}
+function tokenizeAttention(effects, ok) {
+  const attentionMarkers = this.parser.constructs.attentionMarkers.null;
+  const previous = this.previous;
+  const before = classifyCharacter(previous);
+  let marker;
+  return start
+  function start(code) {
+    marker = code;
+    effects.enter('attentionSequence');
+    return inside(code)
+  }
+  function inside(code) {
+    if (code === marker) {
+      effects.consume(code);
+      return inside
+    }
+    const token = effects.exit('attentionSequence');
+    const after = classifyCharacter(code);
+    const open =
+      !after || (after === 2 && before) || attentionMarkers.includes(code);
+    const close =
+      !before || (before === 2 && after) || attentionMarkers.includes(previous);
+    token._open = Boolean(marker === 42 ? open : open && (before || !close));
+    token._close = Boolean(marker === 42 ? close : close && (after || !open));
+    return ok(code)
+  }
+}
+function movePoint(point, offset) {
+  point.column += offset;
+  point.offset += offset;
+  point._bufferIndex += offset;
+}
+
+const autolink = {
+  name: 'autolink',
+  tokenize: tokenizeAutolink
+};
+function tokenizeAutolink(effects, ok, nok) {
+  let size = 0;
+  return start
+  function start(code) {
+    effects.enter('autolink');
+    effects.enter('autolinkMarker');
+    effects.consume(code);
+    effects.exit('autolinkMarker');
+    effects.enter('autolinkProtocol');
+    return open
+  }
+  function open(code) {
+    if (asciiAlpha(code)) {
+      effects.consume(code);
+      return schemeOrEmailAtext
+    }
+    return emailAtext(code)
+  }
+  function schemeOrEmailAtext(code) {
+    if (code === 43 || code === 45 || code === 46 || asciiAlphanumeric(code)) {
+      size = 1;
+      return schemeInsideOrEmailAtext(code)
+    }
+    return emailAtext(code)
+  }
+  function schemeInsideOrEmailAtext(code) {
+    if (code === 58) {
+      effects.consume(code);
+      size = 0;
+      return urlInside
+    }
+    if (
+      (code === 43 || code === 45 || code === 46 || asciiAlphanumeric(code)) &&
+      size++ < 32
+    ) {
+      effects.consume(code);
+      return schemeInsideOrEmailAtext
+    }
+    size = 0;
+    return emailAtext(code)
+  }
+  function urlInside(code) {
+    if (code === 62) {
+      effects.exit('autolinkProtocol');
+      effects.enter('autolinkMarker');
+      effects.consume(code);
+      effects.exit('autolinkMarker');
+      effects.exit('autolink');
+      return ok
+    }
+    if (code === null || code === 32 || code === 60 || asciiControl(code)) {
+      return nok(code)
+    }
+    effects.consume(code);
+    return urlInside
+  }
+  function emailAtext(code) {
+    if (code === 64) {
+      effects.consume(code);
+      return emailAtSignOrDot
+    }
+    if (asciiAtext(code)) {
+      effects.consume(code);
+      return emailAtext
+    }
+    return nok(code)
+  }
+  function emailAtSignOrDot(code) {
+    return asciiAlphanumeric(code) ? emailLabel(code) : nok(code)
+  }
+  function emailLabel(code) {
+    if (code === 46) {
+      effects.consume(code);
+      size = 0;
+      return emailAtSignOrDot
+    }
+    if (code === 62) {
+      effects.exit('autolinkProtocol').type = 'autolinkEmail';
+      effects.enter('autolinkMarker');
+      effects.consume(code);
+      effects.exit('autolinkMarker');
+      effects.exit('autolink');
+      return ok
+    }
+    return emailValue(code)
+  }
+  function emailValue(code) {
+    if ((code === 45 || asciiAlphanumeric(code)) && size++ < 63) {
+      const next = code === 45 ? emailValue : emailLabel;
+      effects.consume(code);
+      return next
+    }
+    return nok(code)
+  }
+}
+
+const blankLine = {
+  tokenize: tokenizeBlankLine,
+  partial: true
+};
+function tokenizeBlankLine(effects, ok, nok) {
+  return start
+  function start(code) {
+    return markdownSpace(code)
+      ? factorySpace(effects, after, 'linePrefix')(code)
+      : after(code)
+  }
+  function after(code) {
+    return code === null || markdownLineEnding(code) ? ok(code) : nok(code)
+  }
+}
+
+const blockQuote = {
+  name: 'blockQuote',
+  tokenize: tokenizeBlockQuoteStart,
+  continuation: {
+    tokenize: tokenizeBlockQuoteContinuation
+  },
+  exit: exit$1
+};
+function tokenizeBlockQuoteStart(effects, ok, nok) {
+  const self = this;
+  return start
+  function start(code) {
+    if (code === 62) {
+      const state = self.containerState;
+      if (!state.open) {
+        effects.enter('blockQuote', {
+          _container: true
+        });
+        state.open = true;
+      }
+      effects.enter('blockQuotePrefix');
+      effects.enter('blockQuoteMarker');
+      effects.consume(code);
+      effects.exit('blockQuoteMarker');
+      return after
+    }
+    return nok(code)
+  }
+  function after(code) {
+    if (markdownSpace(code)) {
+      effects.enter('blockQuotePrefixWhitespace');
+      effects.consume(code);
+      effects.exit('blockQuotePrefixWhitespace');
+      effects.exit('blockQuotePrefix');
+      return ok
+    }
+    effects.exit('blockQuotePrefix');
+    return ok(code)
+  }
+}
+function tokenizeBlockQuoteContinuation(effects, ok, nok) {
+  const self = this;
+  return contStart
+  function contStart(code) {
+    if (markdownSpace(code)) {
+      return factorySpace(
+        effects,
+        contBefore,
+        'linePrefix',
+        self.parser.constructs.disable.null.includes('codeIndented')
+          ? undefined
+          : 4
+      )(code)
+    }
+    return contBefore(code)
+  }
+  function contBefore(code) {
+    return effects.attempt(blockQuote, ok, nok)(code)
+  }
+}
+function exit$1(effects) {
+  effects.exit('blockQuote');
+}
+
+const characterEscape = {
+  name: 'characterEscape',
+  tokenize: tokenizeCharacterEscape
+};
+function tokenizeCharacterEscape(effects, ok, nok) {
+  return start
+  function start(code) {
+    effects.enter('characterEscape');
+    effects.enter('escapeMarker');
+    effects.consume(code);
+    effects.exit('escapeMarker');
+    return inside
+  }
+  function inside(code) {
+    if (asciiPunctuation(code)) {
+      effects.enter('characterEscapeValue');
+      effects.consume(code);
+      effects.exit('characterEscapeValue');
+      effects.exit('characterEscape');
+      return ok
+    }
+    return nok(code)
+  }
 }
 
 const characterReference = {
@@ -3683,9 +3838,8 @@ function tokenizeCharacterReference(effects, ok, nok) {
     return value(code)
   }
   function value(code) {
-    let token;
     if (code === 59 && size) {
-      token = effects.exit('characterReferenceValue');
+      const token = effects.exit('characterReferenceValue');
       if (
         test === asciiAlphanumeric &&
         !decodeNamedCharacterReference(self.sliceSerialize(token))
@@ -3706,6 +3860,10 @@ function tokenizeCharacterReference(effects, ok, nok) {
   }
 }
 
+const nonLazyContinuation = {
+  tokenize: tokenizeNonLazyContinuation,
+  partial: true
+};
 const codeFenced = {
   name: 'codeFenced',
   tokenize: tokenizeCodeFenced,
@@ -3713,43 +3871,49 @@ const codeFenced = {
 };
 function tokenizeCodeFenced(effects, ok, nok) {
   const self = this;
-  const closingFenceConstruct = {
-    tokenize: tokenizeClosingFence,
+  const closeStart = {
+    tokenize: tokenizeCloseStart,
     partial: true
   };
-  const nonLazyLine = {
-    tokenize: tokenizeNonLazyLine,
-    partial: true
-  };
-  const tail = this.events[this.events.length - 1];
-  const initialPrefix =
-    tail && tail[1].type === 'linePrefix'
-      ? tail[2].sliceSerialize(tail[1], true).length
-      : 0;
+  let initialPrefix = 0;
   let sizeOpen = 0;
   let marker;
   return start
   function start(code) {
+    return beforeSequenceOpen(code)
+  }
+  function beforeSequenceOpen(code) {
+    const tail = self.events[self.events.length - 1];
+    initialPrefix =
+      tail && tail[1].type === 'linePrefix'
+        ? tail[2].sliceSerialize(tail[1], true).length
+        : 0;
+    marker = code;
     effects.enter('codeFenced');
     effects.enter('codeFencedFence');
     effects.enter('codeFencedFenceSequence');
-    marker = code;
     return sequenceOpen(code)
   }
   function sequenceOpen(code) {
     if (code === marker) {
-      effects.consume(code);
       sizeOpen++;
+      effects.consume(code);
       return sequenceOpen
     }
+    if (sizeOpen < 3) {
+      return nok(code)
+    }
     effects.exit('codeFencedFenceSequence');
-    return sizeOpen < 3
-      ? nok(code)
-      : factorySpace(effects, infoOpen, 'whitespace')(code)
+    return markdownSpace(code)
+      ? factorySpace(effects, infoBefore, 'whitespace')(code)
+      : infoBefore(code)
   }
-  function infoOpen(code) {
+  function infoBefore(code) {
     if (code === null || markdownLineEnding(code)) {
-      return openAfter(code)
+      effects.exit('codeFencedFence');
+      return self.interrupt
+        ? ok(code)
+        : effects.check(nonLazyContinuation, atNonLazyBreak, after)(code)
     }
     effects.enter('codeFencedFenceInfo');
     effects.enter('chunkString', {
@@ -3758,18 +3922,25 @@ function tokenizeCodeFenced(effects, ok, nok) {
     return info(code)
   }
   function info(code) {
-    if (code === null || markdownLineEndingOrSpace(code)) {
+    if (code === null || markdownLineEnding(code)) {
       effects.exit('chunkString');
       effects.exit('codeFencedFenceInfo');
-      return factorySpace(effects, infoAfter, 'whitespace')(code)
+      return infoBefore(code)
     }
-    if (code === 96 && code === marker) return nok(code)
+    if (markdownSpace(code)) {
+      effects.exit('chunkString');
+      effects.exit('codeFencedFenceInfo');
+      return factorySpace(effects, metaBefore, 'whitespace')(code)
+    }
+    if (code === 96 && code === marker) {
+      return nok(code)
+    }
     effects.consume(code);
     return info
   }
-  function infoAfter(code) {
+  function metaBefore(code) {
     if (code === null || markdownLineEnding(code)) {
-      return openAfter(code)
+      return infoBefore(code)
     }
     effects.enter('codeFencedFenceMeta');
     effects.enter('chunkString', {
@@ -3781,92 +3952,96 @@ function tokenizeCodeFenced(effects, ok, nok) {
     if (code === null || markdownLineEnding(code)) {
       effects.exit('chunkString');
       effects.exit('codeFencedFenceMeta');
-      return openAfter(code)
+      return infoBefore(code)
     }
-    if (code === 96 && code === marker) return nok(code)
+    if (code === 96 && code === marker) {
+      return nok(code)
+    }
     effects.consume(code);
     return meta
   }
-  function openAfter(code) {
-    effects.exit('codeFencedFence');
-    return self.interrupt ? ok(code) : contentStart(code)
+  function atNonLazyBreak(code) {
+    return effects.attempt(closeStart, after, contentBefore)(code)
+  }
+  function contentBefore(code) {
+    effects.enter('lineEnding');
+    effects.consume(code);
+    effects.exit('lineEnding');
+    return contentStart
   }
   function contentStart(code) {
-    if (code === null) {
-      return after(code)
-    }
-    if (markdownLineEnding(code)) {
-      return effects.attempt(
-        nonLazyLine,
-        effects.attempt(
-          closingFenceConstruct,
-          after,
-          initialPrefix
-            ? factorySpace(
-                effects,
-                contentStart,
-                'linePrefix',
-                initialPrefix + 1
-              )
-            : contentStart
-        ),
-        after
-      )(code)
+    return initialPrefix > 0 && markdownSpace(code)
+      ? factorySpace(
+          effects,
+          beforeContentChunk,
+          'linePrefix',
+          initialPrefix + 1
+        )(code)
+      : beforeContentChunk(code)
+  }
+  function beforeContentChunk(code) {
+    if (code === null || markdownLineEnding(code)) {
+      return effects.check(nonLazyContinuation, atNonLazyBreak, after)(code)
     }
     effects.enter('codeFlowValue');
-    return contentContinue(code)
+    return contentChunk(code)
   }
-  function contentContinue(code) {
+  function contentChunk(code) {
     if (code === null || markdownLineEnding(code)) {
       effects.exit('codeFlowValue');
-      return contentStart(code)
+      return beforeContentChunk(code)
     }
     effects.consume(code);
-    return contentContinue
+    return contentChunk
   }
   function after(code) {
     effects.exit('codeFenced');
     return ok(code)
   }
-  function tokenizeNonLazyLine(effects, ok, nok) {
-    const self = this;
-    return start
-    function start(code) {
+  function tokenizeCloseStart(effects, ok, nok) {
+    let size = 0;
+    return startBefore
+    function startBefore(code) {
       effects.enter('lineEnding');
       effects.consume(code);
       effects.exit('lineEnding');
-      return lineStart
+      return start
     }
-    function lineStart(code) {
-      return self.parser.lazy[self.now().line] ? nok(code) : ok(code)
-    }
-  }
-  function tokenizeClosingFence(effects, ok, nok) {
-    let size = 0;
-    return factorySpace(
-      effects,
-      closingSequenceStart,
-      'linePrefix',
-      this.parser.constructs.disable.null.includes('codeIndented')
-        ? undefined
-        : 4
-    )
-    function closingSequenceStart(code) {
+    function start(code) {
       effects.enter('codeFencedFence');
-      effects.enter('codeFencedFenceSequence');
-      return closingSequence(code)
+      return markdownSpace(code)
+        ? factorySpace(
+            effects,
+            beforeSequenceClose,
+            'linePrefix',
+            self.parser.constructs.disable.null.includes('codeIndented')
+              ? undefined
+              : 4
+          )(code)
+        : beforeSequenceClose(code)
     }
-    function closingSequence(code) {
+    function beforeSequenceClose(code) {
       if (code === marker) {
-        effects.consume(code);
-        size++;
-        return closingSequence
+        effects.enter('codeFencedFenceSequence');
+        return sequenceClose(code)
       }
-      if (size < sizeOpen) return nok(code)
-      effects.exit('codeFencedFenceSequence');
-      return factorySpace(effects, closingSequenceEnd, 'whitespace')(code)
+      return nok(code)
     }
-    function closingSequenceEnd(code) {
+    function sequenceClose(code) {
+      if (code === marker) {
+        size++;
+        effects.consume(code);
+        return sequenceClose
+      }
+      if (size >= sizeOpen) {
+        effects.exit('codeFencedFenceSequence');
+        return markdownSpace(code)
+          ? factorySpace(effects, sequenceCloseAfter, 'whitespace')(code)
+          : sequenceCloseAfter(code)
+      }
+      return nok(code)
+    }
+    function sequenceCloseAfter(code) {
       if (code === null || markdownLineEnding(code)) {
         effects.exit('codeFencedFence');
         return ok(code)
@@ -3875,13 +4050,29 @@ function tokenizeCodeFenced(effects, ok, nok) {
     }
   }
 }
+function tokenizeNonLazyContinuation(effects, ok, nok) {
+  const self = this;
+  return start
+  function start(code) {
+    if (code === null) {
+      return nok(code)
+    }
+    effects.enter('lineEnding');
+    effects.consume(code);
+    effects.exit('lineEnding');
+    return lineStart
+  }
+  function lineStart(code) {
+    return self.parser.lazy[self.now().line] ? nok(code) : ok(code)
+  }
+}
 
 const codeIndented = {
   name: 'codeIndented',
   tokenize: tokenizeCodeIndented
 };
-const indentedContent = {
-  tokenize: tokenizeIndentedContent,
+const furtherStart = {
+  tokenize: tokenizeFurtherStart,
   partial: true
 };
 function tokenizeCodeIndented(effects, ok, nok) {
@@ -3889,43 +4080,43 @@ function tokenizeCodeIndented(effects, ok, nok) {
   return start
   function start(code) {
     effects.enter('codeIndented');
-    return factorySpace(effects, afterStartPrefix, 'linePrefix', 4 + 1)(code)
+    return factorySpace(effects, afterPrefix, 'linePrefix', 4 + 1)(code)
   }
-  function afterStartPrefix(code) {
+  function afterPrefix(code) {
     const tail = self.events[self.events.length - 1];
     return tail &&
       tail[1].type === 'linePrefix' &&
       tail[2].sliceSerialize(tail[1], true).length >= 4
-      ? afterPrefix(code)
+      ? atBreak(code)
       : nok(code)
   }
-  function afterPrefix(code) {
+  function atBreak(code) {
     if (code === null) {
       return after(code)
     }
     if (markdownLineEnding(code)) {
-      return effects.attempt(indentedContent, afterPrefix, after)(code)
+      return effects.attempt(furtherStart, atBreak, after)(code)
     }
     effects.enter('codeFlowValue');
-    return content(code)
+    return inside(code)
   }
-  function content(code) {
+  function inside(code) {
     if (code === null || markdownLineEnding(code)) {
       effects.exit('codeFlowValue');
-      return afterPrefix(code)
+      return atBreak(code)
     }
     effects.consume(code);
-    return content
+    return inside
   }
   function after(code) {
     effects.exit('codeIndented');
     return ok(code)
   }
 }
-function tokenizeIndentedContent(effects, ok, nok) {
+function tokenizeFurtherStart(effects, ok, nok) {
   const self = this;
-  return start
-  function start(code) {
+  return furtherStart
+  function furtherStart(code) {
     if (self.parser.lazy[self.now().line]) {
       return nok(code)
     }
@@ -3933,7 +4124,7 @@ function tokenizeIndentedContent(effects, ok, nok) {
       effects.enter('lineEnding');
       effects.consume(code);
       effects.exit('lineEnding');
-      return start
+      return furtherStart
     }
     return factorySpace(effects, afterPrefix, 'linePrefix', 4 + 1)(code)
   }
@@ -3944,7 +4135,7 @@ function tokenizeIndentedContent(effects, ok, nok) {
       tail[2].sliceSerialize(tail[1], true).length >= 4
       ? ok(code)
       : markdownLineEnding(code)
-      ? start(code)
+      ? furtherStart(code)
       : nok(code)
   }
 }
@@ -4014,37 +4205,37 @@ function tokenizeCodeText(effects, ok, nok) {
   function start(code) {
     effects.enter('codeText');
     effects.enter('codeTextSequence');
-    return openingSequence(code)
+    return sequenceOpen(code)
   }
-  function openingSequence(code) {
+  function sequenceOpen(code) {
     if (code === 96) {
       effects.consume(code);
       sizeOpen++;
-      return openingSequence
+      return sequenceOpen
     }
     effects.exit('codeTextSequence');
-    return gap(code)
+    return between(code)
   }
-  function gap(code) {
+  function between(code) {
     if (code === null) {
       return nok(code)
-    }
-    if (code === 96) {
-      token = effects.enter('codeTextSequence');
-      size = 0;
-      return closingSequence(code)
     }
     if (code === 32) {
       effects.enter('space');
       effects.consume(code);
       effects.exit('space');
-      return gap
+      return between
+    }
+    if (code === 96) {
+      token = effects.enter('codeTextSequence');
+      size = 0;
+      return sequenceClose(code)
     }
     if (markdownLineEnding(code)) {
       effects.enter('lineEnding');
       effects.consume(code);
       effects.exit('lineEnding');
-      return gap
+      return between
     }
     effects.enter('codeTextData');
     return data(code)
@@ -4057,16 +4248,16 @@ function tokenizeCodeText(effects, ok, nok) {
       markdownLineEnding(code)
     ) {
       effects.exit('codeTextData');
-      return gap(code)
+      return between(code)
     }
     effects.consume(code);
     return data
   }
-  function closingSequence(code) {
+  function sequenceClose(code) {
     if (code === 96) {
       effects.consume(code);
       size++;
-      return closingSequence
+      return sequenceClose
     }
     if (size === sizeOpen) {
       effects.exit('codeTextSequence');
@@ -4249,15 +4440,15 @@ function resolveContent(events) {
 }
 function tokenizeContent(effects, ok) {
   let previous;
-  return start
-  function start(code) {
+  return chunkStart
+  function chunkStart(code) {
     effects.enter('content');
     previous = effects.enter('chunkContent', {
       contentType: 'content'
     });
-    return data(code)
+    return chunkInside(code)
   }
-  function data(code) {
+  function chunkInside(code) {
     if (code === null) {
       return contentEnd(code)
     }
@@ -4269,7 +4460,7 @@ function tokenizeContent(effects, ok) {
       )(code)
     }
     effects.consume(code);
-    return data
+    return chunkInside
   }
   function contentEnd(code) {
     effects.exit('chunkContent');
@@ -4284,7 +4475,7 @@ function tokenizeContent(effects, ok) {
       previous
     });
     previous = previous.next;
-    return data
+    return chunkInside
   }
 }
 function tokenizeContinuation(effects, ok, nok) {
@@ -4335,9 +4526,9 @@ function factoryDestination(
       effects.enter(literalMarkerType);
       effects.consume(code);
       effects.exit(literalMarkerType);
-      return destinationEnclosedBefore
+      return enclosedBefore
     }
-    if (code === null || code === 41 || asciiControl(code)) {
+    if (code === null || code === 32 || code === 41 || asciiControl(code)) {
       return nok(code)
     }
     effects.enter(type);
@@ -4346,9 +4537,9 @@ function factoryDestination(
     effects.enter('chunkString', {
       contentType: 'string'
     });
-    return destinationRaw(code)
+    return raw(code)
   }
-  function destinationEnclosedBefore(code) {
+  function enclosedBefore(code) {
     if (code === 62) {
       effects.enter(literalMarkerType);
       effects.consume(code);
@@ -4361,69 +4552,67 @@ function factoryDestination(
     effects.enter('chunkString', {
       contentType: 'string'
     });
-    return destinationEnclosed(code)
+    return enclosed(code)
   }
-  function destinationEnclosed(code) {
+  function enclosed(code) {
     if (code === 62) {
       effects.exit('chunkString');
       effects.exit(stringType);
-      return destinationEnclosedBefore(code)
+      return enclosedBefore(code)
     }
     if (code === null || code === 60 || markdownLineEnding(code)) {
       return nok(code)
     }
     effects.consume(code);
-    return code === 92 ? destinationEnclosedEscape : destinationEnclosed
+    return code === 92 ? enclosedEscape : enclosed
   }
-  function destinationEnclosedEscape(code) {
+  function enclosedEscape(code) {
     if (code === 60 || code === 62 || code === 92) {
       effects.consume(code);
-      return destinationEnclosed
+      return enclosed
     }
-    return destinationEnclosed(code)
+    return enclosed(code)
   }
-  function destinationRaw(code) {
-    if (code === 40) {
-      if (++balance > limit) return nok(code)
-      effects.consume(code);
-      return destinationRaw
-    }
-    if (code === 41) {
-      if (!balance--) {
-        effects.exit('chunkString');
-        effects.exit(stringType);
-        effects.exit(rawType);
-        effects.exit(type);
-        return ok(code)
-      }
-      effects.consume(code);
-      return destinationRaw
-    }
-    if (code === null || markdownLineEndingOrSpace(code)) {
-      if (balance) return nok(code)
+  function raw(code) {
+    if (
+      !balance &&
+      (code === null || code === 41 || markdownLineEndingOrSpace(code))
+    ) {
       effects.exit('chunkString');
       effects.exit(stringType);
       effects.exit(rawType);
       effects.exit(type);
       return ok(code)
     }
-    if (asciiControl(code)) return nok(code)
+    if (balance < limit && code === 40) {
+      effects.consume(code);
+      balance++;
+      return raw
+    }
+    if (code === 41) {
+      effects.consume(code);
+      balance--;
+      return raw
+    }
+    if (code === null || code === 32 || code === 40 || asciiControl(code)) {
+      return nok(code)
+    }
     effects.consume(code);
-    return code === 92 ? destinationRawEscape : destinationRaw
+    return code === 92 ? rawEscape : raw
   }
-  function destinationRawEscape(code) {
+  function rawEscape(code) {
     if (code === 40 || code === 41 || code === 92) {
       effects.consume(code);
-      return destinationRaw
+      return raw
     }
-    return destinationRaw(code)
+    return raw(code)
   }
 }
 
 function factoryLabel(effects, ok, nok, type, markerType, stringType) {
   const self = this;
   let size = 0;
-  let data;
+  let seen;
   return start
   function start(code) {
     effects.enter(type);
@@ -4435,13 +4624,13 @@ function factoryLabel(effects, ok, nok, type, markerType, stringType) {
   }
   function atBreak(code) {
     if (
+      size > 999 ||
       code === null ||
       code === 91 ||
-      (code === 93 && !data) ||
+      (code === 93 && !seen) ||
       (code === 94 &&
         !size &&
-        '_hiddenFootnoteSupport' in self.parser.constructs) ||
-      size > 999
+        '_hiddenFootnoteSupport' in self.parser.constructs)
     ) {
       return nok(code)
     }
@@ -4462,9 +4651,9 @@ function factoryLabel(effects, ok, nok, type, markerType, stringType) {
     effects.enter('chunkString', {
       contentType: 'string'
     });
-    return label(code)
+    return labelInside(code)
   }
-  function label(code) {
+  function labelInside(code) {
     if (
       code === null ||
       code === 91 ||
@@ -4476,16 +4665,16 @@ function factoryLabel(effects, ok, nok, type, markerType, stringType) {
       return atBreak(code)
     }
     effects.consume(code);
-    data = data || !markdownSpace(code);
-    return code === 92 ? labelEscape : label
+    if (!seen) seen = !markdownSpace(code);
+    return code === 92 ? labelEscape : labelInside
   }
   function labelEscape(code) {
     if (code === 91 || code === 92 || code === 93) {
       effects.consume(code);
       size++;
-      return label
+      return labelInside
     }
-    return label(code)
+    return labelInside(code)
   }
 }
 
@@ -4493,14 +4682,17 @@ function factoryTitle(effects, ok, nok, type, markerType, stringType) {
   let marker;
   return start
   function start(code) {
-    effects.enter(type);
-    effects.enter(markerType);
-    effects.consume(code);
-    effects.exit(markerType);
-    marker = code === 40 ? 41 : code;
-    return atFirstTitleBreak
+    if (code === 34 || code === 39 || code === 40) {
+      effects.enter(type);
+      effects.enter(markerType);
+      effects.consume(code);
+      effects.exit(markerType);
+      marker = code === 40 ? 41 : code;
+      return begin
+    }
+    return nok(code)
   }
-  function atFirstTitleBreak(code) {
+  function begin(code) {
     if (code === marker) {
       effects.enter(markerType);
       effects.consume(code);
@@ -4509,12 +4701,12 @@ function factoryTitle(effects, ok, nok, type, markerType, stringType) {
       return ok
     }
     effects.enter(stringType);
-    return atTitleBreak(code)
+    return atBreak(code)
   }
-  function atTitleBreak(code) {
+  function atBreak(code) {
     if (code === marker) {
       effects.exit(stringType);
-      return atFirstTitleBreak(marker)
+      return begin(marker)
     }
     if (code === null) {
       return nok(code)
@@ -4523,27 +4715,27 @@ function factoryTitle(effects, ok, nok, type, markerType, stringType) {
       effects.enter('lineEnding');
       effects.consume(code);
       effects.exit('lineEnding');
-      return factorySpace(effects, atTitleBreak, 'linePrefix')
+      return factorySpace(effects, atBreak, 'linePrefix')
     }
     effects.enter('chunkString', {
       contentType: 'string'
     });
-    return title(code)
+    return inside(code)
   }
-  function title(code) {
+  function inside(code) {
     if (code === marker || code === null || markdownLineEnding(code)) {
       effects.exit('chunkString');
-      return atTitleBreak(code)
+      return atBreak(code)
     }
     effects.consume(code);
-    return code === 92 ? titleEscape : title
+    return code === 92 ? escape : inside
   }
-  function titleEscape(code) {
+  function escape(code) {
     if (code === marker || code === 92) {
       effects.consume(code);
-      return title
+      return inside
     }
-    return title(code)
+    return inside(code)
   }
 }
 
@@ -4569,22 +4761,12 @@ function factoryWhitespace(effects, ok) {
   }
 }
 
-function normalizeIdentifier(value) {
-  return (
-    value
-      .replace(/[\t\n\r ]+/g, ' ')
-      .replace(/^ | $/g, '')
-      .toLowerCase()
-      .toUpperCase()
-  )
-}
-
 const definition$1 = {
   name: 'definition',
   tokenize: tokenizeDefinition
 };
-const titleConstruct = {
-  tokenize: tokenizeTitle,
+const titleBefore = {
+  tokenize: tokenizeTitleBefore,
   partial: true
 };
 function tokenizeDefinition(effects, ok, nok) {
@@ -4593,6 +4775,9 @@ function tokenizeDefinition(effects, ok, nok) {
   return start
   function start(code) {
     effects.enter('definition');
+    return before(code)
+  }
+  function before(code) {
     return factoryLabel.call(
       self,
       effects,
@@ -4604,65 +4789,74 @@ function tokenizeDefinition(effects, ok, nok) {
     )(code)
   }
   function labelAfter(code) {
-    identifier = normalizeIdentifier(
+    identifier = normalizeIdentifier$1(
       self.sliceSerialize(self.events[self.events.length - 1][1]).slice(1, -1)
     );
     if (code === 58) {
       effects.enter('definitionMarker');
       effects.consume(code);
       effects.exit('definitionMarker');
-      return factoryWhitespace(
-        effects,
-        factoryDestination(
-          effects,
-          effects.attempt(
-            titleConstruct,
-            factorySpace(effects, after, 'whitespace'),
-            factorySpace(effects, after, 'whitespace')
-          ),
-          nok,
-          'definitionDestination',
-          'definitionDestinationLiteral',
-          'definitionDestinationLiteralMarker',
-          'definitionDestinationRaw',
-          'definitionDestinationString'
-        )
-      )
+      return markerAfter
     }
     return nok(code)
   }
+  function markerAfter(code) {
+    return markdownLineEndingOrSpace(code)
+      ? factoryWhitespace(effects, destinationBefore)(code)
+      : destinationBefore(code)
+  }
+  function destinationBefore(code) {
+    return factoryDestination(
+      effects,
+      destinationAfter,
+      nok,
+      'definitionDestination',
+      'definitionDestinationLiteral',
+      'definitionDestinationLiteralMarker',
+      'definitionDestinationRaw',
+      'definitionDestinationString'
+    )(code)
+  }
+  function destinationAfter(code) {
+    return effects.attempt(titleBefore, after, after)(code)
+  }
   function after(code) {
+    return markdownSpace(code)
+      ? factorySpace(effects, afterWhitespace, 'whitespace')(code)
+      : afterWhitespace(code)
+  }
+  function afterWhitespace(code) {
     if (code === null || markdownLineEnding(code)) {
       effects.exit('definition');
-      if (!self.parser.defined.includes(identifier)) {
-        self.parser.defined.push(identifier);
-      }
+      self.parser.defined.push(identifier);
       return ok(code)
     }
     return nok(code)
   }
 }
-function tokenizeTitle(effects, ok, nok) {
-  return start
-  function start(code) {
+function tokenizeTitleBefore(effects, ok, nok) {
+  return titleBefore
+  function titleBefore(code) {
     return markdownLineEndingOrSpace(code)
-      ? factoryWhitespace(effects, before)(code)
+      ? factoryWhitespace(effects, beforeMarker)(code)
       : nok(code)
   }
-  function before(code) {
-    if (code === 34 || code === 39 || code === 40) {
-      return factoryTitle(
-        effects,
-        factorySpace(effects, after, 'whitespace'),
-        nok,
-        'definitionTitle',
-        'definitionTitleMarker',
-        'definitionTitleString'
-      )(code)
-    }
-    return nok(code)
+  function beforeMarker(code) {
+    return factoryTitle(
+      effects,
+      titleAfter,
+      nok,
+      'definitionTitle',
+      'definitionTitleMarker',
+      'definitionTitleString'
+    )(code)
   }
-  function after(code) {
+  function titleAfter(code) {
+    return markdownSpace(code)
+      ? factorySpace(effects, titleAfterOptionalWhitespace, 'whitespace')(code)
+      : titleAfterOptionalWhitespace(code)
+  }
+  function titleAfterOptionalWhitespace(code) {
     return code === null || markdownLineEnding(code) ? ok(code) : nok(code)
   }
 }
@@ -4675,13 +4869,11 @@ function tokenizeHardBreakEscape(effects, ok, nok) {
   return start
   function start(code) {
     effects.enter('hardBreakEscape');
-    effects.enter('escapeMarker');
     effects.consume(code);
-    return open
+    return after
   }
-  function open(code) {
+  function after(code) {
     if (markdownLineEnding(code)) {
-      effects.exit('escapeMarker');
       effects.exit('hardBreakEscape');
       return ok(code)
     }
@@ -4738,52 +4930,54 @@ function resolveHeadingAtx(events, context) {
   return events
 }
 function tokenizeHeadingAtx(effects, ok, nok) {
-  const self = this;
   let size = 0;
   return start
   function start(code) {
     effects.enter('atxHeading');
-    effects.enter('atxHeadingSequence');
-    return fenceOpenInside(code)
+    return before(code)
   }
-  function fenceOpenInside(code) {
+  function before(code) {
+    effects.enter('atxHeadingSequence');
+    return sequenceOpen(code)
+  }
+  function sequenceOpen(code) {
     if (code === 35 && size++ < 6) {
       effects.consume(code);
-      return fenceOpenInside
+      return sequenceOpen
     }
     if (code === null || markdownLineEndingOrSpace(code)) {
       effects.exit('atxHeadingSequence');
-      return self.interrupt ? ok(code) : headingBreak(code)
+      return atBreak(code)
     }
     return nok(code)
   }
-  function headingBreak(code) {
+  function atBreak(code) {
     if (code === 35) {
       effects.enter('atxHeadingSequence');
-      return sequence(code)
+      return sequenceFurther(code)
     }
     if (code === null || markdownLineEnding(code)) {
       effects.exit('atxHeading');
       return ok(code)
     }
     if (markdownSpace(code)) {
-      return factorySpace(effects, headingBreak, 'whitespace')(code)
+      return factorySpace(effects, atBreak, 'whitespace')(code)
     }
     effects.enter('atxHeadingText');
     return data(code)
   }
-  function sequence(code) {
+  function sequenceFurther(code) {
     if (code === 35) {
       effects.consume(code);
-      return sequence
+      return sequenceFurther
     }
     effects.exit('atxHeadingSequence');
-    return headingBreak(code)
+    return atBreak(code)
   }
   function data(code) {
     if (code === null || code === 35 || markdownLineEndingOrSpace(code)) {
       effects.exit('atxHeadingText');
-      return headingBreak(code)
+      return atBreak(code)
     }
     effects.consume(code);
     return data
@@ -4840,6 +5034,7 @@ const htmlBlockNames = [
   'option',
   'p',
   'param',
+  'search',
   'section',
   'summary',
   'table',
@@ -4861,8 +5056,12 @@ const htmlFlow = {
   resolveTo: resolveToHtmlFlow,
   concrete: true
 };
-const nextBlankConstruct = {
-  tokenize: tokenizeNextBlank,
+const blankLineBefore = {
+  tokenize: tokenizeBlankLineBefore,
+  partial: true
+};
+const nonLazyContinuationStart = {
+  tokenize: tokenizeNonLazyContinuationStart,
   partial: true
 };
 function resolveToHtmlFlow(events) {
@@ -4881,13 +5080,16 @@ function resolveToHtmlFlow(events) {
 }
 function tokenizeHtmlFlow(effects, ok, nok) {
   const self = this;
-  let kind;
-  let startTag;
+  let marker;
+  let closingTag;
   let buffer;
   let index;
-  let marker;
+  let markerB;
   return start
   function start(code) {
+    return before(code)
+  }
+  function before(code) {
     effects.enter('htmlFlow');
     effects.enter('htmlFlowData');
     effects.consume(code);
@@ -4896,41 +5098,40 @@ function tokenizeHtmlFlow(effects, ok, nok) {
   function open(code) {
     if (code === 33) {
       effects.consume(code);
-      return declarationStart
+      return declarationOpen
     }
     if (code === 47) {
       effects.consume(code);
+      closingTag = true;
       return tagCloseStart
     }
     if (code === 63) {
       effects.consume(code);
-      kind = 3;
+      marker = 3;
       return self.interrupt ? ok : continuationDeclarationInside
     }
     if (asciiAlpha(code)) {
       effects.consume(code);
       buffer = String.fromCharCode(code);
-      startTag = true;
       return tagName
     }
     return nok(code)
   }
-  function declarationStart(code) {
+  function declarationOpen(code) {
     if (code === 45) {
       effects.consume(code);
-      kind = 2;
+      marker = 2;
       return commentOpenInside
     }
     if (code === 91) {
       effects.consume(code);
-      kind = 5;
-      buffer = 'CDATA[';
+      marker = 5;
       index = 0;
       return cdataOpenInside
     }
     if (asciiAlpha(code)) {
       effects.consume(code);
-      kind = 4;
+      marker = 4;
       return self.interrupt ? ok : continuationDeclarationInside
     }
     return nok(code)
@@ -4943,13 +5144,13 @@ function tokenizeHtmlFlow(effects, ok, nok) {
     return nok(code)
   }
   function cdataOpenInside(code) {
-    if (code === buffer.charCodeAt(index++)) {
+    const value = 'CDATA[';
+    if (code === value.charCodeAt(index++)) {
       effects.consume(code);
-      return index === buffer.length
-        ? self.interrupt
-          ? ok
-          : continuation
-        : cdataOpenInside
+      if (index === value.length) {
+        return self.interrupt ? ok : continuation
+      }
+      return cdataOpenInside
     }
     return nok(code)
   }
@@ -4968,28 +5169,26 @@ function tokenizeHtmlFlow(effects, ok, nok) {
       code === 62 ||
       markdownLineEndingOrSpace(code)
     ) {
-      if (
-        code !== 47 &&
-        startTag &&
-        htmlRawNames.includes(buffer.toLowerCase())
-      ) {
-        kind = 1;
+      const slash = code === 47;
+      const name = buffer.toLowerCase();
+      if (!slash && !closingTag && htmlRawNames.includes(name)) {
+        marker = 1;
         return self.interrupt ? ok(code) : continuation(code)
       }
       if (htmlBlockNames.includes(buffer.toLowerCase())) {
-        kind = 6;
-        if (code === 47) {
+        marker = 6;
+        if (slash) {
           effects.consume(code);
           return basicSelfClosing
         }
         return self.interrupt ? ok(code) : continuation(code)
       }
-      kind = 7;
+      marker = 7;
       return self.interrupt && !self.parser.lazy[self.now().line]
         ? nok(code)
-        : startTag
-        ? completeAttributeNameBefore(code)
-        : completeClosingTagAfter(code)
+        : closingTag
+        ? completeClosingTagAfter(code)
+        : completeAttributeNameBefore(code)
     }
     if (code === 45 || asciiAlphanumeric(code)) {
       effects.consume(code);
@@ -5063,23 +5262,23 @@ function tokenizeHtmlFlow(effects, ok, nok) {
     }
     if (code === 34 || code === 39) {
       effects.consume(code);
-      marker = code;
+      markerB = code;
       return completeAttributeValueQuoted
     }
     if (markdownSpace(code)) {
       effects.consume(code);
       return completeAttributeValueBefore
     }
-    marker = null;
     return completeAttributeValueUnquoted(code)
   }
   function completeAttributeValueQuoted(code) {
+    if (code === markerB) {
+      effects.consume(code);
+      markerB = null;
+      return completeAttributeValueQuotedAfter
+    }
     if (code === null || markdownLineEnding(code)) {
       return nok(code)
-    }
-    if (code === marker) {
-      effects.consume(code);
-      return completeAttributeValueQuotedAfter
     }
     effects.consume(code);
     return completeAttributeValueQuoted
@@ -5089,6 +5288,7 @@ function tokenizeHtmlFlow(effects, ok, nok) {
       code === null ||
       code === 34 ||
       code === 39 ||
+      code === 47 ||
       code === 60 ||
       code === 61 ||
       code === 62 ||
@@ -5114,80 +5314,70 @@ function tokenizeHtmlFlow(effects, ok, nok) {
     return nok(code)
   }
   function completeAfter(code) {
+    if (code === null || markdownLineEnding(code)) {
+      return continuation(code)
+    }
     if (markdownSpace(code)) {
       effects.consume(code);
       return completeAfter
     }
-    return code === null || markdownLineEnding(code)
-      ? continuation(code)
-      : nok(code)
+    return nok(code)
   }
   function continuation(code) {
-    if (code === 45 && kind === 2) {
+    if (code === 45 && marker === 2) {
       effects.consume(code);
       return continuationCommentInside
     }
-    if (code === 60 && kind === 1) {
+    if (code === 60 && marker === 1) {
       effects.consume(code);
       return continuationRawTagOpen
     }
-    if (code === 62 && kind === 4) {
+    if (code === 62 && marker === 4) {
       effects.consume(code);
       return continuationClose
     }
-    if (code === 63 && kind === 3) {
+    if (code === 63 && marker === 3) {
       effects.consume(code);
       return continuationDeclarationInside
     }
-    if (code === 93 && kind === 5) {
+    if (code === 93 && marker === 5) {
       effects.consume(code);
-      return continuationCharacterDataInside
+      return continuationCdataInside
     }
-    if (markdownLineEnding(code) && (kind === 6 || kind === 7)) {
+    if (markdownLineEnding(code) && (marker === 6 || marker === 7)) {
+      effects.exit('htmlFlowData');
       return effects.check(
-        nextBlankConstruct,
-        continuationClose,
-        continuationAtLineEnding
+        blankLineBefore,
+        continuationAfter,
+        continuationStart
       )(code)
     }
     if (code === null || markdownLineEnding(code)) {
-      return continuationAtLineEnding(code)
+      effects.exit('htmlFlowData');
+      return continuationStart(code)
     }
     effects.consume(code);
     return continuation
   }
-  function continuationAtLineEnding(code) {
-    effects.exit('htmlFlowData');
-    return htmlContinueStart(code)
+  function continuationStart(code) {
+    return effects.check(
+      nonLazyContinuationStart,
+      continuationStartNonLazy,
+      continuationAfter
+    )(code)
   }
-  function htmlContinueStart(code) {
-    if (code === null) {
-      return done(code)
-    }
-    if (markdownLineEnding(code)) {
-      return effects.attempt(
-        {
-          tokenize: htmlLineEnd,
-          partial: true
-        },
-        htmlContinueStart,
-        done
-      )(code)
+  function continuationStartNonLazy(code) {
+    effects.enter('lineEnding');
+    effects.consume(code);
+    effects.exit('lineEnding');
+    return continuationBefore
+  }
+  function continuationBefore(code) {
+    if (code === null || markdownLineEnding(code)) {
+      return continuationStart(code)
     }
     effects.enter('htmlFlowData');
     return continuation(code)
-  }
-  function htmlLineEnd(effects, ok, nok) {
-    return start
-    function start(code) {
-      effects.enter('lineEnding');
-      effects.consume(code);
-      effects.exit('lineEnding');
-      return lineStart
-    }
-    function lineStart(code) {
-      return self.parser.lazy[self.now().line] ? nok(code) : ok(code)
-    }
   }
   function continuationCommentInside(code) {
     if (code === 45) {
@@ -5205,9 +5395,13 @@ function tokenizeHtmlFlow(effects, ok, nok) {
     return continuation(code)
   }
   function continuationRawEndTag(code) {
-    if (code === 62 && htmlRawNames.includes(buffer.toLowerCase())) {
-      effects.consume(code);
-      return continuationClose
+    if (code === 62) {
+      const name = buffer.toLowerCase();
+      if (htmlRawNames.includes(name)) {
+        effects.consume(code);
+        return continuationClose
+      }
+      return continuation(code)
     }
     if (asciiAlpha(code) && buffer.length < 8) {
       effects.consume(code);
@@ -5216,7 +5410,7 @@ function tokenizeHtmlFlow(effects, ok, nok) {
     }
     return continuation(code)
   }
-  function continuationCharacterDataInside(code) {
+  function continuationCdataInside(code) {
     if (code === 93) {
       effects.consume(code);
       return continuationDeclarationInside
@@ -5228,7 +5422,7 @@ function tokenizeHtmlFlow(effects, ok, nok) {
       effects.consume(code);
       return continuationClose
     }
-    if (code === 45 && kind === 2) {
+    if (code === 45 && marker === 2) {
       effects.consume(code);
       return continuationDeclarationInside
     }
@@ -5237,23 +5431,38 @@ function tokenizeHtmlFlow(effects, ok, nok) {
   function continuationClose(code) {
     if (code === null || markdownLineEnding(code)) {
       effects.exit('htmlFlowData');
-      return done(code)
+      return continuationAfter(code)
     }
     effects.consume(code);
     return continuationClose
   }
-  function done(code) {
+  function continuationAfter(code) {
     effects.exit('htmlFlow');
     return ok(code)
   }
 }
-function tokenizeNextBlank(effects, ok, nok) {
+function tokenizeNonLazyContinuationStart(effects, ok, nok) {
+  const self = this;
   return start
   function start(code) {
-    effects.exit('htmlFlowData');
-    effects.enter('lineEndingBlank');
+    if (markdownLineEnding(code)) {
+      effects.enter('lineEnding');
+      effects.consume(code);
+      effects.exit('lineEnding');
+      return after
+    }
+    return nok(code)
+  }
+  function after(code) {
+    return self.parser.lazy[self.now().line] ? nok(code) : ok(code)
+  }
+}
+function tokenizeBlankLineBefore(effects, ok, nok) {
+  return start
+  function start(code) {
+    effects.enter('lineEnding');
     effects.consume(code);
-    effects.exit('lineEndingBlank');
+    effects.exit('lineEnding');
     return effects.attempt(blankLine, ok, nok)
   }
 }
@@ -5265,7 +5474,6 @@ const htmlText = {
 function tokenizeHtmlText(effects, ok, nok) {
   const self = this;
   let marker;
-  let buffer;
   let index;
   let returnState;
   return start
@@ -5297,13 +5505,12 @@ function tokenizeHtmlText(effects, ok, nok) {
   function declarationOpen(code) {
     if (code === 45) {
       effects.consume(code);
-      return commentOpen
+      return commentOpenInside
     }
     if (code === 91) {
       effects.consume(code);
-      buffer = 'CDATA[';
       index = 0;
-      return cdataOpen
+      return cdataOpenInside
     }
     if (asciiAlpha(code)) {
       effects.consume(code);
@@ -5311,28 +5518,12 @@ function tokenizeHtmlText(effects, ok, nok) {
     }
     return nok(code)
   }
-  function commentOpen(code) {
+  function commentOpenInside(code) {
     if (code === 45) {
       effects.consume(code);
-      return commentStart
+      return commentEnd
     }
     return nok(code)
-  }
-  function commentStart(code) {
-    if (code === null || code === 62) {
-      return nok(code)
-    }
-    if (code === 45) {
-      effects.consume(code);
-      return commentStartDash
-    }
-    return comment(code)
-  }
-  function commentStartDash(code) {
-    if (code === null || code === 62) {
-      return nok(code)
-    }
-    return comment(code)
   }
   function comment(code) {
     if (code === null) {
@@ -5344,7 +5535,7 @@ function tokenizeHtmlText(effects, ok, nok) {
     }
     if (markdownLineEnding(code)) {
       returnState = comment;
-      return atLineEnding(code)
+      return lineEndingBefore(code)
     }
     effects.consume(code);
     return comment
@@ -5352,14 +5543,22 @@ function tokenizeHtmlText(effects, ok, nok) {
   function commentClose(code) {
     if (code === 45) {
       effects.consume(code);
-      return end
+      return commentEnd
     }
     return comment(code)
   }
-  function cdataOpen(code) {
-    if (code === buffer.charCodeAt(index++)) {
+  function commentEnd(code) {
+    return code === 62
+      ? end(code)
+      : code === 45
+      ? commentClose(code)
+      : comment(code)
+  }
+  function cdataOpenInside(code) {
+    const value = 'CDATA[';
+    if (code === value.charCodeAt(index++)) {
       effects.consume(code);
-      return index === buffer.length ? cdata : cdataOpen
+      return index === value.length ? cdata : cdataOpenInside
     }
     return nok(code)
   }
@@ -5373,7 +5572,7 @@ function tokenizeHtmlText(effects, ok, nok) {
     }
     if (markdownLineEnding(code)) {
       returnState = cdata;
-      return atLineEnding(code)
+      return lineEndingBefore(code)
     }
     effects.consume(code);
     return cdata
@@ -5401,7 +5600,7 @@ function tokenizeHtmlText(effects, ok, nok) {
     }
     if (markdownLineEnding(code)) {
       returnState = declaration;
-      return atLineEnding(code)
+      return lineEndingBefore(code)
     }
     effects.consume(code);
     return declaration
@@ -5416,7 +5615,7 @@ function tokenizeHtmlText(effects, ok, nok) {
     }
     if (markdownLineEnding(code)) {
       returnState = instruction;
-      return atLineEnding(code)
+      return lineEndingBefore(code)
     }
     effects.consume(code);
     return instruction
@@ -5441,7 +5640,7 @@ function tokenizeHtmlText(effects, ok, nok) {
   function tagCloseBetween(code) {
     if (markdownLineEnding(code)) {
       returnState = tagCloseBetween;
-      return atLineEnding(code)
+      return lineEndingBefore(code)
     }
     if (markdownSpace(code)) {
       effects.consume(code);
@@ -5470,7 +5669,7 @@ function tokenizeHtmlText(effects, ok, nok) {
     }
     if (markdownLineEnding(code)) {
       returnState = tagOpenBetween;
-      return atLineEnding(code)
+      return lineEndingBefore(code)
     }
     if (markdownSpace(code)) {
       effects.consume(code);
@@ -5498,7 +5697,7 @@ function tokenizeHtmlText(effects, ok, nok) {
     }
     if (markdownLineEnding(code)) {
       returnState = tagOpenAttributeNameAfter;
-      return atLineEnding(code)
+      return lineEndingBefore(code)
     }
     if (markdownSpace(code)) {
       effects.consume(code);
@@ -5523,19 +5722,19 @@ function tokenizeHtmlText(effects, ok, nok) {
     }
     if (markdownLineEnding(code)) {
       returnState = tagOpenAttributeValueBefore;
-      return atLineEnding(code)
+      return lineEndingBefore(code)
     }
     if (markdownSpace(code)) {
       effects.consume(code);
       return tagOpenAttributeValueBefore
     }
     effects.consume(code);
-    marker = undefined;
     return tagOpenAttributeValueUnquoted
   }
   function tagOpenAttributeValueQuoted(code) {
     if (code === marker) {
       effects.consume(code);
+      marker = undefined;
       return tagOpenAttributeValueQuotedAfter
     }
     if (code === null) {
@@ -5543,16 +5742,10 @@ function tokenizeHtmlText(effects, ok, nok) {
     }
     if (markdownLineEnding(code)) {
       returnState = tagOpenAttributeValueQuoted;
-      return atLineEnding(code)
+      return lineEndingBefore(code)
     }
     effects.consume(code);
     return tagOpenAttributeValueQuoted
-  }
-  function tagOpenAttributeValueQuotedAfter(code) {
-    if (code === 62 || code === 47 || markdownLineEndingOrSpace(code)) {
-      return tagOpenBetween(code)
-    }
-    return nok(code)
   }
   function tagOpenAttributeValueUnquoted(code) {
     if (
@@ -5565,29 +5758,17 @@ function tokenizeHtmlText(effects, ok, nok) {
     ) {
       return nok(code)
     }
-    if (code === 62 || markdownLineEndingOrSpace(code)) {
+    if (code === 47 || code === 62 || markdownLineEndingOrSpace(code)) {
       return tagOpenBetween(code)
     }
     effects.consume(code);
     return tagOpenAttributeValueUnquoted
   }
-  function atLineEnding(code) {
-    effects.exit('htmlTextData');
-    effects.enter('lineEnding');
-    effects.consume(code);
-    effects.exit('lineEnding');
-    return factorySpace(
-      effects,
-      afterPrefix,
-      'linePrefix',
-      self.parser.constructs.disable.null.includes('codeIndented')
-        ? undefined
-        : 4
-    )
-  }
-  function afterPrefix(code) {
-    effects.enter('htmlTextData');
-    return returnState(code)
+  function tagOpenAttributeValueQuotedAfter(code) {
+    if (code === 47 || code === 62 || markdownLineEndingOrSpace(code)) {
+      return tagOpenBetween(code)
+    }
+    return nok(code)
   }
   function end(code) {
     if (code === 62) {
@@ -5597,6 +5778,29 @@ function tokenizeHtmlText(effects, ok, nok) {
       return ok
     }
     return nok(code)
+  }
+  function lineEndingBefore(code) {
+    effects.exit('htmlTextData');
+    effects.enter('lineEnding');
+    effects.consume(code);
+    effects.exit('lineEnding');
+    return lineEndingAfter
+  }
+  function lineEndingAfter(code) {
+    return markdownSpace(code)
+      ? factorySpace(
+          effects,
+          lineEndingAfterPrefix,
+          'linePrefix',
+          self.parser.constructs.disable.null.includes('codeIndented')
+            ? undefined
+            : 4
+        )(code)
+      : lineEndingAfterPrefix(code)
+  }
+  function lineEndingAfterPrefix(code) {
+    effects.enter('htmlTextData');
+    return returnState(code)
   }
 }
 
@@ -5609,17 +5813,16 @@ const labelEnd = {
 const resourceConstruct = {
   tokenize: tokenizeResource
 };
-const fullReferenceConstruct = {
-  tokenize: tokenizeFullReference
+const referenceFullConstruct = {
+  tokenize: tokenizeReferenceFull
 };
-const collapsedReferenceConstruct = {
-  tokenize: tokenizeCollapsedReference
+const referenceCollapsedConstruct = {
+  tokenize: tokenizeReferenceCollapsed
 };
 function resolveAllLabelEnd(events) {
   let index = -1;
-  let token;
   while (++index < events.length) {
-    token = events[index][1];
+    const token = events[index][1];
     if (
       token.type === 'labelImage' ||
       token.type === 'labelLink' ||
@@ -5727,9 +5930,11 @@ function tokenizeLabelEnd(effects, ok, nok) {
     if (!labelStart) {
       return nok(code)
     }
-    if (labelStart._inactive) return balanced(code)
+    if (labelStart._inactive) {
+      return labelEndNok(code)
+    }
     defined = self.parser.defined.includes(
-      normalizeIdentifier(
+      normalizeIdentifier$1(
         self.sliceSerialize({
           start: labelStart.end,
           end: self.now()
@@ -5741,49 +5946,62 @@ function tokenizeLabelEnd(effects, ok, nok) {
     effects.consume(code);
     effects.exit('labelMarker');
     effects.exit('labelEnd');
-    return afterLabelEnd
+    return after
   }
-  function afterLabelEnd(code) {
+  function after(code) {
     if (code === 40) {
       return effects.attempt(
         resourceConstruct,
-        ok,
-        defined ? ok : balanced
+        labelEndOk,
+        defined ? labelEndOk : labelEndNok
       )(code)
     }
     if (code === 91) {
       return effects.attempt(
-        fullReferenceConstruct,
-        ok,
-        defined
-          ? effects.attempt(collapsedReferenceConstruct, ok, balanced)
-          : balanced
+        referenceFullConstruct,
+        labelEndOk,
+        defined ? referenceNotFull : labelEndNok
       )(code)
     }
-    return defined ? ok(code) : balanced(code)
+    return defined ? labelEndOk(code) : labelEndNok(code)
   }
-  function balanced(code) {
+  function referenceNotFull(code) {
+    return effects.attempt(
+      referenceCollapsedConstruct,
+      labelEndOk,
+      labelEndNok
+    )(code)
+  }
+  function labelEndOk(code) {
+    return ok(code)
+  }
+  function labelEndNok(code) {
     labelStart._balanced = true;
     return nok(code)
   }
 }
 function tokenizeResource(effects, ok, nok) {
-  return start
-  function start(code) {
+  return resourceStart
+  function resourceStart(code) {
     effects.enter('resource');
     effects.enter('resourceMarker');
     effects.consume(code);
     effects.exit('resourceMarker');
-    return factoryWhitespace(effects, open)
+    return resourceBefore
   }
-  function open(code) {
+  function resourceBefore(code) {
+    return markdownLineEndingOrSpace(code)
+      ? factoryWhitespace(effects, resourceOpen)(code)
+      : resourceOpen(code)
+  }
+  function resourceOpen(code) {
     if (code === 41) {
-      return end(code)
+      return resourceEnd(code)
     }
     return factoryDestination(
       effects,
-      destinationAfter,
-      nok,
+      resourceDestinationAfter,
+      resourceDestinationMissing,
       'resourceDestination',
       'resourceDestinationLiteral',
       'resourceDestinationLiteralMarker',
@@ -5792,25 +6010,33 @@ function tokenizeResource(effects, ok, nok) {
       32
     )(code)
   }
-  function destinationAfter(code) {
+  function resourceDestinationAfter(code) {
     return markdownLineEndingOrSpace(code)
-      ? factoryWhitespace(effects, between)(code)
-      : end(code)
+      ? factoryWhitespace(effects, resourceBetween)(code)
+      : resourceEnd(code)
   }
-  function between(code) {
+  function resourceDestinationMissing(code) {
+    return nok(code)
+  }
+  function resourceBetween(code) {
     if (code === 34 || code === 39 || code === 40) {
       return factoryTitle(
         effects,
-        factoryWhitespace(effects, end),
+        resourceTitleAfter,
         nok,
         'resourceTitle',
         'resourceTitleMarker',
         'resourceTitleString'
       )(code)
     }
-    return end(code)
+    return resourceEnd(code)
   }
-  function end(code) {
+  function resourceTitleAfter(code) {
+    return markdownLineEndingOrSpace(code)
+      ? factoryWhitespace(effects, resourceEnd)(code)
+      : resourceEnd(code)
+  }
+  function resourceEnd(code) {
     if (code === 41) {
       effects.enter('resourceMarker');
       effects.consume(code);
@@ -5821,40 +6047,43 @@ function tokenizeResource(effects, ok, nok) {
     return nok(code)
   }
 }
-function tokenizeFullReference(effects, ok, nok) {
+function tokenizeReferenceFull(effects, ok, nok) {
   const self = this;
-  return start
-  function start(code) {
+  return referenceFull
+  function referenceFull(code) {
     return factoryLabel.call(
       self,
       effects,
-      afterLabel,
-      nok,
+      referenceFullAfter,
+      referenceFullMissing,
       'reference',
       'referenceMarker',
       'referenceString'
     )(code)
   }
-  function afterLabel(code) {
+  function referenceFullAfter(code) {
     return self.parser.defined.includes(
-      normalizeIdentifier(
+      normalizeIdentifier$1(
         self.sliceSerialize(self.events[self.events.length - 1][1]).slice(1, -1)
       )
     )
       ? ok(code)
       : nok(code)
   }
+  function referenceFullMissing(code) {
+    return nok(code)
+  }
 }
-function tokenizeCollapsedReference(effects, ok, nok) {
-  return start
-  function start(code) {
+function tokenizeReferenceCollapsed(effects, ok, nok) {
+  return referenceCollapsedStart
+  function referenceCollapsedStart(code) {
     effects.enter('reference');
     effects.enter('referenceMarker');
     effects.consume(code);
     effects.exit('referenceMarker');
-    return open
+    return referenceCollapsedOpen
   }
-  function open(code) {
+  function referenceCollapsedOpen(code) {
     if (code === 93) {
       effects.enter('referenceMarker');
       effects.consume(code);
@@ -5945,6 +6174,9 @@ function tokenizeThematicBreak(effects, ok, nok) {
   return start
   function start(code) {
     effects.enter('thematicBreak');
+    return before(code)
+  }
+  function before(code) {
     marker = code;
     return atBreak(code)
   }
@@ -5953,14 +6185,11 @@ function tokenizeThematicBreak(effects, ok, nok) {
       effects.enter('thematicBreakSequence');
       return sequence(code)
     }
-    if (markdownSpace(code)) {
-      return factorySpace(effects, atBreak, 'whitespace')(code)
+    if (size >= 3 && (code === null || markdownLineEnding(code))) {
+      effects.exit('thematicBreak');
+      return ok(code)
     }
-    if (size < 3 || (code !== null && !markdownLineEnding(code))) {
-      return nok(code)
-    }
-    effects.exit('thematicBreak');
-    return ok(code)
+    return nok(code)
   }
   function sequence(code) {
     if (code === marker) {
@@ -5969,11 +6198,13 @@ function tokenizeThematicBreak(effects, ok, nok) {
       return sequence
     }
     effects.exit('thematicBreakSequence');
-    return atBreak(code)
+    return markdownSpace(code)
+      ? factorySpace(effects, atBreak, 'whitespace')(code)
+      : atBreak(code)
   }
 }
 
-const list$1 = {
+const list$2 = {
   name: 'list',
   tokenize: tokenizeListStart,
   continuation: {
@@ -6111,7 +6342,7 @@ function tokenizeListContinuation(effects, ok, nok) {
     self.interrupt = undefined;
     return factorySpace(
       effects,
-      effects.attempt(list$1, ok, nok),
+      effects.attempt(list$2, ok, nok),
       'linePrefix',
       self.parser.constructs.disable.null.includes('codeIndented')
         ? undefined
@@ -6206,38 +6437,43 @@ function resolveToSetextUnderline(events, context) {
 }
 function tokenizeSetextUnderline(effects, ok, nok) {
   const self = this;
-  let index = self.events.length;
   let marker;
-  let paragraph;
-  while (index--) {
-    if (
-      self.events[index][1].type !== 'lineEnding' &&
-      self.events[index][1].type !== 'linePrefix' &&
-      self.events[index][1].type !== 'content'
-    ) {
-      paragraph = self.events[index][1].type === 'paragraph';
-      break
-    }
-  }
   return start
   function start(code) {
+    let index = self.events.length;
+    let paragraph;
+    while (index--) {
+      if (
+        self.events[index][1].type !== 'lineEnding' &&
+        self.events[index][1].type !== 'linePrefix' &&
+        self.events[index][1].type !== 'content'
+      ) {
+        paragraph = self.events[index][1].type === 'paragraph';
+        break
+      }
+    }
     if (!self.parser.lazy[self.now().line] && (self.interrupt || paragraph)) {
       effects.enter('setextHeadingLine');
-      effects.enter('setextHeadingLineSequence');
       marker = code;
-      return closingSequence(code)
+      return before(code)
     }
     return nok(code)
   }
-  function closingSequence(code) {
+  function before(code) {
+    effects.enter('setextHeadingLineSequence');
+    return inside(code)
+  }
+  function inside(code) {
     if (code === marker) {
       effects.consume(code);
-      return closingSequence
+      return inside
     }
     effects.exit('setextHeadingLineSequence');
-    return factorySpace(effects, closingSequenceEnd, 'lineSuffix')(code)
+    return markdownSpace(code)
+      ? factorySpace(effects, after, 'lineSuffix')(code)
+      : after(code)
   }
-  function closingSequenceEnd(code) {
+  function after(code) {
     if (code === null || markdownLineEnding(code)) {
       effects.exit('setextHeadingLine');
       return ok(code)
@@ -6502,7 +6738,14 @@ function createTokenizer(parser, initialize, from) {
     return sliceChunks(chunks, token)
   }
   function now() {
-    return Object.assign({}, point)
+    const {line, column, offset, _index, _bufferIndex} = point;
+    return {
+      line,
+      column,
+      offset,
+      _index,
+      _bufferIndex
+    }
   }
   function defineSkip(value) {
     columnStart[value.line] = value.column;
@@ -6580,10 +6823,10 @@ function createTokenizer(parser, initialize, from) {
       let currentConstruct;
       let info;
       return Array.isArray(constructs)
-        ?
-          handleListOfConstructs(constructs)
+        ? handleListOfConstructs(constructs)
         : 'tokenize' in constructs
-        ? handleListOfConstructs([constructs])
+        ?
+          handleListOfConstructs([constructs])
         : handleMapOfConstructs(constructs)
       function handleMapOfConstructs(map) {
         return start
@@ -6693,7 +6936,12 @@ function sliceChunks(chunks, token) {
   } else {
     view = chunks.slice(startIndex, endIndex);
     if (startBufferIndex > -1) {
-      view[0] = view[0].slice(startBufferIndex);
+      const head = view[0];
+      if (typeof head === 'string') {
+        view[0] = head.slice(startBufferIndex);
+      } else {
+        view.shift();
+      }
     }
     if (endBufferIndex > 0) {
       view.push(chunks[endIndex].slice(0, endBufferIndex));
@@ -6744,19 +6992,19 @@ function serializeChunks(chunks, expandTabs) {
 }
 
 const document = {
-  [42]: list$1,
-  [43]: list$1,
-  [45]: list$1,
-  [48]: list$1,
-  [49]: list$1,
-  [50]: list$1,
-  [51]: list$1,
-  [52]: list$1,
-  [53]: list$1,
-  [54]: list$1,
-  [55]: list$1,
-  [56]: list$1,
-  [57]: list$1,
+  [42]: list$2,
+  [43]: list$2,
+  [45]: list$2,
+  [48]: list$2,
+  [49]: list$2,
+  [50]: list$2,
+  [51]: list$2,
+  [52]: list$2,
+  [53]: list$2,
+  [54]: list$2,
+  [55]: list$2,
+  [56]: list$2,
+  [57]: list$2,
   [62]: blockQuote
 };
 const contentInitial = {
@@ -6807,21 +7055,21 @@ const disable = {
 
 var defaultConstructs = /*#__PURE__*/Object.freeze({
   __proto__: null,
-  document: document,
-  contentInitial: contentInitial,
-  flowInitial: flowInitial,
-  flow: flow,
-  string: string,
-  text: text$2,
-  insideSpan: insideSpan,
   attentionMarkers: attentionMarkers,
-  disable: disable
+  contentInitial: contentInitial,
+  disable: disable,
+  document: document,
+  flow: flow,
+  flowInitial: flowInitial,
+  insideSpan: insideSpan,
+  string: string,
+  text: text$2
 });
 
-function parse$1(options = {}) {
-  const constructs = combineExtensions(
-    [defaultConstructs].concat(options.extensions || [])
-  );
+function parse$1(options) {
+  const settings = options || {};
+  const constructs =
+    combineExtensions([defaultConstructs, ...(settings.extensions || [])]);
   const parser = {
     defined: [],
     lazy: {},
@@ -6841,6 +7089,12 @@ function parse$1(options = {}) {
   }
 }
 
+function postprocess(events) {
+  while (!subtokenize(events)) {
+  }
+  return events
+}
+
 const search = /[\0\t\n\r]/g;
 function preprocess() {
   let column = 1;
@@ -6855,7 +7109,11 @@ function preprocess() {
     let startPosition;
     let endPosition;
     let code;
-    value = buffer + value.toString(encoding);
+    value =
+      buffer +
+      (typeof value === 'string'
+        ? value.toString()
+        : new TextDecoder(encoding || undefined).decode(value));
     startPosition = 0;
     buffer = '';
     if (start) {
@@ -6920,30 +7178,6 @@ function preprocess() {
   }
 }
 
-function postprocess(events) {
-  while (!subtokenize(events)) {
-  }
-  return events
-}
-
-function decodeNumericCharacterReference(value, base) {
-  const code = Number.parseInt(value, base);
-  if (
-    code < 9 ||
-    code === 11 ||
-    (code > 13 && code < 32) ||
-    (code > 126 && code < 160) ||
-    (code > 55295 && code < 57344) ||
-    (code > 64975 && code < 65008) ||
-    (code & 65535) === 65535 ||
-    (code & 65535) === 65534 ||
-    code > 1114111
-  ) {
-    return '\uFFFD'
-  }
-  return String.fromCharCode(code)
-}
-
 const characterEscapeOrReference =
   /\\([!-/:-@[-`{-~])|&(#(?:\d{1,7}|x[\da-f]{1,6})|[\da-z]{1,31});/gi;
 function decodeString(value) {
@@ -6962,126 +7196,117 @@ function decode($0, $1, $2) {
   return decodeNamedCharacterReference($2) || $0
 }
 
-const own$5 = {}.hasOwnProperty;
-const fromMarkdown =
-  function (value, encoding, options) {
-    if (typeof encoding !== 'string') {
-      options = encoding;
-      encoding = undefined;
-    }
-    return compiler(options)(
-      postprocess(
-        parse$1(options).document().write(preprocess()(value, encoding, true))
-      )
+const own$4 = {}.hasOwnProperty;
+function fromMarkdown(value, encoding, options) {
+  if (typeof encoding !== 'string') {
+    options = encoding;
+    encoding = undefined;
+  }
+  return compiler(options)(
+    postprocess(
+      parse$1(options).document().write(preprocess()(value, encoding, true))
     )
-  };
-function compiler(options = {}) {
-  const config = configure$1(
-    {
-      transforms: [],
-      canContainEols: [
-        'emphasis',
-        'fragment',
-        'heading',
-        'paragraph',
-        'strong'
-      ],
-      enter: {
-        autolink: opener(link),
-        autolinkProtocol: onenterdata,
-        autolinkEmail: onenterdata,
-        atxHeading: opener(heading),
-        blockQuote: opener(blockQuote),
-        characterEscape: onenterdata,
-        characterReference: onenterdata,
-        codeFenced: opener(codeFlow),
-        codeFencedFenceInfo: buffer,
-        codeFencedFenceMeta: buffer,
-        codeIndented: opener(codeFlow, buffer),
-        codeText: opener(codeText, buffer),
-        codeTextData: onenterdata,
-        data: onenterdata,
-        codeFlowValue: onenterdata,
-        definition: opener(definition),
-        definitionDestinationString: buffer,
-        definitionLabelString: buffer,
-        definitionTitleString: buffer,
-        emphasis: opener(emphasis),
-        hardBreakEscape: opener(hardBreak),
-        hardBreakTrailing: opener(hardBreak),
-        htmlFlow: opener(html, buffer),
-        htmlFlowData: onenterdata,
-        htmlText: opener(html, buffer),
-        htmlTextData: onenterdata,
-        image: opener(image),
-        label: buffer,
-        link: opener(link),
-        listItem: opener(listItem),
-        listItemValue: onenterlistitemvalue,
-        listOrdered: opener(list, onenterlistordered),
-        listUnordered: opener(list),
-        paragraph: opener(paragraph),
-        reference: onenterreference,
-        referenceString: buffer,
-        resourceDestinationString: buffer,
-        resourceTitleString: buffer,
-        setextHeading: opener(heading),
-        strong: opener(strong),
-        thematicBreak: opener(thematicBreak)
-      },
-      exit: {
-        atxHeading: closer(),
-        atxHeadingSequence: onexitatxheadingsequence,
-        autolink: closer(),
-        autolinkEmail: onexitautolinkemail,
-        autolinkProtocol: onexitautolinkprotocol,
-        blockQuote: closer(),
-        characterEscapeValue: onexitdata,
-        characterReferenceMarkerHexadecimal: onexitcharacterreferencemarker,
-        characterReferenceMarkerNumeric: onexitcharacterreferencemarker,
-        characterReferenceValue: onexitcharacterreferencevalue,
-        codeFenced: closer(onexitcodefenced),
-        codeFencedFence: onexitcodefencedfence,
-        codeFencedFenceInfo: onexitcodefencedfenceinfo,
-        codeFencedFenceMeta: onexitcodefencedfencemeta,
-        codeFlowValue: onexitdata,
-        codeIndented: closer(onexitcodeindented),
-        codeText: closer(onexitcodetext),
-        codeTextData: onexitdata,
-        data: onexitdata,
-        definition: closer(),
-        definitionDestinationString: onexitdefinitiondestinationstring,
-        definitionLabelString: onexitdefinitionlabelstring,
-        definitionTitleString: onexitdefinitiontitlestring,
-        emphasis: closer(),
-        hardBreakEscape: closer(onexithardbreak),
-        hardBreakTrailing: closer(onexithardbreak),
-        htmlFlow: closer(onexithtmlflow),
-        htmlFlowData: onexitdata,
-        htmlText: closer(onexithtmltext),
-        htmlTextData: onexitdata,
-        image: closer(onexitimage),
-        label: onexitlabel,
-        labelText: onexitlabeltext,
-        lineEnding: onexitlineending,
-        link: closer(onexitlink),
-        listItem: closer(),
-        listOrdered: closer(),
-        listUnordered: closer(),
-        paragraph: closer(),
-        referenceString: onexitreferencestring,
-        resourceDestinationString: onexitresourcedestinationstring,
-        resourceTitleString: onexitresourcetitlestring,
-        resource: onexitresource,
-        setextHeading: closer(onexitsetextheading),
-        setextHeadingLineSequence: onexitsetextheadinglinesequence,
-        setextHeadingText: onexitsetextheadingtext,
-        strong: closer(),
-        thematicBreak: closer()
-      }
+  )
+}
+function compiler(options) {
+  const config = {
+    transforms: [],
+    canContainEols: ['emphasis', 'fragment', 'heading', 'paragraph', 'strong'],
+    enter: {
+      autolink: opener(link),
+      autolinkProtocol: onenterdata,
+      autolinkEmail: onenterdata,
+      atxHeading: opener(heading),
+      blockQuote: opener(blockQuote),
+      characterEscape: onenterdata,
+      characterReference: onenterdata,
+      codeFenced: opener(codeFlow),
+      codeFencedFenceInfo: buffer,
+      codeFencedFenceMeta: buffer,
+      codeIndented: opener(codeFlow, buffer),
+      codeText: opener(codeText, buffer),
+      codeTextData: onenterdata,
+      data: onenterdata,
+      codeFlowValue: onenterdata,
+      definition: opener(definition),
+      definitionDestinationString: buffer,
+      definitionLabelString: buffer,
+      definitionTitleString: buffer,
+      emphasis: opener(emphasis),
+      hardBreakEscape: opener(hardBreak),
+      hardBreakTrailing: opener(hardBreak),
+      htmlFlow: opener(html, buffer),
+      htmlFlowData: onenterdata,
+      htmlText: opener(html, buffer),
+      htmlTextData: onenterdata,
+      image: opener(image),
+      label: buffer,
+      link: opener(link),
+      listItem: opener(listItem),
+      listItemValue: onenterlistitemvalue,
+      listOrdered: opener(list, onenterlistordered),
+      listUnordered: opener(list),
+      paragraph: opener(paragraph),
+      reference: onenterreference,
+      referenceString: buffer,
+      resourceDestinationString: buffer,
+      resourceTitleString: buffer,
+      setextHeading: opener(heading),
+      strong: opener(strong),
+      thematicBreak: opener(thematicBreak)
     },
-    options.mdastExtensions || []
-  );
+    exit: {
+      atxHeading: closer(),
+      atxHeadingSequence: onexitatxheadingsequence,
+      autolink: closer(),
+      autolinkEmail: onexitautolinkemail,
+      autolinkProtocol: onexitautolinkprotocol,
+      blockQuote: closer(),
+      characterEscapeValue: onexitdata,
+      characterReferenceMarkerHexadecimal: onexitcharacterreferencemarker,
+      characterReferenceMarkerNumeric: onexitcharacterreferencemarker,
+      characterReferenceValue: onexitcharacterreferencevalue,
+      codeFenced: closer(onexitcodefenced),
+      codeFencedFence: onexitcodefencedfence,
+      codeFencedFenceInfo: onexitcodefencedfenceinfo,
+      codeFencedFenceMeta: onexitcodefencedfencemeta,
+      codeFlowValue: onexitdata,
+      codeIndented: closer(onexitcodeindented),
+      codeText: closer(onexitcodetext),
+      codeTextData: onexitdata,
+      data: onexitdata,
+      definition: closer(),
+      definitionDestinationString: onexitdefinitiondestinationstring,
+      definitionLabelString: onexitdefinitionlabelstring,
+      definitionTitleString: onexitdefinitiontitlestring,
+      emphasis: closer(),
+      hardBreakEscape: closer(onexithardbreak),
+      hardBreakTrailing: closer(onexithardbreak),
+      htmlFlow: closer(onexithtmlflow),
+      htmlFlowData: onexitdata,
+      htmlText: closer(onexithtmltext),
+      htmlTextData: onexitdata,
+      image: closer(onexitimage),
+      label: onexitlabel,
+      labelText: onexitlabeltext,
+      lineEnding: onexitlineending,
+      link: closer(onexitlink),
+      listItem: closer(),
+      listOrdered: closer(),
+      listUnordered: closer(),
+      paragraph: closer(),
+      referenceString: onexitreferencestring,
+      resourceDestinationString: onexitresourcedestinationstring,
+      resourceTitleString: onexitresourcetitlestring,
+      resource: onexitresource,
+      setextHeading: closer(onexitsetextheading),
+      setextHeadingLineSequence: onexitsetextheadinglinesequence,
+      setextHeadingText: onexitsetextheadingtext,
+      strong: closer(),
+      thematicBreak: closer()
+    }
+  };
+  configure$1(config, (options || {}).mdastExtensions || []);
   const data = {};
   return compile
   function compile(events) {
@@ -7089,20 +7314,17 @@ function compiler(options = {}) {
       type: 'root',
       children: []
     };
-    const stack = [tree];
-    const tokenStack = [];
-    const listStack = [];
     const context = {
-      stack,
-      tokenStack,
+      stack: [tree],
+      tokenStack: [],
       config,
       enter,
       exit,
       buffer,
       resume,
-      setData,
-      getData
+      data
     };
+    const listStack = [];
     let index = -1;
     while (++index < events.length) {
       if (
@@ -7120,7 +7342,7 @@ function compiler(options = {}) {
     index = -1;
     while (++index < events.length) {
       const handler = config[events[index][0]];
-      if (own$5.call(handler, events[index][1].type)) {
+      if (own$4.call(handler, events[index][1].type)) {
         handler[events[index][1].type].call(
           Object.assign(
             {
@@ -7132,13 +7354,13 @@ function compiler(options = {}) {
         );
       }
     }
-    if (tokenStack.length > 0) {
-      const tail = tokenStack[tokenStack.length - 1];
+    if (context.tokenStack.length > 0) {
+      const tail = context.tokenStack[context.tokenStack.length - 1];
       const handler = tail[1] || defaultOnError;
       handler.call(context, undefined, tail[0]);
     }
     tree.position = {
-      start: point(
+      start: point$3(
         events.length > 0
           ? events[0][1].start
           : {
@@ -7147,7 +7369,7 @@ function compiler(options = {}) {
               offset: 0
             }
       ),
-      end: point(
+      end: point$3(
         events.length > 0
           ? events[events.length - 2][1].end
           : {
@@ -7173,37 +7395,42 @@ function compiler(options = {}) {
     let atMarker;
     while (++index <= length) {
       const event = events[index];
-      if (
-        event[1].type === 'listUnordered' ||
-        event[1].type === 'listOrdered' ||
-        event[1].type === 'blockQuote'
-      ) {
-        if (event[0] === 'enter') {
-          containerBalance++;
-        } else {
-          containerBalance--;
-        }
-        atMarker = undefined;
-      } else if (event[1].type === 'lineEndingBlank') {
-        if (event[0] === 'enter') {
-          if (
-            listItem &&
-            !atMarker &&
-            !containerBalance &&
-            !firstBlankLineIndex
-          ) {
-            firstBlankLineIndex = index;
+      switch (event[1].type) {
+        case 'listUnordered':
+        case 'listOrdered':
+        case 'blockQuote': {
+          if (event[0] === 'enter') {
+            containerBalance++;
+          } else {
+            containerBalance--;
           }
           atMarker = undefined;
+          break
         }
-      } else if (
-        event[1].type === 'linePrefix' ||
-        event[1].type === 'listItemValue' ||
-        event[1].type === 'listItemMarker' ||
-        event[1].type === 'listItemPrefix' ||
-        event[1].type === 'listItemPrefixWhitespace'
-      ) ; else {
-        atMarker = undefined;
+        case 'lineEndingBlank': {
+          if (event[0] === 'enter') {
+            if (
+              listItem &&
+              !atMarker &&
+              !containerBalance &&
+              !firstBlankLineIndex
+            ) {
+              firstBlankLineIndex = index;
+            }
+            atMarker = undefined;
+          }
+          break
+        }
+        case 'linePrefix':
+        case 'listItemValue':
+        case 'listItemMarker':
+        case 'listItemPrefix':
+        case 'listItemPrefixWhitespace': {
+          break
+        }
+        default: {
+          atMarker = undefined;
+        }
       }
       if (
         (!containerBalance &&
@@ -7255,12 +7482,14 @@ function compiler(options = {}) {
           length++;
         }
         if (event[1].type === 'listItemPrefix') {
-          listItem = {
+          const item = {
             type: 'listItem',
             _spread: false,
-            start: Object.assign({}, event[1].start)
+            start: Object.assign({}, event[1].start),
+            end: undefined
           };
-          events.splice(index, 0, ['enter', listItem, event[2]]);
+          listItem = item;
+          events.splice(index, 0, ['enter', item, event[2]]);
           index++;
           length++;
           firstBlankLineIndex = undefined;
@@ -7270,19 +7499,6 @@ function compiler(options = {}) {
     }
     events[start][1]._spread = listSpread;
     return length
-  }
-  function setData(key, value) {
-    data[key] = value;
-  }
-  function getData(key) {
-    return data[key]
-  }
-  function point(d) {
-    return {
-      line: d.line,
-      column: d.column,
-      offset: d.offset
-    }
   }
   function opener(create, and) {
     return open
@@ -7299,13 +7515,14 @@ function compiler(options = {}) {
   }
   function enter(node, token, errorHandler) {
     const parent = this.stack[this.stack.length - 1];
-    parent.children.push(node);
+    const siblings = parent.children;
+    siblings.push(node);
     this.stack.push(node);
     this.tokenStack.push([token, errorHandler]);
     node.position = {
-      start: point(token.start)
+      start: point$3(token.start),
+      end: undefined
     };
-    return node
   }
   function closer(and) {
     return close
@@ -7322,7 +7539,7 @@ function compiler(options = {}) {
         'Cannot close `' +
           token.type +
           '` (' +
-          stringifyPosition({
+          stringifyPosition$2({
             start: token.start,
             end: token.end
           }) +
@@ -7336,121 +7553,111 @@ function compiler(options = {}) {
         handler.call(this, token, open[0]);
       }
     }
-    node.position.end = point(token.end);
-    return node
+    node.position.end = point$3(token.end);
   }
   function resume() {
-    return toString(this.stack.pop())
+    return toString$2(this.stack.pop())
   }
   function onenterlistordered() {
-    setData('expectingFirstListItemValue', true);
+    this.data.expectingFirstListItemValue = true;
   }
   function onenterlistitemvalue(token) {
-    if (getData('expectingFirstListItemValue')) {
-      const ancestor =
-        this.stack[this.stack.length - 2];
+    if (this.data.expectingFirstListItemValue) {
+      const ancestor = this.stack[this.stack.length - 2];
       ancestor.start = Number.parseInt(this.sliceSerialize(token), 10);
-      setData('expectingFirstListItemValue');
+      this.data.expectingFirstListItemValue = undefined;
     }
   }
   function onexitcodefencedfenceinfo() {
     const data = this.resume();
-    const node =
-      this.stack[this.stack.length - 1];
+    const node = this.stack[this.stack.length - 1];
     node.lang = data;
   }
   function onexitcodefencedfencemeta() {
     const data = this.resume();
-    const node =
-      this.stack[this.stack.length - 1];
+    const node = this.stack[this.stack.length - 1];
     node.meta = data;
   }
   function onexitcodefencedfence() {
-    if (getData('flowCodeInside')) return
+    if (this.data.flowCodeInside) return
     this.buffer();
-    setData('flowCodeInside', true);
+    this.data.flowCodeInside = true;
   }
   function onexitcodefenced() {
     const data = this.resume();
-    const node =
-      this.stack[this.stack.length - 1];
+    const node = this.stack[this.stack.length - 1];
     node.value = data.replace(/^(\r?\n|\r)|(\r?\n|\r)$/g, '');
-    setData('flowCodeInside');
+    this.data.flowCodeInside = undefined;
   }
   function onexitcodeindented() {
     const data = this.resume();
-    const node =
-      this.stack[this.stack.length - 1];
+    const node = this.stack[this.stack.length - 1];
     node.value = data.replace(/(\r?\n|\r)$/g, '');
   }
   function onexitdefinitionlabelstring(token) {
     const label = this.resume();
-    const node =
-      this.stack[this.stack.length - 1];
+    const node = this.stack[this.stack.length - 1];
     node.label = label;
-    node.identifier = normalizeIdentifier(
+    node.identifier = normalizeIdentifier$1(
       this.sliceSerialize(token)
     ).toLowerCase();
   }
   function onexitdefinitiontitlestring() {
     const data = this.resume();
-    const node =
-      this.stack[this.stack.length - 1];
+    const node = this.stack[this.stack.length - 1];
     node.title = data;
   }
   function onexitdefinitiondestinationstring() {
     const data = this.resume();
-    const node =
-      this.stack[this.stack.length - 1];
+    const node = this.stack[this.stack.length - 1];
     node.url = data;
   }
   function onexitatxheadingsequence(token) {
-    const node =
-      this.stack[this.stack.length - 1];
+    const node = this.stack[this.stack.length - 1];
     if (!node.depth) {
       const depth = this.sliceSerialize(token).length;
       node.depth = depth;
     }
   }
   function onexitsetextheadingtext() {
-    setData('setextHeadingSlurpLineEnding', true);
+    this.data.setextHeadingSlurpLineEnding = true;
   }
   function onexitsetextheadinglinesequence(token) {
-    const node =
-      this.stack[this.stack.length - 1];
-    node.depth = this.sliceSerialize(token).charCodeAt(0) === 61 ? 1 : 2;
+    const node = this.stack[this.stack.length - 1];
+    node.depth = this.sliceSerialize(token).codePointAt(0) === 61 ? 1 : 2;
   }
   function onexitsetextheading() {
-    setData('setextHeadingSlurpLineEnding');
+    this.data.setextHeadingSlurpLineEnding = undefined;
   }
   function onenterdata(token) {
-    const parent =
-      this.stack[this.stack.length - 1];
-    let tail = parent.children[parent.children.length - 1];
+    const node = this.stack[this.stack.length - 1];
+    const siblings = node.children;
+    let tail = siblings[siblings.length - 1];
     if (!tail || tail.type !== 'text') {
       tail = text();
       tail.position = {
-        start: point(token.start)
+        start: point$3(token.start),
+        end: undefined
       };
-      parent.children.push(tail);
+      siblings.push(tail);
     }
     this.stack.push(tail);
   }
   function onexitdata(token) {
     const tail = this.stack.pop();
     tail.value += this.sliceSerialize(token);
-    tail.position.end = point(token.end);
+    tail.position.end = point$3(token.end);
   }
   function onexitlineending(token) {
     const context = this.stack[this.stack.length - 1];
-    if (getData('atHardBreak')) {
+    if (this.data.atHardBreak) {
       const tail = context.children[context.children.length - 1];
-      tail.position.end = point(token.end);
-      setData('atHardBreak');
+      tail.position.end = point$3(token.end);
+      this.data.atHardBreak = undefined;
       return
     }
     if (
-      !getData('setextHeadingSlurpLineEnding') &&
+      !this.data.setextHeadingSlurpLineEnding &&
       config.canContainEols.includes(context.type)
     ) {
       onenterdata.call(this, token);
@@ -7458,132 +7665,123 @@ function compiler(options = {}) {
     }
   }
   function onexithardbreak() {
-    setData('atHardBreak', true);
+    this.data.atHardBreak = true;
   }
   function onexithtmlflow() {
     const data = this.resume();
-    const node =
-      this.stack[this.stack.length - 1];
+    const node = this.stack[this.stack.length - 1];
     node.value = data;
   }
   function onexithtmltext() {
     const data = this.resume();
-    const node =
-      this.stack[this.stack.length - 1];
+    const node = this.stack[this.stack.length - 1];
     node.value = data;
   }
   function onexitcodetext() {
     const data = this.resume();
-    const node =
-      this.stack[this.stack.length - 1];
+    const node = this.stack[this.stack.length - 1];
     node.value = data;
   }
   function onexitlink() {
-    const context =
-      this.stack[this.stack.length - 1];
-    if (getData('inReference')) {
-      context.type += 'Reference';
-      context.referenceType = getData('referenceType') || 'shortcut';
-      delete context.url;
-      delete context.title;
+    const node = this.stack[this.stack.length - 1];
+    if (this.data.inReference) {
+      const referenceType = this.data.referenceType || 'shortcut';
+      node.type += 'Reference';
+      node.referenceType = referenceType;
+      delete node.url;
+      delete node.title;
     } else {
-      delete context.identifier;
-      delete context.label;
+      delete node.identifier;
+      delete node.label;
     }
-    setData('referenceType');
+    this.data.referenceType = undefined;
   }
   function onexitimage() {
-    const context =
-      this.stack[this.stack.length - 1];
-    if (getData('inReference')) {
-      context.type += 'Reference';
-      context.referenceType = getData('referenceType') || 'shortcut';
-      delete context.url;
-      delete context.title;
+    const node = this.stack[this.stack.length - 1];
+    if (this.data.inReference) {
+      const referenceType = this.data.referenceType || 'shortcut';
+      node.type += 'Reference';
+      node.referenceType = referenceType;
+      delete node.url;
+      delete node.title;
     } else {
-      delete context.identifier;
-      delete context.label;
+      delete node.identifier;
+      delete node.label;
     }
-    setData('referenceType');
+    this.data.referenceType = undefined;
   }
   function onexitlabeltext(token) {
-    const ancestor =
-      this.stack[this.stack.length - 2];
     const string = this.sliceSerialize(token);
+    const ancestor = this.stack[this.stack.length - 2];
     ancestor.label = decodeString(string);
-    ancestor.identifier = normalizeIdentifier(string).toLowerCase();
+    ancestor.identifier = normalizeIdentifier$1(string).toLowerCase();
   }
   function onexitlabel() {
-    const fragment =
-      this.stack[this.stack.length - 1];
+    const fragment = this.stack[this.stack.length - 1];
     const value = this.resume();
-    const node =
-      this.stack[this.stack.length - 1];
-    setData('inReference', true);
+    const node = this.stack[this.stack.length - 1];
+    this.data.inReference = true;
     if (node.type === 'link') {
-      node.children = fragment.children;
+      const children = fragment.children;
+      node.children = children;
     } else {
       node.alt = value;
     }
   }
   function onexitresourcedestinationstring() {
     const data = this.resume();
-    const node =
-      this.stack[this.stack.length - 1];
+    const node = this.stack[this.stack.length - 1];
     node.url = data;
   }
   function onexitresourcetitlestring() {
     const data = this.resume();
-    const node =
-      this.stack[this.stack.length - 1];
+    const node = this.stack[this.stack.length - 1];
     node.title = data;
   }
   function onexitresource() {
-    setData('inReference');
+    this.data.inReference = undefined;
   }
   function onenterreference() {
-    setData('referenceType', 'collapsed');
+    this.data.referenceType = 'collapsed';
   }
   function onexitreferencestring(token) {
     const label = this.resume();
-    const node =
-      this.stack[this.stack.length - 1];
+    const node = this.stack[this.stack.length - 1];
     node.label = label;
-    node.identifier = normalizeIdentifier(
+    node.identifier = normalizeIdentifier$1(
       this.sliceSerialize(token)
     ).toLowerCase();
-    setData('referenceType', 'full');
+    this.data.referenceType = 'full';
   }
   function onexitcharacterreferencemarker(token) {
-    setData('characterReferenceType', token.type);
+    this.data.characterReferenceType = token.type;
   }
   function onexitcharacterreferencevalue(token) {
     const data = this.sliceSerialize(token);
-    const type = getData('characterReferenceType');
+    const type = this.data.characterReferenceType;
     let value;
     if (type) {
       value = decodeNumericCharacterReference(
         data,
         type === 'characterReferenceMarkerNumeric' ? 10 : 16
       );
-      setData('characterReferenceType');
+      this.data.characterReferenceType = undefined;
     } else {
-      value = decodeNamedCharacterReference(data);
+      const result = decodeNamedCharacterReference(data);
+      value = result;
     }
     const tail = this.stack.pop();
     tail.value += value;
-    tail.position.end = point(token.end);
+    tail.position.end = point$3(token.end);
   }
   function onexitautolinkprotocol(token) {
     onexitdata.call(this, token);
-    const node =
-      this.stack[this.stack.length - 1];
+    const node = this.stack[this.stack.length - 1];
     node.url = this.sliceSerialize(token);
   }
   function onexitautolinkemail(token) {
     onexitdata.call(this, token);
-    const node =
-      this.stack[this.stack.length - 1];
+    const node = this.stack[this.stack.length - 1];
     node.url = 'mailto:' + this.sliceSerialize(token);
   }
   function blockQuote() {
@@ -7624,7 +7822,7 @@ function compiler(options = {}) {
   function heading() {
     return {
       type: 'heading',
-      depth: undefined,
+      depth: 0,
       children: []
     }
   }
@@ -7696,6 +7894,13 @@ function compiler(options = {}) {
     }
   }
 }
+function point$3(d) {
+  return {
+    line: d.line,
+    column: d.column,
+    offset: d.offset
+  }
+}
 function configure$1(combined, extensions) {
   let index = -1;
   while (++index < extensions.length) {
@@ -7706,21 +7911,33 @@ function configure$1(combined, extensions) {
       extension(combined, value);
     }
   }
-  return combined
 }
 function extension(combined, extension) {
   let key;
   for (key in extension) {
-    if (own$5.call(extension, key)) {
-      const list = key === 'canContainEols' || key === 'transforms';
-      const maybe = own$5.call(combined, key) ? combined[key] : undefined;
-      const left = maybe || (combined[key] = list ? [] : {});
-      const right = extension[key];
-      if (right) {
-        if (list) {
-          combined[key] = [...left, ...right];
-        } else {
-          Object.assign(left, right);
+    if (own$4.call(extension, key)) {
+      switch (key) {
+        case 'canContainEols': {
+          const right = extension[key];
+          if (right) {
+            combined[key].push(...right);
+          }
+          break
+        }
+        case 'transforms': {
+          const right = extension[key];
+          if (right) {
+            combined[key].push(...right);
+          }
+          break
+        }
+        case 'enter':
+        case 'exit': {
+          const right = extension[key];
+          if (right) {
+            Object.assign(combined[key], right);
+          }
+          break
         }
       }
     }
@@ -7732,14 +7949,14 @@ function defaultOnError(left, right) {
       'Cannot close `' +
         left.type +
         '` (' +
-        stringifyPosition({
+        stringifyPosition$2({
           start: left.start,
           end: left.end
         }) +
         '): a different token (`' +
         right.type +
         '`, ' +
-        stringifyPosition({
+        stringifyPosition$2({
           start: right.start,
           end: right.end
         }) +
@@ -7750,7 +7967,7 @@ function defaultOnError(left, right) {
       'Cannot close document, a token (`' +
         right.type +
         '`, ' +
-        stringifyPosition({
+        stringifyPosition$2({
           start: right.start,
           end: right.end
         }) +
@@ -7760,28 +7977,27 @@ function defaultOnError(left, right) {
 }
 
 function remarkParse(options) {
-  const parser = (doc) => {
-    const settings =  (this.data('settings'));
-    return fromMarkdown(
-      doc,
-      Object.assign({}, settings, options, {
-        extensions: this.data('micromarkExtensions') || [],
-        mdastExtensions: this.data('fromMarkdownExtensions') || []
-      })
-    )
-  };
-  Object.assign(this, {Parser: parser});
+  const self = this;
+  self.parser = parser;
+  function parser(doc) {
+    return fromMarkdown(doc, {
+      ...self.data('settings'),
+      ...options,
+      extensions: self.data('micromarkExtensions') || [],
+      mdastExtensions: self.data('fromMarkdownExtensions') || []
+    })
+  }
 }
 
-const own$4 = {}.hasOwnProperty;
+const own$3 = {}.hasOwnProperty;
 function zwitch(key, options) {
   const settings = options || {};
   function one(value, ...parameters) {
     let fn = one.invalid;
     const handlers = one.handlers;
-    if (value && own$4.call(value, key)) {
+    if (value && own$3.call(value, key)) {
       const id = String(value[key]);
-      fn = own$4.call(handlers, id) ? handlers[id] : one.unknown;
+      fn = own$3.call(handlers, id) ? handlers[id] : one.unknown;
     }
     if (fn) {
       return fn.call(this, value, ...parameters)
@@ -7793,6 +8009,7 @@ function zwitch(key, options) {
   return one
 }
 
+const own$2 = {}.hasOwnProperty;
 function configure(base, extension) {
   let index = -1;
   let key;
@@ -7802,118 +8019,55 @@ function configure(base, extension) {
     }
   }
   for (key in extension) {
-    if (key === 'extensions') ; else if (key === 'unsafe' || key === 'join') {
-      base[key] = [...(base[key] || []), ...(extension[key] || [])];
-    } else if (key === 'handlers') {
-      base[key] = Object.assign(base[key], extension[key] || {});
-    } else {
-      base.options[key] = extension[key];
+    if (own$2.call(extension, key)) {
+      switch (key) {
+        case 'extensions': {
+          break
+        }
+        case 'unsafe': {
+          list$1(base[key], extension[key]);
+          break
+        }
+        case 'join': {
+          list$1(base[key], extension[key]);
+          break
+        }
+        case 'handlers': {
+          map$4(base[key], extension[key]);
+          break
+        }
+        default: {
+          base.options[key] = extension[key];
+        }
+      }
     }
   }
   return base
 }
-
-function track(options_) {
-  const options = options_ || {};
-  const now = options.now || {};
-  let lineShift = options.lineShift || 0;
-  let line = now.line || 1;
-  let column = now.column || 1;
-  return {move, current, shift}
-  function current() {
-    return {now: {line, column}, lineShift}
+function list$1(left, right) {
+  if (right) {
+    left.push(...right);
   }
-  function shift(value) {
-    lineShift += value;
-  }
-  function move(value = '') {
-    const chunks = value.split(/\r?\n|\r/g);
-    const tail = chunks[chunks.length - 1];
-    line += chunks.length - 1;
-    column =
-      chunks.length === 1 ? column + tail.length : 1 + tail.length + lineShift;
-    return value
+}
+function map$4(left, right) {
+  if (right) {
+    Object.assign(left, right);
   }
 }
 
-function containerFlow(parent, context, safeOptions) {
-  const indexStack = context.indexStack;
-  const children = parent.children || [];
-  const tracker = track(safeOptions);
-  const results = [];
-  let index = -1;
-  indexStack.push(-1);
-  while (++index < children.length) {
-    const child = children[index];
-    indexStack[indexStack.length - 1] = index;
-    results.push(
-      tracker.move(
-        context.handle(child, parent, context, {
-          before: '\n',
-          after: '\n',
-          ...tracker.current()
-        })
-      )
-    );
-    if (child.type !== 'list') {
-      context.bulletLastUsed = undefined;
-    }
-    if (index < children.length - 1) {
-      results.push(tracker.move(between(child, children[index + 1])));
-    }
-  }
-  indexStack.pop();
-  return results.join('')
-  function between(left, right) {
-    let index = context.join.length;
-    while (index--) {
-      const result = context.join[index](left, right, parent, context);
-      if (result === true || result === 1) {
-        break
-      }
-      if (typeof result === 'number') {
-        return '\n'.repeat(1 + result)
-      }
-      if (result === false) {
-        return '\n\n<!---->\n\n'
-      }
-    }
-    return '\n\n'
-  }
-}
-
-const eol = /\r?\n|\r/g;
-function indentLines(value, map) {
-  const result = [];
-  let start = 0;
-  let line = 0;
-  let match;
-  while ((match = eol.exec(value))) {
-    one(value.slice(start, match.index));
-    result.push(match[0]);
-    start = match.index + match[0].length;
-    line++;
-  }
-  one(value.slice(start));
-  return result.join('')
-  function one(value) {
-    result.push(map(value, line, !value));
-  }
-}
-
-function blockquote(node, _, context, safeOptions) {
-  const exit = context.enter('blockquote');
-  const tracker = track(safeOptions);
+function blockquote(node, _, state, info) {
+  const exit = state.enter('blockquote');
+  const tracker = state.createTracker(info);
   tracker.move('> ');
   tracker.shift(2);
-  const value = indentLines(
-    containerFlow(node, context, tracker.current()),
-    map$2
+  const value = state.indentLines(
+    state.containerFlow(node, tracker.current()),
+    map$3
   );
   exit();
   return value
 }
-function map$2(line, _, blank) {
+function map$3(line, _, blank) {
   return '>' + (blank ? '' : ' ') + line
 }
 
@@ -7924,11 +8078,11 @@ function patternInScope(stack, pattern) {
   )
 }
 function listInScope(stack, list, none) {
-  if (!list) {
-    return none
-  }
   if (typeof list === 'string') {
     list = [list];
+  }
+  if (!list || list.length === 0) {
+    return none
   }
   let index = -1;
   while (++index < list.length) {
@@ -7939,14 +8093,14 @@ function listInScope(stack, list, none) {
   return false
 }
 
-function hardBreak(_, _1, context, safe) {
+function hardBreak(_, _1, state, info) {
   let index = -1;
-  while (++index < context.unsafe.length) {
+  while (++index < state.unsafe.length) {
     if (
-      context.unsafe[index].character === '\n' &&
-      patternInScope(context.stack, context.unsafe[index])
+      state.unsafe[index].character === '\n' &&
+      patternInScope(state.stack, state.unsafe[index])
     ) {
-      return /[ \t]/.test(safe.before) ? '' : ' '
+      return /[ \t]/.test(info.before) ? '' : ' '
     }
   }
   return '\\\n'
@@ -7975,9 +8129,9 @@ function longestStreak(value, substring) {
   return max
 }
 
-function formatCodeAsIndented(node, context) {
+function formatCodeAsIndented(node, state) {
   return Boolean(
-    !context.options.fences &&
+    state.options.fences === false &&
       node.value &&
       !node.lang &&
       /[^ \r\n]/.test(node.value) &&
@@ -7985,8 +8139,8 @@ function formatCodeAsIndented(node, context) {
   )
 }
 
-function checkFence(context) {
-  const marker = context.options.fence || '`';
+function checkFence(state) {
+  const marker = state.options.fence || '`';
   if (marker !== '`' && marker !== '~') {
     throw new Error(
       'Cannot serialize code with `' +
@@ -7997,7 +8151,1072 @@ function checkFence(context) {
   return marker
 }
 
-function patternCompile(pattern) {
+function code$1(node, _, state, info) {
+  const marker = checkFence(state);
+  const raw = node.value || '';
+  const suffix = marker === '`' ? 'GraveAccent' : 'Tilde';
+  if (formatCodeAsIndented(node, state)) {
+    const exit = state.enter('codeIndented');
+    const value = state.indentLines(raw, map$2);
+    exit();
+    return value
+  }
+  const tracker = state.createTracker(info);
+  const sequence = marker.repeat(Math.max(longestStreak(raw, marker) + 1, 3));
+  const exit = state.enter('codeFenced');
+  let value = tracker.move(sequence);
+  if (node.lang) {
+    const subexit = state.enter(`codeFencedLang${suffix}`);
+    value += tracker.move(
+      state.safe(node.lang, {
+        before: value,
+        after: ' ',
+        encode: ['`'],
+        ...tracker.current()
+      })
+    );
+    subexit();
+  }
+  if (node.lang && node.meta) {
+    const subexit = state.enter(`codeFencedMeta${suffix}`);
+    value += tracker.move(' ');
+    value += tracker.move(
+      state.safe(node.meta, {
+        before: value,
+        after: '\n',
+        encode: ['`'],
+        ...tracker.current()
+      })
+    );
+    subexit();
+  }
+  value += tracker.move('\n');
+  if (raw) {
+    value += tracker.move(raw + '\n');
+  }
+  value += tracker.move(sequence);
+  exit();
+  return value
+}
+function map$2(line, _, blank) {
+  return (blank ? '' : '    ') + line
+}
+
+function checkQuote(state) {
+  const marker = state.options.quote || '"';
+  if (marker !== '"' && marker !== "'") {
+    throw new Error(
+      'Cannot serialize title with `' +
+        marker +
+        '` for `options.quote`, expected `"`, or `\'`'
+    )
+  }
+  return marker
+}
+
+function definition(node, _, state, info) {
+  const quote = checkQuote(state);
+  const suffix = quote === '"' ? 'Quote' : 'Apostrophe';
+  const exit = state.enter('definition');
+  let subexit = state.enter('label');
+  const tracker = state.createTracker(info);
+  let value = tracker.move('[');
+  value += tracker.move(
+    state.safe(state.associationId(node), {
+      before: value,
+      after: ']',
+      ...tracker.current()
+    })
+  );
+  value += tracker.move(']: ');
+  subexit();
+  if (
+    !node.url ||
+    /[\0- \u007F]/.test(node.url)
+  ) {
+    subexit = state.enter('destinationLiteral');
+    value += tracker.move('<');
+    value += tracker.move(
+      state.safe(node.url, {before: value, after: '>', ...tracker.current()})
+    );
+    value += tracker.move('>');
+  } else {
+    subexit = state.enter('destinationRaw');
+    value += tracker.move(
+      state.safe(node.url, {
+        before: value,
+        after: node.title ? ' ' : '\n',
+        ...tracker.current()
+      })
+    );
+  }
+  subexit();
+  if (node.title) {
+    subexit = state.enter(`title${suffix}`);
+    value += tracker.move(' ' + quote);
+    value += tracker.move(
+      state.safe(node.title, {
+        before: value,
+        after: quote,
+        ...tracker.current()
+      })
+    );
+    value += tracker.move(quote);
+    subexit();
+  }
+  exit();
+  return value
+}
+
+function checkEmphasis(state) {
+  const marker = state.options.emphasis || '*';
+  if (marker !== '*' && marker !== '_') {
+    throw new Error(
+      'Cannot serialize emphasis with `' +
+        marker +
+        '` for `options.emphasis`, expected `*`, or `_`'
+    )
+  }
+  return marker
+}
+
+emphasis.peek = emphasisPeek;
+function emphasis(node, _, state, info) {
+  const marker = checkEmphasis(state);
+  const exit = state.enter('emphasis');
+  const tracker = state.createTracker(info);
+  let value = tracker.move(marker);
+  value += tracker.move(
+    state.containerPhrasing(node, {
+      before: value,
+      after: marker,
+      ...tracker.current()
+    })
+  );
+  value += tracker.move(marker);
+  exit();
+  return value
+}
+function emphasisPeek(_, _1, state) {
+  return state.options.emphasis || '*'
+}
+
+const convert$A =
+  (
+    function (test) {
+      if (test === null || test === undefined) {
+        return ok$A
+      }
+      if (typeof test === 'function') {
+        return castFactory$A(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$A(test) : propsFactory$A(test)
+      }
+      if (typeof test === 'string') {
+        return typeFactory$A(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$A(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$A(tests[index]);
+  }
+  return castFactory$A(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].apply(this, parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$A(check) {
+  const checkAsRecord =  (check);
+  return castFactory$A(all)
+  function all(node) {
+    const nodeAsRecord =  (
+       (node)
+    );
+    let key;
+    for (key in check) {
+      if (nodeAsRecord[key] !== checkAsRecord[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$A(check) {
+  return castFactory$A(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$A(testFunction) {
+  return check
+  function check(value, index, parent) {
+    return Boolean(
+      looksLikeANode(value) &&
+        testFunction.call(
+          this,
+          value,
+          typeof index === 'number' ? index : undefined,
+          parent || undefined
+        )
+    )
+  }
+}
+function ok$A() {
+  return true
+}
+function looksLikeANode(value) {
+  return value !== null && typeof value === 'object' && 'type' in value
+}
+
+function color$B(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const empty = [];
+const CONTINUE$A = true;
+const EXIT$A = false;
+const SKIP$A = 'skip';
+function visitParents$A(tree, test, visitor, reverse) {
+  let check;
+  if (typeof test === 'function' && typeof visitor !== 'function') {
+    reverse = visitor;
+    visitor = test;
+  } else {
+    check = test;
+  }
+  const is = convert$A(check);
+  const step = reverse ? -1 : 1;
+  factory(tree, undefined, [])();
+  function factory(node, index, parents) {
+    const value =  (
+      node && typeof node === 'object' ? node : {}
+    );
+    if (typeof value.type === 'string') {
+      const name =
+        typeof value.tagName === 'string'
+          ? value.tagName
+          :
+          typeof value.name === 'string'
+          ? value.name
+          : undefined;
+      Object.defineProperty(visit, 'name', {
+        value:
+          'node (' + color$B(node.type + (name ? '<' + name + '>' : '')) + ')'
+      });
+    }
+    return visit
+    function visit() {
+      let result = empty;
+      let subresult;
+      let offset;
+      let grandparents;
+      if (!test || is(node, index, parents[parents.length - 1] || undefined)) {
+        result = toResult$A(visitor(node, parents));
+        if (result[0] === EXIT$A) {
+          return result
+        }
+      }
+      if ('children' in node && node.children) {
+        const nodeAsParent =  (node);
+        if (nodeAsParent.children && result[0] !== SKIP$A) {
+          offset = (reverse ? nodeAsParent.children.length : -1) + step;
+          grandparents = parents.concat(nodeAsParent);
+          while (offset > -1 && offset < nodeAsParent.children.length) {
+            const child = nodeAsParent.children[offset];
+            subresult = factory(child, offset, grandparents)();
+            if (subresult[0] === EXIT$A) {
+              return subresult
+            }
+            offset =
+              typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+          }
+        }
+      }
+      return result
+    }
+  }
+}
+function toResult$A(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$A, value]
+  }
+  return value === null || value === undefined ? empty : [value]
+}
+
+function visit$A(tree, testOrVisitor, visitorOrReverse, maybeReverse) {
+  let reverse;
+  let test;
+  let visitor;
+  if (
+    typeof testOrVisitor === 'function' &&
+    typeof visitorOrReverse !== 'function'
+  ) {
+    test = undefined;
+    visitor = testOrVisitor;
+    reverse = visitorOrReverse;
+  } else {
+    test = testOrVisitor;
+    visitor = visitorOrReverse;
+    reverse = maybeReverse;
+  }
+  visitParents$A(tree, test, overload, reverse);
+  function overload(node, parents) {
+    const parent = parents[parents.length - 1];
+    const index = parent ? parent.children.indexOf(node) : undefined;
+    return visitor(node, index, parent)
+  }
+}
+
+function formatHeadingAsSetext(node, state) {
+  let literalWithBreak = false;
+  visit$A(node, function (node) {
+    if (
+      ('value' in node && /\r?\n|\r/.test(node.value)) ||
+      node.type === 'break'
+    ) {
+      literalWithBreak = true;
+      return EXIT$A
+    }
+  });
+  return Boolean(
+    (!node.depth || node.depth < 3) &&
+      toString$2(node) &&
+      (state.options.setext || literalWithBreak)
+  )
+}
+
+function heading(node, _, state, info) {
+  const rank = Math.max(Math.min(6, node.depth || 1), 1);
+  const tracker = state.createTracker(info);
+  if (formatHeadingAsSetext(node, state)) {
+    const exit = state.enter('headingSetext');
+    const subexit = state.enter('phrasing');
+    const value = state.containerPhrasing(node, {
+      ...tracker.current(),
+      before: '\n',
+      after: '\n'
+    });
+    subexit();
+    exit();
+    return (
+      value +
+      '\n' +
+      (rank === 1 ? '=' : '-').repeat(
+        value.length -
+          (Math.max(value.lastIndexOf('\r'), value.lastIndexOf('\n')) + 1)
+      )
+    )
+  }
+  const sequence = '#'.repeat(rank);
+  const exit = state.enter('headingAtx');
+  const subexit = state.enter('phrasing');
+  tracker.move(sequence + ' ');
+  let value = state.containerPhrasing(node, {
+    before: '# ',
+    after: '\n',
+    ...tracker.current()
+  });
+  if (/^[\t ]/.test(value)) {
+    value =
+      '&#x' +
+      value.charCodeAt(0).toString(16).toUpperCase() +
+      ';' +
+      value.slice(1);
+  }
+  value = value ? sequence + ' ' + value : sequence;
+  if (state.options.closeAtx) {
+    value += ' ' + sequence;
+  }
+  subexit();
+  exit();
+  return value
+}
+
+html.peek = htmlPeek;
+function html(node) {
+  return node.value || ''
+}
+function htmlPeek() {
+  return '<'
+}
+
+image.peek = imagePeek;
+function image(node, _, state, info) {
+  const quote = checkQuote(state);
+  const suffix = quote === '"' ? 'Quote' : 'Apostrophe';
+  const exit = state.enter('image');
+  let subexit = state.enter('label');
+  const tracker = state.createTracker(info);
+  let value = tracker.move('![');
+  value += tracker.move(
+    state.safe(node.alt, {before: value, after: ']', ...tracker.current()})
+  );
+  value += tracker.move('](');
+  subexit();
+  if (
+    (!node.url && node.title) ||
+    /[\0- \u007F]/.test(node.url)
+  ) {
+    subexit = state.enter('destinationLiteral');
+    value += tracker.move('<');
+    value += tracker.move(
+      state.safe(node.url, {before: value, after: '>', ...tracker.current()})
+    );
+    value += tracker.move('>');
+  } else {
+    subexit = state.enter('destinationRaw');
+    value += tracker.move(
+      state.safe(node.url, {
+        before: value,
+        after: node.title ? ' ' : ')',
+        ...tracker.current()
+      })
+    );
+  }
+  subexit();
+  if (node.title) {
+    subexit = state.enter(`title${suffix}`);
+    value += tracker.move(' ' + quote);
+    value += tracker.move(
+      state.safe(node.title, {
+        before: value,
+        after: quote,
+        ...tracker.current()
+      })
+    );
+    value += tracker.move(quote);
+    subexit();
+  }
+  value += tracker.move(')');
+  exit();
+  return value
+}
+function imagePeek() {
+  return '!'
+}
+
+imageReference.peek = imageReferencePeek;
+function imageReference(node, _, state, info) {
+  const type = node.referenceType;
+  const exit = state.enter('imageReference');
+  let subexit = state.enter('label');
+  const tracker = state.createTracker(info);
+  let value = tracker.move('![');
+  const alt = state.safe(node.alt, {
+    before: value,
+    after: ']',
+    ...tracker.current()
+  });
+  value += tracker.move(alt + '][');
+  subexit();
+  const stack = state.stack;
+  state.stack = [];
+  subexit = state.enter('reference');
+  const reference = state.safe(state.associationId(node), {
+    before: value,
+    after: ']',
+    ...tracker.current()
+  });
+  subexit();
+  state.stack = stack;
+  exit();
+  if (type === 'full' || !alt || alt !== reference) {
+    value += tracker.move(reference + ']');
+  } else if (type === 'shortcut') {
+    value = value.slice(0, -1);
+  } else {
+    value += tracker.move(']');
+  }
+  return value
+}
+function imageReferencePeek() {
+  return '!'
+}
+
+inlineCode.peek = inlineCodePeek;
+function inlineCode(node, _, state) {
+  let value = node.value || '';
+  let sequence = '`';
+  let index = -1;
+  while (new RegExp('(^|[^`])' + sequence + '([^`]|$)').test(value)) {
+    sequence += '`';
+  }
+  if (
+    /[^ \r\n]/.test(value) &&
+    ((/^[ \r\n]/.test(value) && /[ \r\n]$/.test(value)) || /^`|`$/.test(value))
+  ) {
+    value = ' ' + value + ' ';
+  }
+  while (++index < state.unsafe.length) {
+    const pattern = state.unsafe[index];
+    const expression = state.compilePattern(pattern);
+    let match;
+    if (!pattern.atBreak) continue
+    while ((match = expression.exec(value))) {
+      let position = match.index;
+      if (
+        value.charCodeAt(position) === 10  &&
+        value.charCodeAt(position - 1) === 13
+      ) {
+        position--;
+      }
+      value = value.slice(0, position) + ' ' + value.slice(match.index + 1);
+    }
+  }
+  return sequence + value + sequence
+}
+function inlineCodePeek() {
+  return '`'
+}
+
+function formatLinkAsAutolink(node, state) {
+  const raw = toString$2(node);
+  return Boolean(
+    !state.options.resourceLink &&
+      node.url &&
+      !node.title &&
+      node.children &&
+      node.children.length === 1 &&
+      node.children[0].type === 'text' &&
+      (raw === node.url || 'mailto:' + raw === node.url) &&
+      /^[a-z][a-z+.-]+:/i.test(node.url) &&
+      !/[\0- <>\u007F]/.test(node.url)
+  )
+}
+
+link.peek = linkPeek;
+function link(node, _, state, info) {
+  const quote = checkQuote(state);
+  const suffix = quote === '"' ? 'Quote' : 'Apostrophe';
+  const tracker = state.createTracker(info);
+  let exit;
+  let subexit;
+  if (formatLinkAsAutolink(node, state)) {
+    const stack = state.stack;
+    state.stack = [];
+    exit = state.enter('autolink');
+    let value = tracker.move('<');
+    value += tracker.move(
+      state.containerPhrasing(node, {
+        before: value,
+        after: '>',
+        ...tracker.current()
+      })
+    );
+    value += tracker.move('>');
+    exit();
+    state.stack = stack;
+    return value
+  }
+  exit = state.enter('link');
+  subexit = state.enter('label');
+  let value = tracker.move('[');
+  value += tracker.move(
+    state.containerPhrasing(node, {
+      before: value,
+      after: '](',
+      ...tracker.current()
+    })
+  );
+  value += tracker.move('](');
+  subexit();
+  if (
+    (!node.url && node.title) ||
+    /[\0- \u007F]/.test(node.url)
+  ) {
+    subexit = state.enter('destinationLiteral');
+    value += tracker.move('<');
+    value += tracker.move(
+      state.safe(node.url, {before: value, after: '>', ...tracker.current()})
+    );
+    value += tracker.move('>');
+  } else {
+    subexit = state.enter('destinationRaw');
+    value += tracker.move(
+      state.safe(node.url, {
+        before: value,
+        after: node.title ? ' ' : ')',
+        ...tracker.current()
+      })
+    );
+  }
+  subexit();
+  if (node.title) {
+    subexit = state.enter(`title${suffix}`);
+    value += tracker.move(' ' + quote);
+    value += tracker.move(
+      state.safe(node.title, {
+        before: value,
+        after: quote,
+        ...tracker.current()
+      })
+    );
+    value += tracker.move(quote);
+    subexit();
+  }
+  value += tracker.move(')');
+  exit();
+  return value
+}
+function linkPeek(node, _, state) {
+  return formatLinkAsAutolink(node, state) ? '<' : '['
+}
+
+linkReference.peek = linkReferencePeek;
+function linkReference(node, _, state, info) {
+  const type = node.referenceType;
+  const exit = state.enter('linkReference');
+  let subexit = state.enter('label');
+  const tracker = state.createTracker(info);
+  let value = tracker.move('[');
+  const text = state.containerPhrasing(node, {
+    before: value,
+    after: ']',
+    ...tracker.current()
+  });
+  value += tracker.move(text + '][');
+  subexit();
+  const stack = state.stack;
+  state.stack = [];
+  subexit = state.enter('reference');
+  const reference = state.safe(state.associationId(node), {
+    before: value,
+    after: ']',
+    ...tracker.current()
+  });
+  subexit();
+  state.stack = stack;
+  exit();
+  if (type === 'full' || !text || text !== reference) {
+    value += tracker.move(reference + ']');
+  } else if (type === 'shortcut') {
+    value = value.slice(0, -1);
+  } else {
+    value += tracker.move(']');
+  }
+  return value
+}
+function linkReferencePeek() {
+  return '['
+}
+
+function checkBullet(state) {
+  const marker = state.options.bullet || '*';
+  if (marker !== '*' && marker !== '+' && marker !== '-') {
+    throw new Error(
+      'Cannot serialize items with `' +
+        marker +
+        '` for `options.bullet`, expected `*`, `+`, or `-`'
+    )
+  }
+  return marker
+}
+
+function checkBulletOther(state) {
+  const bullet = checkBullet(state);
+  const bulletOther = state.options.bulletOther;
+  if (!bulletOther) {
+    return bullet === '*' ? '-' : '*'
+  }
+  if (bulletOther !== '*' && bulletOther !== '+' && bulletOther !== '-') {
+    throw new Error(
+      'Cannot serialize items with `' +
+        bulletOther +
+        '` for `options.bulletOther`, expected `*`, `+`, or `-`'
+    )
+  }
+  if (bulletOther === bullet) {
+    throw new Error(
+      'Expected `bullet` (`' +
+        bullet +
+        '`) and `bulletOther` (`' +
+        bulletOther +
+        '`) to be different'
+    )
+  }
+  return bulletOther
+}
+
+function checkBulletOrdered(state) {
+  const marker = state.options.bulletOrdered || '.';
+  if (marker !== '.' && marker !== ')') {
+    throw new Error(
+      'Cannot serialize items with `' +
+        marker +
+        '` for `options.bulletOrdered`, expected `.` or `)`'
+    )
+  }
+  return marker
+}
+
+function checkRule(state) {
+  const marker = state.options.rule || '*';
+  if (marker !== '*' && marker !== '-' && marker !== '_') {
+    throw new Error(
+      'Cannot serialize rules with `' +
+        marker +
+        '` for `options.rule`, expected `*`, `-`, or `_`'
+    )
+  }
+  return marker
+}
+
+function list(node, parent, state, info) {
+  const exit = state.enter('list');
+  const bulletCurrent = state.bulletCurrent;
+  let bullet = node.ordered ? checkBulletOrdered(state) : checkBullet(state);
+  const bulletOther = node.ordered
+    ? bullet === '.'
+      ? ')'
+      : '.'
+    : checkBulletOther(state);
+  let useDifferentMarker =
+    parent && state.bulletLastUsed ? bullet === state.bulletLastUsed : false;
+  if (!node.ordered) {
+    const firstListItem = node.children ? node.children[0] : undefined;
+    if (
+      (bullet === '*' || bullet === '-') &&
+      firstListItem &&
+      (!firstListItem.children || !firstListItem.children[0]) &&
+      state.stack[state.stack.length - 1] === 'list' &&
+      state.stack[state.stack.length - 2] === 'listItem' &&
+      state.stack[state.stack.length - 3] === 'list' &&
+      state.stack[state.stack.length - 4] === 'listItem' &&
+      state.indexStack[state.indexStack.length - 1] === 0 &&
+      state.indexStack[state.indexStack.length - 2] === 0 &&
+      state.indexStack[state.indexStack.length - 3] === 0
+    ) {
+      useDifferentMarker = true;
+    }
+    if (checkRule(state) === bullet && firstListItem) {
+      let index = -1;
+      while (++index < node.children.length) {
+        const item = node.children[index];
+        if (
+          item &&
+          item.type === 'listItem' &&
+          item.children &&
+          item.children[0] &&
+          item.children[0].type === 'thematicBreak'
+        ) {
+          useDifferentMarker = true;
+          break
+        }
+      }
+    }
+  }
+  if (useDifferentMarker) {
+    bullet = bulletOther;
+  }
+  state.bulletCurrent = bullet;
+  const value = state.containerFlow(node, info);
+  state.bulletLastUsed = bullet;
+  state.bulletCurrent = bulletCurrent;
+  exit();
+  return value
+}
+
+function checkListItemIndent(state) {
+  const style = state.options.listItemIndent || 'one';
+  if (style !== 'tab' && style !== 'one' && style !== 'mixed') {
+    throw new Error(
+      'Cannot serialize items with `' +
+        style +
+        '` for `options.listItemIndent`, expected `tab`, `one`, or `mixed`'
+    )
+  }
+  return style
+}
+
+function listItem(node, parent, state, info) {
+  const listItemIndent = checkListItemIndent(state);
+  let bullet = state.bulletCurrent || checkBullet(state);
+  if (parent && parent.type === 'list' && parent.ordered) {
+    bullet =
+      (typeof parent.start === 'number' && parent.start > -1
+        ? parent.start
+        : 1) +
+      (state.options.incrementListMarker === false
+        ? 0
+        : parent.children.indexOf(node)) +
+      bullet;
+  }
+  let size = bullet.length + 1;
+  if (
+    listItemIndent === 'tab' ||
+    (listItemIndent === 'mixed' &&
+      ((parent && parent.type === 'list' && parent.spread) || node.spread))
+  ) {
+    size = Math.ceil(size / 4) * 4;
+  }
+  const tracker = state.createTracker(info);
+  tracker.move(bullet + ' '.repeat(size - bullet.length));
+  tracker.shift(size);
+  const exit = state.enter('listItem');
+  const value = state.indentLines(
+    state.containerFlow(node, tracker.current()),
+    map
+  );
+  exit();
+  return value
+  function map(line, index, blank) {
+    if (index) {
+      return (blank ? '' : ' '.repeat(size)) + line
+    }
+    return (blank ? bullet : bullet + ' '.repeat(size - bullet.length)) + line
+  }
+}
+
+function paragraph(node, _, state, info) {
+  const exit = state.enter('paragraph');
+  const subexit = state.enter('phrasing');
+  const value = state.containerPhrasing(node, info);
+  subexit();
+  exit();
+  return value
+}
+
+const phrasing =
+  (
+    convert$A([
+      'break',
+      'delete',
+      'emphasis',
+      'footnote',
+      'footnoteReference',
+      'image',
+      'imageReference',
+      'inlineCode',
+      'link',
+      'linkReference',
+      'strong',
+      'text'
+    ])
+  );
+
+function root(node, _, state, info) {
+  const hasPhrasing = node.children.some(function (d) {
+    return phrasing(d)
+  });
+  const fn = hasPhrasing ? state.containerPhrasing : state.containerFlow;
+  return fn.call(state, node, info)
+}
+
+function checkStrong(state) {
+  const marker = state.options.strong || '*';
+  if (marker !== '*' && marker !== '_') {
+    throw new Error(
+      'Cannot serialize strong with `' +
+        marker +
+        '` for `options.strong`, expected `*`, or `_`'
+    )
+  }
+  return marker
+}
+
+strong.peek = strongPeek;
+function strong(node, _, state, info) {
+  const marker = checkStrong(state);
+  const exit = state.enter('strong');
+  const tracker = state.createTracker(info);
+  let value = tracker.move(marker + marker);
+  value += tracker.move(
+    state.containerPhrasing(node, {
+      before: value,
+      after: marker,
+      ...tracker.current()
+    })
+  );
+  value += tracker.move(marker + marker);
+  exit();
+  return value
+}
+function strongPeek(_, _1, state) {
+  return state.options.strong || '*'
+}
+
+function text$1(node, _, state, info) {
+  return state.safe(node.value, info)
+}
+
+function checkRuleRepetition(state) {
+  const repetition = state.options.ruleRepetition || 3;
+  if (repetition < 3) {
+    throw new Error(
+      'Cannot serialize rules with repetition `' +
+        repetition +
+        '` for `options.ruleRepetition`, expected `3` or more'
+    )
+  }
+  return repetition
+}
+
+function thematicBreak(_, _1, state) {
+  const value = (
+    checkRule(state) + (state.options.ruleSpaces ? ' ' : '')
+  ).repeat(checkRuleRepetition(state));
+  return state.options.ruleSpaces ? value.slice(0, -1) : value
+}
+
+const handle = {
+  blockquote,
+  break: hardBreak,
+  code: code$1,
+  definition,
+  emphasis,
+  hardBreak,
+  heading,
+  html,
+  image,
+  imageReference,
+  inlineCode,
+  link,
+  linkReference,
+  list,
+  listItem,
+  paragraph,
+  root,
+  strong,
+  text: text$1,
+  thematicBreak
+};
+
+const join = [joinDefaults];
+function joinDefaults(left, right, parent, state) {
+  if (
+    right.type === 'code' &&
+    formatCodeAsIndented(right, state) &&
+    (left.type === 'list' ||
+      (left.type === right.type && formatCodeAsIndented(left, state)))
+  ) {
+    return false
+  }
+  if ('spread' in parent && typeof parent.spread === 'boolean') {
+    if (
+      left.type === 'paragraph' &&
+      (left.type === right.type ||
+        right.type === 'definition' ||
+        (right.type === 'heading' && formatHeadingAsSetext(right, state)))
+    ) {
+      return
+    }
+    return parent.spread ? 1 : 0
+  }
+}
+
+const fullPhrasingSpans = [
+  'autolink',
+  'destinationLiteral',
+  'destinationRaw',
+  'reference',
+  'titleQuote',
+  'titleApostrophe'
+];
+const unsafe = [
+  {character: '\t', after: '[\\r\\n]', inConstruct: 'phrasing'},
+  {character: '\t', before: '[\\r\\n]', inConstruct: 'phrasing'},
+  {
+    character: '\t',
+    inConstruct: ['codeFencedLangGraveAccent', 'codeFencedLangTilde']
+  },
+  {
+    character: '\r',
+    inConstruct: [
+      'codeFencedLangGraveAccent',
+      'codeFencedLangTilde',
+      'codeFencedMetaGraveAccent',
+      'codeFencedMetaTilde',
+      'destinationLiteral',
+      'headingAtx'
+    ]
+  },
+  {
+    character: '\n',
+    inConstruct: [
+      'codeFencedLangGraveAccent',
+      'codeFencedLangTilde',
+      'codeFencedMetaGraveAccent',
+      'codeFencedMetaTilde',
+      'destinationLiteral',
+      'headingAtx'
+    ]
+  },
+  {character: ' ', after: '[\\r\\n]', inConstruct: 'phrasing'},
+  {character: ' ', before: '[\\r\\n]', inConstruct: 'phrasing'},
+  {
+    character: ' ',
+    inConstruct: ['codeFencedLangGraveAccent', 'codeFencedLangTilde']
+  },
+  {
+    character: '!',
+    after: '\\[',
+    inConstruct: 'phrasing',
+    notInConstruct: fullPhrasingSpans
+  },
+  {character: '"', inConstruct: 'titleQuote'},
+  {atBreak: true, character: '#'},
+  {character: '#', inConstruct: 'headingAtx', after: '(?:[\r\n]|$)'},
+  {character: '&', after: '[#A-Za-z]', inConstruct: 'phrasing'},
+  {character: "'", inConstruct: 'titleApostrophe'},
+  {character: '(', inConstruct: 'destinationRaw'},
+  {
+    before: '\\]',
+    character: '(',
+    inConstruct: 'phrasing',
+    notInConstruct: fullPhrasingSpans
+  },
+  {atBreak: true, before: '\\d+', character: ')'},
+  {character: ')', inConstruct: 'destinationRaw'},
+  {atBreak: true, character: '*', after: '(?:[ \t\r\n*])'},
+  {character: '*', inConstruct: 'phrasing', notInConstruct: fullPhrasingSpans},
+  {atBreak: true, character: '+', after: '(?:[ \t\r\n])'},
+  {atBreak: true, character: '-', after: '(?:[ \t\r\n-])'},
+  {atBreak: true, before: '\\d+', character: '.', after: '(?:[ \t\r\n]|$)'},
+  {atBreak: true, character: '<', after: '[!/?A-Za-z]'},
+  {
+    character: '<',
+    after: '[!/?A-Za-z]',
+    inConstruct: 'phrasing',
+    notInConstruct: fullPhrasingSpans
+  },
+  {character: '<', inConstruct: 'destinationLiteral'},
+  {atBreak: true, character: '='},
+  {atBreak: true, character: '>'},
+  {character: '>', inConstruct: 'destinationLiteral'},
+  {atBreak: true, character: '['},
+  {character: '[', inConstruct: 'phrasing', notInConstruct: fullPhrasingSpans},
+  {character: '[', inConstruct: ['label', 'reference']},
+  {character: '\\', after: '[\\r\\n]', inConstruct: 'phrasing'},
+  {character: ']', inConstruct: ['label', 'reference']},
+  {atBreak: true, character: '_'},
+  {character: '_', inConstruct: 'phrasing', notInConstruct: fullPhrasingSpans},
+  {atBreak: true, character: '`'},
+  {
+    character: '`',
+    inConstruct: ['codeFencedLangGraveAccent', 'codeFencedMetaGraveAccent']
+  },
+  {character: '`', inConstruct: 'phrasing', notInConstruct: fullPhrasingSpans},
+  {atBreak: true, character: '~'}
+];
+
+function association(node) {
+  if (node.label || !node.identifier) {
+    return node.label || ''
+  }
+  return decodeString(node.identifier)
+}
+
+function compilePattern(pattern) {
   if (!pattern._compiled) {
     const before =
       (pattern.atBreak ? '[\\r\\n][\\t ]*' : '') +
@@ -8013,18 +9232,138 @@ function patternCompile(pattern) {
   return pattern._compiled
 }
 
-function safe(context, input, config) {
+function containerPhrasing(parent, state, info) {
+  const indexStack = state.indexStack;
+  const children = parent.children || [];
+  const results = [];
+  let index = -1;
+  let before = info.before;
+  indexStack.push(-1);
+  let tracker = state.createTracker(info);
+  while (++index < children.length) {
+    const child = children[index];
+    let after;
+    indexStack[indexStack.length - 1] = index;
+    if (index + 1 < children.length) {
+      let handle = state.handle.handlers[children[index + 1].type];
+      if (handle && handle.peek) handle = handle.peek;
+      after = handle
+        ? handle(children[index + 1], parent, state, {
+            before: '',
+            after: '',
+            ...tracker.current()
+          }).charAt(0)
+        : '';
+    } else {
+      after = info.after;
+    }
+    if (
+      results.length > 0 &&
+      (before === '\r' || before === '\n') &&
+      child.type === 'html'
+    ) {
+      results[results.length - 1] = results[results.length - 1].replace(
+        /(\r?\n|\r)$/,
+        ' '
+      );
+      before = ' ';
+      tracker = state.createTracker(info);
+      tracker.move(results.join(''));
+    }
+    results.push(
+      tracker.move(
+        state.handle(child, parent, state, {
+          ...tracker.current(),
+          before,
+          after
+        })
+      )
+    );
+    before = results[results.length - 1].slice(-1);
+  }
+  indexStack.pop();
+  return results.join('')
+}
+
+function containerFlow(parent, state, info) {
+  const indexStack = state.indexStack;
+  const children = parent.children || [];
+  const tracker = state.createTracker(info);
+  const results = [];
+  let index = -1;
+  indexStack.push(-1);
+  while (++index < children.length) {
+    const child = children[index];
+    indexStack[indexStack.length - 1] = index;
+    results.push(
+      tracker.move(
+        state.handle(child, parent, state, {
+          before: '\n',
+          after: '\n',
+          ...tracker.current()
+        })
+      )
+    );
+    if (child.type !== 'list') {
+      state.bulletLastUsed = undefined;
+    }
+    if (index < children.length - 1) {
+      results.push(
+        tracker.move(between(child, children[index + 1], parent, state))
+      );
+    }
+  }
+  indexStack.pop();
+  return results.join('')
+}
+function between(left, right, parent, state) {
+  let index = state.join.length;
+  while (index--) {
+    const result = state.join[index](left, right, parent, state);
+    if (result === true || result === 1) {
+      break
+    }
+    if (typeof result === 'number') {
+      return '\n'.repeat(1 + result)
+    }
+    if (result === false) {
+      return '\n\n<!---->\n\n'
+    }
+  }
+  return '\n\n'
+}
+
+const eol$1 = /\r?\n|\r/g;
+function indentLines(value, map) {
+  const result = [];
+  let start = 0;
+  let line = 0;
+  let match;
+  while ((match = eol$1.exec(value))) {
+    one(value.slice(start, match.index));
+    result.push(match[0]);
+    start = match.index + match[0].length;
+    line++;
+  }
+  one(value.slice(start));
+  return result.join('')
+  function one(value) {
+    result.push(map(value, line, !value));
+  }
+}
+
+function safe(state, input, config) {
   const value = (config.before || '') + (input || '') + (config.after || '');
   const positions = [];
   const result = [];
   const infos = {};
   let index = -1;
-  while (++index < context.unsafe.length) {
-    const pattern = context.unsafe[index];
-    if (!patternInScope(context.stack, pattern)) {
+  while (++index < state.unsafe.length) {
+    const pattern = state.unsafe[index];
+    if (!patternInScope(state.stack, pattern)) {
       continue
     }
-    const expression = patternCompile(pattern);
+    const expression = state.compilePattern(pattern);
     let match;
     while ((match = expression.exec(value))) {
       const before = 'before' in pattern || Boolean(pattern.atBreak);
@@ -8109,1146 +9448,58 @@ function escapeBackslashes(value, after) {
   return results.join('')
 }
 
-function code$1(node, _, context, safeOptions) {
-  const marker = checkFence(context);
-  const raw = node.value || '';
-  const suffix = marker === '`' ? 'GraveAccent' : 'Tilde';
-  if (formatCodeAsIndented(node, context)) {
-    const exit = context.enter('codeIndented');
-    const value = indentLines(raw, map$1);
-    exit();
+function track(config) {
+  const options = config || {};
+  const now = options.now || {};
+  let lineShift = options.lineShift || 0;
+  let line = now.line || 1;
+  let column = now.column || 1;
+  return {move, current, shift}
+  function current() {
+    return {now: {line, column}, lineShift}
+  }
+  function shift(value) {
+    lineShift += value;
+  }
+  function move(input) {
+    const value = input || '';
+    const chunks = value.split(/\r?\n|\r/g);
+    const tail = chunks[chunks.length - 1];
+    line += chunks.length - 1;
+    column =
+      chunks.length === 1 ? column + tail.length : 1 + tail.length + lineShift;
     return value
   }
-  const tracker = track(safeOptions);
-  const sequence = marker.repeat(Math.max(longestStreak(raw, marker) + 1, 3));
-  const exit = context.enter('codeFenced');
-  let value = tracker.move(sequence);
-  if (node.lang) {
-    const subexit = context.enter('codeFencedLang' + suffix);
-    value += tracker.move(
-      safe(context, node.lang, {
-        before: value,
-        after: ' ',
-        encode: ['`'],
-        ...tracker.current()
-      })
-    );
-    subexit();
-  }
-  if (node.lang && node.meta) {
-    const subexit = context.enter('codeFencedMeta' + suffix);
-    value += tracker.move(' ');
-    value += tracker.move(
-      safe(context, node.meta, {
-        before: value,
-        after: '\n',
-        encode: ['`'],
-        ...tracker.current()
-      })
-    );
-    subexit();
-  }
-  value += tracker.move('\n');
-  if (raw) {
-    value += tracker.move(raw + '\n');
-  }
-  value += tracker.move(sequence);
-  exit();
-  return value
 }
-function map$1(line, _, blank) {
-  return (blank ? '' : '    ') + line
-}
-
-function association(node) {
-  if (node.label || !node.identifier) {
-    return node.label || ''
-  }
-  return decodeString(node.identifier)
-}
-
-function checkQuote(context) {
-  const marker = context.options.quote || '"';
-  if (marker !== '"' && marker !== "'") {
-    throw new Error(
-      'Cannot serialize title with `' +
-        marker +
-        '` for `options.quote`, expected `"`, or `\'`'
-    )
-  }
-  return marker
-}
-
-function definition(node, _, context, safeOptions) {
-  const quote = checkQuote(context);
-  const suffix = quote === '"' ? 'Quote' : 'Apostrophe';
-  const exit = context.enter('definition');
-  let subexit = context.enter('label');
-  const tracker = track(safeOptions);
-  let value = tracker.move('[');
-  value += tracker.move(
-    safe(context, association(node), {
-      before: value,
-      after: ']',
-      ...tracker.current()
-    })
-  );
-  value += tracker.move(']: ');
-  subexit();
-  if (
-    !node.url ||
-    /[\0- \u007F]/.test(node.url)
-  ) {
-    subexit = context.enter('destinationLiteral');
-    value += tracker.move('<');
-    value += tracker.move(
-      safe(context, node.url, {before: value, after: '>', ...tracker.current()})
-    );
-    value += tracker.move('>');
-  } else {
-    subexit = context.enter('destinationRaw');
-    value += tracker.move(
-      safe(context, node.url, {
-        before: value,
-        after: node.title ? ' ' : '\n',
-        ...tracker.current()
-      })
-    );
-  }
-  subexit();
-  if (node.title) {
-    subexit = context.enter('title' + suffix);
-    value += tracker.move(' ' + quote);
-    value += tracker.move(
-      safe(context, node.title, {
-        before: value,
-        after: quote,
-        ...tracker.current()
-      })
-    );
-    value += tracker.move(quote);
-    subexit();
-  }
-  exit();
-  return value
-}
-
-function checkEmphasis(context) {
-  const marker = context.options.emphasis || '*';
-  if (marker !== '*' && marker !== '_') {
-    throw new Error(
-      'Cannot serialize emphasis with `' +
-        marker +
-        '` for `options.emphasis`, expected `*`, or `_`'
-    )
-  }
-  return marker
-}
-
-function containerPhrasing(parent, context, safeOptions) {
-  const indexStack = context.indexStack;
-  const children = parent.children || [];
-  const results = [];
-  let index = -1;
-  let before = safeOptions.before;
-  indexStack.push(-1);
-  let tracker = track(safeOptions);
-  while (++index < children.length) {
-    const child = children[index];
-    let after;
-    indexStack[indexStack.length - 1] = index;
-    if (index + 1 < children.length) {
-      let handle = context.handle.handlers[children[index + 1].type];
-      if (handle && handle.peek) handle = handle.peek;
-      after = handle
-        ? handle(children[index + 1], parent, context, {
-            before: '',
-            after: '',
-            ...tracker.current()
-          }).charAt(0)
-        : '';
-    } else {
-      after = safeOptions.after;
-    }
-    if (
-      results.length > 0 &&
-      (before === '\r' || before === '\n') &&
-      child.type === 'html'
-    ) {
-      results[results.length - 1] = results[results.length - 1].replace(
-        /(\r?\n|\r)$/,
-        ' '
-      );
-      before = ' ';
-      tracker = track(safeOptions);
-      tracker.move(results.join(''));
-    }
-    results.push(
-      tracker.move(
-        context.handle(child, parent, context, {
-          ...tracker.current(),
-          before,
-          after
-        })
-      )
-    );
-    before = results[results.length - 1].slice(-1);
-  }
-  indexStack.pop();
-  return results.join('')
-}
-
-emphasis.peek = emphasisPeek;
-function emphasis(node, _, context, safeOptions) {
-  const marker = checkEmphasis(context);
-  const exit = context.enter('emphasis');
-  const tracker = track(safeOptions);
-  let value = tracker.move(marker);
-  value += tracker.move(
-    containerPhrasing(node, context, {
-      before: value,
-      after: marker,
-      ...tracker.current()
-    })
-  );
-  value += tracker.move(marker);
-  exit();
-  return value
-}
-function emphasisPeek(_, _1, context) {
-  return context.options.emphasis || '*'
-}
-
-const convert =
-  (
-    function (test) {
-      if (test === undefined || test === null) {
-        return ok
-      }
-      if (typeof test === 'string') {
-        return typeFactory(test)
-      }
-      if (typeof test === 'object') {
-        return Array.isArray(test) ? anyFactory(test) : propsFactory(test)
-      }
-      if (typeof test === 'function') {
-        return castFactory(test)
-      }
-      throw new Error('Expected function, string, or object as test')
-    }
-  );
-function anyFactory(tests) {
-  const checks = [];
-  let index = -1;
-  while (++index < tests.length) {
-    checks[index] = convert(tests[index]);
-  }
-  return castFactory(any)
-  function any(...parameters) {
-    let index = -1;
-    while (++index < checks.length) {
-      if (checks[index].call(this, ...parameters)) return true
-    }
-    return false
-  }
-}
-function propsFactory(check) {
-  return castFactory(all)
-  function all(node) {
-    let key;
-    for (key in check) {
-      if (node[key] !== check[key]) return false
-    }
-    return true
-  }
-}
-function typeFactory(check) {
-  return castFactory(type)
-  function type(node) {
-    return node && node.type === check
-  }
-}
-function castFactory(check) {
-  return assertion
-  function assertion(...parameters) {
-    return Boolean(check.call(this, ...parameters))
-  }
-}
-function ok() {
-  return true
-}
-
-function color$2(d) {
-  return '\u001B[33m' + d + '\u001B[39m'
-}
-
-const CONTINUE$1 = true;
-const SKIP$1 = 'skip';
-const EXIT$1 = false;
-const visitParents$1 =
-  (
-    function (tree, test, visitor, reverse) {
-      if (typeof test === 'function' && typeof visitor !== 'function') {
-        reverse = visitor;
-        visitor = test;
-        test = null;
-      }
-      const is = convert(test);
-      const step = reverse ? -1 : 1;
-      factory(tree, null, [])();
-      function factory(node, index, parents) {
-        const value = typeof node === 'object' && node !== null ? node : {};
-        let name;
-        if (typeof value.type === 'string') {
-          name =
-            typeof value.tagName === 'string'
-              ? value.tagName
-              : typeof value.name === 'string'
-              ? value.name
-              : undefined;
-          Object.defineProperty(visit, 'name', {
-            value:
-              'node (' +
-              color$2(value.type + (name ? '<' + name + '>' : '')) +
-              ')'
-          });
-        }
-        return visit
-        function visit() {
-          let result = [];
-          let subresult;
-          let offset;
-          let grandparents;
-          if (!test || is(node, index, parents[parents.length - 1] || null)) {
-            result = toResult$1(visitor(node, parents));
-            if (result[0] === EXIT$1) {
-              return result
-            }
-          }
-          if (node.children && result[0] !== SKIP$1) {
-            offset = (reverse ? node.children.length : -1) + step;
-            grandparents = parents.concat(node);
-            while (offset > -1 && offset < node.children.length) {
-              subresult = factory(node.children[offset], offset, grandparents)();
-              if (subresult[0] === EXIT$1) {
-                return subresult
-              }
-              offset =
-                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
-            }
-          }
-          return result
-        }
-      }
-    }
-  );
-function toResult$1(value) {
-  if (Array.isArray(value)) {
-    return value
-  }
-  if (typeof value === 'number') {
-    return [CONTINUE$1, value]
-  }
-  return [value]
-}
-
-const visit$1 =
-  (
-    function (tree, test, visitor, reverse) {
-      if (typeof test === 'function' && typeof visitor !== 'function') {
-        reverse = visitor;
-        visitor = test;
-        test = null;
-      }
-      visitParents$1(tree, test, overload, reverse);
-      function overload(node, parents) {
-        const parent = parents[parents.length - 1];
-        return visitor(
-          node,
-          parent ? parent.children.indexOf(node) : null,
-          parent
-        )
-      }
-    }
-  );
-
-function formatHeadingAsSetext(node, context) {
-  let literalWithBreak = false;
-  visit$1(node, (node) => {
-    if (
-      ('value' in node && /\r?\n|\r/.test(node.value)) ||
-      node.type === 'break'
-    ) {
-      literalWithBreak = true;
-      return EXIT$1
-    }
-  });
-  return Boolean(
-    (!node.depth || node.depth < 3) &&
-      toString(node) &&
-      (context.options.setext || literalWithBreak)
-  )
-}
-
-function heading(node, _, context, safeOptions) {
-  const rank = Math.max(Math.min(6, node.depth || 1), 1);
-  const tracker = track(safeOptions);
-  if (formatHeadingAsSetext(node, context)) {
-    const exit = context.enter('headingSetext');
-    const subexit = context.enter('phrasing');
-    const value = containerPhrasing(node, context, {
-      ...tracker.current(),
-      before: '\n',
-      after: '\n'
-    });
-    subexit();
-    exit();
-    return (
-      value +
-      '\n' +
-      (rank === 1 ? '=' : '-').repeat(
-        value.length -
-          (Math.max(value.lastIndexOf('\r'), value.lastIndexOf('\n')) + 1)
-      )
-    )
-  }
-  const sequence = '#'.repeat(rank);
-  const exit = context.enter('headingAtx');
-  const subexit = context.enter('phrasing');
-  tracker.move(sequence + ' ');
-  let value = containerPhrasing(node, context, {
-    before: '# ',
-    after: '\n',
-    ...tracker.current()
-  });
-  if (/^[\t ]/.test(value)) {
-    value =
-      '&#x' +
-      value.charCodeAt(0).toString(16).toUpperCase() +
-      ';' +
-      value.slice(1);
-  }
-  value = value ? sequence + ' ' + value : sequence;
-  if (context.options.closeAtx) {
-    value += ' ' + sequence;
-  }
-  subexit();
-  exit();
-  return value
-}
-
-html.peek = htmlPeek;
-function html(node) {
-  return node.value || ''
-}
-function htmlPeek() {
-  return '<'
-}
-
-image.peek = imagePeek;
-function image(node, _, context, safeOptions) {
-  const quote = checkQuote(context);
-  const suffix = quote === '"' ? 'Quote' : 'Apostrophe';
-  const exit = context.enter('image');
-  let subexit = context.enter('label');
-  const tracker = track(safeOptions);
-  let value = tracker.move('![');
-  value += tracker.move(
-    safe(context, node.alt, {before: value, after: ']', ...tracker.current()})
-  );
-  value += tracker.move('](');
-  subexit();
-  if (
-    (!node.url && node.title) ||
-    /[\0- \u007F]/.test(node.url)
-  ) {
-    subexit = context.enter('destinationLiteral');
-    value += tracker.move('<');
-    value += tracker.move(
-      safe(context, node.url, {before: value, after: '>', ...tracker.current()})
-    );
-    value += tracker.move('>');
-  } else {
-    subexit = context.enter('destinationRaw');
-    value += tracker.move(
-      safe(context, node.url, {
-        before: value,
-        after: node.title ? ' ' : ')',
-        ...tracker.current()
-      })
-    );
-  }
-  subexit();
-  if (node.title) {
-    subexit = context.enter('title' + suffix);
-    value += tracker.move(' ' + quote);
-    value += tracker.move(
-      safe(context, node.title, {
-        before: value,
-        after: quote,
-        ...tracker.current()
-      })
-    );
-    value += tracker.move(quote);
-    subexit();
-  }
-  value += tracker.move(')');
-  exit();
-  return value
-}
-function imagePeek() {
-  return '!'
-}
-
-imageReference.peek = imageReferencePeek;
-function imageReference(node, _, context, safeOptions) {
-  const type = node.referenceType;
-  const exit = context.enter('imageReference');
-  let subexit = context.enter('label');
-  const tracker = track(safeOptions);
-  let value = tracker.move('![');
-  const alt = safe(context, node.alt, {
-    before: value,
-    after: ']',
-    ...tracker.current()
-  });
-  value += tracker.move(alt + '][');
-  subexit();
-  const stack = context.stack;
-  context.stack = [];
-  subexit = context.enter('reference');
-  const reference = safe(context, association(node), {
-    before: value,
-    after: ']',
-    ...tracker.current()
-  });
-  subexit();
-  context.stack = stack;
-  exit();
-  if (type === 'full' || !alt || alt !== reference) {
-    value += tracker.move(reference + ']');
-  } else if (type === 'shortcut') {
-    value = value.slice(0, -1);
-  } else {
-    value += tracker.move(']');
-  }
-  return value
-}
-function imageReferencePeek() {
-  return '!'
-}
-
-inlineCode.peek = inlineCodePeek;
-function inlineCode(node, _, context) {
-  let value = node.value || '';
-  let sequence = '`';
-  let index = -1;
-  while (new RegExp('(^|[^`])' + sequence + '([^`]|$)').test(value)) {
-    sequence += '`';
-  }
-  if (
-    /[^ \r\n]/.test(value) &&
-    ((/^[ \r\n]/.test(value) && /[ \r\n]$/.test(value)) || /^`|`$/.test(value))
-  ) {
-    value = ' ' + value + ' ';
-  }
-  while (++index < context.unsafe.length) {
-    const pattern = context.unsafe[index];
-    const expression = patternCompile(pattern);
-    let match;
-    if (!pattern.atBreak) continue
-    while ((match = expression.exec(value))) {
-      let position = match.index;
-      if (
-        value.charCodeAt(position) === 10  &&
-        value.charCodeAt(position - 1) === 13
-      ) {
-        position--;
-      }
-      value = value.slice(0, position) + ' ' + value.slice(match.index + 1);
-    }
-  }
-  return sequence + value + sequence
-}
-function inlineCodePeek() {
-  return '`'
-}
-
-function formatLinkAsAutolink(node, context) {
-  const raw = toString(node);
-  return Boolean(
-    !context.options.resourceLink &&
-      node.url &&
-      !node.title &&
-      node.children &&
-      node.children.length === 1 &&
-      node.children[0].type === 'text' &&
-      (raw === node.url || 'mailto:' + raw === node.url) &&
-      /^[a-z][a-z+.-]+:/i.test(node.url) &&
-      !/[\0- <>\u007F]/.test(node.url)
-  )
-}
-
-link.peek = linkPeek;
-function link(node, _, context, safeOptions) {
-  const quote = checkQuote(context);
-  const suffix = quote === '"' ? 'Quote' : 'Apostrophe';
-  const tracker = track(safeOptions);
-  let exit;
-  let subexit;
-  if (formatLinkAsAutolink(node, context)) {
-    const stack = context.stack;
-    context.stack = [];
-    exit = context.enter('autolink');
-    let value = tracker.move('<');
-    value += tracker.move(
-      containerPhrasing(node, context, {
-        before: value,
-        after: '>',
-        ...tracker.current()
-      })
-    );
-    value += tracker.move('>');
-    exit();
-    context.stack = stack;
-    return value
-  }
-  exit = context.enter('link');
-  subexit = context.enter('label');
-  let value = tracker.move('[');
-  value += tracker.move(
-    containerPhrasing(node, context, {
-      before: value,
-      after: '](',
-      ...tracker.current()
-    })
-  );
-  value += tracker.move('](');
-  subexit();
-  if (
-    (!node.url && node.title) ||
-    /[\0- \u007F]/.test(node.url)
-  ) {
-    subexit = context.enter('destinationLiteral');
-    value += tracker.move('<');
-    value += tracker.move(
-      safe(context, node.url, {before: value, after: '>', ...tracker.current()})
-    );
-    value += tracker.move('>');
-  } else {
-    subexit = context.enter('destinationRaw');
-    value += tracker.move(
-      safe(context, node.url, {
-        before: value,
-        after: node.title ? ' ' : ')',
-        ...tracker.current()
-      })
-    );
-  }
-  subexit();
-  if (node.title) {
-    subexit = context.enter('title' + suffix);
-    value += tracker.move(' ' + quote);
-    value += tracker.move(
-      safe(context, node.title, {
-        before: value,
-        after: quote,
-        ...tracker.current()
-      })
-    );
-    value += tracker.move(quote);
-    subexit();
-  }
-  value += tracker.move(')');
-  exit();
-  return value
-}
-function linkPeek(node, _, context) {
-  return formatLinkAsAutolink(node, context) ? '<' : '['
-}
-
-linkReference.peek = linkReferencePeek;
-function linkReference(node, _, context, safeOptions) {
-  const type = node.referenceType;
-  const exit = context.enter('linkReference');
-  let subexit = context.enter('label');
-  const tracker = track(safeOptions);
-  let value = tracker.move('[');
-  const text = containerPhrasing(node, context, {
-    before: value,
-    after: ']',
-    ...tracker.current()
-  });
-  value += tracker.move(text + '][');
-  subexit();
-  const stack = context.stack;
-  context.stack = [];
-  subexit = context.enter('reference');
-  const reference = safe(context, association(node), {
-    before: value,
-    after: ']',
-    ...tracker.current()
-  });
-  subexit();
-  context.stack = stack;
-  exit();
-  if (type === 'full' || !text || text !== reference) {
-    value += tracker.move(reference + ']');
-  } else if (type === 'shortcut') {
-    value = value.slice(0, -1);
-  } else {
-    value += tracker.move(']');
-  }
-  return value
-}
-function linkReferencePeek() {
-  return '['
-}
-
-function checkBullet(context) {
-  const marker = context.options.bullet || '*';
-  if (marker !== '*' && marker !== '+' && marker !== '-') {
-    throw new Error(
-      'Cannot serialize items with `' +
-        marker +
-        '` for `options.bullet`, expected `*`, `+`, or `-`'
-    )
-  }
-  return marker
-}
-
-function checkBulletOther(context) {
-  const bullet = checkBullet(context);
-  const bulletOther = context.options.bulletOther;
-  if (!bulletOther) {
-    return bullet === '*' ? '-' : '*'
-  }
-  if (bulletOther !== '*' && bulletOther !== '+' && bulletOther !== '-') {
-    throw new Error(
-      'Cannot serialize items with `' +
-        bulletOther +
-        '` for `options.bulletOther`, expected `*`, `+`, or `-`'
-    )
-  }
-  if (bulletOther === bullet) {
-    throw new Error(
-      'Expected `bullet` (`' +
-        bullet +
-        '`) and `bulletOther` (`' +
-        bulletOther +
-        '`) to be different'
-    )
-  }
-  return bulletOther
-}
-
-function checkBulletOrdered(context) {
-  const marker = context.options.bulletOrdered || '.';
-  if (marker !== '.' && marker !== ')') {
-    throw new Error(
-      'Cannot serialize items with `' +
-        marker +
-        '` for `options.bulletOrdered`, expected `.` or `)`'
-    )
-  }
-  return marker
-}
-
-function checkBulletOrderedOther(context) {
-  const bulletOrdered = checkBulletOrdered(context);
-  const bulletOrderedOther = context.options.bulletOrderedOther;
-  if (!bulletOrderedOther) {
-    return bulletOrdered === '.' ? ')' : '.'
-  }
-  if (bulletOrderedOther !== '.' && bulletOrderedOther !== ')') {
-    throw new Error(
-      'Cannot serialize items with `' +
-        bulletOrderedOther +
-        '` for `options.bulletOrderedOther`, expected `*`, `+`, or `-`'
-    )
-  }
-  if (bulletOrderedOther === bulletOrdered) {
-    throw new Error(
-      'Expected `bulletOrdered` (`' +
-        bulletOrdered +
-        '`) and `bulletOrderedOther` (`' +
-        bulletOrderedOther +
-        '`) to be different'
-    )
-  }
-  return bulletOrderedOther
-}
-
-function checkRule(context) {
-  const marker = context.options.rule || '*';
-  if (marker !== '*' && marker !== '-' && marker !== '_') {
-    throw new Error(
-      'Cannot serialize rules with `' +
-        marker +
-        '` for `options.rule`, expected `*`, `-`, or `_`'
-    )
-  }
-  return marker
-}
-
-function list(node, parent, context, safeOptions) {
-  const exit = context.enter('list');
-  const bulletCurrent = context.bulletCurrent;
-  let bullet = node.ordered ? checkBulletOrdered(context) : checkBullet(context);
-  const bulletOther = node.ordered
-    ? checkBulletOrderedOther(context)
-    : checkBulletOther(context);
-  const bulletLastUsed = context.bulletLastUsed;
-  let useDifferentMarker = false;
-  if (
-    parent &&
-    (node.ordered
-      ? context.options.bulletOrderedOther
-      : context.options.bulletOther) &&
-    bulletLastUsed &&
-    bullet === bulletLastUsed
-  ) {
-    useDifferentMarker = true;
-  }
-  if (!node.ordered) {
-    const firstListItem = node.children ? node.children[0] : undefined;
-    if (
-      (bullet === '*' || bullet === '-') &&
-      firstListItem &&
-      (!firstListItem.children || !firstListItem.children[0]) &&
-      context.stack[context.stack.length - 1] === 'list' &&
-      context.stack[context.stack.length - 2] === 'listItem' &&
-      context.stack[context.stack.length - 3] === 'list' &&
-      context.stack[context.stack.length - 4] === 'listItem' &&
-      context.indexStack[context.indexStack.length - 1] === 0 &&
-      context.indexStack[context.indexStack.length - 2] === 0 &&
-      context.indexStack[context.indexStack.length - 3] === 0
-    ) {
-      useDifferentMarker = true;
-    }
-    if (checkRule(context) === bullet && firstListItem) {
-      let index = -1;
-      while (++index < node.children.length) {
-        const item = node.children[index];
-        if (
-          item &&
-          item.type === 'listItem' &&
-          item.children &&
-          item.children[0] &&
-          item.children[0].type === 'thematicBreak'
-        ) {
-          useDifferentMarker = true;
-          break
-        }
-      }
-    }
-  }
-  if (useDifferentMarker) {
-    bullet = bulletOther;
-  }
-  context.bulletCurrent = bullet;
-  const value = containerFlow(node, context, safeOptions);
-  context.bulletLastUsed = bullet;
-  context.bulletCurrent = bulletCurrent;
-  exit();
-  return value
-}
-
-function checkListItemIndent(context) {
-  const style = context.options.listItemIndent || 'tab';
-  if (style === 1 || style === '1') {
-    return 'one'
-  }
-  if (style !== 'tab' && style !== 'one' && style !== 'mixed') {
-    throw new Error(
-      'Cannot serialize items with `' +
-        style +
-        '` for `options.listItemIndent`, expected `tab`, `one`, or `mixed`'
-    )
-  }
-  return style
-}
-
-function listItem(node, parent, context, safeOptions) {
-  const listItemIndent = checkListItemIndent(context);
-  let bullet = context.bulletCurrent || checkBullet(context);
-  if (parent && parent.type === 'list' && parent.ordered) {
-    bullet =
-      (typeof parent.start === 'number' && parent.start > -1
-        ? parent.start
-        : 1) +
-      (context.options.incrementListMarker === false
-        ? 0
-        : parent.children.indexOf(node)) +
-      bullet;
-  }
-  let size = bullet.length + 1;
-  if (
-    listItemIndent === 'tab' ||
-    (listItemIndent === 'mixed' &&
-      ((parent && parent.type === 'list' && parent.spread) || node.spread))
-  ) {
-    size = Math.ceil(size / 4) * 4;
-  }
-  const tracker = track(safeOptions);
-  tracker.move(bullet + ' '.repeat(size - bullet.length));
-  tracker.shift(size);
-  const exit = context.enter('listItem');
-  const value = indentLines(
-    containerFlow(node, context, tracker.current()),
-    map
-  );
-  exit();
-  return value
-  function map(line, index, blank) {
-    if (index) {
-      return (blank ? '' : ' '.repeat(size)) + line
-    }
-    return (blank ? bullet : bullet + ' '.repeat(size - bullet.length)) + line
-  }
-}
-
-function paragraph(node, _, context, safeOptions) {
-  const exit = context.enter('paragraph');
-  const subexit = context.enter('phrasing');
-  const value = containerPhrasing(node, context, safeOptions);
-  subexit();
-  exit();
-  return value
-}
-
-function root(node, _, context, safeOptions) {
-  return containerFlow(node, context, safeOptions)
-}
-
-function checkStrong(context) {
-  const marker = context.options.strong || '*';
-  if (marker !== '*' && marker !== '_') {
-    throw new Error(
-      'Cannot serialize strong with `' +
-        marker +
-        '` for `options.strong`, expected `*`, or `_`'
-    )
-  }
-  return marker
-}
-
-strong.peek = strongPeek;
-function strong(node, _, context, safeOptions) {
-  const marker = checkStrong(context);
-  const exit = context.enter('strong');
-  const tracker = track(safeOptions);
-  let value = tracker.move(marker + marker);
-  value += tracker.move(
-    containerPhrasing(node, context, {
-      before: value,
-      after: marker,
-      ...tracker.current()
-    })
-  );
-  value += tracker.move(marker + marker);
-  exit();
-  return value
-}
-function strongPeek(_, _1, context) {
-  return context.options.strong || '*'
-}
-
-function text$1(node, _, context, safeOptions) {
-  return safe(context, node.value, safeOptions)
-}
-
-function checkRuleRepetition(context) {
-  const repetition = context.options.ruleRepetition || 3;
-  if (repetition < 3) {
-    throw new Error(
-      'Cannot serialize rules with repetition `' +
-        repetition +
-        '` for `options.ruleRepetition`, expected `3` or more'
-    )
-  }
-  return repetition
-}
-
-function thematicBreak(_, _1, context) {
-  const value = (
-    checkRule(context) + (context.options.ruleSpaces ? ' ' : '')
-  ).repeat(checkRuleRepetition(context));
-  return context.options.ruleSpaces ? value.slice(0, -1) : value
-}
-
-const handle = {
-  blockquote,
-  break: hardBreak,
-  code: code$1,
-  definition,
-  emphasis,
-  hardBreak,
-  heading,
-  html,
-  image,
-  imageReference,
-  inlineCode,
-  link,
-  linkReference,
-  list,
-  listItem,
-  paragraph,
-  root,
-  strong,
-  text: text$1,
-  thematicBreak
-};
-
-const join = [joinDefaults];
-function joinDefaults(left, right, parent, context) {
-  if (
-    right.type === 'code' &&
-    formatCodeAsIndented(right, context) &&
-    (left.type === 'list' ||
-      (left.type === right.type && formatCodeAsIndented(left, context)))
-  ) {
-    return false
-  }
-  if (
-    left.type === 'list' &&
-    left.type === right.type &&
-    Boolean(left.ordered) === Boolean(right.ordered) &&
-    !(left.ordered
-      ? context.options.bulletOrderedOther
-      : context.options.bulletOther)
-  ) {
-    return false
-  }
-  if ('spread' in parent && typeof parent.spread === 'boolean') {
-    if (
-      left.type === 'paragraph' &&
-      (left.type === right.type ||
-        right.type === 'definition' ||
-        (right.type === 'heading' && formatHeadingAsSetext(right, context)))
-    ) {
-      return
-    }
-    return parent.spread ? 1 : 0
-  }
-}
-
-const fullPhrasingSpans = [
-  'autolink',
-  'destinationLiteral',
-  'destinationRaw',
-  'reference',
-  'titleQuote',
-  'titleApostrophe'
-];
-const unsafe = [
-  {character: '\t', after: '[\\r\\n]', inConstruct: 'phrasing'},
-  {character: '\t', before: '[\\r\\n]', inConstruct: 'phrasing'},
-  {
-    character: '\t',
-    inConstruct: ['codeFencedLangGraveAccent', 'codeFencedLangTilde']
-  },
-  {
-    character: '\r',
-    inConstruct: [
-      'codeFencedLangGraveAccent',
-      'codeFencedLangTilde',
-      'codeFencedMetaGraveAccent',
-      'codeFencedMetaTilde',
-      'destinationLiteral',
-      'headingAtx'
-    ]
-  },
-  {
-    character: '\n',
-    inConstruct: [
-      'codeFencedLangGraveAccent',
-      'codeFencedLangTilde',
-      'codeFencedMetaGraveAccent',
-      'codeFencedMetaTilde',
-      'destinationLiteral',
-      'headingAtx'
-    ]
-  },
-  {character: ' ', after: '[\\r\\n]', inConstruct: 'phrasing'},
-  {character: ' ', before: '[\\r\\n]', inConstruct: 'phrasing'},
-  {
-    character: ' ',
-    inConstruct: ['codeFencedLangGraveAccent', 'codeFencedLangTilde']
-  },
-  {
-    character: '!',
-    after: '\\[',
-    inConstruct: 'phrasing',
-    notInConstruct: fullPhrasingSpans
-  },
-  {character: '"', inConstruct: 'titleQuote'},
-  {atBreak: true, character: '#'},
-  {character: '#', inConstruct: 'headingAtx', after: '(?:[\r\n]|$)'},
-  {character: '&', after: '[#A-Za-z]', inConstruct: 'phrasing'},
-  {character: "'", inConstruct: 'titleApostrophe'},
-  {character: '(', inConstruct: 'destinationRaw'},
-  {
-    before: '\\]',
-    character: '(',
-    inConstruct: 'phrasing',
-    notInConstruct: fullPhrasingSpans
-  },
-  {atBreak: true, before: '\\d+', character: ')'},
-  {character: ')', inConstruct: 'destinationRaw'},
-  {atBreak: true, character: '*'},
-  {character: '*', inConstruct: 'phrasing', notInConstruct: fullPhrasingSpans},
-  {atBreak: true, character: '+'},
-  {atBreak: true, character: '-'},
-  {atBreak: true, before: '\\d+', character: '.', after: '(?:[ \t\r\n]|$)'},
-  {atBreak: true, character: '<', after: '[!/?A-Za-z]'},
-  {
-    character: '<',
-    after: '[!/?A-Za-z]',
-    inConstruct: 'phrasing',
-    notInConstruct: fullPhrasingSpans
-  },
-  {character: '<', inConstruct: 'destinationLiteral'},
-  {atBreak: true, character: '='},
-  {atBreak: true, character: '>'},
-  {character: '>', inConstruct: 'destinationLiteral'},
-  {atBreak: true, character: '['},
-  {character: '[', inConstruct: 'phrasing', notInConstruct: fullPhrasingSpans},
-  {character: '[', inConstruct: ['label', 'reference']},
-  {character: '\\', after: '[\\r\\n]', inConstruct: 'phrasing'},
-  {character: ']', inConstruct: ['label', 'reference']},
-  {atBreak: true, character: '_'},
-  {character: '_', inConstruct: 'phrasing', notInConstruct: fullPhrasingSpans},
-  {atBreak: true, character: '`'},
-  {
-    character: '`',
-    inConstruct: ['codeFencedLangGraveAccent', 'codeFencedMetaGraveAccent']
-  },
-  {character: '`', inConstruct: 'phrasing', notInConstruct: fullPhrasingSpans},
-  {atBreak: true, character: '~'}
-];
 
 function toMarkdown(tree, options = {}) {
-  const context = {
+  const state = {
     enter,
+    indentLines,
+    associationId: association,
+    containerPhrasing: containerPhrasingBound,
+    containerFlow: containerFlowBound,
+    createTracker: track,
+    compilePattern,
+    safe: safeBound,
     stack: [],
-    unsafe: [],
-    join: [],
-    handlers: {},
+    unsafe: [...unsafe],
+    join: [...join],
+    handlers: {...handle},
     options: {},
-    indexStack: []
+    indexStack: [],
+    handle: undefined
   };
-  configure(context, {unsafe, join, handlers: handle});
-  configure(context, options);
-  if (context.options.tightDefinitions) {
-    configure(context, {join: [joinDefinition]});
+  configure(state, options);
+  if (state.options.tightDefinitions) {
+    state.join.push(joinDefinition);
   }
-  context.handle = zwitch('type', {
+  state.handle = zwitch('type', {
     invalid,
     unknown,
-    handlers: context.handlers
+    handlers: state.handlers
   });
-  let result = context.handle(tree, null, context, {
+  let result = state.handle(tree, undefined, state, {
     before: '\n',
     after: '\n',
     now: {line: 1, column: 1},
@@ -9263,17 +9514,18 @@ function toMarkdown(tree, options = {}) {
   }
   return result
   function enter(name) {
-    context.stack.push(name);
+    state.stack.push(name);
     return exit
     function exit() {
-      context.stack.pop();
+      state.stack.pop();
     }
   }
 }
 function invalid(value) {
   throw new Error('Cannot handle value `' + value + '`, expected node')
 }
-function unknown(node) {
+function unknown(value) {
+  const node =  (value);
   throw new Error('Cannot handle unknown node `' + node.type + '`')
 }
 function joinDefinition(left, right) {
@@ -9281,1403 +9533,26 @@ function joinDefinition(left, right) {
     return 0
   }
 }
+function containerPhrasingBound(parent, info) {
+  return containerPhrasing(parent, this, info)
+}
+function containerFlowBound(parent, info) {
+  return containerFlow(parent, this, info)
+}
+function safeBound(value, config) {
+  return safe(this, value, config)
+}
 
 function remarkStringify(options) {
-  const compiler = (tree) => {
-    const settings =  (this.data('settings'));
-    return toMarkdown(
-      tree,
-      Object.assign({}, settings, options, {
-        extensions:
-           (
-            this.data('toMarkdownExtensions')
-          ) || []
-      })
-    )
-  };
-  Object.assign(this, {Compiler: compiler});
-}
-
-const www = {
-  tokenize: tokenizeWww,
-  partial: true
-};
-const domain = {
-  tokenize: tokenizeDomain,
-  partial: true
-};
-const path = {
-  tokenize: tokenizePath,
-  partial: true
-};
-const punctuation = {
-  tokenize: tokenizePunctuation,
-  partial: true
-};
-const namedCharacterReference = {
-  tokenize: tokenizeNamedCharacterReference,
-  partial: true
-};
-const wwwAutolink = {
-  tokenize: tokenizeWwwAutolink,
-  previous: previousWww
-};
-const httpAutolink = {
-  tokenize: tokenizeHttpAutolink,
-  previous: previousHttp
-};
-const emailAutolink = {
-  tokenize: tokenizeEmailAutolink,
-  previous: previousEmail
-};
-const text = {};
-const gfmAutolinkLiteral = {
-  text
-};
-let code = 48;
-while (code < 123) {
-  text[code] = emailAutolink;
-  code++;
-  if (code === 58) code = 65;
-  else if (code === 91) code = 97;
-}
-text[43] = emailAutolink;
-text[45] = emailAutolink;
-text[46] = emailAutolink;
-text[95] = emailAutolink;
-text[72] = [emailAutolink, httpAutolink];
-text[104] = [emailAutolink, httpAutolink];
-text[87] = [emailAutolink, wwwAutolink];
-text[119] = [emailAutolink, wwwAutolink];
-function tokenizeEmailAutolink(effects, ok, nok) {
   const self = this;
-  let hasDot;
-  let hasDigitInLastSegment;
-  return start
-  function start(code) {
-    if (
-      !gfmAtext(code) ||
-      !previousEmail(self.previous) ||
-      previousUnbalanced(self.events)
-    ) {
-      return nok(code)
-    }
-    effects.enter('literalAutolink');
-    effects.enter('literalAutolinkEmail');
-    return atext(code)
+  self.compiler = compiler;
+  function compiler(tree) {
+    return toMarkdown(tree, {
+      ...self.data('settings'),
+      ...options,
+      extensions: self.data('toMarkdownExtensions') || []
+    })
   }
-  function atext(code) {
-    if (gfmAtext(code)) {
-      effects.consume(code);
-      return atext
-    }
-    if (code === 64) {
-      effects.consume(code);
-      return label
-    }
-    return nok(code)
-  }
-  function label(code) {
-    if (code === 46) {
-      return effects.check(punctuation, done, dotContinuation)(code)
-    }
-    if (code === 45 || code === 95) {
-      return effects.check(punctuation, nok, dashOrUnderscoreContinuation)(code)
-    }
-    if (asciiAlphanumeric(code)) {
-      if (!hasDigitInLastSegment && asciiDigit(code)) {
-        hasDigitInLastSegment = true;
-      }
-      effects.consume(code);
-      return label
-    }
-    return done(code)
-  }
-  function dotContinuation(code) {
-    effects.consume(code);
-    hasDot = true;
-    hasDigitInLastSegment = undefined;
-    return label
-  }
-  function dashOrUnderscoreContinuation(code) {
-    effects.consume(code);
-    return afterDashOrUnderscore
-  }
-  function afterDashOrUnderscore(code) {
-    if (code === 46) {
-      return effects.check(punctuation, nok, dotContinuation)(code)
-    }
-    return label(code)
-  }
-  function done(code) {
-    if (hasDot && !hasDigitInLastSegment) {
-      effects.exit('literalAutolinkEmail');
-      effects.exit('literalAutolink');
-      return ok(code)
-    }
-    return nok(code)
-  }
-}
-function tokenizeWwwAutolink(effects, ok, nok) {
-  const self = this;
-  return start
-  function start(code) {
-    if (
-      (code !== 87 && code !== 119) ||
-      !previousWww(self.previous) ||
-      previousUnbalanced(self.events)
-    ) {
-      return nok(code)
-    }
-    effects.enter('literalAutolink');
-    effects.enter('literalAutolinkWww');
-    return effects.check(
-      www,
-      effects.attempt(domain, effects.attempt(path, done), nok),
-      nok
-    )(code)
-  }
-  function done(code) {
-    effects.exit('literalAutolinkWww');
-    effects.exit('literalAutolink');
-    return ok(code)
-  }
-}
-function tokenizeHttpAutolink(effects, ok, nok) {
-  const self = this;
-  return start
-  function start(code) {
-    if (
-      (code !== 72 && code !== 104) ||
-      !previousHttp(self.previous) ||
-      previousUnbalanced(self.events)
-    ) {
-      return nok(code)
-    }
-    effects.enter('literalAutolink');
-    effects.enter('literalAutolinkHttp');
-    effects.consume(code);
-    return t1
-  }
-  function t1(code) {
-    if (code === 84 || code === 116) {
-      effects.consume(code);
-      return t2
-    }
-    return nok(code)
-  }
-  function t2(code) {
-    if (code === 84 || code === 116) {
-      effects.consume(code);
-      return p
-    }
-    return nok(code)
-  }
-  function p(code) {
-    if (code === 80 || code === 112) {
-      effects.consume(code);
-      return s
-    }
-    return nok(code)
-  }
-  function s(code) {
-    if (code === 83 || code === 115) {
-      effects.consume(code);
-      return colon
-    }
-    return colon(code)
-  }
-  function colon(code) {
-    if (code === 58) {
-      effects.consume(code);
-      return slash1
-    }
-    return nok(code)
-  }
-  function slash1(code) {
-    if (code === 47) {
-      effects.consume(code);
-      return slash2
-    }
-    return nok(code)
-  }
-  function slash2(code) {
-    if (code === 47) {
-      effects.consume(code);
-      return after
-    }
-    return nok(code)
-  }
-  function after(code) {
-    return code === null ||
-      asciiControl(code) ||
-      unicodeWhitespace(code) ||
-      unicodePunctuation(code)
-      ? nok(code)
-      : effects.attempt(domain, effects.attempt(path, done), nok)(code)
-  }
-  function done(code) {
-    effects.exit('literalAutolinkHttp');
-    effects.exit('literalAutolink');
-    return ok(code)
-  }
-}
-function tokenizeWww(effects, ok, nok) {
-  return start
-  function start(code) {
-    effects.consume(code);
-    return w2
-  }
-  function w2(code) {
-    if (code === 87 || code === 119) {
-      effects.consume(code);
-      return w3
-    }
-    return nok(code)
-  }
-  function w3(code) {
-    if (code === 87 || code === 119) {
-      effects.consume(code);
-      return dot
-    }
-    return nok(code)
-  }
-  function dot(code) {
-    if (code === 46) {
-      effects.consume(code);
-      return after
-    }
-    return nok(code)
-  }
-  function after(code) {
-    return code === null || markdownLineEnding(code) ? nok(code) : ok(code)
-  }
-}
-function tokenizeDomain(effects, ok, nok) {
-  let hasUnderscoreInLastSegment;
-  let hasUnderscoreInLastLastSegment;
-  return domain
-  function domain(code) {
-    if (code === 38) {
-      return effects.check(
-        namedCharacterReference,
-        done,
-        punctuationContinuation
-      )(code)
-    }
-    if (code === 46 || code === 95) {
-      return effects.check(punctuation, done, punctuationContinuation)(code)
-    }
-    if (
-      code === null ||
-      asciiControl(code) ||
-      unicodeWhitespace(code) ||
-      (code !== 45 && unicodePunctuation(code))
-    ) {
-      return done(code)
-    }
-    effects.consume(code);
-    return domain
-  }
-  function punctuationContinuation(code) {
-    if (code === 46) {
-      hasUnderscoreInLastLastSegment = hasUnderscoreInLastSegment;
-      hasUnderscoreInLastSegment = undefined;
-      effects.consume(code);
-      return domain
-    }
-    if (code === 95) hasUnderscoreInLastSegment = true;
-    effects.consume(code);
-    return domain
-  }
-  function done(code) {
-    if (!hasUnderscoreInLastLastSegment && !hasUnderscoreInLastSegment) {
-      return ok(code)
-    }
-    return nok(code)
-  }
-}
-function tokenizePath(effects, ok) {
-  let balance = 0;
-  return inPath
-  function inPath(code) {
-    if (code === 38) {
-      return effects.check(
-        namedCharacterReference,
-        ok,
-        continuedPunctuation
-      )(code)
-    }
-    if (code === 40) {
-      balance++;
-    }
-    if (code === 41) {
-      return effects.check(
-        punctuation,
-        parenAtPathEnd,
-        continuedPunctuation
-      )(code)
-    }
-    if (pathEnd(code)) {
-      return ok(code)
-    }
-    if (trailingPunctuation(code)) {
-      return effects.check(punctuation, ok, continuedPunctuation)(code)
-    }
-    effects.consume(code);
-    return inPath
-  }
-  function continuedPunctuation(code) {
-    effects.consume(code);
-    return inPath
-  }
-  function parenAtPathEnd(code) {
-    balance--;
-    return balance < 0 ? ok(code) : continuedPunctuation(code)
-  }
-}
-function tokenizeNamedCharacterReference(effects, ok, nok) {
-  return start
-  function start(code) {
-    effects.consume(code);
-    return inside
-  }
-  function inside(code) {
-    if (asciiAlpha(code)) {
-      effects.consume(code);
-      return inside
-    }
-    if (code === 59) {
-      effects.consume(code);
-      return after
-    }
-    return nok(code)
-  }
-  function after(code) {
-    return pathEnd(code) ? ok(code) : nok(code)
-  }
-}
-function tokenizePunctuation(effects, ok, nok) {
-  return start
-  function start(code) {
-    effects.consume(code);
-    return after
-  }
-  function after(code) {
-    if (trailingPunctuation(code)) {
-      effects.consume(code);
-      return after
-    }
-    return pathEnd(code) ? ok(code) : nok(code)
-  }
-}
-function trailingPunctuation(code) {
-  return (
-    code === 33 ||
-    code === 34 ||
-    code === 39 ||
-    code === 41 ||
-    code === 42 ||
-    code === 44 ||
-    code === 46 ||
-    code === 58 ||
-    code === 59 ||
-    code === 60 ||
-    code === 63 ||
-    code === 95 ||
-    code === 126
-  )
-}
-function pathEnd(code) {
-  return code === null || code === 60 || markdownLineEndingOrSpace(code)
-}
-function gfmAtext(code) {
-  return (
-    code === 43 ||
-    code === 45 ||
-    code === 46 ||
-    code === 95 ||
-    asciiAlphanumeric(code)
-  )
-}
-function previousWww(code) {
-  return (
-    code === null ||
-    code === 40 ||
-    code === 42 ||
-    code === 95 ||
-    code === 126 ||
-    markdownLineEndingOrSpace(code)
-  )
-}
-function previousHttp(code) {
-  return code === null || !asciiAlpha(code)
-}
-function previousEmail(code) {
-  return code !== 47 && previousHttp(code)
-}
-function previousUnbalanced(events) {
-  let index = events.length;
-  let result = false;
-  while (index--) {
-    const token = events[index][1];
-    if (
-      (token.type === 'labelLink' || token.type === 'labelImage') &&
-      !token._balanced
-    ) {
-      result = true;
-      break
-    }
-    if (token._gfmAutolinkLiteralWalkedInto) {
-      result = false;
-      break
-    }
-  }
-  if (events.length > 0 && !result) {
-    events[events.length - 1][1]._gfmAutolinkLiteralWalkedInto = true;
-  }
-  return result
-}
-
-const indent = {
-  tokenize: tokenizeIndent,
-  partial: true
-};
-function gfmFootnote() {
-  return {
-    document: {
-      [91]: {
-        tokenize: tokenizeDefinitionStart,
-        continuation: {
-          tokenize: tokenizeDefinitionContinuation
-        },
-        exit: gfmFootnoteDefinitionEnd
-      }
-    },
-    text: {
-      [91]: {
-        tokenize: tokenizeGfmFootnoteCall
-      },
-      [93]: {
-        add: 'after',
-        tokenize: tokenizePotentialGfmFootnoteCall,
-        resolveTo: resolveToPotentialGfmFootnoteCall
-      }
-    }
-  }
-}
-function tokenizePotentialGfmFootnoteCall(effects, ok, nok) {
-  const self = this;
-  let index = self.events.length;
-  const defined = self.parser.gfmFootnotes || (self.parser.gfmFootnotes = []);
-  let labelStart;
-  while (index--) {
-    const token = self.events[index][1];
-    if (token.type === 'labelImage') {
-      labelStart = token;
-      break
-    }
-    if (
-      token.type === 'gfmFootnoteCall' ||
-      token.type === 'labelLink' ||
-      token.type === 'label' ||
-      token.type === 'image' ||
-      token.type === 'link'
-    ) {
-      break
-    }
-  }
-  return start
-  function start(code) {
-    if (!labelStart || !labelStart._balanced) {
-      return nok(code)
-    }
-    const id = normalizeIdentifier(
-      self.sliceSerialize({
-        start: labelStart.end,
-        end: self.now()
-      })
-    );
-    if (id.charCodeAt(0) !== 94 || !defined.includes(id.slice(1))) {
-      return nok(code)
-    }
-    effects.enter('gfmFootnoteCallLabelMarker');
-    effects.consume(code);
-    effects.exit('gfmFootnoteCallLabelMarker');
-    return ok(code)
-  }
-}
-function resolveToPotentialGfmFootnoteCall(events, context) {
-  let index = events.length;
-  while (index--) {
-    if (
-      events[index][1].type === 'labelImage' &&
-      events[index][0] === 'enter'
-    ) {
-      events[index][1];
-      break
-    }
-  }
-  events[index + 1][1].type = 'data';
-  events[index + 3][1].type = 'gfmFootnoteCallLabelMarker';
-  const call = {
-    type: 'gfmFootnoteCall',
-    start: Object.assign({}, events[index + 3][1].start),
-    end: Object.assign({}, events[events.length - 1][1].end)
-  };
-  const marker = {
-    type: 'gfmFootnoteCallMarker',
-    start: Object.assign({}, events[index + 3][1].end),
-    end: Object.assign({}, events[index + 3][1].end)
-  };
-  marker.end.column++;
-  marker.end.offset++;
-  marker.end._bufferIndex++;
-  const string = {
-    type: 'gfmFootnoteCallString',
-    start: Object.assign({}, marker.end),
-    end: Object.assign({}, events[events.length - 1][1].start)
-  };
-  const chunk = {
-    type: 'chunkString',
-    contentType: 'string',
-    start: Object.assign({}, string.start),
-    end: Object.assign({}, string.end)
-  };
-  const replacement = [
-    events[index + 1],
-    events[index + 2],
-    ['enter', call, context],
-    events[index + 3],
-    events[index + 4],
-    ['enter', marker, context],
-    ['exit', marker, context],
-    ['enter', string, context],
-    ['enter', chunk, context],
-    ['exit', chunk, context],
-    ['exit', string, context],
-    events[events.length - 2],
-    events[events.length - 1],
-    ['exit', call, context]
-  ];
-  events.splice(index, events.length - index + 1, ...replacement);
-  return events
-}
-function tokenizeGfmFootnoteCall(effects, ok, nok) {
-  const self = this;
-  const defined = self.parser.gfmFootnotes || (self.parser.gfmFootnotes = []);
-  let size = 0;
-  let data;
-  return start
-  function start(code) {
-    effects.enter('gfmFootnoteCall');
-    effects.enter('gfmFootnoteCallLabelMarker');
-    effects.consume(code);
-    effects.exit('gfmFootnoteCallLabelMarker');
-    return callStart
-  }
-  function callStart(code) {
-    if (code !== 94) return nok(code)
-    effects.enter('gfmFootnoteCallMarker');
-    effects.consume(code);
-    effects.exit('gfmFootnoteCallMarker');
-    effects.enter('gfmFootnoteCallString');
-    effects.enter('chunkString').contentType = 'string';
-    return callData
-  }
-  function callData(code) {
-    let token;
-    if (code === null || code === 91 || size++ > 999) {
-      return nok(code)
-    }
-    if (code === 93) {
-      if (!data) {
-        return nok(code)
-      }
-      effects.exit('chunkString');
-      token = effects.exit('gfmFootnoteCallString');
-      return defined.includes(normalizeIdentifier(self.sliceSerialize(token)))
-        ? end(code)
-        : nok(code)
-    }
-    effects.consume(code);
-    if (!markdownLineEndingOrSpace(code)) {
-      data = true;
-    }
-    return code === 92 ? callEscape : callData
-  }
-  function callEscape(code) {
-    if (code === 91 || code === 92 || code === 93) {
-      effects.consume(code);
-      size++;
-      return callData
-    }
-    return callData(code)
-  }
-  function end(code) {
-    effects.enter('gfmFootnoteCallLabelMarker');
-    effects.consume(code);
-    effects.exit('gfmFootnoteCallLabelMarker');
-    effects.exit('gfmFootnoteCall');
-    return ok
-  }
-}
-function tokenizeDefinitionStart(effects, ok, nok) {
-  const self = this;
-  const defined = self.parser.gfmFootnotes || (self.parser.gfmFootnotes = []);
-  let identifier;
-  let size = 0;
-  let data;
-  return start
-  function start(code) {
-    effects.enter('gfmFootnoteDefinition')._container = true;
-    effects.enter('gfmFootnoteDefinitionLabel');
-    effects.enter('gfmFootnoteDefinitionLabelMarker');
-    effects.consume(code);
-    effects.exit('gfmFootnoteDefinitionLabelMarker');
-    return labelStart
-  }
-  function labelStart(code) {
-    if (code === 94) {
-      effects.enter('gfmFootnoteDefinitionMarker');
-      effects.consume(code);
-      effects.exit('gfmFootnoteDefinitionMarker');
-      effects.enter('gfmFootnoteDefinitionLabelString');
-      return atBreak
-    }
-    return nok(code)
-  }
-  function atBreak(code) {
-    let token;
-    if (code === null || code === 91 || size > 999) {
-      return nok(code)
-    }
-    if (code === 93) {
-      if (!data) {
-        return nok(code)
-      }
-      token = effects.exit('gfmFootnoteDefinitionLabelString');
-      identifier = normalizeIdentifier(self.sliceSerialize(token));
-      effects.enter('gfmFootnoteDefinitionLabelMarker');
-      effects.consume(code);
-      effects.exit('gfmFootnoteDefinitionLabelMarker');
-      effects.exit('gfmFootnoteDefinitionLabel');
-      return labelAfter
-    }
-    if (markdownLineEnding(code)) {
-      effects.enter('lineEnding');
-      effects.consume(code);
-      effects.exit('lineEnding');
-      size++;
-      return atBreak
-    }
-    effects.enter('chunkString').contentType = 'string';
-    return label(code)
-  }
-  function label(code) {
-    if (
-      code === null ||
-      markdownLineEnding(code) ||
-      code === 91 ||
-      code === 93 ||
-      size > 999
-    ) {
-      effects.exit('chunkString');
-      return atBreak(code)
-    }
-    if (!markdownLineEndingOrSpace(code)) {
-      data = true;
-    }
-    size++;
-    effects.consume(code);
-    return code === 92 ? labelEscape : label
-  }
-  function labelEscape(code) {
-    if (code === 91 || code === 92 || code === 93) {
-      effects.consume(code);
-      size++;
-      return label
-    }
-    return label(code)
-  }
-  function labelAfter(code) {
-    if (code === 58) {
-      effects.enter('definitionMarker');
-      effects.consume(code);
-      effects.exit('definitionMarker');
-      return factorySpace(effects, done, 'gfmFootnoteDefinitionWhitespace')
-    }
-    return nok(code)
-  }
-  function done(code) {
-    if (!defined.includes(identifier)) {
-      defined.push(identifier);
-    }
-    return ok(code)
-  }
-}
-function tokenizeDefinitionContinuation(effects, ok, nok) {
-  return effects.check(blankLine, ok, effects.attempt(indent, ok, nok))
-}
-function gfmFootnoteDefinitionEnd(effects) {
-  effects.exit('gfmFootnoteDefinition');
-}
-function tokenizeIndent(effects, ok, nok) {
-  const self = this;
-  return factorySpace(
-    effects,
-    afterPrefix,
-    'gfmFootnoteDefinitionIndent',
-    4 + 1
-  )
-  function afterPrefix(code) {
-    const tail = self.events[self.events.length - 1];
-    return tail &&
-      tail[1].type === 'gfmFootnoteDefinitionIndent' &&
-      tail[2].sliceSerialize(tail[1], true).length === 4
-      ? ok(code)
-      : nok(code)
-  }
-}
-
-function gfmStrikethrough(options = {}) {
-  let single = options.singleTilde;
-  const tokenizer = {
-    tokenize: tokenizeStrikethrough,
-    resolveAll: resolveAllStrikethrough
-  };
-  if (single === null || single === undefined) {
-    single = true;
-  }
-  return {
-    text: {
-      [126]: tokenizer
-    },
-    insideSpan: {
-      null: [tokenizer]
-    },
-    attentionMarkers: {
-      null: [126]
-    }
-  }
-  function resolveAllStrikethrough(events, context) {
-    let index = -1;
-    while (++index < events.length) {
-      if (
-        events[index][0] === 'enter' &&
-        events[index][1].type === 'strikethroughSequenceTemporary' &&
-        events[index][1]._close
-      ) {
-        let open = index;
-        while (open--) {
-          if (
-            events[open][0] === 'exit' &&
-            events[open][1].type === 'strikethroughSequenceTemporary' &&
-            events[open][1]._open &&
-            events[index][1].end.offset - events[index][1].start.offset ===
-              events[open][1].end.offset - events[open][1].start.offset
-          ) {
-            events[index][1].type = 'strikethroughSequence';
-            events[open][1].type = 'strikethroughSequence';
-            const strikethrough = {
-              type: 'strikethrough',
-              start: Object.assign({}, events[open][1].start),
-              end: Object.assign({}, events[index][1].end)
-            };
-            const text = {
-              type: 'strikethroughText',
-              start: Object.assign({}, events[open][1].end),
-              end: Object.assign({}, events[index][1].start)
-            };
-            const nextEvents = [
-              ['enter', strikethrough, context],
-              ['enter', events[open][1], context],
-              ['exit', events[open][1], context],
-              ['enter', text, context]
-            ];
-            splice(
-              nextEvents,
-              nextEvents.length,
-              0,
-              resolveAll(
-                context.parser.constructs.insideSpan.null,
-                events.slice(open + 1, index),
-                context
-              )
-            );
-            splice(nextEvents, nextEvents.length, 0, [
-              ['exit', text, context],
-              ['enter', events[index][1], context],
-              ['exit', events[index][1], context],
-              ['exit', strikethrough, context]
-            ]);
-            splice(events, open - 1, index - open + 3, nextEvents);
-            index = open + nextEvents.length - 2;
-            break
-          }
-        }
-      }
-    }
-    index = -1;
-    while (++index < events.length) {
-      if (events[index][1].type === 'strikethroughSequenceTemporary') {
-        events[index][1].type = 'data';
-      }
-    }
-    return events
-  }
-  function tokenizeStrikethrough(effects, ok, nok) {
-    const previous = this.previous;
-    const events = this.events;
-    let size = 0;
-    return start
-    function start(code) {
-      if (
-        previous === 126 &&
-        events[events.length - 1][1].type !== 'characterEscape'
-      ) {
-        return nok(code)
-      }
-      effects.enter('strikethroughSequenceTemporary');
-      return more(code)
-    }
-    function more(code) {
-      const before = classifyCharacter(previous);
-      if (code === 126) {
-        if (size > 1) return nok(code)
-        effects.consume(code);
-        size++;
-        return more
-      }
-      if (size < 2 && !single) return nok(code)
-      const token = effects.exit('strikethroughSequenceTemporary');
-      const after = classifyCharacter(code);
-      token._open = !after || (after === 2 && Boolean(before));
-      token._close = !before || (before === 2 && Boolean(after));
-      return ok(code)
-    }
-  }
-}
-
-const gfmTable = {
-  flow: {
-    null: {
-      tokenize: tokenizeTable,
-      resolve: resolveTable
-    }
-  }
-};
-const nextPrefixedOrBlank = {
-  tokenize: tokenizeNextPrefixedOrBlank,
-  partial: true
-};
-function resolveTable(events, context) {
-  let index = -1;
-  let inHead;
-  let inDelimiterRow;
-  let inRow;
-  let contentStart;
-  let contentEnd;
-  let cellStart;
-  let seenCellInRow;
-  while (++index < events.length) {
-    const token = events[index][1];
-    if (inRow) {
-      if (token.type === 'temporaryTableCellContent') {
-        contentStart = contentStart || index;
-        contentEnd = index;
-      }
-      if (
-        (token.type === 'tableCellDivider' || token.type === 'tableRow') &&
-        contentEnd
-      ) {
-        const content = {
-          type: 'tableContent',
-          start: events[contentStart][1].start,
-          end: events[contentEnd][1].end
-        };
-        const text = {
-          type: 'chunkText',
-          start: content.start,
-          end: content.end,
-          contentType: 'text'
-        };
-        events.splice(
-          contentStart,
-          contentEnd - contentStart + 1,
-          ['enter', content, context],
-          ['enter', text, context],
-          ['exit', text, context],
-          ['exit', content, context]
-        );
-        index -= contentEnd - contentStart - 3;
-        contentStart = undefined;
-        contentEnd = undefined;
-      }
-    }
-    if (
-      events[index][0] === 'exit' &&
-      cellStart !== undefined &&
-      cellStart + (seenCellInRow ? 0 : 1) < index &&
-      (token.type === 'tableCellDivider' ||
-        (token.type === 'tableRow' &&
-          (cellStart + 3 < index ||
-            events[cellStart][1].type !== 'whitespace')))
-    ) {
-      const cell = {
-        type: inDelimiterRow
-          ? 'tableDelimiter'
-          : inHead
-          ? 'tableHeader'
-          : 'tableData',
-        start: events[cellStart][1].start,
-        end: events[index][1].end
-      };
-      events.splice(index + (token.type === 'tableCellDivider' ? 1 : 0), 0, [
-        'exit',
-        cell,
-        context
-      ]);
-      events.splice(cellStart, 0, ['enter', cell, context]);
-      index += 2;
-      cellStart = index + 1;
-      seenCellInRow = true;
-    }
-    if (token.type === 'tableRow') {
-      inRow = events[index][0] === 'enter';
-      if (inRow) {
-        cellStart = index + 1;
-        seenCellInRow = false;
-      }
-    }
-    if (token.type === 'tableDelimiterRow') {
-      inDelimiterRow = events[index][0] === 'enter';
-      if (inDelimiterRow) {
-        cellStart = index + 1;
-        seenCellInRow = false;
-      }
-    }
-    if (token.type === 'tableHead') {
-      inHead = events[index][0] === 'enter';
-    }
-  }
-  return events
-}
-function tokenizeTable(effects, ok, nok) {
-  const self = this;
-  const align = [];
-  let tableHeaderCount = 0;
-  let seenDelimiter;
-  let hasDash;
-  return start
-  function start(code) {
-    effects.enter('table')._align = align;
-    effects.enter('tableHead');
-    effects.enter('tableRow');
-    if (code === 124) {
-      return cellDividerHead(code)
-    }
-    tableHeaderCount++;
-    effects.enter('temporaryTableCellContent');
-    return inCellContentHead(code)
-  }
-  function cellDividerHead(code) {
-    effects.enter('tableCellDivider');
-    effects.consume(code);
-    effects.exit('tableCellDivider');
-    seenDelimiter = true;
-    return cellBreakHead
-  }
-  function cellBreakHead(code) {
-    if (code === null || markdownLineEnding(code)) {
-      return atRowEndHead(code)
-    }
-    if (markdownSpace(code)) {
-      effects.enter('whitespace');
-      effects.consume(code);
-      return inWhitespaceHead
-    }
-    if (seenDelimiter) {
-      seenDelimiter = undefined;
-      tableHeaderCount++;
-    }
-    if (code === 124) {
-      return cellDividerHead(code)
-    }
-    effects.enter('temporaryTableCellContent');
-    return inCellContentHead(code)
-  }
-  function inWhitespaceHead(code) {
-    if (markdownSpace(code)) {
-      effects.consume(code);
-      return inWhitespaceHead
-    }
-    effects.exit('whitespace');
-    return cellBreakHead(code)
-  }
-  function inCellContentHead(code) {
-    if (code === null || code === 124 || markdownLineEndingOrSpace(code)) {
-      effects.exit('temporaryTableCellContent');
-      return cellBreakHead(code)
-    }
-    effects.consume(code);
-    return code === 92 ? inCellContentEscapeHead : inCellContentHead
-  }
-  function inCellContentEscapeHead(code) {
-    if (code === 92 || code === 124) {
-      effects.consume(code);
-      return inCellContentHead
-    }
-    return inCellContentHead(code)
-  }
-  function atRowEndHead(code) {
-    if (code === null) {
-      return nok(code)
-    }
-    effects.exit('tableRow');
-    effects.exit('tableHead');
-    const originalInterrupt = self.interrupt;
-    self.interrupt = true;
-    return effects.attempt(
-      {
-        tokenize: tokenizeRowEnd,
-        partial: true
-      },
-      function (code) {
-        self.interrupt = originalInterrupt;
-        effects.enter('tableDelimiterRow');
-        return atDelimiterRowBreak(code)
-      },
-      function (code) {
-        self.interrupt = originalInterrupt;
-        return nok(code)
-      }
-    )(code)
-  }
-  function atDelimiterRowBreak(code) {
-    if (code === null || markdownLineEnding(code)) {
-      return rowEndDelimiter(code)
-    }
-    if (markdownSpace(code)) {
-      effects.enter('whitespace');
-      effects.consume(code);
-      return inWhitespaceDelimiter
-    }
-    if (code === 45) {
-      effects.enter('tableDelimiterFiller');
-      effects.consume(code);
-      hasDash = true;
-      align.push('none');
-      return inFillerDelimiter
-    }
-    if (code === 58) {
-      effects.enter('tableDelimiterAlignment');
-      effects.consume(code);
-      effects.exit('tableDelimiterAlignment');
-      align.push('left');
-      return afterLeftAlignment
-    }
-    if (code === 124) {
-      effects.enter('tableCellDivider');
-      effects.consume(code);
-      effects.exit('tableCellDivider');
-      return atDelimiterRowBreak
-    }
-    return nok(code)
-  }
-  function inWhitespaceDelimiter(code) {
-    if (markdownSpace(code)) {
-      effects.consume(code);
-      return inWhitespaceDelimiter
-    }
-    effects.exit('whitespace');
-    return atDelimiterRowBreak(code)
-  }
-  function inFillerDelimiter(code) {
-    if (code === 45) {
-      effects.consume(code);
-      return inFillerDelimiter
-    }
-    effects.exit('tableDelimiterFiller');
-    if (code === 58) {
-      effects.enter('tableDelimiterAlignment');
-      effects.consume(code);
-      effects.exit('tableDelimiterAlignment');
-      align[align.length - 1] =
-        align[align.length - 1] === 'left' ? 'center' : 'right';
-      return afterRightAlignment
-    }
-    return atDelimiterRowBreak(code)
-  }
-  function afterLeftAlignment(code) {
-    if (code === 45) {
-      effects.enter('tableDelimiterFiller');
-      effects.consume(code);
-      hasDash = true;
-      return inFillerDelimiter
-    }
-    return nok(code)
-  }
-  function afterRightAlignment(code) {
-    if (code === null || markdownLineEnding(code)) {
-      return rowEndDelimiter(code)
-    }
-    if (markdownSpace(code)) {
-      effects.enter('whitespace');
-      effects.consume(code);
-      return inWhitespaceDelimiter
-    }
-    if (code === 124) {
-      effects.enter('tableCellDivider');
-      effects.consume(code);
-      effects.exit('tableCellDivider');
-      return atDelimiterRowBreak
-    }
-    return nok(code)
-  }
-  function rowEndDelimiter(code) {
-    effects.exit('tableDelimiterRow');
-    if (!hasDash || tableHeaderCount !== align.length) {
-      return nok(code)
-    }
-    if (code === null) {
-      return tableClose(code)
-    }
-    return effects.check(
-      nextPrefixedOrBlank,
-      tableClose,
-      effects.attempt(
-        {
-          tokenize: tokenizeRowEnd,
-          partial: true
-        },
-        factorySpace(effects, bodyStart, 'linePrefix', 4),
-        tableClose
-      )
-    )(code)
-  }
-  function tableClose(code) {
-    effects.exit('table');
-    return ok(code)
-  }
-  function bodyStart(code) {
-    effects.enter('tableBody');
-    return rowStartBody(code)
-  }
-  function rowStartBody(code) {
-    effects.enter('tableRow');
-    if (code === 124) {
-      return cellDividerBody(code)
-    }
-    effects.enter('temporaryTableCellContent');
-    return inCellContentBody(code)
-  }
-  function cellDividerBody(code) {
-    effects.enter('tableCellDivider');
-    effects.consume(code);
-    effects.exit('tableCellDivider');
-    return cellBreakBody
-  }
-  function cellBreakBody(code) {
-    if (code === null || markdownLineEnding(code)) {
-      return atRowEndBody(code)
-    }
-    if (markdownSpace(code)) {
-      effects.enter('whitespace');
-      effects.consume(code);
-      return inWhitespaceBody
-    }
-    if (code === 124) {
-      return cellDividerBody(code)
-    }
-    effects.enter('temporaryTableCellContent');
-    return inCellContentBody(code)
-  }
-  function inWhitespaceBody(code) {
-    if (markdownSpace(code)) {
-      effects.consume(code);
-      return inWhitespaceBody
-    }
-    effects.exit('whitespace');
-    return cellBreakBody(code)
-  }
-  function inCellContentBody(code) {
-    if (code === null || code === 124 || markdownLineEndingOrSpace(code)) {
-      effects.exit('temporaryTableCellContent');
-      return cellBreakBody(code)
-    }
-    effects.consume(code);
-    return code === 92 ? inCellContentEscapeBody : inCellContentBody
-  }
-  function inCellContentEscapeBody(code) {
-    if (code === 92 || code === 124) {
-      effects.consume(code);
-      return inCellContentBody
-    }
-    return inCellContentBody(code)
-  }
-  function atRowEndBody(code) {
-    effects.exit('tableRow');
-    if (code === null) {
-      return tableBodyClose(code)
-    }
-    return effects.check(
-      nextPrefixedOrBlank,
-      tableBodyClose,
-      effects.attempt(
-        {
-          tokenize: tokenizeRowEnd,
-          partial: true
-        },
-        factorySpace(effects, rowStartBody, 'linePrefix', 4),
-        tableBodyClose
-      )
-    )(code)
-  }
-  function tableBodyClose(code) {
-    effects.exit('tableBody');
-    return tableClose(code)
-  }
-  function tokenizeRowEnd(effects, ok, nok) {
-    return start
-    function start(code) {
-      effects.enter('lineEnding');
-      effects.consume(code);
-      effects.exit('lineEnding');
-      return factorySpace(effects, prefixed, 'linePrefix')
-    }
-    function prefixed(code) {
-      if (
-        self.parser.lazy[self.now().line] ||
-        code === null ||
-        markdownLineEnding(code)
-      ) {
-        return nok(code)
-      }
-      const tail = self.events[self.events.length - 1];
-      if (
-        !self.parser.constructs.disable.null.includes('codeIndented') &&
-        tail &&
-        tail[1].type === 'linePrefix' &&
-        tail[2].sliceSerialize(tail[1], true).length >= 4
-      ) {
-        return nok(code)
-      }
-      self._gfmTableDynamicInterruptHack = true;
-      return effects.check(
-        self.parser.constructs.flow,
-        function (code) {
-          self._gfmTableDynamicInterruptHack = false;
-          return nok(code)
-        },
-        function (code) {
-          self._gfmTableDynamicInterruptHack = false;
-          return ok(code)
-        }
-      )(code)
-    }
-  }
-}
-function tokenizeNextPrefixedOrBlank(effects, ok, nok) {
-  let size = 0;
-  return start
-  function start(code) {
-    effects.enter('check');
-    effects.consume(code);
-    return whitespace
-  }
-  function whitespace(code) {
-    if (code === -1 || code === 32) {
-      effects.consume(code);
-      size++;
-      return size === 4 ? ok : whitespace
-    }
-    if (code === null || markdownLineEndingOrSpace(code)) {
-      return ok(code)
-    }
-    return nok(code)
-  }
-}
-
-const tasklistCheck = {
-  tokenize: tokenizeTasklistCheck
-};
-const gfmTaskListItem = {
-  text: {
-    [91]: tasklistCheck
-  }
-};
-function tokenizeTasklistCheck(effects, ok, nok) {
-  const self = this;
-  return open
-  function open(code) {
-    if (
-      self.previous !== null ||
-      !self._gfmTasklistFirstContentOfListItem
-    ) {
-      return nok(code)
-    }
-    effects.enter('taskListCheck');
-    effects.enter('taskListCheckMarker');
-    effects.consume(code);
-    effects.exit('taskListCheckMarker');
-    return inside
-  }
-  function inside(code) {
-    if (markdownLineEndingOrSpace(code)) {
-      effects.enter('taskListCheckValueUnchecked');
-      effects.consume(code);
-      effects.exit('taskListCheckValueUnchecked');
-      return close
-    }
-    if (code === 88 || code === 120) {
-      effects.enter('taskListCheckValueChecked');
-      effects.consume(code);
-      effects.exit('taskListCheckValueChecked');
-      return close
-    }
-    return nok(code)
-  }
-  function close(code) {
-    if (code === 93) {
-      effects.enter('taskListCheckMarker');
-      effects.consume(code);
-      effects.exit('taskListCheckMarker');
-      effects.exit('taskListCheck');
-      return effects.check(
-        {
-          tokenize: spaceThenNonSpace
-        },
-        ok,
-        nok
-      )
-    }
-    return nok(code)
-  }
-}
-function spaceThenNonSpace(effects, ok, nok) {
-  const self = this;
-  return factorySpace(effects, after, 'whitespace')
-  function after(code) {
-    const tail = self.events[self.events.length - 1];
-    return (
-      ((tail && tail[1].type === 'whitespace') ||
-        markdownLineEnding(code)) &&
-        code !== null
-        ? ok(code)
-        : nok(code)
-    )
-  }
-}
-
-function gfm(options) {
-  return combineExtensions([
-    gfmAutolinkLiteral,
-    gfmFootnote(),
-    gfmStrikethrough(options),
-    gfmTable,
-    gfmTaskListItem
-  ])
 }
 
 function ccount(value, character) {
@@ -10703,123 +9578,103 @@ function escapeStringRegexp(string) {
 		.replace(/-/g, '\\x2d');
 }
 
-const own$3 = {}.hasOwnProperty;
-const findAndReplace =
-  (
-    function (tree, find, replace, options) {
-      let settings;
-      let schema;
-      if (typeof find === 'string' || find instanceof RegExp) {
-        schema = [[find, replace]];
-        settings = options;
-      } else {
-        schema = find;
-        settings = replace;
-      }
-      if (!settings) {
-        settings = {};
-      }
-      const ignored = convert(settings.ignore || []);
-      const pairs = toPairs(schema);
-      let pairIndex = -1;
-      while (++pairIndex < pairs.length) {
-        visitParents$1(tree, 'text', visitor);
-      }
-      return tree
-      function visitor(node, parents) {
-        let index = -1;
-        let grandparent;
-        while (++index < parents.length) {
-          const parent =  (parents[index]);
-          if (
-            ignored(
-              parent,
-              grandparent ? grandparent.children.indexOf(parent) : undefined,
-              grandparent
-            )
-          ) {
-            return
-          }
-          grandparent = parent;
-        }
-        if (grandparent) {
-          return handler(node, parents)
-        }
-      }
-      function handler(node, parents) {
-        const parent = parents[parents.length - 1];
-        const find = pairs[pairIndex][0];
-        const replace = pairs[pairIndex][1];
-        let start = 0;
-        const index = parent.children.indexOf(node);
-        let change = false;
-        let nodes = [];
-        let position;
-        find.lastIndex = 0;
-        let match = find.exec(node.value);
-        while (match) {
-          position = match.index;
-          const matchObject = {
-            index: match.index,
-            input: match.input,
-            stack: [...parents, node]
-          };
-          let value = replace(...match, matchObject);
-          if (typeof value === 'string') {
-            value = value.length > 0 ? {type: 'text', value} : undefined;
-          }
-          if (value !== false) {
-            if (start !== position) {
-              nodes.push({
-                type: 'text',
-                value: node.value.slice(start, position)
-              });
-            }
-            if (Array.isArray(value)) {
-              nodes.push(...value);
-            } else if (value) {
-              nodes.push(value);
-            }
-            start = position + match[0].length;
-            change = true;
-          }
-          if (!find.global) {
-            break
-          }
-          match = find.exec(node.value);
-        }
-        if (change) {
-          if (start < node.value.length) {
-            nodes.push({type: 'text', value: node.value.slice(start)});
-          }
-          parent.children.splice(index, 1, ...nodes);
-        } else {
-          nodes = [node];
-        }
-        return index + nodes.length
-      }
-    }
-  );
-function toPairs(schema) {
-  const result = [];
-  if (typeof schema !== 'object') {
-    throw new TypeError('Expected array or object as schema')
+function findAndReplace(tree, list, options) {
+  const settings = options || {};
+  const ignored = convert$A(settings.ignore || []);
+  const pairs = toPairs(list);
+  let pairIndex = -1;
+  while (++pairIndex < pairs.length) {
+    visitParents$A(tree, 'text', visitor);
   }
-  if (Array.isArray(schema)) {
+  function visitor(node, parents) {
     let index = -1;
-    while (++index < schema.length) {
-      result.push([
-        toExpression(schema[index][0]),
-        toFunction(schema[index][1])
-      ]);
-    }
-  } else {
-    let key;
-    for (key in schema) {
-      if (own$3.call(schema, key)) {
-        result.push([toExpression(key), toFunction(schema[key])]);
+    let grandparent;
+    while (++index < parents.length) {
+      const parent = parents[index];
+      const siblings = grandparent ? grandparent.children : undefined;
+      if (
+        ignored(
+          parent,
+          siblings ? siblings.indexOf(parent) : undefined,
+          grandparent
+        )
+      ) {
+        return
       }
+      grandparent = parent;
     }
+    if (grandparent) {
+      return handler(node, parents)
+    }
+  }
+  function handler(node, parents) {
+    const parent = parents[parents.length - 1];
+    const find = pairs[pairIndex][0];
+    const replace = pairs[pairIndex][1];
+    let start = 0;
+    const siblings = parent.children;
+    const index = siblings.indexOf(node);
+    let change = false;
+    let nodes = [];
+    find.lastIndex = 0;
+    let match = find.exec(node.value);
+    while (match) {
+      const position = match.index;
+      const matchObject = {
+        index: match.index,
+        input: match.input,
+        stack: [...parents, node]
+      };
+      let value = replace(...match, matchObject);
+      if (typeof value === 'string') {
+        value = value.length > 0 ? {type: 'text', value} : undefined;
+      }
+      if (value === false) {
+        find.lastIndex = position + 1;
+      } else {
+        if (start !== position) {
+          nodes.push({
+            type: 'text',
+            value: node.value.slice(start, position)
+          });
+        }
+        if (Array.isArray(value)) {
+          nodes.push(...value);
+        } else if (value) {
+          nodes.push(value);
+        }
+        start = position + match[0].length;
+        change = true;
+      }
+      if (!find.global) {
+        break
+      }
+      match = find.exec(node.value);
+    }
+    if (change) {
+      if (start < node.value.length) {
+        nodes.push({type: 'text', value: node.value.slice(start)});
+      }
+      parent.children.splice(index, 1, ...nodes);
+    } else {
+      nodes = [node];
+    }
+    return index + nodes.length
+  }
+}
+function toPairs(tupleOrList) {
+  const result = [];
+  if (!Array.isArray(tupleOrList)) {
+    throw new TypeError('Expected find and replace tuple or list of tuples')
+  }
+  const list =
+    !tupleOrList[0] || Array.isArray(tupleOrList[0])
+      ? tupleOrList
+      : [tupleOrList];
+  let index = -1;
+  while (++index < list.length) {
+    const tuple = list[index];
+    result.push([toExpression(tuple[0]), toFunction(tuple[1])]);
   }
   return result
 }
@@ -10827,45 +9682,59 @@ function toExpression(find) {
   return typeof find === 'string' ? new RegExp(escapeStringRegexp(find), 'g') : find
 }
 function toFunction(replace) {
-  return typeof replace === 'function' ? replace : () => replace
+  return typeof replace === 'function'
+    ? replace
+    : function () {
+        return replace
+      }
 }
 
 const inConstruct = 'phrasing';
 const notInConstruct = ['autolink', 'link', 'image', 'label'];
-const gfmAutolinkLiteralFromMarkdown = {
-  transforms: [transformGfmAutolinkLiterals],
-  enter: {
-    literalAutolink: enterLiteralAutolink,
-    literalAutolinkEmail: enterLiteralAutolinkValue,
-    literalAutolinkHttp: enterLiteralAutolinkValue,
-    literalAutolinkWww: enterLiteralAutolinkValue
-  },
-  exit: {
-    literalAutolink: exitLiteralAutolink,
-    literalAutolinkEmail: exitLiteralAutolinkEmail,
-    literalAutolinkHttp: exitLiteralAutolinkHttp,
-    literalAutolinkWww: exitLiteralAutolinkWww
+function gfmAutolinkLiteralFromMarkdown() {
+  return {
+    transforms: [transformGfmAutolinkLiterals],
+    enter: {
+      literalAutolink: enterLiteralAutolink,
+      literalAutolinkEmail: enterLiteralAutolinkValue,
+      literalAutolinkHttp: enterLiteralAutolinkValue,
+      literalAutolinkWww: enterLiteralAutolinkValue
+    },
+    exit: {
+      literalAutolink: exitLiteralAutolink,
+      literalAutolinkEmail: exitLiteralAutolinkEmail,
+      literalAutolinkHttp: exitLiteralAutolinkHttp,
+      literalAutolinkWww: exitLiteralAutolinkWww
+    }
   }
-};
-const gfmAutolinkLiteralToMarkdown = {
-  unsafe: [
-    {
-      character: '@',
-      before: '[+\\-.\\w]',
-      after: '[\\-.\\w]',
-      inConstruct,
-      notInConstruct
-    },
-    {
-      character: '.',
-      before: '[Ww]',
-      after: '[\\-.\\w]',
-      inConstruct,
-      notInConstruct
-    },
-    {character: ':', before: '[ps]', after: '\\/', inConstruct, notInConstruct}
-  ]
-};
+}
+function gfmAutolinkLiteralToMarkdown() {
+  return {
+    unsafe: [
+      {
+        character: '@',
+        before: '[+\\-.\\w]',
+        after: '[\\-.\\w]',
+        inConstruct,
+        notInConstruct
+      },
+      {
+        character: '.',
+        before: '[Ww]',
+        after: '[\\-.\\w]',
+        inConstruct,
+        notInConstruct
+      },
+      {
+        character: ':',
+        before: '[ps]',
+        after: '\\/',
+        inConstruct,
+        notInConstruct
+      }
+    ]
+  }
+}
 function enterLiteralAutolink(token) {
   this.enter({type: 'link', title: null, url: '', children: []}, token);
 }
@@ -10877,7 +9746,8 @@ function exitLiteralAutolinkHttp(token) {
 }
 function exitLiteralAutolinkWww(token) {
   this.config.exit.data.call(this, token);
-  const node =  (this.stack[this.stack.length - 1]);
+  const node = this.stack[this.stack.length - 1];
+  ok$B(node.type === 'link');
   node.url = 'http://' + this.sliceSerialize(token);
 }
 function exitLiteralAutolinkEmail(token) {
@@ -10925,7 +9795,7 @@ function findUrl(_, protocol, domain, path, match) {
 function findEmail(_, atext, label, match) {
   if (
     !previous(match, true) ||
-    /[_-\d]$/.test(label)
+    /[-\d_]$/.test(label)
   ) {
     return false
   }
@@ -10953,22 +9823,19 @@ function isCorrectDomain(domain) {
 }
 function splitUrl(url) {
   const trailExec = /[!"&'),.:;<>?\]}]+$/.exec(url);
-  let closingParenIndex;
-  let openingParens;
-  let closingParens;
-  let trail;
-  if (trailExec) {
-    url = url.slice(0, trailExec.index);
-    trail = trailExec[0];
+  if (!trailExec) {
+    return [url, undefined]
+  }
+  url = url.slice(0, trailExec.index);
+  let trail = trailExec[0];
+  let closingParenIndex = trail.indexOf(')');
+  const openingParens = ccount(url, '(');
+  let closingParens = ccount(url, ')');
+  while (closingParenIndex !== -1 && openingParens > closingParens) {
+    url += trail.slice(0, closingParenIndex + 1);
+    trail = trail.slice(closingParenIndex + 1);
     closingParenIndex = trail.indexOf(')');
-    openingParens = ccount(url, '(');
-    closingParens = ccount(url, ')');
-    while (closingParenIndex !== -1 && openingParens > closingParens) {
-      url += trail.slice(0, closingParenIndex + 1);
-      trail = trail.slice(closingParenIndex + 1);
-      closingParenIndex = trail.indexOf(')');
-      closingParens++;
-    }
+    closingParens++;
   }
   return [url, trail]
 }
@@ -10982,6 +9849,7 @@ function previous(match, email) {
   )
 }
 
+footnoteReference.peek = footnoteReferencePeek;
 function gfmFootnoteFromMarkdown() {
   return {
     enter: {
@@ -10997,110 +9865,102 @@ function gfmFootnoteFromMarkdown() {
       gfmFootnoteCallString: exitFootnoteCallString
     }
   }
-  function enterFootnoteDefinition(token) {
-    this.enter(
-      {type: 'footnoteDefinition', identifier: '', label: '', children: []},
-      token
-    );
-  }
-  function enterFootnoteDefinitionLabelString() {
-    this.buffer();
-  }
-  function exitFootnoteDefinitionLabelString(token) {
-    const label = this.resume();
-    const node =  (
-      this.stack[this.stack.length - 1]
-    );
-    node.label = label;
-    node.identifier = normalizeIdentifier(
-      this.sliceSerialize(token)
-    ).toLowerCase();
-  }
-  function exitFootnoteDefinition(token) {
-    this.exit(token);
-  }
-  function enterFootnoteCall(token) {
-    this.enter({type: 'footnoteReference', identifier: '', label: ''}, token);
-  }
-  function enterFootnoteCallString() {
-    this.buffer();
-  }
-  function exitFootnoteCallString(token) {
-    const label = this.resume();
-    const node =  (
-      this.stack[this.stack.length - 1]
-    );
-    node.label = label;
-    node.identifier = normalizeIdentifier(
-      this.sliceSerialize(token)
-    ).toLowerCase();
-  }
-  function exitFootnoteCall(token) {
-    this.exit(token);
-  }
 }
 function gfmFootnoteToMarkdown() {
-  footnoteReference.peek = footnoteReferencePeek;
   return {
     unsafe: [{character: '[', inConstruct: ['phrasing', 'label', 'reference']}],
     handlers: {footnoteDefinition, footnoteReference}
   }
-  function footnoteReference(node, _, context, safeOptions) {
-    const tracker = track(safeOptions);
-    let value = tracker.move('[^');
-    const exit = context.enter('footnoteReference');
-    const subexit = context.enter('reference');
-    value += tracker.move(
-      safe(context, association(node), {
-        ...tracker.current(),
-        before: value,
-        after: ']'
-      })
-    );
-    subexit();
-    exit();
-    value += tracker.move(']');
-    return value
+}
+function enterFootnoteDefinition(token) {
+  this.enter(
+    {type: 'footnoteDefinition', identifier: '', label: '', children: []},
+    token
+  );
+}
+function enterFootnoteDefinitionLabelString() {
+  this.buffer();
+}
+function exitFootnoteDefinitionLabelString(token) {
+  const label = this.resume();
+  const node = this.stack[this.stack.length - 1];
+  ok$B(node.type === 'footnoteDefinition');
+  node.label = label;
+  node.identifier = normalizeIdentifier$1(
+    this.sliceSerialize(token)
+  ).toLowerCase();
+}
+function exitFootnoteDefinition(token) {
+  this.exit(token);
+}
+function enterFootnoteCall(token) {
+  this.enter({type: 'footnoteReference', identifier: '', label: ''}, token);
+}
+function enterFootnoteCallString() {
+  this.buffer();
+}
+function exitFootnoteCallString(token) {
+  const label = this.resume();
+  const node = this.stack[this.stack.length - 1];
+  ok$B(node.type === 'footnoteReference');
+  node.label = label;
+  node.identifier = normalizeIdentifier$1(
+    this.sliceSerialize(token)
+  ).toLowerCase();
+}
+function exitFootnoteCall(token) {
+  this.exit(token);
+}
+function footnoteReference(node, _, state, info) {
+  const tracker = state.createTracker(info);
+  let value = tracker.move('[^');
+  const exit = state.enter('footnoteReference');
+  const subexit = state.enter('reference');
+  value += tracker.move(
+    state.safe(state.associationId(node), {
+      ...tracker.current(),
+      before: value,
+      after: ']'
+    })
+  );
+  subexit();
+  exit();
+  value += tracker.move(']');
+  return value
+}
+function footnoteReferencePeek() {
+  return '['
+}
+function footnoteDefinition(node, _, state, info) {
+  const tracker = state.createTracker(info);
+  let value = tracker.move('[^');
+  const exit = state.enter('footnoteDefinition');
+  const subexit = state.enter('label');
+  value += tracker.move(
+    state.safe(state.associationId(node), {
+      ...tracker.current(),
+      before: value,
+      after: ']'
+    })
+  );
+  subexit();
+  value += tracker.move(
+    ']:' + (node.children && node.children.length > 0 ? ' ' : '')
+  );
+  tracker.shift(4);
+  value += tracker.move(
+    state.indentLines(state.containerFlow(node, tracker.current()), map$1)
+  );
+  exit();
+  return value
+}
+function map$1(line, index, blank) {
+  if (index === 0) {
+    return line
   }
-  function footnoteReferencePeek() {
-    return '['
-  }
-  function footnoteDefinition(node, _, context, safeOptions) {
-    const tracker = track(safeOptions);
-    let value = tracker.move('[^');
-    const exit = context.enter('footnoteDefinition');
-    const subexit = context.enter('label');
-    value += tracker.move(
-      safe(context, association(node), {
-        ...tracker.current(),
-        before: value,
-        after: ']'
-      })
-    );
-    subexit();
-    value += tracker.move(
-      ']:' + (node.children && node.children.length > 0 ? ' ' : '')
-    );
-    tracker.shift(4);
-    value += tracker.move(
-      indentLines(containerFlow(node, context, tracker.current()), map)
-    );
-    exit();
-    return value
-    function map(line, index, blank) {
-      if (index) {
-        return (blank ? '' : '    ') + line
-      }
-      return line
-    }
-  }
+  return (blank ? '' : '    ') + line
 }
 
-const gfmStrikethroughFromMarkdown = {
-  canContainEols: ['delete'],
-  enter: {strikethrough: enterStrikethrough},
-  exit: {strikethrough: exitStrikethrough}
-};
 const constructsWithoutStrikethrough = [
   'autolink',
   'destinationLiteral',
@@ -11109,28 +9969,37 @@ const constructsWithoutStrikethrough = [
   'titleQuote',
   'titleApostrophe'
 ];
-const gfmStrikethroughToMarkdown = {
-  unsafe: [
-    {
-      character: '~',
-      inConstruct: 'phrasing',
-      notInConstruct: constructsWithoutStrikethrough
-    }
-  ],
-  handlers: {delete: handleDelete}
-};
 handleDelete.peek = peekDelete;
+function gfmStrikethroughFromMarkdown() {
+  return {
+    canContainEols: ['delete'],
+    enter: {strikethrough: enterStrikethrough},
+    exit: {strikethrough: exitStrikethrough}
+  }
+}
+function gfmStrikethroughToMarkdown() {
+  return {
+    unsafe: [
+      {
+        character: '~',
+        inConstruct: 'phrasing',
+        notInConstruct: constructsWithoutStrikethrough
+      }
+    ],
+    handlers: {delete: handleDelete}
+  }
+}
 function enterStrikethrough(token) {
   this.enter({type: 'delete', children: []}, token);
 }
 function exitStrikethrough(token) {
   this.exit(token);
 }
-function handleDelete(node, _, context, safeOptions) {
-  const tracker = track(safeOptions);
-  const exit = context.enter('emphasis');
+function handleDelete(node, _, state, info) {
+  const tracker = state.createTracker(info);
+  const exit = state.enter('strikethrough');
   let value = tracker.move('~~');
-  value += containerPhrasing(node, context, {
+  value += state.containerPhrasing(node, {
     ...tracker.current(),
     before: value,
     after: '~'
@@ -11302,36 +10171,40 @@ function toAlignment(value) {
     : 0
 }
 
-const gfmTableFromMarkdown = {
-  enter: {
-    table: enterTable,
-    tableData: enterCell,
-    tableHeader: enterCell,
-    tableRow: enterRow
-  },
-  exit: {
-    codeText: exitCodeText,
-    table: exitTable,
-    tableData: exit,
-    tableHeader: exit,
-    tableRow: exit
+function gfmTableFromMarkdown() {
+  return {
+    enter: {
+      table: enterTable,
+      tableData: enterCell,
+      tableHeader: enterCell,
+      tableRow: enterRow
+    },
+    exit: {
+      codeText: exitCodeText,
+      table: exitTable,
+      tableData: exit,
+      tableHeader: exit,
+      tableRow: exit
+    }
   }
-};
+}
 function enterTable(token) {
   const align = token._align;
   this.enter(
     {
       type: 'table',
-      align: align.map((d) => (d === 'none' ? null : d)),
+      align: align.map(function (d) {
+        return d === 'none' ? null : d
+      }),
       children: []
     },
     token
   );
-  this.setData('inTable', true);
+  this.data.inTable = true;
 }
 function exitTable(token) {
   this.exit(token);
-  this.setData('inTable');
+  this.data.inTable = undefined;
 }
 function enterRow(token) {
   this.enter({type: 'tableRow', children: []}, token);
@@ -11344,10 +10217,11 @@ function enterCell(token) {
 }
 function exitCodeText(token) {
   let value = this.resume();
-  if (this.getData('inTable')) {
+  if (this.data.inTable) {
     value = value.replace(/\\([\\|])/g, replace);
   }
-  const node =  (this.stack[this.stack.length - 1]);
+  const node = this.stack[this.stack.length - 1];
+  ok$B(node.type === 'inlineCode');
   node.value = value;
   this.exit(token);
 }
@@ -11370,28 +10244,25 @@ function gfmTableToMarkdown(options) {
       {atBreak: true, character: '-', after: '[:|-]'}
     ],
     handlers: {
+      inlineCode: inlineCodeWithTable,
       table: handleTable,
-      tableRow: handleTableRow,
       tableCell: handleTableCell,
-      inlineCode: inlineCodeWithTable
+      tableRow: handleTableRow
     }
   }
-  function handleTable(node, _, context, safeOptions) {
-    return serializeData(
-      handleTableAsData(node, context, safeOptions),
-      node.align
-    )
+  function handleTable(node, _, state, info) {
+    return serializeData(handleTableAsData(node, state, info), node.align)
   }
-  function handleTableRow(node, _, context, safeOptions) {
-    const row = handleTableRowAsData(node, context, safeOptions);
+  function handleTableRow(node, _, state, info) {
+    const row = handleTableRowAsData(node, state, info);
     const value = serializeData([row]);
     return value.slice(0, value.indexOf('\n'))
   }
-  function handleTableCell(node, _, context, safeOptions) {
-    const exit = context.enter('tableCell');
-    const subexit = context.enter('phrasing');
-    const value = containerPhrasing(node, context, {
-      ...safeOptions,
+  function handleTableCell(node, _, state, info) {
+    const exit = state.enter('tableCell');
+    const subexit = state.enter('phrasing');
+    const value = state.containerPhrasing(node, {
+      ...info,
       before: around,
       after: around
     });
@@ -11407,110 +10278,107 @@ function gfmTableToMarkdown(options) {
       stringLength
     })
   }
-  function handleTableAsData(node, context, safeOptions) {
+  function handleTableAsData(node, state, info) {
     const children = node.children;
     let index = -1;
     const result = [];
-    const subexit = context.enter('table');
+    const subexit = state.enter('table');
     while (++index < children.length) {
-      result[index] = handleTableRowAsData(
-        children[index],
-        context,
-        safeOptions
-      );
+      result[index] = handleTableRowAsData(children[index], state, info);
     }
     subexit();
     return result
   }
-  function handleTableRowAsData(node, context, safeOptions) {
+  function handleTableRowAsData(node, state, info) {
     const children = node.children;
     let index = -1;
     const result = [];
-    const subexit = context.enter('tableRow');
+    const subexit = state.enter('tableRow');
     while (++index < children.length) {
-      result[index] = handleTableCell(
-        children[index],
-        node,
-        context,
-        safeOptions
-      );
+      result[index] = handleTableCell(children[index], node, state, info);
     }
     subexit();
     return result
   }
-  function inlineCodeWithTable(node, parent, context) {
-    let value = inlineCode(node, parent, context);
-    if (context.stack.includes('tableCell')) {
+  function inlineCodeWithTable(node, parent, state) {
+    let value = handle.inlineCode(node, parent, state);
+    if (state.stack.includes('tableCell')) {
       value = value.replace(/\|/g, '\\$&');
     }
     return value
   }
 }
 
-const gfmTaskListItemFromMarkdown = {
-  exit: {
-    taskListCheckValueChecked: exitCheck,
-    taskListCheckValueUnchecked: exitCheck,
-    paragraph: exitParagraphWithTaskListItem
+function gfmTaskListItemFromMarkdown() {
+  return {
+    exit: {
+      taskListCheckValueChecked: exitCheck,
+      taskListCheckValueUnchecked: exitCheck,
+      paragraph: exitParagraphWithTaskListItem
+    }
   }
-};
-const gfmTaskListItemToMarkdown = {
-  unsafe: [{atBreak: true, character: '-', after: '[:|-]'}],
-  handlers: {listItem: listItemWithTaskListItem}
-};
+}
+function gfmTaskListItemToMarkdown() {
+  return {
+    unsafe: [{atBreak: true, character: '-', after: '[:|-]'}],
+    handlers: {listItem: listItemWithTaskListItem}
+  }
+}
 function exitCheck(token) {
-  const node =  (this.stack[this.stack.length - 2]);
+  const node = this.stack[this.stack.length - 2];
+  ok$B(node.type === 'listItem');
   node.checked = token.type === 'taskListCheckValueChecked';
 }
 function exitParagraphWithTaskListItem(token) {
-  const parent =  (this.stack[this.stack.length - 2]);
-  const node =  (this.stack[this.stack.length - 1]);
-  const siblings = parent.children;
-  const head = node.children[0];
-  let index = -1;
-  let firstParaghraph;
+  const parent = this.stack[this.stack.length - 2];
   if (
     parent &&
     parent.type === 'listItem' &&
-    typeof parent.checked === 'boolean' &&
-    head &&
-    head.type === 'text'
+    typeof parent.checked === 'boolean'
   ) {
-    while (++index < siblings.length) {
-      const sibling = siblings[index];
-      if (sibling.type === 'paragraph') {
-        firstParaghraph = sibling;
-        break
+    const node = this.stack[this.stack.length - 1];
+    ok$B(node.type === 'paragraph');
+    const head = node.children[0];
+    if (head && head.type === 'text') {
+      const siblings = parent.children;
+      let index = -1;
+      let firstParaghraph;
+      while (++index < siblings.length) {
+        const sibling = siblings[index];
+        if (sibling.type === 'paragraph') {
+          firstParaghraph = sibling;
+          break
+        }
       }
-    }
-    if (firstParaghraph === node) {
-      head.value = head.value.slice(1);
-      if (head.value.length === 0) {
-        node.children.shift();
-      } else if (
-        node.position &&
-        head.position &&
-        typeof head.position.start.offset === 'number'
-      ) {
-        head.position.start.column++;
-        head.position.start.offset++;
-        node.position.start = Object.assign({}, head.position.start);
+      if (firstParaghraph === node) {
+        head.value = head.value.slice(1);
+        if (head.value.length === 0) {
+          node.children.shift();
+        } else if (
+          node.position &&
+          head.position &&
+          typeof head.position.start.offset === 'number'
+        ) {
+          head.position.start.column++;
+          head.position.start.offset++;
+          node.position.start = Object.assign({}, head.position.start);
+        }
       }
     }
   }
   this.exit(token);
 }
-function listItemWithTaskListItem(node, parent, context, safeOptions) {
+function listItemWithTaskListItem(node, parent, state, info) {
   const head = node.children[0];
   const checkable =
     typeof node.checked === 'boolean' && head && head.type === 'paragraph';
   const checkbox = '[' + (node.checked ? 'x' : ' ') + '] ';
-  const tracker = track(safeOptions);
+  const tracker = state.createTracker(info);
   if (checkable) {
     tracker.move(checkbox);
   }
-  let value = listItem(node, parent, context, {
-    ...safeOptions,
+  let value = handle.listItem(node, parent, state, {
+    ...info,
     ...tracker.current()
   });
   if (checkable) {
@@ -11524,55 +10392,1500 @@ function listItemWithTaskListItem(node, parent, context, safeOptions) {
 
 function gfmFromMarkdown() {
   return [
-    gfmAutolinkLiteralFromMarkdown,
+    gfmAutolinkLiteralFromMarkdown(),
     gfmFootnoteFromMarkdown(),
-    gfmStrikethroughFromMarkdown,
-    gfmTableFromMarkdown,
-    gfmTaskListItemFromMarkdown
+    gfmStrikethroughFromMarkdown(),
+    gfmTableFromMarkdown(),
+    gfmTaskListItemFromMarkdown()
   ]
 }
 function gfmToMarkdown(options) {
   return {
     extensions: [
-      gfmAutolinkLiteralToMarkdown,
+      gfmAutolinkLiteralToMarkdown(),
       gfmFootnoteToMarkdown(),
-      gfmStrikethroughToMarkdown,
+      gfmStrikethroughToMarkdown(),
       gfmTableToMarkdown(options),
-      gfmTaskListItemToMarkdown
+      gfmTaskListItemToMarkdown()
     ]
   }
 }
 
-function remarkGfm(options = {}) {
-  const data = this.data();
-  add('micromarkExtensions', gfm(options));
-  add('fromMarkdownExtensions', gfmFromMarkdown());
-  add('toMarkdownExtensions', gfmToMarkdown(options));
-  function add(field, value) {
-    const list =  (
-      data[field] ? data[field] : (data[field] = [])
+const wwwPrefix = {
+  tokenize: tokenizeWwwPrefix,
+  partial: true
+};
+const domain = {
+  tokenize: tokenizeDomain,
+  partial: true
+};
+const path = {
+  tokenize: tokenizePath,
+  partial: true
+};
+const trail = {
+  tokenize: tokenizeTrail,
+  partial: true
+};
+const emailDomainDotTrail = {
+  tokenize: tokenizeEmailDomainDotTrail,
+  partial: true
+};
+const wwwAutolink = {
+  tokenize: tokenizeWwwAutolink,
+  previous: previousWww
+};
+const protocolAutolink = {
+  tokenize: tokenizeProtocolAutolink,
+  previous: previousProtocol
+};
+const emailAutolink = {
+  tokenize: tokenizeEmailAutolink,
+  previous: previousEmail
+};
+const text = {};
+function gfmAutolinkLiteral() {
+  return {
+    text
+  }
+}
+let code = 48;
+while (code < 123) {
+  text[code] = emailAutolink;
+  code++;
+  if (code === 58) code = 65;
+  else if (code === 91) code = 97;
+}
+text[43] = emailAutolink;
+text[45] = emailAutolink;
+text[46] = emailAutolink;
+text[95] = emailAutolink;
+text[72] = [emailAutolink, protocolAutolink];
+text[104] = [emailAutolink, protocolAutolink];
+text[87] = [emailAutolink, wwwAutolink];
+text[119] = [emailAutolink, wwwAutolink];
+function tokenizeEmailAutolink(effects, ok, nok) {
+  const self = this;
+  let dot;
+  let data;
+  return start
+  function start(code) {
+    if (
+      !gfmAtext(code) ||
+      !previousEmail.call(self, self.previous) ||
+      previousUnbalanced(self.events)
+    ) {
+      return nok(code)
+    }
+    effects.enter('literalAutolink');
+    effects.enter('literalAutolinkEmail');
+    return atext(code)
+  }
+  function atext(code) {
+    if (gfmAtext(code)) {
+      effects.consume(code);
+      return atext
+    }
+    if (code === 64) {
+      effects.consume(code);
+      return emailDomain
+    }
+    return nok(code)
+  }
+  function emailDomain(code) {
+    if (code === 46) {
+      return effects.check(
+        emailDomainDotTrail,
+        emailDomainAfter,
+        emailDomainDot
+      )(code)
+    }
+    if (code === 45 || code === 95 || asciiAlphanumeric(code)) {
+      data = true;
+      effects.consume(code);
+      return emailDomain
+    }
+    return emailDomainAfter(code)
+  }
+  function emailDomainDot(code) {
+    effects.consume(code);
+    dot = true;
+    return emailDomain
+  }
+  function emailDomainAfter(code) {
+    if (data && dot && asciiAlpha(self.previous)) {
+      effects.exit('literalAutolinkEmail');
+      effects.exit('literalAutolink');
+      return ok(code)
+    }
+    return nok(code)
+  }
+}
+function tokenizeWwwAutolink(effects, ok, nok) {
+  const self = this;
+  return wwwStart
+  function wwwStart(code) {
+    if (
+      (code !== 87 && code !== 119) ||
+      !previousWww.call(self, self.previous) ||
+      previousUnbalanced(self.events)
+    ) {
+      return nok(code)
+    }
+    effects.enter('literalAutolink');
+    effects.enter('literalAutolinkWww');
+    return effects.check(
+      wwwPrefix,
+      effects.attempt(domain, effects.attempt(path, wwwAfter), nok),
+      nok
+    )(code)
+  }
+  function wwwAfter(code) {
+    effects.exit('literalAutolinkWww');
+    effects.exit('literalAutolink');
+    return ok(code)
+  }
+}
+function tokenizeProtocolAutolink(effects, ok, nok) {
+  const self = this;
+  let buffer = '';
+  let seen = false;
+  return protocolStart
+  function protocolStart(code) {
+    if (
+      (code === 72 || code === 104) &&
+      previousProtocol.call(self, self.previous) &&
+      !previousUnbalanced(self.events)
+    ) {
+      effects.enter('literalAutolink');
+      effects.enter('literalAutolinkHttp');
+      buffer += String.fromCodePoint(code);
+      effects.consume(code);
+      return protocolPrefixInside
+    }
+    return nok(code)
+  }
+  function protocolPrefixInside(code) {
+    if (asciiAlpha(code) && buffer.length < 5) {
+      buffer += String.fromCodePoint(code);
+      effects.consume(code);
+      return protocolPrefixInside
+    }
+    if (code === 58) {
+      const protocol = buffer.toLowerCase();
+      if (protocol === 'http' || protocol === 'https') {
+        effects.consume(code);
+        return protocolSlashesInside
+      }
+    }
+    return nok(code)
+  }
+  function protocolSlashesInside(code) {
+    if (code === 47) {
+      effects.consume(code);
+      if (seen) {
+        return afterProtocol
+      }
+      seen = true;
+      return protocolSlashesInside
+    }
+    return nok(code)
+  }
+  function afterProtocol(code) {
+    return code === null ||
+      asciiControl(code) ||
+      markdownLineEndingOrSpace(code) ||
+      unicodeWhitespace(code) ||
+      unicodePunctuation(code)
+      ? nok(code)
+      : effects.attempt(domain, effects.attempt(path, protocolAfter), nok)(code)
+  }
+  function protocolAfter(code) {
+    effects.exit('literalAutolinkHttp');
+    effects.exit('literalAutolink');
+    return ok(code)
+  }
+}
+function tokenizeWwwPrefix(effects, ok, nok) {
+  let size = 0;
+  return wwwPrefixInside
+  function wwwPrefixInside(code) {
+    if ((code === 87 || code === 119) && size < 3) {
+      size++;
+      effects.consume(code);
+      return wwwPrefixInside
+    }
+    if (code === 46 && size === 3) {
+      effects.consume(code);
+      return wwwPrefixAfter
+    }
+    return nok(code)
+  }
+  function wwwPrefixAfter(code) {
+    return code === null ? nok(code) : ok(code)
+  }
+}
+function tokenizeDomain(effects, ok, nok) {
+  let underscoreInLastSegment;
+  let underscoreInLastLastSegment;
+  let seen;
+  return domainInside
+  function domainInside(code) {
+    if (code === 46 || code === 95) {
+      return effects.check(trail, domainAfter, domainAtPunctuation)(code)
+    }
+    if (
+      code === null ||
+      markdownLineEndingOrSpace(code) ||
+      unicodeWhitespace(code) ||
+      (code !== 45 && unicodePunctuation(code))
+    ) {
+      return domainAfter(code)
+    }
+    seen = true;
+    effects.consume(code);
+    return domainInside
+  }
+  function domainAtPunctuation(code) {
+    if (code === 95) {
+      underscoreInLastSegment = true;
+    }
+    else {
+      underscoreInLastLastSegment = underscoreInLastSegment;
+      underscoreInLastSegment = undefined;
+    }
+    effects.consume(code);
+    return domainInside
+  }
+  function domainAfter(code) {
+    if (underscoreInLastLastSegment || underscoreInLastSegment || !seen) {
+      return nok(code)
+    }
+    return ok(code)
+  }
+}
+function tokenizePath(effects, ok) {
+  let sizeOpen = 0;
+  let sizeClose = 0;
+  return pathInside
+  function pathInside(code) {
+    if (code === 40) {
+      sizeOpen++;
+      effects.consume(code);
+      return pathInside
+    }
+    if (code === 41 && sizeClose < sizeOpen) {
+      return pathAtPunctuation(code)
+    }
+    if (
+      code === 33 ||
+      code === 34 ||
+      code === 38 ||
+      code === 39 ||
+      code === 41 ||
+      code === 42 ||
+      code === 44 ||
+      code === 46 ||
+      code === 58 ||
+      code === 59 ||
+      code === 60 ||
+      code === 63 ||
+      code === 93 ||
+      code === 95 ||
+      code === 126
+    ) {
+      return effects.check(trail, ok, pathAtPunctuation)(code)
+    }
+    if (
+      code === null ||
+      markdownLineEndingOrSpace(code) ||
+      unicodeWhitespace(code)
+    ) {
+      return ok(code)
+    }
+    effects.consume(code);
+    return pathInside
+  }
+  function pathAtPunctuation(code) {
+    if (code === 41) {
+      sizeClose++;
+    }
+    effects.consume(code);
+    return pathInside
+  }
+}
+function tokenizeTrail(effects, ok, nok) {
+  return trail
+  function trail(code) {
+    if (
+      code === 33 ||
+      code === 34 ||
+      code === 39 ||
+      code === 41 ||
+      code === 42 ||
+      code === 44 ||
+      code === 46 ||
+      code === 58 ||
+      code === 59 ||
+      code === 63 ||
+      code === 95 ||
+      code === 126
+    ) {
+      effects.consume(code);
+      return trail
+    }
+    if (code === 38) {
+      effects.consume(code);
+      return trailCharRefStart
+    }
+    if (code === 93) {
+      effects.consume(code);
+      return trailBracketAfter
+    }
+    if (
+      code === 60 ||
+      code === null ||
+      markdownLineEndingOrSpace(code) ||
+      unicodeWhitespace(code)
+    ) {
+      return ok(code)
+    }
+    return nok(code)
+  }
+  function trailBracketAfter(code) {
+    if (
+      code === null ||
+      code === 40 ||
+      code === 91 ||
+      markdownLineEndingOrSpace(code) ||
+      unicodeWhitespace(code)
+    ) {
+      return ok(code)
+    }
+    return trail(code)
+  }
+  function trailCharRefStart(code) {
+    return asciiAlpha(code) ? trailCharRefInside(code) : nok(code)
+  }
+  function trailCharRefInside(code) {
+    if (code === 59) {
+      effects.consume(code);
+      return trail
+    }
+    if (asciiAlpha(code)) {
+      effects.consume(code);
+      return trailCharRefInside
+    }
+    return nok(code)
+  }
+}
+function tokenizeEmailDomainDotTrail(effects, ok, nok) {
+  return start
+  function start(code) {
+    effects.consume(code);
+    return after
+  }
+  function after(code) {
+    return asciiAlphanumeric(code) ? nok(code) : ok(code)
+  }
+}
+function previousWww(code) {
+  return (
+    code === null ||
+    code === 40 ||
+    code === 42 ||
+    code === 95 ||
+    code === 91 ||
+    code === 93 ||
+    code === 126 ||
+    markdownLineEndingOrSpace(code)
+  )
+}
+function previousProtocol(code) {
+  return !asciiAlpha(code)
+}
+function previousEmail(code) {
+  return !(code === 47 || gfmAtext(code))
+}
+function gfmAtext(code) {
+  return (
+    code === 43 ||
+    code === 45 ||
+    code === 46 ||
+    code === 95 ||
+    asciiAlphanumeric(code)
+  )
+}
+function previousUnbalanced(events) {
+  let index = events.length;
+  let result = false;
+  while (index--) {
+    const token = events[index][1];
+    if (
+      (token.type === 'labelLink' || token.type === 'labelImage') &&
+      !token._balanced
+    ) {
+      result = true;
+      break
+    }
+    if (token._gfmAutolinkLiteralWalkedInto) {
+      result = false;
+      break
+    }
+  }
+  if (events.length > 0 && !result) {
+    events[events.length - 1][1]._gfmAutolinkLiteralWalkedInto = true;
+  }
+  return result
+}
+
+const indent = {
+  tokenize: tokenizeIndent,
+  partial: true
+};
+function gfmFootnote() {
+  return {
+    document: {
+      [91]: {
+        tokenize: tokenizeDefinitionStart,
+        continuation: {
+          tokenize: tokenizeDefinitionContinuation
+        },
+        exit: gfmFootnoteDefinitionEnd
+      }
+    },
+    text: {
+      [91]: {
+        tokenize: tokenizeGfmFootnoteCall
+      },
+      [93]: {
+        add: 'after',
+        tokenize: tokenizePotentialGfmFootnoteCall,
+        resolveTo: resolveToPotentialGfmFootnoteCall
+      }
+    }
+  }
+}
+function tokenizePotentialGfmFootnoteCall(effects, ok, nok) {
+  const self = this;
+  let index = self.events.length;
+  const defined = self.parser.gfmFootnotes || (self.parser.gfmFootnotes = []);
+  let labelStart;
+  while (index--) {
+    const token = self.events[index][1];
+    if (token.type === 'labelImage') {
+      labelStart = token;
+      break
+    }
+    if (
+      token.type === 'gfmFootnoteCall' ||
+      token.type === 'labelLink' ||
+      token.type === 'label' ||
+      token.type === 'image' ||
+      token.type === 'link'
+    ) {
+      break
+    }
+  }
+  return start
+  function start(code) {
+    if (!labelStart || !labelStart._balanced) {
+      return nok(code)
+    }
+    const id = normalizeIdentifier$1(
+      self.sliceSerialize({
+        start: labelStart.end,
+        end: self.now()
+      })
     );
-    list.push(value);
+    if (id.codePointAt(0) !== 94 || !defined.includes(id.slice(1))) {
+      return nok(code)
+    }
+    effects.enter('gfmFootnoteCallLabelMarker');
+    effects.consume(code);
+    effects.exit('gfmFootnoteCallLabelMarker');
+    return ok(code)
+  }
+}
+function resolveToPotentialGfmFootnoteCall(events, context) {
+  let index = events.length;
+  while (index--) {
+    if (
+      events[index][1].type === 'labelImage' &&
+      events[index][0] === 'enter'
+    ) {
+      events[index][1];
+      break
+    }
+  }
+  events[index + 1][1].type = 'data';
+  events[index + 3][1].type = 'gfmFootnoteCallLabelMarker';
+  const call = {
+    type: 'gfmFootnoteCall',
+    start: Object.assign({}, events[index + 3][1].start),
+    end: Object.assign({}, events[events.length - 1][1].end)
+  };
+  const marker = {
+    type: 'gfmFootnoteCallMarker',
+    start: Object.assign({}, events[index + 3][1].end),
+    end: Object.assign({}, events[index + 3][1].end)
+  };
+  marker.end.column++;
+  marker.end.offset++;
+  marker.end._bufferIndex++;
+  const string = {
+    type: 'gfmFootnoteCallString',
+    start: Object.assign({}, marker.end),
+    end: Object.assign({}, events[events.length - 1][1].start)
+  };
+  const chunk = {
+    type: 'chunkString',
+    contentType: 'string',
+    start: Object.assign({}, string.start),
+    end: Object.assign({}, string.end)
+  };
+  const replacement = [
+    events[index + 1],
+    events[index + 2],
+    ['enter', call, context],
+    events[index + 3],
+    events[index + 4],
+    ['enter', marker, context],
+    ['exit', marker, context],
+    ['enter', string, context],
+    ['enter', chunk, context],
+    ['exit', chunk, context],
+    ['exit', string, context],
+    events[events.length - 2],
+    events[events.length - 1],
+    ['exit', call, context]
+  ];
+  events.splice(index, events.length - index + 1, ...replacement);
+  return events
+}
+function tokenizeGfmFootnoteCall(effects, ok, nok) {
+  const self = this;
+  const defined = self.parser.gfmFootnotes || (self.parser.gfmFootnotes = []);
+  let size = 0;
+  let data;
+  return start
+  function start(code) {
+    effects.enter('gfmFootnoteCall');
+    effects.enter('gfmFootnoteCallLabelMarker');
+    effects.consume(code);
+    effects.exit('gfmFootnoteCallLabelMarker');
+    return callStart
+  }
+  function callStart(code) {
+    if (code !== 94) return nok(code)
+    effects.enter('gfmFootnoteCallMarker');
+    effects.consume(code);
+    effects.exit('gfmFootnoteCallMarker');
+    effects.enter('gfmFootnoteCallString');
+    effects.enter('chunkString').contentType = 'string';
+    return callData
+  }
+  function callData(code) {
+    if (
+      size > 999 ||
+      (code === 93 && !data) ||
+      code === null ||
+      code === 91 ||
+      markdownLineEndingOrSpace(code)
+    ) {
+      return nok(code)
+    }
+    if (code === 93) {
+      effects.exit('chunkString');
+      const token = effects.exit('gfmFootnoteCallString');
+      if (!defined.includes(normalizeIdentifier$1(self.sliceSerialize(token)))) {
+        return nok(code)
+      }
+      effects.enter('gfmFootnoteCallLabelMarker');
+      effects.consume(code);
+      effects.exit('gfmFootnoteCallLabelMarker');
+      effects.exit('gfmFootnoteCall');
+      return ok
+    }
+    if (!markdownLineEndingOrSpace(code)) {
+      data = true;
+    }
+    size++;
+    effects.consume(code);
+    return code === 92 ? callEscape : callData
+  }
+  function callEscape(code) {
+    if (code === 91 || code === 92 || code === 93) {
+      effects.consume(code);
+      size++;
+      return callData
+    }
+    return callData(code)
+  }
+}
+function tokenizeDefinitionStart(effects, ok, nok) {
+  const self = this;
+  const defined = self.parser.gfmFootnotes || (self.parser.gfmFootnotes = []);
+  let identifier;
+  let size = 0;
+  let data;
+  return start
+  function start(code) {
+    effects.enter('gfmFootnoteDefinition')._container = true;
+    effects.enter('gfmFootnoteDefinitionLabel');
+    effects.enter('gfmFootnoteDefinitionLabelMarker');
+    effects.consume(code);
+    effects.exit('gfmFootnoteDefinitionLabelMarker');
+    return labelAtMarker
+  }
+  function labelAtMarker(code) {
+    if (code === 94) {
+      effects.enter('gfmFootnoteDefinitionMarker');
+      effects.consume(code);
+      effects.exit('gfmFootnoteDefinitionMarker');
+      effects.enter('gfmFootnoteDefinitionLabelString');
+      effects.enter('chunkString').contentType = 'string';
+      return labelInside
+    }
+    return nok(code)
+  }
+  function labelInside(code) {
+    if (
+      size > 999 ||
+      (code === 93 && !data) ||
+      code === null ||
+      code === 91 ||
+      markdownLineEndingOrSpace(code)
+    ) {
+      return nok(code)
+    }
+    if (code === 93) {
+      effects.exit('chunkString');
+      const token = effects.exit('gfmFootnoteDefinitionLabelString');
+      identifier = normalizeIdentifier$1(self.sliceSerialize(token));
+      effects.enter('gfmFootnoteDefinitionLabelMarker');
+      effects.consume(code);
+      effects.exit('gfmFootnoteDefinitionLabelMarker');
+      effects.exit('gfmFootnoteDefinitionLabel');
+      return labelAfter
+    }
+    if (!markdownLineEndingOrSpace(code)) {
+      data = true;
+    }
+    size++;
+    effects.consume(code);
+    return code === 92 ? labelEscape : labelInside
+  }
+  function labelEscape(code) {
+    if (code === 91 || code === 92 || code === 93) {
+      effects.consume(code);
+      size++;
+      return labelInside
+    }
+    return labelInside(code)
+  }
+  function labelAfter(code) {
+    if (code === 58) {
+      effects.enter('definitionMarker');
+      effects.consume(code);
+      effects.exit('definitionMarker');
+      if (!defined.includes(identifier)) {
+        defined.push(identifier);
+      }
+      return factorySpace(
+        effects,
+        whitespaceAfter,
+        'gfmFootnoteDefinitionWhitespace'
+      )
+    }
+    return nok(code)
+  }
+  function whitespaceAfter(code) {
+    return ok(code)
+  }
+}
+function tokenizeDefinitionContinuation(effects, ok, nok) {
+  return effects.check(blankLine, ok, effects.attempt(indent, ok, nok))
+}
+function gfmFootnoteDefinitionEnd(effects) {
+  effects.exit('gfmFootnoteDefinition');
+}
+function tokenizeIndent(effects, ok, nok) {
+  const self = this;
+  return factorySpace(
+    effects,
+    afterPrefix,
+    'gfmFootnoteDefinitionIndent',
+    4 + 1
+  )
+  function afterPrefix(code) {
+    const tail = self.events[self.events.length - 1];
+    return tail &&
+      tail[1].type === 'gfmFootnoteDefinitionIndent' &&
+      tail[2].sliceSerialize(tail[1], true).length === 4
+      ? ok(code)
+      : nok(code)
   }
 }
 
+function gfmStrikethrough(options) {
+  const options_ = options || {};
+  let single = options_.singleTilde;
+  const tokenizer = {
+    tokenize: tokenizeStrikethrough,
+    resolveAll: resolveAllStrikethrough
+  };
+  if (single === null || single === undefined) {
+    single = true;
+  }
+  return {
+    text: {
+      [126]: tokenizer
+    },
+    insideSpan: {
+      null: [tokenizer]
+    },
+    attentionMarkers: {
+      null: [126]
+    }
+  }
+  function resolveAllStrikethrough(events, context) {
+    let index = -1;
+    while (++index < events.length) {
+      if (
+        events[index][0] === 'enter' &&
+        events[index][1].type === 'strikethroughSequenceTemporary' &&
+        events[index][1]._close
+      ) {
+        let open = index;
+        while (open--) {
+          if (
+            events[open][0] === 'exit' &&
+            events[open][1].type === 'strikethroughSequenceTemporary' &&
+            events[open][1]._open &&
+            events[index][1].end.offset - events[index][1].start.offset ===
+              events[open][1].end.offset - events[open][1].start.offset
+          ) {
+            events[index][1].type = 'strikethroughSequence';
+            events[open][1].type = 'strikethroughSequence';
+            const strikethrough = {
+              type: 'strikethrough',
+              start: Object.assign({}, events[open][1].start),
+              end: Object.assign({}, events[index][1].end)
+            };
+            const text = {
+              type: 'strikethroughText',
+              start: Object.assign({}, events[open][1].end),
+              end: Object.assign({}, events[index][1].start)
+            };
+            const nextEvents = [
+              ['enter', strikethrough, context],
+              ['enter', events[open][1], context],
+              ['exit', events[open][1], context],
+              ['enter', text, context]
+            ];
+            const insideSpan = context.parser.constructs.insideSpan.null;
+            if (insideSpan) {
+              splice(
+                nextEvents,
+                nextEvents.length,
+                0,
+                resolveAll(insideSpan, events.slice(open + 1, index), context)
+              );
+            }
+            splice(nextEvents, nextEvents.length, 0, [
+              ['exit', text, context],
+              ['enter', events[index][1], context],
+              ['exit', events[index][1], context],
+              ['exit', strikethrough, context]
+            ]);
+            splice(events, open - 1, index - open + 3, nextEvents);
+            index = open + nextEvents.length - 2;
+            break
+          }
+        }
+      }
+    }
+    index = -1;
+    while (++index < events.length) {
+      if (events[index][1].type === 'strikethroughSequenceTemporary') {
+        events[index][1].type = 'data';
+      }
+    }
+    return events
+  }
+  function tokenizeStrikethrough(effects, ok, nok) {
+    const previous = this.previous;
+    const events = this.events;
+    let size = 0;
+    return start
+    function start(code) {
+      if (
+        previous === 126 &&
+        events[events.length - 1][1].type !== 'characterEscape'
+      ) {
+        return nok(code)
+      }
+      effects.enter('strikethroughSequenceTemporary');
+      return more(code)
+    }
+    function more(code) {
+      const before = classifyCharacter(previous);
+      if (code === 126) {
+        if (size > 1) return nok(code)
+        effects.consume(code);
+        size++;
+        return more
+      }
+      if (size < 2 && !single) return nok(code)
+      const token = effects.exit('strikethroughSequenceTemporary');
+      const after = classifyCharacter(code);
+      token._open = !after || (after === 2 && Boolean(before));
+      token._close = !before || (before === 2 && Boolean(after));
+      return ok(code)
+    }
+  }
+}
+
+class EditMap {
+  constructor() {
+    this.map = [];
+  }
+  add(index, remove, add) {
+    addImpl(this, index, remove, add);
+  }
+  consume(events) {
+    this.map.sort(function (a, b) {
+      return a[0] - b[0]
+    });
+    if (this.map.length === 0) {
+      return
+    }
+    let index = this.map.length;
+    const vecs = [];
+    while (index > 0) {
+      index -= 1;
+      vecs.push(
+        events.slice(this.map[index][0] + this.map[index][1]),
+        this.map[index][2]
+      );
+      events.length = this.map[index][0];
+    }
+    vecs.push([...events]);
+    events.length = 0;
+    let slice = vecs.pop();
+    while (slice) {
+      events.push(...slice);
+      slice = vecs.pop();
+    }
+    this.map.length = 0;
+  }
+}
+function addImpl(editMap, at, remove, add) {
+  let index = 0;
+  if (remove === 0 && add.length === 0) {
+    return
+  }
+  while (index < editMap.map.length) {
+    if (editMap.map[index][0] === at) {
+      editMap.map[index][1] += remove;
+      editMap.map[index][2].push(...add);
+      return
+    }
+    index += 1;
+  }
+  editMap.map.push([at, remove, add]);
+}
+
+function gfmTableAlign(events, index) {
+  let inDelimiterRow = false;
+  const align = [];
+  while (index < events.length) {
+    const event = events[index];
+    if (inDelimiterRow) {
+      if (event[0] === 'enter') {
+        if (event[1].type === 'tableContent') {
+          align.push(
+            events[index + 1][1].type === 'tableDelimiterMarker'
+              ? 'left'
+              : 'none'
+          );
+        }
+      }
+      else if (event[1].type === 'tableContent') {
+        if (events[index - 1][1].type === 'tableDelimiterMarker') {
+          const alignIndex = align.length - 1;
+          align[alignIndex] = align[alignIndex] === 'left' ? 'center' : 'right';
+        }
+      }
+      else if (event[1].type === 'tableDelimiterRow') {
+        break
+      }
+    } else if (event[0] === 'enter' && event[1].type === 'tableDelimiterRow') {
+      inDelimiterRow = true;
+    }
+    index += 1;
+  }
+  return align
+}
+
+function gfmTable() {
+  return {
+    flow: {
+      null: {
+        tokenize: tokenizeTable,
+        resolveAll: resolveTable
+      }
+    }
+  }
+}
+function tokenizeTable(effects, ok, nok) {
+  const self = this;
+  let size = 0;
+  let sizeB = 0;
+  let seen;
+  return start
+  function start(code) {
+    let index = self.events.length - 1;
+    while (index > -1) {
+      const type = self.events[index][1].type;
+      if (
+        type === 'lineEnding' ||
+        type === 'linePrefix'
+      )
+        index--;
+      else break
+    }
+    const tail = index > -1 ? self.events[index][1].type : null;
+    const next =
+      tail === 'tableHead' || tail === 'tableRow' ? bodyRowStart : headRowBefore;
+    if (next === bodyRowStart && self.parser.lazy[self.now().line]) {
+      return nok(code)
+    }
+    return next(code)
+  }
+  function headRowBefore(code) {
+    effects.enter('tableHead');
+    effects.enter('tableRow');
+    return headRowStart(code)
+  }
+  function headRowStart(code) {
+    if (code === 124) {
+      return headRowBreak(code)
+    }
+    seen = true;
+    sizeB += 1;
+    return headRowBreak(code)
+  }
+  function headRowBreak(code) {
+    if (code === null) {
+      return nok(code)
+    }
+    if (markdownLineEnding(code)) {
+      if (sizeB > 1) {
+        sizeB = 0;
+        self.interrupt = true;
+        effects.exit('tableRow');
+        effects.enter('lineEnding');
+        effects.consume(code);
+        effects.exit('lineEnding');
+        return headDelimiterStart
+      }
+      return nok(code)
+    }
+    if (markdownSpace(code)) {
+      return factorySpace(effects, headRowBreak, 'whitespace')(code)
+    }
+    sizeB += 1;
+    if (seen) {
+      seen = false;
+      size += 1;
+    }
+    if (code === 124) {
+      effects.enter('tableCellDivider');
+      effects.consume(code);
+      effects.exit('tableCellDivider');
+      seen = true;
+      return headRowBreak
+    }
+    effects.enter('data');
+    return headRowData(code)
+  }
+  function headRowData(code) {
+    if (code === null || code === 124 || markdownLineEndingOrSpace(code)) {
+      effects.exit('data');
+      return headRowBreak(code)
+    }
+    effects.consume(code);
+    return code === 92 ? headRowEscape : headRowData
+  }
+  function headRowEscape(code) {
+    if (code === 92 || code === 124) {
+      effects.consume(code);
+      return headRowData
+    }
+    return headRowData(code)
+  }
+  function headDelimiterStart(code) {
+    self.interrupt = false;
+    if (self.parser.lazy[self.now().line]) {
+      return nok(code)
+    }
+    effects.enter('tableDelimiterRow');
+    seen = false;
+    if (markdownSpace(code)) {
+      return factorySpace(
+        effects,
+        headDelimiterBefore,
+        'linePrefix',
+        self.parser.constructs.disable.null.includes('codeIndented')
+          ? undefined
+          : 4
+      )(code)
+    }
+    return headDelimiterBefore(code)
+  }
+  function headDelimiterBefore(code) {
+    if (code === 45 || code === 58) {
+      return headDelimiterValueBefore(code)
+    }
+    if (code === 124) {
+      seen = true;
+      effects.enter('tableCellDivider');
+      effects.consume(code);
+      effects.exit('tableCellDivider');
+      return headDelimiterCellBefore
+    }
+    return headDelimiterNok(code)
+  }
+  function headDelimiterCellBefore(code) {
+    if (markdownSpace(code)) {
+      return factorySpace(effects, headDelimiterValueBefore, 'whitespace')(code)
+    }
+    return headDelimiterValueBefore(code)
+  }
+  function headDelimiterValueBefore(code) {
+    if (code === 58) {
+      sizeB += 1;
+      seen = true;
+      effects.enter('tableDelimiterMarker');
+      effects.consume(code);
+      effects.exit('tableDelimiterMarker');
+      return headDelimiterLeftAlignmentAfter
+    }
+    if (code === 45) {
+      sizeB += 1;
+      return headDelimiterLeftAlignmentAfter(code)
+    }
+    if (code === null || markdownLineEnding(code)) {
+      return headDelimiterCellAfter(code)
+    }
+    return headDelimiterNok(code)
+  }
+  function headDelimiterLeftAlignmentAfter(code) {
+    if (code === 45) {
+      effects.enter('tableDelimiterFiller');
+      return headDelimiterFiller(code)
+    }
+    return headDelimiterNok(code)
+  }
+  function headDelimiterFiller(code) {
+    if (code === 45) {
+      effects.consume(code);
+      return headDelimiterFiller
+    }
+    if (code === 58) {
+      seen = true;
+      effects.exit('tableDelimiterFiller');
+      effects.enter('tableDelimiterMarker');
+      effects.consume(code);
+      effects.exit('tableDelimiterMarker');
+      return headDelimiterRightAlignmentAfter
+    }
+    effects.exit('tableDelimiterFiller');
+    return headDelimiterRightAlignmentAfter(code)
+  }
+  function headDelimiterRightAlignmentAfter(code) {
+    if (markdownSpace(code)) {
+      return factorySpace(effects, headDelimiterCellAfter, 'whitespace')(code)
+    }
+    return headDelimiterCellAfter(code)
+  }
+  function headDelimiterCellAfter(code) {
+    if (code === 124) {
+      return headDelimiterBefore(code)
+    }
+    if (code === null || markdownLineEnding(code)) {
+      if (!seen || size !== sizeB) {
+        return headDelimiterNok(code)
+      }
+      effects.exit('tableDelimiterRow');
+      effects.exit('tableHead');
+      return ok(code)
+    }
+    return headDelimiterNok(code)
+  }
+  function headDelimiterNok(code) {
+    return nok(code)
+  }
+  function bodyRowStart(code) {
+    effects.enter('tableRow');
+    return bodyRowBreak(code)
+  }
+  function bodyRowBreak(code) {
+    if (code === 124) {
+      effects.enter('tableCellDivider');
+      effects.consume(code);
+      effects.exit('tableCellDivider');
+      return bodyRowBreak
+    }
+    if (code === null || markdownLineEnding(code)) {
+      effects.exit('tableRow');
+      return ok(code)
+    }
+    if (markdownSpace(code)) {
+      return factorySpace(effects, bodyRowBreak, 'whitespace')(code)
+    }
+    effects.enter('data');
+    return bodyRowData(code)
+  }
+  function bodyRowData(code) {
+    if (code === null || code === 124 || markdownLineEndingOrSpace(code)) {
+      effects.exit('data');
+      return bodyRowBreak(code)
+    }
+    effects.consume(code);
+    return code === 92 ? bodyRowEscape : bodyRowData
+  }
+  function bodyRowEscape(code) {
+    if (code === 92 || code === 124) {
+      effects.consume(code);
+      return bodyRowData
+    }
+    return bodyRowData(code)
+  }
+}
+function resolveTable(events, context) {
+  let index = -1;
+  let inFirstCellAwaitingPipe = true;
+  let rowKind = 0;
+  let lastCell = [0, 0, 0, 0];
+  let cell = [0, 0, 0, 0];
+  let afterHeadAwaitingFirstBodyRow = false;
+  let lastTableEnd = 0;
+  let currentTable;
+  let currentBody;
+  let currentCell;
+  const map = new EditMap();
+  while (++index < events.length) {
+    const event = events[index];
+    const token = event[1];
+    if (event[0] === 'enter') {
+      if (token.type === 'tableHead') {
+        afterHeadAwaitingFirstBodyRow = false;
+        if (lastTableEnd !== 0) {
+          flushTableEnd(map, context, lastTableEnd, currentTable, currentBody);
+          currentBody = undefined;
+          lastTableEnd = 0;
+        }
+        currentTable = {
+          type: 'table',
+          start: Object.assign({}, token.start),
+          end: Object.assign({}, token.end)
+        };
+        map.add(index, 0, [['enter', currentTable, context]]);
+      } else if (
+        token.type === 'tableRow' ||
+        token.type === 'tableDelimiterRow'
+      ) {
+        inFirstCellAwaitingPipe = true;
+        currentCell = undefined;
+        lastCell = [0, 0, 0, 0];
+        cell = [0, index + 1, 0, 0];
+        if (afterHeadAwaitingFirstBodyRow) {
+          afterHeadAwaitingFirstBodyRow = false;
+          currentBody = {
+            type: 'tableBody',
+            start: Object.assign({}, token.start),
+            end: Object.assign({}, token.end)
+          };
+          map.add(index, 0, [['enter', currentBody, context]]);
+        }
+        rowKind = token.type === 'tableDelimiterRow' ? 2 : currentBody ? 3 : 1;
+      }
+      else if (
+        rowKind &&
+        (token.type === 'data' ||
+          token.type === 'tableDelimiterMarker' ||
+          token.type === 'tableDelimiterFiller')
+      ) {
+        inFirstCellAwaitingPipe = false;
+        if (cell[2] === 0) {
+          if (lastCell[1] !== 0) {
+            cell[0] = cell[1];
+            currentCell = flushCell(
+              map,
+              context,
+              lastCell,
+              rowKind,
+              undefined,
+              currentCell
+            );
+            lastCell = [0, 0, 0, 0];
+          }
+          cell[2] = index;
+        }
+      } else if (token.type === 'tableCellDivider') {
+        if (inFirstCellAwaitingPipe) {
+          inFirstCellAwaitingPipe = false;
+        } else {
+          if (lastCell[1] !== 0) {
+            cell[0] = cell[1];
+            currentCell = flushCell(
+              map,
+              context,
+              lastCell,
+              rowKind,
+              undefined,
+              currentCell
+            );
+          }
+          lastCell = cell;
+          cell = [lastCell[1], index, 0, 0];
+        }
+      }
+    }
+    else if (token.type === 'tableHead') {
+      afterHeadAwaitingFirstBodyRow = true;
+      lastTableEnd = index;
+    } else if (
+      token.type === 'tableRow' ||
+      token.type === 'tableDelimiterRow'
+    ) {
+      lastTableEnd = index;
+      if (lastCell[1] !== 0) {
+        cell[0] = cell[1];
+        currentCell = flushCell(
+          map,
+          context,
+          lastCell,
+          rowKind,
+          index,
+          currentCell
+        );
+      } else if (cell[1] !== 0) {
+        currentCell = flushCell(map, context, cell, rowKind, index, currentCell);
+      }
+      rowKind = 0;
+    } else if (
+      rowKind &&
+      (token.type === 'data' ||
+        token.type === 'tableDelimiterMarker' ||
+        token.type === 'tableDelimiterFiller')
+    ) {
+      cell[3] = index;
+    }
+  }
+  if (lastTableEnd !== 0) {
+    flushTableEnd(map, context, lastTableEnd, currentTable, currentBody);
+  }
+  map.consume(context.events);
+  index = -1;
+  while (++index < context.events.length) {
+    const event = context.events[index];
+    if (event[0] === 'enter' && event[1].type === 'table') {
+      event[1]._align = gfmTableAlign(context.events, index);
+    }
+  }
+  return events
+}
+function flushCell(map, context, range, rowKind, rowEnd, previousCell) {
+  const groupName =
+    rowKind === 1
+      ? 'tableHeader'
+      : rowKind === 2
+      ? 'tableDelimiter'
+      : 'tableData';
+  const valueName = 'tableContent';
+  if (range[0] !== 0) {
+    previousCell.end = Object.assign({}, getPoint(context.events, range[0]));
+    map.add(range[0], 0, [['exit', previousCell, context]]);
+  }
+  const now = getPoint(context.events, range[1]);
+  previousCell = {
+    type: groupName,
+    start: Object.assign({}, now),
+    end: Object.assign({}, now)
+  };
+  map.add(range[1], 0, [['enter', previousCell, context]]);
+  if (range[2] !== 0) {
+    const relatedStart = getPoint(context.events, range[2]);
+    const relatedEnd = getPoint(context.events, range[3]);
+    const valueToken = {
+      type: valueName,
+      start: Object.assign({}, relatedStart),
+      end: Object.assign({}, relatedEnd)
+    };
+    map.add(range[2], 0, [['enter', valueToken, context]]);
+    if (rowKind !== 2) {
+      const start = context.events[range[2]];
+      const end = context.events[range[3]];
+      start[1].end = Object.assign({}, end[1].end);
+      start[1].type = 'chunkText';
+      start[1].contentType = 'text';
+      if (range[3] > range[2] + 1) {
+        const a = range[2] + 1;
+        const b = range[3] - range[2] - 1;
+        map.add(a, b, []);
+      }
+    }
+    map.add(range[3] + 1, 0, [['exit', valueToken, context]]);
+  }
+  if (rowEnd !== undefined) {
+    previousCell.end = Object.assign({}, getPoint(context.events, rowEnd));
+    map.add(rowEnd, 0, [['exit', previousCell, context]]);
+    previousCell = undefined;
+  }
+  return previousCell
+}
+function flushTableEnd(map, context, index, table, tableBody) {
+  const exits = [];
+  const related = getPoint(context.events, index);
+  if (tableBody) {
+    tableBody.end = Object.assign({}, related);
+    exits.push(['exit', tableBody, context]);
+  }
+  table.end = Object.assign({}, related);
+  exits.push(['exit', table, context]);
+  map.add(index + 1, 0, exits);
+}
+function getPoint(events, index) {
+  const event = events[index];
+  const side = event[0] === 'enter' ? 'start' : 'end';
+  return event[1][side]
+}
+
+const tasklistCheck = {
+  tokenize: tokenizeTasklistCheck
+};
+function gfmTaskListItem() {
+  return {
+    text: {
+      [91]: tasklistCheck
+    }
+  }
+}
+function tokenizeTasklistCheck(effects, ok, nok) {
+  const self = this;
+  return open
+  function open(code) {
+    if (
+      self.previous !== null ||
+      !self._gfmTasklistFirstContentOfListItem
+    ) {
+      return nok(code)
+    }
+    effects.enter('taskListCheck');
+    effects.enter('taskListCheckMarker');
+    effects.consume(code);
+    effects.exit('taskListCheckMarker');
+    return inside
+  }
+  function inside(code) {
+    if (markdownLineEndingOrSpace(code)) {
+      effects.enter('taskListCheckValueUnchecked');
+      effects.consume(code);
+      effects.exit('taskListCheckValueUnchecked');
+      return close
+    }
+    if (code === 88 || code === 120) {
+      effects.enter('taskListCheckValueChecked');
+      effects.consume(code);
+      effects.exit('taskListCheckValueChecked');
+      return close
+    }
+    return nok(code)
+  }
+  function close(code) {
+    if (code === 93) {
+      effects.enter('taskListCheckMarker');
+      effects.consume(code);
+      effects.exit('taskListCheckMarker');
+      effects.exit('taskListCheck');
+      return after
+    }
+    return nok(code)
+  }
+  function after(code) {
+    if (markdownLineEnding(code)) {
+      return ok(code)
+    }
+    if (markdownSpace(code)) {
+      return effects.check(
+        {
+          tokenize: spaceThenNonSpace
+        },
+        ok,
+        nok
+      )(code)
+    }
+    return nok(code)
+  }
+}
+function spaceThenNonSpace(effects, ok, nok) {
+  return factorySpace(effects, after, 'whitespace')
+  function after(code) {
+    return code === null ? nok(code) : ok(code)
+  }
+}
+
+function gfm(options) {
+  return combineExtensions([
+    gfmAutolinkLiteral(),
+    gfmFootnote(),
+    gfmStrikethrough(options),
+    gfmTable(),
+    gfmTaskListItem()
+  ])
+}
+
+const emptyOptions$2 = {};
+function remarkGfm(options) {
+  const self =  (this);
+  const settings = options || emptyOptions$2;
+  const data = self.data();
+  const micromarkExtensions =
+    data.micromarkExtensions || (data.micromarkExtensions = []);
+  const fromMarkdownExtensions =
+    data.fromMarkdownExtensions || (data.fromMarkdownExtensions = []);
+  const toMarkdownExtensions =
+    data.toMarkdownExtensions || (data.toMarkdownExtensions = []);
+  micromarkExtensions.push(gfm(settings));
+  fromMarkdownExtensions.push(gfmFromMarkdown());
+  toMarkdownExtensions.push(gfmToMarkdown(settings));
+}
+
 function location(file) {
-  var value = String(file);
-  var indices = [];
-  var search = /\r?\n|\r/g;
+  const value = String(file);
+  const indices = [];
+  const search = /\r?\n|\r/g;
   while (search.test(value)) {
     indices.push(search.lastIndex);
   }
   indices.push(value.length + 1);
   return {toPoint, toOffset}
   function toPoint(offset) {
-    var index = -1;
-    if (offset > -1 && offset < indices[indices.length - 1]) {
+    let index = -1;
+    if (
+      typeof offset === 'number' &&
+      offset > -1 &&
+      offset < indices[indices.length - 1]
+    ) {
       while (++index < indices.length) {
         if (indices[index] > offset) {
           return {
             line: index + 1,
-            column: offset - (indices[index - 1] || 0) + 1,
+            column: offset - (index > 0 ? indices[index - 1] : 0) + 1,
             offset
           }
         }
@@ -11581,9 +11894,8 @@ function location(file) {
     return {line: undefined, column: undefined, offset: undefined}
   }
   function toOffset(point) {
-    var line = point && point.line;
-    var column = point && point.column;
-    var offset;
+    const line = point && point.line;
+    const column = point && point.column;
     if (
       typeof line === 'number' &&
       typeof column === 'number' &&
@@ -11591,20 +11903,87 @@ function location(file) {
       !Number.isNaN(column) &&
       line - 1 in indices
     ) {
-      offset = (indices[line - 2] || 0) + column - 1 || 0;
+      const offset = (indices[line - 2] || 0) + column - 1 || 0;
+      if (offset > -1 && offset < indices[indices.length - 1]) {
+        return offset
+      }
     }
-    return offset > -1 && offset < indices[indices.length - 1] ? offset : -1
+    return -1
   }
 }
 
-function color$1(d) {
+const convert$z =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$z
+      }
+      if (typeof test === 'string') {
+        return typeFactory$z(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$z(test) : propsFactory$z(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$z(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$z(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$z(tests[index]);
+  }
+  return castFactory$z(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$z(check) {
+  return castFactory$z(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$z(check) {
+  return castFactory$z(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$z(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$z() {
+  return true
+}
+
+function color$A(d) {
   return '\u001B[33m' + d + '\u001B[39m'
 }
 
-const CONTINUE = true;
-const SKIP = 'skip';
-const EXIT = false;
-const visitParents =
+const CONTINUE$z = true;
+const SKIP$z = 'skip';
+const EXIT$z = false;
+const visitParents$z =
   (
     function (tree, test, visitor, reverse) {
       if (typeof test === 'function' && typeof visitor !== 'function') {
@@ -11612,7 +11991,7 @@ const visitParents =
         visitor = test;
         test = null;
       }
-      var is = convert(test);
+      var is = convert$z(test);
       var step = reverse ? -1 : 1;
       factory(tree, null, [])();
       function factory(node, index, parents) {
@@ -11628,7 +12007,7 @@ const visitParents =
           Object.defineProperty(visit, 'name', {
             value:
               'node (' +
-              color$1(value.type + (name ? '<' + name + '>' : '')) +
+              color$A(value.type + (name ? '<' + name + '>' : '')) +
               ')'
           });
         }
@@ -11639,17 +12018,17 @@ const visitParents =
           var offset;
           var grandparents;
           if (!test || is(node, index, parents[parents.length - 1] || null)) {
-            result = toResult(visitor(node, parents));
-            if (result[0] === EXIT) {
+            result = toResult$z(visitor(node, parents));
+            if (result[0] === EXIT$z) {
               return result
             }
           }
-          if (node.children && result[0] !== SKIP) {
+          if (node.children && result[0] !== SKIP$z) {
             offset = (reverse ? node.children.length : -1) + step;
             grandparents = parents.concat(node);
             while (offset > -1 && offset < node.children.length) {
               subresult = factory(node.children[offset], offset, grandparents)();
-              if (subresult[0] === EXIT) {
+              if (subresult[0] === EXIT$z) {
                 return subresult
               }
               offset =
@@ -11661,17 +12040,17 @@ const visitParents =
       }
     }
   );
-function toResult(value) {
+function toResult$z(value) {
   if (Array.isArray(value)) {
     return value
   }
   if (typeof value === 'number') {
-    return [CONTINUE, value]
+    return [CONTINUE$z, value]
   }
   return [value]
 }
 
-const visit =
+const visit$z =
   (
     function (tree, test, visitor, reverse) {
       if (typeof test === 'function' && typeof visitor !== 'function') {
@@ -11679,7 +12058,7 @@ const visit =
         visitor = test;
         test = null;
       }
-      visitParents(tree, test, overload, reverse);
+      visitParents$z(tree, test, overload, reverse);
       function overload(node, parents) {
         var parent = parents[parents.length - 1];
         return visitor(
@@ -11691,7 +12070,7 @@ const visit =
     }
   );
 
-const own$2 = {}.hasOwnProperty;
+const own$1 = {}.hasOwnProperty;
 function messageControl(options) {
   if (!options || typeof options !== 'object' || !options.name) {
     throw new Error(
@@ -11717,7 +12096,7 @@ function messageControl(options) {
     const gaps = detectGaps(tree, file);
     const scope = {};
     const globals = [];
-    visit(tree, options.test, visitor);
+    visit$z(tree, options.test, visitor);
     file.messages = file.messages.filter((m) => filter(m));
     function visitor(node, position, parent) {
       const mark = options.marker(node);
@@ -11814,7 +12193,7 @@ function messageControl(options) {
       }
       if (!ruleId) {
         for (ruleId in scope) {
-          if (own$2.call(scope, ruleId)) {
+          if (own$1.call(scope, ruleId)) {
             toggle(point, state, ruleId);
           }
         }
@@ -11852,7 +12231,7 @@ function detectGaps(tree, file) {
   const gaps = [];
   let offset = 0;
   let gap;
-  visit(tree, one);
+  visit$z(tree, one);
   if (
     lastNode &&
     lastNode.position &&
@@ -11935,20 +12314,21 @@ function parseParameters(value) {
   const parameters = {};
   return value
     .replace(
-      /\s+([-\w]+)(?:=(?:"((?:\\[\s\S]|[^"])+)"|'((?:\\[\s\S]|[^'])+)'|((?:\\[\s\S]|[^"'\s])+)))?/gi,
+      /\s+([-\w]+)(?:=(?:"((?:\\[\s\S]|[^"])*)"|'((?:\\[\s\S]|[^'])*)'|((?:\\[\s\S]|[^"'\s])+)))?/gi,
       replacer
     )
     .replace(/\s+/g, '')
     ? null
     : parameters
   function replacer(_, $1, $2, $3, $4) {
-    let value = $2 || $3 || $4 || '';
-    if (value === 'true' || value === '') {
+    let value = $2 === undefined ? ($3 === undefined ? $4 : $3) : $2;
+    const number = Number(value);
+    if (value === 'true' || value === undefined) {
       value = true;
     } else if (value === 'false') {
       value = false;
-    } else if (!Number.isNaN(Number(value))) {
-      value = Number(value);
+    } else if (value.trim() && !Number.isNaN(number)) {
+      value = number;
     }
     parameters[$1] = value;
     return ''
@@ -11977,7 +12357,6 @@ function lintMessageControl() {
   return remarkMessageControl({name: 'lint', source: 'remark-lint'})
 }
 
-const primitives = new Set(['string', 'number', 'boolean']);
 function lintRule(meta, rule) {
   const id = typeof meta === 'string' ? meta : meta.origin;
   const url = typeof meta === 'string' ? undefined : meta.url;
@@ -11986,8 +12365,8 @@ function lintRule(meta, rule) {
   const ruleId = parts[1];
   Object.defineProperty(plugin, 'name', {value: id});
   return plugin
-  function plugin(raw) {
-    const [severity, options] = coerce$1(ruleId, raw);
+  function plugin(config) {
+    const [severity, options] = coerce$1(ruleId, config);
     if (!severity) return
     const fatal = severity === 2;
     return (tree, file, next) => {
@@ -12007,47 +12386,37 @@ function lintRule(meta, rule) {
     }
   }
 }
-function coerce$1(name, value) {
-  let result;
-  if (typeof value === 'boolean') {
-    result = [value];
-  } else if (value === null || value === undefined) {
-    result = [1];
-  } else if (
-    Array.isArray(value) &&
-    primitives.has(typeof value[0])
-  ) {
-    result = [...value];
-  } else {
-    result = [1, value];
-  }
-  let level = result[0];
-  if (typeof level === 'boolean') {
-    level = level ? 1 : 0;
-  } else if (typeof level === 'string') {
-    if (level === 'off') {
-      level = 0;
-    } else if (level === 'on' || level === 'warn') {
-      level = 1;
-    } else if (level === 'error') {
-      level = 2;
-    } else {
-      level = 1;
-      result = [level, result];
+function coerce$1(name, config) {
+  if (!Array.isArray(config)) return [1, config]
+  const [severity, ...options] = config;
+  switch (severity) {
+    case false:
+    case 'off':
+    case 0: {
+      return [0, ...options]
+    }
+    case true:
+    case 'on':
+    case 'warn':
+    case 1: {
+      return [1, ...options]
+    }
+    case 'error':
+    case 2: {
+      return [2, ...options]
+    }
+    default: {
+      if (typeof severity !== 'number') return [1, config]
+      throw new Error(
+        'Incorrect severity `' +
+          severity +
+          '` for `' +
+          name +
+          '`, ' +
+          'expected 0, 1, or 2'
+      )
     }
   }
-  if (typeof level !== 'number' || level < 0 || level > 2) {
-    throw new Error(
-      'Incorrect severity `' +
-        level +
-        '` for `' +
-        name +
-        '`, ' +
-        'expected 0, 1, or 2'
-    )
-  }
-  result[0] = level;
-  return result
 }
 
 /**
@@ -12454,7 +12823,164 @@ var pluralize = {exports: {}};
 	  return pluralize;
 	});
 } (pluralize));
-var plural = pluralize.exports;
+var pluralizeExports = pluralize.exports;
+var plural = getDefaultExportFromCjs(pluralizeExports);
+
+const convert$y =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$y
+      }
+      if (typeof test === 'string') {
+        return typeFactory$y(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$y(test) : propsFactory$y(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$y(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$y(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$y(tests[index]);
+  }
+  return castFactory$y(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$y(check) {
+  return castFactory$y(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$y(check) {
+  return castFactory$y(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$y(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$y() {
+  return true
+}
+
+function color$z(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$y = true;
+const EXIT$y = false;
+const SKIP$y = 'skip';
+const visitParents$y =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$y(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$z(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$y(visitor(node, parents));
+            if (result[0] === EXIT$y) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$y) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$y) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$y(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$y, value]
+  }
+  return [value]
+}
+
+const visit$y =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$y(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
 
 /**
  * ## When should I use this?
@@ -12521,7 +13047,7 @@ const remarkLintListItemBulletIndent = lintRule(
     url: 'https://github.com/remarkjs/remark-lint/tree/main/packages/remark-lint-list-item-bullet-indent#readme'
   },
   (tree, file) => {
-    visit$1(tree, 'list', (list, _, grandparent) => {
+    visit$y(tree, 'list', (list, _, grandparent) => {
       let index = -1;
       while (++index < list.children.length) {
         const item = list.children[index];
@@ -12551,9 +13077,165 @@ const remarkLintListItemBulletIndent = lintRule(
 );
 var remarkLintListItemBulletIndent$1 = remarkLintListItemBulletIndent;
 
-const pointStart = point('start');
-const pointEnd = point('end');
-function point(type) {
+const convert$x =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$x
+      }
+      if (typeof test === 'string') {
+        return typeFactory$x(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$x(test) : propsFactory$x(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$x(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$x(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$x(tests[index]);
+  }
+  return castFactory$x(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$x(check) {
+  return castFactory$x(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$x(check) {
+  return castFactory$x(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$x(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$x() {
+  return true
+}
+
+function color$y(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$x = true;
+const EXIT$x = false;
+const SKIP$x = 'skip';
+const visitParents$x =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$x(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$y(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$x(visitor(node, parents));
+            if (result[0] === EXIT$x) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$x) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$x) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$x(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$x, value]
+  }
+  return [value]
+}
+
+const visit$x =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$x(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
+
+const pointStart = point$2('start');
+const pointEnd = point$2('end');
+function point$2(type) {
   return point
   function point(node) {
     const point = (node && node.position && node.position[type]) || {};
@@ -12659,7 +13341,7 @@ function generated(node) {
  *   ····item.
  *
  * @example
- *   {"name": "ok.md", "setting": "mixed"}
+ *   {"name": "ok.md", "config": "mixed"}
  *
  *   *·List item.
  *
@@ -12676,7 +13358,7 @@ function generated(node) {
  *   ····item.
  *
  * @example
- *   {"name": "ok.md", "setting": "space"}
+ *   {"name": "ok.md", "config": "space"}
  *
  *   *·List item.
  *
@@ -12693,39 +13375,39 @@ function generated(node) {
  *   ··item.
  *
  * @example
- *   {"name": "not-ok.md", "setting": "space", "label": "input"}
+ *   {"name": "not-ok.md", "config": "space", "label": "input"}
  *
  *   *···List
  *   ····item.
  *
  * @example
- *   {"name": "not-ok.md", "setting": "space", "label": "output"}
+ *   {"name": "not-ok.md", "config": "space", "label": "output"}
  *
  *    1:5: Incorrect list-item indent: remove 2 spaces
  *
  * @example
- *   {"name": "not-ok.md", "setting": "tab-size", "label": "input"}
+ *   {"name": "not-ok.md", "config": "tab-size", "label": "input"}
  *
  *   *·List
  *   ··item.
  *
  * @example
- *   {"name": "not-ok.md", "setting": "tab-size", "label": "output"}
+ *   {"name": "not-ok.md", "config": "tab-size", "label": "output"}
  *
  *    1:3: Incorrect list-item indent: add 2 spaces
  *
  * @example
- *   {"name": "not-ok.md", "setting": "mixed", "label": "input"}
+ *   {"name": "not-ok.md", "config": "mixed", "label": "input"}
  *
  *   *···List item.
  *
  * @example
- *   {"name": "not-ok.md", "setting": "mixed", "label": "output"}
+ *   {"name": "not-ok.md", "config": "mixed", "label": "output"}
  *
  *    1:5: Incorrect list-item indent: remove 2 spaces
  *
  * @example
- *   {"name": "not-ok.md", "setting": "💩", "label": "output", "positionless": true}
+ *   {"name": "not-ok.md", "config": "💩", "label": "output", "positionless": true}
  *
  *    1:1: Incorrect list-item indent style `💩`: use either `'tab-size'`, `'space'`, or `'mixed'`
  */
@@ -12743,7 +13425,7 @@ const remarkLintListItemIndent = lintRule(
           "`: use either `'tab-size'`, `'space'`, or `'mixed'`"
       );
     }
-    visit$1(tree, 'list', (node) => {
+    visit$x(tree, 'list', (node) => {
       if (generated(node)) return
       const spread = node.spread;
       let index = -1;
@@ -12777,6 +13459,162 @@ const remarkLintListItemIndent = lintRule(
   }
 );
 var remarkLintListItemIndent$1 = remarkLintListItemIndent;
+
+const convert$w =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$w
+      }
+      if (typeof test === 'string') {
+        return typeFactory$w(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$w(test) : propsFactory$w(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$w(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$w(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$w(tests[index]);
+  }
+  return castFactory$w(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$w(check) {
+  return castFactory$w(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$w(check) {
+  return castFactory$w(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$w(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$w() {
+  return true
+}
+
+function color$x(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$w = true;
+const EXIT$w = false;
+const SKIP$w = 'skip';
+const visitParents$w =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$w(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$x(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$w(visitor(node, parents));
+            if (result[0] === EXIT$w) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$w) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$w) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$w(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$w, value]
+  }
+  return [value]
+}
+
+const visit$w =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$w(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
 
 /**
  * ## When should I use this?
@@ -12850,7 +13688,7 @@ const remarkLintNoBlockquoteWithoutMarker = lintRule(
   (tree, file) => {
     const value = String(file);
     const loc = location(file);
-    visit$1(tree, 'blockquote', (node) => {
+    visit$w(tree, 'blockquote', (node) => {
       let index = -1;
       while (++index < node.children.length) {
         const child = node.children[index];
@@ -12874,6 +13712,202 @@ const remarkLintNoBlockquoteWithoutMarker = lintRule(
   }
 );
 var remarkLintNoBlockquoteWithoutMarker$1 = remarkLintNoBlockquoteWithoutMarker;
+
+const convert$v =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$v
+      }
+      if (typeof test === 'string') {
+        return typeFactory$v(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$v(test) : propsFactory$v(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$v(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$v(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$v(tests[index]);
+  }
+  return castFactory$v(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$v(check) {
+  return castFactory$v(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$v(check) {
+  return castFactory$v(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$v(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$v() {
+  return true
+}
+
+function color$w(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$v = true;
+const EXIT$v = false;
+const SKIP$v = 'skip';
+const visitParents$v =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$v(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$w(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$v(visitor(node, parents));
+            if (result[0] === EXIT$v) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$v) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$v) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$v(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$v, value]
+  }
+  return [value]
+}
+
+const visit$v =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$v(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
+
+const emptyOptions$1 = {};
+function toString$1(value, options) {
+  const settings = options || emptyOptions$1;
+  const includeImageAlt =
+    typeof settings.includeImageAlt === 'boolean'
+      ? settings.includeImageAlt
+      : true;
+  const includeHtml =
+    typeof settings.includeHtml === 'boolean' ? settings.includeHtml : true;
+  return one$1(value, includeImageAlt, includeHtml)
+}
+function one$1(value, includeImageAlt, includeHtml) {
+  if (node$1(value)) {
+    if ('value' in value) {
+      return value.type === 'html' && !includeHtml ? '' : value.value
+    }
+    if (includeImageAlt && 'alt' in value && value.alt) {
+      return value.alt
+    }
+    if ('children' in value) {
+      return all$1(value.children, includeImageAlt, includeHtml)
+    }
+  }
+  if (Array.isArray(value)) {
+    return all$1(value, includeImageAlt, includeHtml)
+  }
+  return ''
+}
+function all$1(values, includeImageAlt, includeHtml) {
+  const result = [];
+  let index = -1;
+  while (++index < values.length) {
+    result[index] = one$1(values[index], includeImageAlt, includeHtml);
+  }
+  return result.join('')
+}
+function node$1(value) {
+  return Boolean(value && typeof value === 'object')
+}
 
 /**
  * ## When should I use this?
@@ -12923,8 +13957,8 @@ const remarkLintNoLiteralUrls = lintRule(
     url: 'https://github.com/remarkjs/remark-lint/tree/main/packages/remark-lint-no-literal-urls#readme'
   },
   (tree, file) => {
-    visit$1(tree, 'link', (node) => {
-      const value = toString(node);
+    visit$v(tree, 'link', (node) => {
+      const value = toString$1(node);
       if (
         !generated(node) &&
         pointStart(node).column === pointStart(node.children[0]).column &&
@@ -12938,6 +13972,162 @@ const remarkLintNoLiteralUrls = lintRule(
   }
 );
 var remarkLintNoLiteralUrls$1 = remarkLintNoLiteralUrls;
+
+const convert$u =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$u
+      }
+      if (typeof test === 'string') {
+        return typeFactory$u(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$u(test) : propsFactory$u(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$u(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$u(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$u(tests[index]);
+  }
+  return castFactory$u(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$u(check) {
+  return castFactory$u(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$u(check) {
+  return castFactory$u(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$u(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$u() {
+  return true
+}
+
+function color$v(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$u = true;
+const EXIT$u = false;
+const SKIP$u = 'skip';
+const visitParents$u =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$u(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$v(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$u(visitor(node, parents));
+            if (result[0] === EXIT$u) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$u) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$u) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$u(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$u, value]
+  }
+  return [value]
+}
+
+const visit$u =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$u(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
 
 /**
  * ## When should I use this?
@@ -12989,14 +14179,14 @@ var remarkLintNoLiteralUrls$1 = remarkLintNoLiteralUrls;
  *   * Foo
  *
  * @example
- *   {"name": "ok.md", "setting": "."}
+ *   {"name": "ok.md", "config": "."}
  *
  *   1.  Foo
  *
  *   2.  Bar
  *
  * @example
- *   {"name": "ok.md", "setting": ")"}
+ *   {"name": "ok.md", "config": ")"}
  *
  *   1)  Foo
  *
@@ -13015,7 +14205,7 @@ var remarkLintNoLiteralUrls$1 = remarkLintNoLiteralUrls;
  *   3:1-3:8: Marker style should be `.`
  *
  * @example
- *   {"name": "not-ok.md", "label": "output", "setting": "💩", "positionless": true}
+ *   {"name": "not-ok.md", "label": "output", "config": "💩", "positionless": true}
  *
  *   1:1: Incorrect ordered list item marker style `💩`: use either `'.'` or `')'`
  */
@@ -13033,7 +14223,7 @@ const remarkLintOrderedListMarkerStyle = lintRule(
           "`: use either `'.'` or `')'`"
       );
     }
-    visit$1(tree, 'list', (node) => {
+    visit$u(tree, 'list', (node) => {
       let index = -1;
       if (!node.ordered) return
       while (++index < node.children.length) {
@@ -13059,6 +14249,162 @@ const remarkLintOrderedListMarkerStyle = lintRule(
   }
 );
 var remarkLintOrderedListMarkerStyle$1 = remarkLintOrderedListMarkerStyle;
+
+const convert$t =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$t
+      }
+      if (typeof test === 'string') {
+        return typeFactory$t(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$t(test) : propsFactory$t(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$t(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$t(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$t(tests[index]);
+  }
+  return castFactory$t(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$t(check) {
+  return castFactory$t(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$t(check) {
+  return castFactory$t(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$t(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$t() {
+  return true
+}
+
+function color$u(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$t = true;
+const EXIT$t = false;
+const SKIP$t = 'skip';
+const visitParents$t =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$t(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$u(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$t(visitor(node, parents));
+            if (result[0] === EXIT$t) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$t) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$t) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$t(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$t, value]
+  }
+  return [value]
+}
+
+const visit$t =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$t(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
 
 /**
  * ## When should I use this?
@@ -13107,7 +14453,7 @@ const remarkLintHardBreakSpaces = lintRule(
   },
   (tree, file) => {
     const value = String(file);
-    visit$1(tree, 'break', (node) => {
+    visit$t(tree, 'break', (node) => {
       if (!generated(node)) {
         const slice = value
           .slice(pointStart(node).offset, pointEnd(node).offset)
@@ -13121,6 +14467,187 @@ const remarkLintHardBreakSpaces = lintRule(
   }
 );
 var remarkLintHardBreakSpaces$1 = remarkLintHardBreakSpaces;
+
+function stringifyPosition$1(value) {
+  if (!value || typeof value !== 'object') {
+    return ''
+  }
+  if ('position' in value || 'type' in value) {
+    return position$1(value.position)
+  }
+  if ('start' in value || 'end' in value) {
+    return position$1(value)
+  }
+  if ('line' in value || 'column' in value) {
+    return point$1(value)
+  }
+  return ''
+}
+function point$1(point) {
+  return index$1(point && point.line) + ':' + index$1(point && point.column)
+}
+function position$1(pos) {
+  return point$1(pos && pos.start) + '-' + point$1(pos && pos.end)
+}
+function index$1(value) {
+  return value && typeof value === 'number' ? value : 1
+}
+
+const convert$s =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$s
+      }
+      if (typeof test === 'string') {
+        return typeFactory$s(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$s(test) : propsFactory$s(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$s(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$s(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$s(tests[index]);
+  }
+  return castFactory$s(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$s(check) {
+  return castFactory$s(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$s(check) {
+  return castFactory$s(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$s(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$s() {
+  return true
+}
+
+function color$t(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$s = true;
+const EXIT$s = false;
+const SKIP$s = 'skip';
+const visitParents$s =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$s(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$t(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$s(visitor(node, parents));
+            if (result[0] === EXIT$s) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$s) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$s) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$s(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$s, value]
+  }
+  return [value]
+}
+
+const visit$s =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$s(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
 
 /**
  * ## When should I use this?
@@ -13165,7 +14692,7 @@ const remarkLintNoDuplicateDefinitions = lintRule(
   },
   (tree, file) => {
     const map = Object.create(null);
-    visit$1(tree, (node) => {
+    visit$s(tree, (node) => {
       if (
         (node.type === 'definition' || node.type === 'footnoteDefinition') &&
         !generated(node)
@@ -13180,18 +14707,174 @@ const remarkLintNoDuplicateDefinitions = lintRule(
             node
           );
         }
-        map[identifier] = stringifyPosition(pointStart(node));
+        map[identifier] = stringifyPosition$1(pointStart(node));
       }
     });
   }
 );
 var remarkLintNoDuplicateDefinitions$1 = remarkLintNoDuplicateDefinitions;
 
+const convert$r =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$r
+      }
+      if (typeof test === 'string') {
+        return typeFactory$r(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$r(test) : propsFactory$r(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$r(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$r(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$r(tests[index]);
+  }
+  return castFactory$r(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$r(check) {
+  return castFactory$r(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$r(check) {
+  return castFactory$r(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$r(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$r() {
+  return true
+}
+
+function color$s(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$r = true;
+const EXIT$r = false;
+const SKIP$r = 'skip';
+const visitParents$r =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$r(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$s(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$r(visitor(node, parents));
+            if (result[0] === EXIT$r) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$r) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$r) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$r(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$r, value]
+  }
+  return [value]
+}
+
+const visit$r =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$r(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
+
 function headingStyle(node, relative) {
-  var last = node.children[node.children.length - 1];
-  var depth = node.depth;
-  var pos = node && node.position && node.position.end;
-  var final = last && last.position && last.position.end;
+  const last = node.children[node.children.length - 1];
+  const depth = node.depth;
+  const pos = node.position && node.position.end;
+  const final = last && last.position && last.position.end;
   if (!pos) {
     return null
   }
@@ -13201,10 +14884,10 @@ function headingStyle(node, relative) {
     }
     return 'atx-closed'
   }
-  if (final.line + 1 === pos.line) {
+  if (final && final.line + 1 === pos.line) {
     return 'setext'
   }
-  if (final.column + depth < pos.column) {
+  if (final && final.column + depth < pos.column) {
     return 'atx-closed'
   }
   return consolidate(depth, relative)
@@ -13285,7 +14968,7 @@ const remarkLintNoHeadingContentIndent = lintRule(
     url: 'https://github.com/remarkjs/remark-lint/tree/main/packages/remark-lint-no-heading-content-indent#readme'
   },
   (tree, file) => {
-    visit$1(tree, 'heading', (node) => {
+    visit$r(tree, 'heading', (node) => {
       if (generated(node)) {
         return
       }
@@ -13326,6 +15009,202 @@ const remarkLintNoHeadingContentIndent = lintRule(
 );
 var remarkLintNoHeadingContentIndent$1 = remarkLintNoHeadingContentIndent;
 
+const convert$q =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$q
+      }
+      if (typeof test === 'string') {
+        return typeFactory$q(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$q(test) : propsFactory$q(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$q(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$q(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$q(tests[index]);
+  }
+  return castFactory$q(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$q(check) {
+  return castFactory$q(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$q(check) {
+  return castFactory$q(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$q(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$q() {
+  return true
+}
+
+function color$r(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$q = true;
+const EXIT$q = false;
+const SKIP$q = 'skip';
+const visitParents$q =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$q(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$r(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$q(visitor(node, parents));
+            if (result[0] === EXIT$q) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$q) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$q) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$q(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$q, value]
+  }
+  return [value]
+}
+
+const visit$q =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$q(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
+
+const emptyOptions = {};
+function toString(value, options) {
+  const settings = options || emptyOptions;
+  const includeImageAlt =
+    typeof settings.includeImageAlt === 'boolean'
+      ? settings.includeImageAlt
+      : true;
+  const includeHtml =
+    typeof settings.includeHtml === 'boolean' ? settings.includeHtml : true;
+  return one(value, includeImageAlt, includeHtml)
+}
+function one(value, includeImageAlt, includeHtml) {
+  if (node(value)) {
+    if ('value' in value) {
+      return value.type === 'html' && !includeHtml ? '' : value.value
+    }
+    if (includeImageAlt && 'alt' in value && value.alt) {
+      return value.alt
+    }
+    if ('children' in value) {
+      return all(value.children, includeImageAlt, includeHtml)
+    }
+  }
+  if (Array.isArray(value)) {
+    return all(value, includeImageAlt, includeHtml)
+  }
+  return ''
+}
+function all(values, includeImageAlt, includeHtml) {
+  const result = [];
+  let index = -1;
+  while (++index < values.length) {
+    result[index] = one(values[index], includeImageAlt, includeHtml);
+  }
+  return result.join('')
+}
+function node(value) {
+  return Boolean(value && typeof value === 'object')
+}
+
 /**
  * ## When should I use this?
  *
@@ -13365,7 +15244,7 @@ const remarkLintNoInlinePadding = lintRule(
     url: 'https://github.com/remarkjs/remark-lint/tree/main/packages/remark-lint-no-inline-padding#readme'
   },
   (tree, file) => {
-    visit$1(tree, (node) => {
+    visit$q(tree, (node) => {
       if (
         (node.type === 'link' || node.type === 'linkReference') &&
         !generated(node)
@@ -13379,6 +15258,162 @@ const remarkLintNoInlinePadding = lintRule(
   }
 );
 var remarkLintNoInlinePadding$1 = remarkLintNoInlinePadding;
+
+const convert$p =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$p
+      }
+      if (typeof test === 'string') {
+        return typeFactory$p(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$p(test) : propsFactory$p(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$p(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$p(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$p(tests[index]);
+  }
+  return castFactory$p(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$p(check) {
+  return castFactory$p(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$p(check) {
+  return castFactory$p(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$p(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$p() {
+  return true
+}
+
+function color$q(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$p = true;
+const EXIT$p = false;
+const SKIP$p = 'skip';
+const visitParents$p =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$p(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$q(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$p(visitor(node, parents));
+            if (result[0] === EXIT$p) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$p) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$p) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$p(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$p, value]
+  }
+  return [value]
+}
+
+const visit$p =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$p(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
 
 /**
  * ## When should I use this?
@@ -13429,7 +15464,7 @@ const remarkLintNoShortcutReferenceImage = lintRule(
     url: 'https://github.com/remarkjs/remark-lint/tree/main/packages/remark-lint-no-shortcut-reference-image#readme'
   },
   (tree, file) => {
-    visit$1(tree, 'imageReference', (node) => {
+    visit$p(tree, 'imageReference', (node) => {
       if (!generated(node) && node.referenceType === 'shortcut') {
         file.message('Use the trailing [] on reference images', node);
       }
@@ -13437,6 +15472,162 @@ const remarkLintNoShortcutReferenceImage = lintRule(
   }
 );
 var remarkLintNoShortcutReferenceImage$1 = remarkLintNoShortcutReferenceImage;
+
+const convert$o =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$o
+      }
+      if (typeof test === 'string') {
+        return typeFactory$o(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$o(test) : propsFactory$o(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$o(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$o(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$o(tests[index]);
+  }
+  return castFactory$o(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$o(check) {
+  return castFactory$o(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$o(check) {
+  return castFactory$o(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$o(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$o() {
+  return true
+}
+
+function color$p(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$o = true;
+const EXIT$o = false;
+const SKIP$o = 'skip';
+const visitParents$o =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$o(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$p(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$o(visitor(node, parents));
+            if (result[0] === EXIT$o) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$o) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$o) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$o(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$o, value]
+  }
+  return [value]
+}
+
+const visit$o =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$o(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
 
 /**
  * ## When should I use this?
@@ -13487,7 +15678,7 @@ const remarkLintNoShortcutReferenceLink = lintRule(
     url: 'https://github.com/remarkjs/remark-lint/tree/main/packages/remark-lint-no-shortcut-reference-link#readme'
   },
   (tree, file) => {
-    visit$1(tree, 'linkReference', (node) => {
+    visit$o(tree, 'linkReference', (node) => {
       if (!generated(node) && node.referenceType === 'shortcut') {
         file.message('Use the trailing `[]` on reference links', node);
       }
@@ -13495,6 +15686,172 @@ const remarkLintNoShortcutReferenceLink = lintRule(
   }
 );
 var remarkLintNoShortcutReferenceLink$1 = remarkLintNoShortcutReferenceLink;
+
+function normalizeIdentifier(value) {
+  return (
+    value
+      .replace(/[\t\n\r ]+/g, ' ')
+      .replace(/^ | $/g, '')
+      .toLowerCase()
+      .toUpperCase()
+  )
+}
+
+const convert$n =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$n
+      }
+      if (typeof test === 'string') {
+        return typeFactory$n(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$n(test) : propsFactory$n(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$n(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$n(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$n(tests[index]);
+  }
+  return castFactory$n(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$n(check) {
+  return castFactory$n(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$n(check) {
+  return castFactory$n(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$n(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$n() {
+  return true
+}
+
+function color$o(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$n = true;
+const EXIT$n = false;
+const SKIP$n = 'skip';
+const visitParents$n =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$n(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$o(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$n(visitor(node, parents));
+            if (result[0] === EXIT$n) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$n) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$n) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$n(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$n, value]
+  }
+  return [value]
+}
+
+const visit$n =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$n(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
 
 /**
  * ## When should I use this?
@@ -13510,7 +15867,7 @@ var remarkLintNoShortcutReferenceLink$1 = remarkLintNoShortcutReferenceLink;
  *         default: `[]`)
  *         — text or regex that you want to be allowed between `[` and `]`
  *         even though it’s undefined; regex is provided via a `RegExp` object
- *         or via a `{ source: string }` object where `source` is the source
+ *         or via a `{source: string}` object where `source` is the source
  *         text of a case-insensitive regex
  *
  * ## Recommendation
@@ -13641,7 +15998,7 @@ const remarkLintNoUndefinedReferences = lintRule(
         regexes.push(new RegExp(value.source, 'i'));
       }
     }
-    visit$1(tree, (node) => {
+    visit$n(tree, (node) => {
       if (
         (node.type === 'definition' || node.type === 'footnoteDefinition') &&
         !generated(node)
@@ -13649,7 +16006,7 @@ const remarkLintNoUndefinedReferences = lintRule(
         map[normalizeIdentifier(node.identifier)] = true;
       }
     });
-    visit$1(tree, (node) => {
+    visit$n(tree, (node) => {
       if (
         (node.type === 'imageReference' ||
           node.type === 'linkReference' ||
@@ -13666,17 +16023,17 @@ const remarkLintNoUndefinedReferences = lintRule(
     });
     function findInPhrasing(node) {
       let ranges = [];
-      visit$1(node, (child) => {
+      visit$n(node, (child) => {
         if (child === node) return
         if (child.type === 'link' || child.type === 'linkReference') {
           ranges = [];
-          return SKIP$1
+          return SKIP$n
         }
         if (child.type !== 'text') return
         const start = pointStart(child).offset;
         const end = pointEnd(child).offset;
         if (typeof start !== 'number' || typeof end !== 'number') {
-          return EXIT$1
+          return EXIT$n
         }
         const source = contents.slice(start, end);
         const lines = [[start, '']];
@@ -13743,7 +16100,7 @@ const remarkLintNoUndefinedReferences = lintRule(
       while (++index < ranges.length) {
         handleRange(ranges[index]);
       }
-      return SKIP$1
+      return SKIP$n
       function handleRange(range) {
         if (range.length === 1) return
         if (range.length === 3) range.length = 2;
@@ -13775,6 +16132,162 @@ const remarkLintNoUndefinedReferences = lintRule(
   }
 );
 var remarkLintNoUndefinedReferences$1 = remarkLintNoUndefinedReferences;
+
+const convert$m =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$m
+      }
+      if (typeof test === 'string') {
+        return typeFactory$m(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$m(test) : propsFactory$m(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$m(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$m(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$m(tests[index]);
+  }
+  return castFactory$m(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$m(check) {
+  return castFactory$m(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$m(check) {
+  return castFactory$m(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$m(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$m() {
+  return true
+}
+
+function color$n(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$m = true;
+const EXIT$m = false;
+const SKIP$m = 'skip';
+const visitParents$m =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$m(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$n(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$m(visitor(node, parents));
+            if (result[0] === EXIT$m) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$m) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$m) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$m(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$m, value]
+  }
+  return [value]
+}
+
+const visit$m =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$m(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
 
 /**
  * ## When should I use this?
@@ -13812,7 +16325,7 @@ var remarkLintNoUndefinedReferences$1 = remarkLintNoUndefinedReferences;
  *
  *   1:1-1:27: Found unused definition
  */
-const own$1 = {}.hasOwnProperty;
+const own = {}.hasOwnProperty;
 const remarkLintNoUnusedDefinitions = lintRule(
   {
     origin: 'remark-lint:no-unused-definitions',
@@ -13820,7 +16333,7 @@ const remarkLintNoUnusedDefinitions = lintRule(
   },
   (tree, file) => {
     const map = Object.create(null);
-    visit$1(tree, (node) => {
+    visit$m(tree, (node) => {
       if (
         (node.type === 'definition' || node.type === 'footnoteDefinition') &&
         !generated(node)
@@ -13828,7 +16341,7 @@ const remarkLintNoUnusedDefinitions = lintRule(
         map[node.identifier.toUpperCase()] = {node, used: false};
       }
     });
-    visit$1(tree, (node) => {
+    visit$m(tree, (node) => {
       if (
         node.type === 'imageReference' ||
         node.type === 'linkReference' ||
@@ -13842,7 +16355,7 @@ const remarkLintNoUnusedDefinitions = lintRule(
     });
     let identifier;
     for (identifier in map) {
-      if (own$1.call(map, identifier)) {
+      if (own.call(map, identifier)) {
         const entry = map[identifier];
         if (!entry.used) {
           file.message('Found unused definition', entry.node);
@@ -13873,6 +16386,162 @@ const remarkPresetLintRecommended = {
   ]
 };
 var remarkPresetLintRecommended$1 = remarkPresetLintRecommended;
+
+const convert$l =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$l
+      }
+      if (typeof test === 'string') {
+        return typeFactory$l(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$l(test) : propsFactory$l(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$l(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$l(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$l(tests[index]);
+  }
+  return castFactory$l(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$l(check) {
+  return castFactory$l(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$l(check) {
+  return castFactory$l(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$l(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$l() {
+  return true
+}
+
+function color$m(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$l = true;
+const EXIT$l = false;
+const SKIP$l = 'skip';
+const visitParents$l =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$l(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$m(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$l(visitor(node, parents));
+            if (result[0] === EXIT$l) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$l) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$l) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$l(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$l, value]
+  }
+  return [value]
+}
+
+const visit$l =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$l(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
 
 /**
  * ## When should I use this?
@@ -13918,7 +16587,7 @@ var remarkPresetLintRecommended$1 = remarkPresetLintRecommended;
  * @copyright 2015 Titus Wormer
  * @license MIT
  * @example
- *   {"name": "ok.md", "setting": 4}
+ *   {"name": "ok.md", "config": 4}
  *
  *   >   Hello
  *
@@ -13926,7 +16595,7 @@ var remarkPresetLintRecommended$1 = remarkPresetLintRecommended;
  *
  *   >   World
  * @example
- *   {"name": "ok.md", "setting": 2}
+ *   {"name": "ok.md", "config": 2}
  *
  *   > Hello
  *
@@ -13959,14 +16628,14 @@ const remarkLintBlockquoteIndentation = lintRule(
     url: 'https://github.com/remarkjs/remark-lint/tree/main/packages/remark-lint-blockquote-indentation#readme'
   },
   (tree, file, option = 'consistent') => {
-    visit$1(tree, 'blockquote', (node) => {
+    visit$l(tree, 'blockquote', (node) => {
       if (generated(node) || node.children.length === 0) {
         return
       }
       if (option === 'consistent') {
-        option = check$1(node);
+        option = check(node);
       } else {
-        const diff = option - check$1(node);
+        const diff = option - check(node);
         if (diff !== 0) {
           const abs = Math.abs(diff);
           file.message(
@@ -13984,9 +16653,165 @@ const remarkLintBlockquoteIndentation = lintRule(
   }
 );
 var remarkLintBlockquoteIndentation$1 = remarkLintBlockquoteIndentation;
-function check$1(node) {
+function check(node) {
   return pointStart(node.children[0]).column - pointStart(node).column
 }
+
+const convert$k =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$k
+      }
+      if (typeof test === 'string') {
+        return typeFactory$k(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$k(test) : propsFactory$k(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$k(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$k(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$k(tests[index]);
+  }
+  return castFactory$k(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$k(check) {
+  return castFactory$k(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$k(check) {
+  return castFactory$k(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$k(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$k() {
+  return true
+}
+
+function color$l(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$k = true;
+const EXIT$k = false;
+const SKIP$k = 'skip';
+const visitParents$k =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$k(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$l(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$k(visitor(node, parents));
+            if (result[0] === EXIT$k) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$k) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$k) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$k(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$k, value]
+  }
+  return [value]
+}
+
+const visit$k =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$k(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
 
 /**
  * ## When should I use this?
@@ -14027,19 +16852,19 @@ function check$1(node) {
  * @copyright 2015 Titus Wormer
  * @license MIT
  * @example
- *   {"name": "ok.md", "setting": {"checked": "x"}, "gfm": true}
+ *   {"name": "ok.md", "config": {"checked": "x"}, "gfm": true}
  *
  *   - [x] List item
  *   - [x] List item
  *
  * @example
- *   {"name": "ok.md", "setting": {"checked": "X"}, "gfm": true}
+ *   {"name": "ok.md", "config": {"checked": "X"}, "gfm": true}
  *
  *   - [X] List item
  *   - [X] List item
  *
  * @example
- *   {"name": "ok.md", "setting": {"unchecked": " "}, "gfm": true}
+ *   {"name": "ok.md", "config": {"unchecked": " "}, "gfm": true}
  *
  *   - [ ] List item
  *   - [ ] List item
@@ -14047,7 +16872,7 @@ function check$1(node) {
  *   - [ ]
  *
  * @example
- *   {"name": "ok.md", "setting": {"unchecked": "\t"}, "gfm": true}
+ *   {"name": "ok.md", "config": {"unchecked": "\t"}, "gfm": true}
  *
  *   - [»] List item
  *   - [»] List item
@@ -14067,12 +16892,12 @@ function check$1(node) {
  *   4:5: Unchecked checkboxes should use ` ` as a marker
  *
  * @example
- *   {"setting": {"unchecked": "💩"}, "name": "not-ok.md", "label": "output", "positionless": true, "gfm": true}
+ *   {"config": {"unchecked": "💩"}, "name": "not-ok.md", "label": "output", "positionless": true, "gfm": true}
  *
  *   1:1: Incorrect unchecked checkbox marker `💩`: use either `'\t'`, or `' '`
  *
  * @example
- *   {"setting": {"checked": "💩"}, "name": "not-ok.md", "label": "output", "positionless": true, "gfm": true}
+ *   {"config": {"checked": "💩"}, "name": "not-ok.md", "label": "output", "positionless": true, "gfm": true}
  *
  *   1:1: Incorrect checked checkbox marker `💩`: use either `'x'`, or `'X'`
  */
@@ -14103,7 +16928,7 @@ const remarkLintCheckboxCharacterStyle = lintRule(
           "`: use either `'x'`, or `'X'`"
       );
     }
-    visit$1(tree, 'listItem', (node) => {
+    visit$k(tree, 'listItem', (node) => {
       const head = node.children[0];
       const point = pointStart(head);
       if (
@@ -14139,6 +16964,162 @@ const remarkLintCheckboxCharacterStyle = lintRule(
   }
 );
 var remarkLintCheckboxCharacterStyle$1 = remarkLintCheckboxCharacterStyle;
+
+const convert$j =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$j
+      }
+      if (typeof test === 'string') {
+        return typeFactory$j(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$j(test) : propsFactory$j(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$j(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$j(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$j(tests[index]);
+  }
+  return castFactory$j(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$j(check) {
+  return castFactory$j(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$j(check) {
+  return castFactory$j(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$j(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$j() {
+  return true
+}
+
+function color$k(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$j = true;
+const EXIT$j = false;
+const SKIP$j = 'skip';
+const visitParents$j =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$j(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$k(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$j(visitor(node, parents));
+            if (result[0] === EXIT$j) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$j) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$j) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$j(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$j, value]
+  }
+  return [value]
+}
+
+const visit$j =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$j(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
 
 /**
  * ## When should I use this?
@@ -14210,7 +17191,7 @@ const remarkLintCheckboxContentIndent = lintRule(
   (tree, file) => {
     const value = String(file);
     const loc = location(file);
-    visit$1(tree, 'listItem', (node) => {
+    visit$j(tree, 'listItem', (node) => {
       const head = node.children[0];
       const point = pointStart(head);
       if (
@@ -14238,33 +17219,214 @@ const remarkLintCheckboxContentIndent = lintRule(
 );
 var remarkLintCheckboxContentIndent$1 = remarkLintCheckboxContentIndent;
 
+const convert$i =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$i
+      }
+      if (typeof test === 'string') {
+        return typeFactory$i(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$i(test) : propsFactory$i(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$i(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$i(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$i(tests[index]);
+  }
+  return castFactory$i(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$i(check) {
+  return castFactory$i(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$i(check) {
+  return castFactory$i(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$i(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$i() {
+  return true
+}
+
+function color$j(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$i = true;
+const EXIT$i = false;
+const SKIP$i = 'skip';
+const visitParents$i =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$i(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$j(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$i(visitor(node, parents));
+            if (result[0] === EXIT$i) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$i) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$i) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$i(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$i, value]
+  }
+  return [value]
+}
+
+const visit$i =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$i(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
+
 /**
+ * ## When should I use this?
+ *
+ * You can use this package to check that code blocks are consistent.
+ *
+ * ## API
+ *
+ * The following options (default: `'consistent'`) are accepted:
+ *
+ * *   `'fenced'`
+ *     — prefer fenced code blocks:
+ *     ````markdown
+ *     ```js
+ *     code()
+ *     ```
+ *     ````
+ * *   `'indented'`
+ *     — prefer indented code blocks:
+ *     ```markdown
+ *         code()
+ *     ```
+ * *   `'consistent'`
+ *     — detect the first used style and warn when further code blocks differ
+ *
+ * ## Recommendation
+ *
+ * Indentation in markdown is complex, especially because lists and indented
+ * code can interfere in unexpected ways.
+ * Fenced code has more features than indented code: importantly, specifying a
+ * programming language.
+ * Since CommonMark took the idea of fenced code from GFM, fenced code became
+ * widely supported.
+ * Due to this, it’s recommended to configure this rule with `'fenced'`.
+ *
+ * ## Fix
+ *
+ * [`remark-stringify`](https://github.com/remarkjs/remark/tree/main/packages/remark-stringify)
+ * formats code blocks as fenced code when they have a language flag and as
+ * indented code otherwise.
+ * Pass
+ * [`fences: true`](https://github.com/remarkjs/remark/tree/main/packages/remark-stringify#optionsfences)
+ * to always use fenced code.
+ *
+ * @module code-block-style
+ * @summary
+ *   remark-lint rule to warn when code blocks violate a given style.
  * @author Titus Wormer
  * @copyright 2015 Titus Wormer
  * @license MIT
- * @module code-block-style
- * @fileoverview
- *   Warn when code blocks do not adhere to a given style.
- *
- *   Options: `'consistent'`, `'fenced'`, or `'indented'`, default: `'consistent'`.
- *
- *   `'consistent'` detects the first used code block style and warns when
- *   subsequent code blocks uses different styles.
- *
- *   ## Fix
- *
- *   [`remark-stringify`](https://github.com/remarkjs/remark/tree/HEAD/packages/remark-stringify)
- *   formats code blocks using a fence if they have a language flag and
- *   indentation if not.
- *   Pass
- *   [`fences: true`](https://github.com/remarkjs/remark/tree/HEAD/packages/remark-stringify#optionsfences)
- *   to always use fences for code blocks.
- *
- *   See [Using remark to fix your Markdown](https://github.com/remarkjs/remark-lint#using-remark-to-fix-your-markdown)
- *   on how to automatically fix warnings for this rule.
  *
  * @example
- *   {"setting": "indented", "name": "ok.md"}
+ *   {"config": "indented", "name": "ok.md"}
  *
  *       alpha()
  *
@@ -14273,7 +17435,7 @@ var remarkLintCheckboxContentIndent$1 = remarkLintCheckboxContentIndent;
  *       bravo()
  *
  * @example
- *   {"setting": "indented", "name": "not-ok.md", "label": "input"}
+ *   {"config": "indented", "name": "not-ok.md", "label": "input"}
  *
  *   ```
  *   alpha()
@@ -14286,13 +17448,13 @@ var remarkLintCheckboxContentIndent$1 = remarkLintCheckboxContentIndent;
  *   ```
  *
  * @example
- *   {"setting": "indented", "name": "not-ok.md", "label": "output"}
+ *   {"config": "indented", "name": "not-ok.md", "label": "output"}
  *
  *   1:1-3:4: Code blocks should be indented
  *   7:1-9:4: Code blocks should be indented
  *
  * @example
- *   {"setting": "fenced", "name": "ok.md"}
+ *   {"config": "fenced", "name": "ok.md"}
  *
  *   ```
  *   alpha()
@@ -14305,7 +17467,7 @@ var remarkLintCheckboxContentIndent$1 = remarkLintCheckboxContentIndent;
  *   ```
  *
  * @example
- *   {"setting": "fenced", "name": "not-ok-fenced.md", "label": "input"}
+ *   {"config": "fenced", "name": "not-ok-fenced.md", "label": "input"}
  *
  *       alpha()
  *
@@ -14314,7 +17476,7 @@ var remarkLintCheckboxContentIndent$1 = remarkLintCheckboxContentIndent;
  *       bravo()
  *
  * @example
- *   {"setting": "fenced", "name": "not-ok-fenced.md", "label": "output"}
+ *   {"config": "fenced", "name": "not-ok-fenced.md", "label": "output"}
  *
  *   1:1-1:12: Code blocks should be fenced
  *   5:1-5:12: Code blocks should be fenced
@@ -14336,7 +17498,7 @@ var remarkLintCheckboxContentIndent$1 = remarkLintCheckboxContentIndent;
  *   5:1-7:4: Code blocks should be indented
  *
  * @example
- *   {"setting": "💩", "name": "not-ok-incorrect.md", "label": "output", "positionless": true}
+ *   {"config": "💩", "name": "not-ok-incorrect.md", "label": "output", "positionless": true}
  *
  *   1:1: Incorrect code block style `💩`: use either `'consistent'`, `'fenced'`, or `'indented'`
  */
@@ -14358,7 +17520,7 @@ const remarkLintCodeBlockStyle = lintRule(
           "`: use either `'consistent'`, `'fenced'`, or `'indented'`"
       );
     }
-    visit$1(tree, 'code', (node) => {
+    visit$i(tree, 'code', (node) => {
       if (generated(node)) {
         return
       }
@@ -14377,6 +17539,162 @@ const remarkLintCodeBlockStyle = lintRule(
   }
 );
 var remarkLintCodeBlockStyle$1 = remarkLintCodeBlockStyle;
+
+const convert$h =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$h
+      }
+      if (typeof test === 'string') {
+        return typeFactory$h(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$h(test) : propsFactory$h(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$h(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$h(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$h(tests[index]);
+  }
+  return castFactory$h(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$h(check) {
+  return castFactory$h(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$h(check) {
+  return castFactory$h(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$h(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$h() {
+  return true
+}
+
+function color$i(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$h = true;
+const EXIT$h = false;
+const SKIP$h = 'skip';
+const visitParents$h =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$h(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$i(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$h(visitor(node, parents));
+            if (result[0] === EXIT$h) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$h) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$h) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$h(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$h, value]
+  }
+  return [value]
+}
+
+const visit$h =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$h(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
 
 /**
  * ## When should I use this?
@@ -14426,7 +17744,7 @@ const remarkLintDefinitionSpacing = lintRule(
   },
   (tree, file) => {
     const value = String(file);
-    visit$1(tree, (node) => {
+    visit$h(tree, (node) => {
       if (node.type === 'definition' || node.type === 'footnoteDefinition') {
         const start = pointStart(node).offset;
         const end = pointEnd(node).offset;
@@ -14444,6 +17762,162 @@ const remarkLintDefinitionSpacing = lintRule(
   }
 );
 var remarkLintDefinitionSpacing$1 = remarkLintDefinitionSpacing;
+
+const convert$g =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$g
+      }
+      if (typeof test === 'string') {
+        return typeFactory$g(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$g(test) : propsFactory$g(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$g(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$g(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$g(tests[index]);
+  }
+  return castFactory$g(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$g(check) {
+  return castFactory$g(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$g(check) {
+  return castFactory$g(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$g(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$g() {
+  return true
+}
+
+function color$h(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$g = true;
+const EXIT$g = false;
+const SKIP$g = 'skip';
+const visitParents$g =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$g(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$h(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$g(visitor(node, parents));
+            if (result[0] === EXIT$g) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$g) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$g) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$g(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$g, value]
+  }
+  return [value]
+}
+
+const visit$g =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$g(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
 
 /**
  * ## When should I use this?
@@ -14497,47 +17971,47 @@ var remarkLintDefinitionSpacing$1 = remarkLintDefinitionSpacing;
  *   1:1-3:4: Missing code language flag
  *
  * @example
- *   {"name": "ok.md", "setting": {"allowEmpty": true}}
+ *   {"name": "ok.md", "config": {"allowEmpty": true}}
  *
  *   ```
  *   alpha()
  *   ```
  *
  * @example
- *   {"name": "not-ok.md", "setting": {"allowEmpty": false}, "label": "input"}
+ *   {"name": "not-ok.md", "config": {"allowEmpty": false}, "label": "input"}
  *
  *   ```
  *   alpha()
  *   ```
  *
  * @example
- *   {"name": "not-ok.md", "setting": {"allowEmpty": false}, "label": "output"}
+ *   {"name": "not-ok.md", "config": {"allowEmpty": false}, "label": "output"}
  *
  *   1:1-3:4: Missing code language flag
  *
  * @example
- *   {"name": "ok.md", "setting": ["alpha"]}
+ *   {"name": "ok.md", "config": ["alpha"]}
  *
  *   ```alpha
  *   bravo()
  *   ```
  *
  * @example
- *   {"name": "ok.md", "setting": {"flags":["alpha"]}}
+ *   {"name": "ok.md", "config": {"flags":["alpha"]}}
  *
  *   ```alpha
  *   bravo()
  *   ```
  *
  * @example
- *   {"name": "not-ok.md", "setting": ["charlie"], "label": "input"}
+ *   {"name": "not-ok.md", "config": ["charlie"], "label": "input"}
  *
  *   ```alpha
  *   bravo()
  *   ```
  *
  * @example
- *   {"name": "not-ok.md", "setting": ["charlie"], "label": "output"}
+ *   {"name": "not-ok.md", "config": ["charlie"], "label": "output"}
  *
  *   1:1-3:4: Incorrect code language flag
  */
@@ -14561,7 +18035,7 @@ const remarkLintFencedCodeFlag = lintRule(
         }
       }
     }
-    visit$1(tree, 'code', (node) => {
+    visit$g(tree, 'code', (node) => {
       if (!generated(node)) {
         if (node.lang) {
           if (allowed.length > 0 && !allowed.includes(node.lang)) {
@@ -14581,6 +18055,162 @@ const remarkLintFencedCodeFlag = lintRule(
   }
 );
 var remarkLintFencedCodeFlag$1 = remarkLintFencedCodeFlag;
+
+const convert$f =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$f
+      }
+      if (typeof test === 'string') {
+        return typeFactory$f(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$f(test) : propsFactory$f(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$f(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$f(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$f(tests[index]);
+  }
+  return castFactory$f(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$f(check) {
+  return castFactory$f(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$f(check) {
+  return castFactory$f(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$f(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$f() {
+  return true
+}
+
+function color$g(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$f = true;
+const EXIT$f = false;
+const SKIP$f = 'skip';
+const visitParents$f =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$f(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$g(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$f(visitor(node, parents));
+            if (result[0] === EXIT$f) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$f) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$f) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$f(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$f, value]
+  }
+  return [value]
+}
+
+const visit$f =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$f(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
 
 /**
  * ## When should I use this?
@@ -14625,7 +18255,7 @@ var remarkLintFencedCodeFlag$1 = remarkLintFencedCodeFlag;
  *       bravo()
  *
  * @example
- *   {"name": "ok.md", "setting": "`"}
+ *   {"name": "ok.md", "config": "`"}
  *
  *   ```alpha
  *   bravo()
@@ -14636,7 +18266,7 @@ var remarkLintFencedCodeFlag$1 = remarkLintFencedCodeFlag;
  *   ```
  *
  * @example
- *   {"name": "ok.md", "setting": "~"}
+ *   {"name": "ok.md", "config": "~"}
  *
  *   ~~~alpha
  *   bravo()
@@ -14679,7 +18309,7 @@ var remarkLintFencedCodeFlag$1 = remarkLintFencedCodeFlag;
  *   5:1-7:4: Fenced code should use `~` as a marker
  *
  * @example
- *   {"name": "not-ok-incorrect.md", "setting": "💩", "label": "output", "positionless": true}
+ *   {"name": "not-ok-incorrect.md", "config": "💩", "label": "output", "positionless": true}
  *
  *   1:1: Incorrect fenced code marker `💩`: use either `'consistent'`, `` '`' ``, or `'~'`
  */
@@ -14697,7 +18327,7 @@ const remarkLintFencedCodeMarker = lintRule(
           "`: use either `'consistent'`, `` '`' ``, or `'~'`"
       );
     }
-    visit$1(tree, 'code', (node) => {
+    visit$f(tree, 'code', (node) => {
       const start = pointStart(node).offset;
       if (typeof start === 'number') {
         const marker = contents
@@ -14762,7 +18392,7 @@ var remarkLintFencedCodeMarker$1 = remarkLintFencedCodeMarker;
  *   1:1: Incorrect extension: use `md`
  *
  * @example
- *   {"name": "readme.mkd", "setting": "mkd"}
+ *   {"name": "readme.mkd", "config": "mkd"}
  */
 const remarkLintFileExtension = lintRule(
   {
@@ -14777,6 +18407,162 @@ const remarkLintFileExtension = lintRule(
   }
 );
 var remarkLintFileExtension$1 = remarkLintFileExtension;
+
+const convert$e =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$e
+      }
+      if (typeof test === 'string') {
+        return typeFactory$e(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$e(test) : propsFactory$e(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$e(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$e(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$e(tests[index]);
+  }
+  return castFactory$e(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$e(check) {
+  return castFactory$e(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$e(check) {
+  return castFactory$e(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$e(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$e() {
+  return true
+}
+
+function color$f(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$e = true;
+const EXIT$e = false;
+const SKIP$e = 'skip';
+const visitParents$e =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$e(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$f(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$e(visitor(node, parents));
+            if (result[0] === EXIT$e) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$e) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$e) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$e(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$e, value]
+  }
+  return [value]
+}
+
+const visit$e =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$e(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
 
 /**
  * ## When should I use this?
@@ -14840,7 +18626,7 @@ const remarkLintFinalDefinition = lintRule(
   },
   (tree, file) => {
     let last = 0;
-    visit$1(
+    visit$e(
       tree,
       (node) => {
         if (
@@ -14869,6 +18655,162 @@ const remarkLintFinalDefinition = lintRule(
   }
 );
 var remarkLintFinalDefinition$1 = remarkLintFinalDefinition;
+
+const convert$d =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$d
+      }
+      if (typeof test === 'string') {
+        return typeFactory$d(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$d(test) : propsFactory$d(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$d(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$d(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$d(tests[index]);
+  }
+  return castFactory$d(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$d(check) {
+  return castFactory$d(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$d(check) {
+  return castFactory$d(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$d(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$d() {
+  return true
+}
+
+function color$e(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$d = true;
+const EXIT$d = false;
+const SKIP$d = 'skip';
+const visitParents$d =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$d(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$e(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$d(visitor(node, parents));
+            if (result[0] === EXIT$d) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$d) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$d) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$d(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$d, value]
+  }
+  return [value]
+}
+
+const visit$d =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$d(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
 
 /**
  * ## When should I use this?
@@ -14940,51 +18882,51 @@ var remarkLintFinalDefinition$1 = remarkLintFinalDefinition;
  *   1:1-1:17: First heading level should be `1`
  *
  * @example
- *   {"name": "ok.md", "setting": 2}
+ *   {"name": "ok.md", "config": 2}
  *
  *   ## Delta
  *
  *   Paragraph.
  *
  * @example
- *   {"name": "ok-html.md", "setting": 2}
+ *   {"name": "ok-html.md", "config": 2}
  *
  *   <h2>Echo</h2>
  *
  *   Paragraph.
  *
  * @example
- *   {"name": "not-ok.md", "setting": 2, "label": "input"}
+ *   {"name": "not-ok.md", "config": 2, "label": "input"}
  *
  *   # Foxtrot
  *
  *   Paragraph.
  *
  * @example
- *   {"name": "not-ok.md", "setting": 2, "label": "output"}
+ *   {"name": "not-ok.md", "config": 2, "label": "output"}
  *
  *   1:1-1:10: First heading level should be `2`
  *
  * @example
- *   {"name": "not-ok-html.md", "setting": 2, "label": "input"}
+ *   {"name": "not-ok-html.md", "config": 2, "label": "input"}
  *
  *   <h1>Golf</h1>
  *
  *   Paragraph.
  *
  * @example
- *   {"name": "not-ok-html.md", "setting": 2, "label": "output"}
+ *   {"name": "not-ok-html.md", "config": 2, "label": "output"}
  *
  *   1:1-1:14: First heading level should be `2`
  */
-const re$3 = /<h([1-6])/;
+const re$2 = /<h([1-6])/;
 const remarkLintFirstHeadingLevel = lintRule(
   {
     origin: 'remark-lint:first-heading-level',
     url: 'https://github.com/remarkjs/remark-lint/tree/main/packages/remark-lint-first-heading-level#readme'
   },
   (tree, file, option = 1) => {
-    visit$1(tree, (node) => {
+    visit$d(tree, (node) => {
       if (!generated(node)) {
         let rank;
         if (node.type === 'heading') {
@@ -14996,7 +18938,7 @@ const remarkLintFirstHeadingLevel = lintRule(
           if (rank !== option) {
             file.message('First heading level should be `' + option + '`', node);
           }
-          return EXIT$1
+          return EXIT$d
         }
       }
     });
@@ -15004,9 +18946,165 @@ const remarkLintFirstHeadingLevel = lintRule(
 );
 var remarkLintFirstHeadingLevel$1 = remarkLintFirstHeadingLevel;
 function infer(node) {
-  const results = node.value.match(re$3);
+  const results = node.value.match(re$2);
   return results ? Number(results[1]) : undefined
 }
+
+const convert$c =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$c
+      }
+      if (typeof test === 'string') {
+        return typeFactory$c(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$c(test) : propsFactory$c(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$c(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$c(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$c(tests[index]);
+  }
+  return castFactory$c(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$c(check) {
+  return castFactory$c(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$c(check) {
+  return castFactory$c(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$c(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$c() {
+  return true
+}
+
+function color$d(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$c = true;
+const EXIT$c = false;
+const SKIP$c = 'skip';
+const visitParents$c =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$c(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$d(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$c(visitor(node, parents));
+            if (result[0] === EXIT$c) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$c) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$c) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$c(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$c, value]
+  }
+  return [value]
+}
+
+const visit$c =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$c(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
 
 /**
  * ## When should I use this?
@@ -15072,7 +19170,7 @@ function infer(node) {
  * @copyright 2015 Titus Wormer
  * @license MIT
  * @example
- *   {"name": "ok.md", "setting": "atx"}
+ *   {"name": "ok.md", "config": "atx"}
  *
  *   # Alpha
  *
@@ -15081,7 +19179,7 @@ function infer(node) {
  *   ### Charlie
  *
  * @example
- *   {"name": "ok.md", "setting": "atx-closed"}
+ *   {"name": "ok.md", "config": "atx-closed"}
  *
  *   # Delta ##
  *
@@ -15090,7 +19188,7 @@ function infer(node) {
  *   ### Foxtrot ###
  *
  * @example
- *   {"name": "ok.md", "setting": "setext"}
+ *   {"name": "ok.md", "config": "setext"}
  *
  *   Golf
  *   ====
@@ -15117,7 +19215,7 @@ function infer(node) {
  *   6:1-6:13: Headings should use setext
  *
  * @example
- *   {"name": "not-ok.md", "setting": "💩", "label": "output", "positionless": true}
+ *   {"name": "not-ok.md", "config": "💩", "label": "output", "positionless": true}
  *
  *   1:1: Incorrect heading style type `💩`: use either `'consistent'`, `'atx'`, `'atx-closed'`, or `'setext'`
  */
@@ -15139,7 +19237,7 @@ const remarkLintHeadingStyle = lintRule(
           "`: use either `'consistent'`, `'atx'`, `'atx-closed'`, or `'setext'`"
       );
     }
-    visit$1(tree, 'heading', (node) => {
+    visit$c(tree, 'heading', (node) => {
       if (!generated(node)) {
         if (option === 'consistent') {
           option = headingStyle(node) || 'consistent';
@@ -15151,6 +19249,162 @@ const remarkLintHeadingStyle = lintRule(
   }
 );
 var remarkLintHeadingStyle$1 = remarkLintHeadingStyle;
+
+const convert$b =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$b
+      }
+      if (typeof test === 'string') {
+        return typeFactory$b(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$b(test) : propsFactory$b(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$b(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$b(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$b(tests[index]);
+  }
+  return castFactory$b(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$b(check) {
+  return castFactory$b(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$b(check) {
+  return castFactory$b(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$b(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$b() {
+  return true
+}
+
+function color$c(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$b = true;
+const EXIT$b = false;
+const SKIP$b = 'skip';
+const visitParents$b =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$b(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$c(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$b(visitor(node, parents));
+            if (result[0] === EXIT$b) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$b) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$b) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$b(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$b, value]
+  }
+  return [value]
+}
+
+const visit$b =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$b(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
 
 /**
  * ## When should I use this?
@@ -15212,7 +19466,7 @@ var remarkLintHeadingStyle$1 = remarkLintHeadingStyle;
  *   [foo]: <http://this-long-url-with-a-long-domain-is-ok.co.uk/a-long-path?query=variables>
  *
  * @example
- *   {"name": "not-ok.md", "setting": 80, "label": "input", "positionless": true}
+ *   {"name": "not-ok.md", "config": 80, "label": "input", "positionless": true}
  *
  *   This line is simply not tooooooooooooooooooooooooooooooooooooooooooooooooooooooo
  *   long.
@@ -15228,7 +19482,7 @@ var remarkLintHeadingStyle$1 = remarkLintHeadingStyle;
  *   `alphaBravoCharlieDeltaEchoFoxtrotGolfHotelIndiaJuliettKiloLimaMikeNovemberOscar.papa()` and such.
  *
  * @example
- *   {"name": "not-ok.md", "setting": 80, "label": "output", "positionless": true}
+ *   {"name": "not-ok.md", "config": 80, "label": "output", "positionless": true}
  *
  *   4:86: Line must be at most 80 characters
  *   6:99: Line must be at most 80 characters
@@ -15237,7 +19491,7 @@ var remarkLintHeadingStyle$1 = remarkLintHeadingStyle;
  *   12:99: Line must be at most 80 characters
  *
  * @example
- *   {"name": "ok-mixed-line-endings.md", "setting": 10, "positionless": true}
+ *   {"name": "ok-mixed-line-endings.md", "config": 10, "positionless": true}
  *
  *   0123456789␍␊
  *   0123456789␊
@@ -15245,7 +19499,7 @@ var remarkLintHeadingStyle$1 = remarkLintHeadingStyle;
  *   01234␊
  *
  * @example
- *   {"name": "not-ok-mixed-line-endings.md", "setting": 10, "label": "input", "positionless": true}
+ *   {"name": "not-ok-mixed-line-endings.md", "config": 10, "label": "input", "positionless": true}
  *
  *   012345678901␍␊
  *   012345678901␊
@@ -15253,7 +19507,7 @@ var remarkLintHeadingStyle$1 = remarkLintHeadingStyle;
  *   01234567890␊
  *
  * @example
- *   {"name": "not-ok-mixed-line-endings.md", "setting": 10, "label": "output", "positionless": true}
+ *   {"name": "not-ok-mixed-line-endings.md", "config": 10, "label": "output", "positionless": true}
  *
  *   1:13: Line must be at most 10 characters
  *   2:13: Line must be at most 10 characters
@@ -15268,7 +19522,7 @@ const remarkLintMaximumLineLength = lintRule(
   (tree, file, option = 80) => {
     const value = String(file);
     const lines = value.split(/\r?\n/);
-    visit$1(tree, (node) => {
+    visit$b(tree, (node) => {
       if (
         (node.type === 'heading' ||
           node.type === 'table' ||
@@ -15288,8 +19542,7 @@ const remarkLintMaximumLineLength = lintRule(
         allowList(pointStart(node).line - 1, pointEnd(node).line);
       }
     });
-    visit$1(tree, (node, pos, parent_) => {
-      const parent =  (parent_);
+    visit$b(tree, (node, pos, parent) => {
       if (
         (node.type === 'link' ||
           node.type === 'image' ||
@@ -15332,6 +19585,162 @@ const remarkLintMaximumLineLength = lintRule(
   }
 );
 var remarkLintMaximumLineLength$1 = remarkLintMaximumLineLength;
+
+const convert$a =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$a
+      }
+      if (typeof test === 'string') {
+        return typeFactory$a(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$a(test) : propsFactory$a(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$a(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$a(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$a(tests[index]);
+  }
+  return castFactory$a(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$a(check) {
+  return castFactory$a(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$a(check) {
+  return castFactory$a(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$a(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$a() {
+  return true
+}
+
+function color$b(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$a = true;
+const EXIT$a = false;
+const SKIP$a = 'skip';
+const visitParents$a =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$a(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$b(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$a(visitor(node, parents));
+            if (result[0] === EXIT$a) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$a) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$a) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$a(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$a, value]
+  }
+  return [value]
+}
+
+const visit$a =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$a(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
 
 /**
  * ## When should I use this?
@@ -15392,7 +19801,7 @@ const remarkLintNoConsecutiveBlankLines = lintRule(
     url: 'https://github.com/remarkjs/remark-lint/tree/main/packages/remark-lint-no-consecutive-blank-lines#readme'
   },
   (tree, file) => {
-    visit$1(tree, (node) => {
+    visit$a(tree, (node) => {
       if (!generated(node) && 'children' in node) {
         const head = node.children[0];
         if (head && !generated(head)) {
@@ -15570,6 +19979,162 @@ const remarkLintNofileNameOuterDashes = lintRule(
 );
 var remarkLintNofileNameOuterDashes$1 = remarkLintNofileNameOuterDashes;
 
+const convert$9 =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$9
+      }
+      if (typeof test === 'string') {
+        return typeFactory$9(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$9(test) : propsFactory$9(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$9(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$9(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$9(tests[index]);
+  }
+  return castFactory$9(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$9(check) {
+  return castFactory$9(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$9(check) {
+  return castFactory$9(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$9(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$9() {
+  return true
+}
+
+function color$a(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$9 = true;
+const EXIT$9 = false;
+const SKIP$9 = 'skip';
+const visitParents$9 =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$9(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$a(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$9(visitor(node, parents));
+            if (result[0] === EXIT$9) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$9) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$9) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$9(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$9, value]
+  }
+  return [value]
+}
+
+const visit$9 =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$9(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
+
 /**
  * ## When should I use this?
  *
@@ -15647,7 +20212,7 @@ const remarkLintNoHeadingIndent = lintRule(
     url: 'https://github.com/remarkjs/remark-lint/tree/main/packages/remark-lint-no-heading-indent#readme'
   },
   (tree, file) => {
-    visit$1(tree, 'heading', (node, _, parent) => {
+    visit$9(tree, 'heading', (node, _, parent) => {
       if (generated(node) || (parent && parent.type !== 'root')) {
         return
       }
@@ -15666,6 +20231,187 @@ const remarkLintNoHeadingIndent = lintRule(
   }
 );
 var remarkLintNoHeadingIndent$1 = remarkLintNoHeadingIndent;
+
+const convert$8 =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$8
+      }
+      if (typeof test === 'string') {
+        return typeFactory$8(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$8(test) : propsFactory$8(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$8(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$8(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$8(tests[index]);
+  }
+  return castFactory$8(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$8(check) {
+  return castFactory$8(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$8(check) {
+  return castFactory$8(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$8(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$8() {
+  return true
+}
+
+function color$9(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$8 = true;
+const EXIT$8 = false;
+const SKIP$8 = 'skip';
+const visitParents$8 =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$8(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$9(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$8(visitor(node, parents));
+            if (result[0] === EXIT$8) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$8) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$8) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$8(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$8, value]
+  }
+  return [value]
+}
+
+const visit$8 =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$8(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
+
+function stringifyPosition(value) {
+  if (!value || typeof value !== 'object') {
+    return ''
+  }
+  if ('position' in value || 'type' in value) {
+    return position(value.position)
+  }
+  if ('start' in value || 'end' in value) {
+    return position(value)
+  }
+  if ('line' in value || 'column' in value) {
+    return point(value)
+  }
+  return ''
+}
+function point(point) {
+  return index(point && point.line) + ':' + index(point && point.column)
+}
+function position(pos) {
+  return point(pos && pos.start) + '-' + point(pos && pos.end)
+}
+function index(value) {
+  return value && typeof value === 'number' ? value : 1
+}
 
 /**
  * ## When should I use this?
@@ -15692,21 +20438,21 @@ var remarkLintNoHeadingIndent$1 = remarkLintNoHeadingIndent;
  * @copyright 2015 Titus Wormer
  * @license MIT
  * @example
- *   {"name": "ok.md", "setting": 1}
+ *   {"name": "ok.md", "config": 1}
  *
  *   # Foo
  *
  *   ## Bar
  *
  * @example
- *   {"name": "not-ok.md", "setting": 1, "label": "input"}
+ *   {"name": "not-ok.md", "config": 1, "label": "input"}
  *
  *   # Foo
  *
  *   # Bar
  *
  * @example
- *   {"name": "not-ok.md", "setting": 1, "label": "output"}
+ *   {"name": "not-ok.md", "config": 1, "label": "output"}
  *
  *   3:1-3:6: Don’t use multiple top level headings (1:1)
  */
@@ -15717,7 +20463,7 @@ const remarkLintNoMultipleToplevelHeadings = lintRule(
   },
   (tree, file, option = 1) => {
     let duplicate;
-    visit$1(tree, 'heading', (node) => {
+    visit$8(tree, 'heading', (node) => {
       if (!generated(node) && node.depth === option) {
         if (duplicate) {
           file.message(
@@ -15732,6 +20478,162 @@ const remarkLintNoMultipleToplevelHeadings = lintRule(
   }
 );
 var remarkLintNoMultipleToplevelHeadings$1 = remarkLintNoMultipleToplevelHeadings;
+
+const convert$7 =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$7
+      }
+      if (typeof test === 'string') {
+        return typeFactory$7(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$7(test) : propsFactory$7(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$7(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$7(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$7(tests[index]);
+  }
+  return castFactory$7(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$7(check) {
+  return castFactory$7(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$7(check) {
+  return castFactory$7(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$7(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$7() {
+  return true
+}
+
+function color$8(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$7 = true;
+const EXIT$7 = false;
+const SKIP$7 = 'skip';
+const visitParents$7 =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$7(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$8(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$7(visitor(node, parents));
+            if (result[0] === EXIT$7) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$7) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$7) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$7(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$7, value]
+  }
+  return [value]
+}
+
+const visit$7 =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$7(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
 
 /**
  * ## When should I use this?
@@ -15822,7 +20724,7 @@ const remarkLintNoShellDollars = lintRule(
     url: 'https://github.com/remarkjs/remark-lint/tree/main/packages/remark-lint-no-shell-dollars#readme'
   },
   (tree, file) => {
-    visit$1(tree, 'code', (node) => {
+    visit$7(tree, 'code', (node) => {
       if (!generated(node) && node.lang && flags.has(node.lang)) {
         const lines = node.value
           .split('\n')
@@ -15843,6 +20745,162 @@ const remarkLintNoShellDollars = lintRule(
   }
 );
 var remarkLintNoShellDollars$1 = remarkLintNoShellDollars;
+
+const convert$6 =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$6
+      }
+      if (typeof test === 'string') {
+        return typeFactory$6(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$6(test) : propsFactory$6(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$6(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$6(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$6(tests[index]);
+  }
+  return castFactory$6(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$6(check) {
+  return castFactory$6(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$6(check) {
+  return castFactory$6(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$6(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$6() {
+  return true
+}
+
+function color$7(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$6 = true;
+const EXIT$6 = false;
+const SKIP$6 = 'skip';
+const visitParents$6 =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$6(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$7(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$6(visitor(node, parents));
+            if (result[0] === EXIT$6) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$6) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$6) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$6(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$6, value]
+  }
+  return [value]
+}
+
+const visit$6 =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$6(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
 
 /**
  * ## When should I use this?
@@ -15929,7 +20987,7 @@ const remarkLintNoTableIndentation = lintRule(
   (tree, file) => {
     const value = String(file);
     const loc = location(value);
-    visit$1(tree, 'table', (node, _, parent) => {
+    visit$6(tree, 'table', (node, _, parent) => {
       const end = pointEnd(node).line;
       let line = pointStart(node).line;
       let column = 0;
@@ -15963,7 +21021,7 @@ const remarkLintNoTableIndentation = lintRule(
         }
         line++;
       }
-      return SKIP$1
+      return SKIP$6
     });
   }
 );
@@ -16095,6 +21153,7 @@ var sliced$1 = function (args, slice, sliceEnd) {
   }
   return ret;
 };
+getDefaultExportFromCjs(sliced$1);
 
 var slice = Array.prototype.slice;
 var co_1 = co$1;
@@ -16249,6 +21308,7 @@ function error(err) {
     throw err;
   });
 }
+getDefaultExportFromCjs(co_1);
 
 var sliced = sliced$1;
 var noop = function(){};
@@ -16300,6 +21360,7 @@ function generator(value) {
 function promise(value) {
   return value && 'function' == typeof value.then;
 }
+getDefaultExportFromCjs(wrapped_1);
 
 var wrapped = wrapped_1;
 var unifiedLintRule = factory;
@@ -16389,6 +21450,7 @@ function coerce(name, value) {
   result[0] = level;
   return result
 }
+getDefaultExportFromCjs(unifiedLintRule);
 
 var rule = unifiedLintRule;
 var remarkLintNoTrailingSpaces = rule('remark-lint:no-trailing-spaces', noTrailingSpaces);
@@ -16407,6 +21469,7 @@ function noTrailingSpaces(ast, file) {
     }
   }
 }
+var remarkLintNoTrailingSpaces$1 = getDefaultExportFromCjs(remarkLintNoTrailingSpaces);
 
 function* getLinksRecursively(node) {
   if (node.url) {
@@ -16417,7 +21480,7 @@ function* getLinksRecursively(node) {
   }
 }
 function validateLinks(tree, vfile) {
-  const currentFileURL = pathToFileURL(path$1.join(vfile.cwd, vfile.path));
+  const currentFileURL = pathToFileURL(path$2.join(vfile.cwd, vfile.path));
   let previousDefinitionLabel;
   for (const node of getLinksRecursively(tree)) {
     if (node.url[0] !== "#") {
@@ -16430,7 +21493,7 @@ function validateLinks(tree, vfile) {
           : "#";
         vfile.message(
           `Self-reference must start with hash (expected "${expected}", got "${node.url}")`,
-          node
+          node,
         );
       }
     }
@@ -16438,7 +21501,7 @@ function validateLinks(tree, vfile) {
       if (previousDefinitionLabel && previousDefinitionLabel > node.label) {
         vfile.message(
           `Unordered reference ("${node.label}" should be before "${previousDefinitionLabel}")`,
-          node
+          node,
         );
       }
       previousDefinitionLabel = node.label;
@@ -16447,7 +21510,7 @@ function validateLinks(tree, vfile) {
 }
 const remarkLintNodejsLinks = lintRule(
   "remark-lint:nodejs-links",
-  validateLinks
+  validateLinks,
 );
 
 /*! js-yaml 4.1.0 https://github.com/nodeca/js-yaml @license MIT */
@@ -19261,20 +24324,6 @@ var jsYaml = {
 	safeDump: safeDump
 };
 
-const SEMVER_SPEC_VERSION = '2.0.0';
-const MAX_LENGTH$2 = 256;
-const MAX_SAFE_INTEGER$1 = Number.MAX_SAFE_INTEGER ||
- 9007199254740991;
-const MAX_SAFE_COMPONENT_LENGTH = 16;
-var constants = {
-  SEMVER_SPEC_VERSION,
-  MAX_LENGTH: MAX_LENGTH$2,
-  MAX_SAFE_INTEGER: MAX_SAFE_INTEGER$1,
-  MAX_SAFE_COMPONENT_LENGTH,
-};
-
-var re$2 = {exports: {}};
-
 const debug$1 = (
   typeof process === 'object' &&
   process.env &&
@@ -19283,25 +24332,76 @@ const debug$1 = (
 ) ? (...args) => console.error('SEMVER', ...args)
   : () => {};
 var debug_1 = debug$1;
+getDefaultExportFromCjs(debug_1);
+
+const SEMVER_SPEC_VERSION = '2.0.0';
+const MAX_LENGTH$1 = 256;
+const MAX_SAFE_INTEGER$1 = Number.MAX_SAFE_INTEGER ||
+ 9007199254740991;
+const MAX_SAFE_COMPONENT_LENGTH = 16;
+const MAX_SAFE_BUILD_LENGTH = MAX_LENGTH$1 - 6;
+const RELEASE_TYPES = [
+  'major',
+  'premajor',
+  'minor',
+  'preminor',
+  'patch',
+  'prepatch',
+  'prerelease',
+];
+var constants = {
+  MAX_LENGTH: MAX_LENGTH$1,
+  MAX_SAFE_COMPONENT_LENGTH,
+  MAX_SAFE_BUILD_LENGTH,
+  MAX_SAFE_INTEGER: MAX_SAFE_INTEGER$1,
+  RELEASE_TYPES,
+  SEMVER_SPEC_VERSION,
+  FLAG_INCLUDE_PRERELEASE: 0b001,
+  FLAG_LOOSE: 0b010,
+};
+getDefaultExportFromCjs(constants);
+
+var re$1 = {exports: {}};
 
 (function (module, exports) {
-	const { MAX_SAFE_COMPONENT_LENGTH } = constants;
+	const {
+	  MAX_SAFE_COMPONENT_LENGTH,
+	  MAX_SAFE_BUILD_LENGTH,
+	  MAX_LENGTH,
+	} = constants;
 	const debug = debug_1;
 	exports = module.exports = {};
 	const re = exports.re = [];
+	const safeRe = exports.safeRe = [];
 	const src = exports.src = [];
 	const t = exports.t = {};
 	let R = 0;
+	const LETTERDASHNUMBER = '[a-zA-Z0-9-]';
+	const safeRegexReplacements = [
+	  ['\\s', 1],
+	  ['\\d', MAX_LENGTH],
+	  [LETTERDASHNUMBER, MAX_SAFE_BUILD_LENGTH],
+	];
+	const makeSafeRegex = (value) => {
+	  for (const [token, max] of safeRegexReplacements) {
+	    value = value
+	      .split(`${token}*`).join(`${token}{0,${max}}`)
+	      .split(`${token}+`).join(`${token}{1,${max}}`);
+	  }
+	  return value
+	};
 	const createToken = (name, value, isGlobal) => {
+	  const safe = makeSafeRegex(value);
 	  const index = R++;
 	  debug(name, index, value);
 	  t[name] = index;
 	  src[index] = value;
 	  re[index] = new RegExp(value, isGlobal ? 'g' : undefined);
+	  safeRe[index] = new RegExp(safe, isGlobal ? 'g' : undefined);
 	};
 	createToken('NUMERICIDENTIFIER', '0|[1-9]\\d*');
-	createToken('NUMERICIDENTIFIERLOOSE', '[0-9]+');
-	createToken('NONNUMERICIDENTIFIER', '\\d*[a-zA-Z-][a-zA-Z0-9-]*');
+	createToken('NUMERICIDENTIFIERLOOSE', '\\d+');
+	createToken('NONNUMERICIDENTIFIER', `\\d*[a-zA-Z-]${LETTERDASHNUMBER}*`);
 	createToken('MAINVERSION', `(${src[t.NUMERICIDENTIFIER]})\\.` +
 	                   `(${src[t.NUMERICIDENTIFIER]})\\.` +
 	                   `(${src[t.NUMERICIDENTIFIER]})`);
@@ -19316,7 +24416,7 @@ var debug_1 = debug$1;
 	}(?:\\.${src[t.PRERELEASEIDENTIFIER]})*))`);
 	createToken('PRERELEASELOOSE', `(?:-?(${src[t.PRERELEASEIDENTIFIERLOOSE]
 	}(?:\\.${src[t.PRERELEASEIDENTIFIERLOOSE]})*))`);
-	createToken('BUILDIDENTIFIER', '[0-9A-Za-z-]+');
+	createToken('BUILDIDENTIFIER', `${LETTERDASHNUMBER}+`);
 	createToken('BUILD', `(?:\\+(${src[t.BUILDIDENTIFIER]
 	}(?:\\.${src[t.BUILDIDENTIFIER]})*))`);
 	createToken('FULLPLAIN', `v?${src[t.MAINVERSION]
@@ -19376,17 +24476,23 @@ var debug_1 = debug$1;
 	createToken('STAR', '(<|>)?=?\\s*\\*');
 	createToken('GTE0', '^\\s*>=\\s*0\\.0\\.0\\s*$');
 	createToken('GTE0PRE', '^\\s*>=\\s*0\\.0\\.0-0\\s*$');
-} (re$2, re$2.exports));
+} (re$1, re$1.exports));
+var reExports = re$1.exports;
+getDefaultExportFromCjs(reExports);
 
-const opts = ['includePrerelease', 'loose', 'rtl'];
-const parseOptions$2 = options =>
-  !options ? {}
-  : typeof options !== 'object' ? { loose: true }
-  : opts.filter(k => options[k]).reduce((o, k) => {
-    o[k] = true;
-    return o
-  }, {});
-var parseOptions_1 = parseOptions$2;
+const looseOption = Object.freeze({ loose: true });
+const emptyOpts = Object.freeze({ });
+const parseOptions$1 = options => {
+  if (!options) {
+    return emptyOpts
+  }
+  if (typeof options !== 'object') {
+    return looseOption
+  }
+  return options
+};
+var parseOptions_1 = parseOptions$1;
+getDefaultExportFromCjs(parseOptions_1);
 
 const numeric = /^[0-9]+$/;
 const compareIdentifiers$1 = (a, b) => {
@@ -19407,16 +24513,17 @@ var identifiers = {
   compareIdentifiers: compareIdentifiers$1,
   rcompareIdentifiers,
 };
+getDefaultExportFromCjs(identifiers);
 
 const debug = debug_1;
-const { MAX_LENGTH: MAX_LENGTH$1, MAX_SAFE_INTEGER } = constants;
-const { re: re$1, t: t$1 } = re$2.exports;
-const parseOptions$1 = parseOptions_1;
+const { MAX_LENGTH, MAX_SAFE_INTEGER } = constants;
+const { safeRe: re, t } = reExports;
+const parseOptions = parseOptions_1;
 const { compareIdentifiers } = identifiers;
 let SemVer$2 = class SemVer {
   constructor (version, options) {
-    options = parseOptions$1(options);
-    if (version instanceof SemVer$2) {
+    options = parseOptions(options);
+    if (version instanceof SemVer) {
       if (version.loose === !!options.loose &&
           version.includePrerelease === !!options.includePrerelease) {
         return version
@@ -19424,18 +24531,18 @@ let SemVer$2 = class SemVer {
         version = version.version;
       }
     } else if (typeof version !== 'string') {
-      throw new TypeError(`Invalid Version: ${version}`)
+      throw new TypeError(`Invalid version. Must be a string. Got type "${typeof version}".`)
     }
-    if (version.length > MAX_LENGTH$1) {
+    if (version.length > MAX_LENGTH) {
       throw new TypeError(
-        `version is longer than ${MAX_LENGTH$1} characters`
+        `version is longer than ${MAX_LENGTH} characters`
       )
     }
     debug('SemVer', version, options);
     this.options = options;
     this.loose = !!options.loose;
     this.includePrerelease = !!options.includePrerelease;
-    const m = version.trim().match(options.loose ? re$1[t$1.LOOSE] : re$1[t$1.FULL]);
+    const m = version.trim().match(options.loose ? re[t.LOOSE] : re[t.FULL]);
     if (!m) {
       throw new TypeError(`Invalid Version: ${version}`)
     }
@@ -19480,11 +24587,11 @@ let SemVer$2 = class SemVer {
   }
   compare (other) {
     debug('SemVer.compare', this.version, this.options, other);
-    if (!(other instanceof SemVer$2)) {
+    if (!(other instanceof SemVer)) {
       if (typeof other === 'string' && other === this.version) {
         return 0
       }
-      other = new SemVer$2(other, this.options);
+      other = new SemVer(other, this.options);
     }
     if (other.version === this.version) {
       return 0
@@ -19492,8 +24599,8 @@ let SemVer$2 = class SemVer {
     return this.compareMain(other) || this.comparePre(other)
   }
   compareMain (other) {
-    if (!(other instanceof SemVer$2)) {
-      other = new SemVer$2(other, this.options);
+    if (!(other instanceof SemVer)) {
+      other = new SemVer(other, this.options);
     }
     return (
       compareIdentifiers(this.major, other.major) ||
@@ -19502,8 +24609,8 @@ let SemVer$2 = class SemVer {
     )
   }
   comparePre (other) {
-    if (!(other instanceof SemVer$2)) {
-      other = new SemVer$2(other, this.options);
+    if (!(other instanceof SemVer)) {
+      other = new SemVer(other, this.options);
     }
     if (this.prerelease.length && !other.prerelease.length) {
       return -1
@@ -19531,8 +24638,8 @@ let SemVer$2 = class SemVer {
     } while (++i)
   }
   compareBuild (other) {
-    if (!(other instanceof SemVer$2)) {
-      other = new SemVer$2(other, this.options);
+    if (!(other instanceof SemVer)) {
+      other = new SemVer(other, this.options);
     }
     let i = 0;
     do {
@@ -19552,31 +24659,31 @@ let SemVer$2 = class SemVer {
       }
     } while (++i)
   }
-  inc (release, identifier) {
+  inc (release, identifier, identifierBase) {
     switch (release) {
       case 'premajor':
         this.prerelease.length = 0;
         this.patch = 0;
         this.minor = 0;
         this.major++;
-        this.inc('pre', identifier);
+        this.inc('pre', identifier, identifierBase);
         break
       case 'preminor':
         this.prerelease.length = 0;
         this.patch = 0;
         this.minor++;
-        this.inc('pre', identifier);
+        this.inc('pre', identifier, identifierBase);
         break
       case 'prepatch':
         this.prerelease.length = 0;
-        this.inc('patch', identifier);
-        this.inc('pre', identifier);
+        this.inc('patch', identifier, identifierBase);
+        this.inc('pre', identifier, identifierBase);
         break
       case 'prerelease':
         if (this.prerelease.length === 0) {
-          this.inc('patch', identifier);
+          this.inc('patch', identifier, identifierBase);
         }
-        this.inc('pre', identifier);
+        this.inc('pre', identifier, identifierBase);
         break
       case 'major':
         if (
@@ -19603,9 +24710,13 @@ let SemVer$2 = class SemVer {
         }
         this.prerelease = [];
         break
-      case 'pre':
+      case 'pre': {
+        const base = Number(identifierBase) ? 1 : 0;
+        if (!identifier && identifierBase === false) {
+          throw new Error('invalid increment argument: identifier is empty')
+        }
         if (this.prerelease.length === 0) {
-          this.prerelease = [0];
+          this.prerelease = [base];
         } else {
           let i = this.prerelease.length;
           while (--i >= 0) {
@@ -19615,64 +24726,67 @@ let SemVer$2 = class SemVer {
             }
           }
           if (i === -1) {
-            this.prerelease.push(0);
+            if (identifier === this.prerelease.join('.') && identifierBase === false) {
+              throw new Error('invalid increment argument: identifier already exists')
+            }
+            this.prerelease.push(base);
           }
         }
         if (identifier) {
+          let prerelease = [identifier, base];
+          if (identifierBase === false) {
+            prerelease = [identifier];
+          }
           if (compareIdentifiers(this.prerelease[0], identifier) === 0) {
             if (isNaN(this.prerelease[1])) {
-              this.prerelease = [identifier, 0];
+              this.prerelease = prerelease;
             }
           } else {
-            this.prerelease = [identifier, 0];
+            this.prerelease = prerelease;
           }
         }
         break
+      }
       default:
         throw new Error(`invalid increment argument: ${release}`)
     }
-    this.format();
-    this.raw = this.version;
+    this.raw = this.format();
+    if (this.build.length) {
+      this.raw += `+${this.build.join('.')}`;
+    }
     return this
   }
 };
 var semver = SemVer$2;
+getDefaultExportFromCjs(semver);
 
-const { MAX_LENGTH } = constants;
-const { re, t } = re$2.exports;
 const SemVer$1 = semver;
-const parseOptions = parseOptions_1;
-const parse = (version, options) => {
-  options = parseOptions(options);
+const parse = (version, options, throwErrors = false) => {
   if (version instanceof SemVer$1) {
     return version
-  }
-  if (typeof version !== 'string') {
-    return null
-  }
-  if (version.length > MAX_LENGTH) {
-    return null
-  }
-  const r = options.loose ? re[t.LOOSE] : re[t.FULL];
-  if (!r.test(version)) {
-    return null
   }
   try {
     return new SemVer$1(version, options)
   } catch (er) {
-    return null
+    if (!throwErrors) {
+      return null
+    }
+    throw er
   }
 };
 var parse_1 = parse;
+var semverParse = getDefaultExportFromCjs(parse_1);
 
 const SemVer = semver;
-const compare$2 = (a, b, loose) =>
+const compare$1 = (a, b, loose) =>
   new SemVer(a, loose).compare(new SemVer(b, loose));
-var compare_1 = compare$2;
+var compare_1 = compare$1;
+getDefaultExportFromCjs(compare_1);
 
-const compare$1 = compare_1;
-const lt = (a, b, loose) => compare$1(a, b, loose) < 0;
+const compare = compare_1;
+const lt = (a, b, loose) => compare(a, b, loose) < 0;
 var lt_1 = lt;
+var semverLt = getDefaultExportFromCjs(lt_1);
 
 const allowedKeys = [
   "added",
@@ -19683,8 +24797,8 @@ const allowedKeys = [
 ];
 const changesExpectedKeys = ["version", "pr-url", "description"];
 const VERSION_PLACEHOLDER = "REPLACEME";
-const MAX_SAFE_SEMVER_VERSION = parse_1(
-  Array.from({ length: 3 }, () => Number.MAX_SAFE_INTEGER).join(".")
+const MAX_SAFE_SEMVER_VERSION = semverParse(
+  Array.from({ length: 3 }, () => Number.MAX_SAFE_INTEGER).join("."),
 );
 const validVersionNumberRegex = /^v\d+\.\d+\.\d+$/;
 const prUrlRegex = new RegExp("^https://github.com/nodejs/node/pull/\\d+$");
@@ -19694,7 +24808,7 @@ let invalidVersionMessage = "version(s) must respect the pattern `vx.x.x` or";
 if (process.env.NODE_RELEASED_VERSIONS) {
   console.log("Using release list from env...");
   releasedVersions = process.env.NODE_RELEASED_VERSIONS.split(",").map(
-    (v) => `v${v}`
+    (v) => `v${v}`,
   );
   invalidVersionMessage = `version not listed in the changelogs, `;
 }
@@ -19730,9 +24844,9 @@ function areVersionsUnordered(versions) {
   if (!Array.isArray(versions)) return false;
   for (let index = 1; index < versions.length; index++) {
     if (
-      lt_1(
+      semverLt(
         getValidSemver(versions[index - 1]),
-        getValidSemver(versions[index])
+        getValidSemver(versions[index]),
       )
     ) {
       return true;
@@ -19752,7 +24866,7 @@ function validateSecurityChange(file, node, change, index) {
     if (typeof change.commit !== "string" || isNaN(`0x${change.commit}`)) {
       file.message(
         `changes[${index}]: Ill-formed security change commit ID`,
-        node
+        node,
       );
     }
     if (Object.keys(change)[1] === "commit") {
@@ -19766,7 +24880,7 @@ function validateSecurityChange(file, node, change, index) {
     file.message(
       `changes[${index}]: Invalid keys. Expected keys are: ` +
         securityChangeExpectedKeys.join(", "),
-      node
+      node,
     );
   }
 }
@@ -19788,7 +24902,7 @@ function validateChanges(file, node, changes) {
       file.message(
         `changes[${index}]: Invalid keys. Expected keys are: ` +
           changesExpectedKeys.join(", "),
-        node
+        node,
       );
     }
     if (containsInvalidVersionNumber(change.version)) {
@@ -19799,22 +24913,22 @@ function validateChanges(file, node, changes) {
     if (!isAncient && !isSecurityChange && !prUrlRegex.test(change["pr-url"])) {
       file.message(
         `changes[${index}]: PR-URL does not match the expected pattern`,
-        node
+        node,
       );
     }
     if (typeof change.description !== "string" || !change.description.length) {
       file.message(
         `changes[${index}]: must contain a non-empty description`,
-        node
+        node,
       );
     } else if (!change.description.endsWith(".")) {
       file.message(
         `changes[${index}]: description must end with a period`,
-        node
+        node,
       );
     }
     changesVersions.push(
-      Array.isArray(change.version) ? change.version[0] : change.version
+      Array.isArray(change.version) ? change.version[0] : change.version,
     );
   }
   if (areVersionsUnordered(changesVersions)) {
@@ -19827,14 +24941,14 @@ function validateMeta(node, file, meta) {
       file.message(
         "YAML dictionary contains illegal keys. Accepted values are: " +
           allowedKeys.join(", "),
-        node
+        node,
       );
       break;
     case kWrongKeyOrder:
       file.message(
         "YAML dictionary keys should be in this order: " +
           allowedKeys.join(", "),
-        node
+        node,
       );
       break;
   }
@@ -19846,7 +24960,7 @@ function validateMeta(node, file, meta) {
   if (containsInvalidVersionNumber(meta.deprecated)) {
     file.message(
       `Invalid \`deprecated\` value: ${invalidVersionMessage}`,
-      node
+      node,
     );
   } else if (areVersionsUnordered(meta.deprecated)) {
     file.message("Versions in `deprecated` list are not in order", node);
@@ -19861,11 +24975,11 @@ function validateMeta(node, file, meta) {
   }
 }
 function validateYAMLComments(tree, file) {
-  visit$1(tree, "html", function visitor(node) {
+  visit$A(tree, "html", function visitor(node) {
     if (node.value.startsWith("<!--YAML\n"))
       file.message(
         "Expected `<!-- YAML`, found `<!--YAML`. Please add a space",
-        node
+        node,
       );
     if (!node.value.startsWith("<!-- YAML\n")) return;
     try {
@@ -19878,8 +24992,164 @@ function validateYAMLComments(tree, file) {
 }
 const remarkLintNodejsYamlComments = lintRule(
   "remark-lint:nodejs-yaml-comments",
-  validateYAMLComments
+  validateYAMLComments,
 );
+
+const convert$5 =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$5
+      }
+      if (typeof test === 'string') {
+        return typeFactory$5(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$5(test) : propsFactory$5(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$5(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$5(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$5(tests[index]);
+  }
+  return castFactory$5(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$5(check) {
+  return castFactory$5(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$5(check) {
+  return castFactory$5(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$5(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$5() {
+  return true
+}
+
+function color$6(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$5 = true;
+const EXIT$5 = false;
+const SKIP$5 = 'skip';
+const visitParents$5 =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$5(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$6(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$5(visitor(node, parents));
+            if (result[0] === EXIT$5) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$5) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$5) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$5(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$5, value]
+  }
+  return [value]
+}
+
+const visit$5 =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$5(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
 
 const remarkLintProhibitedStrings = lintRule('remark-lint:prohibited-strings', prohibitedStrings);
 function testProhibited (val, content) {
@@ -19933,7 +25203,7 @@ function testProhibited (val, content) {
 }
 function prohibitedStrings (ast, file, strings) {
   const myLocation = location(file);
-  visit$1(ast, 'text', checkText);
+  visit$5(ast, 'text', checkText);
   function checkText (node) {
     const content = node.value;
     const initial = pointStart(node).offset;
@@ -19951,6 +25221,162 @@ function prohibitedStrings (ast, file, strings) {
     });
   }
 }
+
+const convert$4 =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$4
+      }
+      if (typeof test === 'string') {
+        return typeFactory$4(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$4(test) : propsFactory$4(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$4(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$4(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$4(tests[index]);
+  }
+  return castFactory$4(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$4(check) {
+  return castFactory$4(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$4(check) {
+  return castFactory$4(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$4(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$4() {
+  return true
+}
+
+function color$5(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$4 = true;
+const EXIT$4 = false;
+const SKIP$4 = 'skip';
+const visitParents$4 =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$4(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$5(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$4(visitor(node, parents));
+            if (result[0] === EXIT$4) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$4) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$4) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$4(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$4, value]
+  }
+  return [value]
+}
+
+const visit$4 =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$4(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
 
 /**
  * ## When should I use this?
@@ -19997,14 +25423,14 @@ function prohibitedStrings (ast, file, strings) {
  * @copyright 2015 Titus Wormer
  * @license MIT
  * @example
- *   {"name": "ok.md", "setting": "* * *"}
+ *   {"name": "ok.md", "config": "* * *"}
  *
  *   * * *
  *
  *   * * *
  *
  * @example
- *   {"name": "ok.md", "setting": "_______"}
+ *   {"name": "ok.md", "config": "_______"}
  *
  *   _______
  *
@@ -20023,7 +25449,7 @@ function prohibitedStrings (ast, file, strings) {
  *   3:1-3:6: Rules should use `***`
  *
  * @example
- *   {"name": "not-ok.md", "label": "output", "setting": "💩", "positionless": true}
+ *   {"name": "not-ok.md", "label": "output", "config": "💩", "positionless": true}
  *
  *   1:1: Incorrect preferred rule style: provide a correct markdown rule or `'consistent'`
  */
@@ -20039,7 +25465,7 @@ const remarkLintRuleStyle = lintRule(
         "Incorrect preferred rule style: provide a correct markdown rule or `'consistent'`"
       );
     }
-    visit$1(tree, 'thematicBreak', (node) => {
+    visit$4(tree, 'thematicBreak', (node) => {
       const initial = pointStart(node).offset;
       const final = pointEnd(node).offset;
       if (typeof initial === 'number' && typeof final === 'number') {
@@ -20054,6 +25480,162 @@ const remarkLintRuleStyle = lintRule(
   }
 );
 var remarkLintRuleStyle$1 = remarkLintRuleStyle;
+
+const convert$3 =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$3
+      }
+      if (typeof test === 'string') {
+        return typeFactory$3(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$3(test) : propsFactory$3(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$3(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$3(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$3(tests[index]);
+  }
+  return castFactory$3(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$3(check) {
+  return castFactory$3(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$3(check) {
+  return castFactory$3(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$3(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$3() {
+  return true
+}
+
+function color$4(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$3 = true;
+const EXIT$3 = false;
+const SKIP$3 = 'skip';
+const visitParents$3 =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$3(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$4(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$3(visitor(node, parents));
+            if (result[0] === EXIT$3) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$3) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$3) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$3(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$3, value]
+  }
+  return [value]
+}
+
+const visit$3 =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$3(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
 
 /**
  * ## When should I use this?
@@ -20107,12 +25689,12 @@ var remarkLintRuleStyle$1 = remarkLintRuleStyle;
  *   __foo__ and __bar__.
  *
  * @example
- *   {"name": "ok.md", "setting": "*"}
+ *   {"name": "ok.md", "config": "*"}
  *
  *   **foo**.
  *
  * @example
- *   {"name": "ok.md", "setting": "_"}
+ *   {"name": "ok.md", "config": "_"}
  *
  *   __foo__.
  *
@@ -20127,7 +25709,7 @@ var remarkLintRuleStyle$1 = remarkLintRuleStyle;
  *   1:13-1:20: Strong should use `*` as a marker
  *
  * @example
- *   {"name": "not-ok.md", "label": "output", "setting": "💩", "positionless": true}
+ *   {"name": "not-ok.md", "label": "output", "config": "💩", "positionless": true}
  *
  *   1:1: Incorrect strong marker `💩`: use either `'consistent'`, `'*'`, or `'_'`
  */
@@ -20145,7 +25727,7 @@ const remarkLintStrongMarker = lintRule(
           "`: use either `'consistent'`, `'*'`, or `'_'`"
       );
     }
-    visit$1(tree, 'strong', (node) => {
+    visit$3(tree, 'strong', (node) => {
       const start = pointStart(node).offset;
       if (typeof start === 'number') {
         const marker =  (value.charAt(start));
@@ -20159,6 +25741,162 @@ const remarkLintStrongMarker = lintRule(
   }
 );
 var remarkLintStrongMarker$1 = remarkLintStrongMarker;
+
+const convert$2 =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$2
+      }
+      if (typeof test === 'string') {
+        return typeFactory$2(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$2(test) : propsFactory$2(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$2(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$2(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$2(tests[index]);
+  }
+  return castFactory$2(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$2(check) {
+  return castFactory$2(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$2(check) {
+  return castFactory$2(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$2(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$2() {
+  return true
+}
+
+function color$3(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$2 = true;
+const EXIT$2 = false;
+const SKIP$2 = 'skip';
+const visitParents$2 =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$2(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$3(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$2(visitor(node, parents));
+            if (result[0] === EXIT$2) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$2) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$2) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$2(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$2, value]
+  }
+  return [value]
+}
+
+const visit$2 =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$2(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
 
 /**
  * ## When should I use this?
@@ -20198,14 +25936,14 @@ var remarkLintStrongMarker$1 = remarkLintStrongMarker;
  * @copyright 2015 Titus Wormer
  * @license MIT
  * @example
- *   {"name": "ok.md", "setting": "padded", "gfm": true}
+ *   {"name": "ok.md", "config": "padded", "gfm": true}
  *
  *   | A     | B     |
  *   | ----- | ----- |
  *   | Alpha | Bravo |
  *
  * @example
- *   {"name": "not-ok.md", "label": "input", "setting": "padded", "gfm": true}
+ *   {"name": "not-ok.md", "label": "input", "config": "padded", "gfm": true}
  *
  *   | A    |    B |
  *   | :----|----: |
@@ -20222,27 +25960,27 @@ var remarkLintStrongMarker$1 = remarkLintStrongMarker;
  *   | Echo  | Foxtrot  |  Golf  |  Hotel |
  *
  * @example
- *   {"name": "not-ok.md", "label": "output", "setting": "padded", "gfm": true}
+ *   {"name": "not-ok.md", "label": "output", "config": "padded", "gfm": true}
  *
  *   3:8: Cell should be padded
  *   3:9: Cell should be padded
  *   7:2: Cell should be padded
  *   7:17: Cell should be padded
- *   13:9: Cell should be padded with 1 space, not 2
- *   13:20: Cell should be padded with 1 space, not 2
- *   13:21: Cell should be padded with 1 space, not 2
- *   13:29: Cell should be padded with 1 space, not 2
- *   13:30: Cell should be padded with 1 space, not 2
+ *   13:7: Cell should be padded with 1 space, not 2
+ *   13:18: Cell should be padded with 1 space, not 2
+ *   13:23: Cell should be padded with 1 space, not 2
+ *   13:27: Cell should be padded with 1 space, not 2
+ *   13:32: Cell should be padded with 1 space, not 2
  *
  * @example
- *   {"name": "ok.md", "setting": "compact", "gfm": true}
+ *   {"name": "ok.md", "config": "compact", "gfm": true}
  *
  *   |A    |B    |
  *   |-----|-----|
  *   |Alpha|Bravo|
  *
  * @example
- *   {"name": "not-ok.md", "label": "input", "setting": "compact", "gfm": true}
+ *   {"name": "not-ok.md", "label": "input", "config": "compact", "gfm": true}
  *
  *   |   A    | B    |
  *   |   -----| -----|
@@ -20253,14 +25991,14 @@ var remarkLintStrongMarker$1 = remarkLintStrongMarker;
  *   |Charlie|Delta |
  *
  * @example
- *   {"name": "not-ok.md", "label": "output", "setting": "compact", "gfm": true}
+ *   {"name": "not-ok.md", "label": "output", "config": "compact", "gfm": true}
  *
- *   3:2: Cell should be compact
- *   3:11: Cell should be compact
- *   7:16: Cell should be compact
+ *   3:5: Cell should be compact
+ *   3:12: Cell should be compact
+ *   7:15: Cell should be compact
  *
  * @example
- *   {"name": "ok-padded.md", "setting": "consistent", "gfm": true}
+ *   {"name": "ok-padded.md", "config": "consistent", "gfm": true}
  *
  *   | A     | B     |
  *   | ----- | ----- |
@@ -20271,7 +26009,7 @@ var remarkLintStrongMarker$1 = remarkLintStrongMarker;
  *   | Charlie | Delta |
  *
  * @example
- *   {"name": "not-ok-padded.md", "label": "input", "setting": "consistent", "gfm": true}
+ *   {"name": "not-ok-padded.md", "label": "input", "config": "consistent", "gfm": true}
  *
  *   | A     | B     |
  *   | ----- | ----- |
@@ -20282,12 +26020,12 @@ var remarkLintStrongMarker$1 = remarkLintStrongMarker;
  *   |Charlie | Delta |
  *
  * @example
- *   {"name": "not-ok-padded.md", "label": "output", "setting": "consistent", "gfm": true}
+ *   {"name": "not-ok-padded.md", "label": "output", "config": "consistent", "gfm": true}
  *
  *   7:2: Cell should be padded
  *
  * @example
- *   {"name": "ok-compact.md", "setting": "consistent", "gfm": true}
+ *   {"name": "ok-compact.md", "config": "consistent", "gfm": true}
  *
  *   |A    |B    |
  *   |-----|-----|
@@ -20298,7 +26036,7 @@ var remarkLintStrongMarker$1 = remarkLintStrongMarker;
  *   |Charlie|Delta|
  *
  * @example
- *   {"name": "not-ok-compact.md", "label": "input", "setting": "consistent", "gfm": true}
+ *   {"name": "not-ok-compact.md", "label": "input", "config": "consistent", "gfm": true}
  *
  *   |A    |B    |
  *   |-----|-----|
@@ -20309,17 +26047,17 @@ var remarkLintStrongMarker$1 = remarkLintStrongMarker;
  *   |Charlie|Delta |
  *
  * @example
- *   {"name": "not-ok-compact.md", "label": "output", "setting": "consistent", "gfm": true}
+ *   {"name": "not-ok-compact.md", "label": "output", "config": "consistent", "gfm": true}
  *
- *   7:16: Cell should be compact
+ *   7:15: Cell should be compact
  *
  * @example
- *   {"name": "not-ok.md", "label": "output", "setting": "💩", "positionless": true, "gfm": true}
+ *   {"name": "not-ok.md", "label": "output", "config": "💩", "positionless": true, "gfm": true}
  *
  *   1:1: Incorrect table cell padding style `💩`, expected `'padded'`, `'compact'`, or `'consistent'`
  *
  * @example
- *   {"name": "empty.md", "label": "input", "setting": "padded", "gfm": true}
+ *   {"name": "empty.md", "label": "input", "config": "padded", "gfm": true}
  *
  *   <!-- Empty cells are OK, but those surrounding them may not be. -->
  *
@@ -20328,14 +26066,14 @@ var remarkLintStrongMarker$1 = remarkLintStrongMarker;
  *   | Charlie|       |  Echo|
  *
  * @example
- *   {"name": "empty.md", "label": "output", "setting": "padded", "gfm": true}
+ *   {"name": "empty.md", "label": "output", "config": "padded", "gfm": true}
  *
  *   3:25: Cell should be padded
  *   5:10: Cell should be padded
  *   5:25: Cell should be padded
  *
  * @example
- *   {"name": "missing-body.md", "setting": "padded", "gfm": true}
+ *   {"name": "missing-body.md", "config": "padded", "gfm": true}
  *
  *   <!-- Missing cells are fine as well. -->
  *
@@ -20361,7 +26099,7 @@ const remarkLintTableCellPadding = lintRule(
           "`, expected `'padded'`, `'compact'`, or `'consistent'`"
       );
     }
-    visit$1(tree, 'table', (node) => {
+    visit$2(tree, 'table', (node) => {
       const rows = node.children;
       const align = node.align || [];
       const sizes = [];
@@ -20377,32 +26115,33 @@ const remarkLintTableCellPadding = lintRule(
         let column = -1;
         while (++column < row.children.length) {
           const cell = row.children[column];
-          if (cell.children.length > 0) {
-            const cellStart = pointStart(cell).offset;
-            const cellEnd = pointEnd(cell).offset;
-            const contentStart = pointStart(cell.children[0]).offset;
-            const contentEnd = pointEnd(
-              cell.children[cell.children.length - 1]
-            ).offset;
-            if (
-              typeof cellStart !== 'number' ||
-              typeof cellEnd !== 'number' ||
-              typeof contentStart !== 'number' ||
-              typeof contentEnd !== 'number'
-            ) {
-              continue
-            }
-            entries.push({
-              node: cell,
-              start: contentStart - cellStart - (column ? 0 : 1),
-              end: cellEnd - contentEnd - 1,
-              column
-            });
-            sizes[column] = Math.max(
-              sizes[column] || 0,
-              contentEnd - contentStart
-            );
+          const cellStart = pointStart(cell).offset;
+          const cellEnd = pointEnd(cell).offset;
+          const contentStart = pointStart(cell.children[0]).offset;
+          const contentEnd = pointEnd(
+            cell.children[cell.children.length - 1]
+          ).offset;
+          if (
+            typeof cellStart !== 'number' ||
+            typeof cellEnd !== 'number' ||
+            typeof contentStart !== 'number' ||
+            typeof contentEnd !== 'number'
+          ) {
+            continue
           }
+          entries.push({
+            node: cell,
+            start: contentStart - cellStart - 1,
+            end:
+              cellEnd -
+              contentEnd -
+              (column === row.children.length - 1 ? 1 : 0),
+            column
+          });
+          sizes[column] = Math.max(
+            sizes[column] || 0,
+            contentEnd - contentStart
+          );
         }
       }
       const style =
@@ -20418,7 +26157,7 @@ const remarkLintTableCellPadding = lintRule(
         checkSide('start', entries[index], style, sizes);
         checkSide('end', entries[index], style, sizes);
       }
-      return SKIP$1
+      return SKIP$2
     });
     function checkSide(side, entry, style, sizes) {
       const cell = entry.node;
@@ -20429,45 +26168,190 @@ const remarkLintTableCellPadding = lintRule(
       }
       let reason = 'Cell should be ';
       if (style === 0) {
-        if (size$1(cell) < sizes[column]) {
+        if (size(cell) < sizes[column]) {
           return
         }
         reason += 'compact';
       } else {
         reason += 'padded';
         if (spacing > style) {
-          if (size$1(cell) < sizes[column]) {
+          if (size(cell) < sizes[column]) {
             return
           }
           reason += ' with 1 space, not ' + spacing;
         }
       }
-      let point;
-      if (side === 'start') {
-        point = pointStart(cell);
-        if (!column) {
-          point.column++;
-          if (typeof point.offset === 'number') {
-            point.offset++;
-          }
-        }
-      } else {
-        point = pointEnd(cell);
-        point.column--;
-        if (typeof point.offset === 'number') {
-          point.offset--;
-        }
-      }
-      file.message(reason, point);
+      file.message(
+        reason,
+        side === 'start'
+          ? pointStart(cell.children[0])
+          : pointEnd(cell.children[cell.children.length - 1])
+      );
     }
   }
 );
 var remarkLintTableCellPadding$1 = remarkLintTableCellPadding;
-function size$1(node) {
+function size(node) {
   const head = pointStart(node.children[0]).offset;
   const tail = pointEnd(node.children[node.children.length - 1]).offset;
   return typeof head === 'number' && typeof tail === 'number' ? tail - head : 0
 }
+
+const convert$1 =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok$1
+      }
+      if (typeof test === 'string') {
+        return typeFactory$1(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory$1(test) : propsFactory$1(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory$1(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory$1(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert$1(tests[index]);
+  }
+  return castFactory$1(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory$1(check) {
+  return castFactory$1(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory$1(check) {
+  return castFactory$1(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory$1(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok$1() {
+  return true
+}
+
+function color$2(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE$1 = true;
+const EXIT$1 = false;
+const SKIP$1 = 'skip';
+const visitParents$1 =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert$1(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$2(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult$1(visitor(node, parents));
+            if (result[0] === EXIT$1) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP$1) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT$1) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult$1(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE$1, value]
+  }
+  return [value]
+}
+
+const visit$1 =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents$1(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
 
 /**
  * ## When should I use this?
@@ -20553,6 +26437,162 @@ const remarkLintTablePipes = lintRule(
 );
 var remarkLintTablePipes$1 = remarkLintTablePipes;
 
+const convert =
+  (
+    function (test) {
+      if (test === undefined || test === null) {
+        return ok
+      }
+      if (typeof test === 'string') {
+        return typeFactory(test)
+      }
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory(test) : propsFactory(test)
+      }
+      if (typeof test === 'function') {
+        return castFactory(test)
+      }
+      throw new Error('Expected function, string, or object as test')
+    }
+  );
+function anyFactory(tests) {
+  const checks = [];
+  let index = -1;
+  while (++index < tests.length) {
+    checks[index] = convert(tests[index]);
+  }
+  return castFactory(any)
+  function any(...parameters) {
+    let index = -1;
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+    return false
+  }
+}
+function propsFactory(check) {
+  return castFactory(all)
+  function all(node) {
+    let key;
+    for (key in check) {
+      if (node[key] !== check[key]) return false
+    }
+    return true
+  }
+}
+function typeFactory(check) {
+  return castFactory(type)
+  function type(node) {
+    return node && node.type === check
+  }
+}
+function castFactory(check) {
+  return assertion
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+function ok() {
+  return true
+}
+
+function color$1(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+const CONTINUE = true;
+const EXIT = false;
+const SKIP = 'skip';
+const visitParents =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      const is = convert(test);
+      const step = reverse ? -1 : 1;
+      factory(tree, undefined, [])();
+      function factory(node, index, parents) {
+        const value = node && typeof node === 'object' ? node : {};
+        if (typeof value.type === 'string') {
+          const name =
+            typeof value.tagName === 'string'
+              ? value.tagName
+              :
+              typeof value.name === 'string'
+              ? value.name
+              : undefined;
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color$1(node.type + (name ? '<' + name + '>' : '')) + ')'
+          });
+        }
+        return visit
+        function visit() {
+          let result = [];
+          let subresult;
+          let offset;
+          let grandparents;
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = toResult(visitor(node, parents));
+            if (result[0] === EXIT) {
+              return result
+            }
+          }
+          if (node.children && result[0] !== SKIP) {
+            offset = (reverse ? node.children.length : -1) + step;
+            grandparents = parents.concat(node);
+            while (offset > -1 && offset < node.children.length) {
+              subresult = factory(node.children[offset], offset, grandparents)();
+              if (subresult[0] === EXIT) {
+                return subresult
+              }
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step;
+            }
+          }
+          return result
+        }
+      }
+    }
+  );
+function toResult(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+  if (typeof value === 'number') {
+    return [CONTINUE, value]
+  }
+  return [value]
+}
+
+const visit =
+  (
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor;
+        visitor = test;
+        test = null;
+      }
+      visitParents(tree, test, overload, reverse);
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1];
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  );
+
 /**
  * ## When should I use this?
  *
@@ -20609,17 +26649,17 @@ var remarkLintTablePipes$1 = remarkLintTablePipes;
  *   3. Baz
  *
  * @example
- *   {"name": "ok.md", "setting": "*"}
+ *   {"name": "ok.md", "config": "*"}
  *
  *   * Foo
  *
  * @example
- *   {"name": "ok.md", "setting": "-"}
+ *   {"name": "ok.md", "config": "-"}
  *
  *   - Foo
  *
  * @example
- *   {"name": "ok.md", "setting": "+"}
+ *   {"name": "ok.md", "config": "+"}
  *
  *   + Foo
  *
@@ -20637,7 +26677,7 @@ var remarkLintTablePipes$1 = remarkLintTablePipes;
  *   3:1-3:6: Marker style should be `*`
  *
  * @example
- *   {"name": "not-ok.md", "label": "output", "setting": "💩", "positionless": true}
+ *   {"name": "not-ok.md", "label": "output", "config": "💩", "positionless": true}
  *
  *   1:1: Incorrect unordered list item marker style `💩`: use either `'-'`, `'*'`, or `'+'`
  */
@@ -20656,7 +26696,7 @@ const remarkLintUnorderedListMarkerStyle = lintRule(
           "`: use either `'-'`, `'*'`, or `'+'`"
       );
     }
-    visit$1(tree, 'list', (node) => {
+    visit(tree, 'list', (node) => {
       if (node.ordered) return
       let index = -1;
       while (++index < node.children.length) {
@@ -20730,13 +26770,14 @@ const plugins = [
   remarkLintNoShellDollars$1,
   remarkLintNoTableIndentation$1,
   remarkLintNoTabs$1,
-  remarkLintNoTrailingSpaces,
+  remarkLintNoTrailingSpaces$1,
   remarkLintNodejsLinks,
   remarkLintNodejsYamlComments,
   [
     remarkLintProhibitedStrings,
     [
       { yes: "End-of-Life" },
+      { no: "filesystem", yes: "file system" },
       { yes: "GitHub" },
       { no: "hostname", yes: "host name" },
       { yes: "JavaScript" },
@@ -20761,108 +26802,335 @@ const plugins = [
 ];
 const settings = {
   emphasis: "_",
-  listItemIndent: 1,
+  listItemIndent: "one",
   tightDefinitions: true,
 };
 const remarkPresetLintNode = { plugins, settings };
 
-function toVFile(options) {
-  if (typeof options === 'string' || options instanceof URL$1) {
-    options = {path: options};
-  } else if (isBuffer(options)) {
-    options = {path: String(options)};
+class VFileMessage extends Error {
+  constructor(causeOrReason, optionsOrParentOrPlace, origin) {
+    super();
+    if (typeof optionsOrParentOrPlace === 'string') {
+      origin = optionsOrParentOrPlace;
+      optionsOrParentOrPlace = undefined;
+    }
+    let reason = '';
+    let options = {};
+    let legacyCause = false;
+    if (optionsOrParentOrPlace) {
+      if (
+        'line' in optionsOrParentOrPlace &&
+        'column' in optionsOrParentOrPlace
+      ) {
+        options = {place: optionsOrParentOrPlace};
+      }
+      else if (
+        'start' in optionsOrParentOrPlace &&
+        'end' in optionsOrParentOrPlace
+      ) {
+        options = {place: optionsOrParentOrPlace};
+      }
+      else if ('type' in optionsOrParentOrPlace) {
+        options = {
+          ancestors: [optionsOrParentOrPlace],
+          place: optionsOrParentOrPlace.position
+        };
+      }
+      else {
+        options = {...optionsOrParentOrPlace};
+      }
+    }
+    if (typeof causeOrReason === 'string') {
+      reason = causeOrReason;
+    }
+    else if (!options.cause && causeOrReason) {
+      legacyCause = true;
+      reason = causeOrReason.message;
+      options.cause = causeOrReason;
+    }
+    if (!options.ruleId && !options.source && typeof origin === 'string') {
+      const index = origin.indexOf(':');
+      if (index === -1) {
+        options.ruleId = origin;
+      } else {
+        options.source = origin.slice(0, index);
+        options.ruleId = origin.slice(index + 1);
+      }
+    }
+    if (!options.place && options.ancestors && options.ancestors) {
+      const parent = options.ancestors[options.ancestors.length - 1];
+      if (parent) {
+        options.place = parent.position;
+      }
+    }
+    const start =
+      options.place && 'start' in options.place
+        ? options.place.start
+        : options.place;
+    this.ancestors = options.ancestors || undefined;
+    this.cause = options.cause || undefined;
+    this.column = start ? start.column : undefined;
+    this.fatal = undefined;
+    this.file;
+    this.message = reason;
+    this.line = start ? start.line : undefined;
+    this.name = stringifyPosition$2(options.place) || '1:1';
+    this.place = options.place || undefined;
+    this.reason = this.message;
+    this.ruleId = options.ruleId || undefined;
+    this.source = options.source || undefined;
+    this.stack =
+      legacyCause && options.cause && typeof options.cause.stack === 'string'
+        ? options.cause.stack
+        : '';
+    this.actual;
+    this.expected;
+    this.note;
+    this.url;
   }
-  return looksLikeAVFile(options) ? options : new VFile(options)
 }
-function readSync(description, options) {
-  const file = toVFile(description);
-  file.value = fs.readFileSync(path$1.resolve(file.cwd, file.path), options);
-  return file
-}
-function writeSync(description, options) {
-  const file = toVFile(description);
-  fs.writeFileSync(path$1.resolve(file.cwd, file.path), file.value || '', options);
-  return file
-}
-const read =
-  (
-    function (description, options, callback) {
-      const file = toVFile(description);
-      if (!callback && typeof options === 'function') {
-        callback = options;
-        options = null;
-      }
-      if (!callback) {
-        return new Promise(executor)
-      }
-      executor(resolve, callback);
-      function resolve(result) {
-        callback(null, result);
-      }
-      function executor(resolve, reject) {
-        let fp;
-        try {
-          fp = path$1.resolve(file.cwd, file.path);
-        } catch (error) {
-          return reject(error)
-        }
-        fs.readFile(fp, options, done);
-        function done(error, result) {
-          if (error) {
-            reject(error);
-          } else {
-            file.value = result;
-            resolve(file);
-          }
-        }
-      }
-    }
-  );
-const write =
-  (
-    function (description, options, callback) {
-      const file = toVFile(description);
-      if (!callback && typeof options === 'function') {
-        callback = options;
-        options = undefined;
-      }
-      if (!callback) {
-        return new Promise(executor)
-      }
-      executor(resolve, callback);
-      function resolve(result) {
-        callback(null, result);
-      }
-      function executor(resolve, reject) {
-        let fp;
-        try {
-          fp = path$1.resolve(file.cwd, file.path);
-        } catch (error) {
-          return reject(error)
-        }
-        fs.writeFile(fp, file.value || '', options, done);
-        function done(error) {
-          if (error) {
-            reject(error);
-          } else {
-            resolve(file);
-          }
-        }
-      }
-    }
-  );
-function looksLikeAVFile(value) {
-  return (
-    value &&
-    typeof value === 'object' &&
-    'message' in value &&
-    'messages' in value
+VFileMessage.prototype.file = '';
+VFileMessage.prototype.name = '';
+VFileMessage.prototype.reason = '';
+VFileMessage.prototype.message = '';
+VFileMessage.prototype.stack = '';
+VFileMessage.prototype.column = undefined;
+VFileMessage.prototype.line = undefined;
+VFileMessage.prototype.ancestors = undefined;
+VFileMessage.prototype.cause = undefined;
+VFileMessage.prototype.fatal = undefined;
+VFileMessage.prototype.place = undefined;
+VFileMessage.prototype.ruleId = undefined;
+VFileMessage.prototype.source = undefined;
+
+function isUrl(fileUrlOrPath) {
+  return Boolean(
+    fileUrlOrPath !== null &&
+      typeof fileUrlOrPath === 'object' &&
+      'href' in fileUrlOrPath &&
+      fileUrlOrPath.href &&
+      'protocol' in fileUrlOrPath &&
+      fileUrlOrPath.protocol &&
+      fileUrlOrPath.auth === undefined
   )
 }
-toVFile.readSync = readSync;
-toVFile.writeSync = writeSync;
-toVFile.read = read;
-toVFile.write = write;
+
+const order =  ([
+  'history',
+  'path',
+  'basename',
+  'stem',
+  'extname',
+  'dirname'
+]);
+class VFile {
+  constructor(value) {
+    let options;
+    if (!value) {
+      options = {};
+    } else if (isUrl(value)) {
+      options = {path: value};
+    } else if (typeof value === 'string' || isUint8Array$1(value)) {
+      options = {value};
+    } else {
+      options = value;
+    }
+    this.cwd = process$1.cwd();
+    this.data = {};
+    this.history = [];
+    this.messages = [];
+    this.value;
+    this.map;
+    this.result;
+    this.stored;
+    let index = -1;
+    while (++index < order.length) {
+      const prop = order[index];
+      if (
+        prop in options &&
+        options[prop] !== undefined &&
+        options[prop] !== null
+      ) {
+        this[prop] = prop === 'history' ? [...options[prop]] : options[prop];
+      }
+    }
+    let prop;
+    for (prop in options) {
+      if (!order.includes(prop)) {
+        this[prop] = options[prop];
+      }
+    }
+  }
+  get basename() {
+    return typeof this.path === 'string' ? path$1.basename(this.path) : undefined
+  }
+  set basename(basename) {
+    assertNonEmpty(basename, 'basename');
+    assertPart(basename, 'basename');
+    this.path = path$1.join(this.dirname || '', basename);
+  }
+  get dirname() {
+    return typeof this.path === 'string' ? path$1.dirname(this.path) : undefined
+  }
+  set dirname(dirname) {
+    assertPath(this.basename, 'dirname');
+    this.path = path$1.join(dirname || '', this.basename);
+  }
+  get extname() {
+    return typeof this.path === 'string' ? path$1.extname(this.path) : undefined
+  }
+  set extname(extname) {
+    assertPart(extname, 'extname');
+    assertPath(this.dirname, 'extname');
+    if (extname) {
+      if (extname.codePointAt(0) !== 46 ) {
+        throw new Error('`extname` must start with `.`')
+      }
+      if (extname.includes('.', 1)) {
+        throw new Error('`extname` cannot contain multiple dots')
+      }
+    }
+    this.path = path$1.join(this.dirname, this.stem + (extname || ''));
+  }
+  get path() {
+    return this.history[this.history.length - 1]
+  }
+  set path(path) {
+    if (isUrl(path)) {
+      path = fileURLToPath(path);
+    }
+    assertNonEmpty(path, 'path');
+    if (this.path !== path) {
+      this.history.push(path);
+    }
+  }
+  get stem() {
+    return typeof this.path === 'string'
+      ? path$1.basename(this.path, this.extname)
+      : undefined
+  }
+  set stem(stem) {
+    assertNonEmpty(stem, 'stem');
+    assertPart(stem, 'stem');
+    this.path = path$1.join(this.dirname || '', stem + (this.extname || ''));
+  }
+  fail(causeOrReason, optionsOrParentOrPlace, origin) {
+    const message = this.message(causeOrReason, optionsOrParentOrPlace, origin);
+    message.fatal = true;
+    throw message
+  }
+  info(causeOrReason, optionsOrParentOrPlace, origin) {
+    const message = this.message(causeOrReason, optionsOrParentOrPlace, origin);
+    message.fatal = undefined;
+    return message
+  }
+  message(causeOrReason, optionsOrParentOrPlace, origin) {
+    const message = new VFileMessage(
+      causeOrReason,
+      optionsOrParentOrPlace,
+      origin
+    );
+    if (this.path) {
+      message.name = this.path + ':' + message.name;
+      message.file = this.path;
+    }
+    message.fatal = false;
+    this.messages.push(message);
+    return message
+  }
+  toString(encoding) {
+    if (this.value === undefined) {
+      return ''
+    }
+    if (typeof this.value === 'string') {
+      return this.value
+    }
+    const decoder = new TextDecoder(encoding || undefined);
+    return decoder.decode(this.value)
+  }
+}
+function assertPart(part, name) {
+  if (part && part.includes(path$1.sep)) {
+    throw new Error(
+      '`' + name + '` cannot be a path: did not expect `' + path$1.sep + '`'
+    )
+  }
+}
+function assertNonEmpty(part, name) {
+  if (!part) {
+    throw new Error('`' + name + '` cannot be empty')
+  }
+}
+function assertPath(path, name) {
+  if (!path) {
+    throw new Error('Setting `' + name + '` requires `path` to be set too')
+  }
+}
+function isUint8Array$1(value) {
+  return Boolean(
+    value &&
+      typeof value === 'object' &&
+      'byteLength' in value &&
+      'byteOffset' in value
+  )
+}
+
+function read(description, options, callback) {
+  const file = toVFile(description);
+  if (!callback && typeof options === 'function') {
+    callback = options;
+    options = undefined;
+  }
+  if (!callback) {
+    return new Promise(executor)
+  }
+  executor(resolve, callback);
+  function resolve(result) {
+    callback(undefined, result);
+  }
+  function executor(resolve, reject) {
+    let fp;
+    try {
+      fp = path$1.resolve(file.cwd, file.path);
+    } catch (error) {
+      const exception =  (error);
+      return reject(exception)
+    }
+    fs$1.readFile(fp, options, done);
+    function done(error, result) {
+      if (error) {
+        reject(error);
+      } else {
+        file.value = result;
+        resolve(file);
+      }
+    }
+  }
+}
+function toVFile(description) {
+  if (typeof description === 'string' || description instanceof URL) {
+    description = {path: description};
+  } else if (isUint8Array(description)) {
+    description = {path: new TextDecoder().decode(description)};
+  }
+  return looksLikeAVFile(description) ? description : new VFile(description)
+}
+function looksLikeAVFile(value) {
+  return Boolean(
+    value &&
+      typeof value === 'object' &&
+      'message' in value &&
+      'messages' in value
+  )
+}
+function isUint8Array(value) {
+  return Boolean(
+    value &&
+      typeof value === 'object' &&
+      'byteLength' in value &&
+      'byteOffset' in value
+  )
+}
 
 function ansiRegex({onlyFirst = false} = {}) {
 	const pattern = [
@@ -20872,11 +27140,12 @@ function ansiRegex({onlyFirst = false} = {}) {
 	return new RegExp(pattern, onlyFirst ? undefined : 'g');
 }
 
+const regex = ansiRegex();
 function stripAnsi(string) {
 	if (typeof string !== 'string') {
 		throw new TypeError(`Expected a \`string\`, got \`${typeof string}\``);
 	}
-	return string.replace(ansiRegex(), '');
+	return string.replace(regex, '');
 }
 
 var eastasianwidth = {exports: {}};
@@ -21183,107 +27452,119 @@ var eastasianwidth = {exports: {}};
 	  return result;
 	};
 } (eastasianwidth));
-var eastAsianWidth = eastasianwidth.exports;
+var eastasianwidthExports = eastasianwidth.exports;
+var eastAsianWidth = getDefaultExportFromCjs(eastasianwidthExports);
 
-var emojiRegex = function () {
-  return /\uD83C\uDFF4\uDB40\uDC67\uDB40\uDC62(?:\uDB40\uDC77\uDB40\uDC6C\uDB40\uDC73|\uDB40\uDC73\uDB40\uDC63\uDB40\uDC74|\uDB40\uDC65\uDB40\uDC6E\uDB40\uDC67)\uDB40\uDC7F|(?:\uD83E\uDDD1\uD83C\uDFFF\u200D\u2764\uFE0F\u200D(?:\uD83D\uDC8B\u200D)?\uD83E\uDDD1|\uD83D\uDC69\uD83C\uDFFF\u200D\uD83E\uDD1D\u200D(?:\uD83D[\uDC68\uDC69]))(?:\uD83C[\uDFFB-\uDFFE])|(?:\uD83E\uDDD1\uD83C\uDFFE\u200D\u2764\uFE0F\u200D(?:\uD83D\uDC8B\u200D)?\uD83E\uDDD1|\uD83D\uDC69\uD83C\uDFFE\u200D\uD83E\uDD1D\u200D(?:\uD83D[\uDC68\uDC69]))(?:\uD83C[\uDFFB-\uDFFD\uDFFF])|(?:\uD83E\uDDD1\uD83C\uDFFD\u200D\u2764\uFE0F\u200D(?:\uD83D\uDC8B\u200D)?\uD83E\uDDD1|\uD83D\uDC69\uD83C\uDFFD\u200D\uD83E\uDD1D\u200D(?:\uD83D[\uDC68\uDC69]))(?:\uD83C[\uDFFB\uDFFC\uDFFE\uDFFF])|(?:\uD83E\uDDD1\uD83C\uDFFC\u200D\u2764\uFE0F\u200D(?:\uD83D\uDC8B\u200D)?\uD83E\uDDD1|\uD83D\uDC69\uD83C\uDFFC\u200D\uD83E\uDD1D\u200D(?:\uD83D[\uDC68\uDC69]))(?:\uD83C[\uDFFB\uDFFD-\uDFFF])|(?:\uD83E\uDDD1\uD83C\uDFFB\u200D\u2764\uFE0F\u200D(?:\uD83D\uDC8B\u200D)?\uD83E\uDDD1|\uD83D\uDC69\uD83C\uDFFB\u200D\uD83E\uDD1D\u200D(?:\uD83D[\uDC68\uDC69]))(?:\uD83C[\uDFFC-\uDFFF])|\uD83D\uDC68(?:\uD83C\uDFFB(?:\u200D(?:\u2764\uFE0F\u200D(?:\uD83D\uDC8B\u200D\uD83D\uDC68(?:\uD83C[\uDFFB-\uDFFF])|\uD83D\uDC68(?:\uD83C[\uDFFB-\uDFFF]))|\uD83E\uDD1D\u200D\uD83D\uDC68(?:\uD83C[\uDFFC-\uDFFF])|[\u2695\u2696\u2708]\uFE0F|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD]))?|(?:\uD83C[\uDFFC-\uDFFF])\u200D\u2764\uFE0F\u200D(?:\uD83D\uDC8B\u200D\uD83D\uDC68(?:\uD83C[\uDFFB-\uDFFF])|\uD83D\uDC68(?:\uD83C[\uDFFB-\uDFFF]))|\u200D(?:\u2764\uFE0F\u200D(?:\uD83D\uDC8B\u200D)?\uD83D\uDC68|(?:\uD83D[\uDC68\uDC69])\u200D(?:\uD83D\uDC66\u200D\uD83D\uDC66|\uD83D\uDC67\u200D(?:\uD83D[\uDC66\uDC67]))|\uD83D\uDC66\u200D\uD83D\uDC66|\uD83D\uDC67\u200D(?:\uD83D[\uDC66\uDC67])|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFF\u200D(?:\uD83E\uDD1D\u200D\uD83D\uDC68(?:\uD83C[\uDFFB-\uDFFE])|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFE\u200D(?:\uD83E\uDD1D\u200D\uD83D\uDC68(?:\uD83C[\uDFFB-\uDFFD\uDFFF])|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFD\u200D(?:\uD83E\uDD1D\u200D\uD83D\uDC68(?:\uD83C[\uDFFB\uDFFC\uDFFE\uDFFF])|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFC\u200D(?:\uD83E\uDD1D\u200D\uD83D\uDC68(?:\uD83C[\uDFFB\uDFFD-\uDFFF])|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|(?:\uD83C\uDFFF\u200D[\u2695\u2696\u2708]|\uD83C\uDFFE\u200D[\u2695\u2696\u2708]|\uD83C\uDFFD\u200D[\u2695\u2696\u2708]|\uD83C\uDFFC\u200D[\u2695\u2696\u2708]|\u200D[\u2695\u2696\u2708])\uFE0F|\u200D(?:(?:\uD83D[\uDC68\uDC69])\u200D(?:\uD83D[\uDC66\uDC67])|\uD83D[\uDC66\uDC67])|\uD83C\uDFFF|\uD83C\uDFFE|\uD83C\uDFFD|\uD83C\uDFFC)?|(?:\uD83D\uDC69(?:\uD83C\uDFFB\u200D\u2764\uFE0F\u200D(?:\uD83D\uDC8B\u200D(?:\uD83D[\uDC68\uDC69])|\uD83D[\uDC68\uDC69])|(?:\uD83C[\uDFFC-\uDFFF])\u200D\u2764\uFE0F\u200D(?:\uD83D\uDC8B\u200D(?:\uD83D[\uDC68\uDC69])|\uD83D[\uDC68\uDC69]))|\uD83E\uDDD1(?:\uD83C[\uDFFB-\uDFFF])\u200D\uD83E\uDD1D\u200D\uD83E\uDDD1)(?:\uD83C[\uDFFB-\uDFFF])|\uD83D\uDC69\u200D\uD83D\uDC69\u200D(?:\uD83D\uDC66\u200D\uD83D\uDC66|\uD83D\uDC67\u200D(?:\uD83D[\uDC66\uDC67]))|\uD83D\uDC69(?:\u200D(?:\u2764\uFE0F\u200D(?:\uD83D\uDC8B\u200D(?:\uD83D[\uDC68\uDC69])|\uD83D[\uDC68\uDC69])|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFF\u200D(?:\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFE\u200D(?:\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFD\u200D(?:\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFC\u200D(?:\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFB\u200D(?:\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD]))|\uD83E\uDDD1(?:\u200D(?:\uD83E\uDD1D\u200D\uD83E\uDDD1|\uD83C[\uDF3E\uDF73\uDF7C\uDF84\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFF\u200D(?:\uD83C[\uDF3E\uDF73\uDF7C\uDF84\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFE\u200D(?:\uD83C[\uDF3E\uDF73\uDF7C\uDF84\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFD\u200D(?:\uD83C[\uDF3E\uDF73\uDF7C\uDF84\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFC\u200D(?:\uD83C[\uDF3E\uDF73\uDF7C\uDF84\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C\uDFFB\u200D(?:\uD83C[\uDF3E\uDF73\uDF7C\uDF84\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD]))|\uD83D\uDC69\u200D\uD83D\uDC66\u200D\uD83D\uDC66|\uD83D\uDC69\u200D\uD83D\uDC69\u200D(?:\uD83D[\uDC66\uDC67])|\uD83D\uDC69\u200D\uD83D\uDC67\u200D(?:\uD83D[\uDC66\uDC67])|(?:\uD83D\uDC41\uFE0F\u200D\uD83D\uDDE8|\uD83E\uDDD1(?:\uD83C\uDFFF\u200D[\u2695\u2696\u2708]|\uD83C\uDFFE\u200D[\u2695\u2696\u2708]|\uD83C\uDFFD\u200D[\u2695\u2696\u2708]|\uD83C\uDFFC\u200D[\u2695\u2696\u2708]|\uD83C\uDFFB\u200D[\u2695\u2696\u2708]|\u200D[\u2695\u2696\u2708])|\uD83D\uDC69(?:\uD83C\uDFFF\u200D[\u2695\u2696\u2708]|\uD83C\uDFFE\u200D[\u2695\u2696\u2708]|\uD83C\uDFFD\u200D[\u2695\u2696\u2708]|\uD83C\uDFFC\u200D[\u2695\u2696\u2708]|\uD83C\uDFFB\u200D[\u2695\u2696\u2708]|\u200D[\u2695\u2696\u2708])|\uD83D\uDE36\u200D\uD83C\uDF2B|\uD83C\uDFF3\uFE0F\u200D\u26A7|\uD83D\uDC3B\u200D\u2744|(?:(?:\uD83C[\uDFC3\uDFC4\uDFCA]|\uD83D[\uDC6E\uDC70\uDC71\uDC73\uDC77\uDC81\uDC82\uDC86\uDC87\uDE45-\uDE47\uDE4B\uDE4D\uDE4E\uDEA3\uDEB4-\uDEB6]|\uD83E[\uDD26\uDD35\uDD37-\uDD39\uDD3D\uDD3E\uDDB8\uDDB9\uDDCD-\uDDCF\uDDD4\uDDD6-\uDDDD])(?:\uD83C[\uDFFB-\uDFFF])|\uD83D\uDC6F|\uD83E[\uDD3C\uDDDE\uDDDF])\u200D[\u2640\u2642]|(?:\u26F9|\uD83C[\uDFCB\uDFCC]|\uD83D\uDD75)(?:\uFE0F|\uD83C[\uDFFB-\uDFFF])\u200D[\u2640\u2642]|\uD83C\uDFF4\u200D\u2620|(?:\uD83C[\uDFC3\uDFC4\uDFCA]|\uD83D[\uDC6E\uDC70\uDC71\uDC73\uDC77\uDC81\uDC82\uDC86\uDC87\uDE45-\uDE47\uDE4B\uDE4D\uDE4E\uDEA3\uDEB4-\uDEB6]|\uD83E[\uDD26\uDD35\uDD37-\uDD39\uDD3D\uDD3E\uDDB8\uDDB9\uDDCD-\uDDCF\uDDD4\uDDD6-\uDDDD])\u200D[\u2640\u2642]|[\xA9\xAE\u203C\u2049\u2122\u2139\u2194-\u2199\u21A9\u21AA\u2328\u23CF\u23ED-\u23EF\u23F1\u23F2\u23F8-\u23FA\u24C2\u25AA\u25AB\u25B6\u25C0\u25FB\u25FC\u2600-\u2604\u260E\u2611\u2618\u2620\u2622\u2623\u2626\u262A\u262E\u262F\u2638-\u263A\u2640\u2642\u265F\u2660\u2663\u2665\u2666\u2668\u267B\u267E\u2692\u2694-\u2697\u2699\u269B\u269C\u26A0\u26A7\u26B0\u26B1\u26C8\u26CF\u26D1\u26D3\u26E9\u26F0\u26F1\u26F4\u26F7\u26F8\u2702\u2708\u2709\u270F\u2712\u2714\u2716\u271D\u2721\u2733\u2734\u2744\u2747\u2763\u27A1\u2934\u2935\u2B05-\u2B07\u3030\u303D\u3297\u3299]|\uD83C[\uDD70\uDD71\uDD7E\uDD7F\uDE02\uDE37\uDF21\uDF24-\uDF2C\uDF36\uDF7D\uDF96\uDF97\uDF99-\uDF9B\uDF9E\uDF9F\uDFCD\uDFCE\uDFD4-\uDFDF\uDFF5\uDFF7]|\uD83D[\uDC3F\uDCFD\uDD49\uDD4A\uDD6F\uDD70\uDD73\uDD76-\uDD79\uDD87\uDD8A-\uDD8D\uDDA5\uDDA8\uDDB1\uDDB2\uDDBC\uDDC2-\uDDC4\uDDD1-\uDDD3\uDDDC-\uDDDE\uDDE1\uDDE3\uDDE8\uDDEF\uDDF3\uDDFA\uDECB\uDECD-\uDECF\uDEE0-\uDEE5\uDEE9\uDEF0\uDEF3])\uFE0F|\uD83C\uDFF3\uFE0F\u200D\uD83C\uDF08|\uD83D\uDC69\u200D\uD83D\uDC67|\uD83D\uDC69\u200D\uD83D\uDC66|\uD83D\uDE35\u200D\uD83D\uDCAB|\uD83D\uDE2E\u200D\uD83D\uDCA8|\uD83D\uDC15\u200D\uD83E\uDDBA|\uD83E\uDDD1(?:\uD83C\uDFFF|\uD83C\uDFFE|\uD83C\uDFFD|\uD83C\uDFFC|\uD83C\uDFFB)?|\uD83D\uDC69(?:\uD83C\uDFFF|\uD83C\uDFFE|\uD83C\uDFFD|\uD83C\uDFFC|\uD83C\uDFFB)?|\uD83C\uDDFD\uD83C\uDDF0|\uD83C\uDDF6\uD83C\uDDE6|\uD83C\uDDF4\uD83C\uDDF2|\uD83D\uDC08\u200D\u2B1B|\u2764\uFE0F\u200D(?:\uD83D\uDD25|\uD83E\uDE79)|\uD83D\uDC41\uFE0F|\uD83C\uDFF3\uFE0F|\uD83C\uDDFF(?:\uD83C[\uDDE6\uDDF2\uDDFC])|\uD83C\uDDFE(?:\uD83C[\uDDEA\uDDF9])|\uD83C\uDDFC(?:\uD83C[\uDDEB\uDDF8])|\uD83C\uDDFB(?:\uD83C[\uDDE6\uDDE8\uDDEA\uDDEC\uDDEE\uDDF3\uDDFA])|\uD83C\uDDFA(?:\uD83C[\uDDE6\uDDEC\uDDF2\uDDF3\uDDF8\uDDFE\uDDFF])|\uD83C\uDDF9(?:\uD83C[\uDDE6\uDDE8\uDDE9\uDDEB-\uDDED\uDDEF-\uDDF4\uDDF7\uDDF9\uDDFB\uDDFC\uDDFF])|\uD83C\uDDF8(?:\uD83C[\uDDE6-\uDDEA\uDDEC-\uDDF4\uDDF7-\uDDF9\uDDFB\uDDFD-\uDDFF])|\uD83C\uDDF7(?:\uD83C[\uDDEA\uDDF4\uDDF8\uDDFA\uDDFC])|\uD83C\uDDF5(?:\uD83C[\uDDE6\uDDEA-\uDDED\uDDF0-\uDDF3\uDDF7-\uDDF9\uDDFC\uDDFE])|\uD83C\uDDF3(?:\uD83C[\uDDE6\uDDE8\uDDEA-\uDDEC\uDDEE\uDDF1\uDDF4\uDDF5\uDDF7\uDDFA\uDDFF])|\uD83C\uDDF2(?:\uD83C[\uDDE6\uDDE8-\uDDED\uDDF0-\uDDFF])|\uD83C\uDDF1(?:\uD83C[\uDDE6-\uDDE8\uDDEE\uDDF0\uDDF7-\uDDFB\uDDFE])|\uD83C\uDDF0(?:\uD83C[\uDDEA\uDDEC-\uDDEE\uDDF2\uDDF3\uDDF5\uDDF7\uDDFC\uDDFE\uDDFF])|\uD83C\uDDEF(?:\uD83C[\uDDEA\uDDF2\uDDF4\uDDF5])|\uD83C\uDDEE(?:\uD83C[\uDDE8-\uDDEA\uDDF1-\uDDF4\uDDF6-\uDDF9])|\uD83C\uDDED(?:\uD83C[\uDDF0\uDDF2\uDDF3\uDDF7\uDDF9\uDDFA])|\uD83C\uDDEC(?:\uD83C[\uDDE6\uDDE7\uDDE9-\uDDEE\uDDF1-\uDDF3\uDDF5-\uDDFA\uDDFC\uDDFE])|\uD83C\uDDEB(?:\uD83C[\uDDEE-\uDDF0\uDDF2\uDDF4\uDDF7])|\uD83C\uDDEA(?:\uD83C[\uDDE6\uDDE8\uDDEA\uDDEC\uDDED\uDDF7-\uDDFA])|\uD83C\uDDE9(?:\uD83C[\uDDEA\uDDEC\uDDEF\uDDF0\uDDF2\uDDF4\uDDFF])|\uD83C\uDDE8(?:\uD83C[\uDDE6\uDDE8\uDDE9\uDDEB-\uDDEE\uDDF0-\uDDF5\uDDF7\uDDFA-\uDDFF])|\uD83C\uDDE7(?:\uD83C[\uDDE6\uDDE7\uDDE9-\uDDEF\uDDF1-\uDDF4\uDDF6-\uDDF9\uDDFB\uDDFC\uDDFE\uDDFF])|\uD83C\uDDE6(?:\uD83C[\uDDE8-\uDDEC\uDDEE\uDDF1\uDDF2\uDDF4\uDDF6-\uDDFA\uDDFC\uDDFD\uDDFF])|[#\*0-9]\uFE0F\u20E3|\u2764\uFE0F|(?:\uD83C[\uDFC3\uDFC4\uDFCA]|\uD83D[\uDC6E\uDC70\uDC71\uDC73\uDC77\uDC81\uDC82\uDC86\uDC87\uDE45-\uDE47\uDE4B\uDE4D\uDE4E\uDEA3\uDEB4-\uDEB6]|\uD83E[\uDD26\uDD35\uDD37-\uDD39\uDD3D\uDD3E\uDDB8\uDDB9\uDDCD-\uDDCF\uDDD4\uDDD6-\uDDDD])(?:\uD83C[\uDFFB-\uDFFF])|(?:\u26F9|\uD83C[\uDFCB\uDFCC]|\uD83D\uDD75)(?:\uFE0F|\uD83C[\uDFFB-\uDFFF])|\uD83C\uDFF4|(?:[\u270A\u270B]|\uD83C[\uDF85\uDFC2\uDFC7]|\uD83D[\uDC42\uDC43\uDC46-\uDC50\uDC66\uDC67\uDC6B-\uDC6D\uDC72\uDC74-\uDC76\uDC78\uDC7C\uDC83\uDC85\uDC8F\uDC91\uDCAA\uDD7A\uDD95\uDD96\uDE4C\uDE4F\uDEC0\uDECC]|\uD83E[\uDD0C\uDD0F\uDD18-\uDD1C\uDD1E\uDD1F\uDD30-\uDD34\uDD36\uDD77\uDDB5\uDDB6\uDDBB\uDDD2\uDDD3\uDDD5])(?:\uD83C[\uDFFB-\uDFFF])|(?:[\u261D\u270C\u270D]|\uD83D[\uDD74\uDD90])(?:\uFE0F|\uD83C[\uDFFB-\uDFFF])|[\u270A\u270B]|\uD83C[\uDF85\uDFC2\uDFC7]|\uD83D[\uDC08\uDC15\uDC3B\uDC42\uDC43\uDC46-\uDC50\uDC66\uDC67\uDC6B-\uDC6D\uDC72\uDC74-\uDC76\uDC78\uDC7C\uDC83\uDC85\uDC8F\uDC91\uDCAA\uDD7A\uDD95\uDD96\uDE2E\uDE35\uDE36\uDE4C\uDE4F\uDEC0\uDECC]|\uD83E[\uDD0C\uDD0F\uDD18-\uDD1C\uDD1E\uDD1F\uDD30-\uDD34\uDD36\uDD77\uDDB5\uDDB6\uDDBB\uDDD2\uDDD3\uDDD5]|\uD83C[\uDFC3\uDFC4\uDFCA]|\uD83D[\uDC6E\uDC70\uDC71\uDC73\uDC77\uDC81\uDC82\uDC86\uDC87\uDE45-\uDE47\uDE4B\uDE4D\uDE4E\uDEA3\uDEB4-\uDEB6]|\uD83E[\uDD26\uDD35\uDD37-\uDD39\uDD3D\uDD3E\uDDB8\uDDB9\uDDCD-\uDDCF\uDDD4\uDDD6-\uDDDD]|\uD83D\uDC6F|\uD83E[\uDD3C\uDDDE\uDDDF]|[\u231A\u231B\u23E9-\u23EC\u23F0\u23F3\u25FD\u25FE\u2614\u2615\u2648-\u2653\u267F\u2693\u26A1\u26AA\u26AB\u26BD\u26BE\u26C4\u26C5\u26CE\u26D4\u26EA\u26F2\u26F3\u26F5\u26FA\u26FD\u2705\u2728\u274C\u274E\u2753-\u2755\u2757\u2795-\u2797\u27B0\u27BF\u2B1B\u2B1C\u2B50\u2B55]|\uD83C[\uDC04\uDCCF\uDD8E\uDD91-\uDD9A\uDE01\uDE1A\uDE2F\uDE32-\uDE36\uDE38-\uDE3A\uDE50\uDE51\uDF00-\uDF20\uDF2D-\uDF35\uDF37-\uDF7C\uDF7E-\uDF84\uDF86-\uDF93\uDFA0-\uDFC1\uDFC5\uDFC6\uDFC8\uDFC9\uDFCF-\uDFD3\uDFE0-\uDFF0\uDFF8-\uDFFF]|\uD83D[\uDC00-\uDC07\uDC09-\uDC14\uDC16-\uDC3A\uDC3C-\uDC3E\uDC40\uDC44\uDC45\uDC51-\uDC65\uDC6A\uDC79-\uDC7B\uDC7D-\uDC80\uDC84\uDC88-\uDC8E\uDC90\uDC92-\uDCA9\uDCAB-\uDCFC\uDCFF-\uDD3D\uDD4B-\uDD4E\uDD50-\uDD67\uDDA4\uDDFB-\uDE2D\uDE2F-\uDE34\uDE37-\uDE44\uDE48-\uDE4A\uDE80-\uDEA2\uDEA4-\uDEB3\uDEB7-\uDEBF\uDEC1-\uDEC5\uDED0-\uDED2\uDED5-\uDED7\uDEEB\uDEEC\uDEF4-\uDEFC\uDFE0-\uDFEB]|\uD83E[\uDD0D\uDD0E\uDD10-\uDD17\uDD1D\uDD20-\uDD25\uDD27-\uDD2F\uDD3A\uDD3F-\uDD45\uDD47-\uDD76\uDD78\uDD7A-\uDDB4\uDDB7\uDDBA\uDDBC-\uDDCB\uDDD0\uDDE0-\uDDFF\uDE70-\uDE74\uDE78-\uDE7A\uDE80-\uDE86\uDE90-\uDEA8\uDEB0-\uDEB6\uDEC0-\uDEC2\uDED0-\uDED6]|(?:[\u231A\u231B\u23E9-\u23EC\u23F0\u23F3\u25FD\u25FE\u2614\u2615\u2648-\u2653\u267F\u2693\u26A1\u26AA\u26AB\u26BD\u26BE\u26C4\u26C5\u26CE\u26D4\u26EA\u26F2\u26F3\u26F5\u26FA\u26FD\u2705\u270A\u270B\u2728\u274C\u274E\u2753-\u2755\u2757\u2795-\u2797\u27B0\u27BF\u2B1B\u2B1C\u2B50\u2B55]|\uD83C[\uDC04\uDCCF\uDD8E\uDD91-\uDD9A\uDDE6-\uDDFF\uDE01\uDE1A\uDE2F\uDE32-\uDE36\uDE38-\uDE3A\uDE50\uDE51\uDF00-\uDF20\uDF2D-\uDF35\uDF37-\uDF7C\uDF7E-\uDF93\uDFA0-\uDFCA\uDFCF-\uDFD3\uDFE0-\uDFF0\uDFF4\uDFF8-\uDFFF]|\uD83D[\uDC00-\uDC3E\uDC40\uDC42-\uDCFC\uDCFF-\uDD3D\uDD4B-\uDD4E\uDD50-\uDD67\uDD7A\uDD95\uDD96\uDDA4\uDDFB-\uDE4F\uDE80-\uDEC5\uDECC\uDED0-\uDED2\uDED5-\uDED7\uDEEB\uDEEC\uDEF4-\uDEFC\uDFE0-\uDFEB]|\uD83E[\uDD0C-\uDD3A\uDD3C-\uDD45\uDD47-\uDD78\uDD7A-\uDDCB\uDDCD-\uDDFF\uDE70-\uDE74\uDE78-\uDE7A\uDE80-\uDE86\uDE90-\uDEA8\uDEB0-\uDEB6\uDEC0-\uDEC2\uDED0-\uDED6])|(?:[#\*0-9\xA9\xAE\u203C\u2049\u2122\u2139\u2194-\u2199\u21A9\u21AA\u231A\u231B\u2328\u23CF\u23E9-\u23F3\u23F8-\u23FA\u24C2\u25AA\u25AB\u25B6\u25C0\u25FB-\u25FE\u2600-\u2604\u260E\u2611\u2614\u2615\u2618\u261D\u2620\u2622\u2623\u2626\u262A\u262E\u262F\u2638-\u263A\u2640\u2642\u2648-\u2653\u265F\u2660\u2663\u2665\u2666\u2668\u267B\u267E\u267F\u2692-\u2697\u2699\u269B\u269C\u26A0\u26A1\u26A7\u26AA\u26AB\u26B0\u26B1\u26BD\u26BE\u26C4\u26C5\u26C8\u26CE\u26CF\u26D1\u26D3\u26D4\u26E9\u26EA\u26F0-\u26F5\u26F7-\u26FA\u26FD\u2702\u2705\u2708-\u270D\u270F\u2712\u2714\u2716\u271D\u2721\u2728\u2733\u2734\u2744\u2747\u274C\u274E\u2753-\u2755\u2757\u2763\u2764\u2795-\u2797\u27A1\u27B0\u27BF\u2934\u2935\u2B05-\u2B07\u2B1B\u2B1C\u2B50\u2B55\u3030\u303D\u3297\u3299]|\uD83C[\uDC04\uDCCF\uDD70\uDD71\uDD7E\uDD7F\uDD8E\uDD91-\uDD9A\uDDE6-\uDDFF\uDE01\uDE02\uDE1A\uDE2F\uDE32-\uDE3A\uDE50\uDE51\uDF00-\uDF21\uDF24-\uDF93\uDF96\uDF97\uDF99-\uDF9B\uDF9E-\uDFF0\uDFF3-\uDFF5\uDFF7-\uDFFF]|\uD83D[\uDC00-\uDCFD\uDCFF-\uDD3D\uDD49-\uDD4E\uDD50-\uDD67\uDD6F\uDD70\uDD73-\uDD7A\uDD87\uDD8A-\uDD8D\uDD90\uDD95\uDD96\uDDA4\uDDA5\uDDA8\uDDB1\uDDB2\uDDBC\uDDC2-\uDDC4\uDDD1-\uDDD3\uDDDC-\uDDDE\uDDE1\uDDE3\uDDE8\uDDEF\uDDF3\uDDFA-\uDE4F\uDE80-\uDEC5\uDECB-\uDED2\uDED5-\uDED7\uDEE0-\uDEE5\uDEE9\uDEEB\uDEEC\uDEF0\uDEF3-\uDEFC\uDFE0-\uDFEB]|\uD83E[\uDD0C-\uDD3A\uDD3C-\uDD45\uDD47-\uDD78\uDD7A-\uDDCB\uDDCD-\uDDFF\uDE70-\uDE74\uDE78-\uDE7A\uDE80-\uDE86\uDE90-\uDEA8\uDEB0-\uDEB6\uDEC0-\uDEC2\uDED0-\uDED6])\uFE0F|(?:[\u261D\u26F9\u270A-\u270D]|\uD83C[\uDF85\uDFC2-\uDFC4\uDFC7\uDFCA-\uDFCC]|\uD83D[\uDC42\uDC43\uDC46-\uDC50\uDC66-\uDC78\uDC7C\uDC81-\uDC83\uDC85-\uDC87\uDC8F\uDC91\uDCAA\uDD74\uDD75\uDD7A\uDD90\uDD95\uDD96\uDE45-\uDE47\uDE4B-\uDE4F\uDEA3\uDEB4-\uDEB6\uDEC0\uDECC]|\uD83E[\uDD0C\uDD0F\uDD18-\uDD1F\uDD26\uDD30-\uDD39\uDD3C-\uDD3E\uDD77\uDDB5\uDDB6\uDDB8\uDDB9\uDDBB\uDDCD-\uDDCF\uDDD1-\uDDDD])/g;
+var emojiRegex = () => {
+	return /[#*0-9]\uFE0F?\u20E3|[\xA9\xAE\u203C\u2049\u2122\u2139\u2194-\u2199\u21A9\u21AA\u231A\u231B\u2328\u23CF\u23ED-\u23EF\u23F1\u23F2\u23F8-\u23FA\u24C2\u25AA\u25AB\u25B6\u25C0\u25FB\u25FC\u25FE\u2600-\u2604\u260E\u2611\u2614\u2615\u2618\u2620\u2622\u2623\u2626\u262A\u262E\u262F\u2638-\u263A\u2640\u2642\u2648-\u2653\u265F\u2660\u2663\u2665\u2666\u2668\u267B\u267E\u267F\u2692\u2694-\u2697\u2699\u269B\u269C\u26A0\u26A7\u26AA\u26B0\u26B1\u26BD\u26BE\u26C4\u26C8\u26CF\u26D1\u26D3\u26E9\u26F0-\u26F5\u26F7\u26F8\u26FA\u2702\u2708\u2709\u270F\u2712\u2714\u2716\u271D\u2721\u2733\u2734\u2744\u2747\u2757\u2763\u27A1\u2934\u2935\u2B05-\u2B07\u2B1B\u2B1C\u2B55\u3030\u303D\u3297\u3299]\uFE0F?|[\u261D\u270C\u270D](?:\uFE0F|\uD83C[\uDFFB-\uDFFF])?|[\u270A\u270B](?:\uD83C[\uDFFB-\uDFFF])?|[\u23E9-\u23EC\u23F0\u23F3\u25FD\u2693\u26A1\u26AB\u26C5\u26CE\u26D4\u26EA\u26FD\u2705\u2728\u274C\u274E\u2753-\u2755\u2795-\u2797\u27B0\u27BF\u2B50]|\u26F9(?:\uFE0F|\uD83C[\uDFFB-\uDFFF])?(?:\u200D[\u2640\u2642]\uFE0F?)?|\u2764\uFE0F?(?:\u200D(?:\uD83D\uDD25|\uD83E\uDE79))?|\uD83C(?:[\uDC04\uDD70\uDD71\uDD7E\uDD7F\uDE02\uDE37\uDF21\uDF24-\uDF2C\uDF36\uDF7D\uDF96\uDF97\uDF99-\uDF9B\uDF9E\uDF9F\uDFCD\uDFCE\uDFD4-\uDFDF\uDFF5\uDFF7]\uFE0F?|[\uDF85\uDFC2\uDFC7](?:\uD83C[\uDFFB-\uDFFF])?|[\uDFC3\uDFC4\uDFCA](?:\uD83C[\uDFFB-\uDFFF])?(?:\u200D[\u2640\u2642]\uFE0F?)?|[\uDFCB\uDFCC](?:\uFE0F|\uD83C[\uDFFB-\uDFFF])?(?:\u200D[\u2640\u2642]\uFE0F?)?|[\uDCCF\uDD8E\uDD91-\uDD9A\uDE01\uDE1A\uDE2F\uDE32-\uDE36\uDE38-\uDE3A\uDE50\uDE51\uDF00-\uDF20\uDF2D-\uDF35\uDF37-\uDF7C\uDF7E-\uDF84\uDF86-\uDF93\uDFA0-\uDFC1\uDFC5\uDFC6\uDFC8\uDFC9\uDFCF-\uDFD3\uDFE0-\uDFF0\uDFF8-\uDFFF]|\uDDE6\uD83C[\uDDE8-\uDDEC\uDDEE\uDDF1\uDDF2\uDDF4\uDDF6-\uDDFA\uDDFC\uDDFD\uDDFF]|\uDDE7\uD83C[\uDDE6\uDDE7\uDDE9-\uDDEF\uDDF1-\uDDF4\uDDF6-\uDDF9\uDDFB\uDDFC\uDDFE\uDDFF]|\uDDE8\uD83C[\uDDE6\uDDE8\uDDE9\uDDEB-\uDDEE\uDDF0-\uDDF5\uDDF7\uDDFA-\uDDFF]|\uDDE9\uD83C[\uDDEA\uDDEC\uDDEF\uDDF0\uDDF2\uDDF4\uDDFF]|\uDDEA\uD83C[\uDDE6\uDDE8\uDDEA\uDDEC\uDDED\uDDF7-\uDDFA]|\uDDEB\uD83C[\uDDEE-\uDDF0\uDDF2\uDDF4\uDDF7]|\uDDEC\uD83C[\uDDE6\uDDE7\uDDE9-\uDDEE\uDDF1-\uDDF3\uDDF5-\uDDFA\uDDFC\uDDFE]|\uDDED\uD83C[\uDDF0\uDDF2\uDDF3\uDDF7\uDDF9\uDDFA]|\uDDEE\uD83C[\uDDE8-\uDDEA\uDDF1-\uDDF4\uDDF6-\uDDF9]|\uDDEF\uD83C[\uDDEA\uDDF2\uDDF4\uDDF5]|\uDDF0\uD83C[\uDDEA\uDDEC-\uDDEE\uDDF2\uDDF3\uDDF5\uDDF7\uDDFC\uDDFE\uDDFF]|\uDDF1\uD83C[\uDDE6-\uDDE8\uDDEE\uDDF0\uDDF7-\uDDFB\uDDFE]|\uDDF2\uD83C[\uDDE6\uDDE8-\uDDED\uDDF0-\uDDFF]|\uDDF3\uD83C[\uDDE6\uDDE8\uDDEA-\uDDEC\uDDEE\uDDF1\uDDF4\uDDF5\uDDF7\uDDFA\uDDFF]|\uDDF4\uD83C\uDDF2|\uDDF5\uD83C[\uDDE6\uDDEA-\uDDED\uDDF0-\uDDF3\uDDF7-\uDDF9\uDDFC\uDDFE]|\uDDF6\uD83C\uDDE6|\uDDF7\uD83C[\uDDEA\uDDF4\uDDF8\uDDFA\uDDFC]|\uDDF8\uD83C[\uDDE6-\uDDEA\uDDEC-\uDDF4\uDDF7-\uDDF9\uDDFB\uDDFD-\uDDFF]|\uDDF9\uD83C[\uDDE6\uDDE8\uDDE9\uDDEB-\uDDED\uDDEF-\uDDF4\uDDF7\uDDF9\uDDFB\uDDFC\uDDFF]|\uDDFA\uD83C[\uDDE6\uDDEC\uDDF2\uDDF3\uDDF8\uDDFE\uDDFF]|\uDDFB\uD83C[\uDDE6\uDDE8\uDDEA\uDDEC\uDDEE\uDDF3\uDDFA]|\uDDFC\uD83C[\uDDEB\uDDF8]|\uDDFD\uD83C\uDDF0|\uDDFE\uD83C[\uDDEA\uDDF9]|\uDDFF\uD83C[\uDDE6\uDDF2\uDDFC]|\uDFF3\uFE0F?(?:\u200D(?:\u26A7\uFE0F?|\uD83C\uDF08))?|\uDFF4(?:\u200D\u2620\uFE0F?|\uDB40\uDC67\uDB40\uDC62\uDB40(?:\uDC65\uDB40\uDC6E\uDB40\uDC67|\uDC73\uDB40\uDC63\uDB40\uDC74|\uDC77\uDB40\uDC6C\uDB40\uDC73)\uDB40\uDC7F)?)|\uD83D(?:[\uDC08\uDC26](?:\u200D\u2B1B)?|[\uDC3F\uDCFD\uDD49\uDD4A\uDD6F\uDD70\uDD73\uDD76-\uDD79\uDD87\uDD8A-\uDD8D\uDDA5\uDDA8\uDDB1\uDDB2\uDDBC\uDDC2-\uDDC4\uDDD1-\uDDD3\uDDDC-\uDDDE\uDDE1\uDDE3\uDDE8\uDDEF\uDDF3\uDDFA\uDECB\uDECD-\uDECF\uDEE0-\uDEE5\uDEE9\uDEF0\uDEF3]\uFE0F?|[\uDC42\uDC43\uDC46-\uDC50\uDC66\uDC67\uDC6B-\uDC6D\uDC72\uDC74-\uDC76\uDC78\uDC7C\uDC83\uDC85\uDC8F\uDC91\uDCAA\uDD7A\uDD95\uDD96\uDE4C\uDE4F\uDEC0\uDECC](?:\uD83C[\uDFFB-\uDFFF])?|[\uDC6E\uDC70\uDC71\uDC73\uDC77\uDC81\uDC82\uDC86\uDC87\uDE45-\uDE47\uDE4B\uDE4D\uDE4E\uDEA3\uDEB4-\uDEB6](?:\uD83C[\uDFFB-\uDFFF])?(?:\u200D[\u2640\u2642]\uFE0F?)?|[\uDD74\uDD90](?:\uFE0F|\uD83C[\uDFFB-\uDFFF])?|[\uDC00-\uDC07\uDC09-\uDC14\uDC16-\uDC25\uDC27-\uDC3A\uDC3C-\uDC3E\uDC40\uDC44\uDC45\uDC51-\uDC65\uDC6A\uDC79-\uDC7B\uDC7D-\uDC80\uDC84\uDC88-\uDC8E\uDC90\uDC92-\uDCA9\uDCAB-\uDCFC\uDCFF-\uDD3D\uDD4B-\uDD4E\uDD50-\uDD67\uDDA4\uDDFB-\uDE2D\uDE2F-\uDE34\uDE37-\uDE44\uDE48-\uDE4A\uDE80-\uDEA2\uDEA4-\uDEB3\uDEB7-\uDEBF\uDEC1-\uDEC5\uDED0-\uDED2\uDED5-\uDED7\uDEDC-\uDEDF\uDEEB\uDEEC\uDEF4-\uDEFC\uDFE0-\uDFEB\uDFF0]|\uDC15(?:\u200D\uD83E\uDDBA)?|\uDC3B(?:\u200D\u2744\uFE0F?)?|\uDC41\uFE0F?(?:\u200D\uD83D\uDDE8\uFE0F?)?|\uDC68(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D\uD83D(?:\uDC8B\u200D\uD83D)?\uDC68|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D(?:[\uDC68\uDC69]\u200D\uD83D(?:\uDC66(?:\u200D\uD83D\uDC66)?|\uDC67(?:\u200D\uD83D[\uDC66\uDC67])?)|[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uDC66(?:\u200D\uD83D\uDC66)?|\uDC67(?:\u200D\uD83D[\uDC66\uDC67])?)|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C(?:\uDFFB(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D\uD83D(?:\uDC8B\u200D\uD83D)?\uDC68\uD83C[\uDFFB-\uDFFF]|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E(?:[\uDDAF-\uDDB3\uDDBC\uDDBD]|\uDD1D\u200D\uD83D\uDC68\uD83C[\uDFFC-\uDFFF])))?|\uDFFC(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D\uD83D(?:\uDC8B\u200D\uD83D)?\uDC68\uD83C[\uDFFB-\uDFFF]|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E(?:[\uDDAF-\uDDB3\uDDBC\uDDBD]|\uDD1D\u200D\uD83D\uDC68\uD83C[\uDFFB\uDFFD-\uDFFF])))?|\uDFFD(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D\uD83D(?:\uDC8B\u200D\uD83D)?\uDC68\uD83C[\uDFFB-\uDFFF]|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E(?:[\uDDAF-\uDDB3\uDDBC\uDDBD]|\uDD1D\u200D\uD83D\uDC68\uD83C[\uDFFB\uDFFC\uDFFE\uDFFF])))?|\uDFFE(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D\uD83D(?:\uDC8B\u200D\uD83D)?\uDC68\uD83C[\uDFFB-\uDFFF]|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E(?:[\uDDAF-\uDDB3\uDDBC\uDDBD]|\uDD1D\u200D\uD83D\uDC68\uD83C[\uDFFB-\uDFFD\uDFFF])))?|\uDFFF(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D\uD83D(?:\uDC8B\u200D\uD83D)?\uDC68\uD83C[\uDFFB-\uDFFF]|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E(?:[\uDDAF-\uDDB3\uDDBC\uDDBD]|\uDD1D\u200D\uD83D\uDC68\uD83C[\uDFFB-\uDFFE])))?))?|\uDC69(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D\uD83D(?:\uDC8B\u200D\uD83D)?[\uDC68\uDC69]|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D(?:[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uDC66(?:\u200D\uD83D\uDC66)?|\uDC67(?:\u200D\uD83D[\uDC66\uDC67])?|\uDC69\u200D\uD83D(?:\uDC66(?:\u200D\uD83D\uDC66)?|\uDC67(?:\u200D\uD83D[\uDC66\uDC67])?))|\uD83E[\uDDAF-\uDDB3\uDDBC\uDDBD])|\uD83C(?:\uDFFB(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D\uD83D(?:[\uDC68\uDC69]|\uDC8B\u200D\uD83D[\uDC68\uDC69])\uD83C[\uDFFB-\uDFFF]|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E(?:[\uDDAF-\uDDB3\uDDBC\uDDBD]|\uDD1D\u200D\uD83D[\uDC68\uDC69]\uD83C[\uDFFC-\uDFFF])))?|\uDFFC(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D\uD83D(?:[\uDC68\uDC69]|\uDC8B\u200D\uD83D[\uDC68\uDC69])\uD83C[\uDFFB-\uDFFF]|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E(?:[\uDDAF-\uDDB3\uDDBC\uDDBD]|\uDD1D\u200D\uD83D[\uDC68\uDC69]\uD83C[\uDFFB\uDFFD-\uDFFF])))?|\uDFFD(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D\uD83D(?:[\uDC68\uDC69]|\uDC8B\u200D\uD83D[\uDC68\uDC69])\uD83C[\uDFFB-\uDFFF]|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E(?:[\uDDAF-\uDDB3\uDDBC\uDDBD]|\uDD1D\u200D\uD83D[\uDC68\uDC69]\uD83C[\uDFFB\uDFFC\uDFFE\uDFFF])))?|\uDFFE(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D\uD83D(?:[\uDC68\uDC69]|\uDC8B\u200D\uD83D[\uDC68\uDC69])\uD83C[\uDFFB-\uDFFF]|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E(?:[\uDDAF-\uDDB3\uDDBC\uDDBD]|\uDD1D\u200D\uD83D[\uDC68\uDC69]\uD83C[\uDFFB-\uDFFD\uDFFF])))?|\uDFFF(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D\uD83D(?:[\uDC68\uDC69]|\uDC8B\u200D\uD83D[\uDC68\uDC69])\uD83C[\uDFFB-\uDFFF]|\uD83C[\uDF3E\uDF73\uDF7C\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E(?:[\uDDAF-\uDDB3\uDDBC\uDDBD]|\uDD1D\u200D\uD83D[\uDC68\uDC69]\uD83C[\uDFFB-\uDFFE])))?))?|\uDC6F(?:\u200D[\u2640\u2642]\uFE0F?)?|\uDD75(?:\uFE0F|\uD83C[\uDFFB-\uDFFF])?(?:\u200D[\u2640\u2642]\uFE0F?)?|\uDE2E(?:\u200D\uD83D\uDCA8)?|\uDE35(?:\u200D\uD83D\uDCAB)?|\uDE36(?:\u200D\uD83C\uDF2B\uFE0F?)?)|\uD83E(?:[\uDD0C\uDD0F\uDD18-\uDD1F\uDD30-\uDD34\uDD36\uDD77\uDDB5\uDDB6\uDDBB\uDDD2\uDDD3\uDDD5\uDEC3-\uDEC5\uDEF0\uDEF2-\uDEF8](?:\uD83C[\uDFFB-\uDFFF])?|[\uDD26\uDD35\uDD37-\uDD39\uDD3D\uDD3E\uDDB8\uDDB9\uDDCD-\uDDCF\uDDD4\uDDD6-\uDDDD](?:\uD83C[\uDFFB-\uDFFF])?(?:\u200D[\u2640\u2642]\uFE0F?)?|[\uDDDE\uDDDF](?:\u200D[\u2640\u2642]\uFE0F?)?|[\uDD0D\uDD0E\uDD10-\uDD17\uDD20-\uDD25\uDD27-\uDD2F\uDD3A\uDD3F-\uDD45\uDD47-\uDD76\uDD78-\uDDB4\uDDB7\uDDBA\uDDBC-\uDDCC\uDDD0\uDDE0-\uDDFF\uDE70-\uDE7C\uDE80-\uDE88\uDE90-\uDEBD\uDEBF-\uDEC2\uDECE-\uDEDB\uDEE0-\uDEE8]|\uDD3C(?:\u200D[\u2640\u2642]\uFE0F?|\uD83C[\uDFFB-\uDFFF])?|\uDDD1(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\uD83C[\uDF3E\uDF73\uDF7C\uDF84\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E(?:[\uDDAF-\uDDB3\uDDBC\uDDBD]|\uDD1D\u200D\uD83E\uDDD1))|\uD83C(?:\uDFFB(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D(?:\uD83D\uDC8B\u200D)?\uD83E\uDDD1\uD83C[\uDFFC-\uDFFF]|\uD83C[\uDF3E\uDF73\uDF7C\uDF84\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E(?:[\uDDAF-\uDDB3\uDDBC\uDDBD]|\uDD1D\u200D\uD83E\uDDD1\uD83C[\uDFFB-\uDFFF])))?|\uDFFC(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D(?:\uD83D\uDC8B\u200D)?\uD83E\uDDD1\uD83C[\uDFFB\uDFFD-\uDFFF]|\uD83C[\uDF3E\uDF73\uDF7C\uDF84\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E(?:[\uDDAF-\uDDB3\uDDBC\uDDBD]|\uDD1D\u200D\uD83E\uDDD1\uD83C[\uDFFB-\uDFFF])))?|\uDFFD(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D(?:\uD83D\uDC8B\u200D)?\uD83E\uDDD1\uD83C[\uDFFB\uDFFC\uDFFE\uDFFF]|\uD83C[\uDF3E\uDF73\uDF7C\uDF84\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E(?:[\uDDAF-\uDDB3\uDDBC\uDDBD]|\uDD1D\u200D\uD83E\uDDD1\uD83C[\uDFFB-\uDFFF])))?|\uDFFE(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D(?:\uD83D\uDC8B\u200D)?\uD83E\uDDD1\uD83C[\uDFFB-\uDFFD\uDFFF]|\uD83C[\uDF3E\uDF73\uDF7C\uDF84\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E(?:[\uDDAF-\uDDB3\uDDBC\uDDBD]|\uDD1D\u200D\uD83E\uDDD1\uD83C[\uDFFB-\uDFFF])))?|\uDFFF(?:\u200D(?:[\u2695\u2696\u2708]\uFE0F?|\u2764\uFE0F?\u200D(?:\uD83D\uDC8B\u200D)?\uD83E\uDDD1\uD83C[\uDFFB-\uDFFE]|\uD83C[\uDF3E\uDF73\uDF7C\uDF84\uDF93\uDFA4\uDFA8\uDFEB\uDFED]|\uD83D[\uDCBB\uDCBC\uDD27\uDD2C\uDE80\uDE92]|\uD83E(?:[\uDDAF-\uDDB3\uDDBC\uDDBD]|\uDD1D\u200D\uD83E\uDDD1\uD83C[\uDFFB-\uDFFF])))?))?|\uDEF1(?:\uD83C(?:\uDFFB(?:\u200D\uD83E\uDEF2\uD83C[\uDFFC-\uDFFF])?|\uDFFC(?:\u200D\uD83E\uDEF2\uD83C[\uDFFB\uDFFD-\uDFFF])?|\uDFFD(?:\u200D\uD83E\uDEF2\uD83C[\uDFFB\uDFFC\uDFFE\uDFFF])?|\uDFFE(?:\u200D\uD83E\uDEF2\uD83C[\uDFFB-\uDFFD\uDFFF])?|\uDFFF(?:\u200D\uD83E\uDEF2\uD83C[\uDFFB-\uDFFE])?))?)/g;
 };
 
-function stringWidth(string, options = {}) {
+function stringWidth(string, options) {
 	if (typeof string !== 'string' || string.length === 0) {
 		return 0;
 	}
 	options = {
 		ambiguousIsNarrow: true,
-		...options
+		countAnsiEscapeCodes: false,
+		...options,
 	};
-	string = stripAnsi(string);
+	if (!options.countAnsiEscapeCodes) {
+		string = stripAnsi(string);
+	}
 	if (string.length === 0) {
 		return 0;
 	}
-	string = string.replace(emojiRegex(), '  ');
 	const ambiguousCharacterWidth = options.ambiguousIsNarrow ? 1 : 2;
 	let width = 0;
-	for (const character of string) {
+	for (const {segment: character} of new Intl.Segmenter().segment(string)) {
 		const codePoint = character.codePointAt(0);
 		if (codePoint <= 0x1F || (codePoint >= 0x7F && codePoint <= 0x9F)) {
 			continue;
 		}
-		if (codePoint >= 0x300 && codePoint <= 0x36F) {
+		if (codePoint >= 0x3_00 && codePoint <= 0x3_6F) {
+			continue;
+		}
+		if (emojiRegex().test(character)) {
+			width += 2;
 			continue;
 		}
 		const code = eastAsianWidth.eastAsianWidth(character);
 		switch (code) {
 			case 'F':
-			case 'W':
+			case 'W': {
 				width += 2;
 				break;
-			case 'A':
+			}
+			case 'A': {
 				width += ambiguousCharacterWidth;
 				break;
-			default:
+			}
+			default: {
 				width += 1;
+			}
 		}
 	}
 	return width;
 }
 
+function compareFile(a, b) {
+  return compareString(a, b, 'path')
+}
+function compareMessage(a, b) {
+  return (
+    compareNumber(a, b, 'line') ||
+    compareNumber(a, b, 'column') ||
+    compareBoolean(a, b, 'fatal') ||
+    compareString(a, b, 'source') ||
+    compareString(a, b, 'ruleId') ||
+    compareString(a, b, 'reason')
+  )
+}
+function compareBoolean(a, b, field) {
+  return scoreNullableBoolean(a[field]) - scoreNullableBoolean(b[field])
+}
+function compareNumber(a, b, field) {
+  return (a[field] || 0) - (b[field] || 0)
+}
+function compareString(a, b, field) {
+  return String(a[field] || '').localeCompare(String(b[field] || ''))
+}
+function scoreNullableBoolean(value) {
+  return value ? 0 : value === false ? 1 : 2
+}
+
 function statistics(value) {
-  var result = {true: 0, false: 0, null: 0};
-  if (value) {
-    if (Array.isArray(value)) {
-      list(value);
-    } else {
-      one(value);
-    }
+  const result = {fatal: 0, warn: 0, info: 0};
+  if (!value) {
+    throw new TypeError(
+      'Expected file or message for `value`, not `' + value + '`'
+    )
+  }
+  if (Array.isArray(value)) {
+    list(value);
+  } else {
+    one(value);
   }
   return {
-    fatal: result.true,
-    nonfatal: result.false + result.null,
-    warn: result.false,
-    info: result.null,
-    total: result.true + result.false + result.null
+    fatal: result.fatal,
+    nonfatal: result.warn + result.info,
+    warn: result.warn,
+    info: result.info,
+    total: result.fatal + result.warn + result.info
   }
   function list(value) {
-    var index = -1;
+    let index = -1;
     while (++index < value.length) {
       one(value[index]);
     }
   }
   function one(value) {
     if ('messages' in value) return list(value.messages)
-    result[
-      value.fatal === undefined || value.fatal === null
-        ? null
-        : Boolean(value.fatal)
-    ]++;
+    result[value.fatal ? 'fatal' : value.fatal === false ? 'warn' : 'info']++;
   }
 }
 
-var severities = {true: 2, false: 1, null: 0, undefined: 0};
-function sort(file) {
-  file.messages.sort(comparator);
-  return file
-}
-function comparator(a, b) {
-  return (
-    check(a, b, 'line') ||
-    check(a, b, 'column') ||
-    severities[b.fatal] - severities[a.fatal] ||
-    compare(a, b, 'source') ||
-    compare(a, b, 'ruleId') ||
-    compare(a, b, 'reason') ||
-    0
-  )
-}
-function check(a, b, property) {
-  return (a[property] || 0) - (b[property] || 0)
-}
-function compare(a, b, property) {
-  return String(a[property] || '').localeCompare(b[property] || '')
-}
-
-function hasFlag(flag, argv = process$1.argv) {
+function hasFlag(flag, argv = globalThis.Deno ? globalThis.Deno.args : process$1.argv) {
 	const prefix = flag.startsWith('-') ? '' : (flag.length === 1 ? '-' : '--');
 	const position = argv.indexOf(prefix + flag);
 	const terminatorPosition = argv.indexOf('--');
@@ -21347,6 +27628,9 @@ function _supportsColor(haveStream, {streamIsTTY, sniffFlags = true} = {}) {
 			return 2;
 		}
 	}
+	if ('TF_BUILD' in env && 'AGENT_NAME' in env) {
+		return 1;
+	}
 	if (haveStream && !streamIsTTY && forceColor === undefined) {
 		return 0;
 	}
@@ -21365,7 +27649,10 @@ function _supportsColor(haveStream, {streamIsTTY, sniffFlags = true} = {}) {
 		return 1;
 	}
 	if ('CI' in env) {
-		if (['TRAVIS', 'CIRCLECI', 'APPVEYOR', 'GITLAB_CI', 'GITHUB_ACTIONS', 'BUILDKITE', 'DRONE'].some(sign => sign in env) || env.CI_NAME === 'codeship') {
+		if ('GITHUB_ACTIONS' in env || 'GITEA_ACTIONS' in env) {
+			return 3;
+		}
+		if (['TRAVIS', 'CIRCLECI', 'APPVEYOR', 'GITLAB_CI', 'BUILDKITE', 'DRONE'].some(sign => sign in env) || env.CI_NAME === 'codeship') {
 			return 1;
 		}
 		return min;
@@ -21373,19 +27660,21 @@ function _supportsColor(haveStream, {streamIsTTY, sniffFlags = true} = {}) {
 	if ('TEAMCITY_VERSION' in env) {
 		return /^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/.test(env.TEAMCITY_VERSION) ? 1 : 0;
 	}
-	if ('TF_BUILD' in env && 'AGENT_NAME' in env) {
-		return 1;
-	}
 	if (env.COLORTERM === 'truecolor') {
+		return 3;
+	}
+	if (env.TERM === 'xterm-kitty') {
 		return 3;
 	}
 	if ('TERM_PROGRAM' in env) {
 		const version = Number.parseInt((env.TERM_PROGRAM_VERSION || '').split('.')[0], 10);
 		switch (env.TERM_PROGRAM) {
-			case 'iTerm.app':
+			case 'iTerm.app': {
 				return version >= 3 ? 3 : 2;
-			case 'Apple_Terminal':
+			}
+			case 'Apple_Terminal': {
 				return 2;
+			}
 		}
 	}
 	if (/-256(color)?$/i.test(env.TERM)) {
@@ -21413,190 +27702,308 @@ const supportsColor = {
 
 const color = supportsColor.stderr.hasBasic;
 
-const platform = process$1.platform;
-
-const own = {}.hasOwnProperty;
-const chars =
-  platform === 'win32' ? {error: '×', warning: '‼'} : {error: '✖', warning: '⚠'};
-const labels = {
-  true: 'error',
-  false: 'warning',
-  null: 'info',
-  undefined: 'info'
-};
-function reporter(files, options = {}) {
-  let one;
-  if (!files) {
-    return ''
+const eol = /\r?\n|\r/;
+function reporter(files, options) {
+  if (
+    !files ||
+    ('name' in files && 'message' in files)
+  ) {
+    throw new TypeError(
+      'Unexpected value for `files`, expected one or more `VFile`s'
+    )
   }
-  if ('name' in files && 'message' in files) {
-    return String(files.stack || files)
-  }
-  if (!Array.isArray(files)) {
-    one = true;
+  const settings = options || {};
+  const colorEnabled =
+    typeof settings.color === 'boolean' ? settings.color : color;
+  let oneFileMode = false;
+  if (Array.isArray(files)) ; else {
+    oneFileMode = true;
     files = [files];
   }
-  return format$1(transform(files, options), one, options)
+  return serializeRows(
+    createRows(
+      {
+        defaultName: settings.defaultName || undefined,
+        oneFileMode,
+        quiet: settings.quiet || false,
+        silent: settings.silent || false,
+        traceLimit:
+          typeof settings.traceLimit === 'number' ? settings.traceLimit : 10,
+        verbose: settings.verbose || false,
+        bold: colorEnabled ? '\u001B[1m' : '',
+        underline: colorEnabled ? '\u001B[4m' : '',
+        normalIntensity: colorEnabled ? '\u001B[22m' : '',
+        noUnderline: colorEnabled ? '\u001B[24m' : '',
+        red: colorEnabled ? '\u001B[31m' : '',
+        cyan: colorEnabled ? '\u001B[36m' : '',
+        green: colorEnabled ? '\u001B[32m' : '',
+        yellow: colorEnabled ? '\u001B[33m' : '',
+        defaultColor: colorEnabled ? '\u001B[39m' : ''
+      },
+      files
+    )
+  )
 }
-function transform(files, options) {
-  const rows = [];
-  const all = [];
-  const sizes = {};
+function createAncestorsLines(state, ancestors) {
+  const min =
+    ancestors.length > state.traceLimit
+      ? ancestors.length - state.traceLimit
+      : 0;
+  let index = ancestors.length;
+  const lines = [];
+  if (index > min) {
+    lines.unshift('  ' + state.bold + '[trace]' + state.normalIntensity + ':');
+  }
+  while (index-- > min) {
+    const node = ancestors[index];
+    const value = node;
+    const name =
+      typeof value.tagName === 'string'
+        ? value.tagName
+        :
+        typeof value.name === 'string'
+        ? value.name
+        : undefined;
+    const position = stringifyPosition$2(node.position);
+    lines.push(
+      '    at ' +
+        state.yellow +
+        node.type +
+        (name ? '<' + name + '>' : '') +
+        state.defaultColor +
+        (position ? ' (' + position + ')' : '')
+    );
+  }
+  return lines
+}
+function createByline(state, stats) {
+  let result = '';
+  if (stats.fatal) {
+    result =
+      state.red +
+      '✖' +
+      state.defaultColor +
+      ' ' +
+      stats.fatal +
+      ' ' +
+      (fatalToLabel(true) + (stats.fatal === 1 ? '' : 's'));
+  }
+  if (stats.warn) {
+    result =
+      (result ? result + ', ' : '') +
+      (state.yellow + '⚠' + state.defaultColor) +
+      ' ' +
+      stats.warn +
+      ' ' +
+      (fatalToLabel(false) + (stats.warn === 1 ? '' : 's'));
+  }
+  if (stats.total !== stats.fatal && stats.total !== stats.warn) {
+    result = stats.total + ' messages (' + result + ')';
+  }
+  return result
+}
+function createCauseLines(state, cause) {
+  const lines = ['  ' + state.bold + '[cause]' + state.normalIntensity + ':'];
+  let foundReasonableCause = false;
+  if (cause !== null && typeof cause === 'object') {
+    const stackValue =
+      ('stack' in cause ? String(cause.stack) : undefined) ||
+      ('message' in cause ? String(cause.message) : undefined);
+    if (typeof stackValue === 'string') {
+      foundReasonableCause = true;
+      const stackLines = stackValue.split(eol);
+      stackLines[0] = '    ' + stackLines[0];
+      lines.push(...stackLines);
+      if ('cause' in cause && cause.cause) {
+        lines.push(...createCauseLines(state, cause.cause));
+      }
+    }
+  }
+  if (!foundReasonableCause) {
+    lines.push('    ' + cause);
+  }
+  return lines
+}
+function createFileLine(state, file) {
+  const stats = statistics(file.messages);
+  const fromPath = file.history[0];
+  const toPath = file.path;
+  let left = '';
+  let right = '';
+  if (!state.oneFileMode || state.defaultName || fromPath) {
+    const name = fromPath || state.defaultName || '<stdin>';
+    left =
+      state.underline +
+      (stats.fatal ? state.red : stats.total ? state.yellow : state.green) +
+      name +
+      state.defaultColor +
+      state.noUnderline +
+      (file.stored && name !== toPath ? ' > ' + toPath : '');
+  }
+  if (file.stored) {
+    right = state.yellow + 'written' + state.defaultColor;
+  } else if (!stats.total) {
+    right = 'no issues found';
+  }
+  return left && right ? left + ': ' + right : left + right
+}
+function createNoteLines(state, note) {
+  const noteLines = note.split(eol);
   let index = -1;
-  while (++index < files.length) {
-    const messages = sort({messages: [...files[index].messages]}).messages;
+  while (++index < noteLines.length) {
+    noteLines[index] = '    ' + noteLines[index];
+  }
+  return [
+    '  ' + state.bold + '[note]' + state.normalIntensity + ':',
+    ...noteLines
+  ]
+}
+function createMessageLine(state, message) {
+  const label = fatalToLabel(message.fatal);
+  let reason = message.stack || message.message;
+  const match = eol.exec(reason);
+  let rest = [];
+  if (match) {
+    rest = reason.slice(match.index + 1).split(eol);
+    reason = reason.slice(0, match.index);
+  }
+  const place = message.place || message.position;
+  const row = [
+    stringifyPosition$2(place),
+    (label === 'error' ? state.red : state.yellow) + label + state.defaultColor,
+    formatReason(state, reason),
+    message.ruleId || '',
+    message.source || ''
+  ];
+  if (message.cause) {
+    rest.push(...createCauseLines(state, message.cause));
+  }
+  if (state.verbose && message.url) {
+    rest.push(...createUrlLines(state, message.url));
+  }
+  if (state.verbose && message.note) {
+    rest.push(...createNoteLines(state, message.note));
+  }
+  if (state.verbose && message.ancestors) {
+    rest.push(...createAncestorsLines(state, message.ancestors));
+  }
+  return [row, ...rest]
+}
+function createRows(state, files) {
+  const sortedFiles = [...files].sort(compareFile);
+  const all = [];
+  let index = -1;
+  const rows = [];
+  let lastWasMessage = false;
+  while (++index < sortedFiles.length) {
+    const file = sortedFiles[index];
+    const messages = [...file.messages].sort(compareMessage);
     const messageRows = [];
     let offset = -1;
     while (++offset < messages.length) {
       const message = messages[offset];
-      if (!options.silent || message.fatal) {
+      if (!state.silent || message.fatal) {
         all.push(message);
-        const row = {
-          place: stringifyPosition(
-            message.position
-              ? message.position.end.line && message.position.end.column
-                ? message.position
-                : message.position.start
-              : undefined
-          ),
-          label: labels[ (String(message.fatal))],
-          reason:
-            (message.stack || message.message) +
-            (options.verbose && message.note ? '\n' + message.note : ''),
-          ruleId: message.ruleId || '',
-          source: message.source || ''
-        };
-        let key;
-        for (key in row) {
-          if (own.call(row, key)) {
-            sizes[key] = Math.max(size(row[key]), sizes[key] || 0);
-          }
-        }
-        messageRows.push(row);
+        messageRows.push(...createMessageLine(state, message));
       }
     }
-    if ((!options.quiet && !options.silent) || messageRows.length > 0) {
-      rows.push(
-        {type: 'file', file: files[index], stats: statistics(messages)},
-        ...messageRows
-      );
+    if ((!state.quiet && !state.silent) || messageRows.length > 0) {
+      const line = createFileLine(state, file);
+      if (lastWasMessage && line) rows.push('');
+      if (line) rows.push(line);
+      if (messageRows.length > 0) rows.push(...messageRows);
+      lastWasMessage = messageRows.length > 0;
     }
   }
-  return {rows, stats: statistics(all), sizes}
-}
-function format$1(map, one, options) {
-  const enabled =
-    options.color === undefined || options.color === null
-      ? color
-      : options.color;
-  const lines = [];
-  let index = -1;
-  while (++index < map.rows.length) {
-    const row = map.rows[index];
-    if ('type' in row) {
-      const stats = row.stats;
-      let line = row.file.history[0] || options.defaultName || '<stdin>';
-      line =
-        one && !options.defaultName && !row.file.history[0]
-          ? ''
-          : (enabled
-              ? '\u001B[4m'  +
-                (stats.fatal
-                  ? '\u001B[31m'
-                  : stats.total
-                  ? '\u001B[33m'
-                  : '\u001B[32m')  +
-                line +
-                '\u001B[39m\u001B[24m'
-              : line) +
-            (row.file.stored && row.file.path !== row.file.history[0]
-              ? ' > ' + row.file.path
-              : '');
-      if (!stats.total) {
-        line =
-          (line ? line + ': ' : '') +
-          (row.file.stored
-            ? enabled
-              ? '\u001B[33mwritten\u001B[39m'
-              : 'written'
-            : 'no issues found');
-      }
-      if (line) {
-        if (index && !('type' in map.rows[index - 1])) {
-          lines.push('');
-        }
-        lines.push(line);
-      }
-    } else {
-      let reason = row.reason;
-      const match = /\r?\n|\r/.exec(reason);
-      let rest;
-      if (match) {
-        rest = reason.slice(match.index);
-        reason = reason.slice(0, match.index);
-      } else {
-        rest = '';
-      }
-      lines.push(
-        (
-          '  ' +
-          ' '.repeat(map.sizes.place - size(row.place)) +
-          row.place +
-          '  ' +
-          (enabled
-            ? (row.label === 'error'
-                ? '\u001B[31m'
-                : '\u001B[33m')  +
-              row.label +
-              '\u001B[39m'
-            : row.label) +
-          ' '.repeat(map.sizes.label - size(row.label)) +
-          '  ' +
-          reason +
-          ' '.repeat(map.sizes.reason - size(reason)) +
-          '  ' +
-          row.ruleId +
-          ' '.repeat(map.sizes.ruleId - size(row.ruleId)) +
-          '  ' +
-          (row.source || '')
-        ).replace(/ +$/, '') + rest
-      );
-    }
-  }
-  const stats = map.stats;
+  const stats = statistics(all);
   if (stats.fatal || stats.warn) {
+    rows.push('', createByline(state, stats));
+  }
+  return rows
+}
+function createUrlLines(state, url) {
+  return [
+    '  ' + state.bold + '[url]' + state.normalIntensity + ':',
+    '    ' + url
+  ]
+}
+function formatReason(state, reason) {
+  const result = [];
+  const splits = [];
+  let index = reason.indexOf('`');
+  while (index !== -1) {
+    const split = {index, size: 1};
+    splits.push(split);
+    while (reason.codePointAt(index + 1) === 96) {
+      split.size++;
+      index++;
+    }
+    index = reason.indexOf('`', index + 1);
+  }
+  index = -1;
+  let textStart = 0;
+  while (++index < splits.length) {
+    let closeIndex = index;
+    let close;
+    while (++closeIndex < splits.length) {
+      if (splits[index].size === splits[closeIndex].size) {
+        close = splits[closeIndex];
+        break
+      }
+    }
+    if (close) {
+      const codeStart = splits[index].index;
+      const codeEnd = close.index + close.size;
+      result.push(
+        reason.slice(textStart, codeStart) +
+          state.cyan +
+          reason.slice(codeStart, codeEnd) +
+          state.defaultColor
+      );
+      textStart = codeEnd;
+      index = closeIndex;
+    }
+  }
+  result.push(reason.slice(textStart));
+  return state.bold + result.join('') + state.normalIntensity
+}
+function fatalToLabel(value) {
+  return value ? 'error' : value === false ? 'warning' : 'info'
+}
+function serializeRows(rows) {
+  const sizes = [];
+  let index = -1;
+  while (++index < rows.length) {
+    const row = rows[index];
+    if (typeof row === 'string') ; else {
+      let cellIndex = -1;
+      while (++cellIndex < row.length) {
+        const current = sizes[cellIndex] || 0;
+        const size = stringWidth(row[cellIndex]);
+        if (size > current) {
+          sizes[cellIndex] = size;
+        }
+      }
+    }
+  }
+  const lines = [];
+  index = -1;
+  while (++index < rows.length) {
+    const row = rows[index];
     let line = '';
-    if (stats.fatal) {
-      line =
-        (enabled
-          ? '\u001B[31m'  + chars.error + '\u001B[39m'
-          : chars.error) +
-        ' ' +
-        stats.fatal +
-        ' ' +
-        (labels.true + (stats.fatal === 1 ? '' : 's'));
+    if (typeof row === 'string') {
+      line = row;
+    } else {
+      let cellIndex = -1;
+      while (++cellIndex < row.length) {
+        const cell = row[cellIndex] || '';
+        const max = (sizes[cellIndex] || 0) + 1;
+        line += cell + ' '.repeat(max - stringWidth(cell));
+      }
     }
-    if (stats.warn) {
-      line =
-        (line ? line + ', ' : '') +
-        (enabled
-          ? '\u001B[33m'  + chars.warning + '\u001B[39m'
-          : chars.warning) +
-        ' ' +
-        stats.warn +
-        ' ' +
-        (labels.false + (stats.warn === 1 ? '' : 's'));
-    }
-    if (stats.total !== stats.fatal && stats.total !== stats.warn) {
-      line = stats.total + ' messages (' + line + ')';
-    }
-    lines.push('', line);
+    lines.push(line.trimEnd());
   }
   return lines.join('\n')
-}
-function size(value) {
-  const match = /\r?\n|\r/.exec(value);
-  return stringWidth(match ? value.slice(0, match.index) : value)
 }
 
 const paths = process.argv.slice(2);

@@ -8,7 +8,7 @@
       "introduced_in": "v0.10.0",
       "stability": 2,
       "stabilityText": "Stable",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.13.0/lib/timers.js\">lib/timers.js</a></p>\n<p>The <code>timer</code> module exposes a global API for scheduling functions to\nbe called at some future period of time. Because the timer functions are\nglobals, there is no need to call <code>require('node:timers')</code> to use the API.</p>\n<p>The timer functions within Node.js implement a similar API as the timers API\nprovided by Web Browsers but use a different internal implementation that is\nbuilt around the Node.js <a href=\"https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/#setimmediate-vs-settimeout\">Event Loop</a>.</p>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.19.0/lib/timers.js\">lib/timers.js</a></p>\n<p>The <code>timer</code> module exposes a global API for scheduling functions to\nbe called at some future period of time. Because the timer functions are\nglobals, there is no need to call <code>require('node:timers')</code> to use the API.</p>\n<p>The timer functions within Node.js implement a similar API as the timers API\nprovided by Web Browsers but use a different internal implementation that is\nbuilt around the Node.js <a href=\"https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/#setimmediate-vs-settimeout\">Event Loop</a>.</p>",
       "classes": [
         {
           "textRaw": "Class: `Immediate`",
@@ -83,6 +83,25 @@
                 }
               ],
               "desc": "<p>When called, the active <code>Immediate</code> object will not require the Node.js event\nloop to remain active. If there is no other activity keeping the event loop\nrunning, the process may exit before the <code>Immediate</code> object's callback is\ninvoked. Calling <code>immediate.unref()</code> multiple times will have no effect.</p>"
+            },
+            {
+              "textRaw": "`immediate[Symbol.dispose]()`",
+              "type": "method",
+              "name": "[Symbol.dispose]",
+              "meta": {
+                "added": [
+                  "v18.18.0"
+                ],
+                "changes": []
+              },
+              "stability": 1,
+              "stabilityText": "Experimental",
+              "signatures": [
+                {
+                  "params": []
+                }
+              ],
+              "desc": "<p>Cancels the immediate. This is similar to calling <code>clearImmediate()</code>.</p>"
             }
           ]
         },
@@ -231,6 +250,25 @@
                 }
               ],
               "desc": "<p>Coerce a <code>Timeout</code> to a primitive. The primitive can be used to\nclear the <code>Timeout</code>. The primitive can only be used in the\nsame thread where the timeout was created. Therefore, to use it\nacross <a href=\"worker_threads.html\"><code>worker_threads</code></a> it must first be passed to the correct\nthread. This allows enhanced compatibility with browser\n<code>setTimeout()</code> and <code>setInterval()</code> implementations.</p>"
+            },
+            {
+              "textRaw": "`timeout[Symbol.dispose]()`",
+              "type": "method",
+              "name": "[Symbol.dispose]",
+              "meta": {
+                "added": [
+                  "v18.18.0"
+                ],
+                "changes": []
+              },
+              "stability": 1,
+              "stabilityText": "Experimental",
+              "signatures": [
+                {
+                  "params": []
+                }
+              ],
+              "desc": "<p>Cancels the timeout.</p>"
             }
           ]
         }
@@ -388,7 +426,7 @@
         {
           "textRaw": "Cancelling timers",
           "name": "cancelling_timers",
-          "desc": "<p>The <a href=\"#setimmediatecallback-args\"><code>setImmediate()</code></a>, <a href=\"#setintervalcallback-delay-args\"><code>setInterval()</code></a>, and <a href=\"#settimeoutcallback-delay-args\"><code>setTimeout()</code></a> methods\neach return objects that represent the scheduled timers. These can be used to\ncancel the timer and prevent it from triggering.</p>\n<p>For the promisified variants of <a href=\"#setimmediatecallback-args\"><code>setImmediate()</code></a> and <a href=\"#settimeoutcallback-delay-args\"><code>setTimeout()</code></a>,\nan <a href=\"globals.html#class-abortcontroller\"><code>AbortController</code></a> may be used to cancel the timer. When canceled, the\nreturned Promises will be rejected with an <code>'AbortError'</code>.</p>\n<p>For <code>setImmediate()</code>:</p>\n<pre><code class=\"language-js\">const { setImmediate: setImmediatePromise } = require('node:timers/promises');\n\nconst ac = new AbortController();\nconst signal = ac.signal;\n\nsetImmediatePromise('foobar', { signal })\n  .then(console.log)\n  .catch((err) => {\n    if (err.name === 'AbortError')\n      console.log('The immediate was aborted');\n  });\n\nac.abort();\n</code></pre>\n<p>For <code>setTimeout()</code>:</p>\n<pre><code class=\"language-js\">const { setTimeout: setTimeoutPromise } = require('node:timers/promises');\n\nconst ac = new AbortController();\nconst signal = ac.signal;\n\nsetTimeoutPromise(1000, 'foobar', { signal })\n  .then(console.log)\n  .catch((err) => {\n    if (err.name === 'AbortError')\n      console.log('The timeout was aborted');\n  });\n\nac.abort();\n</code></pre>",
+          "desc": "<p>The <a href=\"#setimmediatecallback-args\"><code>setImmediate()</code></a>, <a href=\"#setintervalcallback-delay-args\"><code>setInterval()</code></a>, and <a href=\"#settimeoutcallback-delay-args\"><code>setTimeout()</code></a> methods\neach return objects that represent the scheduled timers. These can be used to\ncancel the timer and prevent it from triggering.</p>\n<p>For the promisified variants of <a href=\"#setimmediatecallback-args\"><code>setImmediate()</code></a> and <a href=\"#settimeoutcallback-delay-args\"><code>setTimeout()</code></a>,\nan <a href=\"globals.html#class-abortcontroller\"><code>AbortController</code></a> may be used to cancel the timer. When canceled, the\nreturned Promises will be rejected with an <code>'AbortError'</code>.</p>\n<p>For <code>setImmediate()</code>:</p>\n<pre><code class=\"language-js\">const { setImmediate: setImmediatePromise } = require('node:timers/promises');\n\nconst ac = new AbortController();\nconst signal = ac.signal;\n\nsetImmediatePromise('foobar', { signal })\n  .then(console.log)\n  .catch((err) => {\n    if (err.name === 'AbortError')\n      console.error('The immediate was aborted');\n  });\n\nac.abort();\n</code></pre>\n<p>For <code>setTimeout()</code>:</p>\n<pre><code class=\"language-js\">const { setTimeout: setTimeoutPromise } = require('node:timers/promises');\n\nconst ac = new AbortController();\nconst signal = ac.signal;\n\nsetTimeoutPromise(1000, 'foobar', { signal })\n  .then(console.log)\n  .catch((err) => {\n    if (err.name === 'AbortError')\n      console.error('The timeout was aborted');\n  });\n\nac.abort();\n</code></pre>",
           "methods": [
             {
               "textRaw": "`clearImmediate(immediate)`",

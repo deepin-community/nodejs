@@ -122,9 +122,11 @@ class JSBindingsConnection : public AsyncWrap {
     new JSBindingsConnection(env, info.This(), callback);
   }
 
+  // See https://github.com/nodejs/node/pull/46942
   void Disconnect() {
+    BaseObjectPtr<JSBindingsConnection> strong_ref{this};
     session_.reset();
-    delete this;
+    Detach();
   }
 
   static void Disconnect(const FunctionCallbackInfo<Value>& info) {
@@ -272,7 +274,7 @@ static void RegisterAsyncHookWrapper(const FunctionCallbackInfo<Value>& args) {
 
 void IsEnabled(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
-  args.GetReturnValue().Set(InspectorEnabled(env));
+  args.GetReturnValue().Set(env->inspector_agent()->IsListening());
 }
 
 void Open(const FunctionCallbackInfo<Value>& args) {
@@ -399,7 +401,6 @@ void RegisterExternalReferences(ExternalReferenceRegistry* registry) {
 }  // namespace inspector
 }  // namespace node
 
-NODE_MODULE_CONTEXT_AWARE_INTERNAL(inspector,
-                                  node::inspector::Initialize)
-NODE_MODULE_EXTERNAL_REFERENCE(inspector,
-                               node::inspector::RegisterExternalReferences)
+NODE_BINDING_CONTEXT_AWARE_INTERNAL(inspector, node::inspector::Initialize)
+NODE_BINDING_EXTERNAL_REFERENCE(inspector,
+                                node::inspector::RegisterExternalReferences)

@@ -1,17 +1,28 @@
-/* Copyright 1998 by the Massachusetts Institute of Technology.
+/* MIT License
  *
+ * Copyright (c) 1998 Massachusetts Institute of Technology
+ * Copyright (c) The c-ares project and its contributors
  *
- * Permission to use, copy, modify, and distribute this
- * software and its documentation for any purpose and without
- * fee is hereby granted, provided that the above copyright
- * notice appear in all copies and that both that copyright
- * notice and this permission notice appear in supporting
- * documentation, and that the name of M.I.T. not be used in
- * advertising or publicity pertaining to distribution of the
- * software without specific, written prior permission.
- * M.I.T. makes no representations about the suitability of
- * this software for any purpose.  It is provided "as is"
- * without express or implied warranty.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice (including the next
+ * paragraph) shall be included in all copies or substantial portions of the
+ * Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * SPDX-License-Identifier: MIT
  */
 
 #include "ares_setup.h"
@@ -296,6 +307,7 @@ int main(int argc, char **argv)
           if (!ISDIGIT(*optarg))
             usage();
           options.tcp_port = (unsigned short)strtol(optarg, NULL, 0);
+          options.flags |= ARES_FLAG_USEVC;
           optmask |= ARES_OPT_TCP_PORT;
           break;
 
@@ -959,23 +971,27 @@ static void append_addr_list(struct ares_addr_node **head,
 
 /* Information from the man page. Formatting taken from man -h */
 static void print_help_info_adig(void) {
-    printf("adig, version %s \n\n", ARES_VERSION_STR);
-    printf("usage: adig [-h] [-d] [-f flag] [-s server] [-c class] [-t type] [-T|U port] [-x | -xx] name ...\n\n"
-    "  d : Print some extra debugging output.\n"
-    "  f : Add a flag. Possible values for flag are igntc, noaliases, norecurse, primary, stayopen, usevc.\n"
-    "  h : Display this help and exit.\n\n"
-    "  T port   : Use specified TCP port to connect to DNS server.\n"
-    "  U port   : Use specified UDP port to connect to DNS server.\n"
-    "  c class  : Set the query class. Possible values for class are NY, CHAOS, HS, IN  (default).\n"
-    "  s server : Connect to specified DNS server, instead of the system's default one(s).\n"
-    "  t type   : Query records of specified type.  \n"
-    "              Possible values for type are A  \n"
-    "              (default), AAAA, AFSDB,  ANY,\n"
-    "              AXFR, CNAME, GPOS, HINFO, ISDN,\n"
-    "              KEY, LOC, MAILA, MAILB, MB, MD,\n"
-    "              MF, MG, MINFO, MR, MX, NAPTR, NS,\n"
-    "              NSAP, NSAP_PTR, NULL, PTR, PX, RP,\n"
-    "              RT,  SIG,  SOA, SRV, TXT, URI, WKS, X25\n\n"
+    printf("adig, version %s\n\n", ARES_VERSION_STR);
+    printf("usage: adig [-h] [-d] [-f flag] [[-s server] ...] [-T|U port] [-c class] [-t type] [-x|-xx] name ...\n\n"
+    "  h : Display this help and exit.\n"
+    "  d : Print some extra debugging output.\n\n"
+    "  f flag   : Add a behavior control flag. Possible values are\n"
+    "              igntc - ignore to query in TCP to get truncated UDP answer,\n"
+    "              noaliases - don't honor the HOSTALIASES environment variable,\n"
+    "              norecurse - don't query upstream servers recursively,\n"
+    "              primary - use the first server,\n"
+    "              stayopen - don't close the communication sockets, and\n"
+    "              usevc - use TCP only.\n"
+    "  s server : Connect to the specified DNS server, instead of the system's default one(s).\n"
+    "              Servers are tried in round-robin, if the previous one failed.\n"
+    "  T port   : Connect to the specified TCP port of DNS server.\n"
+    "  U port   : Connect to the specified UDP port of DNS server.\n"
+    "  c class  : Set the query class. Possible values for class are ANY, CHAOS, HS and IN (default)\n"
+    "  t type   : Query records of the specified type.\n"
+    "              Possible values for type are A (default), AAAA, AFSDB, ANY, AXFR,\n"
+    "              CNAME, GPOS, HINFO, ISDN, KEY, LOC, MAILA, MAILB, MB, MD, MF, MG,\n"
+    "              MINFO, MR, MX, NAPTR, NS, NSAP, NSAP_PTR, NULL, PTR, PX, RP, RT,\n"
+    "              SIG, SOA, SRV, TXT, URI, WKS and X25.\n\n"
     " -x  : For a '-t PTR a.b.c.d' lookup, query for 'd.c.b.a.in-addr.arpa.'\n"
     " -xx : As above, but for IPv6, compact the format into a bitstring like\n"
     "       '[xabcdef00000000000000000000000000].IP6.ARPA.'\n");

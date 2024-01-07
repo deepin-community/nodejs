@@ -204,7 +204,7 @@ void FSEventWrap::OnEvent(uv_fs_event_t* handle, const char* filename,
   } else if (events & UV_CHANGE) {
     event_string = env->change_string();
   } else {
-    CHECK(0 && "bad fs events flag");
+    UNREACHABLE("bad fs events flag");
   }
 
   Local<Value> argv[] = {
@@ -237,6 +237,7 @@ void FSEventWrap::OnEvent(uv_fs_event_t* handle, const char* filename,
 }  // anonymous namespace
 }  // namespace node
 
-NODE_MODULE_CONTEXT_AWARE_INTERNAL(fs_event_wrap, node::FSEventWrap::Initialize)
-NODE_MODULE_EXTERNAL_REFERENCE(fs_event_wrap,
-                               node::FSEventWrap::RegisterExternalReferences)
+NODE_BINDING_CONTEXT_AWARE_INTERNAL(fs_event_wrap,
+                                    node::FSEventWrap::Initialize)
+NODE_BINDING_EXTERNAL_REFERENCE(fs_event_wrap,
+                                node::FSEventWrap::RegisterExternalReferences)

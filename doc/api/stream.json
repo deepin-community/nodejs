@@ -8,7 +8,7 @@
       "introduced_in": "v0.10.0",
       "stability": 2,
       "stabilityText": "Stable",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.13.0/lib/stream.js\">lib/stream.js</a></p>\n<p>A stream is an abstract interface for working with streaming data in Node.js.\nThe <code>node:stream</code> module provides an API for implementing the stream interface.</p>\n<p>There are many stream objects provided by Node.js. For instance, a\n<a href=\"http.html#class-httpincomingmessage\">request to an HTTP server</a> and <a href=\"process.html#processstdout\"><code>process.stdout</code></a>\nare both stream instances.</p>\n<p>Streams can be readable, writable, or both. All streams are instances of\n<a href=\"events.html#class-eventemitter\"><code>EventEmitter</code></a>.</p>\n<p>To access the <code>node:stream</code> module:</p>\n<pre><code class=\"language-js\">const stream = require('node:stream');\n</code></pre>\n<p>The <code>node:stream</code> module is useful for creating new types of stream instances.\nIt is usually not necessary to use the <code>node:stream</code> module to consume streams.</p>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.19.0/lib/stream.js\">lib/stream.js</a></p>\n<p>A stream is an abstract interface for working with streaming data in Node.js.\nThe <code>node:stream</code> module provides an API for implementing the stream interface.</p>\n<p>There are many stream objects provided by Node.js. For instance, a\n<a href=\"http.html#class-httpincomingmessage\">request to an HTTP server</a> and <a href=\"process.html#processstdout\"><code>process.stdout</code></a>\nare both stream instances.</p>\n<p>Streams can be readable, writable, or both. All streams are instances of\n<a href=\"events.html#class-eventemitter\"><code>EventEmitter</code></a>.</p>\n<p>To access the <code>node:stream</code> module:</p>\n<pre><code class=\"language-js\">const stream = require('node:stream');\n</code></pre>\n<p>The <code>node:stream</code> module is useful for creating new types of stream instances.\nIt is usually not necessary to use the <code>node:stream</code> module to consume streams.</p>",
       "modules": [
         {
           "textRaw": "Organization of this document",
@@ -43,6 +43,248 @@
               "displayName": "Object mode"
             }
           ],
+          "methods": [
+            {
+              "textRaw": "`stream.pipeline(source[, ...transforms], destination[, options])`",
+              "type": "method",
+              "name": "pipeline",
+              "meta": {
+                "added": [
+                  "v15.0.0"
+                ],
+                "changes": []
+              },
+              "signatures": [
+                {
+                  "return": {
+                    "textRaw": "Returns: {Promise} Fulfills when the pipeline is complete.",
+                    "name": "return",
+                    "type": "Promise",
+                    "desc": "Fulfills when the pipeline is complete."
+                  },
+                  "params": [
+                    {
+                      "textRaw": "`streams` {Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]}",
+                      "name": "streams",
+                      "type": "Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]"
+                    },
+                    {
+                      "textRaw": "`source` {Stream|Iterable|AsyncIterable|Function}",
+                      "name": "source",
+                      "type": "Stream|Iterable|AsyncIterable|Function",
+                      "options": [
+                        {
+                          "textRaw": "Returns: {Promise|AsyncIterable}",
+                          "name": "return",
+                          "type": "Promise|AsyncIterable"
+                        }
+                      ]
+                    },
+                    {
+                      "textRaw": "`...transforms` {Stream|Function}",
+                      "name": "...transforms",
+                      "type": "Stream|Function",
+                      "options": [
+                        {
+                          "textRaw": "`source` {AsyncIterable}",
+                          "name": "source",
+                          "type": "AsyncIterable"
+                        },
+                        {
+                          "textRaw": "Returns: {Promise|AsyncIterable}",
+                          "name": "return",
+                          "type": "Promise|AsyncIterable"
+                        }
+                      ]
+                    },
+                    {
+                      "textRaw": "`destination` {Stream|Function}",
+                      "name": "destination",
+                      "type": "Stream|Function",
+                      "options": [
+                        {
+                          "textRaw": "`source` {AsyncIterable}",
+                          "name": "source",
+                          "type": "AsyncIterable"
+                        },
+                        {
+                          "textRaw": "Returns: {Promise|AsyncIterable}",
+                          "name": "return",
+                          "type": "Promise|AsyncIterable"
+                        }
+                      ]
+                    },
+                    {
+                      "textRaw": "`options` {Object}",
+                      "name": "options",
+                      "type": "Object",
+                      "options": [
+                        {
+                          "textRaw": "`signal` {AbortSignal}",
+                          "name": "signal",
+                          "type": "AbortSignal"
+                        },
+                        {
+                          "textRaw": "`end` {boolean}",
+                          "name": "end",
+                          "type": "boolean"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "desc": "<pre><code class=\"language-cjs\">const { pipeline } = require('node:stream/promises');\nconst fs = require('node:fs');\nconst zlib = require('node:zlib');\n\nasync function run() {\n  await pipeline(\n    fs.createReadStream('archive.tar'),\n    zlib.createGzip(),\n    fs.createWriteStream('archive.tar.gz'),\n  );\n  console.log('Pipeline succeeded.');\n}\n\nrun().catch(console.error);\n</code></pre>\n<pre><code class=\"language-mjs\">import { pipeline } from 'node:stream/promises';\nimport { createReadStream, createWriteStream } from 'node:fs';\nimport { createGzip } from 'node:zlib';\n\nawait pipeline(\n  createReadStream('archive.tar'),\n  createGzip(),\n  createWriteStream('archive.tar.gz'),\n);\nconsole.log('Pipeline succeeded.');\n</code></pre>\n<p>To use an <code>AbortSignal</code>, pass it inside an options object, as the last argument.\nWhen the signal is aborted, <code>destroy</code> will be called on the underlying pipeline,\nwith an <code>AbortError</code>.</p>\n<pre><code class=\"language-cjs\">const { pipeline } = require('node:stream/promises');\nconst fs = require('node:fs');\nconst zlib = require('node:zlib');\n\nasync function run() {\n  const ac = new AbortController();\n  const signal = ac.signal;\n\n  setImmediate(() => ac.abort());\n  await pipeline(\n    fs.createReadStream('archive.tar'),\n    zlib.createGzip(),\n    fs.createWriteStream('archive.tar.gz'),\n    { signal },\n  );\n}\n\nrun().catch(console.error); // AbortError\n</code></pre>\n<pre><code class=\"language-mjs\">import { pipeline } from 'node:stream/promises';\nimport { createReadStream, createWriteStream } from 'node:fs';\nimport { createGzip } from 'node:zlib';\n\nconst ac = new AbortController();\nconst { signal } = ac;\nsetImmediate(() => ac.abort());\ntry {\n  await pipeline(\n    createReadStream('archive.tar'),\n    createGzip(),\n    createWriteStream('archive.tar.gz'),\n    { signal },\n  );\n} catch (err) {\n  console.error(err); // AbortError\n}\n</code></pre>\n<p>The <code>pipeline</code> API also supports async generators:</p>\n<pre><code class=\"language-cjs\">const { pipeline } = require('node:stream/promises');\nconst fs = require('node:fs');\n\nasync function run() {\n  await pipeline(\n    fs.createReadStream('lowercase.txt'),\n    async function* (source, { signal }) {\n      source.setEncoding('utf8');  // Work with strings rather than `Buffer`s.\n      for await (const chunk of source) {\n        yield await processChunk(chunk, { signal });\n      }\n    },\n    fs.createWriteStream('uppercase.txt'),\n  );\n  console.log('Pipeline succeeded.');\n}\n\nrun().catch(console.error);\n</code></pre>\n<pre><code class=\"language-mjs\">import { pipeline } from 'node:stream/promises';\nimport { createReadStream, createWriteStream } from 'node:fs';\n\nawait pipeline(\n  createReadStream('lowercase.txt'),\n  async function* (source, { signal }) {\n    source.setEncoding('utf8');  // Work with strings rather than `Buffer`s.\n    for await (const chunk of source) {\n      yield await processChunk(chunk, { signal });\n    }\n  },\n  createWriteStream('uppercase.txt'),\n);\nconsole.log('Pipeline succeeded.');\n</code></pre>\n<p>Remember to handle the <code>signal</code> argument passed into the async generator.\nEspecially in the case where the async generator is the source for the\npipeline (i.e. first argument) or the pipeline will never complete.</p>\n<pre><code class=\"language-cjs\">const { pipeline } = require('node:stream/promises');\nconst fs = require('node:fs');\n\nasync function run() {\n  await pipeline(\n    async function* ({ signal }) {\n      await someLongRunningfn({ signal });\n      yield 'asd';\n    },\n    fs.createWriteStream('uppercase.txt'),\n  );\n  console.log('Pipeline succeeded.');\n}\n\nrun().catch(console.error);\n</code></pre>\n<pre><code class=\"language-mjs\">import { pipeline } from 'node:stream/promises';\nimport fs from 'node:fs';\nawait pipeline(\n  async function* ({ signal }) {\n    await someLongRunningfn({ signal });\n    yield 'asd';\n  },\n  fs.createWriteStream('uppercase.txt'),\n);\nconsole.log('Pipeline succeeded.');\n</code></pre>\n<p>The <code>pipeline</code> API provides <a href=\"#streampipelinesource-transforms-destination-callback\">callback version</a>:</p>"
+            },
+            {
+              "textRaw": "`stream.pipeline(streams[, options])`",
+              "type": "method",
+              "name": "pipeline",
+              "meta": {
+                "added": [
+                  "v15.0.0"
+                ],
+                "changes": []
+              },
+              "signatures": [
+                {
+                  "return": {
+                    "textRaw": "Returns: {Promise} Fulfills when the pipeline is complete.",
+                    "name": "return",
+                    "type": "Promise",
+                    "desc": "Fulfills when the pipeline is complete."
+                  },
+                  "params": [
+                    {
+                      "textRaw": "`streams` {Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]}",
+                      "name": "streams",
+                      "type": "Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]"
+                    },
+                    {
+                      "textRaw": "`source` {Stream|Iterable|AsyncIterable|Function}",
+                      "name": "source",
+                      "type": "Stream|Iterable|AsyncIterable|Function",
+                      "options": [
+                        {
+                          "textRaw": "Returns: {Promise|AsyncIterable}",
+                          "name": "return",
+                          "type": "Promise|AsyncIterable"
+                        }
+                      ]
+                    },
+                    {
+                      "textRaw": "`...transforms` {Stream|Function}",
+                      "name": "...transforms",
+                      "type": "Stream|Function",
+                      "options": [
+                        {
+                          "textRaw": "`source` {AsyncIterable}",
+                          "name": "source",
+                          "type": "AsyncIterable"
+                        },
+                        {
+                          "textRaw": "Returns: {Promise|AsyncIterable}",
+                          "name": "return",
+                          "type": "Promise|AsyncIterable"
+                        }
+                      ]
+                    },
+                    {
+                      "textRaw": "`destination` {Stream|Function}",
+                      "name": "destination",
+                      "type": "Stream|Function",
+                      "options": [
+                        {
+                          "textRaw": "`source` {AsyncIterable}",
+                          "name": "source",
+                          "type": "AsyncIterable"
+                        },
+                        {
+                          "textRaw": "Returns: {Promise|AsyncIterable}",
+                          "name": "return",
+                          "type": "Promise|AsyncIterable"
+                        }
+                      ]
+                    },
+                    {
+                      "textRaw": "`options` {Object}",
+                      "name": "options",
+                      "type": "Object",
+                      "options": [
+                        {
+                          "textRaw": "`signal` {AbortSignal}",
+                          "name": "signal",
+                          "type": "AbortSignal"
+                        },
+                        {
+                          "textRaw": "`end` {boolean}",
+                          "name": "end",
+                          "type": "boolean"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "desc": "<pre><code class=\"language-cjs\">const { pipeline } = require('node:stream/promises');\nconst fs = require('node:fs');\nconst zlib = require('node:zlib');\n\nasync function run() {\n  await pipeline(\n    fs.createReadStream('archive.tar'),\n    zlib.createGzip(),\n    fs.createWriteStream('archive.tar.gz'),\n  );\n  console.log('Pipeline succeeded.');\n}\n\nrun().catch(console.error);\n</code></pre>\n<pre><code class=\"language-mjs\">import { pipeline } from 'node:stream/promises';\nimport { createReadStream, createWriteStream } from 'node:fs';\nimport { createGzip } from 'node:zlib';\n\nawait pipeline(\n  createReadStream('archive.tar'),\n  createGzip(),\n  createWriteStream('archive.tar.gz'),\n);\nconsole.log('Pipeline succeeded.');\n</code></pre>\n<p>To use an <code>AbortSignal</code>, pass it inside an options object, as the last argument.\nWhen the signal is aborted, <code>destroy</code> will be called on the underlying pipeline,\nwith an <code>AbortError</code>.</p>\n<pre><code class=\"language-cjs\">const { pipeline } = require('node:stream/promises');\nconst fs = require('node:fs');\nconst zlib = require('node:zlib');\n\nasync function run() {\n  const ac = new AbortController();\n  const signal = ac.signal;\n\n  setImmediate(() => ac.abort());\n  await pipeline(\n    fs.createReadStream('archive.tar'),\n    zlib.createGzip(),\n    fs.createWriteStream('archive.tar.gz'),\n    { signal },\n  );\n}\n\nrun().catch(console.error); // AbortError\n</code></pre>\n<pre><code class=\"language-mjs\">import { pipeline } from 'node:stream/promises';\nimport { createReadStream, createWriteStream } from 'node:fs';\nimport { createGzip } from 'node:zlib';\n\nconst ac = new AbortController();\nconst { signal } = ac;\nsetImmediate(() => ac.abort());\ntry {\n  await pipeline(\n    createReadStream('archive.tar'),\n    createGzip(),\n    createWriteStream('archive.tar.gz'),\n    { signal },\n  );\n} catch (err) {\n  console.error(err); // AbortError\n}\n</code></pre>\n<p>The <code>pipeline</code> API also supports async generators:</p>\n<pre><code class=\"language-cjs\">const { pipeline } = require('node:stream/promises');\nconst fs = require('node:fs');\n\nasync function run() {\n  await pipeline(\n    fs.createReadStream('lowercase.txt'),\n    async function* (source, { signal }) {\n      source.setEncoding('utf8');  // Work with strings rather than `Buffer`s.\n      for await (const chunk of source) {\n        yield await processChunk(chunk, { signal });\n      }\n    },\n    fs.createWriteStream('uppercase.txt'),\n  );\n  console.log('Pipeline succeeded.');\n}\n\nrun().catch(console.error);\n</code></pre>\n<pre><code class=\"language-mjs\">import { pipeline } from 'node:stream/promises';\nimport { createReadStream, createWriteStream } from 'node:fs';\n\nawait pipeline(\n  createReadStream('lowercase.txt'),\n  async function* (source, { signal }) {\n    source.setEncoding('utf8');  // Work with strings rather than `Buffer`s.\n    for await (const chunk of source) {\n      yield await processChunk(chunk, { signal });\n    }\n  },\n  createWriteStream('uppercase.txt'),\n);\nconsole.log('Pipeline succeeded.');\n</code></pre>\n<p>Remember to handle the <code>signal</code> argument passed into the async generator.\nEspecially in the case where the async generator is the source for the\npipeline (i.e. first argument) or the pipeline will never complete.</p>\n<pre><code class=\"language-cjs\">const { pipeline } = require('node:stream/promises');\nconst fs = require('node:fs');\n\nasync function run() {\n  await pipeline(\n    async function* ({ signal }) {\n      await someLongRunningfn({ signal });\n      yield 'asd';\n    },\n    fs.createWriteStream('uppercase.txt'),\n  );\n  console.log('Pipeline succeeded.');\n}\n\nrun().catch(console.error);\n</code></pre>\n<pre><code class=\"language-mjs\">import { pipeline } from 'node:stream/promises';\nimport fs from 'node:fs';\nawait pipeline(\n  async function* ({ signal }) {\n    await someLongRunningfn({ signal });\n    yield 'asd';\n  },\n  fs.createWriteStream('uppercase.txt'),\n);\nconsole.log('Pipeline succeeded.');\n</code></pre>\n<p>The <code>pipeline</code> API provides <a href=\"#streampipelinesource-transforms-destination-callback\">callback version</a>:</p>"
+            },
+            {
+              "textRaw": "`stream.finished(stream[, options])`",
+              "type": "method",
+              "name": "finished",
+              "meta": {
+                "added": [
+                  "v15.0.0"
+                ],
+                "changes": []
+              },
+              "signatures": [
+                {
+                  "return": {
+                    "textRaw": "Returns: {Promise} Fulfills when the stream is no longer readable or writable.",
+                    "name": "return",
+                    "type": "Promise",
+                    "desc": "Fulfills when the stream is no longer readable or writable."
+                  },
+                  "params": [
+                    {
+                      "textRaw": "`stream` {Stream}",
+                      "name": "stream",
+                      "type": "Stream"
+                    },
+                    {
+                      "textRaw": "`options` {Object}",
+                      "name": "options",
+                      "type": "Object",
+                      "options": [
+                        {
+                          "textRaw": "`error` {boolean|undefined}",
+                          "name": "error",
+                          "type": "boolean|undefined"
+                        },
+                        {
+                          "textRaw": "`readable` {boolean|undefined}",
+                          "name": "readable",
+                          "type": "boolean|undefined"
+                        },
+                        {
+                          "textRaw": "`writable` {boolean|undefined}",
+                          "name": "writable",
+                          "type": "boolean|undefined"
+                        },
+                        {
+                          "textRaw": "`signal`: {AbortSignal|undefined}",
+                          "name": "signal",
+                          "type": "AbortSignal|undefined"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "desc": "<pre><code class=\"language-cjs\">const { finished } = require('node:stream/promises');\nconst fs = require('node:fs');\n\nconst rs = fs.createReadStream('archive.tar');\n\nasync function run() {\n  await finished(rs);\n  console.log('Stream is done reading.');\n}\n\nrun().catch(console.error);\nrs.resume(); // Drain the stream.\n</code></pre>\n<pre><code class=\"language-mjs\">import { finished } from 'node:stream/promises';\nimport { createReadStream } from 'node:fs';\n\nconst rs = createReadStream('archive.tar');\n\nasync function run() {\n  await finished(rs);\n  console.log('Stream is done reading.');\n}\n\nrun().catch(console.error);\nrs.resume(); // Drain the stream.\n</code></pre>\n<p>The <code>finished</code> API also provides a <a href=\"#streamfinishedstream-options-callback\">callback version</a>.</p>"
+            }
+          ],
           "miscs": [
             {
               "textRaw": "Buffering",
@@ -65,6 +307,11 @@
               "v10.0.0"
             ],
             "changes": [
+              {
+                "version": "v18.14.0",
+                "pr-url": "https://github.com/nodejs/node/pull/46205",
+                "description": "Added support for `ReadableStream` and `WritableStream`."
+              },
               {
                 "version": "v15.11.0",
                 "pr-url": "https://github.com/nodejs/node/pull/37354",
@@ -89,70 +336,16 @@
           },
           "signatures": [
             {
-              "return": {
-                "textRaw": "Returns: {Function} A cleanup function which removes all registered listeners.",
-                "name": "return",
-                "type": "Function",
-                "desc": "A cleanup function which removes all registered listeners."
-              },
               "params": [
                 {
-                  "textRaw": "`stream` {Stream} A readable and/or writable stream.",
+                  "textRaw": "`stream` {Stream|ReadableStream|WritableStream}",
                   "name": "stream",
-                  "type": "Stream",
-                  "desc": "A readable and/or writable stream."
-                },
-                {
-                  "textRaw": "`options` {Object}",
-                  "name": "options",
-                  "type": "Object",
-                  "options": [
-                    {
-                      "textRaw": "`error` {boolean} If set to `false`, then a call to `emit('error', err)` is not treated as finished. **Default:** `true`.",
-                      "name": "error",
-                      "type": "boolean",
-                      "default": "`true`",
-                      "desc": "If set to `false`, then a call to `emit('error', err)` is not treated as finished."
-                    },
-                    {
-                      "textRaw": "`readable` {boolean} When set to `false`, the callback will be called when the stream ends even though the stream might still be readable. **Default:** `true`.",
-                      "name": "readable",
-                      "type": "boolean",
-                      "default": "`true`",
-                      "desc": "When set to `false`, the callback will be called when the stream ends even though the stream might still be readable."
-                    },
-                    {
-                      "textRaw": "`writable` {boolean} When set to `false`, the callback will be called when the stream ends even though the stream might still be writable. **Default:** `true`.",
-                      "name": "writable",
-                      "type": "boolean",
-                      "default": "`true`",
-                      "desc": "When set to `false`, the callback will be called when the stream ends even though the stream might still be writable."
-                    },
-                    {
-                      "textRaw": "`signal` {AbortSignal} allows aborting the wait for the stream finish. The underlying stream will _not_ be aborted if the signal is aborted. The callback will get called with an `AbortError`. All registered listeners added by this function will also be removed.",
-                      "name": "signal",
-                      "type": "AbortSignal",
-                      "desc": "allows aborting the wait for the stream finish. The underlying stream will _not_ be aborted if the signal is aborted. The callback will get called with an `AbortError`. All registered listeners added by this function will also be removed."
-                    },
-                    {
-                      "textRaw": "`cleanup` {boolean} remove all registered stream listeners. **Default:** `false`.",
-                      "name": "cleanup",
-                      "type": "boolean",
-                      "default": "`false`",
-                      "desc": "remove all registered stream listeners."
-                    }
-                  ]
-                },
-                {
-                  "textRaw": "`callback` {Function} A callback function that takes an optional error argument.",
-                  "name": "callback",
-                  "type": "Function",
-                  "desc": "A callback function that takes an optional error argument."
+                  "type": "Stream|ReadableStream|WritableStream"
                 }
               ]
             }
           ],
-          "desc": "<p>A function to get notified when a stream is no longer readable, writable\nor has experienced an error or a premature close event.</p>\n<pre><code class=\"language-js\">const { finished } = require('node:stream');\nconst fs = require('node:fs');\n\nconst rs = fs.createReadStream('archive.tar');\n\nfinished(rs, (err) => {\n  if (err) {\n    console.error('Stream failed.', err);\n  } else {\n    console.log('Stream is done reading.');\n  }\n});\n\nrs.resume(); // Drain the stream.\n</code></pre>\n<p>Especially useful in error handling scenarios where a stream is destroyed\nprematurely (like an aborted HTTP request), and will not emit <code>'end'</code>\nor <code>'finish'</code>.</p>\n<p>The <code>finished</code> API provides promise version:</p>\n<pre><code class=\"language-js\">const { finished } = require('node:stream/promises');\nconst fs = require('node:fs');\n\nconst rs = fs.createReadStream('archive.tar');\n\nasync function run() {\n  await finished(rs);\n  console.log('Stream is done reading.');\n}\n\nrun().catch(console.error);\nrs.resume(); // Drain the stream.\n</code></pre>\n<p><code>stream.finished()</code> leaves dangling event listeners (in particular\n<code>'error'</code>, <code>'end'</code>, <code>'finish'</code> and <code>'close'</code>) after <code>callback</code> has been\ninvoked. The reason for this is so that unexpected <code>'error'</code> events (due to\nincorrect stream implementations) do not cause unexpected crashes.\nIf this is unwanted behavior then the returned cleanup function needs to be\ninvoked in the callback:</p>\n<pre><code class=\"language-js\">const cleanup = finished(rs, (err) => {\n  cleanup();\n  // ...\n});\n</code></pre>"
+          "desc": "<p>A readable and/or writable stream/webstream.</p>\n<ul>\n<li>\n<p><code>options</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object\" class=\"type\">&lt;Object&gt;</a></p>\n<ul>\n<li><code>error</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> If set to <code>false</code>, then a call to <code>emit('error', err)</code> is\nnot treated as finished. <strong>Default:</strong> <code>true</code>.</li>\n<li><code>readable</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> When set to <code>false</code>, the callback will be called when\nthe stream ends even though the stream might still be readable.\n<strong>Default:</strong> <code>true</code>.</li>\n<li><code>writable</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> When set to <code>false</code>, the callback will be called when\nthe stream ends even though the stream might still be writable.\n<strong>Default:</strong> <code>true</code>.</li>\n<li><code>signal</code> <a href=\"globals.html#class-abortsignal\" class=\"type\">&lt;AbortSignal&gt;</a> allows aborting the wait for the stream finish. The\nunderlying stream will <em>not</em> be aborted if the signal is aborted. The\ncallback will get called with an <code>AbortError</code>. All registered\nlisteners added by this function will also be removed.</li>\n<li><code>cleanup</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> remove all registered stream listeners.\n<strong>Default:</strong> <code>false</code>.</li>\n</ul>\n</li>\n<li>\n<p><code>callback</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function\" class=\"type\">&lt;Function&gt;</a> A callback function that takes an optional error\nargument.</p>\n</li>\n<li>\n<p>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function\" class=\"type\">&lt;Function&gt;</a> A cleanup function which removes all registered\nlisteners.</p>\n</li>\n</ul>\n<p>A function to get notified when a stream is no longer readable, writable\nor has experienced an error or a premature close event.</p>\n<pre><code class=\"language-js\">const { finished } = require('node:stream');\nconst fs = require('node:fs');\n\nconst rs = fs.createReadStream('archive.tar');\n\nfinished(rs, (err) => {\n  if (err) {\n    console.error('Stream failed.', err);\n  } else {\n    console.log('Stream is done reading.');\n  }\n});\n\nrs.resume(); // Drain the stream.\n</code></pre>\n<p>Especially useful in error handling scenarios where a stream is destroyed\nprematurely (like an aborted HTTP request), and will not emit <code>'end'</code>\nor <code>'finish'</code>.</p>\n<p>The <code>finished</code> API provides <a href=\"#streamfinishedstream-options\">promise version</a>.</p>\n<p><code>stream.finished()</code> leaves dangling event listeners (in particular\n<code>'error'</code>, <code>'end'</code>, <code>'finish'</code> and <code>'close'</code>) after <code>callback</code> has been\ninvoked. The reason for this is so that unexpected <code>'error'</code> events (due to\nincorrect stream implementations) do not cause unexpected crashes.\nIf this is unwanted behavior then the returned cleanup function needs to be\ninvoked in the callback:</p>\n<pre><code class=\"language-js\">const cleanup = finished(rs, (err) => {\n  cleanup();\n  // ...\n});\n</code></pre>"
         },
         {
           "textRaw": "`stream.pipeline(source[, ...transforms], destination, callback)`",
@@ -164,6 +357,11 @@
             ],
             "changes": [
               {
+                "version": "v18.16.0",
+                "pr-url": "https://github.com/nodejs/node/pull/46307",
+                "description": "Added support for webstreams."
+              },
+              {
                 "version": "v18.0.0",
                 "pr-url": "https://github.com/nodejs/node/pull/41678",
                 "description": "Passing an invalid callback to the `callback` argument now throws `ERR_INVALID_ARG_TYPE` instead of `ERR_INVALID_CALLBACK`."
@@ -189,14 +387,14 @@
               },
               "params": [
                 {
-                  "textRaw": "`streams` {Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]}",
+                  "textRaw": "`streams` {Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]| ReadableStream\\[]|WritableStream\\[]|TransformStream\\[]}",
                   "name": "streams",
-                  "type": "Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]"
+                  "type": "Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]| ReadableStream\\[]|WritableStream\\[]|TransformStream\\[]"
                 },
                 {
-                  "textRaw": "`source` {Stream|Iterable|AsyncIterable|Function}",
+                  "textRaw": "`source` {Stream|Iterable|AsyncIterable|Function|ReadableStream}",
                   "name": "source",
-                  "type": "Stream|Iterable|AsyncIterable|Function",
+                  "type": "Stream|Iterable|AsyncIterable|Function|ReadableStream",
                   "options": [
                     {
                       "textRaw": "Returns: {Iterable|AsyncIterable}",
@@ -206,9 +404,9 @@
                   ]
                 },
                 {
-                  "textRaw": "`...transforms` {Stream|Function}",
+                  "textRaw": "`...transforms` {Stream|Function|TransformStream}",
                   "name": "...transforms",
-                  "type": "Stream|Function",
+                  "type": "Stream|Function|TransformStream",
                   "options": [
                     {
                       "textRaw": "`source` {AsyncIterable}",
@@ -223,9 +421,9 @@
                   ]
                 },
                 {
-                  "textRaw": "`destination` {Stream|Function}",
+                  "textRaw": "`destination` {Stream|Function|WritableStream}",
                   "name": "destination",
-                  "type": "Stream|Function",
+                  "type": "Stream|Function|WritableStream",
                   "options": [
                     {
                       "textRaw": "`source` {AsyncIterable}",
@@ -260,7 +458,7 @@
               ]
             }
           ],
-          "desc": "<p>A module method to pipe between streams and generators forwarding errors and\nproperly cleaning up and provide a callback when the pipeline is complete.</p>\n<pre><code class=\"language-js\">const { pipeline } = require('node:stream');\nconst fs = require('node:fs');\nconst zlib = require('node:zlib');\n\n// Use the pipeline API to easily pipe a series of streams\n// together and get notified when the pipeline is fully done.\n\n// A pipeline to gzip a potentially huge tar file efficiently:\n\npipeline(\n  fs.createReadStream('archive.tar'),\n  zlib.createGzip(),\n  fs.createWriteStream('archive.tar.gz'),\n  (err) => {\n    if (err) {\n      console.error('Pipeline failed.', err);\n    } else {\n      console.log('Pipeline succeeded.');\n    }\n  },\n);\n</code></pre>\n<p>The <code>pipeline</code> API provides a promise version, which can also\nreceive an options argument as the last parameter with a\n<code>signal</code> <a href=\"globals.html#class-abortsignal\" class=\"type\">&lt;AbortSignal&gt;</a> property. When the signal is aborted,\n<code>destroy</code> will be called on the underlying pipeline, with an\n<code>AbortError</code>.</p>\n<pre><code class=\"language-js\">const { pipeline } = require('node:stream/promises');\nconst fs = require('node:fs');\nconst zlib = require('node:zlib');\n\nasync function run() {\n  await pipeline(\n    fs.createReadStream('archive.tar'),\n    zlib.createGzip(),\n    fs.createWriteStream('archive.tar.gz'),\n  );\n  console.log('Pipeline succeeded.');\n}\n\nrun().catch(console.error);\n</code></pre>\n<p>To use an <code>AbortSignal</code>, pass it inside an options object,\nas the last argument:</p>\n<pre><code class=\"language-js\">const { pipeline } = require('node:stream/promises');\nconst fs = require('node:fs');\nconst zlib = require('node:zlib');\n\nasync function run() {\n  const ac = new AbortController();\n  const signal = ac.signal;\n\n  setTimeout(() => ac.abort(), 1);\n  await pipeline(\n    fs.createReadStream('archive.tar'),\n    zlib.createGzip(),\n    fs.createWriteStream('archive.tar.gz'),\n    { signal },\n  );\n}\n\nrun().catch(console.error); // AbortError\n</code></pre>\n<p>The <code>pipeline</code> API also supports async generators:</p>\n<pre><code class=\"language-js\">const { pipeline } = require('node:stream/promises');\nconst fs = require('node:fs');\n\nasync function run() {\n  await pipeline(\n    fs.createReadStream('lowercase.txt'),\n    async function* (source, { signal }) {\n      source.setEncoding('utf8');  // Work with strings rather than `Buffer`s.\n      for await (const chunk of source) {\n        yield await processChunk(chunk, { signal });\n      }\n    },\n    fs.createWriteStream('uppercase.txt'),\n  );\n  console.log('Pipeline succeeded.');\n}\n\nrun().catch(console.error);\n</code></pre>\n<p>Remember to handle the <code>signal</code> argument passed into the async generator.\nEspecially in the case where the async generator is the source for the\npipeline (i.e. first argument) or the pipeline will never complete.</p>\n<pre><code class=\"language-js\">const { pipeline } = require('node:stream/promises');\nconst fs = require('node:fs');\n\nasync function run() {\n  await pipeline(\n    async function* ({ signal }) {\n      await someLongRunningfn({ signal });\n      yield 'asd';\n    },\n    fs.createWriteStream('uppercase.txt'),\n  );\n  console.log('Pipeline succeeded.');\n}\n\nrun().catch(console.error);\n</code></pre>\n<p><code>stream.pipeline()</code> will call <code>stream.destroy(err)</code> on all streams except:</p>\n<ul>\n<li><code>Readable</code> streams which have emitted <code>'end'</code> or <code>'close'</code>.</li>\n<li><code>Writable</code> streams which have emitted <code>'finish'</code> or <code>'close'</code>.</li>\n</ul>\n<p><code>stream.pipeline()</code> leaves dangling event listeners on the streams\nafter the <code>callback</code> has been invoked. In the case of reuse of streams after\nfailure, this can cause event listener leaks and swallowed errors. If the last\nstream is readable, dangling event listeners will be removed so that the last\nstream can be consumed later.</p>\n<p><code>stream.pipeline()</code> closes all the streams when an error is raised.\nThe <code>IncomingRequest</code> usage with <code>pipeline</code> could lead to an unexpected behavior\nonce it would destroy the socket without sending the expected response.\nSee the example below:</p>\n<pre><code class=\"language-js\">const fs = require('node:fs');\nconst http = require('node:http');\nconst { pipeline } = require('node:stream');\n\nconst server = http.createServer((req, res) => {\n  const fileStream = fs.createReadStream('./fileNotExist.txt');\n  pipeline(fileStream, res, (err) => {\n    if (err) {\n      console.log(err); // No such file\n      // this message can't be sent once `pipeline` already destroyed the socket\n      return res.end('error!!!');\n    }\n  });\n});\n</code></pre>"
+          "desc": "<p>A module method to pipe between streams and generators forwarding errors and\nproperly cleaning up and provide a callback when the pipeline is complete.</p>\n<pre><code class=\"language-js\">const { pipeline } = require('node:stream');\nconst fs = require('node:fs');\nconst zlib = require('node:zlib');\n\n// Use the pipeline API to easily pipe a series of streams\n// together and get notified when the pipeline is fully done.\n\n// A pipeline to gzip a potentially huge tar file efficiently:\n\npipeline(\n  fs.createReadStream('archive.tar'),\n  zlib.createGzip(),\n  fs.createWriteStream('archive.tar.gz'),\n  (err) => {\n    if (err) {\n      console.error('Pipeline failed.', err);\n    } else {\n      console.log('Pipeline succeeded.');\n    }\n  },\n);\n</code></pre>\n<p>The <code>pipeline</code> API provides a <a href=\"#streampipelinesource-transforms-destination-options\">promise version</a>.</p>\n<p><code>stream.pipeline()</code> will call <code>stream.destroy(err)</code> on all streams except:</p>\n<ul>\n<li><code>Readable</code> streams which have emitted <code>'end'</code> or <code>'close'</code>.</li>\n<li><code>Writable</code> streams which have emitted <code>'finish'</code> or <code>'close'</code>.</li>\n</ul>\n<p><code>stream.pipeline()</code> leaves dangling event listeners on the streams\nafter the <code>callback</code> has been invoked. In the case of reuse of streams after\nfailure, this can cause event listener leaks and swallowed errors. If the last\nstream is readable, dangling event listeners will be removed so that the last\nstream can be consumed later.</p>\n<p><code>stream.pipeline()</code> closes all the streams when an error is raised.\nThe <code>IncomingRequest</code> usage with <code>pipeline</code> could lead to an unexpected behavior\nonce it would destroy the socket without sending the expected response.\nSee the example below:</p>\n<pre><code class=\"language-js\">const fs = require('node:fs');\nconst http = require('node:http');\nconst { pipeline } = require('node:stream');\n\nconst server = http.createServer((req, res) => {\n  const fileStream = fs.createReadStream('./fileNotExist.txt');\n  pipeline(fileStream, res, (err) => {\n    if (err) {\n      console.log(err); // No such file\n      // this message can't be sent once `pipeline` already destroyed the socket\n      return res.end('error!!!');\n    }\n  });\n});\n</code></pre>"
         },
         {
           "textRaw": "`stream.pipeline(streams, callback)`",
@@ -272,6 +470,11 @@
             ],
             "changes": [
               {
+                "version": "v18.16.0",
+                "pr-url": "https://github.com/nodejs/node/pull/46307",
+                "description": "Added support for webstreams."
+              },
+              {
                 "version": "v18.0.0",
                 "pr-url": "https://github.com/nodejs/node/pull/41678",
                 "description": "Passing an invalid callback to the `callback` argument now throws `ERR_INVALID_ARG_TYPE` instead of `ERR_INVALID_CALLBACK`."
@@ -297,14 +500,14 @@
               },
               "params": [
                 {
-                  "textRaw": "`streams` {Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]}",
+                  "textRaw": "`streams` {Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]| ReadableStream\\[]|WritableStream\\[]|TransformStream\\[]}",
                   "name": "streams",
-                  "type": "Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]"
+                  "type": "Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]| ReadableStream\\[]|WritableStream\\[]|TransformStream\\[]"
                 },
                 {
-                  "textRaw": "`source` {Stream|Iterable|AsyncIterable|Function}",
+                  "textRaw": "`source` {Stream|Iterable|AsyncIterable|Function|ReadableStream}",
                   "name": "source",
-                  "type": "Stream|Iterable|AsyncIterable|Function",
+                  "type": "Stream|Iterable|AsyncIterable|Function|ReadableStream",
                   "options": [
                     {
                       "textRaw": "Returns: {Iterable|AsyncIterable}",
@@ -314,9 +517,9 @@
                   ]
                 },
                 {
-                  "textRaw": "`...transforms` {Stream|Function}",
+                  "textRaw": "`...transforms` {Stream|Function|TransformStream}",
                   "name": "...transforms",
-                  "type": "Stream|Function",
+                  "type": "Stream|Function|TransformStream",
                   "options": [
                     {
                       "textRaw": "`source` {AsyncIterable}",
@@ -331,9 +534,9 @@
                   ]
                 },
                 {
-                  "textRaw": "`destination` {Stream|Function}",
+                  "textRaw": "`destination` {Stream|Function|WritableStream}",
                   "name": "destination",
-                  "type": "Stream|Function",
+                  "type": "Stream|Function|WritableStream",
                   "options": [
                     {
                       "textRaw": "`source` {AsyncIterable}",
@@ -368,7 +571,7 @@
               ]
             }
           ],
-          "desc": "<p>A module method to pipe between streams and generators forwarding errors and\nproperly cleaning up and provide a callback when the pipeline is complete.</p>\n<pre><code class=\"language-js\">const { pipeline } = require('node:stream');\nconst fs = require('node:fs');\nconst zlib = require('node:zlib');\n\n// Use the pipeline API to easily pipe a series of streams\n// together and get notified when the pipeline is fully done.\n\n// A pipeline to gzip a potentially huge tar file efficiently:\n\npipeline(\n  fs.createReadStream('archive.tar'),\n  zlib.createGzip(),\n  fs.createWriteStream('archive.tar.gz'),\n  (err) => {\n    if (err) {\n      console.error('Pipeline failed.', err);\n    } else {\n      console.log('Pipeline succeeded.');\n    }\n  },\n);\n</code></pre>\n<p>The <code>pipeline</code> API provides a promise version, which can also\nreceive an options argument as the last parameter with a\n<code>signal</code> <a href=\"globals.html#class-abortsignal\" class=\"type\">&lt;AbortSignal&gt;</a> property. When the signal is aborted,\n<code>destroy</code> will be called on the underlying pipeline, with an\n<code>AbortError</code>.</p>\n<pre><code class=\"language-js\">const { pipeline } = require('node:stream/promises');\nconst fs = require('node:fs');\nconst zlib = require('node:zlib');\n\nasync function run() {\n  await pipeline(\n    fs.createReadStream('archive.tar'),\n    zlib.createGzip(),\n    fs.createWriteStream('archive.tar.gz'),\n  );\n  console.log('Pipeline succeeded.');\n}\n\nrun().catch(console.error);\n</code></pre>\n<p>To use an <code>AbortSignal</code>, pass it inside an options object,\nas the last argument:</p>\n<pre><code class=\"language-js\">const { pipeline } = require('node:stream/promises');\nconst fs = require('node:fs');\nconst zlib = require('node:zlib');\n\nasync function run() {\n  const ac = new AbortController();\n  const signal = ac.signal;\n\n  setTimeout(() => ac.abort(), 1);\n  await pipeline(\n    fs.createReadStream('archive.tar'),\n    zlib.createGzip(),\n    fs.createWriteStream('archive.tar.gz'),\n    { signal },\n  );\n}\n\nrun().catch(console.error); // AbortError\n</code></pre>\n<p>The <code>pipeline</code> API also supports async generators:</p>\n<pre><code class=\"language-js\">const { pipeline } = require('node:stream/promises');\nconst fs = require('node:fs');\n\nasync function run() {\n  await pipeline(\n    fs.createReadStream('lowercase.txt'),\n    async function* (source, { signal }) {\n      source.setEncoding('utf8');  // Work with strings rather than `Buffer`s.\n      for await (const chunk of source) {\n        yield await processChunk(chunk, { signal });\n      }\n    },\n    fs.createWriteStream('uppercase.txt'),\n  );\n  console.log('Pipeline succeeded.');\n}\n\nrun().catch(console.error);\n</code></pre>\n<p>Remember to handle the <code>signal</code> argument passed into the async generator.\nEspecially in the case where the async generator is the source for the\npipeline (i.e. first argument) or the pipeline will never complete.</p>\n<pre><code class=\"language-js\">const { pipeline } = require('node:stream/promises');\nconst fs = require('node:fs');\n\nasync function run() {\n  await pipeline(\n    async function* ({ signal }) {\n      await someLongRunningfn({ signal });\n      yield 'asd';\n    },\n    fs.createWriteStream('uppercase.txt'),\n  );\n  console.log('Pipeline succeeded.');\n}\n\nrun().catch(console.error);\n</code></pre>\n<p><code>stream.pipeline()</code> will call <code>stream.destroy(err)</code> on all streams except:</p>\n<ul>\n<li><code>Readable</code> streams which have emitted <code>'end'</code> or <code>'close'</code>.</li>\n<li><code>Writable</code> streams which have emitted <code>'finish'</code> or <code>'close'</code>.</li>\n</ul>\n<p><code>stream.pipeline()</code> leaves dangling event listeners on the streams\nafter the <code>callback</code> has been invoked. In the case of reuse of streams after\nfailure, this can cause event listener leaks and swallowed errors. If the last\nstream is readable, dangling event listeners will be removed so that the last\nstream can be consumed later.</p>\n<p><code>stream.pipeline()</code> closes all the streams when an error is raised.\nThe <code>IncomingRequest</code> usage with <code>pipeline</code> could lead to an unexpected behavior\nonce it would destroy the socket without sending the expected response.\nSee the example below:</p>\n<pre><code class=\"language-js\">const fs = require('node:fs');\nconst http = require('node:http');\nconst { pipeline } = require('node:stream');\n\nconst server = http.createServer((req, res) => {\n  const fileStream = fs.createReadStream('./fileNotExist.txt');\n  pipeline(fileStream, res, (err) => {\n    if (err) {\n      console.log(err); // No such file\n      // this message can't be sent once `pipeline` already destroyed the socket\n      return res.end('error!!!');\n    }\n  });\n});\n</code></pre>"
+          "desc": "<p>A module method to pipe between streams and generators forwarding errors and\nproperly cleaning up and provide a callback when the pipeline is complete.</p>\n<pre><code class=\"language-js\">const { pipeline } = require('node:stream');\nconst fs = require('node:fs');\nconst zlib = require('node:zlib');\n\n// Use the pipeline API to easily pipe a series of streams\n// together and get notified when the pipeline is fully done.\n\n// A pipeline to gzip a potentially huge tar file efficiently:\n\npipeline(\n  fs.createReadStream('archive.tar'),\n  zlib.createGzip(),\n  fs.createWriteStream('archive.tar.gz'),\n  (err) => {\n    if (err) {\n      console.error('Pipeline failed.', err);\n    } else {\n      console.log('Pipeline succeeded.');\n    }\n  },\n);\n</code></pre>\n<p>The <code>pipeline</code> API provides a <a href=\"#streampipelinesource-transforms-destination-options\">promise version</a>.</p>\n<p><code>stream.pipeline()</code> will call <code>stream.destroy(err)</code> on all streams except:</p>\n<ul>\n<li><code>Readable</code> streams which have emitted <code>'end'</code> or <code>'close'</code>.</li>\n<li><code>Writable</code> streams which have emitted <code>'finish'</code> or <code>'close'</code>.</li>\n</ul>\n<p><code>stream.pipeline()</code> leaves dangling event listeners on the streams\nafter the <code>callback</code> has been invoked. In the case of reuse of streams after\nfailure, this can cause event listener leaks and swallowed errors. If the last\nstream is readable, dangling event listeners will be removed so that the last\nstream can be consumed later.</p>\n<p><code>stream.pipeline()</code> closes all the streams when an error is raised.\nThe <code>IncomingRequest</code> usage with <code>pipeline</code> could lead to an unexpected behavior\nonce it would destroy the socket without sending the expected response.\nSee the example below:</p>\n<pre><code class=\"language-js\">const fs = require('node:fs');\nconst http = require('node:http');\nconst { pipeline } = require('node:stream');\n\nconst server = http.createServer((req, res) => {\n  const fileStream = fs.createReadStream('./fileNotExist.txt');\n  pipeline(fileStream, res, (err) => {\n    if (err) {\n      console.log(err); // No such file\n      // this message can't be sent once `pipeline` already destroyed the socket\n      return res.end('error!!!');\n    }\n  });\n});\n</code></pre>"
         },
         {
           "textRaw": "`stream.compose(...streams)`",
@@ -378,7 +581,13 @@
             "added": [
               "v16.9.0"
             ],
-            "changes": []
+            "changes": [
+              {
+                "version": "v18.16.0",
+                "pr-url": "https://github.com/nodejs/node/pull/46675",
+                "description": "Added support for webstreams."
+              }
+            ]
           },
           "stability": 1,
           "stabilityText": "`stream.compose` is experimental.",
@@ -391,9 +600,9 @@
               },
               "params": [
                 {
-                  "textRaw": "`streams` {Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]}",
+                  "textRaw": "`streams` {Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]| ReadableStream\\[]|WritableStream\\[]|TransformStream\\[]}",
                   "name": "streams",
-                  "type": "Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]"
+                  "type": "Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]| ReadableStream\\[]|WritableStream\\[]|TransformStream\\[]"
                 }
               ]
             }
@@ -434,7 +643,7 @@
               ]
             }
           ],
-          "desc": "<p>A utility method for creating readable streams out of iterators.</p>\n<pre><code class=\"language-js\">const { Readable } = require('node:stream');\n\nasync function * generate() {\n  yield 'hello';\n  yield 'streams';\n}\n\nconst readable = Readable.from(generate());\n\nreadable.on('data', (chunk) => {\n  console.log(chunk);\n});\n</code></pre>\n<p>Calling <code>Readable.from(string)</code> or <code>Readable.from(buffer)</code> will not have\nthe strings or buffers be iterated to match the other streams semantics\nfor performance reasons.</p>"
+          "desc": "<p>A utility method for creating readable streams out of iterators.</p>\n<pre><code class=\"language-js\">const { Readable } = require('node:stream');\n\nasync function * generate() {\n  yield 'hello';\n  yield 'streams';\n}\n\nconst readable = Readable.from(generate());\n\nreadable.on('data', (chunk) => {\n  console.log(chunk);\n});\n</code></pre>\n<p>Calling <code>Readable.from(string)</code> or <code>Readable.from(buffer)</code> will not have\nthe strings or buffers be iterated to match the other streams semantics\nfor performance reasons.</p>\n<p>If an <code>Iterable</code> object containing promises is passed as an argument,\nit might result in unhandled rejection.</p>\n<pre><code class=\"language-js\">const { Readable } = require('node:stream');\n\nReadable.from([\n  new Promise((resolve) => setTimeout(resolve('1'), 1500)),\n  new Promise((_, reject) => setTimeout(reject(new Error('2')), 1000)), // Unhandled rejection\n]);\n</code></pre>"
         },
         {
           "textRaw": "`stream.Readable.fromWeb(readableStream[, options])`",
@@ -620,14 +829,28 @@
                       "type": "Object",
                       "options": [
                         {
-                          "textRaw": "`highWaterMark` {number}",
+                          "textRaw": "`highWaterMark` {number} The maximum internal queue size (of the created `ReadableStream`) before backpressure is applied in reading from the given `stream.Readable`. If no value is provided, it will be taken from the given `stream.Readable`.",
                           "name": "highWaterMark",
-                          "type": "number"
+                          "type": "number",
+                          "desc": "The maximum internal queue size (of the created `ReadableStream`) before backpressure is applied in reading from the given `stream.Readable`. If no value is provided, it will be taken from the given `stream.Readable`."
                         },
                         {
-                          "textRaw": "`size` {Function}",
+                          "textRaw": "`size` {Function} A function that size of the given chunk of data. If no value is provided, the size will be `1` for all the chunks.",
                           "name": "size",
-                          "type": "Function"
+                          "type": "Function",
+                          "desc": "A function that size of the given chunk of data. If no value is provided, the size will be `1` for all the chunks.",
+                          "options": [
+                            {
+                              "textRaw": "`chunk` {any}",
+                              "name": "chunk",
+                              "type": "any"
+                            },
+                            {
+                              "textRaw": "Returns: {number}",
+                              "name": "return",
+                              "type": "number"
+                            }
+                          ]
                         }
                       ]
                     }
@@ -730,20 +953,26 @@
             "added": [
               "v16.8.0"
             ],
-            "changes": []
+            "changes": [
+              {
+                "version": "v18.17.0",
+                "pr-url": "https://github.com/nodejs/node/pull/46190",
+                "description": "The `src` argument can now be a `ReadableStream` or `WritableStream`."
+              }
+            ]
           },
           "signatures": [
             {
               "params": [
                 {
-                  "textRaw": "`src` {Stream|Blob|ArrayBuffer|string|Iterable|AsyncIterable| AsyncGeneratorFunction|AsyncFunction|Promise|Object}",
+                  "textRaw": "`src` {Stream|Blob|ArrayBuffer|string|Iterable|AsyncIterable| AsyncGeneratorFunction|AsyncFunction|Promise|Object| ReadableStream|WritableStream}",
                   "name": "src",
-                  "type": "Stream|Blob|ArrayBuffer|string|Iterable|AsyncIterable| AsyncGeneratorFunction|AsyncFunction|Promise|Object"
+                  "type": "Stream|Blob|ArrayBuffer|string|Iterable|AsyncIterable| AsyncGeneratorFunction|AsyncFunction|Promise|Object| ReadableStream|WritableStream"
                 }
               ]
             }
           ],
-          "desc": "<p>A utility method for creating duplex streams.</p>\n<ul>\n<li><code>Stream</code> converts writable stream into writable <code>Duplex</code> and readable stream\nto <code>Duplex</code>.</li>\n<li><code>Blob</code> converts into readable <code>Duplex</code>.</li>\n<li><code>string</code> converts into readable <code>Duplex</code>.</li>\n<li><code>ArrayBuffer</code> converts into readable <code>Duplex</code>.</li>\n<li><code>AsyncIterable</code> converts into a readable <code>Duplex</code>. Cannot yield\n<code>null</code>.</li>\n<li><code>AsyncGeneratorFunction</code> converts into a readable/writable transform\n<code>Duplex</code>. Must take a source <code>AsyncIterable</code> as first parameter. Cannot yield\n<code>null</code>.</li>\n<li><code>AsyncFunction</code> converts into a writable <code>Duplex</code>. Must return\neither <code>null</code> or <code>undefined</code></li>\n<li><code>Object ({ writable, readable })</code> converts <code>readable</code> and\n<code>writable</code> into <code>Stream</code> and then combines them into <code>Duplex</code> where the\n<code>Duplex</code> will write to the <code>writable</code> and read from the <code>readable</code>.</li>\n<li><code>Promise</code> converts into readable <code>Duplex</code>. Value <code>null</code> is ignored.</li>\n<li>Returns: <a href=\"stream.html#class-streamduplex\" class=\"type\">&lt;stream.Duplex&gt;</a></li>\n</ul>"
+          "desc": "<p>A utility method for creating duplex streams.</p>\n<ul>\n<li><code>Stream</code> converts writable stream into writable <code>Duplex</code> and readable stream\nto <code>Duplex</code>.</li>\n<li><code>Blob</code> converts into readable <code>Duplex</code>.</li>\n<li><code>string</code> converts into readable <code>Duplex</code>.</li>\n<li><code>ArrayBuffer</code> converts into readable <code>Duplex</code>.</li>\n<li><code>AsyncIterable</code> converts into a readable <code>Duplex</code>. Cannot yield\n<code>null</code>.</li>\n<li><code>AsyncGeneratorFunction</code> converts into a readable/writable transform\n<code>Duplex</code>. Must take a source <code>AsyncIterable</code> as first parameter. Cannot yield\n<code>null</code>.</li>\n<li><code>AsyncFunction</code> converts into a writable <code>Duplex</code>. Must return\neither <code>null</code> or <code>undefined</code></li>\n<li><code>Object ({ writable, readable })</code> converts <code>readable</code> and\n<code>writable</code> into <code>Stream</code> and then combines them into <code>Duplex</code> where the\n<code>Duplex</code> will write to the <code>writable</code> and read from the <code>readable</code>.</li>\n<li><code>Promise</code> converts into readable <code>Duplex</code>. Value <code>null</code> is ignored.</li>\n<li><code>ReadableStream</code> converts into readable <code>Duplex</code>.</li>\n<li><code>WritableStream</code> converts into writable <code>Duplex</code>.</li>\n<li>Returns: <a href=\"stream.html#class-streamduplex\" class=\"type\">&lt;stream.Duplex&gt;</a></li>\n</ul>\n<p>If an <code>Iterable</code> object containing promises is passed as an argument,\nit might result in unhandled rejection.</p>\n<pre><code class=\"language-js\">const { Duplex } = require('node:stream');\n\nDuplex.from([\n  new Promise((resolve) => setTimeout(resolve('1'), 1500)),\n  new Promise((_, reject) => setTimeout(reject(new Error('2')), 1000)), // Unhandled rejection\n]);\n</code></pre>"
         },
         {
           "textRaw": "`stream.Duplex.fromWeb(pair[, options])`",
@@ -874,7 +1103,13 @@
             "added": [
               "v15.4.0"
             ],
-            "changes": []
+            "changes": [
+              {
+                "version": "v18.16.0",
+                "pr-url": "https://github.com/nodejs/node/pull/46273",
+                "description": "Added support for `ReadableStream` and `WritableStream`."
+              }
+            ]
           },
           "signatures": [
             {
@@ -886,15 +1121,71 @@
                   "desc": "A signal representing possible cancellation"
                 },
                 {
-                  "textRaw": "`stream` {Stream} a stream to attach a signal to",
+                  "textRaw": "`stream` {Stream|ReadableStream|WritableStream}",
                   "name": "stream",
-                  "type": "Stream",
-                  "desc": "a stream to attach a signal to"
+                  "type": "Stream|ReadableStream|WritableStream"
                 }
               ]
             }
           ],
-          "desc": "<p>Attaches an AbortSignal to a readable or writeable stream. This lets code\ncontrol stream destruction using an <code>AbortController</code>.</p>\n<p>Calling <code>abort</code> on the <code>AbortController</code> corresponding to the passed\n<code>AbortSignal</code> will behave the same way as calling <code>.destroy(new AbortError())</code>\non the stream.</p>\n<pre><code class=\"language-js\">const fs = require('node:fs');\n\nconst controller = new AbortController();\nconst read = addAbortSignal(\n  controller.signal,\n  fs.createReadStream(('object.json')),\n);\n// Later, abort the operation closing the stream\ncontroller.abort();\n</code></pre>\n<p>Or using an <code>AbortSignal</code> with a readable stream as an async iterable:</p>\n<pre><code class=\"language-js\">const controller = new AbortController();\nsetTimeout(() => controller.abort(), 10_000); // set a timeout\nconst stream = addAbortSignal(\n  controller.signal,\n  fs.createReadStream(('object.json')),\n);\n(async () => {\n  try {\n    for await (const chunk of stream) {\n      await process(chunk);\n    }\n  } catch (e) {\n    if (e.name === 'AbortError') {\n      // The operation was cancelled\n    } else {\n      throw e;\n    }\n  }\n})();\n</code></pre>"
+          "desc": "<p>A stream to attach a signal to.</p>\n<p>Attaches an AbortSignal to a readable or writeable stream. This lets code\ncontrol stream destruction using an <code>AbortController</code>.</p>\n<p>Calling <code>abort</code> on the <code>AbortController</code> corresponding to the passed\n<code>AbortSignal</code> will behave the same way as calling <code>.destroy(new AbortError())</code>\non the stream, and <code>controller.error(new AbortError())</code> for webstreams.</p>\n<pre><code class=\"language-js\">const fs = require('node:fs');\n\nconst controller = new AbortController();\nconst read = addAbortSignal(\n  controller.signal,\n  fs.createReadStream(('object.json')),\n);\n// Later, abort the operation closing the stream\ncontroller.abort();\n</code></pre>\n<p>Or using an <code>AbortSignal</code> with a readable stream as an async iterable:</p>\n<pre><code class=\"language-js\">const controller = new AbortController();\nsetTimeout(() => controller.abort(), 10_000); // set a timeout\nconst stream = addAbortSignal(\n  controller.signal,\n  fs.createReadStream(('object.json')),\n);\n(async () => {\n  try {\n    for await (const chunk of stream) {\n      await process(chunk);\n    }\n  } catch (e) {\n    if (e.name === 'AbortError') {\n      // The operation was cancelled\n    } else {\n      throw e;\n    }\n  }\n})();\n</code></pre>\n<p>Or using an <code>AbortSignal</code> with a ReadableStream:</p>\n<pre><code class=\"language-js\">const controller = new AbortController();\nconst rs = new ReadableStream({\n  start(controller) {\n    controller.enqueue('hello');\n    controller.enqueue('world');\n    controller.close();\n  },\n});\n\naddAbortSignal(controller.signal, rs);\n\nfinished(rs, (err) => {\n  if (err) {\n    if (err.name === 'AbortError') {\n      // The operation was cancelled\n    }\n  }\n});\n\nconst reader = rs.getReader();\n\nreader.read().then(({ value, done }) => {\n  console.log(value); // hello\n  console.log(done); // false\n  controller.abort();\n});\n</code></pre>"
+        },
+        {
+          "textRaw": "`stream.getDefaultHighWaterMark(objectMode)`",
+          "type": "method",
+          "name": "getDefaultHighWaterMark",
+          "meta": {
+            "added": [
+              "v18.17.0"
+            ],
+            "changes": []
+          },
+          "signatures": [
+            {
+              "return": {
+                "textRaw": "Returns: {integer}",
+                "name": "return",
+                "type": "integer"
+              },
+              "params": [
+                {
+                  "textRaw": "`objectMode` {boolean}",
+                  "name": "objectMode",
+                  "type": "boolean"
+                }
+              ]
+            }
+          ],
+          "desc": "<p>Returns the default highWaterMark used by streams.\nDefaults to <code>16384</code> (16 KiB), or <code>16</code> for <code>objectMode</code>.</p>"
+        },
+        {
+          "textRaw": "`stream.setDefaultHighWaterMark(objectMode, value)`",
+          "type": "method",
+          "name": "setDefaultHighWaterMark",
+          "meta": {
+            "added": [
+              "v18.17.0"
+            ],
+            "changes": []
+          },
+          "signatures": [
+            {
+              "params": [
+                {
+                  "textRaw": "`objectMode` {boolean}",
+                  "name": "objectMode",
+                  "type": "boolean"
+                },
+                {
+                  "textRaw": "`value` {integer} highWaterMark value",
+                  "name": "value",
+                  "type": "integer",
+                  "desc": "highWaterMark value"
+                }
+              ]
+            }
+          ],
+          "desc": "<p>Sets the default highWaterMark used by streams.</p>"
         },
         {
           "textRaw": "`readable.read(0)`",
@@ -1918,6 +2209,25 @@
                       "desc": "<pre><code class=\"language-js\">const fs = require('node:fs');\n\nasync function print(readable) {\n  readable.setEncoding('utf8');\n  let data = '';\n  for await (const chunk of readable) {\n    data += chunk;\n  }\n  console.log(data);\n}\n\nprint(fs.createReadStream('file')).catch(console.error);\n</code></pre>\n<p>If the loop terminates with a <code>break</code>, <code>return</code>, or a <code>throw</code>, the stream will\nbe destroyed. In other terms, iterating over a stream will consume the stream\nfully. The stream will be read in chunks of size equal to the <code>highWaterMark</code>\noption. In the code example above, data will be in a single chunk if the file\nhas less then 64 KiB of data because no <code>highWaterMark</code> option is provided to\n<a href=\"fs.html#fscreatereadstreampath-options\"><code>fs.createReadStream()</code></a>.</p>"
                     },
                     {
+                      "textRaw": "`readable[Symbol.asyncDispose]()`",
+                      "type": "method",
+                      "name": "[Symbol.asyncDispose]",
+                      "meta": {
+                        "added": [
+                          "v18.18.0"
+                        ],
+                        "changes": []
+                      },
+                      "stability": 1,
+                      "stabilityText": "Experimental",
+                      "signatures": [
+                        {
+                          "params": []
+                        }
+                      ],
+                      "desc": "<p>Calls <a href=\"#readabledestroyerror\"><code>readable.destroy()</code></a> with an <code>AbortError</code> and returns\na promise that fulfills when the stream is finished.</p>"
+                    },
+                    {
                       "textRaw": "`readable.compose(stream[, options])`",
                       "type": "method",
                       "name": "compose",
@@ -2010,7 +2320,13 @@
                           "v17.4.0",
                           "v16.14.0"
                         ],
-                        "changes": []
+                        "changes": [
+                          {
+                            "version": "v18.19.0",
+                            "pr-url": "https://github.com/nodejs/node/pull/49249",
+                            "description": "added `highWaterMark` in options."
+                          }
+                        ]
                       },
                       "stability": 1,
                       "stabilityText": "Experimental",
@@ -2063,6 +2379,13 @@
                                   "desc": "the maximum concurrent invocation of `fn` to call on the stream at once."
                                 },
                                 {
+                                  "textRaw": "`highWaterMark` {number} how many items to buffer while waiting for user consumption of the mapped items. **Default:** `concurrency * 2 - 1`.",
+                                  "name": "highWaterMark",
+                                  "type": "number",
+                                  "default": "`concurrency * 2 - 1`",
+                                  "desc": "how many items to buffer while waiting for user consumption of the mapped items."
+                                },
+                                {
                                   "textRaw": "`signal` {AbortSignal} allows destroying the stream if the signal is aborted.",
                                   "name": "signal",
                                   "type": "AbortSignal",
@@ -2084,7 +2407,13 @@
                           "v17.4.0",
                           "v16.14.0"
                         ],
-                        "changes": []
+                        "changes": [
+                          {
+                            "version": "v18.19.0",
+                            "pr-url": "https://github.com/nodejs/node/pull/49249",
+                            "description": "added `highWaterMark` in options."
+                          }
+                        ]
                       },
                       "stability": 1,
                       "stabilityText": "Experimental",
@@ -2135,6 +2464,13 @@
                                   "type": "number",
                                   "default": "`1`",
                                   "desc": "the maximum concurrent invocation of `fn` to call on the stream at once."
+                                },
+                                {
+                                  "textRaw": "`highWaterMark` {number} how many items to buffer while waiting for user consumption of the filtered items. **Default:** `concurrency * 2 - 1`.",
+                                  "name": "highWaterMark",
+                                  "type": "number",
+                                  "default": "`concurrency * 2 - 1`",
+                                  "desc": "how many items to buffer while waiting for user consumption of the filtered items."
                                 },
                                 {
                                   "textRaw": "`signal` {AbortSignal} allows destroying the stream if the signal is aborted.",
@@ -2332,7 +2668,7 @@
                           ]
                         }
                       ],
-                      "desc": "<p>This method is similar to <code>Array.prototype.some</code> and calls <code>fn</code> on each chunk\nin the stream until the awaited return value is <code>true</code> (or any truthy value).\nOnce an <code>fn</code> call on a chunk awaited return value is truthy, the stream is\ndestroyed and the promise is fulfilled with <code>true</code>. If none of the <code>fn</code>\ncalls on the chunks return a truthy value, the promise is fulfilled with\n<code>false</code>.</p>\n<pre><code class=\"language-mjs\">import { Readable } from 'node:stream';\nimport { stat } from 'node:fs/promises';\n\n// With a synchronous predicate.\nawait Readable.from([1, 2, 3, 4]).some((x) => x > 2); // true\nawait Readable.from([1, 2, 3, 4]).some((x) => x &#x3C; 0); // false\n\n// With an asynchronous predicate, making at most 2 file checks at a time.\nconst anyBigFile = await Readable.from([\n  'file1',\n  'file2',\n  'file3',\n]).some(async (fileName) => {\n  const stats = await stat(fileName);\n  return stat.size > 1024 * 1024;\n}, { concurrency: 2 });\nconsole.log(anyBigFile); // `true` if any file in the list is bigger than 1MB\nconsole.log('done'); // Stream has finished\n</code></pre>"
+                      "desc": "<p>This method is similar to <code>Array.prototype.some</code> and calls <code>fn</code> on each chunk\nin the stream until the awaited return value is <code>true</code> (or any truthy value).\nOnce an <code>fn</code> call on a chunk awaited return value is truthy, the stream is\ndestroyed and the promise is fulfilled with <code>true</code>. If none of the <code>fn</code>\ncalls on the chunks return a truthy value, the promise is fulfilled with\n<code>false</code>.</p>\n<pre><code class=\"language-mjs\">import { Readable } from 'node:stream';\nimport { stat } from 'node:fs/promises';\n\n// With a synchronous predicate.\nawait Readable.from([1, 2, 3, 4]).some((x) => x > 2); // true\nawait Readable.from([1, 2, 3, 4]).some((x) => x &#x3C; 0); // false\n\n// With an asynchronous predicate, making at most 2 file checks at a time.\nconst anyBigFile = await Readable.from([\n  'file1',\n  'file2',\n  'file3',\n]).some(async (fileName) => {\n  const stats = await stat(fileName);\n  return stats.size > 1024 * 1024;\n}, { concurrency: 2 });\nconsole.log(anyBigFile); // `true` if any file in the list is bigger than 1MB\nconsole.log('done'); // Stream has finished\n</code></pre>"
                     },
                     {
                       "textRaw": "`readable.find(fn[, options])`",
@@ -2405,7 +2741,7 @@
                           ]
                         }
                       ],
-                      "desc": "<p>This method is similar to <code>Array.prototype.find</code> and calls <code>fn</code> on each chunk\nin the stream to find a chunk with a truthy value for <code>fn</code>. Once an <code>fn</code> call's\nawaited return value is truthy, the stream is destroyed and the promise is\nfulfilled with value for which <code>fn</code> returned a truthy value. If all of the\n<code>fn</code> calls on the chunks return a falsy value, the promise is fulfilled with\n<code>undefined</code>.</p>\n<pre><code class=\"language-mjs\">import { Readable } from 'node:stream';\nimport { stat } from 'node:fs/promises';\n\n// With a synchronous predicate.\nawait Readable.from([1, 2, 3, 4]).find((x) => x > 2); // 3\nawait Readable.from([1, 2, 3, 4]).find((x) => x > 0); // 1\nawait Readable.from([1, 2, 3, 4]).find((x) => x > 10); // undefined\n\n// With an asynchronous predicate, making at most 2 file checks at a time.\nconst foundBigFile = await Readable.from([\n  'file1',\n  'file2',\n  'file3',\n]).find(async (fileName) => {\n  const stats = await stat(fileName);\n  return stat.size > 1024 * 1024;\n}, { concurrency: 2 });\nconsole.log(foundBigFile); // File name of large file, if any file in the list is bigger than 1MB\nconsole.log('done'); // Stream has finished\n</code></pre>"
+                      "desc": "<p>This method is similar to <code>Array.prototype.find</code> and calls <code>fn</code> on each chunk\nin the stream to find a chunk with a truthy value for <code>fn</code>. Once an <code>fn</code> call's\nawaited return value is truthy, the stream is destroyed and the promise is\nfulfilled with value for which <code>fn</code> returned a truthy value. If all of the\n<code>fn</code> calls on the chunks return a falsy value, the promise is fulfilled with\n<code>undefined</code>.</p>\n<pre><code class=\"language-mjs\">import { Readable } from 'node:stream';\nimport { stat } from 'node:fs/promises';\n\n// With a synchronous predicate.\nawait Readable.from([1, 2, 3, 4]).find((x) => x > 2); // 3\nawait Readable.from([1, 2, 3, 4]).find((x) => x > 0); // 1\nawait Readable.from([1, 2, 3, 4]).find((x) => x > 10); // undefined\n\n// With an asynchronous predicate, making at most 2 file checks at a time.\nconst foundBigFile = await Readable.from([\n  'file1',\n  'file2',\n  'file3',\n]).find(async (fileName) => {\n  const stats = await stat(fileName);\n  return stats.size > 1024 * 1024;\n}, { concurrency: 2 });\nconsole.log(foundBigFile); // File name of large file, if any file in the list is bigger than 1MB\nconsole.log('done'); // Stream has finished\n</code></pre>"
                     },
                     {
                       "textRaw": "`readable.every(fn[, options])`",
@@ -2478,7 +2814,7 @@
                           ]
                         }
                       ],
-                      "desc": "<p>This method is similar to <code>Array.prototype.every</code> and calls <code>fn</code> on each chunk\nin the stream to check if all awaited return values are truthy value for <code>fn</code>.\nOnce an <code>fn</code> call on a chunk awaited return value is falsy, the stream is\ndestroyed and the promise is fulfilled with <code>false</code>. If all of the <code>fn</code> calls\non the chunks return a truthy value, the promise is fulfilled with <code>true</code>.</p>\n<pre><code class=\"language-mjs\">import { Readable } from 'node:stream';\nimport { stat } from 'node:fs/promises';\n\n// With a synchronous predicate.\nawait Readable.from([1, 2, 3, 4]).every((x) => x > 2); // false\nawait Readable.from([1, 2, 3, 4]).every((x) => x > 0); // true\n\n// With an asynchronous predicate, making at most 2 file checks at a time.\nconst allBigFiles = await Readable.from([\n  'file1',\n  'file2',\n  'file3',\n]).every(async (fileName) => {\n  const stats = await stat(fileName);\n  return stat.size > 1024 * 1024;\n}, { concurrency: 2 });\n// `true` if all files in the list are bigger than 1MiB\nconsole.log(allBigFiles);\nconsole.log('done'); // Stream has finished\n</code></pre>"
+                      "desc": "<p>This method is similar to <code>Array.prototype.every</code> and calls <code>fn</code> on each chunk\nin the stream to check if all awaited return values are truthy value for <code>fn</code>.\nOnce an <code>fn</code> call on a chunk awaited return value is falsy, the stream is\ndestroyed and the promise is fulfilled with <code>false</code>. If all of the <code>fn</code> calls\non the chunks return a truthy value, the promise is fulfilled with <code>true</code>.</p>\n<pre><code class=\"language-mjs\">import { Readable } from 'node:stream';\nimport { stat } from 'node:fs/promises';\n\n// With a synchronous predicate.\nawait Readable.from([1, 2, 3, 4]).every((x) => x > 2); // false\nawait Readable.from([1, 2, 3, 4]).every((x) => x > 0); // true\n\n// With an asynchronous predicate, making at most 2 file checks at a time.\nconst allBigFiles = await Readable.from([\n  'file1',\n  'file2',\n  'file3',\n]).every(async (fileName) => {\n  const stats = await stat(fileName);\n  return stats.size > 1024 * 1024;\n}, { concurrency: 2 });\n// `true` if all files in the list are bigger than 1MiB\nconsole.log(allBigFiles);\nconsole.log('done'); // Stream has finished\n</code></pre>"
                     },
                     {
                       "textRaw": "`readable.flatMap(fn[, options])`",
@@ -2651,7 +2987,13 @@
                         "added": [
                           "v17.5.0"
                         ],
-                        "changes": []
+                        "changes": [
+                          {
+                            "version": "v18.17.0",
+                            "pr-url": "https://github.com/nodejs/node/pull/48102",
+                            "description": "Using the `asIndexedPairs` method emits a runtime warning that it will be removed in a future version."
+                          }
+                        ]
                       },
                       "stability": 1,
                       "stabilityText": "Experimental",
@@ -2758,7 +3100,7 @@
                           ]
                         }
                       ],
-                      "desc": "<p>This method calls <code>fn</code> on each chunk of the stream in order, passing it the\nresult from the calculation on the previous element. It returns a promise for\nthe final value of the reduction.</p>\n<p>The reducer function iterates the stream element-by-element which means that\nthere is no <code>concurrency</code> parameter or parallelism. To perform a <code>reduce</code>\nconcurrently, it can be chained to the <a href=\"#readablemapfn-options\"><code>readable.map</code></a> method.</p>\n<p>If no <code>initial</code> value is supplied the first chunk of the stream is used as the\ninitial value. If the stream is empty, the promise is rejected with a\n<code>TypeError</code> with the <code>ERR_INVALID_ARGS</code> code property.</p>\n<pre><code class=\"language-mjs\">import { Readable } from 'node:stream';\n\nconst ten = await Readable.from([1, 2, 3, 4]).reduce((previous, data) => {\n  return previous + data;\n});\nconsole.log(ten); // 10\n</code></pre>"
+                      "desc": "<p>This method calls <code>fn</code> on each chunk of the stream in order, passing it the\nresult from the calculation on the previous element. It returns a promise for\nthe final value of the reduction.</p>\n<p>If no <code>initial</code> value is supplied the first chunk of the stream is used as the\ninitial value. If the stream is empty, the promise is rejected with a\n<code>TypeError</code> with the <code>ERR_INVALID_ARGS</code> code property.</p>\n<pre><code class=\"language-mjs\">import { Readable } from 'node:stream';\nimport { readdir, stat } from 'node:fs/promises';\nimport { join } from 'node:path';\n\nconst directoryPath = './src';\nconst filesInDir = await readdir(directoryPath);\n\nconst folderSize = await Readable.from(filesInDir)\n  .reduce(async (totalSize, file) => {\n    const { size } = await stat(join(directoryPath, file));\n    return totalSize + size;\n  }, 0);\n\nconsole.log(folderSize);\n</code></pre>\n<p>The reducer function iterates the stream element-by-element which means that\nthere is no <code>concurrency</code> parameter or parallelism. To perform a <code>reduce</code>\nconcurrently, you can extract the async function to <a href=\"#readablemapfn-options\"><code>readable.map</code></a> method.</p>\n<pre><code class=\"language-mjs\">import { Readable } from 'node:stream';\nimport { readdir, stat } from 'node:fs/promises';\nimport { join } from 'node:path';\n\nconst directoryPath = './src';\nconst filesInDir = await readdir(directoryPath);\n\nconst folderSize = await Readable.from(filesInDir)\n  .map((file) => stat(join(directoryPath, file)), { concurrency: 2 })\n  .reduce((totalSize, { size }) => totalSize + size, 0);\n\nconsole.log(folderSize);\n</code></pre>"
                     }
                   ],
                   "properties": [
@@ -3017,6 +3359,11 @@
                 ],
                 "changes": [
                   {
+                    "version": "v18.14.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/46205",
+                    "description": "Added support for `ReadableStream` and `WritableStream`."
+                  },
+                  {
                     "version": "v15.11.0",
                     "pr-url": "https://github.com/nodejs/node/pull/37354",
                     "description": "The `signal` option was added."
@@ -3040,70 +3387,16 @@
               },
               "signatures": [
                 {
-                  "return": {
-                    "textRaw": "Returns: {Function} A cleanup function which removes all registered listeners.",
-                    "name": "return",
-                    "type": "Function",
-                    "desc": "A cleanup function which removes all registered listeners."
-                  },
                   "params": [
                     {
-                      "textRaw": "`stream` {Stream} A readable and/or writable stream.",
+                      "textRaw": "`stream` {Stream|ReadableStream|WritableStream}",
                       "name": "stream",
-                      "type": "Stream",
-                      "desc": "A readable and/or writable stream."
-                    },
-                    {
-                      "textRaw": "`options` {Object}",
-                      "name": "options",
-                      "type": "Object",
-                      "options": [
-                        {
-                          "textRaw": "`error` {boolean} If set to `false`, then a call to `emit('error', err)` is not treated as finished. **Default:** `true`.",
-                          "name": "error",
-                          "type": "boolean",
-                          "default": "`true`",
-                          "desc": "If set to `false`, then a call to `emit('error', err)` is not treated as finished."
-                        },
-                        {
-                          "textRaw": "`readable` {boolean} When set to `false`, the callback will be called when the stream ends even though the stream might still be readable. **Default:** `true`.",
-                          "name": "readable",
-                          "type": "boolean",
-                          "default": "`true`",
-                          "desc": "When set to `false`, the callback will be called when the stream ends even though the stream might still be readable."
-                        },
-                        {
-                          "textRaw": "`writable` {boolean} When set to `false`, the callback will be called when the stream ends even though the stream might still be writable. **Default:** `true`.",
-                          "name": "writable",
-                          "type": "boolean",
-                          "default": "`true`",
-                          "desc": "When set to `false`, the callback will be called when the stream ends even though the stream might still be writable."
-                        },
-                        {
-                          "textRaw": "`signal` {AbortSignal} allows aborting the wait for the stream finish. The underlying stream will _not_ be aborted if the signal is aborted. The callback will get called with an `AbortError`. All registered listeners added by this function will also be removed.",
-                          "name": "signal",
-                          "type": "AbortSignal",
-                          "desc": "allows aborting the wait for the stream finish. The underlying stream will _not_ be aborted if the signal is aborted. The callback will get called with an `AbortError`. All registered listeners added by this function will also be removed."
-                        },
-                        {
-                          "textRaw": "`cleanup` {boolean} remove all registered stream listeners. **Default:** `false`.",
-                          "name": "cleanup",
-                          "type": "boolean",
-                          "default": "`false`",
-                          "desc": "remove all registered stream listeners."
-                        }
-                      ]
-                    },
-                    {
-                      "textRaw": "`callback` {Function} A callback function that takes an optional error argument.",
-                      "name": "callback",
-                      "type": "Function",
-                      "desc": "A callback function that takes an optional error argument."
+                      "type": "Stream|ReadableStream|WritableStream"
                     }
                   ]
                 }
               ],
-              "desc": "<p>A function to get notified when a stream is no longer readable, writable\nor has experienced an error or a premature close event.</p>\n<pre><code class=\"language-js\">const { finished } = require('node:stream');\nconst fs = require('node:fs');\n\nconst rs = fs.createReadStream('archive.tar');\n\nfinished(rs, (err) => {\n  if (err) {\n    console.error('Stream failed.', err);\n  } else {\n    console.log('Stream is done reading.');\n  }\n});\n\nrs.resume(); // Drain the stream.\n</code></pre>\n<p>Especially useful in error handling scenarios where a stream is destroyed\nprematurely (like an aborted HTTP request), and will not emit <code>'end'</code>\nor <code>'finish'</code>.</p>\n<p>The <code>finished</code> API provides promise version:</p>\n<pre><code class=\"language-js\">const { finished } = require('node:stream/promises');\nconst fs = require('node:fs');\n\nconst rs = fs.createReadStream('archive.tar');\n\nasync function run() {\n  await finished(rs);\n  console.log('Stream is done reading.');\n}\n\nrun().catch(console.error);\nrs.resume(); // Drain the stream.\n</code></pre>\n<p><code>stream.finished()</code> leaves dangling event listeners (in particular\n<code>'error'</code>, <code>'end'</code>, <code>'finish'</code> and <code>'close'</code>) after <code>callback</code> has been\ninvoked. The reason for this is so that unexpected <code>'error'</code> events (due to\nincorrect stream implementations) do not cause unexpected crashes.\nIf this is unwanted behavior then the returned cleanup function needs to be\ninvoked in the callback:</p>\n<pre><code class=\"language-js\">const cleanup = finished(rs, (err) => {\n  cleanup();\n  // ...\n});\n</code></pre>"
+              "desc": "<p>A readable and/or writable stream/webstream.</p>\n<ul>\n<li>\n<p><code>options</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object\" class=\"type\">&lt;Object&gt;</a></p>\n<ul>\n<li><code>error</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> If set to <code>false</code>, then a call to <code>emit('error', err)</code> is\nnot treated as finished. <strong>Default:</strong> <code>true</code>.</li>\n<li><code>readable</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> When set to <code>false</code>, the callback will be called when\nthe stream ends even though the stream might still be readable.\n<strong>Default:</strong> <code>true</code>.</li>\n<li><code>writable</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> When set to <code>false</code>, the callback will be called when\nthe stream ends even though the stream might still be writable.\n<strong>Default:</strong> <code>true</code>.</li>\n<li><code>signal</code> <a href=\"globals.html#class-abortsignal\" class=\"type\">&lt;AbortSignal&gt;</a> allows aborting the wait for the stream finish. The\nunderlying stream will <em>not</em> be aborted if the signal is aborted. The\ncallback will get called with an <code>AbortError</code>. All registered\nlisteners added by this function will also be removed.</li>\n<li><code>cleanup</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> remove all registered stream listeners.\n<strong>Default:</strong> <code>false</code>.</li>\n</ul>\n</li>\n<li>\n<p><code>callback</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function\" class=\"type\">&lt;Function&gt;</a> A callback function that takes an optional error\nargument.</p>\n</li>\n<li>\n<p>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function\" class=\"type\">&lt;Function&gt;</a> A cleanup function which removes all registered\nlisteners.</p>\n</li>\n</ul>\n<p>A function to get notified when a stream is no longer readable, writable\nor has experienced an error or a premature close event.</p>\n<pre><code class=\"language-js\">const { finished } = require('node:stream');\nconst fs = require('node:fs');\n\nconst rs = fs.createReadStream('archive.tar');\n\nfinished(rs, (err) => {\n  if (err) {\n    console.error('Stream failed.', err);\n  } else {\n    console.log('Stream is done reading.');\n  }\n});\n\nrs.resume(); // Drain the stream.\n</code></pre>\n<p>Especially useful in error handling scenarios where a stream is destroyed\nprematurely (like an aborted HTTP request), and will not emit <code>'end'</code>\nor <code>'finish'</code>.</p>\n<p>The <code>finished</code> API provides <a href=\"#streamfinishedstream-options\">promise version</a>.</p>\n<p><code>stream.finished()</code> leaves dangling event listeners (in particular\n<code>'error'</code>, <code>'end'</code>, <code>'finish'</code> and <code>'close'</code>) after <code>callback</code> has been\ninvoked. The reason for this is so that unexpected <code>'error'</code> events (due to\nincorrect stream implementations) do not cause unexpected crashes.\nIf this is unwanted behavior then the returned cleanup function needs to be\ninvoked in the callback:</p>\n<pre><code class=\"language-js\">const cleanup = finished(rs, (err) => {\n  cleanup();\n  // ...\n});\n</code></pre>"
             },
             {
               "textRaw": "`stream.pipeline(source[, ...transforms], destination, callback)`",
@@ -3115,6 +3408,11 @@
                 ],
                 "changes": [
                   {
+                    "version": "v18.16.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/46307",
+                    "description": "Added support for webstreams."
+                  },
+                  {
                     "version": "v18.0.0",
                     "pr-url": "https://github.com/nodejs/node/pull/41678",
                     "description": "Passing an invalid callback to the `callback` argument now throws `ERR_INVALID_ARG_TYPE` instead of `ERR_INVALID_CALLBACK`."
@@ -3140,14 +3438,14 @@
                   },
                   "params": [
                     {
-                      "textRaw": "`streams` {Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]}",
+                      "textRaw": "`streams` {Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]| ReadableStream\\[]|WritableStream\\[]|TransformStream\\[]}",
                       "name": "streams",
-                      "type": "Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]"
+                      "type": "Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]| ReadableStream\\[]|WritableStream\\[]|TransformStream\\[]"
                     },
                     {
-                      "textRaw": "`source` {Stream|Iterable|AsyncIterable|Function}",
+                      "textRaw": "`source` {Stream|Iterable|AsyncIterable|Function|ReadableStream}",
                       "name": "source",
-                      "type": "Stream|Iterable|AsyncIterable|Function",
+                      "type": "Stream|Iterable|AsyncIterable|Function|ReadableStream",
                       "options": [
                         {
                           "textRaw": "Returns: {Iterable|AsyncIterable}",
@@ -3157,9 +3455,9 @@
                       ]
                     },
                     {
-                      "textRaw": "`...transforms` {Stream|Function}",
+                      "textRaw": "`...transforms` {Stream|Function|TransformStream}",
                       "name": "...transforms",
-                      "type": "Stream|Function",
+                      "type": "Stream|Function|TransformStream",
                       "options": [
                         {
                           "textRaw": "`source` {AsyncIterable}",
@@ -3174,9 +3472,9 @@
                       ]
                     },
                     {
-                      "textRaw": "`destination` {Stream|Function}",
+                      "textRaw": "`destination` {Stream|Function|WritableStream}",
                       "name": "destination",
-                      "type": "Stream|Function",
+                      "type": "Stream|Function|WritableStream",
                       "options": [
                         {
                           "textRaw": "`source` {AsyncIterable}",
@@ -3211,7 +3509,7 @@
                   ]
                 }
               ],
-              "desc": "<p>A module method to pipe between streams and generators forwarding errors and\nproperly cleaning up and provide a callback when the pipeline is complete.</p>\n<pre><code class=\"language-js\">const { pipeline } = require('node:stream');\nconst fs = require('node:fs');\nconst zlib = require('node:zlib');\n\n// Use the pipeline API to easily pipe a series of streams\n// together and get notified when the pipeline is fully done.\n\n// A pipeline to gzip a potentially huge tar file efficiently:\n\npipeline(\n  fs.createReadStream('archive.tar'),\n  zlib.createGzip(),\n  fs.createWriteStream('archive.tar.gz'),\n  (err) => {\n    if (err) {\n      console.error('Pipeline failed.', err);\n    } else {\n      console.log('Pipeline succeeded.');\n    }\n  },\n);\n</code></pre>\n<p>The <code>pipeline</code> API provides a promise version, which can also\nreceive an options argument as the last parameter with a\n<code>signal</code> <a href=\"globals.html#class-abortsignal\" class=\"type\">&lt;AbortSignal&gt;</a> property. When the signal is aborted,\n<code>destroy</code> will be called on the underlying pipeline, with an\n<code>AbortError</code>.</p>\n<pre><code class=\"language-js\">const { pipeline } = require('node:stream/promises');\nconst fs = require('node:fs');\nconst zlib = require('node:zlib');\n\nasync function run() {\n  await pipeline(\n    fs.createReadStream('archive.tar'),\n    zlib.createGzip(),\n    fs.createWriteStream('archive.tar.gz'),\n  );\n  console.log('Pipeline succeeded.');\n}\n\nrun().catch(console.error);\n</code></pre>\n<p>To use an <code>AbortSignal</code>, pass it inside an options object,\nas the last argument:</p>\n<pre><code class=\"language-js\">const { pipeline } = require('node:stream/promises');\nconst fs = require('node:fs');\nconst zlib = require('node:zlib');\n\nasync function run() {\n  const ac = new AbortController();\n  const signal = ac.signal;\n\n  setTimeout(() => ac.abort(), 1);\n  await pipeline(\n    fs.createReadStream('archive.tar'),\n    zlib.createGzip(),\n    fs.createWriteStream('archive.tar.gz'),\n    { signal },\n  );\n}\n\nrun().catch(console.error); // AbortError\n</code></pre>\n<p>The <code>pipeline</code> API also supports async generators:</p>\n<pre><code class=\"language-js\">const { pipeline } = require('node:stream/promises');\nconst fs = require('node:fs');\n\nasync function run() {\n  await pipeline(\n    fs.createReadStream('lowercase.txt'),\n    async function* (source, { signal }) {\n      source.setEncoding('utf8');  // Work with strings rather than `Buffer`s.\n      for await (const chunk of source) {\n        yield await processChunk(chunk, { signal });\n      }\n    },\n    fs.createWriteStream('uppercase.txt'),\n  );\n  console.log('Pipeline succeeded.');\n}\n\nrun().catch(console.error);\n</code></pre>\n<p>Remember to handle the <code>signal</code> argument passed into the async generator.\nEspecially in the case where the async generator is the source for the\npipeline (i.e. first argument) or the pipeline will never complete.</p>\n<pre><code class=\"language-js\">const { pipeline } = require('node:stream/promises');\nconst fs = require('node:fs');\n\nasync function run() {\n  await pipeline(\n    async function* ({ signal }) {\n      await someLongRunningfn({ signal });\n      yield 'asd';\n    },\n    fs.createWriteStream('uppercase.txt'),\n  );\n  console.log('Pipeline succeeded.');\n}\n\nrun().catch(console.error);\n</code></pre>\n<p><code>stream.pipeline()</code> will call <code>stream.destroy(err)</code> on all streams except:</p>\n<ul>\n<li><code>Readable</code> streams which have emitted <code>'end'</code> or <code>'close'</code>.</li>\n<li><code>Writable</code> streams which have emitted <code>'finish'</code> or <code>'close'</code>.</li>\n</ul>\n<p><code>stream.pipeline()</code> leaves dangling event listeners on the streams\nafter the <code>callback</code> has been invoked. In the case of reuse of streams after\nfailure, this can cause event listener leaks and swallowed errors. If the last\nstream is readable, dangling event listeners will be removed so that the last\nstream can be consumed later.</p>\n<p><code>stream.pipeline()</code> closes all the streams when an error is raised.\nThe <code>IncomingRequest</code> usage with <code>pipeline</code> could lead to an unexpected behavior\nonce it would destroy the socket without sending the expected response.\nSee the example below:</p>\n<pre><code class=\"language-js\">const fs = require('node:fs');\nconst http = require('node:http');\nconst { pipeline } = require('node:stream');\n\nconst server = http.createServer((req, res) => {\n  const fileStream = fs.createReadStream('./fileNotExist.txt');\n  pipeline(fileStream, res, (err) => {\n    if (err) {\n      console.log(err); // No such file\n      // this message can't be sent once `pipeline` already destroyed the socket\n      return res.end('error!!!');\n    }\n  });\n});\n</code></pre>"
+              "desc": "<p>A module method to pipe between streams and generators forwarding errors and\nproperly cleaning up and provide a callback when the pipeline is complete.</p>\n<pre><code class=\"language-js\">const { pipeline } = require('node:stream');\nconst fs = require('node:fs');\nconst zlib = require('node:zlib');\n\n// Use the pipeline API to easily pipe a series of streams\n// together and get notified when the pipeline is fully done.\n\n// A pipeline to gzip a potentially huge tar file efficiently:\n\npipeline(\n  fs.createReadStream('archive.tar'),\n  zlib.createGzip(),\n  fs.createWriteStream('archive.tar.gz'),\n  (err) => {\n    if (err) {\n      console.error('Pipeline failed.', err);\n    } else {\n      console.log('Pipeline succeeded.');\n    }\n  },\n);\n</code></pre>\n<p>The <code>pipeline</code> API provides a <a href=\"#streampipelinesource-transforms-destination-options\">promise version</a>.</p>\n<p><code>stream.pipeline()</code> will call <code>stream.destroy(err)</code> on all streams except:</p>\n<ul>\n<li><code>Readable</code> streams which have emitted <code>'end'</code> or <code>'close'</code>.</li>\n<li><code>Writable</code> streams which have emitted <code>'finish'</code> or <code>'close'</code>.</li>\n</ul>\n<p><code>stream.pipeline()</code> leaves dangling event listeners on the streams\nafter the <code>callback</code> has been invoked. In the case of reuse of streams after\nfailure, this can cause event listener leaks and swallowed errors. If the last\nstream is readable, dangling event listeners will be removed so that the last\nstream can be consumed later.</p>\n<p><code>stream.pipeline()</code> closes all the streams when an error is raised.\nThe <code>IncomingRequest</code> usage with <code>pipeline</code> could lead to an unexpected behavior\nonce it would destroy the socket without sending the expected response.\nSee the example below:</p>\n<pre><code class=\"language-js\">const fs = require('node:fs');\nconst http = require('node:http');\nconst { pipeline } = require('node:stream');\n\nconst server = http.createServer((req, res) => {\n  const fileStream = fs.createReadStream('./fileNotExist.txt');\n  pipeline(fileStream, res, (err) => {\n    if (err) {\n      console.log(err); // No such file\n      // this message can't be sent once `pipeline` already destroyed the socket\n      return res.end('error!!!');\n    }\n  });\n});\n</code></pre>"
             },
             {
               "textRaw": "`stream.pipeline(streams, callback)`",
@@ -3223,6 +3521,11 @@
                 ],
                 "changes": [
                   {
+                    "version": "v18.16.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/46307",
+                    "description": "Added support for webstreams."
+                  },
+                  {
                     "version": "v18.0.0",
                     "pr-url": "https://github.com/nodejs/node/pull/41678",
                     "description": "Passing an invalid callback to the `callback` argument now throws `ERR_INVALID_ARG_TYPE` instead of `ERR_INVALID_CALLBACK`."
@@ -3248,14 +3551,14 @@
                   },
                   "params": [
                     {
-                      "textRaw": "`streams` {Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]}",
+                      "textRaw": "`streams` {Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]| ReadableStream\\[]|WritableStream\\[]|TransformStream\\[]}",
                       "name": "streams",
-                      "type": "Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]"
+                      "type": "Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]| ReadableStream\\[]|WritableStream\\[]|TransformStream\\[]"
                     },
                     {
-                      "textRaw": "`source` {Stream|Iterable|AsyncIterable|Function}",
+                      "textRaw": "`source` {Stream|Iterable|AsyncIterable|Function|ReadableStream}",
                       "name": "source",
-                      "type": "Stream|Iterable|AsyncIterable|Function",
+                      "type": "Stream|Iterable|AsyncIterable|Function|ReadableStream",
                       "options": [
                         {
                           "textRaw": "Returns: {Iterable|AsyncIterable}",
@@ -3265,9 +3568,9 @@
                       ]
                     },
                     {
-                      "textRaw": "`...transforms` {Stream|Function}",
+                      "textRaw": "`...transforms` {Stream|Function|TransformStream}",
                       "name": "...transforms",
-                      "type": "Stream|Function",
+                      "type": "Stream|Function|TransformStream",
                       "options": [
                         {
                           "textRaw": "`source` {AsyncIterable}",
@@ -3282,9 +3585,9 @@
                       ]
                     },
                     {
-                      "textRaw": "`destination` {Stream|Function}",
+                      "textRaw": "`destination` {Stream|Function|WritableStream}",
                       "name": "destination",
-                      "type": "Stream|Function",
+                      "type": "Stream|Function|WritableStream",
                       "options": [
                         {
                           "textRaw": "`source` {AsyncIterable}",
@@ -3319,7 +3622,7 @@
                   ]
                 }
               ],
-              "desc": "<p>A module method to pipe between streams and generators forwarding errors and\nproperly cleaning up and provide a callback when the pipeline is complete.</p>\n<pre><code class=\"language-js\">const { pipeline } = require('node:stream');\nconst fs = require('node:fs');\nconst zlib = require('node:zlib');\n\n// Use the pipeline API to easily pipe a series of streams\n// together and get notified when the pipeline is fully done.\n\n// A pipeline to gzip a potentially huge tar file efficiently:\n\npipeline(\n  fs.createReadStream('archive.tar'),\n  zlib.createGzip(),\n  fs.createWriteStream('archive.tar.gz'),\n  (err) => {\n    if (err) {\n      console.error('Pipeline failed.', err);\n    } else {\n      console.log('Pipeline succeeded.');\n    }\n  },\n);\n</code></pre>\n<p>The <code>pipeline</code> API provides a promise version, which can also\nreceive an options argument as the last parameter with a\n<code>signal</code> <a href=\"globals.html#class-abortsignal\" class=\"type\">&lt;AbortSignal&gt;</a> property. When the signal is aborted,\n<code>destroy</code> will be called on the underlying pipeline, with an\n<code>AbortError</code>.</p>\n<pre><code class=\"language-js\">const { pipeline } = require('node:stream/promises');\nconst fs = require('node:fs');\nconst zlib = require('node:zlib');\n\nasync function run() {\n  await pipeline(\n    fs.createReadStream('archive.tar'),\n    zlib.createGzip(),\n    fs.createWriteStream('archive.tar.gz'),\n  );\n  console.log('Pipeline succeeded.');\n}\n\nrun().catch(console.error);\n</code></pre>\n<p>To use an <code>AbortSignal</code>, pass it inside an options object,\nas the last argument:</p>\n<pre><code class=\"language-js\">const { pipeline } = require('node:stream/promises');\nconst fs = require('node:fs');\nconst zlib = require('node:zlib');\n\nasync function run() {\n  const ac = new AbortController();\n  const signal = ac.signal;\n\n  setTimeout(() => ac.abort(), 1);\n  await pipeline(\n    fs.createReadStream('archive.tar'),\n    zlib.createGzip(),\n    fs.createWriteStream('archive.tar.gz'),\n    { signal },\n  );\n}\n\nrun().catch(console.error); // AbortError\n</code></pre>\n<p>The <code>pipeline</code> API also supports async generators:</p>\n<pre><code class=\"language-js\">const { pipeline } = require('node:stream/promises');\nconst fs = require('node:fs');\n\nasync function run() {\n  await pipeline(\n    fs.createReadStream('lowercase.txt'),\n    async function* (source, { signal }) {\n      source.setEncoding('utf8');  // Work with strings rather than `Buffer`s.\n      for await (const chunk of source) {\n        yield await processChunk(chunk, { signal });\n      }\n    },\n    fs.createWriteStream('uppercase.txt'),\n  );\n  console.log('Pipeline succeeded.');\n}\n\nrun().catch(console.error);\n</code></pre>\n<p>Remember to handle the <code>signal</code> argument passed into the async generator.\nEspecially in the case where the async generator is the source for the\npipeline (i.e. first argument) or the pipeline will never complete.</p>\n<pre><code class=\"language-js\">const { pipeline } = require('node:stream/promises');\nconst fs = require('node:fs');\n\nasync function run() {\n  await pipeline(\n    async function* ({ signal }) {\n      await someLongRunningfn({ signal });\n      yield 'asd';\n    },\n    fs.createWriteStream('uppercase.txt'),\n  );\n  console.log('Pipeline succeeded.');\n}\n\nrun().catch(console.error);\n</code></pre>\n<p><code>stream.pipeline()</code> will call <code>stream.destroy(err)</code> on all streams except:</p>\n<ul>\n<li><code>Readable</code> streams which have emitted <code>'end'</code> or <code>'close'</code>.</li>\n<li><code>Writable</code> streams which have emitted <code>'finish'</code> or <code>'close'</code>.</li>\n</ul>\n<p><code>stream.pipeline()</code> leaves dangling event listeners on the streams\nafter the <code>callback</code> has been invoked. In the case of reuse of streams after\nfailure, this can cause event listener leaks and swallowed errors. If the last\nstream is readable, dangling event listeners will be removed so that the last\nstream can be consumed later.</p>\n<p><code>stream.pipeline()</code> closes all the streams when an error is raised.\nThe <code>IncomingRequest</code> usage with <code>pipeline</code> could lead to an unexpected behavior\nonce it would destroy the socket without sending the expected response.\nSee the example below:</p>\n<pre><code class=\"language-js\">const fs = require('node:fs');\nconst http = require('node:http');\nconst { pipeline } = require('node:stream');\n\nconst server = http.createServer((req, res) => {\n  const fileStream = fs.createReadStream('./fileNotExist.txt');\n  pipeline(fileStream, res, (err) => {\n    if (err) {\n      console.log(err); // No such file\n      // this message can't be sent once `pipeline` already destroyed the socket\n      return res.end('error!!!');\n    }\n  });\n});\n</code></pre>"
+              "desc": "<p>A module method to pipe between streams and generators forwarding errors and\nproperly cleaning up and provide a callback when the pipeline is complete.</p>\n<pre><code class=\"language-js\">const { pipeline } = require('node:stream');\nconst fs = require('node:fs');\nconst zlib = require('node:zlib');\n\n// Use the pipeline API to easily pipe a series of streams\n// together and get notified when the pipeline is fully done.\n\n// A pipeline to gzip a potentially huge tar file efficiently:\n\npipeline(\n  fs.createReadStream('archive.tar'),\n  zlib.createGzip(),\n  fs.createWriteStream('archive.tar.gz'),\n  (err) => {\n    if (err) {\n      console.error('Pipeline failed.', err);\n    } else {\n      console.log('Pipeline succeeded.');\n    }\n  },\n);\n</code></pre>\n<p>The <code>pipeline</code> API provides a <a href=\"#streampipelinesource-transforms-destination-options\">promise version</a>.</p>\n<p><code>stream.pipeline()</code> will call <code>stream.destroy(err)</code> on all streams except:</p>\n<ul>\n<li><code>Readable</code> streams which have emitted <code>'end'</code> or <code>'close'</code>.</li>\n<li><code>Writable</code> streams which have emitted <code>'finish'</code> or <code>'close'</code>.</li>\n</ul>\n<p><code>stream.pipeline()</code> leaves dangling event listeners on the streams\nafter the <code>callback</code> has been invoked. In the case of reuse of streams after\nfailure, this can cause event listener leaks and swallowed errors. If the last\nstream is readable, dangling event listeners will be removed so that the last\nstream can be consumed later.</p>\n<p><code>stream.pipeline()</code> closes all the streams when an error is raised.\nThe <code>IncomingRequest</code> usage with <code>pipeline</code> could lead to an unexpected behavior\nonce it would destroy the socket without sending the expected response.\nSee the example below:</p>\n<pre><code class=\"language-js\">const fs = require('node:fs');\nconst http = require('node:http');\nconst { pipeline } = require('node:stream');\n\nconst server = http.createServer((req, res) => {\n  const fileStream = fs.createReadStream('./fileNotExist.txt');\n  pipeline(fileStream, res, (err) => {\n    if (err) {\n      console.log(err); // No such file\n      // this message can't be sent once `pipeline` already destroyed the socket\n      return res.end('error!!!');\n    }\n  });\n});\n</code></pre>"
             },
             {
               "textRaw": "`stream.compose(...streams)`",
@@ -3329,7 +3632,13 @@
                 "added": [
                   "v16.9.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v18.16.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/46675",
+                    "description": "Added support for webstreams."
+                  }
+                ]
               },
               "stability": 1,
               "stabilityText": "`stream.compose` is experimental.",
@@ -3342,9 +3651,9 @@
                   },
                   "params": [
                     {
-                      "textRaw": "`streams` {Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]}",
+                      "textRaw": "`streams` {Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]| ReadableStream\\[]|WritableStream\\[]|TransformStream\\[]}",
                       "name": "streams",
-                      "type": "Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]"
+                      "type": "Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]| ReadableStream\\[]|WritableStream\\[]|TransformStream\\[]"
                     }
                   ]
                 }
@@ -3385,7 +3694,7 @@
                   ]
                 }
               ],
-              "desc": "<p>A utility method for creating readable streams out of iterators.</p>\n<pre><code class=\"language-js\">const { Readable } = require('node:stream');\n\nasync function * generate() {\n  yield 'hello';\n  yield 'streams';\n}\n\nconst readable = Readable.from(generate());\n\nreadable.on('data', (chunk) => {\n  console.log(chunk);\n});\n</code></pre>\n<p>Calling <code>Readable.from(string)</code> or <code>Readable.from(buffer)</code> will not have\nthe strings or buffers be iterated to match the other streams semantics\nfor performance reasons.</p>"
+              "desc": "<p>A utility method for creating readable streams out of iterators.</p>\n<pre><code class=\"language-js\">const { Readable } = require('node:stream');\n\nasync function * generate() {\n  yield 'hello';\n  yield 'streams';\n}\n\nconst readable = Readable.from(generate());\n\nreadable.on('data', (chunk) => {\n  console.log(chunk);\n});\n</code></pre>\n<p>Calling <code>Readable.from(string)</code> or <code>Readable.from(buffer)</code> will not have\nthe strings or buffers be iterated to match the other streams semantics\nfor performance reasons.</p>\n<p>If an <code>Iterable</code> object containing promises is passed as an argument,\nit might result in unhandled rejection.</p>\n<pre><code class=\"language-js\">const { Readable } = require('node:stream');\n\nReadable.from([\n  new Promise((resolve) => setTimeout(resolve('1'), 1500)),\n  new Promise((_, reject) => setTimeout(reject(new Error('2')), 1000)), // Unhandled rejection\n]);\n</code></pre>"
             },
             {
               "textRaw": "`stream.Readable.fromWeb(readableStream[, options])`",
@@ -3571,14 +3880,28 @@
                           "type": "Object",
                           "options": [
                             {
-                              "textRaw": "`highWaterMark` {number}",
+                              "textRaw": "`highWaterMark` {number} The maximum internal queue size (of the created `ReadableStream`) before backpressure is applied in reading from the given `stream.Readable`. If no value is provided, it will be taken from the given `stream.Readable`.",
                               "name": "highWaterMark",
-                              "type": "number"
+                              "type": "number",
+                              "desc": "The maximum internal queue size (of the created `ReadableStream`) before backpressure is applied in reading from the given `stream.Readable`. If no value is provided, it will be taken from the given `stream.Readable`."
                             },
                             {
-                              "textRaw": "`size` {Function}",
+                              "textRaw": "`size` {Function} A function that size of the given chunk of data. If no value is provided, the size will be `1` for all the chunks.",
                               "name": "size",
-                              "type": "Function"
+                              "type": "Function",
+                              "desc": "A function that size of the given chunk of data. If no value is provided, the size will be `1` for all the chunks.",
+                              "options": [
+                                {
+                                  "textRaw": "`chunk` {any}",
+                                  "name": "chunk",
+                                  "type": "any"
+                                },
+                                {
+                                  "textRaw": "Returns: {number}",
+                                  "name": "return",
+                                  "type": "number"
+                                }
+                              ]
                             }
                           ]
                         }
@@ -3681,20 +4004,26 @@
                 "added": [
                   "v16.8.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v18.17.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/46190",
+                    "description": "The `src` argument can now be a `ReadableStream` or `WritableStream`."
+                  }
+                ]
               },
               "signatures": [
                 {
                   "params": [
                     {
-                      "textRaw": "`src` {Stream|Blob|ArrayBuffer|string|Iterable|AsyncIterable| AsyncGeneratorFunction|AsyncFunction|Promise|Object}",
+                      "textRaw": "`src` {Stream|Blob|ArrayBuffer|string|Iterable|AsyncIterable| AsyncGeneratorFunction|AsyncFunction|Promise|Object| ReadableStream|WritableStream}",
                       "name": "src",
-                      "type": "Stream|Blob|ArrayBuffer|string|Iterable|AsyncIterable| AsyncGeneratorFunction|AsyncFunction|Promise|Object"
+                      "type": "Stream|Blob|ArrayBuffer|string|Iterable|AsyncIterable| AsyncGeneratorFunction|AsyncFunction|Promise|Object| ReadableStream|WritableStream"
                     }
                   ]
                 }
               ],
-              "desc": "<p>A utility method for creating duplex streams.</p>\n<ul>\n<li><code>Stream</code> converts writable stream into writable <code>Duplex</code> and readable stream\nto <code>Duplex</code>.</li>\n<li><code>Blob</code> converts into readable <code>Duplex</code>.</li>\n<li><code>string</code> converts into readable <code>Duplex</code>.</li>\n<li><code>ArrayBuffer</code> converts into readable <code>Duplex</code>.</li>\n<li><code>AsyncIterable</code> converts into a readable <code>Duplex</code>. Cannot yield\n<code>null</code>.</li>\n<li><code>AsyncGeneratorFunction</code> converts into a readable/writable transform\n<code>Duplex</code>. Must take a source <code>AsyncIterable</code> as first parameter. Cannot yield\n<code>null</code>.</li>\n<li><code>AsyncFunction</code> converts into a writable <code>Duplex</code>. Must return\neither <code>null</code> or <code>undefined</code></li>\n<li><code>Object ({ writable, readable })</code> converts <code>readable</code> and\n<code>writable</code> into <code>Stream</code> and then combines them into <code>Duplex</code> where the\n<code>Duplex</code> will write to the <code>writable</code> and read from the <code>readable</code>.</li>\n<li><code>Promise</code> converts into readable <code>Duplex</code>. Value <code>null</code> is ignored.</li>\n<li>Returns: <a href=\"stream.html#class-streamduplex\" class=\"type\">&lt;stream.Duplex&gt;</a></li>\n</ul>"
+              "desc": "<p>A utility method for creating duplex streams.</p>\n<ul>\n<li><code>Stream</code> converts writable stream into writable <code>Duplex</code> and readable stream\nto <code>Duplex</code>.</li>\n<li><code>Blob</code> converts into readable <code>Duplex</code>.</li>\n<li><code>string</code> converts into readable <code>Duplex</code>.</li>\n<li><code>ArrayBuffer</code> converts into readable <code>Duplex</code>.</li>\n<li><code>AsyncIterable</code> converts into a readable <code>Duplex</code>. Cannot yield\n<code>null</code>.</li>\n<li><code>AsyncGeneratorFunction</code> converts into a readable/writable transform\n<code>Duplex</code>. Must take a source <code>AsyncIterable</code> as first parameter. Cannot yield\n<code>null</code>.</li>\n<li><code>AsyncFunction</code> converts into a writable <code>Duplex</code>. Must return\neither <code>null</code> or <code>undefined</code></li>\n<li><code>Object ({ writable, readable })</code> converts <code>readable</code> and\n<code>writable</code> into <code>Stream</code> and then combines them into <code>Duplex</code> where the\n<code>Duplex</code> will write to the <code>writable</code> and read from the <code>readable</code>.</li>\n<li><code>Promise</code> converts into readable <code>Duplex</code>. Value <code>null</code> is ignored.</li>\n<li><code>ReadableStream</code> converts into readable <code>Duplex</code>.</li>\n<li><code>WritableStream</code> converts into writable <code>Duplex</code>.</li>\n<li>Returns: <a href=\"stream.html#class-streamduplex\" class=\"type\">&lt;stream.Duplex&gt;</a></li>\n</ul>\n<p>If an <code>Iterable</code> object containing promises is passed as an argument,\nit might result in unhandled rejection.</p>\n<pre><code class=\"language-js\">const { Duplex } = require('node:stream');\n\nDuplex.from([\n  new Promise((resolve) => setTimeout(resolve('1'), 1500)),\n  new Promise((_, reject) => setTimeout(reject(new Error('2')), 1000)), // Unhandled rejection\n]);\n</code></pre>"
             },
             {
               "textRaw": "`stream.Duplex.fromWeb(pair[, options])`",
@@ -3825,7 +4154,13 @@
                 "added": [
                   "v15.4.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v18.16.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/46273",
+                    "description": "Added support for `ReadableStream` and `WritableStream`."
+                  }
+                ]
               },
               "signatures": [
                 {
@@ -3837,15 +4172,71 @@
                       "desc": "A signal representing possible cancellation"
                     },
                     {
-                      "textRaw": "`stream` {Stream} a stream to attach a signal to",
+                      "textRaw": "`stream` {Stream|ReadableStream|WritableStream}",
                       "name": "stream",
-                      "type": "Stream",
-                      "desc": "a stream to attach a signal to"
+                      "type": "Stream|ReadableStream|WritableStream"
                     }
                   ]
                 }
               ],
-              "desc": "<p>Attaches an AbortSignal to a readable or writeable stream. This lets code\ncontrol stream destruction using an <code>AbortController</code>.</p>\n<p>Calling <code>abort</code> on the <code>AbortController</code> corresponding to the passed\n<code>AbortSignal</code> will behave the same way as calling <code>.destroy(new AbortError())</code>\non the stream.</p>\n<pre><code class=\"language-js\">const fs = require('node:fs');\n\nconst controller = new AbortController();\nconst read = addAbortSignal(\n  controller.signal,\n  fs.createReadStream(('object.json')),\n);\n// Later, abort the operation closing the stream\ncontroller.abort();\n</code></pre>\n<p>Or using an <code>AbortSignal</code> with a readable stream as an async iterable:</p>\n<pre><code class=\"language-js\">const controller = new AbortController();\nsetTimeout(() => controller.abort(), 10_000); // set a timeout\nconst stream = addAbortSignal(\n  controller.signal,\n  fs.createReadStream(('object.json')),\n);\n(async () => {\n  try {\n    for await (const chunk of stream) {\n      await process(chunk);\n    }\n  } catch (e) {\n    if (e.name === 'AbortError') {\n      // The operation was cancelled\n    } else {\n      throw e;\n    }\n  }\n})();\n</code></pre>"
+              "desc": "<p>A stream to attach a signal to.</p>\n<p>Attaches an AbortSignal to a readable or writeable stream. This lets code\ncontrol stream destruction using an <code>AbortController</code>.</p>\n<p>Calling <code>abort</code> on the <code>AbortController</code> corresponding to the passed\n<code>AbortSignal</code> will behave the same way as calling <code>.destroy(new AbortError())</code>\non the stream, and <code>controller.error(new AbortError())</code> for webstreams.</p>\n<pre><code class=\"language-js\">const fs = require('node:fs');\n\nconst controller = new AbortController();\nconst read = addAbortSignal(\n  controller.signal,\n  fs.createReadStream(('object.json')),\n);\n// Later, abort the operation closing the stream\ncontroller.abort();\n</code></pre>\n<p>Or using an <code>AbortSignal</code> with a readable stream as an async iterable:</p>\n<pre><code class=\"language-js\">const controller = new AbortController();\nsetTimeout(() => controller.abort(), 10_000); // set a timeout\nconst stream = addAbortSignal(\n  controller.signal,\n  fs.createReadStream(('object.json')),\n);\n(async () => {\n  try {\n    for await (const chunk of stream) {\n      await process(chunk);\n    }\n  } catch (e) {\n    if (e.name === 'AbortError') {\n      // The operation was cancelled\n    } else {\n      throw e;\n    }\n  }\n})();\n</code></pre>\n<p>Or using an <code>AbortSignal</code> with a ReadableStream:</p>\n<pre><code class=\"language-js\">const controller = new AbortController();\nconst rs = new ReadableStream({\n  start(controller) {\n    controller.enqueue('hello');\n    controller.enqueue('world');\n    controller.close();\n  },\n});\n\naddAbortSignal(controller.signal, rs);\n\nfinished(rs, (err) => {\n  if (err) {\n    if (err.name === 'AbortError') {\n      // The operation was cancelled\n    }\n  }\n});\n\nconst reader = rs.getReader();\n\nreader.read().then(({ value, done }) => {\n  console.log(value); // hello\n  console.log(done); // false\n  controller.abort();\n});\n</code></pre>"
+            },
+            {
+              "textRaw": "`stream.getDefaultHighWaterMark(objectMode)`",
+              "type": "method",
+              "name": "getDefaultHighWaterMark",
+              "meta": {
+                "added": [
+                  "v18.17.0"
+                ],
+                "changes": []
+              },
+              "signatures": [
+                {
+                  "return": {
+                    "textRaw": "Returns: {integer}",
+                    "name": "return",
+                    "type": "integer"
+                  },
+                  "params": [
+                    {
+                      "textRaw": "`objectMode` {boolean}",
+                      "name": "objectMode",
+                      "type": "boolean"
+                    }
+                  ]
+                }
+              ],
+              "desc": "<p>Returns the default highWaterMark used by streams.\nDefaults to <code>16384</code> (16 KiB), or <code>16</code> for <code>objectMode</code>.</p>"
+            },
+            {
+              "textRaw": "`stream.setDefaultHighWaterMark(objectMode, value)`",
+              "type": "method",
+              "name": "setDefaultHighWaterMark",
+              "meta": {
+                "added": [
+                  "v18.17.0"
+                ],
+                "changes": []
+              },
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "textRaw": "`objectMode` {boolean}",
+                      "name": "objectMode",
+                      "type": "boolean"
+                    },
+                    {
+                      "textRaw": "`value` {integer} highWaterMark value",
+                      "name": "value",
+                      "type": "integer",
+                      "desc": "highWaterMark value"
+                    }
+                  ]
+                }
+              ],
+              "desc": "<p>Sets the default highWaterMark used by streams.</p>"
             }
           ]
         },
@@ -4628,7 +5019,7 @@
                       ]
                     }
                   ],
-                  "desc": "<p>This function MUST NOT be called by application code directly. It should be\nimplemented by child classes, and called by the internal <code>Readable</code> class\nmethods only.</p>\n<p>All <code>Transform</code> stream implementations must provide a <code>_transform()</code>\nmethod to accept input and produce output. The <code>transform._transform()</code>\nimplementation handles the bytes being written, computes an output, then passes\nthat output off to the readable portion using the <code>transform.push()</code> method.</p>\n<p>The <code>transform.push()</code> method may be called zero or more times to generate\noutput from a single input chunk, depending on how much is to be output\nas a result of the chunk.</p>\n<p>It is possible that no output is generated from any given chunk of input data.</p>\n<p>The <code>callback</code> function must be called only when the current chunk is completely\nconsumed. The first argument passed to the <code>callback</code> must be an <code>Error</code> object\nif an error occurred while processing the input or <code>null</code> otherwise. If a second\nargument is passed to the <code>callback</code>, it will be forwarded on to the\n<code>transform.push()</code> method. In other words, the following are equivalent:</p>\n<pre><code class=\"language-js\">transform.prototype._transform = function(data, encoding, callback) {\n  this.push(data);\n  callback();\n};\n\ntransform.prototype._transform = function(data, encoding, callback) {\n  callback(null, data);\n};\n</code></pre>\n<p>The <code>transform._transform()</code> method is prefixed with an underscore because it\nis internal to the class that defines it, and should never be called directly by\nuser programs.</p>\n<p><code>transform._transform()</code> is never called in parallel; streams implement a\nqueue mechanism, and to receive the next chunk, <code>callback</code> must be\ncalled, either synchronously or asynchronously.</p>"
+                  "desc": "<p>This function MUST NOT be called by application code directly. It should be\nimplemented by child classes, and called by the internal <code>Readable</code> class\nmethods only.</p>\n<p>All <code>Transform</code> stream implementations must provide a <code>_transform()</code>\nmethod to accept input and produce output. The <code>transform._transform()</code>\nimplementation handles the bytes being written, computes an output, then passes\nthat output off to the readable portion using the <code>transform.push()</code> method.</p>\n<p>The <code>transform.push()</code> method may be called zero or more times to generate\noutput from a single input chunk, depending on how much is to be output\nas a result of the chunk.</p>\n<p>It is possible that no output is generated from any given chunk of input data.</p>\n<p>The <code>callback</code> function must be called only when the current chunk is completely\nconsumed. The first argument passed to the <code>callback</code> must be an <code>Error</code> object\nif an error occurred while processing the input or <code>null</code> otherwise. If a second\nargument is passed to the <code>callback</code>, it will be forwarded on to the\n<code>transform.push()</code> method, but only if the first argument is falsy. In other\nwords, the following are equivalent:</p>\n<pre><code class=\"language-js\">transform.prototype._transform = function(data, encoding, callback) {\n  this.push(data);\n  callback();\n};\n\ntransform.prototype._transform = function(data, encoding, callback) {\n  callback(null, data);\n};\n</code></pre>\n<p>The <code>transform._transform()</code> method is prefixed with an underscore because it\nis internal to the class that defines it, and should never be called directly by\nuser programs.</p>\n<p><code>transform._transform()</code> is never called in parallel; streams implement a\nqueue mechanism, and to receive the next chunk, <code>callback</code> must be\ncalled, either synchronously or asynchronously.</p>"
                 }
               ],
               "classes": [

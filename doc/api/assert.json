@@ -8,7 +8,7 @@
       "introduced_in": "v0.1.21",
       "stability": 2,
       "stabilityText": "Stable",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.13.0/lib/assert.js\">lib/assert.js</a></p>\n<p>The <code>node:assert</code> module provides a set of assertion functions for verifying\ninvariants.</p>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.19.0/lib/assert.js\">lib/assert.js</a></p>\n<p>The <code>node:assert</code> module provides a set of assertion functions for verifying\ninvariants.</p>",
       "modules": [
         {
           "textRaw": "Strict assertion mode",
@@ -204,7 +204,7 @@
                   ]
                 }
               ],
-              "desc": "<pre><code class=\"language-mjs\">import assert from 'node:assert';\n\nconst tracker = new assert.CallTracker();\n\nfunction func() {}\nconst callsfunc = tracker.calls(func);\ncallsfunc(1, 2, 3);\n\nassert.deepStrictEqual(tracker.getCalls(callsfunc),\n                       [{ thisArg: this, arguments: [1, 2, 3 ] }]);\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\n\n// Creates call tracker.\nconst tracker = new assert.CallTracker();\n\nfunction func() {}\nconst callsfunc = tracker.calls(func);\ncallsfunc(1, 2, 3);\n\nassert.deepStrictEqual(tracker.getCalls(callsfunc),\n                       [{ thisArg: this, arguments: [1, 2, 3 ] }]);\n</code></pre>"
+              "desc": "<pre><code class=\"language-mjs\">import assert from 'node:assert';\n\nconst tracker = new assert.CallTracker();\n\nfunction func() {}\nconst callsfunc = tracker.calls(func);\ncallsfunc(1, 2, 3);\n\nassert.deepStrictEqual(tracker.getCalls(callsfunc),\n                       [{ thisArg: undefined, arguments: [1, 2, 3] }]);\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\n\n// Creates call tracker.\nconst tracker = new assert.CallTracker();\n\nfunction func() {}\nconst callsfunc = tracker.calls(func);\ncallsfunc(1, 2, 3);\n\nassert.deepStrictEqual(tracker.getCalls(callsfunc),\n                       [{ thisArg: undefined, arguments: [1, 2, 3] }]);\n</code></pre>"
             },
             {
               "textRaw": "`tracker.report()`",
@@ -265,7 +265,7 @@
                   ]
                 }
               ],
-              "desc": "<p>The arrays contains information about the expected and actual number of calls of\nthe functions that have not been called the expected number of times.</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\n\n// Creates call tracker.\nconst tracker = new assert.CallTracker();\n\nfunction func() {}\n\n// Returns a function that wraps func() that must be called exact times\n// before tracker.verify().\nconst callsfunc = tracker.calls(func, 2);\n\n// Returns an array containing information on callsfunc()\ntracker.report();\n// [\n//  {\n//    message: 'Expected the func function to be executed 2 time(s) but was\n//    executed 0 time(s).',\n//    actual: 0,\n//    expected: 2,\n//    operator: 'func',\n//    stack: stack trace\n//  }\n// ]\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\n\n// Creates call tracker.\nconst tracker = new assert.CallTracker();\n\nfunction func() {}\n\n// Returns a function that wraps func() that must be called exact times\n// before tracker.verify().\nconst callsfunc = tracker.calls(func, 2);\n\n// Returns an array containing information on callsfunc()\ntracker.report();\n// [\n//  {\n//    message: 'Expected the func function to be executed 2 time(s) but was\n//    executed 0 time(s).',\n//    actual: 0,\n//    expected: 2,\n//    operator: 'func',\n//    stack: stack trace\n//  }\n// ]\n</code></pre>"
+              "desc": "<p>The arrays contains information about the expected and actual number of calls of\nthe functions that have not been called the expected number of times.</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\n\n// Creates call tracker.\nconst tracker = new assert.CallTracker();\n\nfunction func() {}\n\n// Returns a function that wraps func() that must be called exact times\n// before tracker.verify().\nconst callsfunc = tracker.calls(func, 2);\n\n// Returns an array containing information on callsfunc()\nconsole.log(tracker.report());\n// [\n//  {\n//    message: 'Expected the func function to be executed 2 time(s) but was\n//    executed 0 time(s).',\n//    actual: 0,\n//    expected: 2,\n//    operator: 'func',\n//    stack: stack trace\n//  }\n// ]\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\n\n// Creates call tracker.\nconst tracker = new assert.CallTracker();\n\nfunction func() {}\n\n// Returns a function that wraps func() that must be called exact times\n// before tracker.verify().\nconst callsfunc = tracker.calls(func, 2);\n\n// Returns an array containing information on callsfunc()\nconsole.log(tracker.report());\n// [\n//  {\n//    message: 'Expected the func function to be executed 2 time(s) but was\n//    executed 0 time(s).',\n//    actual: 0,\n//    expected: 2,\n//    operator: 'func',\n//    stack: stack trace\n//  }\n// ]\n</code></pre>"
             },
             {
               "textRaw": "`tracker.reset([fn])`",
@@ -289,7 +289,7 @@
                   ]
                 }
               ],
-              "desc": "<p>reset calls of the call tracker.\nif a tracked function is passed as an argument, the calls will be reset for it.\nif no arguments are passed, all tracked functions will be reset</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\n\nconst tracker = new assert.CallTracker();\n\nfunction func() {}\nconst callsfunc = tracker.calls(func);\n\ncallsfunc();\n// Tracker was called once\ntracker.getCalls(callsfunc).length === 1;\n\ntracker.reset(callsfunc);\ntracker.getCalls(callsfunc).length === 0;\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\n\nfunction func() {}\nconst callsfunc = tracker.calls(func);\n\ncallsfunc();\n// Tracker was called once\ntracker.getCalls(callsfunc).length === 1;\n\ntracker.reset(callsfunc);\ntracker.getCalls(callsfunc).length === 0;\n</code></pre>"
+              "desc": "<p>Reset calls of the call tracker.\nIf a tracked function is passed as an argument, the calls will be reset for it.\nIf no arguments are passed, all tracked functions will be reset</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\n\nconst tracker = new assert.CallTracker();\n\nfunction func() {}\nconst callsfunc = tracker.calls(func);\n\ncallsfunc();\n// Tracker was called once\nassert.strictEqual(tracker.getCalls(callsfunc).length, 1);\n\ntracker.reset(callsfunc);\nassert.strictEqual(tracker.getCalls(callsfunc).length, 0);\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\n\nconst tracker = new assert.CallTracker();\n\nfunction func() {}\nconst callsfunc = tracker.calls(func);\n\ncallsfunc();\n// Tracker was called once\nassert.strictEqual(tracker.getCalls(callsfunc).length, 1);\n\ntracker.reset(callsfunc);\nassert.strictEqual(tracker.getCalls(callsfunc).length, 0);\n</code></pre>"
             },
             {
               "textRaw": "`tracker.verify()`",
@@ -1163,43 +1163,6 @@
             }
           ],
           "desc": "<p>Awaits the <code>asyncFn</code> promise or, if <code>asyncFn</code> is a function, immediately\ncalls the function and awaits the returned promise to complete. It will then\ncheck that the promise is rejected.</p>\n<p>If <code>asyncFn</code> is a function and it throws an error synchronously,\n<code>assert.rejects()</code> will return a rejected <code>Promise</code> with that error. If the\nfunction does not return a promise, <code>assert.rejects()</code> will return a rejected\n<code>Promise</code> with an <a href=\"errors.html#err_invalid_return_value\"><code>ERR_INVALID_RETURN_VALUE</code></a> error. In both cases the error\nhandler is skipped.</p>\n<p>Besides the async nature to await the completion behaves identically to\n<a href=\"#assertthrowsfn-error-message\"><code>assert.throws()</code></a>.</p>\n<p>If specified, <code>error</code> can be a <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes\"><code>Class</code></a>, <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions\"><code>RegExp</code></a>, a validation function,\nan object where each property will be tested for, or an instance of error where\neach property will be tested for including the non-enumerable <code>message</code> and\n<code>name</code> properties.</p>\n<p>If specified, <code>message</code> will be the message provided by the <a href=\"#class-assertassertionerror\"><code>AssertionError</code></a>\nif the <code>asyncFn</code> fails to reject.</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert/strict';\n\nawait assert.rejects(\n  async () => {\n    throw new TypeError('Wrong value');\n  },\n  {\n    name: 'TypeError',\n    message: 'Wrong value',\n  },\n);\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert/strict');\n\n(async () => {\n  await assert.rejects(\n    async () => {\n      throw new TypeError('Wrong value');\n    },\n    {\n      name: 'TypeError',\n      message: 'Wrong value',\n    },\n  );\n})();\n</code></pre>\n<pre><code class=\"language-mjs\">import assert from 'node:assert/strict';\n\nawait assert.rejects(\n  async () => {\n    throw new TypeError('Wrong value');\n  },\n  (err) => {\n    assert.strictEqual(err.name, 'TypeError');\n    assert.strictEqual(err.message, 'Wrong value');\n    return true;\n  },\n);\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert/strict');\n\n(async () => {\n  await assert.rejects(\n    async () => {\n      throw new TypeError('Wrong value');\n    },\n    (err) => {\n      assert.strictEqual(err.name, 'TypeError');\n      assert.strictEqual(err.message, 'Wrong value');\n      return true;\n    },\n  );\n})();\n</code></pre>\n<pre><code class=\"language-mjs\">import assert from 'node:assert/strict';\n\nassert.rejects(\n  Promise.reject(new Error('Wrong value')),\n  Error,\n).then(() => {\n  // ...\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert/strict');\n\nassert.rejects(\n  Promise.reject(new Error('Wrong value')),\n  Error,\n).then(() => {\n  // ...\n});\n</code></pre>\n<p><code>error</code> cannot be a string. If a string is provided as the second\nargument, then <code>error</code> is assumed to be omitted and the string will be used for\n<code>message</code> instead. This can lead to easy-to-miss mistakes. Please read the\nexample in <a href=\"#assertthrowsfn-error-message\"><code>assert.throws()</code></a> carefully if using a string as the second\nargument gets considered.</p>"
-        },
-        {
-          "textRaw": "`assert.snapshot(value, name)`",
-          "type": "method",
-          "name": "snapshot",
-          "meta": {
-            "added": [
-              "v18.8.0"
-            ],
-            "changes": []
-          },
-          "stability": 1,
-          "stabilityText": "Experimental",
-          "signatures": [
-            {
-              "return": {
-                "textRaw": "Returns: {Promise}",
-                "name": "return",
-                "type": "Promise"
-              },
-              "params": [
-                {
-                  "textRaw": "`value` {any} the value to snapshot.",
-                  "name": "value",
-                  "type": "any",
-                  "desc": "the value to snapshot."
-                },
-                {
-                  "textRaw": "`name` {string} the name of the snapshot.",
-                  "name": "name",
-                  "type": "string",
-                  "desc": "the name of the snapshot."
-                }
-              ]
-            }
-          ],
-          "desc": "<p>Reads the <code>name</code> snapshot from a file and compares <code>value</code> to the snapshot.\n<code>value</code> is serialized with <a href=\"util.html#utilinspectobject-options\"><code>util.inspect()</code></a>. If the value is not strictly\nequal to the snapshot, <code>assert.snapshot()</code> returns a rejected <code>Promise</code> with an\n<a href=\"#class-assertassertionerror\"><code>AssertionError</code></a>.</p>\n<p>The snapshot filename uses the same basename as the application's main\nentrypoint with a <code>.snapshot</code> extension. If the snapshot file does not exist,\nit is created. The <a href=\"cli.html#--update-assert-snapshot\"><code>--update-assert-snapshot</code></a> command line flag can be used\nto force the update of an existing snapshot.</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert/strict';\n\n// Assuming that the application's main entrypoint is app.mjs, this reads the\n// 'snapshotName' snapshot from app.snapshot and strictly compares its value\n// to `util.inspect('value')`.\nawait assert.snapshot('value', 'snapshotName');\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert/strict');\n\n(async () => {\n  // Assuming that the application's main entrypoint is app.js, this reads the\n  // 'snapshotName' snapshot from app.snapshot and strictly compares its value\n  // to `util.inspect('value')`.\n  await assert.snapshot('value', 'snapshotName');\n})();\n</code></pre>"
         },
         {
           "textRaw": "`assert.strictEqual(actual, expected[, message])`",

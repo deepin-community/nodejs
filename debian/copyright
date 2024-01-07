@@ -3,10 +3,16 @@ Upstream-Name: Node.js
 Upstream-Contact: https://github.com/nodejs/node/issues
 Source: https://nodejs.org/
  https://registry.npmjs.org/@types/node
+ https://github.com/ada-url/ada
 Comment: Repackaged to exclude non-DFSG files:
+  + deps/ada/*.{h,cpp}
+    are precompiled files
+    instead ada upstream tarball is a component
   + deps/acorn/*
     because it contains only the compiled version,
     using node-acorn instead
+  + deps/minimatch/*
+    compiled version, using node-minimatch instead
   + deps/brotli/*
     because it does not change often and debian version is
     up-to-date.
@@ -21,9 +27,14 @@ Comment: Repackaged to exclude non-DFSG files:
   + src/res/node.ico
   + deps/npm/html/favicon.ico
     and png/jpg files in doc that show a Nodejs (TM) logo.
+  + test/fixtures/postject-copy/*
+    compiled version, dropped for now (used by one test)
  Other files being excluded to ease copyright maintenance.
 Files-Excluded:
+ deps/ada/*.h
+ deps/ada/*.cpp
  deps/acorn/*
+ deps/minimatch/*
  deps/brotli/*
  deps/corepack/*
  deps/cjs-module-lexer/*
@@ -36,11 +47,27 @@ Files-Excluded:
  deps/icu-small/*
  deps/npm/*
  tools/certdata.txt
- snapshot.blob
+ test/fixtures/postject-copy/*
 
 Files: *
 Copyright: Node.js contributors,
  Joyent, Inc. and other Node contributors.
+License: Expat
+
+Files: ada/*
+Copyright: 2023, Yagiz Nizipli and Daniel Lemire
+License: Expat or Apache-2.0
+
+Files: ada/include/ada/expected.h
+Copyright: 2017, Sy Brand (tartanllama@gmail.com, @TartanLlama)
+License: CC0
+
+Files: ada/cmake/codecoverage.cmake
+Copyright: 2012-2017, Lars Bilke
+License: BSD-3-clause
+
+Files: ada/cmake/CPM.cmake
+Copyright: 2019-2023, Lars Melchior and contributors
 License: Expat
 
 Files: deps/base64/*
@@ -51,17 +78,9 @@ Copyright: 2005-2007, Nick Galbreath
 License: BSD-2-clause~holders
 
 Files: deps/cares/*
-Copyright: 1998-2000 Greg Hudson <ghudson@mit.edu>,
- Massachusetts Institute of Technology.
- 2000-2016 Daniel Stenberg, Dominick Meglio, liren at vivisimo.com,
- James Bursa, Duncan Wilcox, Dirk Manske, Dan Fandrich,
- Gisle Vanem, Gunter Knauf, Henrik Stoerner, Yang Tse,
- Nick Mathewson, Alexander Lazic, Andreas Rieke,
- Guilherme Balena Versiani, Brad Spencer, Ravi Pratap,
- William Ahern, Bram Matthys, Michael Wallner,
- Vlad Dinulescu, Brad House, Shmulik Regev,
- Ashish Sharma, Brad Spencer.
-License: NTP~MIT
+Copyright: 1998, Massachusetts Institute of Technology.
+ 2007-2023 Daniel Stenberg with many contributors
+License: Expat
 
 Files: deps/cares/src/lib/bitncmp.c
  deps/cares/src/lib/inet_net_pton.c
@@ -150,6 +169,8 @@ License: BSD-3-clause~Google
 
 Files: deps/histogram/*
 Copyright: 2012, 2013, 2014 Gil Tene
+ Marco Ippolito
+ Filipe Oliveira
  2014 Michael Barker
  2014 Matt Warren
 License: CC0 or BSD-2-clause~holders
@@ -307,6 +328,11 @@ Files: src/large_pages/*
 Copyright: 2018 Intel Corporation
 License: Expat
 
+Files: lib/internal/crypto/webidl.js
+Copyright: 2014, Domenic Denicola
+ 2018-2023, Deno authors
+License: BSD-2-clause and Expat
+
 Files: lib/internal/freeze_intrinsics.js
 Copyright: 2011 Google Inc, 2018 Agoric
 License: Apache-2.0
@@ -319,6 +345,10 @@ License: Expat
 Files: lib/internal/fs/rimraf.js
 Copyright: Isaac Z. Schlueter and Contributors
 License: ISC
+
+Files: deps/simdutf/*
+Copyright: 2021, The simdutf authors
+License: Expat
 
 Files: deps/zlib/*
 Copyright: 1995-2017 Jean-loup Gailly <jloup@gzip.org> and
@@ -518,17 +548,6 @@ License: Expat
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  IN THE SOFTWARE.
-
-License: NTP~MIT
- Permission to use, copy, modify, and distribute this software and its
- documentation for any purpose and without fee is hereby granted, provided
- that the above copyright notice appear in all copies and that both that
- copyright notice and this permission notice appear in supporting
- documentation, and that the name of M.I.T. not be used in advertising or
- publicity pertaining to distribution of the software without specific,
- written prior permission.
- M.I.T. makes no representations about the suitability of this software for
- any purpose. It is provided "as is" without express or implied warranty.
 
 License: BSD-2-clause~author
  Redistribution and use in source and binary forms, with or without

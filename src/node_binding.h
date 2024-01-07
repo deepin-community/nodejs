@@ -21,10 +21,12 @@ enum {
 
 // Make sure our internal values match the public API's values.
 static_assert(static_cast<int>(NM_F_LINKED) ==
-              static_cast<int>(node::ModuleFlags::kLinked),
+                  static_cast<int>(node::ModuleFlags::kLinked),
               "NM_F_LINKED != node::ModuleFlags::kLinked");
 
-#define NODE_MODULE_CONTEXT_AWARE_CPP(modname, regfunc, priv, flags)           \
+#define NODE_BINDINGS_WITH_PER_ISOLATE_INIT(V) V(builtins)
+
+#define NODE_BINDING_CONTEXT_AWARE_CPP(modname, regfunc, priv, flags)          \
   static node::node_module _module = {                                         \
       NODE_MODULE_VERSION,                                                     \
       flags,                                                                   \
@@ -37,15 +39,33 @@ static_assert(static_cast<int>(NM_F_LINKED) ==
       nullptr};                                                                \
   void _register_##modname() { node_module_register(&_module); }
 
-void napi_module_register_by_symbol(v8::Local<v8::Object> exports,
-                                    v8::Local<v8::Value> module,
-                                    v8::Local<v8::Context> context,
-                                    napi_addon_register_func init);
+void napi_module_register_by_symbol(
+    v8::Local<v8::Object> exports,
+    v8::Local<v8::Value> module,
+    v8::Local<v8::Context> context,
+    napi_addon_register_func init,
+    int32_t module_api_version = NODE_API_DEFAULT_MODULE_API_VERSION);
+
+node::addon_context_register_func get_node_api_context_register_func(
+    node::Environment* node_env,
+    const char* module_name,
+    int32_t module_api_version);
 
 namespace node {
 
-#define NODE_MODULE_CONTEXT_AWARE_INTERNAL(modname, regfunc)                   \
-  NODE_MODULE_CONTEXT_AWARE_CPP(modname, regfunc, nullptr, NM_F_INTERNAL)
+// Define a node internal binding that may be loaded in a context of
+// a node::Environment.
+// If an internal binding needs initializing per-isolate templates, define
+// with NODE_BINDING_PER_ISOLATE_INIT too.
+#define NODE_BINDING_CONTEXT_AWARE_INTERNAL(modname, regfunc)                  \
+  NODE_BINDING_CONTEXT_AWARE_CPP(modname, regfunc, nullptr, NM_F_INTERNAL)
+
+// Define a per-isolate initialization function for a node internal binding.
+#define NODE_BINDING_PER_ISOLATE_INIT(modname, per_isolate_func)               \
+  void _register_isolate_##modname(node::IsolateData* isolate_data,            \
+                                   v8::Local<v8::FunctionTemplate> target) {   \
+    per_isolate_func(isolate_data, target);                                    \
+  }
 
 // Globals per process
 // This is set by node::Init() which is used by embedders
@@ -83,10 +103,12 @@ class DLib {
 };
 
 // Call _register<module_name> functions for all of
-// the built-in modules. Because built-in modules don't
+// the built-in bindings. Because built-in bindings don't
 // use the __attribute__((constructor)). Need to
 // explicitly call the _register* functions.
-void RegisterBuiltinModules();
+void RegisterBuiltinBindings();
+// Create per-isolate templates for the internal bindings.
+void CreateInternalBindingTemplates(IsolateData* isolate_data);
 void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& args);
 void GetLinkedBinding(const v8::FunctionCallbackInfo<v8::Value>& args);
 void DLOpen(const v8::FunctionCallbackInfo<v8::Value>& args);

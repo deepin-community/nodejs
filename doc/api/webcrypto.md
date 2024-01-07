@@ -2,6 +2,10 @@
 
 <!-- YAML
 changes:
+  - version: v18.17.0
+    pr-url: https://github.com/nodejs/node/pull/46067
+    description: Arguments are now coerced and validated as per their WebIDL
+      definitions like in other Web Crypto API implementations.
   - version: v18.4.0
     pr-url: https://github.com/nodejs/node/pull/43310
     description: Removed proprietary `'node.keyObject'` import/export format.
@@ -689,7 +693,7 @@ changes:
 
 * `format`: {string} Must be one of `'raw'`, `'pkcs8'`, `'spki'`, or `'jwk'`.
 * `key`: {CryptoKey}
-* Returns: {Promise} containing {ArrayBuffer}.
+* Returns: {Promise} containing {ArrayBuffer|Object}.
 
 Exports the given key into the specified format, if supported.
 
@@ -776,7 +780,7 @@ changes:
 -->
 
 * `format`: {string} Must be one of `'raw'`, `'pkcs8'`, `'spki'`, or `'jwk'`.
-* `keyData`: {ArrayBuffer|TypedArray|DataView|Buffer|KeyObject}
+* `keyData`: {ArrayBuffer|TypedArray|DataView|Buffer|Object}
 
 <!--lint disable maximum-line-length remark-lint-->
 
@@ -1554,7 +1558,7 @@ there is reason to use a different value, use `new Uint8Array([1, 0, 1])`
 added: v15.0.0
 -->
 
-#### rsaOaepParams.label
+#### `rsaOaepParams.label`
 
 <!-- YAML
 added: v15.0.0
@@ -1567,7 +1571,7 @@ to the generated ciphertext.
 
 The `rsaOaepParams.label` parameter is optional.
 
-#### rsaOaepParams.name
+#### `rsaOaepParams.name`
 
 <!-- YAML
 added: v15.0.0

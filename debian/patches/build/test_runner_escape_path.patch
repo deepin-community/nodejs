@@ -1,0 +1,15 @@
+Description: test runner output fails on some cwd - fix regexp
+Author: Jérémy Lal <kapouer@melix.org>
+Last-Update: 2023-11-30
+Forwarded: https://github.com/nodejs/node/pull/50980
+--- a/test/parallel/test-runner-output.mjs
++++ b/test/parallel/test-runner-output.mjs
+@@ -15,7 +15,7 @@
+ }
+ 
+ const color = '(\\[\\d+m)';
+-const stackTraceBasePath = new RegExp(`${color}\\(${process.cwd()}/?${color}(.*)${color}\\)`, 'g');
++const stackTraceBasePath = new RegExp(`${color}\\(${process.cwd().replace(/[\\^$*+?.()|[\]{}]/g, '\\$&')}/?${color}(.*)${color}\\)`, 'g');
+ 
+ function replaceSpecDuration(str) {
+   return str
