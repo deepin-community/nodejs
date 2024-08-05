@@ -3,18 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>Performance measurement APIs | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.15.1">
+  <title>Performance measurement APIs | Node.js v20.15.1 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/perf_hooks.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
   
 </head>
 <body class="alt apidoc" id="api-section-perf_hooks">
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +109,7 @@
     <div id="column1" data-id="perf_hooks" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.15.1 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,11 +124,11 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.15.1</li>
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
@@ -131,7 +144,7 @@
 <li><a href="#performancegetentries"><code>performance.getEntries()</code></a></li>
 <li><a href="#performancegetentriesbynamename-type"><code>performance.getEntriesByName(name[, type])</code></a></li>
 <li><a href="#performancegetentriesbytypetype"><code>performance.getEntriesByType(type)</code></a></li>
-<li><a href="#performancemarkname-options"><code>performance.mark([name[, options]])</code></a></li>
+<li><a href="#performancemarkname-options"><code>performance.mark(name[, options])</code></a></li>
 <li><a href="#performancemarkresourcetimingtiminginfo-requestedurl-initiatortype-global-cachemode"><code>performance.markResourceTiming(timingInfo, requestedUrl, initiatorType, global, cacheMode)</code></a></li>
 <li><a href="#performancemeasurename-startmarkoroptions-endmark"><code>performance.measure(name[, startMarkOrOptions[, endMark]])</code></a></li>
 <li><a href="#performancenodetiming"><code>performance.nodeTiming</code></a></li>
@@ -148,13 +161,27 @@
 </li>
 <li><a href="#class-performanceentry">Class: <code>PerformanceEntry</code></a>
 <ul>
-<li><a href="#performanceentrydetail"><code>performanceEntry.detail</code></a></li>
 <li><a href="#performanceentryduration"><code>performanceEntry.duration</code></a></li>
 <li><a href="#performanceentryentrytype"><code>performanceEntry.entryType</code></a></li>
-<li><a href="#performanceentryflags"><code>performanceEntry.flags</code></a></li>
 <li><a href="#performanceentryname"><code>performanceEntry.name</code></a></li>
-<li><a href="#performanceentrykind"><code>performanceEntry.kind</code></a></li>
 <li><a href="#performanceentrystarttime"><code>performanceEntry.startTime</code></a></li>
+</ul>
+</li>
+<li><a href="#class-performancemark">Class: <code>PerformanceMark</code></a>
+<ul>
+<li><a href="#performancemarkdetail"><code>performanceMark.detail</code></a></li>
+</ul>
+</li>
+<li><a href="#class-performancemeasure">Class: <code>PerformanceMeasure</code></a>
+<ul>
+<li><a href="#performancemeasuredetail"><code>performanceMeasure.detail</code></a></li>
+</ul>
+</li>
+<li><a href="#class-performancenodeentry">Class: <code>PerformanceNodeEntry</code></a>
+<ul>
+<li><a href="#performancenodeentrydetail"><code>performanceNodeEntry.detail</code></a></li>
+<li><span class="stability_0"><a href="#performancenodeentryflags"><code>performanceNodeEntry.flags</code></a></span></li>
+<li><span class="stability_0"><a href="#performancenodeentrykind"><code>performanceNodeEntry.kind</code></a></span></li>
 <li><a href="#garbage-collection-gc-details">Garbage Collection ('gc') Details</a></li>
 <li><a href="#http-http-details">HTTP ('http') Details</a></li>
 <li><a href="#http2-http2-details">HTTP/2 ('http2') Details</a></li>
@@ -193,7 +220,7 @@
 <li><a href="#performanceresourcetimingtojson"><code>performanceResourceTiming.toJSON()</code></a></li>
 </ul>
 </li>
-<li><a href="#class-perf_hooksperformanceobserver">Class: <code>perf_hooks.PerformanceObserver</code></a>
+<li><a href="#class-performanceobserver">Class: <code>PerformanceObserver</code></a>
 <ul>
 <li><a href="#performanceobserversupportedentrytypes"><code>PerformanceObserver.supportedEntryTypes</code></a></li>
 <li><a href="#new-performanceobservercallback"><code>new PerformanceObserver(callback)</code></a></li>
@@ -260,7 +287,7 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Index
       </a>
 
@@ -345,10 +372,11 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/perf_hooks.html">21.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v22.x/api/perf_hooks.html">22.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/perf_hooks.html">21.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v20.x/api/perf_hooks.html">20.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v19.x/api/perf_hooks.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/perf_hooks.html">18.x <b>LTS</b></a></li>
@@ -366,7 +394,7 @@
   
             <li class="picker-header">
               <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
@@ -387,7 +415,7 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
 <li><span class="stability_2"><a href="#performance-measurement-apis">Performance measurement APIs</a></span>
 <ul>
 <li><a href="#perf_hooksperformance"><code>perf_hooks.performance</code></a>
@@ -399,7 +427,7 @@
 <li><a href="#performancegetentries"><code>performance.getEntries()</code></a></li>
 <li><a href="#performancegetentriesbynamename-type"><code>performance.getEntriesByName(name[, type])</code></a></li>
 <li><a href="#performancegetentriesbytypetype"><code>performance.getEntriesByType(type)</code></a></li>
-<li><a href="#performancemarkname-options"><code>performance.mark([name[, options]])</code></a></li>
+<li><a href="#performancemarkname-options"><code>performance.mark(name[, options])</code></a></li>
 <li><a href="#performancemarkresourcetimingtiminginfo-requestedurl-initiatortype-global-cachemode"><code>performance.markResourceTiming(timingInfo, requestedUrl, initiatorType, global, cacheMode)</code></a></li>
 <li><a href="#performancemeasurename-startmarkoroptions-endmark"><code>performance.measure(name[, startMarkOrOptions[, endMark]])</code></a></li>
 <li><a href="#performancenodetiming"><code>performance.nodeTiming</code></a></li>
@@ -416,13 +444,27 @@
 </li>
 <li><a href="#class-performanceentry">Class: <code>PerformanceEntry</code></a>
 <ul>
-<li><a href="#performanceentrydetail"><code>performanceEntry.detail</code></a></li>
 <li><a href="#performanceentryduration"><code>performanceEntry.duration</code></a></li>
 <li><a href="#performanceentryentrytype"><code>performanceEntry.entryType</code></a></li>
-<li><a href="#performanceentryflags"><code>performanceEntry.flags</code></a></li>
 <li><a href="#performanceentryname"><code>performanceEntry.name</code></a></li>
-<li><a href="#performanceentrykind"><code>performanceEntry.kind</code></a></li>
 <li><a href="#performanceentrystarttime"><code>performanceEntry.startTime</code></a></li>
+</ul>
+</li>
+<li><a href="#class-performancemark">Class: <code>PerformanceMark</code></a>
+<ul>
+<li><a href="#performancemarkdetail"><code>performanceMark.detail</code></a></li>
+</ul>
+</li>
+<li><a href="#class-performancemeasure">Class: <code>PerformanceMeasure</code></a>
+<ul>
+<li><a href="#performancemeasuredetail"><code>performanceMeasure.detail</code></a></li>
+</ul>
+</li>
+<li><a href="#class-performancenodeentry">Class: <code>PerformanceNodeEntry</code></a>
+<ul>
+<li><a href="#performancenodeentrydetail"><code>performanceNodeEntry.detail</code></a></li>
+<li><span class="stability_0"><a href="#performancenodeentryflags"><code>performanceNodeEntry.flags</code></a></span></li>
+<li><span class="stability_0"><a href="#performancenodeentrykind"><code>performanceNodeEntry.kind</code></a></span></li>
 <li><a href="#garbage-collection-gc-details">Garbage Collection ('gc') Details</a></li>
 <li><a href="#http-http-details">HTTP ('http') Details</a></li>
 <li><a href="#http2-http2-details">HTTP/2 ('http2') Details</a></li>
@@ -461,7 +503,7 @@
 <li><a href="#performanceresourcetimingtojson"><code>performanceResourceTiming.toJSON()</code></a></li>
 </ul>
 </li>
-<li><a href="#class-perf_hooksperformanceobserver">Class: <code>perf_hooks.PerformanceObserver</code></a>
+<li><a href="#class-performanceobserver">Class: <code>PerformanceObserver</code></a>
 <ul>
 <li><a href="#performanceobserversupportedentrytypes"><code>PerformanceObserver.supportedEntryTypes</code></a></li>
 <li><a href="#new-performanceobservercallback"><code>new PerformanceObserver(callback)</code></a></li>
@@ -524,11 +566,11 @@
 </li>
 </ul></details>
 
-      <div id="apicontent">
+      <div role="main" id="apicontent">
         <h2>Performance measurement APIs<span><a class="mark" href="#performance-measurement-apis" id="performance-measurement-apis">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performance_measurement_apis"></a></h2>
 
 <p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.19.1/lib/perf_hooks.js">lib/perf_hooks.js</a></p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v20.15.1/lib/perf_hooks.js">lib/perf_hooks.js</a></p>
 <p>This module provides an implementation of a subset of the W3C
 <a href="https://w3c.github.io/perf-timing-primer/">Web Performance APIs</a> as well as additional APIs for
 Node.js-specific performance measurements.</p>
@@ -563,7 +605,15 @@ performance.<span class="hljs-title function_">mark</span>(<span class="hljs-str
 Node.js instance. It is similar to <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/performance"><code>window.performance</code></a> in browsers.</p>
 <h4><code>performance.clearMarks([name])</code><span><a class="mark" href="#performanceclearmarksname" id="performanceclearmarksname">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performance_clearmarks_name"></a></h4>
 <div class="api_metadata">
-<span>Added in: v8.5.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This method must be called with the <code>performance</code> object as the receiver.</p></td></tr>
+<tr><td>v8.5.0</td>
+<td><p><span>Added in: v8.5.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><code>name</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
@@ -572,7 +622,15 @@ Node.js instance. It is similar to <a href="https://developer.mozilla.org/en-US/
 Performance Timeline. If <code>name</code> is provided, removes only the named mark.</p>
 <h4><code>performance.clearMeasures([name])</code><span><a class="mark" href="#performanceclearmeasuresname" id="performanceclearmeasuresname">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performance_clearmeasures_name"></a></h4>
 <div class="api_metadata">
-<span>Added in: v16.7.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This method must be called with the <code>performance</code> object as the receiver.</p></td></tr>
+<tr><td>v16.7.0</td>
+<td><p><span>Added in: v16.7.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><code>name</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
@@ -581,7 +639,15 @@ Performance Timeline. If <code>name</code> is provided, removes only the named m
 Performance Timeline. If <code>name</code> is provided, removes only the named measure.</p>
 <h4><code>performance.clearResourceTimings([name])</code><span><a class="mark" href="#performanceclearresourcetimingsname" id="performanceclearresourcetimingsname">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performance_clearresourcetimings_name"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.2.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This method must be called with the <code>performance</code> object as the receiver.</p></td></tr>
+<tr><td>v18.2.0, v16.17.0</td>
+<td><p><span>Added in: v18.2.0, v16.17.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><code>name</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
@@ -597,7 +663,7 @@ the Resource Timeline. If <code>name</code> is provided, removes only the named 
 <code>eventLoopUtilization()</code>.</li>
 <li><code>utilization2</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> The result of a previous call to
 <code>eventLoopUtilization()</code> prior to <code>utilization1</code>.</li>
-<li>Returns <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
 <ul>
 <li><code>idle</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
 <li><code>active</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
@@ -642,7 +708,15 @@ of how a mostly idle process will have a high ELU.</p>
 are not guaranteed to reflect any correct state of the event loop.</p>
 <h4><code>performance.getEntries()</code><span><a class="mark" href="#performancegetentries" id="performancegetentries">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performance_getentries"></a></h4>
 <div class="api_metadata">
-<span>Added in: v16.7.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This method must be called with the <code>performance</code> object as the receiver.</p></td></tr>
+<tr><td>v16.7.0</td>
+<td><p><span>Added in: v16.7.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li>Returns: <a href="perf_hooks.html#class-performanceentry" class="type">&#x3C;PerformanceEntry[]></a></li>
@@ -653,7 +727,15 @@ performance entries of certain types or that have certain names, see
 <code>performance.getEntriesByType()</code> and <code>performance.getEntriesByName()</code>.</p>
 <h4><code>performance.getEntriesByName(name[, type])</code><span><a class="mark" href="#performancegetentriesbynamename-type" id="performancegetentriesbynamename-type">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performance_getentriesbyname_name_type"></a></h4>
 <div class="api_metadata">
-<span>Added in: v16.7.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This method must be called with the <code>performance</code> object as the receiver.</p></td></tr>
+<tr><td>v16.7.0</td>
+<td><p><span>Added in: v16.7.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><code>name</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
@@ -666,7 +748,15 @@ equal to <code>name</code>, and optionally, whose <code>performanceEntry.entryTy
 <code>type</code>.</p>
 <h4><code>performance.getEntriesByType(type)</code><span><a class="mark" href="#performancegetentriesbytypetype" id="performancegetentriesbytypetype">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performance_getentriesbytype_type"></a></h4>
 <div class="api_metadata">
-<span>Added in: v16.7.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This method must be called with the <code>performance</code> object as the receiver.</p></td></tr>
+<tr><td>v16.7.0</td>
+<td><p><span>Added in: v16.7.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><code>type</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
@@ -675,11 +765,13 @@ equal to <code>name</code>, and optionally, whose <code>performanceEntry.entryTy
 <p>Returns a list of <code>PerformanceEntry</code> objects in chronological order
 with respect to <code>performanceEntry.startTime</code> whose <code>performanceEntry.entryType</code>
 is equal to <code>type</code>.</p>
-<h4><code>performance.mark([name[, options]])</code><span><a class="mark" href="#performancemarkname-options" id="performancemarkname-options">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performance_mark_name_options"></a></h4>
+<h4><code>performance.mark(name[, options])</code><span><a class="mark" href="#performancemarkname-options" id="performancemarkname-options">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performance_mark_name_options"></a></h4>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This method must be called with the <code>performance</code> object as the receiver. The name argument is no longer optional.</p></td></tr>
 <tr><td>v16.0.0</td>
 <td><p>Updated to conform to the User Timing Level 3 specification.</p></td></tr>
 <tr><td>v8.5.0</td>
@@ -709,7 +801,7 @@ observation is performed, the entries should be cleared from the global
 Performance Timeline manually with <code>performance.clearMarks</code>.</p>
 <h4><code>performance.markResourceTiming(timingInfo, requestedUrl, initiatorType, global, cacheMode)</code><span><a class="mark" href="#performancemarkresourcetimingtiminginfo-requestedurl-initiatortype-global-cachemode" id="performancemarkresourcetimingtiminginfo-requestedurl-initiatortype-global-cachemode">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performance_markresourcetiming_timinginfo_requestedurl_initiatortype_global_cachemode"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.2.0</span>
+<span>Added in: v18.2.0, v16.17.0</span>
 </div>
 <ul>
 <li><code>timingInfo</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> <a href="https://fetch.spec.whatwg.org/#fetch-timing-info">Fetch Timing Info</a></li>
@@ -733,6 +825,8 @@ Performance Timeline manually with <code>performance.clearResourceTimings</code>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This method must be called with the <code>performance</code> object as the receiver.</p></td></tr>
 <tr><td>v16.0.0</td>
 <td><p>Updated to conform to the User Timing Level 3 specification.</p></td></tr>
 <tr><td>v13.13.0, v12.16.3</td>
@@ -788,7 +882,15 @@ Performance Timeline manually with <code>performance.clearMeasures</code>.</p>
 metrics for specific Node.js operational milestones.</p>
 <h4><code>performance.now()</code><span><a class="mark" href="#performancenow" id="performancenow">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performance_now"></a></h4>
 <div class="api_metadata">
-<span>Added in: v8.5.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This method must be called with the <code>performance</code> object as the receiver.</p></td></tr>
+<tr><td>v8.5.0</td>
+<td><p><span>Added in: v8.5.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
@@ -797,7 +899,15 @@ metrics for specific Node.js operational milestones.</p>
 the start of the current <code>node</code> process.</p>
 <h4><code>performance.setResourceTimingBufferSize(maxSize)</code><span><a class="mark" href="#performancesetresourcetimingbuffersizemaxsize" id="performancesetresourcetimingbuffersizemaxsize">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performance_setresourcetimingbuffersize_maxsize"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.8.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This method must be called with the <code>performance</code> object as the receiver.</p></td></tr>
+<tr><td>v18.8.0</td>
+<td><p><span>Added in: v18.8.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <p>Sets the global performance resource timing buffer size to the specified number
 of "resource" type performance entry objects.</p>
@@ -866,7 +976,15 @@ to the promise and the duration will be reported once the finally handler is
 invoked.</p>
 <h4><code>performance.toJSON()</code><span><a class="mark" href="#performancetojson" id="performancetojson">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performance_tojson"></a></h4>
 <div class="api_metadata">
-<span>Added in: v16.1.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This method must be called with the <code>performance</code> object as the receiver.</p></td></tr>
+<tr><td>v16.1.0</td>
+<td><p><span>Added in: v16.1.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <p>An object which is JSON representation of the <code>performance</code> object. It
 is similar to <a href="https://developer.mozilla.org/en-US/docs/Web/API/Performance/toJSON"><code>window.performance.toJSON</code></a> in browsers.</p>
@@ -883,17 +1001,18 @@ more entries to be added to the performance timeline buffer.</p>
 <div class="api_metadata">
 <span>Added in: v8.5.0</span>
 </div>
-<h4><code>performanceEntry.detail</code><span><a class="mark" href="#performanceentrydetail" id="performanceentrydetail">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performanceentry_detail"></a></h4>
-<div class="api_metadata">
-<span>Added in: v16.0.0</span>
-</div>
-<ul>
-<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types" class="type">&#x3C;any></a></li>
-</ul>
-<p>Additional detail specific to the <code>entryType</code>.</p>
+<p>The constructor of this class is not exposed to users directly.</p>
 <h4><code>performanceEntry.duration</code><span><a class="mark" href="#performanceentryduration" id="performanceentryduration">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performanceentry_duration"></a></h4>
 <div class="api_metadata">
-<span>Added in: v8.5.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This property getter must be called with the <code>PerformanceEntry</code> object as the receiver.</p></td></tr>
+<tr><td>v8.5.0</td>
+<td><p><span>Added in: v8.5.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
@@ -902,7 +1021,15 @@ more entries to be added to the performance timeline buffer.</p>
 be meaningful for all Performance Entry types.</p>
 <h4><code>performanceEntry.entryType</code><span><a class="mark" href="#performanceentryentrytype" id="performanceentryentrytype">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performanceentry_entrytype"></a></h4>
 <div class="api_metadata">
-<span>Added in: v8.5.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This property getter must be called with the <code>PerformanceEntry</code> object as the receiver.</p></td></tr>
+<tr><td>v8.5.0</td>
+<td><p><span>Added in: v8.5.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
@@ -917,7 +1044,115 @@ be meaningful for all Performance Entry types.</p>
 <li><code>'http2'</code> (Node.js only)</li>
 <li><code>'http'</code> (Node.js only)</li>
 </ul>
-<h4><code>performanceEntry.flags</code><span><a class="mark" href="#performanceentryflags" id="performanceentryflags">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performanceentry_flags"></a></h4>
+<h4><code>performanceEntry.name</code><span><a class="mark" href="#performanceentryname" id="performanceentryname">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performanceentry_name"></a></h4>
+<div class="api_metadata">
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This property getter must be called with the <code>PerformanceEntry</code> object as the receiver.</p></td></tr>
+<tr><td>v8.5.0</td>
+<td><p><span>Added in: v8.5.0</span></p></td></tr>
+</tbody></table>
+</details>
+</div>
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
+</ul>
+<p>The name of the performance entry.</p>
+<h4><code>performanceEntry.startTime</code><span><a class="mark" href="#performanceentrystarttime" id="performanceentrystarttime">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performanceentry_starttime"></a></h4>
+<div class="api_metadata">
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This property getter must be called with the <code>PerformanceEntry</code> object as the receiver.</p></td></tr>
+<tr><td>v8.5.0</td>
+<td><p><span>Added in: v8.5.0</span></p></td></tr>
+</tbody></table>
+</details>
+</div>
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
+</ul>
+<p>The high resolution millisecond timestamp marking the starting time of the
+Performance Entry.</p>
+</section><section><h3>Class: <code>PerformanceMark</code><span><a class="mark" href="#class-performancemark" id="class-performancemark">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_class_performancemark"></a></h3>
+<div class="api_metadata">
+<span>Added in: v18.2.0, v16.17.0</span>
+</div>
+<ul>
+<li>Extends: <a href="perf_hooks.html#class-performanceentry" class="type">&#x3C;PerformanceEntry></a></li>
+</ul>
+<p>Exposes marks created via the <code>Performance.mark()</code> method.</p>
+<h4><code>performanceMark.detail</code><span><a class="mark" href="#performancemarkdetail" id="performancemarkdetail">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performancemark_detail"></a></h4>
+<div class="api_metadata">
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This property getter must be called with the <code>PerformanceMark</code> object as the receiver.</p></td></tr>
+<tr><td>v16.0.0</td>
+<td><p><span>Added in: v16.0.0</span></p></td></tr>
+</tbody></table>
+</details>
+</div>
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types" class="type">&#x3C;any></a></li>
+</ul>
+<p>Additional detail specified when creating with <code>Performance.mark()</code> method.</p>
+</section><section><h3>Class: <code>PerformanceMeasure</code><span><a class="mark" href="#class-performancemeasure" id="class-performancemeasure">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_class_performancemeasure"></a></h3>
+<div class="api_metadata">
+<span>Added in: v18.2.0, v16.17.0</span>
+</div>
+<ul>
+<li>Extends: <a href="perf_hooks.html#class-performanceentry" class="type">&#x3C;PerformanceEntry></a></li>
+</ul>
+<p>Exposes measures created via the <code>Performance.measure()</code> method.</p>
+<p>The constructor of this class is not exposed to users directly.</p>
+<h4><code>performanceMeasure.detail</code><span><a class="mark" href="#performancemeasuredetail" id="performancemeasuredetail">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performancemeasure_detail"></a></h4>
+<div class="api_metadata">
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This property getter must be called with the <code>PerformanceMeasure</code> object as the receiver.</p></td></tr>
+<tr><td>v16.0.0</td>
+<td><p><span>Added in: v16.0.0</span></p></td></tr>
+</tbody></table>
+</details>
+</div>
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types" class="type">&#x3C;any></a></li>
+</ul>
+<p>Additional detail specified when creating with <code>Performance.measure()</code> method.</p>
+</section><section><h3>Class: <code>PerformanceNodeEntry</code><span><a class="mark" href="#class-performancenodeentry" id="class-performancenodeentry">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_class_performancenodeentry"></a></h3>
+<div class="api_metadata">
+<span>Added in: v19.0.0</span>
+</div>
+<ul>
+<li>Extends: <a href="perf_hooks.html#class-performanceentry" class="type">&#x3C;PerformanceEntry></a></li>
+</ul>
+<p><em>This class is an extension by Node.js. It is not available in Web browsers.</em></p>
+<p>Provides detailed Node.js timing data.</p>
+<p>The constructor of this class is not exposed to users directly.</p>
+<h4><code>performanceNodeEntry.detail</code><span><a class="mark" href="#performancenodeentrydetail" id="performancenodeentrydetail">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performancenodeentry_detail"></a></h4>
+<div class="api_metadata">
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This property getter must be called with the <code>PerformanceNodeEntry</code> object as the receiver.</p></td></tr>
+<tr><td>v16.0.0</td>
+<td><p><span>Added in: v16.0.0</span></p></td></tr>
+</tbody></table>
+</details>
+</div>
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types" class="type">&#x3C;any></a></li>
+</ul>
+<p>Additional detail specific to the <code>entryType</code>.</p>
+<h4><code>performanceNodeEntry.flags</code><span><a class="mark" href="#performancenodeentryflags" id="performancenodeentryflags">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performancenodeentry_flags"></a></h4>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
 <table>
@@ -929,10 +1164,10 @@ be meaningful for all Performance Entry types.</p>
 </tbody></table>
 </details>
 </div>
+<p></p><div class="api_stability api_stability_0"><a href="documentation.html#stability-index">Stability: 0</a> - Deprecated: Use <code>performanceNodeEntry.detail</code> instead.</div><p></p>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
 </ul>
-<p><em>This property is an extension by Node.js. It is not available in Web browsers.</em></p>
 <p>When <code>performanceEntry.entryType</code> is equal to <code>'gc'</code>, the <code>performance.flags</code>
 property contains additional information about garbage collection operation.
 The value may be one of:</p>
@@ -945,15 +1180,7 @@ The value may be one of:</p>
 <li><code>perf_hooks.constants.NODE_PERFORMANCE_GC_FLAGS_ALL_EXTERNAL_MEMORY</code></li>
 <li><code>perf_hooks.constants.NODE_PERFORMANCE_GC_FLAGS_SCHEDULE_IDLE</code></li>
 </ul>
-<h4><code>performanceEntry.name</code><span><a class="mark" href="#performanceentryname" id="performanceentryname">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performanceentry_name"></a></h4>
-<div class="api_metadata">
-<span>Added in: v8.5.0</span>
-</div>
-<ul>
-<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
-</ul>
-<p>The name of the performance entry.</p>
-<h4><code>performanceEntry.kind</code><span><a class="mark" href="#performanceentrykind" id="performanceentrykind">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performanceentry_kind"></a></h4>
+<h4><code>performanceNodeEntry.kind</code><span><a class="mark" href="#performancenodeentrykind" id="performancenodeentrykind">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performancenodeentry_kind"></a></h4>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
 <table>
@@ -965,10 +1192,10 @@ The value may be one of:</p>
 </tbody></table>
 </details>
 </div>
+<p></p><div class="api_stability api_stability_0"><a href="documentation.html#stability-index">Stability: 0</a> - Deprecated: Use <code>performanceNodeEntry.detail</code> instead.</div><p></p>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
 </ul>
-<p><em>This property is an extension by Node.js. It is not available in Web browsers.</em></p>
 <p>When <code>performanceEntry.entryType</code> is equal to <code>'gc'</code>, the <code>performance.kind</code>
 property identifies the type of garbage collection operation that occurred.
 The value may be one of:</p>
@@ -978,18 +1205,9 @@ The value may be one of:</p>
 <li><code>perf_hooks.constants.NODE_PERFORMANCE_GC_INCREMENTAL</code></li>
 <li><code>perf_hooks.constants.NODE_PERFORMANCE_GC_WEAKCB</code></li>
 </ul>
-<h4><code>performanceEntry.startTime</code><span><a class="mark" href="#performanceentrystarttime" id="performanceentrystarttime">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performanceentry_starttime"></a></h4>
-<div class="api_metadata">
-<span>Added in: v8.5.0</span>
-</div>
-<ul>
-<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
-</ul>
-<p>The high resolution millisecond timestamp marking the starting time of the
-Performance Entry.</p>
 <h4>Garbage Collection ('gc') Details<span><a class="mark" href="#garbage-collection-gc-details" id="garbage-collection-gc-details">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_garbage_collection_gc_details"></a></h4>
-<p>When <code>performanceEntry.type</code> is equal to <code>'gc'</code>, the <code>performanceEntry.detail</code>
-property will be an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> with two properties:</p>
+<p>When <code>performanceEntry.type</code> is equal to <code>'gc'</code>, the
+<code>performanceNodeEntry.detail</code> property will be an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> with two properties:</p>
 <ul>
 <li><code>kind</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> One of:
 <ul>
@@ -1012,8 +1230,9 @@ property will be an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaSc
 </li>
 </ul>
 <h4>HTTP ('http') Details<span><a class="mark" href="#http-http-details" id="http-http-details">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_http_http_details"></a></h4>
-<p>When <code>performanceEntry.type</code> is equal to <code>'http'</code>, the <code>performanceEntry.detail</code>
-property will be an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> containing additional information.</p>
+<p>When <code>performanceEntry.type</code> is equal to <code>'http'</code>, the
+<code>performanceNodeEntry.detail</code> property will be an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> containing
+additional information.</p>
 <p>If <code>performanceEntry.name</code> is equal to <code>HttpClient</code>, the <code>detail</code>
 will contain the following properties: <code>req</code>, <code>res</code>. And the <code>req</code> property
 will be an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> containing <code>method</code>, <code>url</code>, <code>headers</code>, the <code>res</code> property
@@ -1026,7 +1245,7 @@ will be an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Refe
 diagnostic purposes, not left turned on in production by default.</p>
 <h4>HTTP/2 ('http2') Details<span><a class="mark" href="#http2-http2-details" id="http2-http2-details">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_http_2_http2_details"></a></h4>
 <p>When <code>performanceEntry.type</code> is equal to <code>'http2'</code>, the
-<code>performanceEntry.detail</code> property will be an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> containing
+<code>performanceNodeEntry.detail</code> property will be an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> containing
 additional performance information.</p>
 <p>If <code>performanceEntry.name</code> is equal to <code>Http2Stream</code>, the <code>detail</code>
 will contain the following properties:</p>
@@ -1065,17 +1284,17 @@ the <code>Http2Session</code>.</li>
 </ul>
 <h4>Timerify ('function') Details<span><a class="mark" href="#timerify-function-details" id="timerify-function-details">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_timerify_function_details"></a></h4>
 <p>When <code>performanceEntry.type</code> is equal to <code>'function'</code>, the
-<code>performanceEntry.detail</code> property will be an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="type">&#x3C;Array></a> listing
+<code>performanceNodeEntry.detail</code> property will be an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="type">&#x3C;Array></a> listing
 the input arguments to the timed function.</p>
 <h4>Net ('net') Details<span><a class="mark" href="#net-net-details" id="net-net-details">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_net_net_details"></a></h4>
 <p>When <code>performanceEntry.type</code> is equal to <code>'net'</code>, the
-<code>performanceEntry.detail</code> property will be an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> containing
+<code>performanceNodeEntry.detail</code> property will be an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> containing
 additional information.</p>
 <p>If <code>performanceEntry.name</code> is equal to <code>connect</code>, the <code>detail</code>
 will contain the following properties: <code>host</code>, <code>port</code>.</p>
 <h4>DNS ('dns') Details<span><a class="mark" href="#dns-dns-details" id="dns-dns-details">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_dns_dns_details"></a></h4>
 <p>When <code>performanceEntry.type</code> is equal to <code>'dns'</code>, the
-<code>performanceEntry.detail</code> property will be an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> containing
+<code>performanceNodeEntry.detail</code> property will be an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> containing
 additional information.</p>
 <p>If <code>performanceEntry.name</code> is equal to <code>lookup</code>, the <code>detail</code>
 will contain the following properties: <code>hostname</code>, <code>family</code>, <code>hints</code>, <code>verbatim</code>,
@@ -1166,7 +1385,7 @@ initialized.</p>
 initialized.</p>
 </section><section><h3>Class: <code>PerformanceResourceTiming</code><span><a class="mark" href="#class-performanceresourcetiming" id="class-performanceresourcetiming">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_class_performanceresourcetiming"></a></h3>
 <div class="api_metadata">
-<span>Added in: v18.2.0</span>
+<span>Added in: v18.2.0, v16.17.0</span>
 </div>
 <ul>
 <li>Extends: <a href="perf_hooks.html#class-performanceentry" class="type">&#x3C;PerformanceEntry></a></li>
@@ -1176,7 +1395,15 @@ resources.</p>
 <p>The constructor of this class is not exposed to users directly.</p>
 <h4><code>performanceResourceTiming.workerStart</code><span><a class="mark" href="#performanceresourcetimingworkerstart" id="performanceresourcetimingworkerstart">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performanceresourcetiming_workerstart"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.2.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This property getter must be called with the <code>PerformanceResourceTiming</code> object as the receiver.</p></td></tr>
+<tr><td>v18.2.0, v16.17.0</td>
+<td><p><span>Added in: v18.2.0, v16.17.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
@@ -1186,7 +1413,15 @@ the <code>fetch</code> request. If the resource is not intercepted by a worker t
 will always return 0.</p>
 <h4><code>performanceResourceTiming.redirectStart</code><span><a class="mark" href="#performanceresourcetimingredirectstart" id="performanceresourcetimingredirectstart">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performanceresourcetiming_redirectstart"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.2.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This property getter must be called with the <code>PerformanceResourceTiming</code> object as the receiver.</p></td></tr>
+<tr><td>v18.2.0, v16.17.0</td>
+<td><p><span>Added in: v18.2.0, v16.17.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
@@ -1195,7 +1430,15 @@ will always return 0.</p>
 of the fetch which initiates the redirect.</p>
 <h4><code>performanceResourceTiming.redirectEnd</code><span><a class="mark" href="#performanceresourcetimingredirectend" id="performanceresourcetimingredirectend">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performanceresourcetiming_redirectend"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.2.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This property getter must be called with the <code>PerformanceResourceTiming</code> object as the receiver.</p></td></tr>
+<tr><td>v18.2.0, v16.17.0</td>
+<td><p><span>Added in: v18.2.0, v16.17.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
@@ -1204,7 +1447,15 @@ of the fetch which initiates the redirect.</p>
 receiving the last byte of the response of the last redirect.</p>
 <h4><code>performanceResourceTiming.fetchStart</code><span><a class="mark" href="#performanceresourcetimingfetchstart" id="performanceresourcetimingfetchstart">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performanceresourcetiming_fetchstart"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.2.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This property getter must be called with the <code>PerformanceResourceTiming</code> object as the receiver.</p></td></tr>
+<tr><td>v18.2.0, v16.17.0</td>
+<td><p><span>Added in: v18.2.0, v16.17.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
@@ -1213,7 +1464,15 @@ receiving the last byte of the response of the last redirect.</p>
 to fetch the resource.</p>
 <h4><code>performanceResourceTiming.domainLookupStart</code><span><a class="mark" href="#performanceresourcetimingdomainlookupstart" id="performanceresourcetimingdomainlookupstart">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performanceresourcetiming_domainlookupstart"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.2.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This property getter must be called with the <code>PerformanceResourceTiming</code> object as the receiver.</p></td></tr>
+<tr><td>v18.2.0, v16.17.0</td>
+<td><p><span>Added in: v18.2.0, v16.17.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
@@ -1222,7 +1481,15 @@ to fetch the resource.</p>
 the domain name lookup for the resource.</p>
 <h4><code>performanceResourceTiming.domainLookupEnd</code><span><a class="mark" href="#performanceresourcetimingdomainlookupend" id="performanceresourcetimingdomainlookupend">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performanceresourcetiming_domainlookupend"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.2.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This property getter must be called with the <code>PerformanceResourceTiming</code> object as the receiver.</p></td></tr>
+<tr><td>v18.2.0, v16.17.0</td>
+<td><p><span>Added in: v18.2.0, v16.17.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
@@ -1231,7 +1498,15 @@ the domain name lookup for the resource.</p>
 after the Node.js finished the domain name lookup for the resource.</p>
 <h4><code>performanceResourceTiming.connectStart</code><span><a class="mark" href="#performanceresourcetimingconnectstart" id="performanceresourcetimingconnectstart">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performanceresourcetiming_connectstart"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.2.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This property getter must be called with the <code>PerformanceResourceTiming</code> object as the receiver.</p></td></tr>
+<tr><td>v18.2.0, v16.17.0</td>
+<td><p><span>Added in: v18.2.0, v16.17.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
@@ -1241,7 +1516,15 @@ before Node.js starts to establish the connection to the server to retrieve
 the resource.</p>
 <h4><code>performanceResourceTiming.connectEnd</code><span><a class="mark" href="#performanceresourcetimingconnectend" id="performanceresourcetimingconnectend">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performanceresourcetiming_connectend"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.2.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This property getter must be called with the <code>PerformanceResourceTiming</code> object as the receiver.</p></td></tr>
+<tr><td>v18.2.0, v16.17.0</td>
+<td><p><span>Added in: v18.2.0, v16.17.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
@@ -1251,7 +1534,15 @@ after Node.js finishes establishing the connection to the server to retrieve
 the resource.</p>
 <h4><code>performanceResourceTiming.secureConnectionStart</code><span><a class="mark" href="#performanceresourcetimingsecureconnectionstart" id="performanceresourcetimingsecureconnectionstart">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performanceresourcetiming_secureconnectionstart"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.2.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This property getter must be called with the <code>PerformanceResourceTiming</code> object as the receiver.</p></td></tr>
+<tr><td>v18.2.0, v16.17.0</td>
+<td><p><span>Added in: v18.2.0, v16.17.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
@@ -1260,7 +1551,15 @@ the resource.</p>
 before Node.js starts the handshake process to secure the current connection.</p>
 <h4><code>performanceResourceTiming.requestStart</code><span><a class="mark" href="#performanceresourcetimingrequeststart" id="performanceresourcetimingrequeststart">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performanceresourcetiming_requeststart"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.2.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This property getter must be called with the <code>PerformanceResourceTiming</code> object as the receiver.</p></td></tr>
+<tr><td>v18.2.0, v16.17.0</td>
+<td><p><span>Added in: v18.2.0, v16.17.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
@@ -1269,7 +1568,15 @@ before Node.js starts the handshake process to secure the current connection.</p
 before Node.js receives the first byte of the response from the server.</p>
 <h4><code>performanceResourceTiming.responseEnd</code><span><a class="mark" href="#performanceresourcetimingresponseend" id="performanceresourcetimingresponseend">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performanceresourcetiming_responseend"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.2.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This property getter must be called with the <code>PerformanceResourceTiming</code> object as the receiver.</p></td></tr>
+<tr><td>v18.2.0, v16.17.0</td>
+<td><p><span>Added in: v18.2.0, v16.17.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
@@ -1279,7 +1586,15 @@ after Node.js receives the last byte of the resource or immediately before
 the transport connection is closed, whichever comes first.</p>
 <h4><code>performanceResourceTiming.transferSize</code><span><a class="mark" href="#performanceresourcetimingtransfersize" id="performanceresourcetimingtransfersize">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performanceresourcetiming_transfersize"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.2.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This property getter must be called with the <code>PerformanceResourceTiming</code> object as the receiver.</p></td></tr>
+<tr><td>v18.2.0, v16.17.0</td>
+<td><p><span>Added in: v18.2.0, v16.17.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
@@ -1288,7 +1603,15 @@ the transport connection is closed, whichever comes first.</p>
 includes the response header fields plus the response payload body.</p>
 <h4><code>performanceResourceTiming.encodedBodySize</code><span><a class="mark" href="#performanceresourcetimingencodedbodysize" id="performanceresourcetimingencodedbodysize">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performanceresourcetiming_encodedbodysize"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.2.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This property getter must be called with the <code>PerformanceResourceTiming</code> object as the receiver.</p></td></tr>
+<tr><td>v18.2.0, v16.17.0</td>
+<td><p><span>Added in: v18.2.0, v16.17.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
@@ -1298,7 +1621,15 @@ includes the response header fields plus the response payload body.</p>
 content-codings.</p>
 <h4><code>performanceResourceTiming.decodedBodySize</code><span><a class="mark" href="#performanceresourcetimingdecodedbodysize" id="performanceresourcetimingdecodedbodysize">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performanceresourcetiming_decodedbodysize"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.2.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This property getter must be called with the <code>PerformanceResourceTiming</code> object as the receiver.</p></td></tr>
+<tr><td>v18.2.0, v16.17.0</td>
+<td><p><span>Added in: v18.2.0, v16.17.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
@@ -1308,11 +1639,19 @@ content-codings.</p>
 content-codings.</p>
 <h4><code>performanceResourceTiming.toJSON()</code><span><a class="mark" href="#performanceresourcetimingtojson" id="performanceresourcetimingtojson">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_performanceresourcetiming_tojson"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.2.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This method must be called with the <code>PerformanceResourceTiming</code> object as the receiver.</p></td></tr>
+<tr><td>v18.2.0, v16.17.0</td>
+<td><p><span>Added in: v18.2.0, v16.17.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <p>Returns a <code>object</code> that is the JSON representation of the
 <code>PerformanceResourceTiming</code> object</p>
-</section><section><h3>Class: <code>perf_hooks.PerformanceObserver</code><span><a class="mark" href="#class-perf_hooksperformanceobserver" id="class-perf_hooksperformanceobserver">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_class_perf_hooks_performanceobserver"></a></h3>
+</section><section><h3>Class: <code>PerformanceObserver</code><span><a class="mark" href="#class-performanceobserver" id="class-performanceobserver">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_class_performanceobserver"></a></h3>
 <div class="api_metadata">
 <span>Added in: v8.5.0</span>
 </div>
@@ -1340,7 +1679,7 @@ content-codings.</p>
 <li><code>callback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a>
 <ul>
 <li><code>list</code> <a href="perf_hooks.html#class-performanceobserverentrylist" class="type">&#x3C;PerformanceObserverEntryList></a></li>
-<li><code>observer</code> <a href="perf_hooks.html#class-perf_hooksperformanceobserver" class="type">&#x3C;PerformanceObserver></a></li>
+<li><code>observer</code> <a href="perf_hooks.html#class-performanceobserver" class="type">&#x3C;PerformanceObserver></a></li>
 </ul>
 </li>
 </ul>
@@ -1403,7 +1742,7 @@ observer callback. <strong>Default:</strong> <code>false</code>.</li>
 </ul>
 </li>
 </ul>
-<p>Subscribes the <a href="perf_hooks.html#class-perf_hooksperformanceobserver" class="type">&#x3C;PerformanceObserver></a> instance to notifications of new
+<p>Subscribes the <a href="perf_hooks.html#class-performanceobserver" class="type">&#x3C;PerformanceObserver></a> instance to notifications of new
 <a href="perf_hooks.html#class-performanceentry" class="type">&#x3C;PerformanceEntry></a> instances identified either by <code>options.entryTypes</code>
 or <code>options.type</code>:</p>
 <pre><code class="language-js"><span class="hljs-keyword">const</span> {
@@ -1447,13 +1786,15 @@ with respect to <code>performanceEntry.startTime</code>.</p>
    *     name: 'test',
    *     entryType: 'mark',
    *     startTime: 81.465639,
-   *     duration: 0
+   *     duration: 0,
+   *     detail: null
    *   },
    *   PerformanceEntry {
    *     name: 'meow',
    *     entryType: 'mark',
    *     startTime: 81.860064,
-   *     duration: 0
+   *     duration: 0,
+   *     detail: null
    *   }
    * ]
    */</span>
@@ -1492,7 +1833,8 @@ equal to <code>name</code>, and optionally, whose <code>performanceEntry.entryTy
    *     name: 'meow',
    *     entryType: 'mark',
    *     startTime: 98.545991,
-   *     duration: 0
+   *     duration: 0,
+   *     detail: null
    *   }
    * ]
    */</span>
@@ -1505,7 +1847,8 @@ equal to <code>name</code>, and optionally, whose <code>performanceEntry.entryTy
    *     name: 'test',
    *     entryType: 'mark',
    *     startTime: 63.518931,
-   *     duration: 0
+   *     duration: 0,
+   *     detail: null
    *   }
    * ]
    */</span>
@@ -1543,13 +1886,15 @@ is equal to <code>type</code>.</p>
    *     name: 'test',
    *     entryType: 'mark',
    *     startTime: 55.897834,
-   *     duration: 0
+   *     duration: 0,
+   *     detail: null
    *   },
    *   PerformanceEntry {
    *     name: 'meow',
    *     entryType: 'mark',
    *     startTime: 56.350146,
-   *     duration: 0
+   *     duration: 0,
+   *     detail: null
    *   }
    * ]
    */</span>
@@ -1577,7 +1922,7 @@ value that is equal to or greater than two times <code>lowest</code>.
 <code>1</code> and <code>5</code>. <strong>Default:</strong> <code>3</code>.</li>
 </ul>
 </li>
-<li>Returns <a href="perf_hooks.html#class-recordablehistogram-extends-histogram" class="type">&#x3C;RecordableHistogram></a></li>
+<li>Returns: <a href="perf_hooks.html#class-recordablehistogram-extends-histogram" class="type">&#x3C;RecordableHistogram></a></li>
 </ul>
 <p>Returns a <a href="perf_hooks.html#class-recordablehistogram-extends-histogram" class="type">&#x3C;RecordableHistogram></a>.</p>
 </section><section><h3><code>perf_hooks.monitorEventLoopDelay([options])</code><span><a class="mark" href="#perf_hooksmonitoreventloopdelayoptions" id="perf_hooksmonitoreventloopdelayoptions">#</a></span><a aria-hidden="true" class="legacy" id="perf_hooks_perf_hooks_monitoreventloopdelay_options"></a></h3>

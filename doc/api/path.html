@@ -3,18 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>Path | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.15.1">
+  <title>Path | Node.js v20.15.1 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/path.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
   
 </head>
 <body class="alt apidoc" id="api-section-path">
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +109,7 @@
     <div id="column1" data-id="path" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.15.1 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,11 +124,11 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.15.1</li>
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
@@ -146,7 +159,7 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Index
       </a>
 
@@ -231,10 +244,11 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/path.html">21.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v22.x/api/path.html">22.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/path.html">21.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v20.x/api/path.html">20.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v19.x/api/path.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/path.html">18.x <b>LTS</b></a></li>
@@ -258,7 +272,7 @@
   
             <li class="picker-header">
               <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
@@ -279,7 +293,7 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
 <li><span class="stability_2"><a href="#path">Path</a></span>
 <ul>
 <li><a href="#windows-vs-posix">Windows vs. POSIX</a></li>
@@ -302,11 +316,11 @@
 </li>
 </ul></details>
 
-      <div id="apicontent">
+      <div role="main" id="apicontent">
         <h2>Path<span><a class="mark" href="#path" id="path">#</a></span><a aria-hidden="true" class="legacy" id="path_path"></a></h2>
 
 <p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.19.1/lib/path.js">lib/path.js</a></p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v20.15.1/lib/path.js">lib/path.js</a></p>
 <p>The <code>node:path</code> module provides utilities for working with file and directory
 paths. It can be accessed using:</p>
 <pre><code class="language-js"><span class="hljs-keyword">const</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:path'</span>);</code> <button class="copy-button">copy</button></pre>
@@ -460,7 +474,15 @@ path.<span class="hljs-title function_">extname</span>(<span class="hljs-string"
 <p>A <a href="errors.html#class-typeerror"><code>TypeError</code></a> is thrown if <code>path</code> is not a string.</p>
 </section><section><h3><code>path.format(pathObject)</code><span><a class="mark" href="#pathformatpathobject" id="pathformatpathobject">#</a></span><a aria-hidden="true" class="legacy" id="path_path_format_pathobject"></a></h3>
 <div class="api_metadata">
-<span>Added in: v0.11.15</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>The dot will be added if it is not specified in <code>ext</code>.</p></td></tr>
+<tr><td>v0.11.15</td>
+<td><p><span>Added in: v0.11.15</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><code>pathObject</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> Any JavaScript object having the following properties:
@@ -508,6 +530,14 @@ path.<span class="hljs-title function_">format</span>({
   <span class="hljs-attr">root</span>: <span class="hljs-string">'/'</span>,
   <span class="hljs-attr">name</span>: <span class="hljs-string">'file'</span>,
   <span class="hljs-attr">ext</span>: <span class="hljs-string">'.txt'</span>,
+});
+<span class="hljs-comment">// Returns: '/file.txt'</span>
+
+<span class="hljs-comment">// The dot will be added if it is not specified in `ext`.</span>
+path.<span class="hljs-title function_">format</span>({
+  <span class="hljs-attr">root</span>: <span class="hljs-string">'/'</span>,
+  <span class="hljs-attr">name</span>: <span class="hljs-string">'file'</span>,
+  <span class="hljs-attr">ext</span>: <span class="hljs-string">'txt'</span>,
 });
 <span class="hljs-comment">// Returns: '/file.txt'</span></code> <button class="copy-button">copy</button></pre>
 <p>On Windows:</p>
@@ -575,6 +605,13 @@ instance of the platform-specific path segment separator (<code>/</code> on POSI
 <code>\</code> on Windows). Trailing separators are preserved.</p>
 <p>If the <code>path</code> is a zero-length string, <code>'.'</code> is returned, representing the
 current working directory.</p>
+<p>On POSIX, the types of normalization applied by this function do not strictly
+adhere to the POSIX specification. For example, this function will replace two
+leading forward slashes with a single slash as if it was a regular absolute
+path, whereas a few POSIX systems assign special meaning to paths beginning with
+exactly two forward slashes. Similarly, other substitutions performed by this
+function, such as removing <code>..</code> segments, may change how the underlying system
+resolves the path.</p>
 <p>For example, on POSIX:</p>
 <pre><code class="language-js">path.<span class="hljs-title function_">normalize</span>(<span class="hljs-string">'/foo/bar//baz/asdf/quux/..'</span>);
 <span class="hljs-comment">// Returns: '/foo/bar/baz/asdf'</span></code> <button class="copy-button">copy</button></pre>

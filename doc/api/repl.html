@@ -3,18 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>REPL | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.15.1">
+  <title>REPL | Node.js v20.15.1 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/repl.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
   
 </head>
 <body class="alt apidoc" id="api-section-repl">
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +109,7 @@
     <div id="column1" data-id="repl" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.15.1 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,11 +124,11 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.15.1</li>
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
@@ -173,7 +186,7 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Index
       </a>
 
@@ -258,10 +271,11 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/repl.html">21.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v22.x/api/repl.html">22.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/repl.html">21.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v20.x/api/repl.html">20.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v19.x/api/repl.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/repl.html">18.x <b>LTS</b></a></li>
@@ -285,7 +299,7 @@
   
             <li class="picker-header">
               <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
@@ -306,7 +320,7 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
 <li><span class="stability_2"><a href="#repl">REPL</a></span>
 <ul>
 <li><a href="#design-and-features">Design and features</a>
@@ -356,11 +370,11 @@
 </li>
 </ul></details>
 
-      <div id="apicontent">
+      <div role="main" id="apicontent">
         <h2>REPL<span><a class="mark" href="#repl" id="repl">#</a></span><a aria-hidden="true" class="legacy" id="repl_repl"></a></h2>
 
 <p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.19.1/lib/repl.js">lib/repl.js</a></p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v20.15.1/lib/repl.js">lib/repl.js</a></p>
 <p>The <code>node:repl</code> module provides a Read-Eval-Print-Loop (REPL) implementation
 that is available both as a standalone program or includible in other
 applications. It can be accessed using:</p>
@@ -922,7 +936,7 @@ directory. This can be disabled by setting the environment variable
 <code>NODE_NO_READLINE=1</code>. This will start the main and debugger REPL in canonical
 terminal settings, which will allow use with <code>rlwrap</code>.</p>
 <p>For example, the following can be added to a <code>.bashrc</code> file:</p>
-<pre><code class="language-text">alias node="env NODE_NO_READLINE=1 rlwrap node"</code> <button class="copy-button">copy</button></pre>
+<pre><code class="language-bash"><span class="hljs-built_in">alias</span> node=<span class="hljs-string">"env NODE_NO_READLINE=1 rlwrap node"</span></code> <button class="copy-button">copy</button></pre>
 <h4>Starting multiple REPL instances against a single running instance<span><a class="mark" href="#starting-multiple-repl-instances-against-a-single-running-instance" id="starting-multiple-repl-instances-against-a-single-running-instance">#</a></span><a aria-hidden="true" class="legacy" id="repl_starting_multiple_repl_instances_against_a_single_running_instance"></a></h4>
 <p>It is possible to create and run multiple REPL instances against a single
 running instance of Node.js that share a single <code>global</code> object but have

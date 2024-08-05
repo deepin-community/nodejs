@@ -22,7 +22,7 @@ Last-Update: 2020-02-09
 
 --- a/Makefile
 +++ b/Makefile
-@@ -540,7 +540,7 @@
+@@ -554,7 +554,7 @@
  # This target should not use a native compiler at all
  # Related CI job: node-test-commit-arm-fanned
  test-ci-js: | clear-stalled
@@ -33,9 +33,9 @@ Last-Update: 2020-02-09
  	$(info Clean up any leftover processes, error if found.)
 --- a/test/parallel/parallel.status
 +++ b/test/parallel/parallel.status
-@@ -6,6 +6,46 @@
- 
- [true] # This section applies to all platforms
+@@ -12,6 +12,48 @@
+ # https://github.com/nodejs/node/issues/52630
+ test-error-serdes: PASS, FLAKY
  
 +test-process-config                  : PASS,FLAKY
 +test-regress-GH-746                  : PASS,FLAKY
@@ -67,22 +67,24 @@ Last-Update: 2020-02-09
 +test-cluster-bind-privileged-port: PASS,FLAKY
 +test-cluster-shared-handle-bind-privileged-port: PASS,FLAKY
 +test-debugger-preserve-breaks: PASS,FLAKY
++
++# for debian buildd i386 (but pass on porter barriere.d.o)
 +test-debugger-heap-profiler: PASS,FLAKY
 +
 +# corepack is dfsg-excluded
 +test-corepack-yarn-install: SKIP
 +test-corepack-version: SKIP
 +
-+# might fail, see https://github.com/nodejs/node/issues/17909
++# fails on 32-bits arch, see #1069753
 +test-fs-utimes: PASS,FLAKY
 +test-fs-utimes-y2K38: PASS,FLAKY
 +
  [$system==win32]
- # https://github.com/nodejs/node/issues/41206
- test-crypto-keygen: PASS,FLAKY
-@@ -51,6 +91,10 @@
- # https://github.com/nodejs/node/issues/47297
- test-wasm-web-api: SKIP
+ 
+ # Windows on x86
+@@ -41,6 +83,10 @@
+ test-crypto-dh-stateless: SKIP
+ test-crypto-keygen: SKIP
  
 +[$arch==mips64el]
 +# the debug flag is for hacking v8 internals
@@ -91,11 +93,31 @@ Last-Update: 2020-02-09
  [$system==solaris] # Also applies to SmartOS
  # https://github.com/nodejs/node/issues/43457
  test-domain-no-error-handler-abort-on-uncaught-0: PASS, FLAKY
+@@ -92,9 +138,10 @@
+ # https://github.com/nodejs/node/issues/48047
+ test-http-pipeline-flood: SKIP
+ 
+-[$asan==on]
++# flaky on sbuild
+ # https://github.com/nodejs/node/issues/39655
+ test-cluster-primary-error: PASS, FLAKY
++test-cluster-primary-kill: PASS, FLAKY
+ 
+ [$arch==s390x]
+ # https://github.com/nodejs/node/issues/50222
 --- a/test/sequential/sequential.status
 +++ b/test/sequential/sequential.status
-@@ -11,6 +11,24 @@
+@@ -7,6 +7,7 @@
+ [true] # This section applies to all platforms
+ # https://github.com/nodejs/node/issues/27611#issuecomment-613100468
+ test-cpu-prof-dir-worker: PASS, FLAKY
++test-cpu-prof-dir-absolute: PASS,FLAKY
+ # https://github.com/nodejs/node/issues/44898
  test-watch-mode: PASS, FLAKY
  test-watch-mode-inspect: PASS, FLAKY
+@@ -16,6 +17,22 @@
+ # fails on arm64, armhf, loong64 since openssl32
+ test-tls-session-timeout: PASS, FLAKY
  
 +# flaky or failing at least on debian build servers
 +test-fs-watch                                   : PASS,FLAKY
@@ -104,12 +126,10 @@ Last-Update: 2020-02-09
 +test-http2-session-timeout                      : PASS,FLAKY
 +test-debugger-preserve-breaks                   : PASS,FLAKY
 +test-debugger-exec-scope                        : PASS,FLAKY
++test-worker-heapsnapshot-options                : PASS,FLAKY
 +
 +# https://github.com/nodejs/node/issues/24403
 +test-cli-syntax: PASS,FLAKY
-+
-+# for debian buildd i386 (but pass on porter barriere.d.o)
-+test-debugger-heap-profiler: PASS,FLAKY
 +
 +# new test - failing/hanging https://github.com/nodejs/node/issues/44898
 +test-watch-mode: SKIP
@@ -118,38 +138,9 @@ Last-Update: 2020-02-09
  [$system==win32]
  # https://github.com/nodejs/node/issues/47116
  test-http-max-sockets: PASS, FLAKY
---- a/tools/test.py
-+++ b/tools/test.py
-@@ -934,25 +934,7 @@
-     self.node_has_crypto = True
- 
-   def GetVm(self, arch, mode):
--    if self.vm is not None:
--      return self.vm
--    if arch == 'none':
--      name = 'out/Debug/node' if mode == 'debug' else 'out/Release/node'
--    else:
--      name = 'out/%s.%s/node' % (arch, mode)
--
--    # Currently GYP does not support output_dir for MSVS.
--    # http://code.google.com/p/gyp/issues/detail?id=40
--    # It will put the builds into Release/node.exe or Debug/node.exe
--    if utils.IsWindows():
--      if not exists(name + '.exe'):
--        name = name.replace('out/', '')
--      name = os.path.abspath(name + '.exe')
--
--    if not exists(name):
--      raise ValueError('Could not find executable. Should be ' + name)
--
--    return name
-+    return './node'
- 
-   def GetTimeout(self, mode, section=''):
-     timeout = self.timeout * TIMEOUT_SCALEFACTOR[ARCH_GUESS or 'ia32'][mode]
 --- a/test/common/index.js
 +++ b/test/common/index.js
-@@ -259,16 +259,15 @@
+@@ -268,16 +268,15 @@
  
  function platformTimeout(ms) {
    const multipliers = typeof ms === 'bigint' ?

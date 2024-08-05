@@ -11,16 +11,22 @@
           "v18.0.0",
           "v16.17.0"
         ],
-        "changes": []
+        "changes": [
+          {
+            "version": "v20.0.0",
+            "pr-url": "https://github.com/nodejs/node/pull/46983",
+            "description": "The test runner is now stable."
+          }
+        ]
       },
-      "stability": 1,
-      "stabilityText": "Experimental",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.19.1/lib/test.js\">lib/test.js</a></p>\n<p>The <code>node:test</code> module facilitates the creation of JavaScript tests.\nTo access it:</p>\n<pre><code class=\"language-mjs\">import test from 'node:test';\n</code></pre>\n<pre><code class=\"language-cjs\">const test = require('node:test');\n</code></pre>\n<p>This module is only available under the <code>node:</code> scheme. The following will not\nwork:</p>\n<pre><code class=\"language-mjs\">import test from 'test';\n</code></pre>\n<pre><code class=\"language-cjs\">const test = require('test');\n</code></pre>\n<p>Tests created via the <code>test</code> module consist of a single function that is\nprocessed in one of three ways:</p>\n<ol>\n<li>A synchronous function that is considered failing if it throws an exception,\nand is considered passing otherwise.</li>\n<li>A function that returns a <code>Promise</code> that is considered failing if the\n<code>Promise</code> rejects, and is considered passing if the <code>Promise</code> resolves.</li>\n<li>A function that receives a callback function. If the callback receives any\ntruthy value as its first argument, the test is considered failing. If a\nfalsy value is passed as the first argument to the callback, the test is\nconsidered passing. If the test function receives a callback function and\nalso returns a <code>Promise</code>, the test will fail.</li>\n</ol>\n<p>The following example illustrates how tests are written using the\n<code>test</code> module.</p>\n<pre><code class=\"language-js\">test('synchronous passing test', (t) => {\n  // This test passes because it does not throw an exception.\n  assert.strictEqual(1, 1);\n});\n\ntest('synchronous failing test', (t) => {\n  // This test fails because it throws an exception.\n  assert.strictEqual(1, 2);\n});\n\ntest('asynchronous passing test', async (t) => {\n  // This test passes because the Promise returned by the async\n  // function is not rejected.\n  assert.strictEqual(1, 1);\n});\n\ntest('asynchronous failing test', async (t) => {\n  // This test fails because the Promise returned by the async\n  // function is rejected.\n  assert.strictEqual(1, 2);\n});\n\ntest('failing test using Promises', (t) => {\n  // Promises can be used directly as well.\n  return new Promise((resolve, reject) => {\n    setImmediate(() => {\n      reject(new Error('this will cause the test to fail'));\n    });\n  });\n});\n\ntest('callback passing test', (t, done) => {\n  // done() is the callback function. When the setImmediate() runs, it invokes\n  // done() with no arguments.\n  setImmediate(done);\n});\n\ntest('callback failing test', (t, done) => {\n  // When the setImmediate() runs, done() is invoked with an Error object and\n  // the test fails.\n  setImmediate(() => {\n    done(new Error('callback failure'));\n  });\n});\n</code></pre>\n<p>If any tests fail, the process exit code is set to <code>1</code>.</p>",
+      "stability": 2,
+      "stabilityText": "Stable",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v20.15.1/lib/test.js\">lib/test.js</a></p>\n<p>The <code>node:test</code> module facilitates the creation of JavaScript tests.\nTo access it:</p>\n<pre><code class=\"language-mjs\">import test from 'node:test';\n</code></pre>\n<pre><code class=\"language-cjs\">const test = require('node:test');\n</code></pre>\n<p>This module is only available under the <code>node:</code> scheme. The following will not\nwork:</p>\n<pre><code class=\"language-mjs\">import test from 'test';\n</code></pre>\n<pre><code class=\"language-cjs\">const test = require('test');\n</code></pre>\n<p>Tests created via the <code>test</code> module consist of a single function that is\nprocessed in one of three ways:</p>\n<ol>\n<li>A synchronous function that is considered failing if it throws an exception,\nand is considered passing otherwise.</li>\n<li>A function that returns a <code>Promise</code> that is considered failing if the\n<code>Promise</code> rejects, and is considered passing if the <code>Promise</code> fulfills.</li>\n<li>A function that receives a callback function. If the callback receives any\ntruthy value as its first argument, the test is considered failing. If a\nfalsy value is passed as the first argument to the callback, the test is\nconsidered passing. If the test function receives a callback function and\nalso returns a <code>Promise</code>, the test will fail.</li>\n</ol>\n<p>The following example illustrates how tests are written using the\n<code>test</code> module.</p>\n<pre><code class=\"language-js\">test('synchronous passing test', (t) => {\n  // This test passes because it does not throw an exception.\n  assert.strictEqual(1, 1);\n});\n\ntest('synchronous failing test', (t) => {\n  // This test fails because it throws an exception.\n  assert.strictEqual(1, 2);\n});\n\ntest('asynchronous passing test', async (t) => {\n  // This test passes because the Promise returned by the async\n  // function is settled and not rejected.\n  assert.strictEqual(1, 1);\n});\n\ntest('asynchronous failing test', async (t) => {\n  // This test fails because the Promise returned by the async\n  // function is rejected.\n  assert.strictEqual(1, 2);\n});\n\ntest('failing test using Promises', (t) => {\n  // Promises can be used directly as well.\n  return new Promise((resolve, reject) => {\n    setImmediate(() => {\n      reject(new Error('this will cause the test to fail'));\n    });\n  });\n});\n\ntest('callback passing test', (t, done) => {\n  // done() is the callback function. When the setImmediate() runs, it invokes\n  // done() with no arguments.\n  setImmediate(done);\n});\n\ntest('callback failing test', (t, done) => {\n  // When the setImmediate() runs, done() is invoked with an Error object and\n  // the test fails.\n  setImmediate(() => {\n    done(new Error('callback failure'));\n  });\n});\n</code></pre>\n<p>If any tests fail, the process exit code is set to <code>1</code>.</p>",
       "modules": [
         {
           "textRaw": "Subtests",
           "name": "subtests",
-          "desc": "<p>The test context's <code>test()</code> method allows subtests to be created. This method\nbehaves identically to the top level <code>test()</code> function. The following example\ndemonstrates the creation of a top level test with two subtests.</p>\n<pre><code class=\"language-js\">test('top level test', async (t) => {\n  await t.test('subtest 1', (t) => {\n    assert.strictEqual(1, 1);\n  });\n\n  await t.test('subtest 2', (t) => {\n    assert.strictEqual(2, 2);\n  });\n});\n</code></pre>\n<p>In this example, <code>await</code> is used to ensure that both subtests have completed.\nThis is necessary because parent tests do not wait for their subtests to\ncomplete. Any subtests that are still outstanding when their parent finishes\nare cancelled and treated as failures. Any subtest failures cause the parent\ntest to fail.</p>",
+          "desc": "<p>The test context's <code>test()</code> method allows subtests to be created.\nIt allows you to structure your tests in a hierarchical manner,\nwhere you can create nested tests within a larger test.\nThis method behaves identically to the top level <code>test()</code> function.\nThe following example demonstrates the creation of a\ntop level test with two subtests.</p>\n<pre><code class=\"language-js\">test('top level test', async (t) => {\n  await t.test('subtest 1', (t) => {\n    assert.strictEqual(1, 1);\n  });\n\n  await t.test('subtest 2', (t) => {\n    assert.strictEqual(2, 2);\n  });\n});\n</code></pre>\n<blockquote>\n<p><strong>Note:</strong> <code>beforeEach</code> and <code>afterEach</code> hooks are triggered\nbetween each subtest execution.</p>\n</blockquote>\n<p>In this example, <code>await</code> is used to ensure that both subtests have completed.\nThis is necessary because tests do not wait for their subtests to\ncomplete, unlike tests created within suites.\nAny subtests that are still outstanding when their parent finishes\nare cancelled and treated as failures. Any subtest failures cause the parent\ntest to fail.</p>",
           "type": "module",
           "displayName": "Subtests"
         },
@@ -32,11 +38,18 @@
           "displayName": "Skipping tests"
         },
         {
-          "textRaw": "`describe`/`it` syntax",
-          "name": "`describe`/`it`_syntax",
-          "desc": "<p>Running tests can also be done using <code>describe</code> to declare a suite\nand <code>it</code> to declare a test.\nA suite is used to organize and group related tests together.\n<code>it</code> is a shorthand for <a href=\"#testname-options-fn\"><code>test()</code></a>.</p>\n<pre><code class=\"language-js\">describe('A thing', () => {\n  it('should work', () => {\n    assert.strictEqual(1, 1);\n  });\n\n  it('should be ok', () => {\n    assert.strictEqual(2, 2);\n  });\n\n  describe('a nested thing', () => {\n    it('should work', () => {\n      assert.strictEqual(3, 3);\n    });\n  });\n});\n</code></pre>\n<p><code>describe</code> and <code>it</code> are imported from the <code>node:test</code> module.</p>\n<pre><code class=\"language-mjs\">import { describe, it } from 'node:test';\n</code></pre>\n<pre><code class=\"language-cjs\">const { describe, it } = require('node:test');\n</code></pre>",
+          "textRaw": "TODO tests",
+          "name": "todo_tests",
+          "desc": "<p>Individual tests can be marked as flaky or incomplete by passing the <code>todo</code>\noption to the test, or by calling the test context's <code>todo()</code> method, as shown\nin the following example. These tests represent a pending implementation or bug\nthat needs to be fixed. TODO tests are executed, but are not treated as test\nfailures, and therefore do not affect the process exit code. If a test is marked\nas both TODO and skipped, the TODO option is ignored.</p>\n<pre><code class=\"language-js\">// The todo option is used, but no message is provided.\ntest('todo option', { todo: true }, (t) => {\n  // This code is executed, but not treated as a failure.\n  throw new Error('this does not fail the test');\n});\n\n// The todo option is used, and a message is provided.\ntest('todo option with message', { todo: 'this is a todo test' }, (t) => {\n  // This code is executed.\n});\n\ntest('todo() method', (t) => {\n  t.todo();\n});\n\ntest('todo() method with message', (t) => {\n  t.todo('this is a todo test and is not treated as a failure');\n  throw new Error('this does not fail the test');\n});\n</code></pre>",
           "type": "module",
-          "displayName": "`describe`/`it` syntax"
+          "displayName": "TODO tests"
+        },
+        {
+          "textRaw": "`describe()` and `it()` aliases",
+          "name": "`describe()`_and_`it()`_aliases",
+          "desc": "<p>Suites and tests can also be written using the <code>describe()</code> and <code>it()</code>\nfunctions. <a href=\"#describename-options-fn\"><code>describe()</code></a> is an alias for <a href=\"#suitename-options-fn\"><code>suite()</code></a>, and <a href=\"#itname-options-fn\"><code>it()</code></a> is an\nalias for <a href=\"#testname-options-fn\"><code>test()</code></a>.</p>\n<pre><code class=\"language-js\">describe('A thing', () => {\n  it('should work', () => {\n    assert.strictEqual(1, 1);\n  });\n\n  it('should be ok', () => {\n    assert.strictEqual(2, 2);\n  });\n\n  describe('a nested thing', () => {\n    it('should work', () => {\n      assert.strictEqual(3, 3);\n    });\n  });\n});\n</code></pre>\n<p><code>describe()</code> and <code>it()</code> are imported from the <code>node:test</code> module.</p>\n<pre><code class=\"language-mjs\">import { describe, it } from 'node:test';\n</code></pre>\n<pre><code class=\"language-cjs\">const { describe, it } = require('node:test');\n</code></pre>",
+          "type": "module",
+          "displayName": "`describe()` and `it()` aliases"
         },
         {
           "textRaw": "`only` tests",
@@ -64,6 +77,7 @@
           "name": "watch_mode",
           "meta": {
             "added": [
+              "v19.2.0",
               "v18.13.0"
             ],
             "changes": []
@@ -93,7 +107,25 @@
         {
           "textRaw": "Collecting code coverage",
           "name": "collecting_code_coverage",
-          "desc": "<p>When Node.js is started with the <a href=\"cli.html#--experimental-test-coverage\"><code>--experimental-test-coverage</code></a>\ncommand-line flag, code coverage is collected and statistics are reported once\nall tests have completed. If the <a href=\"cli.html#node_v8_coveragedir\"><code>NODE_V8_COVERAGE</code></a> environment variable is\nused to specify a code coverage directory, the generated V8 coverage files are\nwritten to that directory. Node.js core modules and files within\n<code>node_modules/</code> directories are not included in the coverage report. If\ncoverage is enabled, the coverage report is sent to any <a href=\"#test-reporters\">test reporters</a> via\nthe <code>'test:coverage'</code> event.</p>\n<p>Coverage can be disabled on a series of lines using the following\ncomment syntax:</p>\n<pre><code class=\"language-js\">/* node:coverage disable */\nif (anAlwaysFalseCondition) {\n  // Code in this branch will never be executed, but the lines are ignored for\n  // coverage purposes. All lines following the 'disable' comment are ignored\n  // until a corresponding 'enable' comment is encountered.\n  console.log('this is never executed');\n}\n/* node:coverage enable */\n</code></pre>\n<p>Coverage can also be disabled for a specified number of lines. After the\nspecified number of lines, coverage will be automatically reenabled. If the\nnumber of lines is not explicitly provided, a single line is ignored.</p>\n<pre><code class=\"language-js\">/* node:coverage ignore next */\nif (anAlwaysFalseCondition) { console.log('this is never executed'); }\n\n/* node:coverage ignore next 3 */\nif (anAlwaysFalseCondition) {\n  console.log('this is never executed');\n}\n</code></pre>\n<p>The test runner's code coverage functionality has the following limitations,\nwhich will be addressed in a future Node.js release:</p>\n<ul>\n<li>Source maps are not supported.</li>\n<li>Excluding specific files or directories from the coverage report is not\nsupported.</li>\n</ul>",
+          "stability": 1,
+          "stabilityText": "Experimental",
+          "desc": "<p>When Node.js is started with the <a href=\"cli.html#--experimental-test-coverage\"><code>--experimental-test-coverage</code></a>\ncommand-line flag, code coverage is collected and statistics are reported once\nall tests have completed. If the <a href=\"cli.html#node_v8_coveragedir\"><code>NODE_V8_COVERAGE</code></a> environment variable is\nused to specify a code coverage directory, the generated V8 coverage files are\nwritten to that directory. Node.js core modules and files within\n<code>node_modules/</code> directories are not included in the coverage report. If\ncoverage is enabled, the coverage report is sent to any <a href=\"#test-reporters\">test reporters</a> via\nthe <code>'test:coverage'</code> event.</p>\n<p>Coverage can be disabled on a series of lines using the following\ncomment syntax:</p>\n<pre><code class=\"language-js\">/* node:coverage disable */\nif (anAlwaysFalseCondition) {\n  // Code in this branch will never be executed, but the lines are ignored for\n  // coverage purposes. All lines following the 'disable' comment are ignored\n  // until a corresponding 'enable' comment is encountered.\n  console.log('this is never executed');\n}\n/* node:coverage enable */\n</code></pre>\n<p>Coverage can also be disabled for a specified number of lines. After the\nspecified number of lines, coverage will be automatically reenabled. If the\nnumber of lines is not explicitly provided, a single line is ignored.</p>\n<pre><code class=\"language-js\">/* node:coverage ignore next */\nif (anAlwaysFalseCondition) { console.log('this is never executed'); }\n\n/* node:coverage ignore next 3 */\nif (anAlwaysFalseCondition) {\n  console.log('this is never executed');\n}\n</code></pre>",
+          "modules": [
+            {
+              "textRaw": "Coverage reporters",
+              "name": "coverage_reporters",
+              "desc": "<p>The tap and spec reporters will print a summary of the coverage statistics.\nThere is also an lcov reporter that will generate an lcov file which can be\nused as an in depth coverage report.</p>\n<pre><code class=\"language-bash\">node --test --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=lcov.info\n</code></pre>",
+              "type": "module",
+              "displayName": "Coverage reporters"
+            },
+            {
+              "textRaw": "Limitations",
+              "name": "limitations",
+              "desc": "<p>The test runner's code coverage functionality does not support excluding\nspecific files or directories from the coverage report.</p>",
+              "type": "module",
+              "displayName": "Limitations"
+            }
+          ],
           "type": "module",
           "displayName": "Collecting code coverage"
         },
@@ -105,9 +137,16 @@
             {
               "textRaw": "Timers",
               "name": "timers",
-              "desc": "<p>Mocking timers is a technique commonly used in software testing to simulate and\ncontrol the behavior of timers, such as <code>setInterval</code> and <code>setTimeout</code>,\nwithout actually waiting for the specified time intervals.</p>\n<p>Refer to the <a href=\"#class-mocktimers\"><code>MockTimers</code></a> class for a full list of methods and features.</p>\n<p>This allows developers to write more reliable and\npredictable tests for time-dependent functionality.</p>\n<p>The example below shows how to mock <code>setTimeout</code>.\nUsing <code>.enable(['setTimeout']);</code>\nit will mock the <code>setTimeout</code> functions in the <a href=\"./timers.html\">node:timers</a> and\n<a href=\"./timers.html#timers-promises-api\">node:timers/promises</a> modules,\nas well as from the Node.js global context.</p>\n<p><strong>Note:</strong> Destructuring functions such as\n<code>import { setTimeout } from 'node:timers'</code>\nis currently not supported by this API.</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\nimport { mock, test } from 'node:test';\n\ntest('mocks setTimeout to be executed synchronously without having to actually wait for it', () => {\n  const fn = mock.fn();\n\n  // Optionally choose what to mock\n  mock.timers.enable(['setTimeout']);\n  setTimeout(fn, 9999);\n  assert.strictEqual(fn.mock.callCount(), 0);\n\n  // Advance in time\n  mock.timers.tick(9999);\n  assert.strictEqual(fn.mock.callCount(), 1);\n\n  // Reset the globally tracked mocks.\n  mock.timers.reset();\n\n  // If you call reset mock instance, it will also reset timers instance\n  mock.reset();\n});\n</code></pre>\n<pre><code class=\"language-js\">const assert = require('node:assert');\nconst { mock, test } = require('node:test');\n\ntest('mocks setTimeout to be executed synchronously without having to actually wait for it', () => {\n  const fn = mock.fn();\n\n  // Optionally choose what to mock\n  mock.timers.enable(['setTimeout']);\n  setTimeout(fn, 9999);\n  assert.strictEqual(fn.mock.callCount(), 0);\n\n  // Advance in time\n  mock.timers.tick(9999);\n  assert.strictEqual(fn.mock.callCount(), 1);\n\n  // Reset the globally tracked mocks.\n  mock.timers.reset();\n\n  // If you call reset mock instance, it'll also reset timers instance\n  mock.reset();\n});\n</code></pre>\n<p>The same mocking functionality is also exposed in the mock property on the <a href=\"#class-testcontext\"><code>TestContext</code></a> object\nof each test. The benefit of mocking via the test context is\nthat the test runner will automatically restore all mocked timers\nfunctionality once the test finishes.</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\nimport { test } from 'node:test';\n\ntest('mocks setTimeout to be executed synchronously without having to actually wait for it', (context) => {\n  const fn = context.mock.fn();\n\n  // Optionally choose what to mock\n  context.mock.timers.enable(['setTimeout']);\n  setTimeout(fn, 9999);\n  assert.strictEqual(fn.mock.callCount(), 0);\n\n  // Advance in time\n  context.mock.timers.tick(9999);\n  assert.strictEqual(fn.mock.callCount(), 1);\n});\n</code></pre>\n<pre><code class=\"language-js\">const assert = require('node:assert');\nconst { test } = require('node:test');\n\ntest('mocks setTimeout to be executed synchronously without having to actually wait for it', (context) => {\n  const fn = context.mock.fn();\n\n  // Optionally choose what to mock\n  context.mock.timers.enable(['setTimeout']);\n  setTimeout(fn, 9999);\n  assert.strictEqual(fn.mock.callCount(), 0);\n\n  // Advance in time\n  context.mock.timers.tick(9999);\n  assert.strictEqual(fn.mock.callCount(), 1);\n});\n</code></pre>",
+              "desc": "<p>Mocking timers is a technique commonly used in software testing to simulate and\ncontrol the behavior of timers, such as <code>setInterval</code> and <code>setTimeout</code>,\nwithout actually waiting for the specified time intervals.</p>\n<p>Refer to the <a href=\"#class-mocktimers\"><code>MockTimers</code></a> class for a full list of methods and features.</p>\n<p>This allows developers to write more reliable and\npredictable tests for time-dependent functionality.</p>\n<p>The example below shows how to mock <code>setTimeout</code>.\nUsing <code>.enable({ apis: ['setTimeout'] });</code>\nit will mock the <code>setTimeout</code> functions in the <a href=\"./timers.html\">node:timers</a> and\n<a href=\"./timers.html#timers-promises-api\">node:timers/promises</a> modules,\nas well as from the Node.js global context.</p>\n<p><strong>Note:</strong> Destructuring functions such as\n<code>import { setTimeout } from 'node:timers'</code>\nis currently not supported by this API.</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\nimport { mock, test } from 'node:test';\n\ntest('mocks setTimeout to be executed synchronously without having to actually wait for it', () => {\n  const fn = mock.fn();\n\n  // Optionally choose what to mock\n  mock.timers.enable({ apis: ['setTimeout'] });\n  setTimeout(fn, 9999);\n  assert.strictEqual(fn.mock.callCount(), 0);\n\n  // Advance in time\n  mock.timers.tick(9999);\n  assert.strictEqual(fn.mock.callCount(), 1);\n\n  // Reset the globally tracked mocks.\n  mock.timers.reset();\n\n  // If you call reset mock instance, it will also reset timers instance\n  mock.reset();\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\nconst { mock, test } = require('node:test');\n\ntest('mocks setTimeout to be executed synchronously without having to actually wait for it', () => {\n  const fn = mock.fn();\n\n  // Optionally choose what to mock\n  mock.timers.enable({ apis: ['setTimeout'] });\n  setTimeout(fn, 9999);\n  assert.strictEqual(fn.mock.callCount(), 0);\n\n  // Advance in time\n  mock.timers.tick(9999);\n  assert.strictEqual(fn.mock.callCount(), 1);\n\n  // Reset the globally tracked mocks.\n  mock.timers.reset();\n\n  // If you call reset mock instance, it will also reset timers instance\n  mock.reset();\n});\n</code></pre>\n<p>The same mocking functionality is also exposed in the mock property on the <a href=\"#class-testcontext\"><code>TestContext</code></a> object\nof each test. The benefit of mocking via the test context is\nthat the test runner will automatically restore all mocked timers\nfunctionality once the test finishes.</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\nimport { test } from 'node:test';\n\ntest('mocks setTimeout to be executed synchronously without having to actually wait for it', (context) => {\n  const fn = context.mock.fn();\n\n  // Optionally choose what to mock\n  context.mock.timers.enable({ apis: ['setTimeout'] });\n  setTimeout(fn, 9999);\n  assert.strictEqual(fn.mock.callCount(), 0);\n\n  // Advance in time\n  context.mock.timers.tick(9999);\n  assert.strictEqual(fn.mock.callCount(), 1);\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\nconst { test } = require('node:test');\n\ntest('mocks setTimeout to be executed synchronously without having to actually wait for it', (context) => {\n  const fn = context.mock.fn();\n\n  // Optionally choose what to mock\n  context.mock.timers.enable({ apis: ['setTimeout'] });\n  setTimeout(fn, 9999);\n  assert.strictEqual(fn.mock.callCount(), 0);\n\n  // Advance in time\n  context.mock.timers.tick(9999);\n  assert.strictEqual(fn.mock.callCount(), 1);\n});\n</code></pre>",
               "type": "module",
               "displayName": "Timers"
+            },
+            {
+              "textRaw": "Dates",
+              "name": "dates",
+              "desc": "<p>The mock timers API also allows the mocking of the <code>Date</code> object. This is a\nuseful feature for testing time-dependent functionality, or to simulate\ninternal calendar functions such as <code>Date.now()</code>.</p>\n<p>The dates implementation is also part of the <a href=\"#class-mocktimers\"><code>MockTimers</code></a> class. Refer to it\nfor a full list of methods and features.</p>\n<p><strong>Note:</strong> Dates and timers are dependent when mocked together. This means that\nif you have both the <code>Date</code> and <code>setTimeout</code> mocked, advancing the time will\nalso advance the mocked date as they simulate a single internal clock.</p>\n<p>The example below show how to mock the <code>Date</code> object and obtain the current\n<code>Date.now()</code> value.</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\nimport { test } from 'node:test';\n\ntest('mocks the Date object', (context) => {\n  // Optionally choose what to mock\n  context.mock.timers.enable({ apis: ['Date'] });\n  // If not specified, the initial date will be based on 0 in the UNIX epoch\n  assert.strictEqual(Date.now(), 0);\n\n  // Advance in time will also advance the date\n  context.mock.timers.tick(9999);\n  assert.strictEqual(Date.now(), 9999);\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\nconst { test } = require('node:test');\n\ntest('mocks the Date object', (context) => {\n  // Optionally choose what to mock\n  context.mock.timers.enable({ apis: ['Date'] });\n  // If not specified, the initial date will be based on 0 in the UNIX epoch\n  assert.strictEqual(Date.now(), 0);\n\n  // Advance in time will also advance the date\n  context.mock.timers.tick(9999);\n  assert.strictEqual(Date.now(), 9999);\n});\n</code></pre>\n<p>If there is no initial epoch set, the initial date will be based on 0 in the\nUnix epoch. This is January 1st, 1970, 00:00:00 UTC. You can set an initial date\nby passing a <code>now</code> property to the <code>.enable()</code> method. This value will be used\nas the initial date for the mocked <code>Date</code> object. It can either be a positive\ninteger, or another Date object.</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\nimport { test } from 'node:test';\n\ntest('mocks the Date object with initial time', (context) => {\n  // Optionally choose what to mock\n  context.mock.timers.enable({ apis: ['Date'], now: 100 });\n  assert.strictEqual(Date.now(), 100);\n\n  // Advance in time will also advance the date\n  context.mock.timers.tick(200);\n  assert.strictEqual(Date.now(), 300);\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\nconst { test } = require('node:test');\n\ntest('mocks the Date object with initial time', (context) => {\n  // Optionally choose what to mock\n  context.mock.timers.enable({ apis: ['Date'], now: 100 });\n  assert.strictEqual(Date.now(), 100);\n\n  // Advance in time will also advance the date\n  context.mock.timers.tick(200);\n  assert.strictEqual(Date.now(), 300);\n});\n</code></pre>\n<p>You can use the <code>.setTime()</code> method to manually move the mocked date to another\ntime. This method only accepts a positive integer.</p>\n<p><strong>Note:</strong> This method will execute any mocked timers that are in the past\nfrom the new time.</p>\n<p>In the below example we are setting a new time for the mocked date.</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\nimport { test } from 'node:test';\n\ntest('sets the time of a date object', (context) => {\n  // Optionally choose what to mock\n  context.mock.timers.enable({ apis: ['Date'], now: 100 });\n  assert.strictEqual(Date.now(), 100);\n\n  // Advance in time will also advance the date\n  context.mock.timers.setTime(1000);\n  context.mock.timers.tick(200);\n  assert.strictEqual(Date.now(), 1200);\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\nconst { test } = require('node:test');\n\ntest('sets the time of a date object', (context) => {\n  // Optionally choose what to mock\n  context.mock.timers.enable({ apis: ['Date'], now: 100 });\n  assert.strictEqual(Date.now(), 100);\n\n  // Advance in time will also advance the date\n  context.mock.timers.setTime(1000);\n  context.mock.timers.tick(200);\n  assert.strictEqual(Date.now(), 1200);\n});\n</code></pre>\n<p>If you have any timer that's set to run in the past, it will be executed as if\nthe <code>.tick()</code> method has been called. This is useful if you want to test\ntime-dependent functionality that's already in the past.</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\nimport { test } from 'node:test';\n\ntest('runs timers as setTime passes ticks', (context) => {\n  // Optionally choose what to mock\n  context.mock.timers.enable({ apis: ['setTimeout', 'Date'] });\n  const fn = context.mock.fn();\n  setTimeout(fn, 1000);\n\n  context.mock.timers.setTime(800);\n  // Timer is not executed as the time is not yet reached\n  assert.strictEqual(fn.mock.callCount(), 0);\n  assert.strictEqual(Date.now(), 800);\n\n  context.mock.timers.setTime(1200);\n  // Timer is executed as the time is now reached\n  assert.strictEqual(fn.mock.callCount(), 1);\n  assert.strictEqual(Date.now(), 1200);\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\nconst { test } = require('node:test');\n\ntest('runs timers as setTime passes ticks', (context) => {\n  // Optionally choose what to mock\n  context.mock.timers.enable({ apis: ['setTimeout', 'Date'] });\n  const fn = context.mock.fn();\n  setTimeout(fn, 1000);\n\n  context.mock.timers.setTime(800);\n  // Timer is not executed as the time is not yet reached\n  assert.strictEqual(fn.mock.callCount(), 0);\n  assert.strictEqual(Date.now(), 800);\n\n  context.mock.timers.setTime(1200);\n  // Timer is executed as the time is now reached\n  assert.strictEqual(fn.mock.callCount(), 1);\n  assert.strictEqual(Date.now(), 1200);\n});\n</code></pre>\n<p>Using <code>.runAll()</code> will execute all timers that are currently in the queue. This\nwill also advance the mocked date to the time of the last timer that was\nexecuted as if the time has passed.</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\nimport { test } from 'node:test';\n\ntest('runs timers as setTime passes ticks', (context) => {\n  // Optionally choose what to mock\n  context.mock.timers.enable({ apis: ['setTimeout', 'Date'] });\n  const fn = context.mock.fn();\n  setTimeout(fn, 1000);\n  setTimeout(fn, 2000);\n  setTimeout(fn, 3000);\n\n  context.mock.timers.runAll();\n  // All timers are executed as the time is now reached\n  assert.strictEqual(fn.mock.callCount(), 3);\n  assert.strictEqual(Date.now(), 3000);\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\nconst { test } = require('node:test');\n\ntest('runs timers as setTime passes ticks', (context) => {\n  // Optionally choose what to mock\n  context.mock.timers.enable({ apis: ['setTimeout', 'Date'] });\n  const fn = context.mock.fn();\n  setTimeout(fn, 1000);\n  setTimeout(fn, 2000);\n  setTimeout(fn, 3000);\n\n  context.mock.timers.runAll();\n  // All timers are executed as the time is now reached\n  assert.strictEqual(fn.mock.callCount(), 3);\n  assert.strictEqual(Date.now(), 3000);\n});\n</code></pre>",
+              "type": "module",
+              "displayName": "Dates"
             }
           ],
           "type": "module",
@@ -118,22 +157,23 @@
           "name": "test_reporters",
           "meta": {
             "added": [
+              "v19.6.0",
               "v18.15.0"
             ],
             "changes": [
               {
-                "version": "v18.17.0",
+                "version": "v19.9.0",
                 "pr-url": "https://github.com/nodejs/node/pull/47238",
                 "description": "Reporters are now exposed at `node:test/reporters`."
               }
             ]
           },
-          "desc": "<p>The <code>node:test</code> module supports passing <a href=\"cli.html#--test-reporter\"><code>--test-reporter</code></a>\nflags for the test runner to use a specific reporter.</p>\n<p>The following built-reporters are supported:</p>\n<ul>\n<li>\n<p><code>tap</code>\nThe <code>tap</code> reporter outputs the test results in the <a href=\"https://testanything.org/\">TAP</a> format.</p>\n</li>\n<li>\n<p><code>spec</code>\nThe <code>spec</code> reporter outputs the test results in a human-readable format.</p>\n</li>\n<li>\n<p><code>dot</code>\nThe <code>dot</code> reporter outputs the test results in a compact format,\nwhere each passing test is represented by a <code>.</code>,\nand each failing test is represented by a <code>X</code>.</p>\n</li>\n<li>\n<p><code>junit</code>\nThe junit reporter outputs test results in a jUnit XML format</p>\n</li>\n</ul>\n<p>When <code>stdout</code> is a <a href=\"tty.html\">TTY</a>, the <code>spec</code> reporter is used by default.\nOtherwise, the <code>tap</code> reporter is used by default.</p>\n<p>The reporters are available via the <code>node:test/reporters</code> module:</p>\n<pre><code class=\"language-mjs\">import { tap, spec, dot, junit } from 'node:test/reporters';\n</code></pre>\n<pre><code class=\"language-cjs\">const { tap, spec, dot, junit } = require('node:test/reporters');\n</code></pre>",
+          "desc": "<p>The <code>node:test</code> module supports passing <a href=\"cli.html#--test-reporter\"><code>--test-reporter</code></a>\nflags for the test runner to use a specific reporter.</p>\n<p>The following built-reporters are supported:</p>\n<ul>\n<li>\n<p><code>tap</code>\nThe <code>tap</code> reporter outputs the test results in the <a href=\"https://testanything.org/\">TAP</a> format.</p>\n</li>\n<li>\n<p><code>spec</code>\nThe <code>spec</code> reporter outputs the test results in a human-readable format.</p>\n</li>\n<li>\n<p><code>dot</code>\nThe <code>dot</code> reporter outputs the test results in a compact format,\nwhere each passing test is represented by a <code>.</code>,\nand each failing test is represented by a <code>X</code>.</p>\n</li>\n<li>\n<p><code>junit</code>\nThe junit reporter outputs test results in a jUnit XML format</p>\n</li>\n<li>\n<p><code>lcov</code>\nThe <code>lcov</code> reporter outputs test coverage when used with the\n<a href=\"cli.html#--experimental-test-coverage\"><code>--experimental-test-coverage</code></a> flag.</p>\n</li>\n</ul>\n<p>When <code>stdout</code> is a <a href=\"tty.html\">TTY</a>, the <code>spec</code> reporter is used by default.\nOtherwise, the <code>tap</code> reporter is used by default.</p>\n<p>The exact output of these reporters is subject to change between versions of\nNode.js, and should not be relied on programmatically. If programmatic access\nto the test runner's output is required, use the events emitted by the\n<a href=\"test.html#class-testsstream\" class=\"type\">&lt;TestsStream&gt;</a>.</p>\n<p>The reporters are available via the <code>node:test/reporters</code> module:</p>\n<pre><code class=\"language-mjs\">import { tap, spec, dot, junit, lcov } from 'node:test/reporters';\n</code></pre>\n<pre><code class=\"language-cjs\">const { tap, spec, dot, junit, lcov } = require('node:test/reporters');\n</code></pre>",
           "modules": [
             {
               "textRaw": "Custom reporters",
               "name": "custom_reporters",
-              "desc": "<p><a href=\"cli.html#--test-reporter\"><code>--test-reporter</code></a> can be used to specify a path to custom reporter.\nA custom reporter is a module that exports a value\naccepted by <a href=\"stream.html#streamcomposestreams\">stream.compose</a>.\nReporters should transform events emitted by a <a href=\"test.html#class-testsstream\" class=\"type\">&lt;TestsStream&gt;</a></p>\n<p>Example of a custom reporter using <a href=\"stream.html#class-streamtransform\" class=\"type\">&lt;stream.Transform&gt;</a>:</p>\n<pre><code class=\"language-mjs\">import { Transform } from 'node:stream';\n\nconst customReporter = new Transform({\n  writableObjectMode: true,\n  transform(event, encoding, callback) {\n    switch (event.type) {\n      case 'test:dequeue':\n        callback(null, `test ${event.data.name} dequeued`);\n        break;\n      case 'test:enqueue':\n        callback(null, `test ${event.data.name} enqueued`);\n        break;\n      case 'test:watch:drained':\n        callback(null, 'test watch queue drained');\n        break;\n      case 'test:start':\n        callback(null, `test ${event.data.name} started`);\n        break;\n      case 'test:pass':\n        callback(null, `test ${event.data.name} passed`);\n        break;\n      case 'test:fail':\n        callback(null, `test ${event.data.name} failed`);\n        break;\n      case 'test:plan':\n        callback(null, 'test plan');\n        break;\n      case 'test:diagnostic':\n      case 'test:stderr':\n      case 'test:stdout':\n        callback(null, event.data.message);\n        break;\n      case 'test:coverage': {\n        const { totalLineCount } = event.data.summary.totals;\n        callback(null, `total line count: ${totalLineCount}\\n`);\n        break;\n      }\n    }\n  },\n});\n\nexport default customReporter;\n</code></pre>\n<pre><code class=\"language-cjs\">const { Transform } = require('node:stream');\n\nconst customReporter = new Transform({\n  writableObjectMode: true,\n  transform(event, encoding, callback) {\n    switch (event.type) {\n      case 'test:dequeue':\n        callback(null, `test ${event.data.name} dequeued`);\n        break;\n      case 'test:enqueue':\n        callback(null, `test ${event.data.name} enqueued`);\n        break;\n      case 'test:watch:drained':\n        callback(null, 'test watch queue drained');\n        break;\n      case 'test:start':\n        callback(null, `test ${event.data.name} started`);\n        break;\n      case 'test:pass':\n        callback(null, `test ${event.data.name} passed`);\n        break;\n      case 'test:fail':\n        callback(null, `test ${event.data.name} failed`);\n        break;\n      case 'test:plan':\n        callback(null, 'test plan');\n        break;\n      case 'test:diagnostic':\n      case 'test:stderr':\n      case 'test:stdout':\n        callback(null, event.data.message);\n        break;\n      case 'test:coverage': {\n        const { totalLineCount } = event.data.summary.totals;\n        callback(null, `total line count: ${totalLineCount}\\n`);\n        break;\n      }\n    }\n  },\n});\n\nmodule.exports = customReporter;\n</code></pre>\n<p>Example of a custom reporter using a generator function:</p>\n<pre><code class=\"language-mjs\">export default async function * customReporter(source) {\n  for await (const event of source) {\n    switch (event.type) {\n      case 'test:dequeue':\n        yield `test ${event.data.name} dequeued`;\n        break;\n      case 'test:enqueue':\n        yield `test ${event.data.name} enqueued`;\n        break;\n      case 'test:watch:drained':\n        yield 'test watch queue drained';\n        break;\n      case 'test:start':\n        yield `test ${event.data.name} started\\n`;\n        break;\n      case 'test:pass':\n        yield `test ${event.data.name} passed\\n`;\n        break;\n      case 'test:fail':\n        yield `test ${event.data.name} failed\\n`;\n        break;\n      case 'test:plan':\n        yield 'test plan';\n        break;\n      case 'test:diagnostic':\n      case 'test:stderr':\n      case 'test:stdout':\n        yield `${event.data.message}\\n`;\n        break;\n      case 'test:coverage': {\n        const { totalLineCount } = event.data.summary.totals;\n        yield `total line count: ${totalLineCount}\\n`;\n        break;\n      }\n    }\n  }\n}\n</code></pre>\n<pre><code class=\"language-cjs\">module.exports = async function * customReporter(source) {\n  for await (const event of source) {\n    switch (event.type) {\n      case 'test:dequeue':\n        yield `test ${event.data.name} dequeued`;\n        break;\n      case 'test:enqueue':\n        yield `test ${event.data.name} enqueued`;\n        break;\n      case 'test:watch:drained':\n        yield 'test watch queue drained';\n        break;\n      case 'test:start':\n        yield `test ${event.data.name} started\\n`;\n        break;\n      case 'test:pass':\n        yield `test ${event.data.name} passed\\n`;\n        break;\n      case 'test:fail':\n        yield `test ${event.data.name} failed\\n`;\n        break;\n      case 'test:plan':\n        yield 'test plan\\n';\n        break;\n      case 'test:diagnostic':\n      case 'test:stderr':\n      case 'test:stdout':\n        yield `${event.data.message}\\n`;\n        break;\n      case 'test:coverage': {\n        const { totalLineCount } = event.data.summary.totals;\n        yield `total line count: ${totalLineCount}\\n`;\n        break;\n      }\n    }\n  }\n};\n</code></pre>\n<p>The value provided to <code>--test-reporter</code> should be a string like one used in an\n<code>import()</code> in JavaScript code.</p>",
+              "desc": "<p><a href=\"cli.html#--test-reporter\"><code>--test-reporter</code></a> can be used to specify a path to custom reporter.\nA custom reporter is a module that exports a value\naccepted by <a href=\"stream.html#streamcomposestreams\">stream.compose</a>.\nReporters should transform events emitted by a <a href=\"test.html#class-testsstream\" class=\"type\">&lt;TestsStream&gt;</a></p>\n<p>Example of a custom reporter using <a href=\"stream.html#class-streamtransform\" class=\"type\">&lt;stream.Transform&gt;</a>:</p>\n<pre><code class=\"language-mjs\">import { Transform } from 'node:stream';\n\nconst customReporter = new Transform({\n  writableObjectMode: true,\n  transform(event, encoding, callback) {\n    switch (event.type) {\n      case 'test:dequeue':\n        callback(null, `test ${event.data.name} dequeued`);\n        break;\n      case 'test:enqueue':\n        callback(null, `test ${event.data.name} enqueued`);\n        break;\n      case 'test:watch:drained':\n        callback(null, 'test watch queue drained');\n        break;\n      case 'test:start':\n        callback(null, `test ${event.data.name} started`);\n        break;\n      case 'test:pass':\n        callback(null, `test ${event.data.name} passed`);\n        break;\n      case 'test:fail':\n        callback(null, `test ${event.data.name} failed`);\n        break;\n      case 'test:plan':\n        callback(null, 'test plan');\n        break;\n      case 'test:diagnostic':\n      case 'test:stderr':\n      case 'test:stdout':\n        callback(null, event.data.message);\n        break;\n      case 'test:coverage': {\n        const { totalLineCount } = event.data.summary.totals;\n        callback(null, `total line count: ${totalLineCount}\\n`);\n        break;\n      }\n    }\n  },\n});\n\nexport default customReporter;\n</code></pre>\n<pre><code class=\"language-cjs\">const { Transform } = require('node:stream');\n\nconst customReporter = new Transform({\n  writableObjectMode: true,\n  transform(event, encoding, callback) {\n    switch (event.type) {\n      case 'test:dequeue':\n        callback(null, `test ${event.data.name} dequeued`);\n        break;\n      case 'test:enqueue':\n        callback(null, `test ${event.data.name} enqueued`);\n        break;\n      case 'test:watch:drained':\n        callback(null, 'test watch queue drained');\n        break;\n      case 'test:start':\n        callback(null, `test ${event.data.name} started`);\n        break;\n      case 'test:pass':\n        callback(null, `test ${event.data.name} passed`);\n        break;\n      case 'test:fail':\n        callback(null, `test ${event.data.name} failed`);\n        break;\n      case 'test:plan':\n        callback(null, 'test plan');\n        break;\n      case 'test:diagnostic':\n      case 'test:stderr':\n      case 'test:stdout':\n        callback(null, event.data.message);\n        break;\n      case 'test:coverage': {\n        const { totalLineCount } = event.data.summary.totals;\n        callback(null, `total line count: ${totalLineCount}\\n`);\n        break;\n      }\n    }\n  },\n});\n\nmodule.exports = customReporter;\n</code></pre>\n<p>Example of a custom reporter using a generator function:</p>\n<pre><code class=\"language-mjs\">export default async function * customReporter(source) {\n  for await (const event of source) {\n    switch (event.type) {\n      case 'test:dequeue':\n        yield `test ${event.data.name} dequeued`;\n        break;\n      case 'test:enqueue':\n        yield `test ${event.data.name} enqueued`;\n        break;\n      case 'test:watch:drained':\n        yield 'test watch queue drained';\n        break;\n      case 'test:start':\n        yield `test ${event.data.name} started\\n`;\n        break;\n      case 'test:pass':\n        yield `test ${event.data.name} passed\\n`;\n        break;\n      case 'test:fail':\n        yield `test ${event.data.name} failed\\n`;\n        break;\n      case 'test:plan':\n        yield 'test plan';\n        break;\n      case 'test:diagnostic':\n      case 'test:stderr':\n      case 'test:stdout':\n        yield `${event.data.message}\\n`;\n        break;\n      case 'test:coverage': {\n        const { totalLineCount } = event.data.summary.totals;\n        yield `total line count: ${totalLineCount}\\n`;\n        break;\n      }\n    }\n  }\n}\n</code></pre>\n<pre><code class=\"language-cjs\">module.exports = async function * customReporter(source) {\n  for await (const event of source) {\n    switch (event.type) {\n      case 'test:dequeue':\n        yield `test ${event.data.name} dequeued`;\n        break;\n      case 'test:enqueue':\n        yield `test ${event.data.name} enqueued`;\n        break;\n      case 'test:watch:drained':\n        yield 'test watch queue drained';\n        break;\n      case 'test:start':\n        yield `test ${event.data.name} started\\n`;\n        break;\n      case 'test:pass':\n        yield `test ${event.data.name} passed\\n`;\n        break;\n      case 'test:fail':\n        yield `test ${event.data.name} failed\\n`;\n        break;\n      case 'test:plan':\n        yield 'test plan\\n';\n        break;\n      case 'test:diagnostic':\n      case 'test:stderr':\n      case 'test:stdout':\n        yield `${event.data.message}\\n`;\n        break;\n      case 'test:coverage': {\n        const { totalLineCount } = event.data.summary.totals;\n        yield `total line count: ${totalLineCount}\\n`;\n        break;\n      }\n    }\n  }\n};\n</code></pre>\n<p>The value provided to <code>--test-reporter</code> should be a string like one used in an\n<code>import()</code> in JavaScript code, or a value provided for <a href=\"cli.html#--importmodule\"><code>--import</code></a>.</p>",
               "type": "module",
               "displayName": "Custom reporters"
             },
@@ -156,11 +196,20 @@
           "name": "run",
           "meta": {
             "added": [
-              "v18.9.0"
+              "v18.9.0",
+              "v16.19.0"
             ],
             "changes": [
               {
-                "version": "v18.17.0",
+                "version": "v20.14.0",
+                "pr-url": "https://github.com/nodejs/node/pull/52038",
+                "description": "Added the `forceExit` option."
+              },
+              {
+                "version": [
+                  "v20.1.0",
+                  "v18.17.0"
+                ],
                 "pr-url": "https://github.com/nodejs/node/pull/47628",
                 "description": "Add a testNamePatterns option."
               }
@@ -192,6 +241,13 @@
                       "name": "files",
                       "type": "Array",
                       "desc": "An array containing the list of files to run. **Default** matching files from [test runner execution model][]."
+                    },
+                    {
+                      "textRaw": "`forceExit`: {boolean} Configures the test runner to exit the process once all known tests have finished executing even if the event loop would otherwise remain active. **Default:** `false`.",
+                      "name": "forceExit",
+                      "type": "boolean",
+                      "default": "`false`",
+                      "desc": "Configures the test runner to exit the process once all known tests have finished executing even if the event loop would otherwise remain active."
                     },
                     {
                       "textRaw": "`inspectPort` {number|Function} Sets inspector port of test child process. This can be a number, or a function that takes no arguments and returns a number. If a nullish value is provided, each process gets its own port, incremented from the primary's `process.debugPort`. **Default:** `undefined`.",
@@ -266,7 +322,102 @@
               ]
             }
           ],
-          "desc": "<pre><code class=\"language-mjs\">import { tap } from 'node:test/reporters';\nimport process from 'node:process';\n\nrun({ files: [path.resolve('./tests/test.js')] })\n  .compose(tap)\n  .pipe(process.stdout);\n</code></pre>\n<pre><code class=\"language-cjs\">const { tap } = require('node:test/reporters');\n\nrun({ files: [path.resolve('./tests/test.js')] })\n  .compose(tap)\n  .pipe(process.stdout);\n</code></pre>"
+          "desc": "<p><strong>Note:</strong> <code>shard</code> is used to horizontally parallelize test running across\nmachines or processes, ideal for large-scale executions across varied\nenvironments. It's incompatible with <code>watch</code> mode, tailored for rapid\ncode iteration by automatically rerunning tests on file changes.</p>\n<pre><code class=\"language-mjs\">import { tap } from 'node:test/reporters';\nimport { run } from 'node:test';\nimport process from 'node:process';\nimport path from 'node:path';\n\nrun({ files: [path.resolve('./tests/test.js')] })\n .on('test:fail', () => {\n   process.exitCode = 1;\n })\n .compose(tap)\n .pipe(process.stdout);\n</code></pre>\n<pre><code class=\"language-cjs\">const { tap } = require('node:test/reporters');\nconst { run } = require('node:test');\nconst path = require('node:path');\n\nrun({ files: [path.resolve('./tests/test.js')] })\n .on('test:fail', () => {\n   process.exitCode = 1;\n })\n .compose(tap)\n .pipe(process.stdout);\n</code></pre>"
+        },
+        {
+          "textRaw": "`suite([name][, options][, fn])`",
+          "type": "method",
+          "name": "suite",
+          "meta": {
+            "added": [
+              "v20.13.0"
+            ],
+            "changes": []
+          },
+          "signatures": [
+            {
+              "return": {
+                "textRaw": "Returns: {Promise} Immediately fulfilled with `undefined`.",
+                "name": "return",
+                "type": "Promise",
+                "desc": "Immediately fulfilled with `undefined`."
+              },
+              "params": [
+                {
+                  "textRaw": "`name` {string} The name of the suite, which is displayed when reporting test results. **Default:** The `name` property of `fn`, or `'<anonymous>'` if `fn` does not have a name.",
+                  "name": "name",
+                  "type": "string",
+                  "default": "The `name` property of `fn`, or `'<anonymous>'` if `fn` does not have a name",
+                  "desc": "The name of the suite, which is displayed when reporting test results."
+                },
+                {
+                  "textRaw": "`options` {Object} Optional configuration options for the suite. This supports the same options as `test([name][, options][, fn])`.",
+                  "name": "options",
+                  "type": "Object",
+                  "desc": "Optional configuration options for the suite. This supports the same options as `test([name][, options][, fn])`."
+                },
+                {
+                  "textRaw": "`fn` {Function|AsyncFunction} The suite function declaring nested tests and suites. The first argument to this function is a [`SuiteContext`][] object. **Default:** A no-op function.",
+                  "name": "fn",
+                  "type": "Function|AsyncFunction",
+                  "default": "A no-op function",
+                  "desc": "The suite function declaring nested tests and suites. The first argument to this function is a [`SuiteContext`][] object."
+                }
+              ]
+            }
+          ],
+          "desc": "<p>The <code>suite()</code> function is imported from the <code>node:test</code> module.</p>"
+        },
+        {
+          "textRaw": "`suite.skip([name][, options][, fn])`",
+          "type": "method",
+          "name": "skip",
+          "meta": {
+            "added": [
+              "v20.13.0"
+            ],
+            "changes": []
+          },
+          "signatures": [
+            {
+              "params": []
+            }
+          ],
+          "desc": "<p>Shorthand for skipping a suite. This is the same as\n<a href=\"#suitename-options-fn\"><code>suite([name], { skip: true }[, fn])</code></a>.</p>"
+        },
+        {
+          "textRaw": "`suite.todo([name][, options][, fn])`",
+          "type": "method",
+          "name": "todo",
+          "meta": {
+            "added": [
+              "v20.13.0"
+            ],
+            "changes": []
+          },
+          "signatures": [
+            {
+              "params": []
+            }
+          ],
+          "desc": "<p>Shorthand for marking a suite as <code>TODO</code>. This is the same as\n<a href=\"#suitename-options-fn\"><code>suite([name], { todo: true }[, fn])</code></a>.</p>"
+        },
+        {
+          "textRaw": "`suite.only([name][, options][, fn])`",
+          "type": "method",
+          "name": "only",
+          "meta": {
+            "added": [
+              "v20.13.0"
+            ],
+            "changes": []
+          },
+          "signatures": [
+            {
+              "params": []
+            }
+          ],
+          "desc": "<p>Shorthand for marking a suite as <code>only</code>. This is the same as\n<a href=\"#suitename-options-fn\"><code>suite([name], { only: true }[, fn])</code></a>.</p>"
         },
         {
           "textRaw": "`test([name][, options][, fn])`",
@@ -274,21 +425,28 @@
           "name": "test",
           "meta": {
             "added": [
-              "v18.0.0"
+              "v18.0.0",
+              "v16.17.0"
             ],
             "changes": [
               {
-                "version": "v18.17.0",
+                "version": "v20.2.0",
                 "pr-url": "https://github.com/nodejs/node/pull/47909",
                 "description": "Added the `skip`, `todo`, and `only` shorthands."
               },
               {
-                "version": "v18.8.0",
+                "version": [
+                  "v18.8.0",
+                  "v16.18.0"
+                ],
                 "pr-url": "https://github.com/nodejs/node/pull/43554",
                 "description": "Add a `signal` option."
               },
               {
-                "version": "v18.7.0",
+                "version": [
+                  "v18.7.0",
+                  "v16.17.0"
+                ],
                 "pr-url": "https://github.com/nodejs/node/pull/43505",
                 "description": "Add a `timeout` option."
               }
@@ -297,10 +455,10 @@
           "signatures": [
             {
               "return": {
-                "textRaw": "Returns: {Promise} Resolved with `undefined` once the test completes, or immediately if the test runs within [`describe()`][].",
+                "textRaw": "Returns: {Promise} Fulfilled with `undefined` once the test completes, or immediately if the test runs within a suite.",
                 "name": "return",
                 "type": "Promise",
-                "desc": "Resolved with `undefined` once the test completes, or immediately if the test runs within [`describe()`][]."
+                "desc": "Fulfilled with `undefined` once the test completes, or immediately if the test runs within a suite."
               },
               "params": [
                 {
@@ -356,6 +514,13 @@
                       "type": "number",
                       "default": "`Infinity`",
                       "desc": "A number of milliseconds the test will fail after. If unspecified, subtests inherit this value from their parent."
+                    },
+                    {
+                      "textRaw": "`plan` {number} The number of assertions and subtests expected to be run in the test. If the number of assertions run in the test does not match the number specified in the plan, the test will fail. **Default:** `undefined`.",
+                      "name": "plan",
+                      "type": "number",
+                      "default": "`undefined`",
+                      "desc": "The number of assertions and subtests expected to be run in the test. If the number of assertions run in the test does not match the number specified in the plan, the test will fail."
                     }
                   ]
                 },
@@ -369,7 +534,7 @@
               ]
             }
           ],
-          "desc": "<p>The <code>test()</code> function is the value imported from the <code>test</code> module. Each\ninvocation of this function results in reporting the test to the <a href=\"test.html#class-testsstream\" class=\"type\">&lt;TestsStream&gt;</a>.</p>\n<p>The <code>TestContext</code> object passed to the <code>fn</code> argument can be used to perform\nactions related to the current test. Examples include skipping the test, adding\nadditional diagnostic information, or creating subtests.</p>\n<p><code>test()</code> returns a <code>Promise</code> that resolves once the test completes.\nif <code>test()</code> is called within a <code>describe()</code> block, it resolve immediately.\nThe return value can usually be discarded for top level tests.\nHowever, the return value from subtests should be used to prevent the parent\ntest from finishing first and cancelling the subtest\nas shown in the following example.</p>\n<pre><code class=\"language-js\">test('top level test', async (t) => {\n  // The setTimeout() in the following subtest would cause it to outlive its\n  // parent test if 'await' is removed on the next line. Once the parent test\n  // completes, it will cancel any outstanding subtests.\n  await t.test('longer running subtest', async (t) => {\n    return new Promise((resolve, reject) => {\n      setTimeout(resolve, 1000);\n    });\n  });\n});\n</code></pre>\n<p>The <code>timeout</code> option can be used to fail the test if it takes longer than\n<code>timeout</code> milliseconds to complete. However, it is not a reliable mechanism for\ncanceling tests because a running test might block the application thread and\nthus prevent the scheduled cancellation.</p>"
+          "desc": "<p>The <code>test()</code> function is the value imported from the <code>test</code> module. Each\ninvocation of this function results in reporting the test to the <a href=\"test.html#class-testsstream\" class=\"type\">&lt;TestsStream&gt;</a>.</p>\n<p>The <code>TestContext</code> object passed to the <code>fn</code> argument can be used to perform\nactions related to the current test. Examples include skipping the test, adding\nadditional diagnostic information, or creating subtests.</p>\n<p><code>test()</code> returns a <code>Promise</code> that fulfills once the test completes.\nif <code>test()</code> is called within a suite, it fulfills immediately.\nThe return value can usually be discarded for top level tests.\nHowever, the return value from subtests should be used to prevent the parent\ntest from finishing first and cancelling the subtest\nas shown in the following example.</p>\n<pre><code class=\"language-js\">test('top level test', async (t) => {\n  // The setTimeout() in the following subtest would cause it to outlive its\n  // parent test if 'await' is removed on the next line. Once the parent test\n  // completes, it will cancel any outstanding subtests.\n  await t.test('longer running subtest', async (t) => {\n    return new Promise((resolve, reject) => {\n      setTimeout(resolve, 1000);\n    });\n  });\n});\n</code></pre>\n<p>The <code>timeout</code> option can be used to fail the test if it takes longer than\n<code>timeout</code> milliseconds to complete. However, it is not a reliable mechanism for\ncanceling tests because a running test might block the application thread and\nthus prevent the scheduled cancellation.</p>"
         },
         {
           "textRaw": "`test.skip([name][, options][, fn])`",
@@ -410,37 +575,10 @@
           "name": "describe",
           "signatures": [
             {
-              "return": {
-                "textRaw": "Returns: {Promise} Immediately fulfilled with `undefined`.",
-                "name": "return",
-                "type": "Promise",
-                "desc": "Immediately fulfilled with `undefined`."
-              },
-              "params": [
-                {
-                  "textRaw": "`name` {string} The name of the suite, which is displayed when reporting test results. **Default:** The `name` property of `fn`, or `'<anonymous>'` if `fn` does not have a name.",
-                  "name": "name",
-                  "type": "string",
-                  "default": "The `name` property of `fn`, or `'<anonymous>'` if `fn` does not have a name",
-                  "desc": "The name of the suite, which is displayed when reporting test results."
-                },
-                {
-                  "textRaw": "`options` {Object} Configuration options for the suite. supports the same options as `test([name][, options][, fn])`.",
-                  "name": "options",
-                  "type": "Object",
-                  "desc": "Configuration options for the suite. supports the same options as `test([name][, options][, fn])`."
-                },
-                {
-                  "textRaw": "`fn` {Function|AsyncFunction} The function under suite declaring all subtests and subsuites. The first argument to this function is a [`SuiteContext`][] object. **Default:** A no-op function.",
-                  "name": "fn",
-                  "type": "Function|AsyncFunction",
-                  "default": "A no-op function",
-                  "desc": "The function under suite declaring all subtests and subsuites. The first argument to this function is a [`SuiteContext`][] object."
-                }
-              ]
+              "params": []
             }
           ],
-          "desc": "<p>The <code>describe()</code> function imported from the <code>node:test</code> module. Each\ninvocation of this function results in the creation of a Subtest.\nAfter invocation of top level <code>describe</code> functions,\nall top level tests and suites will execute.</p>"
+          "desc": "<p>Alias for <a href=\"#suitename-options-fn\"><code>suite()</code></a>.</p>\n<p>The <code>describe()</code> function is imported from the <code>node:test</code> module.</p>"
         },
         {
           "textRaw": "`describe.skip([name][, options][, fn])`",
@@ -451,7 +589,7 @@
               "params": []
             }
           ],
-          "desc": "<p>Shorthand for skipping a suite, same as <a href=\"#describename-options-fn\"><code>describe([name], { skip: true }[, fn])</code></a>.</p>"
+          "desc": "<p>Shorthand for skipping a suite. This is the same as\n<a href=\"#describename-options-fn\"><code>describe([name], { skip: true }[, fn])</code></a>.</p>"
         },
         {
           "textRaw": "`describe.todo([name][, options][, fn])`",
@@ -462,7 +600,7 @@
               "params": []
             }
           ],
-          "desc": "<p>Shorthand for marking a suite as <code>TODO</code>, same as\n<a href=\"#describename-options-fn\"><code>describe([name], { todo: true }[, fn])</code></a>.</p>"
+          "desc": "<p>Shorthand for marking a suite as <code>TODO</code>. This is the same as\n<a href=\"#describename-options-fn\"><code>describe([name], { todo: true }[, fn])</code></a>.</p>"
         },
         {
           "textRaw": "`describe.only([name][, options][, fn])`",
@@ -470,6 +608,7 @@
           "name": "only",
           "meta": {
             "added": [
+              "v19.8.0",
               "v18.15.0"
             ],
             "changes": []
@@ -479,7 +618,7 @@
               "params": []
             }
           ],
-          "desc": "<p>Shorthand for marking a suite as <code>only</code>, same as\n<a href=\"#describename-options-fn\"><code>describe([name], { only: true }[, fn])</code></a>.</p>"
+          "desc": "<p>Shorthand for marking a suite as <code>only</code>. This is the same as\n<a href=\"#describename-options-fn\"><code>describe([name], { only: true }[, fn])</code></a>.</p>"
         },
         {
           "textRaw": "`it([name][, options][, fn])`",
@@ -492,7 +631,7 @@
             ],
             "changes": [
               {
-                "version": "v18.16.0",
+                "version": "v19.8.0",
                 "pr-url": "https://github.com/nodejs/node/pull/46889",
                 "description": "Calling `it()` is now equivalent to calling `test()`."
               }
@@ -503,7 +642,7 @@
               "params": []
             }
           ],
-          "desc": "<p>Shorthand for <a href=\"#testname-options-fn\"><code>test()</code></a>.</p>\n<p>The <code>it()</code> function is imported from the <code>node:test</code> module.</p>"
+          "desc": "<p>Alias for <a href=\"#testname-options-fn\"><code>test()</code></a>.</p>\n<p>The <code>it()</code> function is imported from the <code>node:test</code> module.</p>"
         },
         {
           "textRaw": "`it.skip([name][, options][, fn])`",
@@ -533,6 +672,7 @@
           "name": "only",
           "meta": {
             "added": [
+              "v19.8.0",
               "v18.15.0"
             ],
             "changes": []
@@ -550,7 +690,8 @@
           "name": "before",
           "meta": {
             "added": [
-              "v18.8.0"
+              "v18.8.0",
+              "v16.18.0"
             ],
             "changes": []
           },
@@ -588,7 +729,7 @@
               ]
             }
           ],
-          "desc": "<p>This function is used to create a hook running before running a suite.</p>\n<pre><code class=\"language-js\">describe('tests', async () => {\n  before(() => console.log('about to run some test'));\n  it('is a subtest', () => {\n    assert.ok('some relevant assertion here');\n  });\n});\n</code></pre>"
+          "desc": "<p>This function creates a hook that runs before executing a suite.</p>\n<pre><code class=\"language-js\">describe('tests', async () => {\n  before(() => console.log('about to run some test'));\n  it('is a subtest', () => {\n    assert.ok('some relevant assertion here');\n  });\n});\n</code></pre>"
         },
         {
           "textRaw": "`after([fn][, options])`",
@@ -596,7 +737,8 @@
           "name": "after",
           "meta": {
             "added": [
-              "v18.8.0"
+              "v18.8.0",
+              "v16.18.0"
             ],
             "changes": []
           },
@@ -634,7 +776,7 @@
               ]
             }
           ],
-          "desc": "<p>This function is used to create a hook running after  running a suite.</p>\n<pre><code class=\"language-js\">describe('tests', async () => {\n  after(() => console.log('finished running tests'));\n  it('is a subtest', () => {\n    assert.ok('some relevant assertion here');\n  });\n});\n</code></pre>"
+          "desc": "<p>This function creates a hook that runs after executing a suite.</p>\n<pre><code class=\"language-js\">describe('tests', async () => {\n  after(() => console.log('finished running tests'));\n  it('is a subtest', () => {\n    assert.ok('some relevant assertion here');\n  });\n});\n</code></pre>\n<p><strong>Note:</strong> The <code>after</code> hook is guaranteed to run,\neven if tests within the suite fail.</p>"
         },
         {
           "textRaw": "`beforeEach([fn][, options])`",
@@ -642,7 +784,8 @@
           "name": "beforeEach",
           "meta": {
             "added": [
-              "v18.8.0"
+              "v18.8.0",
+              "v16.18.0"
             ],
             "changes": []
           },
@@ -680,7 +823,7 @@
               ]
             }
           ],
-          "desc": "<p>This function is used to create a hook running\nbefore each subtest of the current suite.</p>\n<pre><code class=\"language-js\">describe('tests', async () => {\n  beforeEach(() => console.log('about to run a test'));\n  it('is a subtest', () => {\n    assert.ok('some relevant assertion here');\n  });\n});\n</code></pre>"
+          "desc": "<p>This function creates a hook that runs before each test in the current suite.</p>\n<pre><code class=\"language-js\">describe('tests', async () => {\n  beforeEach(() => console.log('about to run a test'));\n  it('is a subtest', () => {\n    assert.ok('some relevant assertion here');\n  });\n});\n</code></pre>"
         },
         {
           "textRaw": "`afterEach([fn][, options])`",
@@ -688,7 +831,8 @@
           "name": "afterEach",
           "meta": {
             "added": [
-              "v18.8.0"
+              "v18.8.0",
+              "v16.18.0"
             ],
             "changes": []
           },
@@ -726,7 +870,7 @@
               ]
             }
           ],
-          "desc": "<p>This function is used to create a hook running\nafter each subtest of the current test.</p>\n<pre><code class=\"language-js\">describe('tests', async () => {\n  afterEach(() => console.log('finished running a test'));\n  it('is a subtest', () => {\n    assert.ok('some relevant assertion here');\n  });\n});\n</code></pre>"
+          "desc": "<p>This function creates a hook that runs after each test in the current suite.\nThe <code>afterEach()</code> hook is run even if the test fails.</p>\n<pre><code class=\"language-js\">describe('tests', async () => {\n  afterEach(() => console.log('finished running a test'));\n  it('is a subtest', () => {\n    assert.ok('some relevant assertion here');\n  });\n});\n</code></pre>"
         }
       ],
       "classes": [
@@ -736,6 +880,7 @@
           "name": "MockFunctionContext",
           "meta": {
             "added": [
+              "v19.1.0",
               "v18.13.0"
             ],
             "changes": []
@@ -748,6 +893,7 @@
               "name": "calls",
               "meta": {
                 "added": [
+                  "v19.1.0",
                   "v18.13.0"
                 ],
                 "changes": []
@@ -762,6 +908,7 @@
               "name": "callCount",
               "meta": {
                 "added": [
+                  "v19.1.0",
                   "v18.13.0"
                 ],
                 "changes": []
@@ -785,6 +932,7 @@
               "name": "mockImplementation",
               "meta": {
                 "added": [
+                  "v19.1.0",
                   "v18.13.0"
                 ],
                 "changes": []
@@ -809,6 +957,7 @@
               "name": "mockImplementationOnce",
               "meta": {
                 "added": [
+                  "v19.1.0",
                   "v18.13.0"
                 ],
                 "changes": []
@@ -840,6 +989,7 @@
               "name": "resetCalls",
               "meta": {
                 "added": [
+                  "v19.3.0",
                   "v18.13.0"
                 ],
                 "changes": []
@@ -857,6 +1007,7 @@
               "name": "restore",
               "meta": {
                 "added": [
+                  "v19.1.0",
                   "v18.13.0"
                 ],
                 "changes": []
@@ -876,6 +1027,7 @@
           "name": "MockTracker",
           "meta": {
             "added": [
+              "v19.1.0",
               "v18.13.0"
             ],
             "changes": []
@@ -888,6 +1040,7 @@
               "name": "fn",
               "meta": {
                 "added": [
+                  "v19.1.0",
                   "v18.13.0"
                 ],
                 "changes": []
@@ -941,6 +1094,7 @@
               "name": "getter",
               "meta": {
                 "added": [
+                  "v19.3.0",
                   "v18.13.0"
                 ],
                 "changes": []
@@ -958,6 +1112,7 @@
               "name": "method",
               "meta": {
                 "added": [
+                  "v19.1.0",
                   "v18.13.0"
                 ],
                 "changes": []
@@ -1030,6 +1185,7 @@
               "name": "reset",
               "meta": {
                 "added": [
+                  "v19.1.0",
                   "v18.13.0"
                 ],
                 "changes": []
@@ -1047,6 +1203,7 @@
               "name": "restoreAll",
               "meta": {
                 "added": [
+                  "v19.1.0",
                   "v18.13.0"
                 ],
                 "changes": []
@@ -1064,6 +1221,7 @@
               "name": "setter",
               "meta": {
                 "added": [
+                  "v19.3.0",
                   "v18.13.0"
                 ],
                 "changes": []
@@ -1083,30 +1241,36 @@
           "name": "MockTimers",
           "meta": {
             "added": [
-              "v18.19.0"
+              "v20.4.0"
             ],
             "changes": []
           },
           "stability": 1,
           "stabilityText": "Experimental",
-          "desc": "<p>Mocking timers is a technique commonly used in software testing to simulate and\ncontrol the behavior of timers, such as <code>setInterval</code> and <code>setTimeout</code>,\nwithout actually waiting for the specified time intervals.</p>\n<p>The <a href=\"#class-mocktracker\"><code>MockTracker</code></a> provides a top-level <code>timers</code> export\nwhich is a <code>MockTimers</code> instance.</p>",
+          "desc": "<p>Mocking timers is a technique commonly used in software testing to simulate and\ncontrol the behavior of timers, such as <code>setInterval</code> and <code>setTimeout</code>,\nwithout actually waiting for the specified time intervals.</p>\n<p>MockTimers is also able to mock the <code>Date</code> object.</p>\n<p>The <a href=\"#class-mocktracker\"><code>MockTracker</code></a> provides a top-level <code>timers</code> export\nwhich is a <code>MockTimers</code> instance.</p>",
           "methods": [
             {
-              "textRaw": "`timers.enable([timers])`",
+              "textRaw": "`timers.enable([enableOptions])`",
               "type": "method",
               "name": "enable",
               "meta": {
                 "added": [
-                  "v18.19.0"
+                  "v20.4.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v20.11.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/48638",
+                    "description": "Updated parameters to be an option object with available APIs and the default initial epoch."
+                  }
+                ]
               },
               "signatures": [
                 {
                   "params": []
                 }
               ],
-              "desc": "<p>Enables timer mocking for the specified timers.</p>\n<ul>\n<li><code>timers</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array\" class=\"type\">&lt;Array&gt;</a> An optional array containing the timers to mock.\nThe currently supported timer values are <code>'setInterval'</code>, <code>'setTimeout'</code>,\nand <code>'setImmediate'</code>.  If no value is provided, all timers (<code>'setInterval'</code>,\n<code>'clearInterval'</code>, <code>'setTimeout'</code>, <code>'clearTimeout'</code>, <code>'setImmediate'</code>,\nand <code>'clearImmediate'</code>) will be mocked by default.</li>\n</ul>\n<p><strong>Note:</strong> When you enable mocking for a specific timer, its associated\nclear function will also be implicitly mocked.</p>\n<p>Example usage:</p>\n<pre><code class=\"language-mjs\">import { mock } from 'node:test';\nmock.timers.enable(['setInterval']);\n</code></pre>\n<pre><code class=\"language-cjs\">const { mock } = require('node:test');\nmock.timers.enable(['setInterval']);\n</code></pre>\n<p>The above example enables mocking for the <code>setInterval</code> timer and\nimplicitly mocks the <code>clearInterval</code> function. Only the <code>setInterval</code>\nand <code>clearInterval</code> functions from <a href=\"./timers.html\">node:timers</a>,\n<a href=\"./timers.html#timers-promises-api\">node:timers/promises</a>, and\n<code>globalThis</code> will be mocked.</p>\n<p>Alternatively, if you call <code>mock.timers.enable()</code> without any parameters:</p>\n<p>All timers (<code>'setInterval'</code>, <code>'clearInterval'</code>, <code>'setTimeout'</code>, and <code>'clearTimeout'</code>)\nwill be mocked. The <code>setInterval</code>, <code>clearInterval</code>, <code>setTimeout</code>, and <code>clearTimeout</code>\nfunctions from <code>node:timers</code>, <code>node:timers/promises</code>,\nand <code>globalThis</code> will be mocked.</p>"
+              "desc": "<p>Enables timer mocking for the specified timers.</p>\n<ul>\n<li><code>enableOptions</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object\" class=\"type\">&lt;Object&gt;</a> Optional configuration options for enabling timer\nmocking. The following properties are supported:\n<ul>\n<li><code>apis</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array\" class=\"type\">&lt;Array&gt;</a> An optional array containing the timers to mock.\nThe currently supported timer values are <code>'setInterval'</code>, <code>'setTimeout'</code>, <code>'setImmediate'</code>,\nand <code>'Date'</code>. <strong>Default:</strong> <code>['setInterval', 'setTimeout', 'setImmediate', 'Date']</code>.\nIf no array is provided, all time related APIs (<code>'setInterval'</code>, <code>'clearInterval'</code>,\n<code>'setTimeout'</code>, <code>'clearTimeout'</code>, and <code>'Date'</code>) will be mocked by default.</li>\n<li><code>now</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date\" class=\"type\">&lt;Date&gt;</a> An optional number or Date object representing the\ninitial time (in milliseconds) to use as the value\nfor <code>Date.now()</code>. <strong>Default:</strong> <code>0</code>.</li>\n</ul>\n</li>\n</ul>\n<p><strong>Note:</strong> When you enable mocking for a specific timer, its associated\nclear function will also be implicitly mocked.</p>\n<p><strong>Note:</strong> Mocking <code>Date</code> will affect the behavior of the mocked timers\nas they use the same internal clock.</p>\n<p>Example usage without setting initial time:</p>\n<pre><code class=\"language-mjs\">import { mock } from 'node:test';\nmock.timers.enable({ apis: ['setInterval'] });\n</code></pre>\n<pre><code class=\"language-cjs\">const { mock } = require('node:test');\nmock.timers.enable({ apis: ['setInterval'] });\n</code></pre>\n<p>The above example enables mocking for the <code>setInterval</code> timer and\nimplicitly mocks the <code>clearInterval</code> function. Only the <code>setInterval</code>\nand <code>clearInterval</code> functions from <a href=\"./timers.html\">node:timers</a>,\n<a href=\"./timers.html#timers-promises-api\">node:timers/promises</a>, and\n<code>globalThis</code> will be mocked.</p>\n<p>Example usage with initial time set</p>\n<pre><code class=\"language-mjs\">import { mock } from 'node:test';\nmock.timers.enable({ apis: ['Date'], now: 1000 });\n</code></pre>\n<pre><code class=\"language-cjs\">const { mock } = require('node:test');\nmock.timers.enable({ apis: ['Date'], now: 1000 });\n</code></pre>\n<p>Example usage with initial Date object as time set</p>\n<pre><code class=\"language-mjs\">import { mock } from 'node:test';\nmock.timers.enable({ apis: ['Date'], now: new Date() });\n</code></pre>\n<pre><code class=\"language-cjs\">const { mock } = require('node:test');\nmock.timers.enable({ apis: ['Date'], now: new Date() });\n</code></pre>\n<p>Alternatively, if you call <code>mock.timers.enable()</code> without any parameters:</p>\n<p>All timers (<code>'setInterval'</code>, <code>'clearInterval'</code>, <code>'setTimeout'</code>, and <code>'clearTimeout'</code>)\nwill be mocked. The <code>setInterval</code>, <code>clearInterval</code>, <code>setTimeout</code>, and <code>clearTimeout</code>\nfunctions from <code>node:timers</code>, <code>node:timers/promises</code>,\nand <code>globalThis</code> will be mocked. As well as the global <code>Date</code> object.</p>"
             },
             {
               "textRaw": "`timers.reset()`",
@@ -1114,7 +1278,7 @@
               "name": "reset",
               "meta": {
                 "added": [
-                  "v18.19.0"
+                  "v20.4.0"
                 ],
                 "changes": []
               },
@@ -1142,7 +1306,7 @@
               "name": "tick",
               "meta": {
                 "added": [
-                  "v18.19.0"
+                  "v20.4.0"
                 ],
                 "changes": []
               },
@@ -1151,19 +1315,19 @@
                   "params": []
                 }
               ],
-              "desc": "<p>Advances time for all mocked timers.</p>\n<ul>\n<li><code>milliseconds</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> The amount of time, in milliseconds,\nto advance the timers.</li>\n</ul>\n<p><strong>Note:</strong> This diverges from how <code>setTimeout</code> in Node.js behaves and accepts\nonly positive numbers. In Node.js, <code>setTimeout</code> with negative numbers is\nonly supported for web compatibility reasons.</p>\n<p>The following example mocks a <code>setTimeout</code> function and\nby using <code>.tick</code> advances in\ntime triggering all pending timers.</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\nimport { test } from 'node:test';\n\ntest('mocks setTimeout to be executed synchronously without having to actually wait for it', (context) => {\n  const fn = context.mock.fn();\n\n  context.mock.timers.enable(['setTimeout']);\n\n  setTimeout(fn, 9999);\n\n  assert.strictEqual(fn.mock.callCount(), 0);\n\n  // Advance in time\n  context.mock.timers.tick(9999);\n\n  assert.strictEqual(fn.mock.callCount(), 1);\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\nconst { test } = require('node:test');\n\ntest('mocks setTimeout to be executed synchronously without having to actually wait for it', (context) => {\n  const fn = context.mock.fn();\n  context.mock.timers.enable(['setTimeout']);\n\n  setTimeout(fn, 9999);\n  assert.strictEqual(fn.mock.callCount(), 0);\n\n  // Advance in time\n  context.mock.timers.tick(9999);\n\n  assert.strictEqual(fn.mock.callCount(), 1);\n});\n</code></pre>\n<p>Alternativelly, the <code>.tick</code> function can be called many times</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\nimport { test } from 'node:test';\n\ntest('mocks setTimeout to be executed synchronously without having to actually wait for it', (context) => {\n  const fn = context.mock.fn();\n  context.mock.timers.enable(['setTimeout']);\n  const nineSecs = 9000;\n  setTimeout(fn, nineSecs);\n\n  const twoSeconds = 3000;\n  context.mock.timers.tick(twoSeconds);\n  context.mock.timers.tick(twoSeconds);\n  context.mock.timers.tick(twoSeconds);\n\n  assert.strictEqual(fn.mock.callCount(), 1);\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\nconst { test } = require('node:test');\n\ntest('mocks setTimeout to be executed synchronously without having to actually wait for it', (context) => {\n  const fn = context.mock.fn();\n  context.mock.timers.enable(['setTimeout']);\n  const nineSecs = 9000;\n  setTimeout(fn, nineSecs);\n\n  const twoSeconds = 3000;\n  context.mock.timers.tick(twoSeconds);\n  context.mock.timers.tick(twoSeconds);\n  context.mock.timers.tick(twoSeconds);\n\n  assert.strictEqual(fn.mock.callCount(), 1);\n});\n</code></pre>",
+              "desc": "<p>Advances time for all mocked timers.</p>\n<ul>\n<li><code>milliseconds</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> The amount of time, in milliseconds,\nto advance the timers.</li>\n</ul>\n<p><strong>Note:</strong> This diverges from how <code>setTimeout</code> in Node.js behaves and accepts\nonly positive numbers. In Node.js, <code>setTimeout</code> with negative numbers is\nonly supported for web compatibility reasons.</p>\n<p>The following example mocks a <code>setTimeout</code> function and\nby using <code>.tick</code> advances in\ntime triggering all pending timers.</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\nimport { test } from 'node:test';\n\ntest('mocks setTimeout to be executed synchronously without having to actually wait for it', (context) => {\n  const fn = context.mock.fn();\n\n  context.mock.timers.enable({ apis: ['setTimeout'] });\n\n  setTimeout(fn, 9999);\n\n  assert.strictEqual(fn.mock.callCount(), 0);\n\n  // Advance in time\n  context.mock.timers.tick(9999);\n\n  assert.strictEqual(fn.mock.callCount(), 1);\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\nconst { test } = require('node:test');\n\ntest('mocks setTimeout to be executed synchronously without having to actually wait for it', (context) => {\n  const fn = context.mock.fn();\n  context.mock.timers.enable({ apis: ['setTimeout'] });\n\n  setTimeout(fn, 9999);\n  assert.strictEqual(fn.mock.callCount(), 0);\n\n  // Advance in time\n  context.mock.timers.tick(9999);\n\n  assert.strictEqual(fn.mock.callCount(), 1);\n});\n</code></pre>\n<p>Alternativelly, the <code>.tick</code> function can be called many times</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\nimport { test } from 'node:test';\n\ntest('mocks setTimeout to be executed synchronously without having to actually wait for it', (context) => {\n  const fn = context.mock.fn();\n  context.mock.timers.enable({ apis: ['setTimeout'] });\n  const nineSecs = 9000;\n  setTimeout(fn, nineSecs);\n\n  const twoSeconds = 3000;\n  context.mock.timers.tick(twoSeconds);\n  context.mock.timers.tick(twoSeconds);\n  context.mock.timers.tick(twoSeconds);\n\n  assert.strictEqual(fn.mock.callCount(), 1);\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\nconst { test } = require('node:test');\n\ntest('mocks setTimeout to be executed synchronously without having to actually wait for it', (context) => {\n  const fn = context.mock.fn();\n  context.mock.timers.enable({ apis: ['setTimeout'] });\n  const nineSecs = 9000;\n  setTimeout(fn, nineSecs);\n\n  const twoSeconds = 3000;\n  context.mock.timers.tick(twoSeconds);\n  context.mock.timers.tick(twoSeconds);\n  context.mock.timers.tick(twoSeconds);\n\n  assert.strictEqual(fn.mock.callCount(), 1);\n});\n</code></pre>\n<p>Advancing time using <code>.tick</code> will also advance the time for any <code>Date</code> object\ncreated after the mock was enabled (if <code>Date</code> was also set to be mocked).</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\nimport { test } from 'node:test';\n\ntest('mocks setTimeout to be executed synchronously without having to actually wait for it', (context) => {\n  const fn = context.mock.fn();\n\n  context.mock.timers.enable({ apis: ['setTimeout', 'Date'] });\n  setTimeout(fn, 9999);\n\n  assert.strictEqual(fn.mock.callCount(), 0);\n  assert.strictEqual(Date.now(), 0);\n\n  // Advance in time\n  context.mock.timers.tick(9999);\n  assert.strictEqual(fn.mock.callCount(), 1);\n  assert.strictEqual(Date.now(), 9999);\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\nconst { test } = require('node:test');\n\ntest('mocks setTimeout to be executed synchronously without having to actually wait for it', (context) => {\n  const fn = context.mock.fn();\n  context.mock.timers.enable({ apis: ['setTimeout', 'Date'] });\n\n  setTimeout(fn, 9999);\n  assert.strictEqual(fn.mock.callCount(), 0);\n  assert.strictEqual(Date.now(), 0);\n\n  // Advance in time\n  context.mock.timers.tick(9999);\n  assert.strictEqual(fn.mock.callCount(), 1);\n  assert.strictEqual(Date.now(), 9999);\n});\n</code></pre>",
               "modules": [
                 {
                   "textRaw": "Using clear functions",
                   "name": "using_clear_functions",
-                  "desc": "<p>As mentioned, all clear functions from timers (<code>clearTimeout</code> and <code>clearInterval</code>)\nare implicity mocked. Take a look at this example using <code>setTimeout</code>:</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\nimport { test } from 'node:test';\n\ntest('mocks setTimeout to be executed synchronously without having to actually wait for it', (context) => {\n  const fn = context.mock.fn();\n\n  // Optionally choose what to mock\n  context.mock.timers.enable(['setTimeout']);\n  const id = setTimeout(fn, 9999);\n\n  // Implicity mocked as well\n  clearTimeout(id);\n  context.mock.timers.tick(9999);\n\n  // As that setTimeout was cleared the mock function will never be called\n  assert.strictEqual(fn.mock.callCount(), 0);\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\nconst { test } = require('node:test');\n\ntest('mocks setTimeout to be executed synchronously without having to actually wait for it', (context) => {\n  const fn = context.mock.fn();\n\n  // Optionally choose what to mock\n  context.mock.timers.enable(['setTimeout']);\n  const id = setTimeout(fn, 9999);\n\n  // Implicity mocked as well\n  clearTimeout(id);\n  context.mock.timers.tick(9999);\n\n  // As that setTimeout was cleared the mock function will never be called\n  assert.strictEqual(fn.mock.callCount(), 0);\n});\n</code></pre>",
+                  "desc": "<p>As mentioned, all clear functions from timers (<code>clearTimeout</code> and <code>clearInterval</code>)\nare implicity mocked. Take a look at this example using <code>setTimeout</code>:</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\nimport { test } from 'node:test';\n\ntest('mocks setTimeout to be executed synchronously without having to actually wait for it', (context) => {\n  const fn = context.mock.fn();\n\n  // Optionally choose what to mock\n  context.mock.timers.enable({ apis: ['setTimeout'] });\n  const id = setTimeout(fn, 9999);\n\n  // Implicity mocked as well\n  clearTimeout(id);\n  context.mock.timers.tick(9999);\n\n  // As that setTimeout was cleared the mock function will never be called\n  assert.strictEqual(fn.mock.callCount(), 0);\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\nconst { test } = require('node:test');\n\ntest('mocks setTimeout to be executed synchronously without having to actually wait for it', (context) => {\n  const fn = context.mock.fn();\n\n  // Optionally choose what to mock\n  context.mock.timers.enable({ apis: ['setTimeout'] });\n  const id = setTimeout(fn, 9999);\n\n  // Implicity mocked as well\n  clearTimeout(id);\n  context.mock.timers.tick(9999);\n\n  // As that setTimeout was cleared the mock function will never be called\n  assert.strictEqual(fn.mock.callCount(), 0);\n});\n</code></pre>",
                   "type": "module",
                   "displayName": "Using clear functions"
                 },
                 {
                   "textRaw": "Working with Node.js timers modules",
                   "name": "working_with_node.js_timers_modules",
-                  "desc": "<p>Once you enable mocking timers, <a href=\"./timers.html\">node:timers</a>,\n<a href=\"./timers.html#timers-promises-api\">node:timers/promises</a> modules,\nand timers from the Node.js global context are enabled:</p>\n<p><strong>Note:</strong> Destructuring functions such as\n<code>import { setTimeout } from 'node:timers'</code> is currently\nnot supported by this API.</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\nimport { test } from 'node:test';\nimport nodeTimers from 'node:timers';\nimport nodeTimersPromises from 'node:timers/promises';\n\ntest('mocks setTimeout to be executed synchronously without having to actually wait for it', async (context) => {\n  const globalTimeoutObjectSpy = context.mock.fn();\n  const nodeTimerSpy = context.mock.fn();\n  const nodeTimerPromiseSpy = context.mock.fn();\n\n  // Optionally choose what to mock\n  context.mock.timers.enable(['setTimeout']);\n  setTimeout(globalTimeoutObjectSpy, 9999);\n  nodeTimers.setTimeout(nodeTimerSpy, 9999);\n\n  const promise = nodeTimersPromises.setTimeout(9999).then(nodeTimerPromiseSpy);\n\n  // Advance in time\n  context.mock.timers.tick(9999);\n  assert.strictEqual(globalTimeoutObjectSpy.mock.callCount(), 1);\n  assert.strictEqual(nodeTimerSpy.mock.callCount(), 1);\n  await promise;\n  assert.strictEqual(nodeTimerPromiseSpy.mock.callCount(), 1);\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\nconst { test } = require('node:test');\nconst nodeTimers = require('node:timers');\nconst nodeTimersPromises = require('node:timers/promises');\n\ntest('mocks setTimeout to be executed synchronously without having to actually wait for it', async (context) => {\n  const globalTimeoutObjectSpy = context.mock.fn();\n  const nodeTimerSpy = context.mock.fn();\n  const nodeTimerPromiseSpy = context.mock.fn();\n\n  // Optionally choose what to mock\n  context.mock.timers.enable(['setTimeout']);\n  setTimeout(globalTimeoutObjectSpy, 9999);\n  nodeTimers.setTimeout(nodeTimerSpy, 9999);\n\n  const promise = nodeTimersPromises.setTimeout(9999).then(nodeTimerPromiseSpy);\n\n  // Advance in time\n  context.mock.timers.tick(9999);\n  assert.strictEqual(globalTimeoutObjectSpy.mock.callCount(), 1);\n  assert.strictEqual(nodeTimerSpy.mock.callCount(), 1);\n  await promise;\n  assert.strictEqual(nodeTimerPromiseSpy.mock.callCount(), 1);\n});\n</code></pre>\n<p>In Node.js, <code>setInterval</code> from <a href=\"./timers.html#timers-promises-api\">node:timers/promises</a>\nis an <code>AsyncGenerator</code> and is also supported by this API:</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\nimport { test } from 'node:test';\nimport nodeTimersPromises from 'node:timers/promises';\ntest('should tick five times testing a real use case', async (context) => {\n  context.mock.timers.enable(['setInterval']);\n\n  const expectedIterations = 3;\n  const interval = 1000;\n  const startedAt = Date.now();\n  async function run() {\n    const times = [];\n    for await (const time of nodeTimersPromises.setInterval(interval, startedAt)) {\n      times.push(time);\n      if (times.length === expectedIterations) break;\n    }\n    return times;\n  }\n\n  const r = run();\n  context.mock.timers.tick(interval);\n  context.mock.timers.tick(interval);\n  context.mock.timers.tick(interval);\n\n  const timeResults = await r;\n  assert.strictEqual(timeResults.length, expectedIterations);\n  for (let it = 1; it &#x3C; expectedIterations; it++) {\n    assert.strictEqual(timeResults[it - 1], startedAt + (interval * it));\n  }\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\nconst { test } = require('node:test');\nconst nodeTimersPromises = require('node:timers/promises');\ntest('should tick five times testing a real use case', async (context) => {\n  context.mock.timers.enable(['setInterval']);\n\n  const expectedIterations = 3;\n  const interval = 1000;\n  const startedAt = Date.now();\n  async function run() {\n    const times = [];\n    for await (const time of nodeTimersPromises.setInterval(interval, startedAt)) {\n      times.push(time);\n      if (times.length === expectedIterations) break;\n    }\n    return times;\n  }\n\n  const r = run();\n  context.mock.timers.tick(interval);\n  context.mock.timers.tick(interval);\n  context.mock.timers.tick(interval);\n\n  const timeResults = await r;\n  assert.strictEqual(timeResults.length, expectedIterations);\n  for (let it = 1; it &#x3C; expectedIterations; it++) {\n    assert.strictEqual(timeResults[it - 1], startedAt + (interval * it));\n  }\n});\n</code></pre>",
+                  "desc": "<p>Once you enable mocking timers, <a href=\"./timers.html\">node:timers</a>,\n<a href=\"./timers.html#timers-promises-api\">node:timers/promises</a> modules,\nand timers from the Node.js global context are enabled:</p>\n<p><strong>Note:</strong> Destructuring functions such as\n<code>import { setTimeout } from 'node:timers'</code> is currently\nnot supported by this API.</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\nimport { test } from 'node:test';\nimport nodeTimers from 'node:timers';\nimport nodeTimersPromises from 'node:timers/promises';\n\ntest('mocks setTimeout to be executed synchronously without having to actually wait for it', async (context) => {\n  const globalTimeoutObjectSpy = context.mock.fn();\n  const nodeTimerSpy = context.mock.fn();\n  const nodeTimerPromiseSpy = context.mock.fn();\n\n  // Optionally choose what to mock\n  context.mock.timers.enable({ apis: ['setTimeout'] });\n  setTimeout(globalTimeoutObjectSpy, 9999);\n  nodeTimers.setTimeout(nodeTimerSpy, 9999);\n\n  const promise = nodeTimersPromises.setTimeout(9999).then(nodeTimerPromiseSpy);\n\n  // Advance in time\n  context.mock.timers.tick(9999);\n  assert.strictEqual(globalTimeoutObjectSpy.mock.callCount(), 1);\n  assert.strictEqual(nodeTimerSpy.mock.callCount(), 1);\n  await promise;\n  assert.strictEqual(nodeTimerPromiseSpy.mock.callCount(), 1);\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\nconst { test } = require('node:test');\nconst nodeTimers = require('node:timers');\nconst nodeTimersPromises = require('node:timers/promises');\n\ntest('mocks setTimeout to be executed synchronously without having to actually wait for it', async (context) => {\n  const globalTimeoutObjectSpy = context.mock.fn();\n  const nodeTimerSpy = context.mock.fn();\n  const nodeTimerPromiseSpy = context.mock.fn();\n\n  // Optionally choose what to mock\n  context.mock.timers.enable({ apis: ['setTimeout'] });\n  setTimeout(globalTimeoutObjectSpy, 9999);\n  nodeTimers.setTimeout(nodeTimerSpy, 9999);\n\n  const promise = nodeTimersPromises.setTimeout(9999).then(nodeTimerPromiseSpy);\n\n  // Advance in time\n  context.mock.timers.tick(9999);\n  assert.strictEqual(globalTimeoutObjectSpy.mock.callCount(), 1);\n  assert.strictEqual(nodeTimerSpy.mock.callCount(), 1);\n  await promise;\n  assert.strictEqual(nodeTimerPromiseSpy.mock.callCount(), 1);\n});\n</code></pre>\n<p>In Node.js, <code>setInterval</code> from <a href=\"./timers.html#timers-promises-api\">node:timers/promises</a>\nis an <code>AsyncGenerator</code> and is also supported by this API:</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\nimport { test } from 'node:test';\nimport nodeTimersPromises from 'node:timers/promises';\ntest('should tick five times testing a real use case', async (context) => {\n  context.mock.timers.enable({ apis: ['setInterval'] });\n\n  const expectedIterations = 3;\n  const interval = 1000;\n  const startedAt = Date.now();\n  async function run() {\n    const times = [];\n    for await (const time of nodeTimersPromises.setInterval(interval, startedAt)) {\n      times.push(time);\n      if (times.length === expectedIterations) break;\n    }\n    return times;\n  }\n\n  const r = run();\n  context.mock.timers.tick(interval);\n  context.mock.timers.tick(interval);\n  context.mock.timers.tick(interval);\n\n  const timeResults = await r;\n  assert.strictEqual(timeResults.length, expectedIterations);\n  for (let it = 1; it &#x3C; expectedIterations; it++) {\n    assert.strictEqual(timeResults[it - 1], startedAt + (interval * it));\n  }\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\nconst { test } = require('node:test');\nconst nodeTimersPromises = require('node:timers/promises');\ntest('should tick five times testing a real use case', async (context) => {\n  context.mock.timers.enable({ apis: ['setInterval'] });\n\n  const expectedIterations = 3;\n  const interval = 1000;\n  const startedAt = Date.now();\n  async function run() {\n    const times = [];\n    for await (const time of nodeTimersPromises.setInterval(interval, startedAt)) {\n      times.push(time);\n      if (times.length === expectedIterations) break;\n    }\n    return times;\n  }\n\n  const r = run();\n  context.mock.timers.tick(interval);\n  context.mock.timers.tick(interval);\n  context.mock.timers.tick(interval);\n\n  const timeResults = await r;\n  assert.strictEqual(timeResults.length, expectedIterations);\n  for (let it = 1; it &#x3C; expectedIterations; it++) {\n    assert.strictEqual(timeResults[it - 1], startedAt + (interval * it));\n  }\n});\n</code></pre>",
                   "type": "module",
                   "displayName": "Working with Node.js timers modules"
                 }
@@ -1175,7 +1339,7 @@
               "name": "runAll",
               "meta": {
                 "added": [
-                  "v18.19.0"
+                  "v20.4.0"
                 ],
                 "changes": []
               },
@@ -1184,7 +1348,33 @@
                   "params": []
                 }
               ],
-              "desc": "<p>Triggers all pending mocked timers immediately.</p>\n<p>The example below triggers all pending timers immediately,\ncausing them to execute without any delay.</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\nimport { test } from 'node:test';\n\ntest('runAll functions following the given order', (context) => {\n  context.mock.timers.enable(['setTimeout']);\n  const results = [];\n  setTimeout(() => results.push(1), 9999);\n\n  // Notice that if both timers have the same timeout,\n  // the order of execution is guaranteed\n  setTimeout(() => results.push(3), 8888);\n  setTimeout(() => results.push(2), 8888);\n\n  assert.deepStrictEqual(results, []);\n\n  context.mock.timers.runAll();\n\n  assert.deepStrictEqual(results, [3, 2, 1]);\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\nconst { test } = require('node:test');\n\ntest('runAll functions following the given order', (context) => {\n  context.mock.timers.enable(['setTimeout']);\n  const results = [];\n  setTimeout(() => results.push(1), 9999);\n\n  // Notice that if both timers have the same timeout,\n  // the order of execution is guaranteed\n  setTimeout(() => results.push(3), 8888);\n  setTimeout(() => results.push(2), 8888);\n\n  assert.deepStrictEqual(results, []);\n\n  context.mock.timers.runAll();\n\n  assert.deepStrictEqual(results, [3, 2, 1]);\n});\n</code></pre>\n<p><strong>Note:</strong> The <code>runAll()</code> function is specifically designed for\ntriggering timers in the context of timer mocking.\nIt does not have any effect on real-time system\nclocks or actual timers outside of the mocking environment.</p>"
+              "desc": "<p>Triggers all pending mocked timers immediately. If the <code>Date</code> object is also\nmocked, it will also advance the <code>Date</code> object to the furthest timer's time.</p>\n<p>The example below triggers all pending timers immediately,\ncausing them to execute without any delay.</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\nimport { test } from 'node:test';\n\ntest('runAll functions following the given order', (context) => {\n  context.mock.timers.enable({ apis: ['setTimeout', 'Date'] });\n  const results = [];\n  setTimeout(() => results.push(1), 9999);\n\n  // Notice that if both timers have the same timeout,\n  // the order of execution is guaranteed\n  setTimeout(() => results.push(3), 8888);\n  setTimeout(() => results.push(2), 8888);\n\n  assert.deepStrictEqual(results, []);\n\n  context.mock.timers.runAll();\n  assert.deepStrictEqual(results, [3, 2, 1]);\n  // The Date object is also advanced to the furthest timer's time\n  assert.strictEqual(Date.now(), 9999);\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\nconst { test } = require('node:test');\n\ntest('runAll functions following the given order', (context) => {\n  context.mock.timers.enable({ apis: ['setTimeout', 'Date'] });\n  const results = [];\n  setTimeout(() => results.push(1), 9999);\n\n  // Notice that if both timers have the same timeout,\n  // the order of execution is guaranteed\n  setTimeout(() => results.push(3), 8888);\n  setTimeout(() => results.push(2), 8888);\n\n  assert.deepStrictEqual(results, []);\n\n  context.mock.timers.runAll();\n  assert.deepStrictEqual(results, [3, 2, 1]);\n  // The Date object is also advanced to the furthest timer's time\n  assert.strictEqual(Date.now(), 9999);\n});\n</code></pre>\n<p><strong>Note:</strong> The <code>runAll()</code> function is specifically designed for\ntriggering timers in the context of timer mocking.\nIt does not have any effect on real-time system\nclocks or actual timers outside of the mocking environment.</p>"
+            },
+            {
+              "textRaw": "`timers.setTime(milliseconds)`",
+              "type": "method",
+              "name": "setTime",
+              "meta": {
+                "added": [
+                  "v20.11.0"
+                ],
+                "changes": []
+              },
+              "signatures": [
+                {
+                  "params": []
+                }
+              ],
+              "desc": "<p>Sets the current Unix timestamp that will be used as reference for any mocked\n<code>Date</code> objects.</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\nimport { test } from 'node:test';\n\ntest('runAll functions following the given order', (context) => {\n  const now = Date.now();\n  const setTime = 1000;\n  // Date.now is not mocked\n  assert.deepStrictEqual(Date.now(), now);\n\n  context.mock.timers.enable({ apis: ['Date'] });\n  context.mock.timers.setTime(setTime);\n  // Date.now is now 1000\n  assert.strictEqual(Date.now(), setTime);\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\nconst { test } = require('node:test');\n\ntest('setTime replaces current time', (context) => {\n  const now = Date.now();\n  const setTime = 1000;\n  // Date.now is not mocked\n  assert.deepStrictEqual(Date.now(), now);\n\n  context.mock.timers.enable({ apis: ['Date'] });\n  context.mock.timers.setTime(setTime);\n  // Date.now is now 1000\n  assert.strictEqual(Date.now(), setTime);\n});\n</code></pre>",
+              "modules": [
+                {
+                  "textRaw": "Dates and Timers working together",
+                  "name": "dates_and_timers_working_together",
+                  "desc": "<p>Dates and timer objects are dependent on each other. If you use <code>setTime()</code> to\npass the current time to the mocked <code>Date</code> object, the set timers with\n<code>setTimeout</code> and <code>setInterval</code> will <strong>not</strong> be affected.</p>\n<p>However, the <code>tick</code> method <strong>will</strong> advanced the mocked <code>Date</code> object.</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\nimport { test } from 'node:test';\n\ntest('runAll functions following the given order', (context) => {\n  context.mock.timers.enable({ apis: ['setTimeout', 'Date'] });\n  const results = [];\n  setTimeout(() => results.push(1), 9999);\n\n  assert.deepStrictEqual(results, []);\n  context.mock.timers.setTime(12000);\n  assert.deepStrictEqual(results, []);\n  // The date is advanced but the timers don't tick\n  assert.strictEqual(Date.now(), 12000);\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\nconst { test } = require('node:test');\n\ntest('runAll functions following the given order', (context) => {\n  context.mock.timers.enable({ apis: ['setTimeout', 'Date'] });\n  const results = [];\n  setTimeout(() => results.push(1), 9999);\n\n  assert.deepStrictEqual(results, []);\n  context.mock.timers.setTime(12000);\n  assert.deepStrictEqual(results, []);\n  // The date is advanced but the timers don't tick\n  assert.strictEqual(Date.now(), 12000);\n});\n</code></pre>",
+                  "type": "module",
+                  "displayName": "Dates and Timers working together"
+                }
+              ]
             }
           ]
         },
@@ -1199,13 +1389,17 @@
             ],
             "changes": [
               {
-                "version": "v18.17.0",
+                "version": [
+                  "v20.0.0",
+                  "v19.9.0",
+                  "v18.17.0"
+                ],
                 "pr-url": "https://github.com/nodejs/node/pull/47094",
                 "description": "added type to test:pass and test:fail events for when the test is a suite."
               }
             ]
           },
-          "desc": "<ul>\n<li>Extends <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a></li>\n</ul>\n<p>A successful call to <a href=\"#runoptions\"><code>run()</code></a> method will return a new <a href=\"test.html#class-testsstream\" class=\"type\">&lt;TestsStream&gt;</a>\nobject, streaming a series of events representing the execution of the tests.\n<code>TestsStream</code> will emit events, in the order of the tests definition</p>",
+          "desc": "<ul>\n<li>Extends <a href=\"stream.html#class-streamreadable\" class=\"type\">&lt;Readable&gt;</a></li>\n</ul>\n<p>A successful call to <a href=\"#runoptions\"><code>run()</code></a> method will return a new <a href=\"test.html#class-testsstream\" class=\"type\">&lt;TestsStream&gt;</a>\nobject, streaming a series of events representing the execution of the tests.\n<code>TestsStream</code> will emit events, in the order of the tests definition</p>\n<p>Some of the events are guaranteed to be emitted in the same order as the tests\nare defined, while others are emitted in the order that the tests execute.</p>",
           "events": [
             {
               "textRaw": "Event: `'test:coverage'`",
@@ -1290,10 +1484,70 @@
                               "desc": "The percentage of functions covered."
                             },
                             {
-                              "textRaw": "`uncoveredLineNumbers` {Array} An array of integers representing line numbers that are uncovered.",
-                              "name": "uncoveredLineNumbers",
+                              "textRaw": "`functions` {Array} An array of functions representing function coverage.",
+                              "name": "functions",
                               "type": "Array",
-                              "desc": "An array of integers representing line numbers that are uncovered."
+                              "desc": "An array of functions representing function coverage.",
+                              "options": [
+                                {
+                                  "textRaw": "`name` {string} The name of the function.",
+                                  "name": "name",
+                                  "type": "string",
+                                  "desc": "The name of the function."
+                                },
+                                {
+                                  "textRaw": "`line` {number} The line number where the function is defined.",
+                                  "name": "line",
+                                  "type": "number",
+                                  "desc": "The line number where the function is defined."
+                                },
+                                {
+                                  "textRaw": "`count` {number} The number of times the function was called.",
+                                  "name": "count",
+                                  "type": "number",
+                                  "desc": "The number of times the function was called."
+                                }
+                              ]
+                            },
+                            {
+                              "textRaw": "`branches` {Array} An array of branches representing branch coverage.",
+                              "name": "branches",
+                              "type": "Array",
+                              "desc": "An array of branches representing branch coverage.",
+                              "options": [
+                                {
+                                  "textRaw": "`line` {number} The line number where the branch is defined.",
+                                  "name": "line",
+                                  "type": "number",
+                                  "desc": "The line number where the branch is defined."
+                                },
+                                {
+                                  "textRaw": "`count` {number} The number of times the branch was taken.",
+                                  "name": "count",
+                                  "type": "number",
+                                  "desc": "The number of times the branch was taken."
+                                }
+                              ]
+                            },
+                            {
+                              "textRaw": "`lines` {Array} An array of lines representing line numbers and the number of times they were covered.",
+                              "name": "lines",
+                              "type": "Array",
+                              "desc": "An array of lines representing line numbers and the number of times they were covered.",
+                              "options": [
+                                {
+                                  "textRaw": "`line` {number} The line number.",
+                                  "name": "line",
+                                  "type": "number",
+                                  "desc": "The line number."
+                                },
+                                {
+                                  "textRaw": "`count` {number} The number of times the line was covered.",
+                                  "name": "count",
+                                  "type": "number",
+                                  "desc": "The number of times the line was covered."
+                                }
+                              ]
                             }
                           ]
                         },
@@ -1379,6 +1633,109 @@
               "desc": "<p>Emitted when code coverage is enabled and all tests have completed.</p>"
             },
             {
+              "textRaw": "Event: `'test:complete'`",
+              "type": "event",
+              "name": "test:complete",
+              "params": [
+                {
+                  "textRaw": "`data` {Object}",
+                  "name": "data",
+                  "type": "Object",
+                  "options": [
+                    {
+                      "textRaw": "`column` {number|undefined} The column number where the test is defined, or `undefined` if the test was run through the REPL.",
+                      "name": "column",
+                      "type": "number|undefined",
+                      "desc": "The column number where the test is defined, or `undefined` if the test was run through the REPL."
+                    },
+                    {
+                      "textRaw": "`details` {Object} Additional execution metadata.",
+                      "name": "details",
+                      "type": "Object",
+                      "desc": "Additional execution metadata.",
+                      "options": [
+                        {
+                          "textRaw": "`passed` {boolean} Whether the test passed or not.",
+                          "name": "passed",
+                          "type": "boolean",
+                          "desc": "Whether the test passed or not."
+                        },
+                        {
+                          "textRaw": "`duration_ms` {number} The duration of the test in milliseconds.",
+                          "name": "duration_ms",
+                          "type": "number",
+                          "desc": "The duration of the test in milliseconds."
+                        },
+                        {
+                          "textRaw": "`error` {Error|undefined} An error wrapping the error thrown by the test if it did not pass.",
+                          "name": "error",
+                          "type": "Error|undefined",
+                          "desc": "An error wrapping the error thrown by the test if it did not pass.",
+                          "options": [
+                            {
+                              "textRaw": "`cause` {Error} The actual error thrown by the test.",
+                              "name": "cause",
+                              "type": "Error",
+                              "desc": "The actual error thrown by the test."
+                            }
+                          ]
+                        },
+                        {
+                          "textRaw": "`type` {string|undefined} The type of the test, used to denote whether this is a suite.",
+                          "name": "type",
+                          "type": "string|undefined",
+                          "desc": "The type of the test, used to denote whether this is a suite."
+                        }
+                      ]
+                    },
+                    {
+                      "textRaw": "`file` {string|undefined} The path of the test file, `undefined` if test was run through the REPL.",
+                      "name": "file",
+                      "type": "string|undefined",
+                      "desc": "The path of the test file, `undefined` if test was run through the REPL."
+                    },
+                    {
+                      "textRaw": "`line` {number|undefined} The line number where the test is defined, or `undefined` if the test was run through the REPL.",
+                      "name": "line",
+                      "type": "number|undefined",
+                      "desc": "The line number where the test is defined, or `undefined` if the test was run through the REPL."
+                    },
+                    {
+                      "textRaw": "`name` {string} The test name.",
+                      "name": "name",
+                      "type": "string",
+                      "desc": "The test name."
+                    },
+                    {
+                      "textRaw": "`nesting` {number} The nesting level of the test.",
+                      "name": "nesting",
+                      "type": "number",
+                      "desc": "The nesting level of the test."
+                    },
+                    {
+                      "textRaw": "`testNumber` {number} The ordinal number of the test.",
+                      "name": "testNumber",
+                      "type": "number",
+                      "desc": "The ordinal number of the test."
+                    },
+                    {
+                      "textRaw": "`todo` {string|boolean|undefined} Present if [`context.todo`][] is called",
+                      "name": "todo",
+                      "type": "string|boolean|undefined",
+                      "desc": "Present if [`context.todo`][] is called"
+                    },
+                    {
+                      "textRaw": "`skip` {string|boolean|undefined} Present if [`context.skip`][] is called",
+                      "name": "skip",
+                      "type": "string|boolean|undefined",
+                      "desc": "Present if [`context.skip`][] is called"
+                    }
+                  ]
+                }
+              ],
+              "desc": "<p>Emitted when a test completes its execution.\nThis event is not emitted in the same order as the tests are\ndefined.\nThe corresponding declaration ordered events are <code>'test:pass'</code> and <code>'test:fail'</code>.</p>"
+            },
+            {
               "textRaw": "Event: `'test:dequeue'`",
               "type": "event",
               "name": "test:dequeue",
@@ -1421,7 +1778,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Emitted when a test is dequeued, right before it is executed.</p>"
+              "desc": "<p>Emitted when a test is dequeued, right before it is executed.\nThis event is not guaranteed to be emitted in the same order as the tests are\ndefined. The corresponding declaration ordered event is <code>'test:start'</code>.</p>"
             },
             {
               "textRaw": "Event: `'test:diagnostic'`",
@@ -1466,7 +1823,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Emitted when <a href=\"#contextdiagnosticmessage\"><code>context.diagnostic</code></a> is called.</p>"
+              "desc": "<p>Emitted when <a href=\"#contextdiagnosticmessage\"><code>context.diagnostic</code></a> is called.\nThis event is guaranteed to be emitted in the same order as the tests are\ndefined.</p>"
             },
             {
               "textRaw": "Event: `'test:enqueue'`",
@@ -1608,7 +1965,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Emitted when a test fails.</p>"
+              "desc": "<p>Emitted when a test fails.\nThis event is guaranteed to be emitted in the same order as the tests are\ndefined.\nThe corresponding execution ordered event is <code>'test:complete'</code>.</p>"
             },
             {
               "textRaw": "Event: `'test:pass'`",
@@ -1691,7 +2048,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Emitted when a test passes.</p>"
+              "desc": "<p>Emitted when a test passes.\nThis event is guaranteed to be emitted in the same order as the tests are\ndefined.\nThe corresponding execution ordered event is <code>'test:complete'</code>.</p>"
             },
             {
               "textRaw": "Event: `'test:plan'`",
@@ -1736,7 +2093,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Emitted when all subtests have completed for a given test.</p>"
+              "desc": "<p>Emitted when all subtests have completed for a given test.\nThis event is guaranteed to be emitted in the same order as the tests are\ndefined.</p>"
             },
             {
               "textRaw": "Event: `'test:start'`",
@@ -1781,7 +2138,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Emitted when a test starts reporting its own and its subtests status.\nThis event is guaranteed to be emitted in the same order as the tests are\ndefined.</p>"
+              "desc": "<p>Emitted when a test starts reporting its own and its subtests status.\nThis event is guaranteed to be emitted in the same order as the tests are\ndefined.\nThe corresponding execution ordered event is <code>'test:dequeue'</code>.</p>"
             },
             {
               "textRaw": "Event: `'test:stderr'`",
@@ -1820,7 +2177,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Emitted when a running test writes to <code>stderr</code>.\nThis event is only emitted if <code>--test</code> flag is passed.</p>"
+              "desc": "<p>Emitted when a running test writes to <code>stderr</code>.\nThis event is only emitted if <code>--test</code> flag is passed.\nThis event is not guaranteed to be emitted in the same order as the tests are\ndefined.</p>"
             },
             {
               "textRaw": "Event: `'test:stdout'`",
@@ -1859,7 +2216,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Emitted when a running test writes to <code>stdout</code>.\nThis event is only emitted if <code>--test</code> flag is passed.</p>"
+              "desc": "<p>Emitted when a running test writes to <code>stdout</code>.\nThis event is only emitted if <code>--test</code> flag is passed.\nThis event is not guaranteed to be emitted in the same order as the tests are\ndefined.</p>"
             },
             {
               "textRaw": "Event: `'test:watch:drained'`",
@@ -1876,11 +2233,12 @@
           "name": "TestContext",
           "meta": {
             "added": [
-              "v18.0.0"
+              "v18.0.0",
+              "v16.17.0"
             ],
             "changes": [
               {
-                "version": "v18.17.0",
+                "version": "v20.1.0",
                 "pr-url": "https://github.com/nodejs/node/pull/47586",
                 "description": "The `before` function was added to TestContext."
               }
@@ -1894,7 +2252,7 @@
               "name": "before",
               "meta": {
                 "added": [
-                  "v18.17.0"
+                  "v20.1.0"
                 ],
                 "changes": []
               },
@@ -1940,7 +2298,8 @@
               "name": "beforeEach",
               "meta": {
                 "added": [
-                  "v18.8.0"
+                  "v18.8.0",
+                  "v16.18.0"
                 ],
                 "changes": []
               },
@@ -1986,6 +2345,7 @@
               "name": "after",
               "meta": {
                 "added": [
+                  "v19.3.0",
                   "v18.13.0"
                 ],
                 "changes": []
@@ -2032,7 +2392,8 @@
               "name": "afterEach",
               "meta": {
                 "added": [
-                  "v18.8.0"
+                  "v18.8.0",
+                  "v16.18.0"
                 ],
                 "changes": []
               },
@@ -2078,7 +2439,8 @@
               "name": "diagnostic",
               "meta": {
                 "added": [
-                  "v18.0.0"
+                  "v18.0.0",
+                  "v16.17.0"
                 ],
                 "changes": []
               },
@@ -2097,12 +2459,39 @@
               "desc": "<p>This function is used to write diagnostics to the output. Any diagnostic\ninformation is included at the end of the test's results. This function does\nnot return a value.</p>\n<pre><code class=\"language-js\">test('top level test', (t) => {\n  t.diagnostic('A diagnostic message');\n});\n</code></pre>"
             },
             {
+              "textRaw": "`context.plan(count)`",
+              "type": "method",
+              "name": "plan",
+              "meta": {
+                "added": [
+                  "v20.15.0"
+                ],
+                "changes": []
+              },
+              "stability": 1,
+              "stabilityText": "Experimental",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "textRaw": "`count` {number} The number of assertions and subtests that are expected to run.",
+                      "name": "count",
+                      "type": "number",
+                      "desc": "The number of assertions and subtests that are expected to run."
+                    }
+                  ]
+                }
+              ],
+              "desc": "<p>This function is used to set the number of assertions and subtests that are expected to run\nwithin the test. If the number of assertions and subtests that run does not match the\nexpected count, the test will fail.</p>\n<blockquote>\n<p>Note: To make sure assertions are tracked, <code>t.assert</code> must be used instead of <code>assert</code> directly.</p>\n</blockquote>\n<pre><code class=\"language-js\">test('top level test', (t) => {\n  t.plan(2);\n  t.assert.ok('some relevant assertion here');\n  t.subtest('subtest', () => {});\n});\n</code></pre>\n<p>When working with asynchronous code, the <code>plan</code> function can be used to ensure that the\ncorrect number of assertions are run:</p>\n<pre><code class=\"language-js\">test('planning with streams', (t, done) => {\n  function* generate() {\n    yield 'a';\n    yield 'b';\n    yield 'c';\n  }\n  const expected = ['a', 'b', 'c'];\n  t.plan(expected.length);\n  const stream = Readable.from(generate());\n  stream.on('data', (chunk) => {\n    t.assert.strictEqual(chunk, expected.shift());\n  });\n\n  stream.on('end', () => {\n    done();\n  });\n});\n</code></pre>"
+            },
+            {
               "textRaw": "`context.runOnly(shouldRunOnlyTests)`",
               "type": "method",
               "name": "runOnly",
               "meta": {
                 "added": [
-                  "v18.0.0"
+                  "v18.0.0",
+                  "v16.17.0"
                 ],
                 "changes": []
               },
@@ -2126,7 +2515,8 @@
               "name": "skip",
               "meta": {
                 "added": [
-                  "v18.0.0"
+                  "v18.0.0",
+                  "v16.17.0"
                 ],
                 "changes": []
               },
@@ -2150,7 +2540,8 @@
               "name": "todo",
               "meta": {
                 "added": [
-                  "v18.0.0"
+                  "v18.0.0",
+                  "v16.17.0"
                 ],
                 "changes": []
               },
@@ -2174,16 +2565,23 @@
               "name": "test",
               "meta": {
                 "added": [
-                  "v18.0.0"
+                  "v18.0.0",
+                  "v16.17.0"
                 ],
                 "changes": [
                   {
-                    "version": "v18.8.0",
+                    "version": [
+                      "v18.8.0",
+                      "v16.18.0"
+                    ],
                     "pr-url": "https://github.com/nodejs/node/pull/43554",
                     "description": "Add a `signal` option."
                   },
                   {
-                    "version": "v18.7.0",
+                    "version": [
+                      "v18.7.0",
+                      "v16.17.0"
+                    ],
                     "pr-url": "https://github.com/nodejs/node/pull/43505",
                     "description": "Add a `timeout` option."
                   }
@@ -2192,10 +2590,10 @@
               "signatures": [
                 {
                   "return": {
-                    "textRaw": "Returns: {Promise} Resolved with `undefined` once the test completes.",
+                    "textRaw": "Returns: {Promise} Fulfilled with `undefined` once the test completes.",
                     "name": "return",
                     "type": "Promise",
-                    "desc": "Resolved with `undefined` once the test completes."
+                    "desc": "Fulfilled with `undefined` once the test completes."
                   },
                   "params": [
                     {
@@ -2251,6 +2649,13 @@
                           "type": "number",
                           "default": "`Infinity`",
                           "desc": "A number of milliseconds the test will fail after. If unspecified, subtests inherit this value from their parent."
+                        },
+                        {
+                          "textRaw": "`plan` {number} The number of assertions and subtests expected to be run in the test. If the number of assertions run in the test does not match the number specified in the plan, the test will fail. **Default:** `undefined`.",
+                          "name": "plan",
+                          "type": "number",
+                          "default": "`undefined`",
+                          "desc": "The number of assertions and subtests expected to be run in the test. If the number of assertions run in the test does not match the number specified in the plan, the test will fail."
                         }
                       ]
                     },
@@ -2264,7 +2669,7 @@
                   ]
                 }
               ],
-              "desc": "<p>This function is used to create subtests under the current test. This function\nbehaves in the same fashion as the top level <a href=\"#testname-options-fn\"><code>test()</code></a> function.</p>\n<pre><code class=\"language-js\">test('top level test', async (t) => {\n  await t.test(\n    'This is a subtest',\n    { only: false, skip: false, concurrency: 1, todo: false },\n    (t) => {\n      assert.ok('some relevant assertion here');\n    },\n  );\n});\n</code></pre>"
+              "desc": "<p>This function is used to create subtests under the current test. This function\nbehaves in the same fashion as the top level <a href=\"#testname-options-fn\"><code>test()</code></a> function.</p>\n<pre><code class=\"language-js\">test('top level test', async (t) => {\n  await t.test(\n    'This is a subtest',\n    { only: false, skip: false, concurrency: 1, todo: false, plan: 4 },\n    (t) => {\n      assert.ok('some relevant assertion here');\n    },\n  );\n});\n</code></pre>"
             }
           ],
           "properties": [
@@ -2273,24 +2678,25 @@
               "name": "name",
               "meta": {
                 "added": [
-                  "v18.8.0"
+                  "v18.8.0",
+                  "v16.18.0"
                 ],
                 "changes": []
               },
               "desc": "<p>The name of the test.</p>"
             },
             {
-              "textRaw": "`signal` {AbortSignal} Can be used to abort test subtasks when the test has been aborted.",
+              "textRaw": "`signal` Type: {AbortSignal}",
               "type": "AbortSignal",
-              "name": "signal",
+              "name": "Type",
               "meta": {
                 "added": [
-                  "v18.7.0"
+                  "v18.7.0",
+                  "v16.17.0"
                 ],
                 "changes": []
               },
-              "desc": "<pre><code class=\"language-js\">test('top level test', async (t) => {\n  await fetch('some/uri', { signal: t.signal });\n});\n</code></pre>",
-              "shortDesc": "Can be used to abort test subtasks when the test has been aborted."
+              "desc": "<p>Can be used to abort test subtasks when the test has been aborted.</p>\n<pre><code class=\"language-js\">test('top level test', async (t) => {\n  await fetch('some/uri', { signal: t.signal });\n});\n</code></pre>"
             }
           ]
         },
@@ -2300,7 +2706,8 @@
           "name": "SuiteContext",
           "meta": {
             "added": [
-              "v18.7.0"
+              "v18.7.0",
+              "v16.17.0"
             ],
             "changes": []
           },
@@ -2311,23 +2718,25 @@
               "name": "name",
               "meta": {
                 "added": [
-                  "v18.8.0"
+                  "v18.8.0",
+                  "v16.18.0"
                 ],
                 "changes": []
               },
               "desc": "<p>The name of the suite.</p>"
             },
             {
-              "textRaw": "`signal` {AbortSignal} Can be used to abort test subtasks when the test has been aborted.",
+              "textRaw": "`signal` Type: {AbortSignal}",
               "type": "AbortSignal",
-              "name": "signal",
+              "name": "Type",
               "meta": {
                 "added": [
-                  "v18.7.0"
+                  "v18.7.0",
+                  "v16.17.0"
                 ],
                 "changes": []
               },
-              "shortDesc": "Can be used to abort test subtasks when the test has been aborted."
+              "desc": "<p>Can be used to abort test subtasks when the test has been aborted.</p>"
             }
           ]
         }

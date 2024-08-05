@@ -26,10 +26,15 @@ jobs:
     env:
       CXX: clang++-14
     steps:
-      - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v3.6.0
-  
+      - uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v3.6.0
+
+      - name: Prepare Python
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
+        with:
+          cache: 'pip' # caching pip dependencies
+
       - name: Install dependencies
-        run: pip3 install -r ./tools/release/requirements.txt
+        run: pip install -r ./tools/release/requirements.txt
         
       - name: Update source code versions
         run: ./tools/release/update_versions.py

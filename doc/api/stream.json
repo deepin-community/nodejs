@@ -8,7 +8,7 @@
       "introduced_in": "v0.10.0",
       "stability": 2,
       "stabilityText": "Stable",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.19.1/lib/stream.js\">lib/stream.js</a></p>\n<p>A stream is an abstract interface for working with streaming data in Node.js.\nThe <code>node:stream</code> module provides an API for implementing the stream interface.</p>\n<p>There are many stream objects provided by Node.js. For instance, a\n<a href=\"http.html#class-httpincomingmessage\">request to an HTTP server</a> and <a href=\"process.html#processstdout\"><code>process.stdout</code></a>\nare both stream instances.</p>\n<p>Streams can be readable, writable, or both. All streams are instances of\n<a href=\"events.html#class-eventemitter\"><code>EventEmitter</code></a>.</p>\n<p>To access the <code>node:stream</code> module:</p>\n<pre><code class=\"language-js\">const stream = require('node:stream');\n</code></pre>\n<p>The <code>node:stream</code> module is useful for creating new types of stream instances.\nIt is usually not necessary to use the <code>node:stream</code> module to consume streams.</p>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v20.15.1/lib/stream.js\">lib/stream.js</a></p>\n<p>A stream is an abstract interface for working with streaming data in Node.js.\nThe <code>node:stream</code> module provides an API for implementing the stream interface.</p>\n<p>There are many stream objects provided by Node.js. For instance, a\n<a href=\"http.html#class-httpincomingmessage\">request to an HTTP server</a> and <a href=\"process.html#processstdout\"><code>process.stdout</code></a>\nare both stream instances.</p>\n<p>Streams can be readable, writable, or both. All streams are instances of\n<a href=\"events.html#class-eventemitter\"><code>EventEmitter</code></a>.</p>\n<p>To access the <code>node:stream</code> module:</p>\n<pre><code class=\"language-js\">const stream = require('node:stream');\n</code></pre>\n<p>The <code>node:stream</code> module is useful for creating new types of stream instances.\nIt is usually not necessary to use the <code>node:stream</code> module to consume streams.</p>",
       "modules": [
         {
           "textRaw": "Organization of this document",
@@ -38,7 +38,7 @@
             {
               "textRaw": "Object mode",
               "name": "object_mode",
-              "desc": "<p>All streams created by Node.js APIs operate exclusively on strings and <code>Buffer</code>\n(or <code>Uint8Array</code>) objects. It is possible, however, for stream implementations\nto work with other types of JavaScript values (with the exception of <code>null</code>,\nwhich serves a special purpose within streams). Such streams are considered to\noperate in \"object mode\".</p>\n<p>Stream instances are switched into object mode using the <code>objectMode</code> option\nwhen the stream is created. Attempting to switch an existing stream into\nobject mode is not safe.</p>",
+              "desc": "<p>All streams created by Node.js APIs operate exclusively on strings, <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a>,\n<a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray\" class=\"type\">&lt;TypedArray&gt;</a> and <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView\" class=\"type\">&lt;DataView&gt;</a> objects:</p>\n<ul>\n<li><code>Strings</code> and <code>Buffers</code> are the most common types used with streams.</li>\n<li><code>TypedArray</code> and <code>DataView</code> lets you handle binary data with types like\n<code>Int32Array</code> or <code>Uint8Array</code>. When you write a TypedArray or DataView to a\nstream, Node.js processes\nthe raw bytes.</li>\n</ul>\n<p>It is possible, however, for stream\nimplementations to work with other types of JavaScript values (with the\nexception of <code>null</code>, which serves a special purpose within streams).\nSuch streams are considered to operate in \"object mode\".</p>\n<p>Stream instances are switched into object mode using the <code>objectMode</code> option\nwhen the stream is created. Attempting to switch an existing stream into\nobject mode is not safe.</p>",
               "type": "module",
               "displayName": "Object mode"
             }
@@ -52,7 +52,17 @@
                 "added": [
                   "v15.0.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": [
+                      "v18.0.0",
+                      "v17.2.0",
+                      "v16.14.0"
+                    ],
+                    "pr-url": "https://github.com/nodejs/node/pull/40886",
+                    "description": "Add the `end` option, which can be set to `false` to prevent automatically closing the destination stream when the source ends."
+                  }
+                ]
               },
               "signatures": [
                 {
@@ -115,9 +125,10 @@
                       ]
                     },
                     {
-                      "textRaw": "`options` {Object}",
+                      "textRaw": "`options` {Object} Pipeline options",
                       "name": "options",
                       "type": "Object",
+                      "desc": "Pipeline options",
                       "options": [
                         {
                           "textRaw": "`signal` {AbortSignal}",
@@ -125,9 +136,11 @@
                           "type": "AbortSignal"
                         },
                         {
-                          "textRaw": "`end` {boolean}",
+                          "textRaw": "`end` {boolean} End the destination stream when the source stream ends. Transform streams are always ended, even if this value is `false`. **Default:** `true`.",
                           "name": "end",
-                          "type": "boolean"
+                          "type": "boolean",
+                          "default": "`true`",
+                          "desc": "End the destination stream when the source stream ends. Transform streams are always ended, even if this value is `false`."
                         }
                       ]
                     }
@@ -144,7 +157,17 @@
                 "added": [
                   "v15.0.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": [
+                      "v18.0.0",
+                      "v17.2.0",
+                      "v16.14.0"
+                    ],
+                    "pr-url": "https://github.com/nodejs/node/pull/40886",
+                    "description": "Add the `end` option, which can be set to `false` to prevent automatically closing the destination stream when the source ends."
+                  }
+                ]
               },
               "signatures": [
                 {
@@ -207,9 +230,10 @@
                       ]
                     },
                     {
-                      "textRaw": "`options` {Object}",
+                      "textRaw": "`options` {Object} Pipeline options",
                       "name": "options",
                       "type": "Object",
+                      "desc": "Pipeline options",
                       "options": [
                         {
                           "textRaw": "`signal` {AbortSignal}",
@@ -217,9 +241,11 @@
                           "type": "AbortSignal"
                         },
                         {
-                          "textRaw": "`end` {boolean}",
+                          "textRaw": "`end` {boolean} End the destination stream when the source stream ends. Transform streams are always ended, even if this value is `false`. **Default:** `true`.",
                           "name": "end",
-                          "type": "boolean"
+                          "type": "boolean",
+                          "default": "`true`",
+                          "desc": "End the destination stream when the source stream ends. Transform streams are always ended, even if this value is `false`."
                         }
                       ]
                     }
@@ -236,7 +262,16 @@
                 "added": [
                   "v15.0.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": [
+                      "v19.5.0",
+                      "v18.14.0"
+                    ],
+                    "pr-url": "https://github.com/nodejs/node/pull/46205",
+                    "description": "Added support for `ReadableStream` and `WritableStream`."
+                  }
+                ]
               },
               "signatures": [
                 {
@@ -248,9 +283,10 @@
                   },
                   "params": [
                     {
-                      "textRaw": "`stream` {Stream}",
+                      "textRaw": "`stream` {Stream|ReadableStream|WritableStream} A readable and/or writable stream/webstream.",
                       "name": "stream",
-                      "type": "Stream"
+                      "type": "Stream|ReadableStream|WritableStream",
+                      "desc": "A readable and/or writable stream/webstream."
                     },
                     {
                       "textRaw": "`options` {Object}",
@@ -290,7 +326,7 @@
               "textRaw": "Buffering",
               "name": "Buffering",
               "type": "misc",
-              "desc": "<p>Both <a href=\"#class-streamwritable\"><code>Writable</code></a> and <a href=\"#class-streamreadable\"><code>Readable</code></a> streams will store data in an internal\nbuffer.</p>\n<p>The amount of data potentially buffered depends on the <code>highWaterMark</code> option\npassed into the stream's constructor. For normal streams, the <code>highWaterMark</code>\noption specifies a <a href=\"#highwatermark-discrepancy-after-calling-readablesetencoding\">total number of bytes</a>. For streams operating\nin object mode, the <code>highWaterMark</code> specifies a total number of objects.</p>\n<p>Data is buffered in <code>Readable</code> streams when the implementation calls\n<a href=\"#readablepushchunk-encoding\"><code>stream.push(chunk)</code></a>. If the consumer of the Stream does not\ncall <a href=\"#readablereadsize\"><code>stream.read()</code></a>, the data will sit in the internal\nqueue until it is consumed.</p>\n<p>Once the total size of the internal read buffer reaches the threshold specified\nby <code>highWaterMark</code>, the stream will temporarily stop reading data from the\nunderlying resource until the data currently buffered can be consumed (that is,\nthe stream will stop calling the internal <a href=\"#readable_readsize\"><code>readable._read()</code></a> method that is\nused to fill the read buffer).</p>\n<p>Data is buffered in <code>Writable</code> streams when the\n<a href=\"#writablewritechunk-encoding-callback\"><code>writable.write(chunk)</code></a> method is called repeatedly. While the\ntotal size of the internal write buffer is below the threshold set by\n<code>highWaterMark</code>, calls to <code>writable.write()</code> will return <code>true</code>. Once\nthe size of the internal buffer reaches or exceeds the <code>highWaterMark</code>, <code>false</code>\nwill be returned.</p>\n<p>A key goal of the <code>stream</code> API, particularly the <a href=\"#readablepipedestination-options\"><code>stream.pipe()</code></a> method,\nis to limit the buffering of data to acceptable levels such that sources and\ndestinations of differing speeds will not overwhelm the available memory.</p>\n<p>The <code>highWaterMark</code> option is a threshold, not a limit: it dictates the amount\nof data that a stream buffers before it stops asking for more data. It does not\nenforce a strict memory limitation in general. Specific stream implementations\nmay choose to enforce stricter limits but doing so is optional.</p>\n<p>Because <a href=\"#class-streamduplex\"><code>Duplex</code></a> and <a href=\"#class-streamtransform\"><code>Transform</code></a> streams are both <code>Readable</code> and\n<code>Writable</code>, each maintains <em>two</em> separate internal buffers used for reading and\nwriting, allowing each side to operate independently of the other while\nmaintaining an appropriate and efficient flow of data. For example,\n<a href=\"net.html#class-netsocket\"><code>net.Socket</code></a> instances are <a href=\"#class-streamduplex\"><code>Duplex</code></a> streams whose <code>Readable</code> side allows\nconsumption of data received <em>from</em> the socket and whose <code>Writable</code> side allows\nwriting data <em>to</em> the socket. Because data may be written to the socket at a\nfaster or slower rate than data is received, each side should\noperate (and buffer) independently of the other.</p>\n<p>The mechanics of the internal buffering are an internal implementation detail\nand may be changed at any time. However, for certain advanced implementations,\nthe internal buffers can be retrieved using <code>writable.writableBuffer</code> or\n<code>readable.readableBuffer</code>. Use of these undocumented properties is discouraged.</p>"
+              "desc": "<p>Both <a href=\"#class-streamwritable\"><code>Writable</code></a> and <a href=\"#class-streamreadable\"><code>Readable</code></a> streams will store data in an internal\nbuffer.</p>\n<p>The amount of data potentially buffered depends on the <code>highWaterMark</code> option\npassed into the stream's constructor. For normal streams, the <code>highWaterMark</code>\noption specifies a <a href=\"#highwatermark-discrepancy-after-calling-readablesetencoding\">total number of bytes</a>. For streams operating\nin object mode, the <code>highWaterMark</code> specifies a total number of objects. For\nstreams operating on (but not decoding) strings, the <code>highWaterMark</code> specifies\na total number of UTF-16 code units.</p>\n<p>Data is buffered in <code>Readable</code> streams when the implementation calls\n<a href=\"#readablepushchunk-encoding\"><code>stream.push(chunk)</code></a>. If the consumer of the Stream does not\ncall <a href=\"#readablereadsize\"><code>stream.read()</code></a>, the data will sit in the internal\nqueue until it is consumed.</p>\n<p>Once the total size of the internal read buffer reaches the threshold specified\nby <code>highWaterMark</code>, the stream will temporarily stop reading data from the\nunderlying resource until the data currently buffered can be consumed (that is,\nthe stream will stop calling the internal <a href=\"#readable_readsize\"><code>readable._read()</code></a> method that is\nused to fill the read buffer).</p>\n<p>Data is buffered in <code>Writable</code> streams when the\n<a href=\"#writablewritechunk-encoding-callback\"><code>writable.write(chunk)</code></a> method is called repeatedly. While the\ntotal size of the internal write buffer is below the threshold set by\n<code>highWaterMark</code>, calls to <code>writable.write()</code> will return <code>true</code>. Once\nthe size of the internal buffer reaches or exceeds the <code>highWaterMark</code>, <code>false</code>\nwill be returned.</p>\n<p>A key goal of the <code>stream</code> API, particularly the <a href=\"#readablepipedestination-options\"><code>stream.pipe()</code></a> method,\nis to limit the buffering of data to acceptable levels such that sources and\ndestinations of differing speeds will not overwhelm the available memory.</p>\n<p>The <code>highWaterMark</code> option is a threshold, not a limit: it dictates the amount\nof data that a stream buffers before it stops asking for more data. It does not\nenforce a strict memory limitation in general. Specific stream implementations\nmay choose to enforce stricter limits but doing so is optional.</p>\n<p>Because <a href=\"#class-streamduplex\"><code>Duplex</code></a> and <a href=\"#class-streamtransform\"><code>Transform</code></a> streams are both <code>Readable</code> and\n<code>Writable</code>, each maintains <em>two</em> separate internal buffers used for reading and\nwriting, allowing each side to operate independently of the other while\nmaintaining an appropriate and efficient flow of data. For example,\n<a href=\"net.html#class-netsocket\"><code>net.Socket</code></a> instances are <a href=\"#class-streamduplex\"><code>Duplex</code></a> streams whose <code>Readable</code> side allows\nconsumption of data received <em>from</em> the socket and whose <code>Writable</code> side allows\nwriting data <em>to</em> the socket. Because data may be written to the socket at a\nfaster or slower rate than data is received, each side should\noperate (and buffer) independently of the other.</p>\n<p>The mechanics of the internal buffering are an internal implementation detail\nand may be changed at any time. However, for certain advanced implementations,\nthe internal buffers can be retrieved using <code>writable.writableBuffer</code> or\n<code>readable.readableBuffer</code>. Use of these undocumented properties is discouraged.</p>"
             }
           ],
           "type": "module",
@@ -308,7 +344,7 @@
             ],
             "changes": [
               {
-                "version": "v18.14.0",
+                "version": "v19.5.0",
                 "pr-url": "https://github.com/nodejs/node/pull/46205",
                 "description": "Added support for `ReadableStream` and `WritableStream`."
               },
@@ -336,16 +372,70 @@
           },
           "signatures": [
             {
+              "return": {
+                "textRaw": "Returns: {Function} A cleanup function which removes all registered listeners.",
+                "name": "return",
+                "type": "Function",
+                "desc": "A cleanup function which removes all registered listeners."
+              },
               "params": [
                 {
-                  "textRaw": "`stream` {Stream|ReadableStream|WritableStream}",
+                  "textRaw": "`stream` {Stream|ReadableStream|WritableStream} A readable and/or writable stream/webstream.",
                   "name": "stream",
-                  "type": "Stream|ReadableStream|WritableStream"
+                  "type": "Stream|ReadableStream|WritableStream",
+                  "desc": "A readable and/or writable stream/webstream."
+                },
+                {
+                  "textRaw": "`options` {Object}",
+                  "name": "options",
+                  "type": "Object",
+                  "options": [
+                    {
+                      "textRaw": "`error` {boolean} If set to `false`, then a call to `emit('error', err)` is not treated as finished. **Default:** `true`.",
+                      "name": "error",
+                      "type": "boolean",
+                      "default": "`true`",
+                      "desc": "If set to `false`, then a call to `emit('error', err)` is not treated as finished."
+                    },
+                    {
+                      "textRaw": "`readable` {boolean} When set to `false`, the callback will be called when the stream ends even though the stream might still be readable. **Default:** `true`.",
+                      "name": "readable",
+                      "type": "boolean",
+                      "default": "`true`",
+                      "desc": "When set to `false`, the callback will be called when the stream ends even though the stream might still be readable."
+                    },
+                    {
+                      "textRaw": "`writable` {boolean} When set to `false`, the callback will be called when the stream ends even though the stream might still be writable. **Default:** `true`.",
+                      "name": "writable",
+                      "type": "boolean",
+                      "default": "`true`",
+                      "desc": "When set to `false`, the callback will be called when the stream ends even though the stream might still be writable."
+                    },
+                    {
+                      "textRaw": "`signal` {AbortSignal} allows aborting the wait for the stream finish. The underlying stream will _not_ be aborted if the signal is aborted. The callback will get called with an `AbortError`. All registered listeners added by this function will also be removed.",
+                      "name": "signal",
+                      "type": "AbortSignal",
+                      "desc": "allows aborting the wait for the stream finish. The underlying stream will _not_ be aborted if the signal is aborted. The callback will get called with an `AbortError`. All registered listeners added by this function will also be removed."
+                    },
+                    {
+                      "textRaw": "`cleanup` {boolean} remove all registered stream listeners. **Default:** `false`.",
+                      "name": "cleanup",
+                      "type": "boolean",
+                      "default": "`false`",
+                      "desc": "remove all registered stream listeners."
+                    }
+                  ]
+                },
+                {
+                  "textRaw": "`callback` {Function} A callback function that takes an optional error argument.",
+                  "name": "callback",
+                  "type": "Function",
+                  "desc": "A callback function that takes an optional error argument."
                 }
               ]
             }
           ],
-          "desc": "<p>A readable and/or writable stream/webstream.</p>\n<ul>\n<li>\n<p><code>options</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object\" class=\"type\">&lt;Object&gt;</a></p>\n<ul>\n<li><code>error</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> If set to <code>false</code>, then a call to <code>emit('error', err)</code> is\nnot treated as finished. <strong>Default:</strong> <code>true</code>.</li>\n<li><code>readable</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> When set to <code>false</code>, the callback will be called when\nthe stream ends even though the stream might still be readable.\n<strong>Default:</strong> <code>true</code>.</li>\n<li><code>writable</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> When set to <code>false</code>, the callback will be called when\nthe stream ends even though the stream might still be writable.\n<strong>Default:</strong> <code>true</code>.</li>\n<li><code>signal</code> <a href=\"globals.html#class-abortsignal\" class=\"type\">&lt;AbortSignal&gt;</a> allows aborting the wait for the stream finish. The\nunderlying stream will <em>not</em> be aborted if the signal is aborted. The\ncallback will get called with an <code>AbortError</code>. All registered\nlisteners added by this function will also be removed.</li>\n<li><code>cleanup</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> remove all registered stream listeners.\n<strong>Default:</strong> <code>false</code>.</li>\n</ul>\n</li>\n<li>\n<p><code>callback</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function\" class=\"type\">&lt;Function&gt;</a> A callback function that takes an optional error\nargument.</p>\n</li>\n<li>\n<p>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function\" class=\"type\">&lt;Function&gt;</a> A cleanup function which removes all registered\nlisteners.</p>\n</li>\n</ul>\n<p>A function to get notified when a stream is no longer readable, writable\nor has experienced an error or a premature close event.</p>\n<pre><code class=\"language-js\">const { finished } = require('node:stream');\nconst fs = require('node:fs');\n\nconst rs = fs.createReadStream('archive.tar');\n\nfinished(rs, (err) => {\n  if (err) {\n    console.error('Stream failed.', err);\n  } else {\n    console.log('Stream is done reading.');\n  }\n});\n\nrs.resume(); // Drain the stream.\n</code></pre>\n<p>Especially useful in error handling scenarios where a stream is destroyed\nprematurely (like an aborted HTTP request), and will not emit <code>'end'</code>\nor <code>'finish'</code>.</p>\n<p>The <code>finished</code> API provides <a href=\"#streamfinishedstream-options\">promise version</a>.</p>\n<p><code>stream.finished()</code> leaves dangling event listeners (in particular\n<code>'error'</code>, <code>'end'</code>, <code>'finish'</code> and <code>'close'</code>) after <code>callback</code> has been\ninvoked. The reason for this is so that unexpected <code>'error'</code> events (due to\nincorrect stream implementations) do not cause unexpected crashes.\nIf this is unwanted behavior then the returned cleanup function needs to be\ninvoked in the callback:</p>\n<pre><code class=\"language-js\">const cleanup = finished(rs, (err) => {\n  cleanup();\n  // ...\n});\n</code></pre>"
+          "desc": "<p>A function to get notified when a stream is no longer readable, writable\nor has experienced an error or a premature close event.</p>\n<pre><code class=\"language-js\">const { finished } = require('node:stream');\nconst fs = require('node:fs');\n\nconst rs = fs.createReadStream('archive.tar');\n\nfinished(rs, (err) => {\n  if (err) {\n    console.error('Stream failed.', err);\n  } else {\n    console.log('Stream is done reading.');\n  }\n});\n\nrs.resume(); // Drain the stream.\n</code></pre>\n<p>Especially useful in error handling scenarios where a stream is destroyed\nprematurely (like an aborted HTTP request), and will not emit <code>'end'</code>\nor <code>'finish'</code>.</p>\n<p>The <code>finished</code> API provides <a href=\"#streamfinishedstream-options\">promise version</a>.</p>\n<p><code>stream.finished()</code> leaves dangling event listeners (in particular\n<code>'error'</code>, <code>'end'</code>, <code>'finish'</code> and <code>'close'</code>) after <code>callback</code> has been\ninvoked. The reason for this is so that unexpected <code>'error'</code> events (due to\nincorrect stream implementations) do not cause unexpected crashes.\nIf this is unwanted behavior then the returned cleanup function needs to be\ninvoked in the callback:</p>\n<pre><code class=\"language-js\">const cleanup = finished(rs, (err) => {\n  cleanup();\n  // ...\n});\n</code></pre>"
         },
         {
           "textRaw": "`stream.pipeline(source[, ...transforms], destination, callback)`",
@@ -357,7 +447,7 @@
             ],
             "changes": [
               {
-                "version": "v18.16.0",
+                "version": "v19.7.0",
                 "pr-url": "https://github.com/nodejs/node/pull/46307",
                 "description": "Added support for webstreams."
               },
@@ -470,7 +560,7 @@
             ],
             "changes": [
               {
-                "version": "v18.16.0",
+                "version": "v19.7.0",
                 "pr-url": "https://github.com/nodejs/node/pull/46307",
                 "description": "Added support for webstreams."
               },
@@ -583,7 +673,15 @@
             ],
             "changes": [
               {
-                "version": "v18.16.0",
+                "version": "v20.10.0",
+                "pr-url": "https://github.com/nodejs/node/pull/50187",
+                "description": "Added support for stream class."
+              },
+              {
+                "version": [
+                  "v19.8.0",
+                  "v18.16.0"
+                ],
                 "pr-url": "https://github.com/nodejs/node/pull/46675",
                 "description": "Added support for webstreams."
               }
@@ -600,9 +698,9 @@
               },
               "params": [
                 {
-                  "textRaw": "`streams` {Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]| ReadableStream\\[]|WritableStream\\[]|TransformStream\\[]}",
+                  "textRaw": "`streams` {Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]| ReadableStream\\[]|WritableStream\\[]|TransformStream\\[]|Duplex\\[]|Function}",
                   "name": "streams",
-                  "type": "Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]| ReadableStream\\[]|WritableStream\\[]|TransformStream\\[]"
+                  "type": "Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]| ReadableStream\\[]|WritableStream\\[]|TransformStream\\[]|Duplex\\[]|Function"
                 }
               ]
             }
@@ -955,7 +1053,7 @@
             ],
             "changes": [
               {
-                "version": "v18.17.0",
+                "version": "v19.5.0",
                 "pr-url": "https://github.com/nodejs/node/pull/46190",
                 "description": "The `src` argument can now be a `ReadableStream` or `WritableStream`."
               }
@@ -1105,7 +1203,7 @@
             ],
             "changes": [
               {
-                "version": "v18.16.0",
+                "version": "v19.7.0",
                 "pr-url": "https://github.com/nodejs/node/pull/46273",
                 "description": "Added support for `ReadableStream` and `WritableStream`."
               }
@@ -1121,14 +1219,15 @@
                   "desc": "A signal representing possible cancellation"
                 },
                 {
-                  "textRaw": "`stream` {Stream|ReadableStream|WritableStream}",
+                  "textRaw": "`stream` {Stream|ReadableStream|WritableStream} A stream to attach a signal to.",
                   "name": "stream",
-                  "type": "Stream|ReadableStream|WritableStream"
+                  "type": "Stream|ReadableStream|WritableStream",
+                  "desc": "A stream to attach a signal to."
                 }
               ]
             }
           ],
-          "desc": "<p>A stream to attach a signal to.</p>\n<p>Attaches an AbortSignal to a readable or writeable stream. This lets code\ncontrol stream destruction using an <code>AbortController</code>.</p>\n<p>Calling <code>abort</code> on the <code>AbortController</code> corresponding to the passed\n<code>AbortSignal</code> will behave the same way as calling <code>.destroy(new AbortError())</code>\non the stream, and <code>controller.error(new AbortError())</code> for webstreams.</p>\n<pre><code class=\"language-js\">const fs = require('node:fs');\n\nconst controller = new AbortController();\nconst read = addAbortSignal(\n  controller.signal,\n  fs.createReadStream(('object.json')),\n);\n// Later, abort the operation closing the stream\ncontroller.abort();\n</code></pre>\n<p>Or using an <code>AbortSignal</code> with a readable stream as an async iterable:</p>\n<pre><code class=\"language-js\">const controller = new AbortController();\nsetTimeout(() => controller.abort(), 10_000); // set a timeout\nconst stream = addAbortSignal(\n  controller.signal,\n  fs.createReadStream(('object.json')),\n);\n(async () => {\n  try {\n    for await (const chunk of stream) {\n      await process(chunk);\n    }\n  } catch (e) {\n    if (e.name === 'AbortError') {\n      // The operation was cancelled\n    } else {\n      throw e;\n    }\n  }\n})();\n</code></pre>\n<p>Or using an <code>AbortSignal</code> with a ReadableStream:</p>\n<pre><code class=\"language-js\">const controller = new AbortController();\nconst rs = new ReadableStream({\n  start(controller) {\n    controller.enqueue('hello');\n    controller.enqueue('world');\n    controller.close();\n  },\n});\n\naddAbortSignal(controller.signal, rs);\n\nfinished(rs, (err) => {\n  if (err) {\n    if (err.name === 'AbortError') {\n      // The operation was cancelled\n    }\n  }\n});\n\nconst reader = rs.getReader();\n\nreader.read().then(({ value, done }) => {\n  console.log(value); // hello\n  console.log(done); // false\n  controller.abort();\n});\n</code></pre>"
+          "desc": "<p>Attaches an AbortSignal to a readable or writeable stream. This lets code\ncontrol stream destruction using an <code>AbortController</code>.</p>\n<p>Calling <code>abort</code> on the <code>AbortController</code> corresponding to the passed\n<code>AbortSignal</code> will behave the same way as calling <code>.destroy(new AbortError())</code>\non the stream, and <code>controller.error(new AbortError())</code> for webstreams.</p>\n<pre><code class=\"language-js\">const fs = require('node:fs');\n\nconst controller = new AbortController();\nconst read = addAbortSignal(\n  controller.signal,\n  fs.createReadStream(('object.json')),\n);\n// Later, abort the operation closing the stream\ncontroller.abort();\n</code></pre>\n<p>Or using an <code>AbortSignal</code> with a readable stream as an async iterable:</p>\n<pre><code class=\"language-js\">const controller = new AbortController();\nsetTimeout(() => controller.abort(), 10_000); // set a timeout\nconst stream = addAbortSignal(\n  controller.signal,\n  fs.createReadStream(('object.json')),\n);\n(async () => {\n  try {\n    for await (const chunk of stream) {\n      await process(chunk);\n    }\n  } catch (e) {\n    if (e.name === 'AbortError') {\n      // The operation was cancelled\n    } else {\n      throw e;\n    }\n  }\n})();\n</code></pre>\n<p>Or using an <code>AbortSignal</code> with a ReadableStream:</p>\n<pre><code class=\"language-js\">const controller = new AbortController();\nconst rs = new ReadableStream({\n  start(controller) {\n    controller.enqueue('hello');\n    controller.enqueue('world');\n    controller.close();\n  },\n});\n\naddAbortSignal(controller.signal, rs);\n\nfinished(rs, (err) => {\n  if (err) {\n    if (err.name === 'AbortError') {\n      // The operation was cancelled\n    }\n  }\n});\n\nconst reader = rs.getReader();\n\nreader.read().then(({ value, done }) => {\n  console.log(value); // hello\n  console.log(done); // false\n  controller.abort();\n});\n</code></pre>"
         },
         {
           "textRaw": "`stream.getDefaultHighWaterMark(objectMode)`",
@@ -1136,7 +1235,7 @@
           "name": "getDefaultHighWaterMark",
           "meta": {
             "added": [
-              "v18.17.0"
+              "v19.9.0"
             ],
             "changes": []
           },
@@ -1164,7 +1263,7 @@
           "name": "setDefaultHighWaterMark",
           "meta": {
             "added": [
-              "v18.17.0"
+              "v19.9.0"
             ],
             "changes": []
           },
@@ -1207,7 +1306,7 @@
               "params": []
             }
           ],
-          "desc": "<p>Use of <code>readable.push('')</code> is not recommended.</p>\n<p>Pushing a zero-byte string, <code>Buffer</code>, or <code>Uint8Array</code> to a stream that is not in\nobject mode has an interesting side effect. Because it <em>is</em> a call to\n<a href=\"#readablepushchunk-encoding\"><code>readable.push()</code></a>, the call will end the reading process.\nHowever, because the argument is an empty string, no data is added to the\nreadable buffer so there is nothing for a user to consume.</p>"
+          "desc": "<p>Use of <code>readable.push('')</code> is not recommended.</p>\n<p>Pushing a zero-byte <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a>, <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a>, <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray\" class=\"type\">&lt;TypedArray&gt;</a> or <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView\" class=\"type\">&lt;DataView&gt;</a> to a stream\nthat is not in object mode has an interesting side effect.\nBecause it <em>is</em> a call to\n<a href=\"#readablepushchunk-encoding\"><code>readable.push()</code></a>, the call will end the reading process.\nHowever, because the argument is an empty string, no data is added to the\nreadable buffer so there is nothing for a user to consume.</p>"
         }
       ],
       "miscs": [
@@ -1400,6 +1499,11 @@
                         ],
                         "changes": [
                           {
+                            "version": "v20.13.0",
+                            "pr-url": "https://github.com/nodejs/node/pull/51866",
+                            "description": "The `chunk` argument can now be a `TypedArray` or `DataView` instance."
+                          },
+                          {
                             "version": "v15.0.0",
                             "pr-url": "https://github.com/nodejs/node/pull/34101",
                             "description": "The `callback` is invoked before 'finish' or on error."
@@ -1430,10 +1534,10 @@
                           },
                           "params": [
                             {
-                              "textRaw": "`chunk` {string|Buffer|Uint8Array|any} Optional data to write. For streams not operating in object mode, `chunk` must be a string, `Buffer` or `Uint8Array`. For object mode streams, `chunk` may be any JavaScript value other than `null`.",
+                              "textRaw": "`chunk` {string|Buffer|TypedArray|DataView|any} Optional data to write. For streams not operating in object mode, `chunk` must be a {string}, {Buffer}, {TypedArray} or {DataView}. For object mode streams, `chunk` may be any JavaScript value other than `null`.",
                               "name": "chunk",
-                              "type": "string|Buffer|Uint8Array|any",
-                              "desc": "Optional data to write. For streams not operating in object mode, `chunk` must be a string, `Buffer` or `Uint8Array`. For object mode streams, `chunk` may be any JavaScript value other than `null`."
+                              "type": "string|Buffer|TypedArray|DataView|any",
+                              "desc": "Optional data to write. For streams not operating in object mode, `chunk` must be a {string}, {Buffer}, {TypedArray} or {DataView}. For object mode streams, `chunk` may be any JavaScript value other than `null`."
                             },
                             {
                               "textRaw": "`encoding` {string} The encoding if `chunk` is a string",
@@ -1514,6 +1618,11 @@
                         ],
                         "changes": [
                           {
+                            "version": "v20.13.0",
+                            "pr-url": "https://github.com/nodejs/node/pull/51866",
+                            "description": "The `chunk` argument can now be a `TypedArray` or `DataView` instance."
+                          },
+                          {
                             "version": "v8.0.0",
                             "pr-url": "https://github.com/nodejs/node/pull/11608",
                             "description": "The `chunk` argument can now be a `Uint8Array` instance."
@@ -1535,10 +1644,10 @@
                           },
                           "params": [
                             {
-                              "textRaw": "`chunk` {string|Buffer|Uint8Array|any} Optional data to write. For streams not operating in object mode, `chunk` must be a string, `Buffer` or `Uint8Array`. For object mode streams, `chunk` may be any JavaScript value other than `null`.",
+                              "textRaw": "`chunk` {string|Buffer|TypedArray|DataView|any} Optional data to write. For streams not operating in object mode, `chunk` must be a {string}, {Buffer}, {TypedArray} or {DataView}. For object mode streams, `chunk` may be any JavaScript value other than `null`.",
                               "name": "chunk",
-                              "type": "string|Buffer|Uint8Array|any",
-                              "desc": "Optional data to write. For streams not operating in object mode, `chunk` must be a string, `Buffer` or `Uint8Array`. For object mode streams, `chunk` may be any JavaScript value other than `null`."
+                              "type": "string|Buffer|TypedArray|DataView|any",
+                              "desc": "Optional data to write. For streams not operating in object mode, `chunk` must be a {string}, {Buffer}, {TypedArray} or {DataView}. For object mode streams, `chunk` may be any JavaScript value other than `null`."
                             },
                             {
                               "textRaw": "`encoding` {string|null} The encoding, if `chunk` is a string. **Default:** `'utf8'`",
@@ -1602,7 +1711,8 @@
                       "name": "writableAborted",
                       "meta": {
                         "added": [
-                          "v18.0.0"
+                          "v18.0.0",
+                          "v16.17.0"
                         ],
                         "changes": []
                       },
@@ -2124,6 +2234,11 @@
                         ],
                         "changes": [
                           {
+                            "version": "v20.13.0",
+                            "pr-url": "https://github.com/nodejs/node/pull/51866",
+                            "description": "The `chunk` argument can now be a `TypedArray` or `DataView` instance."
+                          },
+                          {
                             "version": "v8.0.0",
                             "pr-url": "https://github.com/nodejs/node/pull/11608",
                             "description": "The `chunk` argument can now be a `Uint8Array` instance."
@@ -2134,10 +2249,10 @@
                         {
                           "params": [
                             {
-                              "textRaw": "`chunk` {Buffer|Uint8Array|string|null|any} Chunk of data to unshift onto the read queue. For streams not operating in object mode, `chunk` must be a string, `Buffer`, `Uint8Array`, or `null`. For object mode streams, `chunk` may be any JavaScript value.",
+                              "textRaw": "`chunk` {Buffer|TypedArray|DataView|string|null|any} Chunk of data to unshift onto the read queue. For streams not operating in object mode, `chunk` must be a {string}, {Buffer}, {TypedArray}, {DataView} or `null`. For object mode streams, `chunk` may be any JavaScript value.",
                               "name": "chunk",
-                              "type": "Buffer|Uint8Array|string|null|any",
-                              "desc": "Chunk of data to unshift onto the read queue. For streams not operating in object mode, `chunk` must be a string, `Buffer`, `Uint8Array`, or `null`. For object mode streams, `chunk` may be any JavaScript value."
+                              "type": "Buffer|TypedArray|DataView|string|null|any",
+                              "desc": "Chunk of data to unshift onto the read queue. For streams not operating in object mode, `chunk` must be a {string}, {Buffer}, {TypedArray}, {DataView} or `null`. For object mode streams, `chunk` may be any JavaScript value."
                             },
                             {
                               "textRaw": "`encoding` {string} Encoding of string chunks. Must be a valid `Buffer` encoding, such as `'utf8'` or `'ascii'`.",
@@ -2214,7 +2329,7 @@
                       "name": "[Symbol.asyncDispose]",
                       "meta": {
                         "added": [
-                          "v18.18.0"
+                          "v20.4.0"
                         ],
                         "changes": []
                       },
@@ -2233,6 +2348,7 @@
                       "name": "compose",
                       "meta": {
                         "added": [
+                          "v19.1.0",
                           "v18.13.0"
                         ],
                         "changes": []
@@ -2322,7 +2438,7 @@
                         ],
                         "changes": [
                           {
-                            "version": "v18.19.0",
+                            "version": "v20.7.0",
                             "pr-url": "https://github.com/nodejs/node/pull/49249",
                             "description": "added `highWaterMark` in options."
                           }
@@ -2409,7 +2525,7 @@
                         ],
                         "changes": [
                           {
-                            "version": "v18.19.0",
+                            "version": "v20.7.0",
                             "pr-url": "https://github.com/nodejs/node/pull/49249",
                             "description": "added `highWaterMark` in options."
                           }
@@ -2491,7 +2607,8 @@
                       "name": "forEach",
                       "meta": {
                         "added": [
-                          "v17.5.0"
+                          "v17.5.0",
+                          "v16.15.0"
                         ],
                         "changes": []
                       },
@@ -2564,7 +2681,8 @@
                       "name": "toArray",
                       "meta": {
                         "added": [
-                          "v17.5.0"
+                          "v17.5.0",
+                          "v16.15.0"
                         ],
                         "changes": []
                       },
@@ -2603,7 +2721,8 @@
                       "name": "some",
                       "meta": {
                         "added": [
-                          "v17.5.0"
+                          "v17.5.0",
+                          "v16.15.0"
                         ],
                         "changes": []
                       },
@@ -2676,7 +2795,8 @@
                       "name": "find",
                       "meta": {
                         "added": [
-                          "v17.5.0"
+                          "v17.5.0",
+                          "v16.17.0"
                         ],
                         "changes": []
                       },
@@ -2749,7 +2869,8 @@
                       "name": "every",
                       "meta": {
                         "added": [
-                          "v17.5.0"
+                          "v17.5.0",
+                          "v16.15.0"
                         ],
                         "changes": []
                       },
@@ -2822,7 +2943,8 @@
                       "name": "flatMap",
                       "meta": {
                         "added": [
-                          "v17.5.0"
+                          "v17.5.0",
+                          "v16.15.0"
                         ],
                         "changes": []
                       },
@@ -2895,7 +3017,8 @@
                       "name": "drop",
                       "meta": {
                         "added": [
-                          "v17.5.0"
+                          "v17.5.0",
+                          "v16.15.0"
                         ],
                         "changes": []
                       },
@@ -2940,7 +3063,8 @@
                       "name": "take",
                       "meta": {
                         "added": [
-                          "v17.5.0"
+                          "v17.5.0",
+                          "v16.15.0"
                         ],
                         "changes": []
                       },
@@ -2985,11 +3109,12 @@
                       "name": "asIndexedPairs",
                       "meta": {
                         "added": [
-                          "v17.5.0"
+                          "v17.5.0",
+                          "v16.15.0"
                         ],
                         "changes": [
                           {
-                            "version": "v18.17.0",
+                            "version": "v20.3.0",
                             "pr-url": "https://github.com/nodejs/node/pull/48102",
                             "description": "Using the `asIndexedPairs` method emits a runtime warning that it will be removed in a future version."
                           }
@@ -3030,7 +3155,8 @@
                       "name": "reduce",
                       "meta": {
                         "added": [
-                          "v17.5.0"
+                          "v17.5.0",
+                          "v16.15.0"
                         ],
                         "changes": []
                       },
@@ -3359,7 +3485,7 @@
                 ],
                 "changes": [
                   {
-                    "version": "v18.14.0",
+                    "version": "v19.5.0",
                     "pr-url": "https://github.com/nodejs/node/pull/46205",
                     "description": "Added support for `ReadableStream` and `WritableStream`."
                   },
@@ -3387,16 +3513,70 @@
               },
               "signatures": [
                 {
+                  "return": {
+                    "textRaw": "Returns: {Function} A cleanup function which removes all registered listeners.",
+                    "name": "return",
+                    "type": "Function",
+                    "desc": "A cleanup function which removes all registered listeners."
+                  },
                   "params": [
                     {
-                      "textRaw": "`stream` {Stream|ReadableStream|WritableStream}",
+                      "textRaw": "`stream` {Stream|ReadableStream|WritableStream} A readable and/or writable stream/webstream.",
                       "name": "stream",
-                      "type": "Stream|ReadableStream|WritableStream"
+                      "type": "Stream|ReadableStream|WritableStream",
+                      "desc": "A readable and/or writable stream/webstream."
+                    },
+                    {
+                      "textRaw": "`options` {Object}",
+                      "name": "options",
+                      "type": "Object",
+                      "options": [
+                        {
+                          "textRaw": "`error` {boolean} If set to `false`, then a call to `emit('error', err)` is not treated as finished. **Default:** `true`.",
+                          "name": "error",
+                          "type": "boolean",
+                          "default": "`true`",
+                          "desc": "If set to `false`, then a call to `emit('error', err)` is not treated as finished."
+                        },
+                        {
+                          "textRaw": "`readable` {boolean} When set to `false`, the callback will be called when the stream ends even though the stream might still be readable. **Default:** `true`.",
+                          "name": "readable",
+                          "type": "boolean",
+                          "default": "`true`",
+                          "desc": "When set to `false`, the callback will be called when the stream ends even though the stream might still be readable."
+                        },
+                        {
+                          "textRaw": "`writable` {boolean} When set to `false`, the callback will be called when the stream ends even though the stream might still be writable. **Default:** `true`.",
+                          "name": "writable",
+                          "type": "boolean",
+                          "default": "`true`",
+                          "desc": "When set to `false`, the callback will be called when the stream ends even though the stream might still be writable."
+                        },
+                        {
+                          "textRaw": "`signal` {AbortSignal} allows aborting the wait for the stream finish. The underlying stream will _not_ be aborted if the signal is aborted. The callback will get called with an `AbortError`. All registered listeners added by this function will also be removed.",
+                          "name": "signal",
+                          "type": "AbortSignal",
+                          "desc": "allows aborting the wait for the stream finish. The underlying stream will _not_ be aborted if the signal is aborted. The callback will get called with an `AbortError`. All registered listeners added by this function will also be removed."
+                        },
+                        {
+                          "textRaw": "`cleanup` {boolean} remove all registered stream listeners. **Default:** `false`.",
+                          "name": "cleanup",
+                          "type": "boolean",
+                          "default": "`false`",
+                          "desc": "remove all registered stream listeners."
+                        }
+                      ]
+                    },
+                    {
+                      "textRaw": "`callback` {Function} A callback function that takes an optional error argument.",
+                      "name": "callback",
+                      "type": "Function",
+                      "desc": "A callback function that takes an optional error argument."
                     }
                   ]
                 }
               ],
-              "desc": "<p>A readable and/or writable stream/webstream.</p>\n<ul>\n<li>\n<p><code>options</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object\" class=\"type\">&lt;Object&gt;</a></p>\n<ul>\n<li><code>error</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> If set to <code>false</code>, then a call to <code>emit('error', err)</code> is\nnot treated as finished. <strong>Default:</strong> <code>true</code>.</li>\n<li><code>readable</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> When set to <code>false</code>, the callback will be called when\nthe stream ends even though the stream might still be readable.\n<strong>Default:</strong> <code>true</code>.</li>\n<li><code>writable</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> When set to <code>false</code>, the callback will be called when\nthe stream ends even though the stream might still be writable.\n<strong>Default:</strong> <code>true</code>.</li>\n<li><code>signal</code> <a href=\"globals.html#class-abortsignal\" class=\"type\">&lt;AbortSignal&gt;</a> allows aborting the wait for the stream finish. The\nunderlying stream will <em>not</em> be aborted if the signal is aborted. The\ncallback will get called with an <code>AbortError</code>. All registered\nlisteners added by this function will also be removed.</li>\n<li><code>cleanup</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> remove all registered stream listeners.\n<strong>Default:</strong> <code>false</code>.</li>\n</ul>\n</li>\n<li>\n<p><code>callback</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function\" class=\"type\">&lt;Function&gt;</a> A callback function that takes an optional error\nargument.</p>\n</li>\n<li>\n<p>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function\" class=\"type\">&lt;Function&gt;</a> A cleanup function which removes all registered\nlisteners.</p>\n</li>\n</ul>\n<p>A function to get notified when a stream is no longer readable, writable\nor has experienced an error or a premature close event.</p>\n<pre><code class=\"language-js\">const { finished } = require('node:stream');\nconst fs = require('node:fs');\n\nconst rs = fs.createReadStream('archive.tar');\n\nfinished(rs, (err) => {\n  if (err) {\n    console.error('Stream failed.', err);\n  } else {\n    console.log('Stream is done reading.');\n  }\n});\n\nrs.resume(); // Drain the stream.\n</code></pre>\n<p>Especially useful in error handling scenarios where a stream is destroyed\nprematurely (like an aborted HTTP request), and will not emit <code>'end'</code>\nor <code>'finish'</code>.</p>\n<p>The <code>finished</code> API provides <a href=\"#streamfinishedstream-options\">promise version</a>.</p>\n<p><code>stream.finished()</code> leaves dangling event listeners (in particular\n<code>'error'</code>, <code>'end'</code>, <code>'finish'</code> and <code>'close'</code>) after <code>callback</code> has been\ninvoked. The reason for this is so that unexpected <code>'error'</code> events (due to\nincorrect stream implementations) do not cause unexpected crashes.\nIf this is unwanted behavior then the returned cleanup function needs to be\ninvoked in the callback:</p>\n<pre><code class=\"language-js\">const cleanup = finished(rs, (err) => {\n  cleanup();\n  // ...\n});\n</code></pre>"
+              "desc": "<p>A function to get notified when a stream is no longer readable, writable\nor has experienced an error or a premature close event.</p>\n<pre><code class=\"language-js\">const { finished } = require('node:stream');\nconst fs = require('node:fs');\n\nconst rs = fs.createReadStream('archive.tar');\n\nfinished(rs, (err) => {\n  if (err) {\n    console.error('Stream failed.', err);\n  } else {\n    console.log('Stream is done reading.');\n  }\n});\n\nrs.resume(); // Drain the stream.\n</code></pre>\n<p>Especially useful in error handling scenarios where a stream is destroyed\nprematurely (like an aborted HTTP request), and will not emit <code>'end'</code>\nor <code>'finish'</code>.</p>\n<p>The <code>finished</code> API provides <a href=\"#streamfinishedstream-options\">promise version</a>.</p>\n<p><code>stream.finished()</code> leaves dangling event listeners (in particular\n<code>'error'</code>, <code>'end'</code>, <code>'finish'</code> and <code>'close'</code>) after <code>callback</code> has been\ninvoked. The reason for this is so that unexpected <code>'error'</code> events (due to\nincorrect stream implementations) do not cause unexpected crashes.\nIf this is unwanted behavior then the returned cleanup function needs to be\ninvoked in the callback:</p>\n<pre><code class=\"language-js\">const cleanup = finished(rs, (err) => {\n  cleanup();\n  // ...\n});\n</code></pre>"
             },
             {
               "textRaw": "`stream.pipeline(source[, ...transforms], destination, callback)`",
@@ -3408,7 +3588,7 @@
                 ],
                 "changes": [
                   {
-                    "version": "v18.16.0",
+                    "version": "v19.7.0",
                     "pr-url": "https://github.com/nodejs/node/pull/46307",
                     "description": "Added support for webstreams."
                   },
@@ -3521,7 +3701,7 @@
                 ],
                 "changes": [
                   {
-                    "version": "v18.16.0",
+                    "version": "v19.7.0",
                     "pr-url": "https://github.com/nodejs/node/pull/46307",
                     "description": "Added support for webstreams."
                   },
@@ -3634,7 +3814,15 @@
                 ],
                 "changes": [
                   {
-                    "version": "v18.16.0",
+                    "version": "v20.10.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/50187",
+                    "description": "Added support for stream class."
+                  },
+                  {
+                    "version": [
+                      "v19.8.0",
+                      "v18.16.0"
+                    ],
                     "pr-url": "https://github.com/nodejs/node/pull/46675",
                     "description": "Added support for webstreams."
                   }
@@ -3651,9 +3839,9 @@
                   },
                   "params": [
                     {
-                      "textRaw": "`streams` {Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]| ReadableStream\\[]|WritableStream\\[]|TransformStream\\[]}",
+                      "textRaw": "`streams` {Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]| ReadableStream\\[]|WritableStream\\[]|TransformStream\\[]|Duplex\\[]|Function}",
                       "name": "streams",
-                      "type": "Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]| ReadableStream\\[]|WritableStream\\[]|TransformStream\\[]"
+                      "type": "Stream\\[]|Iterable\\[]|AsyncIterable\\[]|Function\\[]| ReadableStream\\[]|WritableStream\\[]|TransformStream\\[]|Duplex\\[]|Function"
                     }
                   ]
                 }
@@ -4006,7 +4194,7 @@
                 ],
                 "changes": [
                   {
-                    "version": "v18.17.0",
+                    "version": "v19.5.0",
                     "pr-url": "https://github.com/nodejs/node/pull/46190",
                     "description": "The `src` argument can now be a `ReadableStream` or `WritableStream`."
                   }
@@ -4156,7 +4344,7 @@
                 ],
                 "changes": [
                   {
-                    "version": "v18.16.0",
+                    "version": "v19.7.0",
                     "pr-url": "https://github.com/nodejs/node/pull/46273",
                     "description": "Added support for `ReadableStream` and `WritableStream`."
                   }
@@ -4172,14 +4360,15 @@
                       "desc": "A signal representing possible cancellation"
                     },
                     {
-                      "textRaw": "`stream` {Stream|ReadableStream|WritableStream}",
+                      "textRaw": "`stream` {Stream|ReadableStream|WritableStream} A stream to attach a signal to.",
                       "name": "stream",
-                      "type": "Stream|ReadableStream|WritableStream"
+                      "type": "Stream|ReadableStream|WritableStream",
+                      "desc": "A stream to attach a signal to."
                     }
                   ]
                 }
               ],
-              "desc": "<p>A stream to attach a signal to.</p>\n<p>Attaches an AbortSignal to a readable or writeable stream. This lets code\ncontrol stream destruction using an <code>AbortController</code>.</p>\n<p>Calling <code>abort</code> on the <code>AbortController</code> corresponding to the passed\n<code>AbortSignal</code> will behave the same way as calling <code>.destroy(new AbortError())</code>\non the stream, and <code>controller.error(new AbortError())</code> for webstreams.</p>\n<pre><code class=\"language-js\">const fs = require('node:fs');\n\nconst controller = new AbortController();\nconst read = addAbortSignal(\n  controller.signal,\n  fs.createReadStream(('object.json')),\n);\n// Later, abort the operation closing the stream\ncontroller.abort();\n</code></pre>\n<p>Or using an <code>AbortSignal</code> with a readable stream as an async iterable:</p>\n<pre><code class=\"language-js\">const controller = new AbortController();\nsetTimeout(() => controller.abort(), 10_000); // set a timeout\nconst stream = addAbortSignal(\n  controller.signal,\n  fs.createReadStream(('object.json')),\n);\n(async () => {\n  try {\n    for await (const chunk of stream) {\n      await process(chunk);\n    }\n  } catch (e) {\n    if (e.name === 'AbortError') {\n      // The operation was cancelled\n    } else {\n      throw e;\n    }\n  }\n})();\n</code></pre>\n<p>Or using an <code>AbortSignal</code> with a ReadableStream:</p>\n<pre><code class=\"language-js\">const controller = new AbortController();\nconst rs = new ReadableStream({\n  start(controller) {\n    controller.enqueue('hello');\n    controller.enqueue('world');\n    controller.close();\n  },\n});\n\naddAbortSignal(controller.signal, rs);\n\nfinished(rs, (err) => {\n  if (err) {\n    if (err.name === 'AbortError') {\n      // The operation was cancelled\n    }\n  }\n});\n\nconst reader = rs.getReader();\n\nreader.read().then(({ value, done }) => {\n  console.log(value); // hello\n  console.log(done); // false\n  controller.abort();\n});\n</code></pre>"
+              "desc": "<p>Attaches an AbortSignal to a readable or writeable stream. This lets code\ncontrol stream destruction using an <code>AbortController</code>.</p>\n<p>Calling <code>abort</code> on the <code>AbortController</code> corresponding to the passed\n<code>AbortSignal</code> will behave the same way as calling <code>.destroy(new AbortError())</code>\non the stream, and <code>controller.error(new AbortError())</code> for webstreams.</p>\n<pre><code class=\"language-js\">const fs = require('node:fs');\n\nconst controller = new AbortController();\nconst read = addAbortSignal(\n  controller.signal,\n  fs.createReadStream(('object.json')),\n);\n// Later, abort the operation closing the stream\ncontroller.abort();\n</code></pre>\n<p>Or using an <code>AbortSignal</code> with a readable stream as an async iterable:</p>\n<pre><code class=\"language-js\">const controller = new AbortController();\nsetTimeout(() => controller.abort(), 10_000); // set a timeout\nconst stream = addAbortSignal(\n  controller.signal,\n  fs.createReadStream(('object.json')),\n);\n(async () => {\n  try {\n    for await (const chunk of stream) {\n      await process(chunk);\n    }\n  } catch (e) {\n    if (e.name === 'AbortError') {\n      // The operation was cancelled\n    } else {\n      throw e;\n    }\n  }\n})();\n</code></pre>\n<p>Or using an <code>AbortSignal</code> with a ReadableStream:</p>\n<pre><code class=\"language-js\">const controller = new AbortController();\nconst rs = new ReadableStream({\n  start(controller) {\n    controller.enqueue('hello');\n    controller.enqueue('world');\n    controller.close();\n  },\n});\n\naddAbortSignal(controller.signal, rs);\n\nfinished(rs, (err) => {\n  if (err) {\n    if (err.name === 'AbortError') {\n      // The operation was cancelled\n    }\n  }\n});\n\nconst reader = rs.getReader();\n\nreader.read().then(({ value, done }) => {\n  console.log(value); // hello\n  console.log(done); // false\n  controller.abort();\n});\n</code></pre>"
             },
             {
               "textRaw": "`stream.getDefaultHighWaterMark(objectMode)`",
@@ -4187,7 +4376,7 @@
               "name": "getDefaultHighWaterMark",
               "meta": {
                 "added": [
-                  "v18.17.0"
+                  "v19.9.0"
                 ],
                 "changes": []
               },
@@ -4215,7 +4404,7 @@
               "name": "setDefaultHighWaterMark",
               "meta": {
                 "added": [
-                  "v18.17.0"
+                  "v19.9.0"
                 ],
                 "changes": []
               },
@@ -4325,11 +4514,11 @@
                               "desc": "The default encoding that is used when no encoding is specified as an argument to [`stream.write()`][stream-write]."
                             },
                             {
-                              "textRaw": "`objectMode` {boolean} Whether or not the [`stream.write(anyObj)`][stream-write] is a valid operation. When set, it becomes possible to write JavaScript values other than string, `Buffer` or `Uint8Array` if supported by the stream implementation. **Default:** `false`.",
+                              "textRaw": "`objectMode` {boolean} Whether or not the [`stream.write(anyObj)`][stream-write] is a valid operation. When set, it becomes possible to write JavaScript values other than string, {Buffer}, {TypedArray} or {DataView} if supported by the stream implementation. **Default:** `false`.",
                               "name": "objectMode",
                               "type": "boolean",
                               "default": "`false`",
-                              "desc": "Whether or not the [`stream.write(anyObj)`][stream-write] is a valid operation. When set, it becomes possible to write JavaScript values other than string, `Buffer` or `Uint8Array` if supported by the stream implementation."
+                              "desc": "Whether or not the [`stream.write(anyObj)`][stream-write] is a valid operation. When set, it becomes possible to write JavaScript values other than string, {Buffer}, {TypedArray} or {DataView} if supported by the stream implementation."
                             },
                             {
                               "textRaw": "`emitClose` {boolean} Whether or not the stream should emit `'close'` after it has been destroyed. **Default:** `true`.",
@@ -4764,6 +4953,11 @@
                   "meta": {
                     "changes": [
                       {
+                        "version": "v20.13.0",
+                        "pr-url": "https://github.com/nodejs/node/pull/51866",
+                        "description": "The `chunk` argument can now be a `TypedArray` or `DataView` instance."
+                      },
+                      {
                         "version": "v8.0.0",
                         "pr-url": "https://github.com/nodejs/node/pull/11608",
                         "description": "The `chunk` argument can now be a `Uint8Array` instance."
@@ -4780,10 +4974,10 @@
                       },
                       "params": [
                         {
-                          "textRaw": "`chunk` {Buffer|Uint8Array|string|null|any} Chunk of data to push into the read queue. For streams not operating in object mode, `chunk` must be a string, `Buffer` or `Uint8Array`. For object mode streams, `chunk` may be any JavaScript value.",
+                          "textRaw": "`chunk` {Buffer|TypedArray|DataView|string|null|any} Chunk of data to push into the read queue. For streams not operating in object mode, `chunk` must be a {string}, {Buffer}, {TypedArray} or {DataView}. For object mode streams, `chunk` may be any JavaScript value.",
                           "name": "chunk",
-                          "type": "Buffer|Uint8Array|string|null|any",
-                          "desc": "Chunk of data to push into the read queue. For streams not operating in object mode, `chunk` must be a string, `Buffer` or `Uint8Array`. For object mode streams, `chunk` may be any JavaScript value."
+                          "type": "Buffer|TypedArray|DataView|string|null|any",
+                          "desc": "Chunk of data to push into the read queue. For streams not operating in object mode, `chunk` must be a {string}, {Buffer}, {TypedArray} or {DataView}. For object mode streams, `chunk` may be any JavaScript value."
                         },
                         {
                           "textRaw": "`encoding` {string} Encoding of string chunks. Must be a valid `Buffer` encoding, such as `'utf8'` or `'ascii'`.",
@@ -4794,7 +4988,7 @@
                       ]
                     }
                   ],
-                  "desc": "<p>When <code>chunk</code> is a <code>Buffer</code>, <code>Uint8Array</code>, or <code>string</code>, the <code>chunk</code> of data will\nbe added to the internal queue for users of the stream to consume.\nPassing <code>chunk</code> as <code>null</code> signals the end of the stream (EOF), after which no\nmore data can be written.</p>\n<p>When the <code>Readable</code> is operating in paused mode, the data added with\n<code>readable.push()</code> can be read out by calling the\n<a href=\"#readablereadsize\"><code>readable.read()</code></a> method when the <a href=\"#event-readable\"><code>'readable'</code></a> event is\nemitted.</p>\n<p>When the <code>Readable</code> is operating in flowing mode, the data added with\n<code>readable.push()</code> will be delivered by emitting a <code>'data'</code> event.</p>\n<p>The <code>readable.push()</code> method is designed to be as flexible as possible. For\nexample, when wrapping a lower-level source that provides some form of\npause/resume mechanism, and a data callback, the low-level source can be wrapped\nby the custom <code>Readable</code> instance:</p>\n<pre><code class=\"language-js\">// `_source` is an object with readStop() and readStart() methods,\n// and an `ondata` member that gets called when it has data, and\n// an `onend` member that gets called when the data is over.\n\nclass SourceWrapper extends Readable {\n  constructor(options) {\n    super(options);\n\n    this._source = getLowLevelSourceObject();\n\n    // Every time there's data, push it into the internal buffer.\n    this._source.ondata = (chunk) => {\n      // If push() returns false, then stop reading from source.\n      if (!this.push(chunk))\n        this._source.readStop();\n    };\n\n    // When the source ends, push the EOF-signaling `null` chunk.\n    this._source.onend = () => {\n      this.push(null);\n    };\n  }\n  // _read() will be called when the stream wants to pull more data in.\n  // The advisory size argument is ignored in this case.\n  _read(size) {\n    this._source.readStart();\n  }\n}\n</code></pre>\n<p>The <code>readable.push()</code> method is used to push the content\ninto the internal buffer. It can be driven by the <a href=\"#readable_readsize\"><code>readable._read()</code></a> method.</p>\n<p>For streams not operating in object mode, if the <code>chunk</code> parameter of\n<code>readable.push()</code> is <code>undefined</code>, it will be treated as empty string or\nbuffer. See <a href=\"#readablepush\"><code>readable.push('')</code></a> for more information.</p>"
+                  "desc": "<p>When <code>chunk</code> is a <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a>, <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray\" class=\"type\">&lt;TypedArray&gt;</a>, <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView\" class=\"type\">&lt;DataView&gt;</a> or <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a>, the <code>chunk</code>\nof data will be added to the internal queue for users of the stream to consume.\nPassing <code>chunk</code> as <code>null</code> signals the end of the stream (EOF), after which no\nmore data can be written.</p>\n<p>When the <code>Readable</code> is operating in paused mode, the data added with\n<code>readable.push()</code> can be read out by calling the\n<a href=\"#readablereadsize\"><code>readable.read()</code></a> method when the <a href=\"#event-readable\"><code>'readable'</code></a> event is\nemitted.</p>\n<p>When the <code>Readable</code> is operating in flowing mode, the data added with\n<code>readable.push()</code> will be delivered by emitting a <code>'data'</code> event.</p>\n<p>The <code>readable.push()</code> method is designed to be as flexible as possible. For\nexample, when wrapping a lower-level source that provides some form of\npause/resume mechanism, and a data callback, the low-level source can be wrapped\nby the custom <code>Readable</code> instance:</p>\n<pre><code class=\"language-js\">// `_source` is an object with readStop() and readStart() methods,\n// and an `ondata` member that gets called when it has data, and\n// an `onend` member that gets called when the data is over.\n\nclass SourceWrapper extends Readable {\n  constructor(options) {\n    super(options);\n\n    this._source = getLowLevelSourceObject();\n\n    // Every time there's data, push it into the internal buffer.\n    this._source.ondata = (chunk) => {\n      // If push() returns false, then stop reading from source.\n      if (!this.push(chunk))\n        this._source.readStop();\n    };\n\n    // When the source ends, push the EOF-signaling `null` chunk.\n    this._source.onend = () => {\n      this.push(null);\n    };\n  }\n  // _read() will be called when the stream wants to pull more data in.\n  // The advisory size argument is ignored in this case.\n  _read(size) {\n    this._source.readStart();\n  }\n}\n</code></pre>\n<p>The <code>readable.push()</code> method is used to push the content\ninto the internal buffer. It can be driven by the <a href=\"#readable_readsize\"><code>readable._read()</code></a> method.</p>\n<p>For streams not operating in object mode, if the <code>chunk</code> parameter of\n<code>readable.push()</code> is <code>undefined</code>, it will be treated as empty string or\nbuffer. See <a href=\"#readablepush\"><code>readable.push('')</code></a> for more information.</p>"
                 }
               ],
               "modules": [
@@ -5106,7 +5300,7 @@
                   "params": []
                 }
               ],
-              "desc": "<p>Use of <code>readable.push('')</code> is not recommended.</p>\n<p>Pushing a zero-byte string, <code>Buffer</code>, or <code>Uint8Array</code> to a stream that is not in\nobject mode has an interesting side effect. Because it <em>is</em> a call to\n<a href=\"#readablepushchunk-encoding\"><code>readable.push()</code></a>, the call will end the reading process.\nHowever, because the argument is an empty string, no data is added to the\nreadable buffer so there is nothing for a user to consume.</p>"
+              "desc": "<p>Use of <code>readable.push('')</code> is not recommended.</p>\n<p>Pushing a zero-byte <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a>, <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a>, <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray\" class=\"type\">&lt;TypedArray&gt;</a> or <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView\" class=\"type\">&lt;DataView&gt;</a> to a stream\nthat is not in object mode has an interesting side effect.\nBecause it <em>is</em> a call to\n<a href=\"#readablepushchunk-encoding\"><code>readable.push()</code></a>, the call will end the reading process.\nHowever, because the argument is an empty string, no data is added to the\nreadable buffer so there is nothing for a user to consume.</p>"
             }
           ]
         }

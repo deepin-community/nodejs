@@ -3,18 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>Child process | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.15.1">
+  <title>Child process | Node.js v20.15.1 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/child_process.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
   
 </head>
 <body class="alt apidoc" id="api-section-child_process">
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +109,7 @@
     <div id="column1" data-id="child_process" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.15.1 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,11 +124,11 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.15.1</li>
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
@@ -193,7 +206,7 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Index
       </a>
 
@@ -278,10 +291,11 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/child_process.html">21.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v22.x/api/child_process.html">22.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/child_process.html">21.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v20.x/api/child_process.html">20.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v19.x/api/child_process.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/child_process.html">18.x <b>LTS</b></a></li>
@@ -305,7 +319,7 @@
   
             <li class="picker-header">
               <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
@@ -326,7 +340,7 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
 <li><span class="stability_2"><a href="#child-process">Child process</a></span>
 <ul>
 <li><a href="#asynchronous-process-creation">Asynchronous process creation</a>
@@ -396,11 +410,11 @@
 </li>
 </ul></details>
 
-      <div id="apicontent">
+      <div role="main" id="apicontent">
         <h2>Child process<span><a class="mark" href="#child-process" id="child-process">#</a></span><a aria-hidden="true" class="legacy" id="child_process_child_process"></a></h2>
 
 <p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.19.1/lib/child_process.js">lib/child_process.js</a></p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v20.15.1/lib/child_process.js">lib/child_process.js</a></p>
 <p>The <code>node:child_process</code> module provides the ability to spawn subprocesses in
 a manner that is similar, but not identical, to <a href="http://man7.org/linux/man-pages/man3/popen.3.html"><code>popen(3)</code></a>. This capability
 is primarily provided by the <a href="#child_processspawncommand-args-options"><code>child_process.spawn()</code></a> function:</p>
@@ -1117,7 +1131,7 @@ any other position, equivalent to <code>'ignore'</code>.</p>
 file, socket, or a pipe with the child process. The stream's underlying
 file descriptor is duplicated in the child process to the fd that
 corresponds to the index in the <code>stdio</code> array. The stream must have an
-underlying descriptor (file streams do not until the <code>'open'</code> event has
+underlying descriptor (file streams do not start until the <code>'open'</code> event has
 occurred).</p>
 </li>
 <li>
@@ -1149,11 +1163,6 @@ is launched with the IPC channel unreferenced (using <code>unref()</code>) until
 child registers an event handler for the <a href="process.html#event-disconnect"><code>'disconnect'</code></a> event
 or the <a href="process.html#event-message"><code>'message'</code></a> event. This allows the child to exit
 normally without the process being held open by the open IPC channel.</em></p>
-<p>On Unix-like operating systems, the <a href="#child_processspawncommand-args-options"><code>child_process.spawn()</code></a> method
-performs memory operations synchronously before decoupling the event loop
-from the child. Applications with a large memory footprint may find frequent
-<a href="#child_processspawncommand-args-options"><code>child_process.spawn()</code></a> calls to be a bottleneck. For more information,
-see <a href="https://bugs.chromium.org/p/v8/issues/detail?id=7381">V8 issue 7381</a>.</p>
 <p>See also: <a href="#child_processexeccommand-options-callback"><code>child_process.exec()</code></a> and <a href="#child_processforkmodulepath-args-options"><code>child_process.fork()</code></a>.</p>
 </section><section><h3>Synchronous process creation<span><a class="mark" href="#synchronous-process-creation" id="synchronous-process-creation">#</a></span><a aria-hidden="true" class="legacy" id="child_process_synchronous_process_creation"></a></h3>
 <p>The <a href="#child_processspawnsynccommand-args-options"><code>child_process.spawnSync()</code></a>, <a href="#child_processexecsynccommand-options"><code>child_process.execSync()</code></a>, and
@@ -1190,9 +1199,10 @@ configuration at startup.</p>
 <ul>
 <li><code>cwd</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="url.html#the-whatwg-url-api" class="type">&#x3C;URL></a> Current working directory of the child process.</li>
 <li><code>input</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a> The value which will be passed
-as stdin to the spawned process. Supplying this value will override
-<code>stdio[0]</code>.</li>
-<li><code>stdio</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="type">&#x3C;Array></a> Child's stdio configuration. <code>stderr</code> by default will
+as stdin to the spawned process. If <code>stdio[0]</code> is set to <code>'pipe'</code>, Supplying
+this value will override <code>stdio[0]</code>.</li>
+<li><code>stdio</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="type">&#x3C;Array></a> Child's stdio configuration.
+See <a href="#child_processspawncommand-args-options"><code>child_process.spawn()</code></a>'s <a href="#optionsstdio"><code>stdio</code></a>. <code>stderr</code> by default will
 be output to the parent process' stderr unless <code>stdio</code> is specified.
 <strong>Default:</strong> <code>'pipe'</code>.</li>
 <li><code>env</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> Environment key-value pairs. <strong>Default:</strong> <code>process.env</code>.</li>
@@ -1231,6 +1241,31 @@ exited.</p>
 <p><strong>If the <code>shell</code> option is enabled, do not pass unsanitized user input to this
 function. Any input containing shell metacharacters may be used to trigger
 arbitrary command execution.</strong></p>
+<pre><code class="language-js"><span class="hljs-keyword">const</span> { execFileSync } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:child_process'</span>);
+
+<span class="hljs-keyword">try</span> {
+  <span class="hljs-keyword">const</span> stdout = <span class="hljs-title function_">execFileSync</span>(<span class="hljs-string">'my-script.sh'</span>, [<span class="hljs-string">'my-arg'</span>], {
+    <span class="hljs-comment">// Capture stdout and stderr from child process. Overrides the</span>
+    <span class="hljs-comment">// default behavior of streaming child stderr to the parent stderr</span>
+    <span class="hljs-attr">stdio</span>: <span class="hljs-string">'pipe'</span>,
+
+    <span class="hljs-comment">// Use utf8 encoding for stdio pipes</span>
+    <span class="hljs-attr">encoding</span>: <span class="hljs-string">'utf8'</span>,
+  });
+
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(stdout);
+} <span class="hljs-keyword">catch</span> (err) {
+  <span class="hljs-keyword">if</span> (err.<span class="hljs-property">code</span>) {
+    <span class="hljs-comment">// Spawning child process failed</span>
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(err.<span class="hljs-property">code</span>);
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-comment">// Child was spawned but exited with non-zero exit code</span>
+    <span class="hljs-comment">// Error contains any stdout and stderr from the child</span>
+    <span class="hljs-keyword">const</span> { stdout, stderr } = err;
+
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>({ stdout, stderr });
+  }
+}</code> <button class="copy-button">copy</button></pre>
 <h4><code>child_process.execSync(command[, options])</code><span><a class="mark" href="#child_processexecsynccommand-options" id="child_processexecsynccommand-options">#</a></span><a aria-hidden="true" class="legacy" id="child_process_child_process_execsync_command_options"></a></h4>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
@@ -1255,9 +1290,10 @@ arbitrary command execution.</strong></p>
 <ul>
 <li><code>cwd</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="url.html#the-whatwg-url-api" class="type">&#x3C;URL></a> Current working directory of the child process.</li>
 <li><code>input</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a> The value which will be passed
-as stdin to the spawned process. Supplying this value will override
-<code>stdio[0]</code>.</li>
-<li><code>stdio</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="type">&#x3C;Array></a> Child's stdio configuration. <code>stderr</code> by default will
+as stdin to the spawned process. If <code>stdio[0]</code> is set to <code>'pipe'</code>, Supplying
+this value will override <code>stdio[0]</code>.</li>
+<li><code>stdio</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="type">&#x3C;Array></a> Child's stdio configuration.
+See <a href="#child_processspawncommand-args-options"><code>child_process.spawn()</code></a>'s <a href="#optionsstdio"><code>stdio</code></a>. <code>stderr</code> by default will
 be output to the parent process' stderr unless <code>stdio</code> is specified.
 <strong>Default:</strong> <code>'pipe'</code>.</li>
 <li><code>env</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> Environment key-value pairs. <strong>Default:</strong> <code>process.env</code>.</li>
@@ -1323,11 +1359,12 @@ metacharacters may be used to trigger arbitrary command execution.</strong></p>
 <ul>
 <li><code>cwd</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="url.html#the-whatwg-url-api" class="type">&#x3C;URL></a> Current working directory of the child process.</li>
 <li><code>input</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a> The value which will be passed
-as stdin to the spawned process. Supplying this value will override
-<code>stdio[0]</code>.</li>
+as stdin to the spawned process. If <code>stdio[0]</code> is set to <code>'pipe'</code>, Supplying
+this value will override <code>stdio[0]</code>.</li>
 <li><code>argv0</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Explicitly set the value of <code>argv[0]</code> sent to the child
 process. This will be set to <code>command</code> if not specified.</li>
-<li><code>stdio</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="type">&#x3C;Array></a> Child's stdio configuration.</li>
+<li><code>stdio</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="type">&#x3C;Array></a> Child's stdio configuration.
+See <a href="#child_processspawncommand-args-options"><code>child_process.spawn()</code></a>'s <a href="#optionsstdio"><code>stdio</code></a>. <strong>Default:</strong> <code>'pipe'</code>.</li>
 <li><code>env</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> Environment key-value pairs. <strong>Default:</strong> <code>process.env</code>.</li>
 <li><code>uid</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Sets the user identity of the process (see <a href="http://man7.org/linux/man-pages/man2/setuid.2.html"><code>setuid(2)</code></a>).</li>
 <li><code>gid</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Sets the group identity of the process (see <a href="http://man7.org/linux/man-pages/man2/setgid.2.html"><code>setgid(2)</code></a>).</li>
@@ -1464,8 +1501,8 @@ re-raise the handled signal.</p>
 </div>
 <ul>
 <li><code>message</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> A parsed JSON object or primitive value.</li>
-<li><code>sendHandle</code> <a href="net.html#serverlistenhandle-backlog-callback" class="type">&#x3C;Handle></a> A <a href="net.html#class-netsocket"><code>net.Socket</code></a> or <a href="net.html#class-netserver"><code>net.Server</code></a> object, or
-undefined.</li>
+<li><code>sendHandle</code> <a href="net.html#serverlistenhandle-backlog-callback" class="type">&#x3C;Handle></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type" class="type">&#x3C;undefined></a> <code>undefined</code> or a <a href="net.html#class-netsocket"><code>net.Socket</code></a>,
+<a href="net.html#class-netserver"><code>net.Server</code></a>, or <a href="dgram.html#class-dgramsocket"><code>dgram.Socket</code></a> object.</li>
 </ul>
 <p>The <code>'message'</code> event is triggered when a child process uses
 <a href="process.html#processsendmessage-sendhandle-options-callback"><code>process.send()</code></a> to send messages.</p>
@@ -1605,7 +1642,7 @@ new process in a shell or with the use of the <code>shell</code> option of <code
 }, <span class="hljs-number">2000</span>);</code> <button class="copy-button">copy</button></pre>
 <h4><code>subprocess[Symbol.dispose]()</code><span><a class="mark" href="#subprocesssymboldispose" id="subprocesssymboldispose">#</a></span><a aria-hidden="true" class="legacy" id="child_process_subprocess_symbol_dispose"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.18.0</span>
+<span>Added in: v20.5.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <p>Calls <a href="#subprocesskillsignal"><code>subprocess.kill()</code></a> with <code>'SIGTERM'</code>.</p>
@@ -1669,7 +1706,8 @@ subprocess.<span class="hljs-title function_">ref</span>();</code> <button class
 </div>
 <ul>
 <li><code>message</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a></li>
-<li><code>sendHandle</code> <a href="net.html#serverlistenhandle-backlog-callback" class="type">&#x3C;Handle></a></li>
+<li><code>sendHandle</code> <a href="net.html#serverlistenhandle-backlog-callback" class="type">&#x3C;Handle></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type" class="type">&#x3C;undefined></a> <code>undefined</code>, or a <a href="net.html#class-netsocket"><code>net.Socket</code></a>,
+<a href="net.html#class-netserver"><code>net.Server</code></a>, or <a href="dgram.html#class-dgramsocket"><code>dgram.Socket</code></a> object.</li>
 <li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> The <code>options</code> argument, if present, is an object used to
 parameterize the sending of certain types of handles. <code>options</code> supports
 the following properties:
@@ -1718,7 +1756,8 @@ Applications should avoid using such messages or listening for
 for passing a TCP server or socket object to the child process. The child will
 receive the object as the second argument passed to the callback function
 registered on the <a href="process.html#event-message"><code>'message'</code></a> event. Any data that is received
-and buffered in the socket will not be sent to the child.</p>
+and buffered in the socket will not be sent to the child. Sending IPC sockets is
+not supported on Windows.</p>
 <p>The optional <code>callback</code> is a function that is invoked after the message is
 sent but before the child may have received it. The function is called with a
 single argument: <code>null</code> on success, or an <a href="errors.html#class-error"><code>Error</code></a> object on failure.</p>

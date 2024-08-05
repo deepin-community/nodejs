@@ -3,18 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>V8 | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.15.1">
+  <title>V8 | Node.js v20.15.1 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/v8.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
-  <style>@media(max-width:574px){.with-44-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}</style>
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
+  <style>@media(max-width:574px){.with-44-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}</style>
 </head>
 <body class="alt apidoc" id="api-section-v8">
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +109,7 @@
     <div id="column1" data-id="v8" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.15.1 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,11 +124,11 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.15.1</li>
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
@@ -124,13 +137,14 @@
 <ul>
 <li><a href="#v8cacheddataversiontag"><code>v8.cachedDataVersionTag()</code></a></li>
 <li><a href="#v8getheapcodestatistics"><code>v8.getHeapCodeStatistics()</code></a></li>
-<li><a href="#v8getheapsnapshot"><code>v8.getHeapSnapshot()</code></a></li>
+<li><a href="#v8getheapsnapshotoptions"><code>v8.getHeapSnapshot([options])</code></a></li>
 <li><a href="#v8getheapspacestatistics"><code>v8.getHeapSpaceStatistics()</code></a></li>
 <li><a href="#v8getheapstatistics"><code>v8.getHeapStatistics()</code></a></li>
+<li><span class="stability_1"><a href="#v8queryobjectsctor-options"><code>v8.queryObjects(ctor[, options])</code></a></span></li>
 <li><a href="#v8setflagsfromstringflags"><code>v8.setFlagsFromString(flags)</code></a></li>
 <li><a href="#v8stopcoverage"><code>v8.stopCoverage()</code></a></li>
 <li><a href="#v8takecoverage"><code>v8.takeCoverage()</code></a></li>
-<li><a href="#v8writeheapsnapshotfilename"><code>v8.writeHeapSnapshot([filename])</code></a></li>
+<li><a href="#v8writeheapsnapshotfilenameoptions"><code>v8.writeHeapSnapshot([filename[,options]])</code></a></li>
 <li><span class="stability_1"><a href="#v8setheapsnapshotnearheaplimitlimit"><code>v8.setHeapSnapshotNearHeapLimit(limit)</code></a></span></li>
 <li><a href="#serialization-api">Serialization API</a>
 <ul>
@@ -211,7 +225,7 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Index
       </a>
 
@@ -296,10 +310,11 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/v8.html">21.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v22.x/api/v8.html">22.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/v8.html">21.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v20.x/api/v8.html">20.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v19.x/api/v8.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/v8.html">18.x <b>LTS</b></a></li>
@@ -321,7 +336,7 @@
   
             <li class="picker-header">
               <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
@@ -342,18 +357,19 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
 <li><a href="#v8">V8</a>
 <ul>
 <li><a href="#v8cacheddataversiontag"><code>v8.cachedDataVersionTag()</code></a></li>
 <li><a href="#v8getheapcodestatistics"><code>v8.getHeapCodeStatistics()</code></a></li>
-<li><a href="#v8getheapsnapshot"><code>v8.getHeapSnapshot()</code></a></li>
+<li><a href="#v8getheapsnapshotoptions"><code>v8.getHeapSnapshot([options])</code></a></li>
 <li><a href="#v8getheapspacestatistics"><code>v8.getHeapSpaceStatistics()</code></a></li>
 <li><a href="#v8getheapstatistics"><code>v8.getHeapStatistics()</code></a></li>
+<li><span class="stability_1"><a href="#v8queryobjectsctor-options"><code>v8.queryObjects(ctor[, options])</code></a></span></li>
 <li><a href="#v8setflagsfromstringflags"><code>v8.setFlagsFromString(flags)</code></a></li>
 <li><a href="#v8stopcoverage"><code>v8.stopCoverage()</code></a></li>
 <li><a href="#v8takecoverage"><code>v8.takeCoverage()</code></a></li>
-<li><a href="#v8writeheapsnapshotfilename"><code>v8.writeHeapSnapshot([filename])</code></a></li>
+<li><a href="#v8writeheapsnapshotfilenameoptions"><code>v8.writeHeapSnapshot([filename[,options]])</code></a></li>
 <li><span class="stability_1"><a href="#v8setheapsnapshotnearheaplimitlimit"><code>v8.setHeapSnapshotNearHeapLimit(limit)</code></a></span></li>
 <li><a href="#serialization-api">Serialization API</a>
 <ul>
@@ -430,10 +446,10 @@
 </li>
 </ul></details>
 
-      <div id="apicontent">
+      <div role="main" id="apicontent">
         <h2>V8<span><a class="mark" href="#v8" id="v8">#</a></span><a aria-hidden="true" class="legacy" id="v8_v8"></a></h2>
 
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.19.1/lib/v8.js">lib/v8.js</a></p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v20.15.1/lib/v8.js">lib/v8.js</a></p>
 <p>The <code>node:v8</code> module exposes APIs that are specific to the version of <a href="https://developers.google.com/v8/">V8</a>
 built into the Node.js binary. It can be accessed using:</p>
 <pre><code class="language-js"><span class="hljs-keyword">const</span> v8 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:v8'</span>);</code> <button class="copy-button">copy</button></pre>
@@ -477,12 +493,31 @@ following properties:</p>
   <span class="hljs-attr">external_script_source_size</span>: <span class="hljs-number">1410794</span>,
   <span class="hljs-attr">cpu_profiler_metadata_size</span>: <span class="hljs-number">0</span>,
 }</code> <button class="copy-button">copy</button></pre>
-</section><section><h3><code>v8.getHeapSnapshot()</code><span><a class="mark" href="#v8getheapsnapshot" id="v8getheapsnapshot">#</a></span><a aria-hidden="true" class="legacy" id="v8_v8_getheapsnapshot"></a></h3>
+</section><section><h3><code>v8.getHeapSnapshot([options])</code><span><a class="mark" href="#v8getheapsnapshotoptions" id="v8getheapsnapshotoptions">#</a></span><a aria-hidden="true" class="legacy" id="v8_v8_getheapsnapshot_options"></a></h3>
 <div class="api_metadata">
-<span>Added in: v11.13.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.1.0</td>
+<td><p>Support options to configure the heap snapshot.</p></td></tr>
+<tr><td>v11.13.0</td>
+<td><p><span>Added in: v11.13.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
-<li>Returns: <a href="stream.html#class-streamreadable" class="type">&#x3C;stream.Readable></a> A Readable Stream containing the V8 heap snapshot</li>
+<li>
+<p><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a></p>
+<ul>
+<li><code>exposeInternals</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If true, expose internals in the heap snapshot.
+<strong>Default:</strong> <code>false</code>.</li>
+<li><code>exposeNumericValues</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If true, expose numeric values in
+artificial fields. <strong>Default:</strong> <code>false</code>.</li>
+</ul>
+</li>
+<li>
+<p>Returns: <a href="stream.html#class-streamreadable" class="type">&#x3C;stream.Readable></a> A Readable containing the V8 heap snapshot.</p>
+</li>
 </ul>
 <p>Generates a snapshot of the current V8 heap and returns a Readable
 Stream that may be used to read the JSON serialized representation.
@@ -631,6 +666,81 @@ buffers and external strings.</p>
   <span class="hljs-attr">used_global_handles_size</span>: <span class="hljs-number">3296</span>,
   <span class="hljs-attr">external_memory</span>: <span class="hljs-number">318824</span>
 }</code> <button class="copy-button">copy</button></pre>
+</section><section><h3><code>v8.queryObjects(ctor[, options])</code><span><a class="mark" href="#v8queryobjectsctor-options" id="v8queryobjectsctor-options">#</a></span><a aria-hidden="true" class="legacy" id="v8_v8_queryobjects_ctor_options"></a></h3>
+<div class="api_metadata">
+<span>Added in: v20.13.0</span>
+</div>
+<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a>.1 - Active development</div><p></p>
+<ul>
+<li><code>ctor</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> The constructor that can be used to search on the
+prototype chain in order to filter target objects in the heap.</li>
+<li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type" class="type">&#x3C;undefined></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
+<ul>
+<li><code>format</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> If it's <code>'count'</code>, the count of matched objects
+is returned. If it's <code>'summary'</code>, an array with summary strings
+of the matched objects is returned.</li>
+</ul>
+</li>
+<li>Returns: {number|Array<string>}</string></li>
+</ul>
+<p>This is similar to the <a href="https://developer.chrome.com/docs/devtools/console/utilities#queryObjects-function"><code>queryObjects()</code> console API</a> provided by the
+Chromium DevTools console. It can be used to search for objects that
+have the matching constructor on its prototype chain in the heap after
+a full garbage collection, which can be useful for memory leak
+regression tests. To avoid surprising results, users should avoid using
+this API on constructors whose implementation they don't control, or on
+constructors that can be invoked by other parties in the application.</p>
+<p>To avoid accidental leaks, this API does not return raw references to
+the objects found. By default, it returns the count of the objects
+found. If <code>options.format</code> is <code>'summary'</code>, it returns an array
+containing brief string representations for each object. The visibility
+provided in this API is similar to what the heap snapshot provides,
+while users can save the cost of serialization and parsing and directly
+filter the target objects during the search.</p>
+<p>Only objects created in the current execution context are included in the
+results.</p>
+
+<pre class="with-44-chars"><input class="js-flavor-toggle" type="checkbox" aria-label="Show modern ES modules syntax"><code class="language-js cjs"><span class="hljs-keyword">const</span> { queryObjects } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:v8'</span>);
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">A</span> { foo = <span class="hljs-string">'bar'</span>; }
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-title function_">queryObjects</span>(A)); <span class="hljs-comment">// 0</span>
+<span class="hljs-keyword">const</span> a = <span class="hljs-keyword">new</span> <span class="hljs-title function_">A</span>();
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-title function_">queryObjects</span>(A)); <span class="hljs-comment">// 1</span>
+<span class="hljs-comment">// [ "A { foo: 'bar' }" ]</span>
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-title function_">queryObjects</span>(A, { <span class="hljs-attr">format</span>: <span class="hljs-string">'summary'</span> }));
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">B</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_ inherited__">A</span> { bar = <span class="hljs-string">'qux'</span>; }
+<span class="hljs-keyword">const</span> b = <span class="hljs-keyword">new</span> <span class="hljs-title function_">B</span>();
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-title function_">queryObjects</span>(B)); <span class="hljs-comment">// 1</span>
+<span class="hljs-comment">// [ "B { foo: 'bar', bar: 'qux' }" ]</span>
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-title function_">queryObjects</span>(B, { <span class="hljs-attr">format</span>: <span class="hljs-string">'summary'</span> }));
+
+<span class="hljs-comment">// Note that, when there are child classes inheriting from a constructor,</span>
+<span class="hljs-comment">// the constructor also shows up in the prototype chain of the child</span>
+<span class="hljs-comment">// classes's prototoype, so the child classes's prototoype would also be</span>
+<span class="hljs-comment">// included in the result.</span>
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-title function_">queryObjects</span>(A));  <span class="hljs-comment">// 3</span>
+<span class="hljs-comment">// [ "B { foo: 'bar', bar: 'qux' }", 'A {}', "A { foo: 'bar' }" ]</span>
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-title function_">queryObjects</span>(A, { <span class="hljs-attr">format</span>: <span class="hljs-string">'summary'</span> }));</code><code class="language-js mjs"><span class="hljs-keyword">import</span> { queryObjects } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:v8'</span>;
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">A</span> { foo = <span class="hljs-string">'bar'</span>; }
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-title function_">queryObjects</span>(A)); <span class="hljs-comment">// 0</span>
+<span class="hljs-keyword">const</span> a = <span class="hljs-keyword">new</span> <span class="hljs-title function_">A</span>();
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-title function_">queryObjects</span>(A)); <span class="hljs-comment">// 1</span>
+<span class="hljs-comment">// [ "A { foo: 'bar' }" ]</span>
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-title function_">queryObjects</span>(A, { <span class="hljs-attr">format</span>: <span class="hljs-string">'summary'</span> }));
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">B</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_ inherited__">A</span> { bar = <span class="hljs-string">'qux'</span>; }
+<span class="hljs-keyword">const</span> b = <span class="hljs-keyword">new</span> <span class="hljs-title function_">B</span>();
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-title function_">queryObjects</span>(B)); <span class="hljs-comment">// 1</span>
+<span class="hljs-comment">// [ "B { foo: 'bar', bar: 'qux' }" ]</span>
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-title function_">queryObjects</span>(B, { <span class="hljs-attr">format</span>: <span class="hljs-string">'summary'</span> }));
+
+<span class="hljs-comment">// Note that, when there are child classes inheriting from a constructor,</span>
+<span class="hljs-comment">// the constructor also shows up in the prototype chain of the child</span>
+<span class="hljs-comment">// classes's prototoype, so the child classes's prototoype would also be</span>
+<span class="hljs-comment">// included in the result.</span>
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-title function_">queryObjects</span>(A));  <span class="hljs-comment">// 3</span>
+<span class="hljs-comment">// [ "B { foo: 'bar', bar: 'qux' }", 'A {}', "A { foo: 'bar' }" ]</span>
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-title function_">queryObjects</span>(A, { <span class="hljs-attr">format</span>: <span class="hljs-string">'summary'</span> }));</code><button class="copy-button">copy</button></pre>
 </section><section><h3><code>v8.setFlagsFromString(flags)</code><span><a class="mark" href="#v8setflagsfromstringflags" id="v8setflagsfromstringflags">#</a></span><a aria-hidden="true" class="legacy" id="v8_v8_setflagsfromstring_flags"></a></h3>
 <div class="api_metadata">
 <span>Added in: v1.0.0</span>
@@ -668,11 +778,13 @@ be reset and a new coverage report will be written to the directory specified
 by <a href="cli.html#node_v8_coveragedir"><code>NODE_V8_COVERAGE</code></a>.</p>
 <p>When the process is about to exit, one last coverage will still be written to
 disk unless <a href="#v8stopcoverage"><code>v8.stopCoverage()</code></a> is invoked before the process exits.</p>
-</section><section><h3><code>v8.writeHeapSnapshot([filename])</code><span><a class="mark" href="#v8writeheapsnapshotfilename" id="v8writeheapsnapshotfilename">#</a></span><a aria-hidden="true" class="legacy" id="v8_v8_writeheapsnapshot_filename"></a></h3>
+</section><section><h3><code>v8.writeHeapSnapshot([filename[,options]])</code><span><a class="mark" href="#v8writeheapsnapshotfilenameoptions" id="v8writeheapsnapshotfilenameoptions">#</a></span><a aria-hidden="true" class="legacy" id="v8_v8_writeheapsnapshot_filename_options"></a></h3>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.1.0</td>
+<td><p>Support options to configure the heap snapshot.</p></td></tr>
 <tr><td>v18.0.0</td>
 <td><p>An exception will now be thrown if the file could not be written.</p></td></tr>
 <tr><td>v18.0.0</td>
@@ -689,6 +801,14 @@ saved. If not specified, a file name with the pattern
 generated, where <code>{pid}</code> will be the PID of the Node.js process,
 <code>{thread_id}</code> will be <code>0</code> when <code>writeHeapSnapshot()</code> is called from
 the main Node.js thread or the id of a worker thread.</li>
+<li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
+<ul>
+<li><code>exposeInternals</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If true, expose internals in the heap snapshot.
+<strong>Default:</strong> <code>false</code>.</li>
+<li><code>exposeNumericValues</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If true, expose numeric values in
+artificial fields. <strong>Default:</strong> <code>false</code>.</li>
+</ul>
+</li>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> The filename where the snapshot was saved.</li>
 </ul>
 <p>Generates a snapshot of the current V8 heap and writes it to a JSON
@@ -732,7 +852,7 @@ for a duration depending on the heap size.</p>
 }</code> <button class="copy-button">copy</button></pre>
 </section><section><h3><code>v8.setHeapSnapshotNearHeapLimit(limit)</code><span><a class="mark" href="#v8setheapsnapshotnearheaplimitlimit" id="v8setheapsnapshotnearheaplimitlimit">#</a></span><a aria-hidden="true" class="legacy" id="v8_v8_setheapsnapshotnearheaplimit_limit"></a></h3>
 <div class="api_metadata">
-<span>Added in: v18.10.0</span>
+<span>Added in: v18.10.0, v16.18.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <ul>
@@ -1005,7 +1125,7 @@ async resources. For request context management, see <a href="async_context.html
 <p><strong>The <code>init</code> hook must be a plain function. Providing an async function will
 throw as it would produce an infinite microtask loop.</strong></p>
 
-<pre class="with-44-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { promiseHooks } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:v8'</span>;
+<pre class="with-44-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { promiseHooks } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:v8'</span>;
 
 <span class="hljs-keyword">const</span> stop = promiseHooks.<span class="hljs-title function_">onInit</span>(<span class="hljs-function">(<span class="hljs-params">promise, parent</span>) =></span> {});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { promiseHooks } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:v8'</span>);
 
@@ -1022,7 +1142,7 @@ is resolved or rejected.</li>
 <p><strong>The <code>settled</code> hook must be a plain function. Providing an async function will
 throw as it would produce an infinite microtask loop.</strong></p>
 
-<pre class="with-44-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { promiseHooks } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:v8'</span>;
+<pre class="with-44-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { promiseHooks } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:v8'</span>;
 
 <span class="hljs-keyword">const</span> stop = promiseHooks.<span class="hljs-title function_">onSettled</span>(<span class="hljs-function">(<span class="hljs-params">promise</span>) =></span> {});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { promiseHooks } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:v8'</span>);
 
@@ -1039,7 +1159,7 @@ continuation executes.</li>
 <p><strong>The <code>before</code> hook must be a plain function. Providing an async function will
 throw as it would produce an infinite microtask loop.</strong></p>
 
-<pre class="with-44-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { promiseHooks } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:v8'</span>;
+<pre class="with-44-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { promiseHooks } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:v8'</span>;
 
 <span class="hljs-keyword">const</span> stop = promiseHooks.<span class="hljs-title function_">onBefore</span>(<span class="hljs-function">(<span class="hljs-params">promise</span>) =></span> {});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { promiseHooks } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:v8'</span>);
 
@@ -1056,7 +1176,7 @@ continuation executes.</li>
 <p><strong>The <code>after</code> hook must be a plain function. Providing an async function will
 throw as it would produce an infinite microtask loop.</strong></p>
 
-<pre class="with-44-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { promiseHooks } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:v8'</span>;
+<pre class="with-44-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { promiseHooks } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:v8'</span>;
 
 <span class="hljs-keyword">const</span> stop = promiseHooks.<span class="hljs-title function_">onAfter</span>(<span class="hljs-function">(<span class="hljs-params">promise</span>) =></span> {});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { promiseHooks } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:v8'</span>);
 
@@ -1086,7 +1206,7 @@ be tracked, then only the <code>init</code> callback needs to be passed. The
 specifics of all functions that can be passed to <code>callbacks</code> is in the
 <a href="#hook-callbacks">Hook Callbacks</a> section.</p>
 
-<pre class="with-44-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { promiseHooks } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:v8'</span>;
+<pre class="with-44-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { promiseHooks } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:v8'</span>;
 
 <span class="hljs-keyword">const</span> stopAll = promiseHooks.<span class="hljs-title function_">createHook</span>({
   <span class="hljs-title function_">init</span>(<span class="hljs-params">promise, parent</span>) {},
@@ -1146,7 +1266,7 @@ many continuations have been made from the same promise.</p>
 occur synchronously in the case of <code>Promise.resolve()</code> or <code>Promise.reject()</code>.</p>
 </section><section><h3>Startup Snapshot API<span><a class="mark" href="#startup-snapshot-api" id="startup-snapshot-api">#</a></span><a aria-hidden="true" class="legacy" id="v8_startup_snapshot_api"></a></h3>
 <div class="api_metadata">
-<span>Added in: v18.6.0</span>
+<span>Added in: v18.6.0, v16.17.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <p>The <code>v8.startupSnapshot</code> interface can be used to add serialization and
@@ -1222,7 +1342,7 @@ be snapshotted again, so these APIs are only available to applications
 that are not deserialized from a user-land snapshot.</p>
 <h4><code>v8.startupSnapshot.addSerializeCallback(callback[, data])</code><span><a class="mark" href="#v8startupsnapshotaddserializecallbackcallback-data" id="v8startupsnapshotaddserializecallbackcallback-data">#</a></span><a aria-hidden="true" class="legacy" id="v8_v8_startupsnapshot_addserializecallback_callback_data"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.6.0</span>
+<span>Added in: v18.6.0, v16.17.0</span>
 </div>
 <ul>
 <li><code>callback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> Callback to be invoked before serialization.</li>
@@ -1233,9 +1353,10 @@ gets called.</li>
 get serialized into a snapshot and exit. This can be used to release
 resources that should not or cannot be serialized or to convert user data
 into a form more suitable for serialization.</p>
+<p>Callbacks are run in the order in which they are added.</p>
 <h4><code>v8.startupSnapshot.addDeserializeCallback(callback[, data])</code><span><a class="mark" href="#v8startupsnapshotadddeserializecallbackcallback-data" id="v8startupsnapshotadddeserializecallbackcallback-data">#</a></span><a aria-hidden="true" class="legacy" id="v8_v8_startupsnapshot_adddeserializecallback_callback_data"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.6.0</span>
+<span>Added in: v18.6.0, v16.17.0</span>
 </div>
 <ul>
 <li><code>callback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> Callback to be invoked after the snapshot is
@@ -1248,9 +1369,10 @@ from a snapshot. The <code>callback</code> and the <code>data</code> (if provide
 serialized into the snapshot, they can be used to re-initialize the state
 of the application or to re-acquire resources that the application needs
 when the application is restarted from the snapshot.</p>
+<p>Callbacks are run in the order in which they are added.</p>
 <h4><code>v8.startupSnapshot.setDeserializeMainFunction(callback[, data])</code><span><a class="mark" href="#v8startupsnapshotsetdeserializemainfunctioncallback-data" id="v8startupsnapshotsetdeserializemainfunctioncallback-data">#</a></span><a aria-hidden="true" class="legacy" id="v8_v8_startupsnapshot_setdeserializemainfunction_callback_data"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.6.0</span>
+<span>Added in: v18.6.0, v16.17.0</span>
 </div>
 <ul>
 <li><code>callback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> Callback to be invoked as the entry point after the
@@ -1266,7 +1388,7 @@ the deserialized data (if provided), otherwise an entry point script still
 needs to be provided to the deserialized application.</p>
 <h4><code>v8.startupSnapshot.isBuildingSnapshot()</code><span><a class="mark" href="#v8startupsnapshotisbuildingsnapshot" id="v8startupsnapshotisbuildingsnapshot">#</a></span><a aria-hidden="true" class="legacy" id="v8_v8_startupsnapshot_isbuildingsnapshot"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.6.0</span>
+<span>Added in: v18.6.0, v16.17.0</span>
 </div>
 <ul>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a></li>
@@ -1274,22 +1396,22 @@ needs to be provided to the deserialized application.</p>
 <p>Returns true if the Node.js instance is run to build a snapshot.</p>
 </section><section><h3>Class: <code>v8.GCProfiler</code><span><a class="mark" href="#class-v8gcprofiler" id="class-v8gcprofiler">#</a></span><a aria-hidden="true" class="legacy" id="v8_class_v8_gcprofiler"></a></h3>
 <div class="api_metadata">
-<span>Added in: v18.15.0</span>
+<span>Added in: v19.6.0, v18.15.0</span>
 </div>
 <p>This API collects GC data in current thread.</p>
 <h4><code>new v8.GCProfiler()</code><span><a class="mark" href="#new-v8gcprofiler" id="new-v8gcprofiler">#</a></span><a aria-hidden="true" class="legacy" id="v8_new_v8_gcprofiler"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.15.0</span>
+<span>Added in: v19.6.0, v18.15.0</span>
 </div>
 <p>Create a new instance of the <code>v8.GCProfiler</code> class.</p>
 <h4><code>profiler.start()</code><span><a class="mark" href="#profilerstart" id="profilerstart">#</a></span><a aria-hidden="true" class="legacy" id="v8_profiler_start"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.15.0</span>
+<span>Added in: v19.6.0, v18.15.0</span>
 </div>
 <p>Start collecting GC data.</p>
 <h4><code>profiler.stop()</code><span><a class="mark" href="#profilerstop" id="profilerstop">#</a></span><a aria-hidden="true" class="legacy" id="v8_profiler_stop"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.15.0</span>
+<span>Added in: v19.6.0, v18.15.0</span>
 </div>
 <p>Stop collecting GC data and return an object.The content of object
 is as follows.</p>

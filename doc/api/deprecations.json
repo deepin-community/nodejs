@@ -8,7 +8,7 @@
       "name": "Deprecated APIs",
       "introduced_in": "v7.7.0",
       "type": "misc",
-      "desc": "<p>Node.js APIs might be deprecated for any of the following reasons:</p>\n<ul>\n<li>Use of the API is unsafe.</li>\n<li>An improved alternative API is available.</li>\n<li>Breaking changes to the API are expected in a future major release.</li>\n</ul>\n<p>Node.js uses three kinds of Deprecations:</p>\n<ul>\n<li>Documentation-only</li>\n<li>Runtime</li>\n<li>End-of-Life</li>\n</ul>\n<p>A Documentation-only deprecation is one that is expressed only within the\nNode.js API docs. These generate no side-effects while running Node.js.\nSome Documentation-only deprecations trigger a runtime warning when launched\nwith <a href=\"cli.html#--pending-deprecation\"><code>--pending-deprecation</code></a> flag (or its alternative,\n<code>NODE_PENDING_DEPRECATION=1</code> environment variable), similarly to Runtime\ndeprecations below. Documentation-only deprecations that support that flag\nare explicitly labeled as such in the\n<a href=\"#list-of-deprecated-apis\">list of Deprecated APIs</a>.</p>\n<p>A Runtime deprecation will, by default, generate a process warning that will\nbe printed to <code>stderr</code> the first time the deprecated API is used. When the\n<a href=\"cli.html#--throw-deprecation\"><code>--throw-deprecation</code></a> command-line flag is used, a Runtime deprecation will\ncause an error to be thrown.</p>\n<p>An End-of-Life deprecation is used when functionality is or will soon be removed\nfrom Node.js.</p>",
+      "desc": "<p>Node.js APIs might be deprecated for any of the following reasons:</p>\n<ul>\n<li>Use of the API is unsafe.</li>\n<li>An improved alternative API is available.</li>\n<li>Breaking changes to the API are expected in a future major release.</li>\n</ul>\n<p>Node.js uses four kinds of deprecations:</p>\n<ul>\n<li>Documentation-only</li>\n<li>Application (non-<code>node_modules</code> code only)</li>\n<li>Runtime (all code)</li>\n<li>End-of-Life</li>\n</ul>\n<p>A Documentation-only deprecation is one that is expressed only within the\nNode.js API docs. These generate no side-effects while running Node.js.\nSome Documentation-only deprecations trigger a runtime warning when launched\nwith <a href=\"cli.html#--pending-deprecation\"><code>--pending-deprecation</code></a> flag (or its alternative,\n<code>NODE_PENDING_DEPRECATION=1</code> environment variable), similarly to Runtime\ndeprecations below. Documentation-only deprecations that support that flag\nare explicitly labeled as such in the\n<a href=\"#list-of-deprecated-apis\">list of Deprecated APIs</a>.</p>\n<p>An Application deprecation for only non-<code>node_modules</code> code will, by default,\ngenerate a process warning that will be printed to <code>stderr</code> the first time\nthe deprecated API is used in code that's not loaded from <code>node_modules</code>.\nWhen the <a href=\"cli.html#--throw-deprecation\"><code>--throw-deprecation</code></a> command-line flag is used, a Runtime\ndeprecation will cause an error to be thrown. When\n<a href=\"cli.html#--pending-deprecation\"><code>--pending-deprecation</code></a> is used, warnings will also be emitted for\ncode loaded from <code>node_modules</code>.</p>\n<p>A runtime deprecation for all code is similar to the runtime deprecation\nfor non-<code>node_modules</code> code, except that it also emits a warning for\ncode loaded from <code>node_modules</code>.</p>\n<p>An End-of-Life deprecation is used when functionality is or will soon be removed\nfrom Node.js.</p>",
       "miscs": [
         {
           "textRaw": "Revoking deprecations",
@@ -156,7 +156,7 @@
                   }
                 ]
               },
-              "desc": "<p>Type: Runtime (supports <a href=\"cli.html#--pending-deprecation\"><code>--pending-deprecation</code></a>)</p>\n<p>The <code>Buffer()</code> function and <code>new Buffer()</code> constructor are deprecated due to\nAPI usability issues that can lead to accidental security issues.</p>\n<p>As an alternative, use one of the following methods of constructing <code>Buffer</code>\nobjects:</p>\n<ul>\n<li><a href=\"buffer.html#static-method-bufferallocsize-fill-encoding\"><code>Buffer.alloc(size[, fill[, encoding]])</code></a>: Create a <code>Buffer</code> with\n<em>initialized</em> memory.</li>\n<li><a href=\"buffer.html#static-method-bufferallocunsafesize\"><code>Buffer.allocUnsafe(size)</code></a>: Create a <code>Buffer</code> with\n<em>uninitialized</em> memory.</li>\n<li><a href=\"buffer.html#static-method-bufferallocunsafeslowsize\"><code>Buffer.allocUnsafeSlow(size)</code></a>: Create a <code>Buffer</code> with <em>uninitialized</em>\nmemory.</li>\n<li><a href=\"buffer.html#static-method-bufferfromarray\"><code>Buffer.from(array)</code></a>: Create a <code>Buffer</code> with a copy of <code>array</code></li>\n<li><a href=\"buffer.html#static-method-bufferfromarraybuffer-byteoffset-length\"><code>Buffer.from(arrayBuffer[, byteOffset[, length]])</code></a> -\nCreate a <code>Buffer</code> that wraps the given <code>arrayBuffer</code>.</li>\n<li><a href=\"buffer.html#static-method-bufferfrombuffer\"><code>Buffer.from(buffer)</code></a>: Create a <code>Buffer</code> that copies <code>buffer</code>.</li>\n<li><a href=\"buffer.html#static-method-bufferfromstring-encoding\"><code>Buffer.from(string[, encoding])</code></a>: Create a <code>Buffer</code>\nthat copies <code>string</code>.</li>\n</ul>\n<p>Without <code>--pending-deprecation</code>, runtime warnings occur only for code not in\n<code>node_modules</code>. This means there will not be deprecation warnings for\n<code>Buffer()</code> usage in dependencies. With <code>--pending-deprecation</code>, a runtime\nwarning results no matter where the <code>Buffer()</code> usage occurs.</p>",
+              "desc": "<p>Type: Application (non-<code>node_modules</code> code only)</p>\n<p>The <code>Buffer()</code> function and <code>new Buffer()</code> constructor are deprecated due to\nAPI usability issues that can lead to accidental security issues.</p>\n<p>As an alternative, use one of the following methods of constructing <code>Buffer</code>\nobjects:</p>\n<ul>\n<li><a href=\"buffer.html#static-method-bufferallocsize-fill-encoding\"><code>Buffer.alloc(size[, fill[, encoding]])</code></a>: Create a <code>Buffer</code> with\n<em>initialized</em> memory.</li>\n<li><a href=\"buffer.html#static-method-bufferallocunsafesize\"><code>Buffer.allocUnsafe(size)</code></a>: Create a <code>Buffer</code> with\n<em>uninitialized</em> memory.</li>\n<li><a href=\"buffer.html#static-method-bufferallocunsafeslowsize\"><code>Buffer.allocUnsafeSlow(size)</code></a>: Create a <code>Buffer</code> with <em>uninitialized</em>\nmemory.</li>\n<li><a href=\"buffer.html#static-method-bufferfromarray\"><code>Buffer.from(array)</code></a>: Create a <code>Buffer</code> with a copy of <code>array</code></li>\n<li><a href=\"buffer.html#static-method-bufferfromarraybuffer-byteoffset-length\"><code>Buffer.from(arrayBuffer[, byteOffset[, length]])</code></a> -\nCreate a <code>Buffer</code> that wraps the given <code>arrayBuffer</code>.</li>\n<li><a href=\"buffer.html#static-method-bufferfrombuffer\"><code>Buffer.from(buffer)</code></a>: Create a <code>Buffer</code> that copies <code>buffer</code>.</li>\n<li><a href=\"buffer.html#static-method-bufferfromstring-encoding\"><code>Buffer.from(string[, encoding])</code></a>: Create a <code>Buffer</code>\nthat copies <code>string</code>.</li>\n</ul>\n<p>Without <code>--pending-deprecation</code>, runtime warnings occur only for code not in\n<code>node_modules</code>. This means there will not be deprecation warnings for\n<code>Buffer()</code> usage in dependencies. With <code>--pending-deprecation</code>, a runtime\nwarning results no matter where the <code>Buffer()</code> usage occurs.</p>",
               "type": "module",
               "displayName": "DEP0005: `Buffer()` constructor"
             },
@@ -2243,13 +2243,18 @@
               "meta": {
                 "changes": [
                   {
+                    "version": "v20.0.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/47182",
+                    "description": "End-of-Life."
+                  },
+                  {
                     "version": "v10.0.0",
                     "pr-url": "https://github.com/nodejs/node/pull/18333",
                     "description": "Runtime deprecation."
                   }
                 ]
               },
-              "desc": "<p>Type: Runtime</p>\n<p>The <a href=\"crypto.html#cryptodefault_encoding\"><code>crypto.DEFAULT_ENCODING</code></a> property is deprecated.</p>",
+              "desc": "<p>Type: End-of-Life</p>\n<p>The <code>crypto.DEFAULT_ENCODING</code> property only existed for compatibility with\nNode.js releases prior to versions 0.9.3 and has been removed.</p>",
               "type": "module",
               "displayName": "DEP0091: `crypto.DEFAULT_ENCODING`"
             },
@@ -2617,7 +2622,7 @@
                   }
                 ]
               },
-              "desc": "<p>Type: Documentation-only (supports <a href=\"cli.html#--pending-deprecation\"><code>--pending-deprecation</code></a>)</p>\n<p><code>process.binding()</code> is for use by Node.js internal code only.</p>\n<p>While <code>process.binding()</code> has not reached End-of-Life status in general, it is\nunavailable when <a href=\"permissions.html#policies\">policies</a> are enabled.</p>",
+              "desc": "<p>Type: Documentation-only (supports <a href=\"cli.html#--pending-deprecation\"><code>--pending-deprecation</code></a>)</p>\n<p><code>process.binding()</code> is for use by Node.js internal code only.</p>\n<p>While <code>process.binding()</code> has not reached End-of-Life status in general, it is\nunavailable when <a href=\"permissions.html#policies\">policies</a> or the <a href=\"permissions.html#permission-model\">permission model</a> are enabled.</p>",
               "type": "module",
               "displayName": "DEP0111: `process.binding()`"
             },
@@ -2704,7 +2709,10 @@
               "meta": {
                 "changes": [
                   {
-                    "version": "v18.13.0",
+                    "version": [
+                      "v19.0.0",
+                      "v18.13.0"
+                    ],
                     "pr-url": "https://github.com/nodejs/node/pull/44919",
                     "description": "\\`url.parse()` is deprecated again in DEP0169."
                   },
@@ -3430,13 +3438,18 @@
               "meta": {
                 "changes": [
                   {
+                    "version": "v20.0.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/45653",
+                    "description": "Runtime deprecation."
+                  },
+                  {
                     "version": "v16.10.0",
                     "pr-url": "https://github.com/nodejs/node/pull/39927",
                     "description": "Documentation-only deprecation."
                   }
                 ]
               },
-              "desc": "<p>Type: Documentation-only (supports <a href=\"cli.html#--pending-deprecation\"><code>--pending-deprecation</code></a>)</p>\n<p>The <code>'hash'</code> and <code>'mgf1Hash'</code> options are replaced with <code>'hashAlgorithm'</code>\nand <code>'mgf1HashAlgorithm'</code>.</p>",
+              "desc": "<p>Type: Runtime</p>\n<p>The <code>'hash'</code> and <code>'mgf1Hash'</code> options are replaced with <code>'hashAlgorithm'</code>\nand <code>'mgf1HashAlgorithm'</code>.</p>",
               "type": "module",
               "displayName": "DEP0154: RSA-PSS generate key pair options"
             },
@@ -3636,7 +3649,20 @@
               "meta": {
                 "changes": [
                   {
-                    "version": "v18.10.0",
+                    "version": "v20.0.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/43716",
+                    "description": "End-of-Life."
+                  },
+                  {
+                    "version": "v19.0.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/44711",
+                    "description": "Runtime deprecation."
+                  },
+                  {
+                    "version": [
+                      "v18.10.0",
+                      "v16.18.0"
+                    ],
                     "pr-url": "https://github.com/nodejs/node/pull/44714",
                     "description": "Documentation-only deprecation of `process.exitCode` integer coercion."
                   },
@@ -3650,7 +3676,7 @@
                   }
                 ]
               },
-              "desc": "<p>Type: Documentation-only</p>\n<p>Values other than <code>undefined</code>, <code>null</code>, integer numbers, and integer strings\n(e.g., <code>'1'</code>) are deprecated as value for the <code>code</code> parameter in\n<a href=\"process.html#processexitcode\"><code>process.exit()</code></a> and as value to assign to <a href=\"process.html#processexitcode_1\"><code>process.exitCode</code></a>.</p>",
+              "desc": "<p>Type: End-of-Life</p>\n<p>Values other than <code>undefined</code>, <code>null</code>, integer numbers, and integer strings\n(e.g., <code>'1'</code>) are deprecated as value for the <code>code</code> parameter in\n<a href=\"process.html#processexitcode\"><code>process.exit()</code></a> and as value to assign to <a href=\"process.html#processexitcode_1\"><code>process.exitCode</code></a>.</p>",
               "type": "module",
               "displayName": "DEP0164: `process.exit(code)`, `process.exitCode` coercion to integer"
             },
@@ -3660,7 +3686,10 @@
               "meta": {
                 "changes": [
                   {
-                    "version": "v18.8.0",
+                    "version": [
+                      "v18.8.0",
+                      "v16.18.0"
+                    ],
                     "pr-url": "https://github.com/nodejs/node/pull/44093",
                     "description": "Documentation-only deprecation."
                   }
@@ -3697,7 +3726,10 @@
               "meta": {
                 "changes": [
                   {
-                    "version": "v18.10.0",
+                    "version": [
+                      "v18.10.0",
+                      "v16.18.0"
+                    ],
                     "pr-url": "https://github.com/nodejs/node/pull/44588",
                     "description": "Documentation-only deprecation."
                   }
@@ -3732,12 +3764,13 @@
               "meta": {
                 "changes": [
                   {
-                    "version": "v18.17.0",
+                    "version": "v19.9.0",
                     "pr-url": "https://github.com/nodejs/node/pull/47203",
                     "description": "Added support for `--pending-deprecation`."
                   },
                   {
                     "version": [
+                      "v19.0.0",
                       "v18.13.0"
                     ],
                     "pr-url": "https://github.com/nodejs/node/pull/44919",
@@ -3756,6 +3789,14 @@
                 "changes": [
                   {
                     "version": [
+                      "v20.0.0"
+                    ],
+                    "pr-url": "https://github.com/nodejs/node/pull/45526",
+                    "description": "Runtime deprecation."
+                  },
+                  {
+                    "version": [
+                      "v19.2.0",
                       "v18.13.0"
                     ],
                     "pr-url": "https://github.com/nodejs/node/pull/45576",
@@ -3763,7 +3804,7 @@
                   }
                 ]
               },
-              "desc": "<p>Type: Documentation-only</p>\n<p><a href=\"url.html#urlparseurlstring-parsequerystring-slashesdenotehost\"><code>url.parse()</code></a> accepts URLs with ports that are not numbers. This behavior\nmight result in host name spoofing with unexpected input. These URLs will throw\nan error in future versions of Node.js, as the <a href=\"url.html#the-whatwg-url-api\">WHATWG URL API</a> does already.</p>",
+              "desc": "<p>Type: Runtime</p>\n<p><a href=\"url.html#urlparseurlstring-parsequerystring-slashesdenotehost\"><code>url.parse()</code></a> accepts URLs with ports that are not numbers. This behavior\nmight result in host name spoofing with unexpected input. These URLs will throw\nan error in future versions of Node.js, as the <a href=\"url.html#the-whatwg-url-api\">WHATWG URL API</a> does already.</p>",
               "type": "module",
               "displayName": "DEP0170: Invalid port when using `url.parse()`"
             },
@@ -3774,6 +3815,7 @@
                 "changes": [
                   {
                     "version": [
+                      "v19.3.0",
                       "v18.13.0"
                     ],
                     "pr-url": "https://github.com/nodejs/node/pull/45697",
@@ -3784,6 +3826,194 @@
               "desc": "<p>Type: Documentation-only</p>\n<p>In a future version of Node.js, <a href=\"http.html#messageheaders\"><code>message.headers</code></a>,\n<a href=\"http.html#messageheadersdistinct\"><code>message.headersDistinct</code></a>, <a href=\"http.html#messagetrailers\"><code>message.trailers</code></a>, and\n<a href=\"http.html#messagetrailersdistinct\"><code>message.trailersDistinct</code></a> will be read-only.</p>",
               "type": "module",
               "displayName": "DEP0171: Setters for `http.IncomingMessage` headers and trailers"
+            },
+            {
+              "textRaw": "DEP0172: The `asyncResource` property of `AsyncResource` bound functions",
+              "name": "dep0172:_the_`asyncresource`_property_of_`asyncresource`_bound_functions",
+              "meta": {
+                "changes": [
+                  {
+                    "version": "v20.0.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/46432",
+                    "description": "Runtime-deprecation."
+                  }
+                ]
+              },
+              "desc": "<p>Type: Runtime</p>\n<p>In a future version of Node.js, the <code>asyncResource</code> property will no longer\nbe added when a function is bound to an <code>AsyncResource</code>.</p>",
+              "type": "module",
+              "displayName": "DEP0172: The `asyncResource` property of `AsyncResource` bound functions"
+            },
+            {
+              "textRaw": "DEP0173: the `assert.CallTracker` class",
+              "name": "dep0173:_the_`assert.calltracker`_class",
+              "meta": {
+                "changes": [
+                  {
+                    "version": "v20.1.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/47740",
+                    "description": "Documentation-only deprecation."
+                  }
+                ]
+              },
+              "desc": "<p>Type: Documentation-only</p>\n<p>In a future version of Node.js, <a href=\"assert.html#class-assertcalltracker\"><code>assert.CallTracker</code></a>,\nwill be removed.\nConsider using alternatives such as the <a href=\"test.html#mocking\"><code>mock</code></a> helper function.</p>",
+              "type": "module",
+              "displayName": "DEP0173: the `assert.CallTracker` class"
+            },
+            {
+              "textRaw": "DEP0174: calling `promisify` on a function that returns a `Promise`",
+              "name": "dep0174:_calling_`promisify`_on_a_function_that_returns_a_`promise`",
+              "meta": {
+                "changes": [
+                  {
+                    "version": "v20.8.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/49647",
+                    "description": "Documentation-only deprecation."
+                  }
+                ]
+              },
+              "desc": "<p>Type: Documentation-only</p>\n<p>Calling <a href=\"util.html#utilpromisifyoriginal\"><code>util.promisify</code></a> on a function that returns a <Promise> will ignore\nthe result of said promise, which can lead to unhandled promise rejections.</p>",
+              "type": "module",
+              "displayName": "DEP0174: calling `promisify` on a function that returns a `Promise`"
+            },
+            {
+              "textRaw": "DEP0175: `util.toUSVString`",
+              "name": "dep0175:_`util.tousvstring`",
+              "meta": {
+                "changes": [
+                  {
+                    "version": "v20.8.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/49725",
+                    "description": "Documentation-only deprecation."
+                  }
+                ]
+              },
+              "desc": "<p>Type: Documentation-only</p>\n<p>The <a href=\"util.html#utiltousvstringstring\"><code>util.toUSVString()</code></a> API is deprecated. Please use\n<a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/toWellFormed\"><code>String.prototype.toWellFormed</code></a> instead.</p>",
+              "type": "module",
+              "displayName": "DEP0175: `util.toUSVString`"
+            },
+            {
+              "textRaw": "DEP0176: `fs.F_OK`, `fs.R_OK`, `fs.W_OK`, `fs.X_OK`",
+              "name": "dep0176:_`fs.f_ok`,_`fs.r_ok`,_`fs.w_ok`,_`fs.x_ok`",
+              "meta": {
+                "changes": [
+                  {
+                    "version": "v20.8.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/49683",
+                    "description": "Documentation-only deprecation."
+                  }
+                ]
+              },
+              "desc": "<p>Type: Documentation-only</p>\n<p><code>F_OK</code>, <code>R_OK</code>, <code>W_OK</code> and <code>X_OK</code> getters exposed directly on <code>node:fs</code> are\ndeprecated. Get them from <code>fs.constants</code> or <code>fs.promises.constants</code> instead.</p>",
+              "type": "module",
+              "displayName": "DEP0176: `fs.F_OK`, `fs.R_OK`, `fs.W_OK`, `fs.X_OK`"
+            },
+            {
+              "textRaw": "DEP0177: `util.types.isWebAssemblyCompiledModule`",
+              "name": "dep0177:_`util.types.iswebassemblycompiledmodule`",
+              "meta": {
+                "changes": [
+                  {
+                    "version": "v20.12.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/51442",
+                    "description": "End-of-Life."
+                  },
+                  {
+                    "version": [
+                      "v20.11.0"
+                    ],
+                    "pr-url": "https://github.com/nodejs/node/pull/50486",
+                    "description": "A deprecation code has been assigned."
+                  },
+                  {
+                    "version": "v14.0.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/32116",
+                    "description": "Documentation-only deprecation."
+                  }
+                ]
+              },
+              "desc": "<p>Type: End-of-Life</p>\n<p>The <code>util.types.isWebAssemblyCompiledModule</code> API has been removed.\nPlease use <code>value instanceof WebAssembly.Module</code> instead.</p>",
+              "type": "module",
+              "displayName": "DEP0177: `util.types.isWebAssemblyCompiledModule`"
+            },
+            {
+              "textRaw": "DEP0178: `dirent.path`",
+              "name": "dep0178:_`dirent.path`",
+              "meta": {
+                "changes": [
+                  {
+                    "version": "v20.12.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/51020",
+                    "description": "Documentation-only deprecation."
+                  }
+                ]
+              },
+              "desc": "<p>Type: Documentation-only</p>\n<p>The <a href=\"fs.html#direntpath\"><code>dirent.path</code></a> is deprecated due to its lack of consistency across\nrelease lines. Please use <a href=\"fs.html#direntparentpath\"><code>dirent.parentPath</code></a> instead.</p>",
+              "type": "module",
+              "displayName": "DEP0178: `dirent.path`"
+            },
+            {
+              "textRaw": "DEP0179: `Hash` constructor",
+              "name": "dep0179:_`hash`_constructor",
+              "meta": {
+                "changes": [
+                  {
+                    "version": "v20.12.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/51077",
+                    "description": "Documentation-only deprecation."
+                  }
+                ]
+              },
+              "desc": "<p>Type: Documentation-only</p>\n<p>Calling <code>Hash</code> class directly with <code>Hash()</code> or <code>new Hash()</code> is\ndeprecated due to being internals, not intended for public use.\nPlease use the <a href=\"crypto.html#cryptocreatehashalgorithm-options\"><code>crypto.createHash()</code></a> method to create Hash instances.</p>",
+              "type": "module",
+              "displayName": "DEP0179: `Hash` constructor"
+            },
+            {
+              "textRaw": "DEP0180: `fs.Stats` constructor",
+              "name": "dep0180:_`fs.stats`_constructor",
+              "meta": {
+                "changes": [
+                  {
+                    "version": "v20.13.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/51879",
+                    "description": "Documentation-only deprecation."
+                  }
+                ]
+              },
+              "desc": "<p>Type: Documentation-only</p>\n<p>Calling <code>fs.Stats</code> class directly with <code>Stats()</code> or <code>new Stats()</code> is\ndeprecated due to being internals, not intended for public use.</p>",
+              "type": "module",
+              "displayName": "DEP0180: `fs.Stats` constructor"
+            },
+            {
+              "textRaw": "DEP0181: `Hmac` constructor",
+              "name": "dep0181:_`hmac`_constructor",
+              "meta": {
+                "changes": [
+                  {
+                    "version": "v20.13.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/51881",
+                    "description": "Documentation-only deprecation."
+                  }
+                ]
+              },
+              "desc": "<p>Type: Documentation-only</p>\n<p>Calling <code>Hmac</code> class directly with <code>Hmac()</code> or <code>new Hmac()</code> is\ndeprecated due to being internals, not intended for public use.\nPlease use the <a href=\"crypto.html#cryptocreatehmacalgorithm-key-options\"><code>crypto.createHmac()</code></a> method to create Hmac instances.</p>",
+              "type": "module",
+              "displayName": "DEP0181: `Hmac` constructor"
+            },
+            {
+              "textRaw": "DEP0182: Short GCM authentication tags without explicit `authTagLength`",
+              "name": "dep0182:_short_gcm_authentication_tags_without_explicit_`authtaglength`",
+              "meta": {
+                "changes": [
+                  {
+                    "version": "v20.13.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/52345",
+                    "description": "Documentation-only deprecation."
+                  }
+                ]
+              },
+              "desc": "<p>Type: Documentation-only (supports <a href=\"cli.html#--pending-deprecation\"><code>--pending-deprecation</code></a>)</p>\n<p>Applications that intend to use authentication tags that are shorter than the\ndefault authentication tag length should set the <code>authTagLength</code> option of the\n<a href=\"crypto.html#cryptocreatedecipherivalgorithm-key-iv-options\"><code>crypto.createDecipheriv()</code></a> function to the appropriate length.</p>\n<p>For ciphers in GCM mode, the <a href=\"crypto.html#deciphersetauthtagbuffer-encoding\"><code>decipher.setAuthTag()</code></a> function accepts\nauthentication tags of any valid length (see <a href=\"#DEP0090\">DEP0090</a>). This behavior\nis deprecated to better align with recommendations per <a href=\"https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf\">NIST SP 800-38D</a>.</p>",
+              "type": "module",
+              "displayName": "DEP0182: Short GCM authentication tags without explicit `authTagLength`"
             }
           ],
           "type": "misc",

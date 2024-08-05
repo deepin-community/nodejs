@@ -31,12 +31,12 @@ inline void url_search_params::initialize(std::string_view input) {
     auto equal = current.find('=');
 
     if (equal == std::string_view::npos) {
-      auto name = std::string(current);
+      std::string name(current);
       std::replace(name.begin(), name.end(), '+', ' ');
       params.emplace_back(unicode::percent_decode(name, name.find('%')), "");
     } else {
-      auto name = std::string(current.substr(0, equal));
-      auto value = std::string(current.substr(equal + 1));
+      std::string name(current.substr(0, equal));
+      std::string value(current.substr(equal + 1));
 
       std::replace(name.begin(), name.end(), '+', ' ');
       std::replace(value.begin(), value.end(), '+', ' ');
@@ -109,7 +109,7 @@ inline bool url_search_params::has(std::string_view key,
   return entry != params.end();
 }
 
-inline std::string url_search_params::to_string() {
+inline std::string url_search_params::to_string() const {
   auto character_set = ada::character_sets::WWW_FORM_URLENCODED_PERCENT_ENCODE;
   std::string out{};
   for (size_t i = 0; i < params.size(); i++) {
@@ -194,20 +194,26 @@ inline bool url_search_params_iter<T, Type>::has_next() {
 
 template <>
 inline std::optional<std::string_view> url_search_params_keys_iter::next() {
-  if (!has_next()) return std::nullopt;
+  if (!has_next()) {
+    return std::nullopt;
+  }
   return params.params[pos++].first;
 }
 
 template <>
 inline std::optional<std::string_view> url_search_params_values_iter::next() {
-  if (!has_next()) return std::nullopt;
+  if (!has_next()) {
+    return std::nullopt;
+  }
   return params.params[pos++].second;
 }
 
 template <>
 inline std::optional<key_value_view_pair>
 url_search_params_entries_iter::next() {
-  if (!has_next()) return std::nullopt;
+  if (!has_next()) {
+    return std::nullopt;
+  }
   return params.params[pos++];
 }
 

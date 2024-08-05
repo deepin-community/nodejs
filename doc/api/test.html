@@ -3,18 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>Test runner | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.15.1">
+  <title>Test runner | Node.js v20.15.1 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/test.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
-  <style>@media(max-width:494px){.with-34-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:454px){.with-29-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:590px){.with-46-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:534px){.with-39-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:742px){.with-65-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:582px){.with-45-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:686px){.with-58-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:598px){.with-47-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:526px){.with-38-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}</style>
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
+  <style>@media(max-width:494px){.with-34-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:454px){.with-29-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:590px){.with-46-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:534px){.with-39-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:574px){.with-44-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:526px){.with-38-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:1064px){.with-71-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:582px){.with-45-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:686px){.with-58-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:598px){.with-47-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:622px){.with-50-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:670px){.with-56-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}</style>
 </head>
 <body class="alt apidoc" id="api-section-test">
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +109,7 @@
     <div id="column1" data-id="test" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.15.1 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,20 +124,21 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.15.1</li>
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
       <div class="picker"><div class="toc"><ul>
-<li><span class="stability_1"><a href="#test-runner">Test runner</a></span>
+<li><span class="stability_2"><a href="#test-runner">Test runner</a></span>
 <ul>
 <li><a href="#subtests">Subtests</a></li>
 <li><a href="#skipping-tests">Skipping tests</a></li>
-<li><a href="#describeit-syntax"><code>describe</code>/<code>it</code> syntax</a></li>
+<li><a href="#todo-tests">TODO tests</a></li>
+<li><a href="#describe-and-it-aliases"><code>describe()</code> and <code>it()</code> aliases</a></li>
 <li><a href="#only-tests"><code>only</code> tests</a></li>
 <li><a href="#filtering-tests-by-name">Filtering tests by name</a></li>
 <li><a href="#extraneous-asynchronous-activity">Extraneous asynchronous activity</a></li>
@@ -134,10 +148,16 @@
 <li><a href="#test-runner-execution-model">Test runner execution model</a></li>
 </ul>
 </li>
-<li><a href="#collecting-code-coverage">Collecting code coverage</a></li>
+<li><span class="stability_1"><a href="#collecting-code-coverage">Collecting code coverage</a></span>
+<ul>
+<li><a href="#coverage-reporters">Coverage reporters</a></li>
+<li><a href="#limitations">Limitations</a></li>
+</ul>
+</li>
 <li><a href="#mocking">Mocking</a>
 <ul>
 <li><a href="#timers">Timers</a></li>
+<li><a href="#dates">Dates</a></li>
 </ul>
 </li>
 <li><a href="#test-reporters">Test reporters</a>
@@ -147,6 +167,10 @@
 </ul>
 </li>
 <li><a href="#runoptions"><code>run([options])</code></a></li>
+<li><a href="#suitename-options-fn"><code>suite([name][, options][, fn])</code></a></li>
+<li><a href="#suiteskipname-options-fn"><code>suite.skip([name][, options][, fn])</code></a></li>
+<li><a href="#suitetodoname-options-fn"><code>suite.todo([name][, options][, fn])</code></a></li>
+<li><a href="#suiteonlyname-options-fn"><code>suite.only([name][, options][, fn])</code></a></li>
 <li><a href="#testname-options-fn"><code>test([name][, options][, fn])</code></a></li>
 <li><a href="#testskipname-options-fn"><code>test.skip([name][, options][, fn])</code></a></li>
 <li><a href="#testtodoname-options-fn"><code>test.todo([name][, options][, fn])</code></a></li>
@@ -185,7 +209,7 @@
 </li>
 <li><span class="stability_1"><a href="#class-mocktimers">Class: <code>MockTimers</code></a></span>
 <ul>
-<li><a href="#timersenabletimers"><code>timers.enable([timers])</code></a></li>
+<li><a href="#timersenableenableoptions"><code>timers.enable([enableOptions])</code></a></li>
 <li><a href="#timersreset"><code>timers.reset()</code></a></li>
 <li><a href="#timerssymboldispose"><code>timers[Symbol.dispose]()</code></a></li>
 <li><a href="#timerstickmilliseconds"><code>timers.tick(milliseconds)</code></a>
@@ -195,11 +219,17 @@
 </ul>
 </li>
 <li><a href="#timersrunall"><code>timers.runAll()</code></a></li>
+<li><a href="#timerssettimemilliseconds"><code>timers.setTime(milliseconds)</code></a>
+<ul>
+<li><a href="#dates-and-timers-working-together">Dates and Timers working together</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="#class-testsstream">Class: <code>TestsStream</code></a>
 <ul>
 <li><a href="#event-testcoverage">Event: <code>'test:coverage'</code></a></li>
+<li><a href="#event-testcomplete">Event: <code>'test:complete'</code></a></li>
 <li><a href="#event-testdequeue">Event: <code>'test:dequeue'</code></a></li>
 <li><a href="#event-testdiagnostic">Event: <code>'test:diagnostic'</code></a></li>
 <li><a href="#event-testenqueue">Event: <code>'test:enqueue'</code></a></li>
@@ -220,6 +250,7 @@
 <li><a href="#contextaftereachfn-options"><code>context.afterEach([fn][, options])</code></a></li>
 <li><a href="#contextdiagnosticmessage"><code>context.diagnostic(message)</code></a></li>
 <li><a href="#contextname"><code>context.name</code></a></li>
+<li><span class="stability_1"><a href="#contextplancount"><code>context.plan(count)</code></a></span></li>
 <li><a href="#contextrunonlyshouldrunonlytests"><code>context.runOnly(shouldRunOnlyTests)</code></a></li>
 <li><a href="#contextsignal"><code>context.signal</code></a></li>
 <li><a href="#contextskipmessage"><code>context.skip([message])</code></a></li>
@@ -241,7 +272,7 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Index
       </a>
 
@@ -326,10 +357,11 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/test.html">21.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v22.x/api/test.html">22.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/test.html">21.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v20.x/api/test.html">20.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v19.x/api/test.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/test.html">18.x <b>LTS</b></a></li></ol></div>
@@ -337,7 +369,7 @@
   
             <li class="picker-header">
               <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
@@ -358,12 +390,13 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
-<li><span class="stability_1"><a href="#test-runner">Test runner</a></span>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
+<li><span class="stability_2"><a href="#test-runner">Test runner</a></span>
 <ul>
 <li><a href="#subtests">Subtests</a></li>
 <li><a href="#skipping-tests">Skipping tests</a></li>
-<li><a href="#describeit-syntax"><code>describe</code>/<code>it</code> syntax</a></li>
+<li><a href="#todo-tests">TODO tests</a></li>
+<li><a href="#describe-and-it-aliases"><code>describe()</code> and <code>it()</code> aliases</a></li>
 <li><a href="#only-tests"><code>only</code> tests</a></li>
 <li><a href="#filtering-tests-by-name">Filtering tests by name</a></li>
 <li><a href="#extraneous-asynchronous-activity">Extraneous asynchronous activity</a></li>
@@ -373,10 +406,16 @@
 <li><a href="#test-runner-execution-model">Test runner execution model</a></li>
 </ul>
 </li>
-<li><a href="#collecting-code-coverage">Collecting code coverage</a></li>
+<li><span class="stability_1"><a href="#collecting-code-coverage">Collecting code coverage</a></span>
+<ul>
+<li><a href="#coverage-reporters">Coverage reporters</a></li>
+<li><a href="#limitations">Limitations</a></li>
+</ul>
+</li>
 <li><a href="#mocking">Mocking</a>
 <ul>
 <li><a href="#timers">Timers</a></li>
+<li><a href="#dates">Dates</a></li>
 </ul>
 </li>
 <li><a href="#test-reporters">Test reporters</a>
@@ -386,6 +425,10 @@
 </ul>
 </li>
 <li><a href="#runoptions"><code>run([options])</code></a></li>
+<li><a href="#suitename-options-fn"><code>suite([name][, options][, fn])</code></a></li>
+<li><a href="#suiteskipname-options-fn"><code>suite.skip([name][, options][, fn])</code></a></li>
+<li><a href="#suitetodoname-options-fn"><code>suite.todo([name][, options][, fn])</code></a></li>
+<li><a href="#suiteonlyname-options-fn"><code>suite.only([name][, options][, fn])</code></a></li>
 <li><a href="#testname-options-fn"><code>test([name][, options][, fn])</code></a></li>
 <li><a href="#testskipname-options-fn"><code>test.skip([name][, options][, fn])</code></a></li>
 <li><a href="#testtodoname-options-fn"><code>test.todo([name][, options][, fn])</code></a></li>
@@ -424,7 +467,7 @@
 </li>
 <li><span class="stability_1"><a href="#class-mocktimers">Class: <code>MockTimers</code></a></span>
 <ul>
-<li><a href="#timersenabletimers"><code>timers.enable([timers])</code></a></li>
+<li><a href="#timersenableenableoptions"><code>timers.enable([enableOptions])</code></a></li>
 <li><a href="#timersreset"><code>timers.reset()</code></a></li>
 <li><a href="#timerssymboldispose"><code>timers[Symbol.dispose]()</code></a></li>
 <li><a href="#timerstickmilliseconds"><code>timers.tick(milliseconds)</code></a>
@@ -434,11 +477,17 @@
 </ul>
 </li>
 <li><a href="#timersrunall"><code>timers.runAll()</code></a></li>
+<li><a href="#timerssettimemilliseconds"><code>timers.setTime(milliseconds)</code></a>
+<ul>
+<li><a href="#dates-and-timers-working-together">Dates and Timers working together</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="#class-testsstream">Class: <code>TestsStream</code></a>
 <ul>
 <li><a href="#event-testcoverage">Event: <code>'test:coverage'</code></a></li>
+<li><a href="#event-testcomplete">Event: <code>'test:complete'</code></a></li>
 <li><a href="#event-testdequeue">Event: <code>'test:dequeue'</code></a></li>
 <li><a href="#event-testdiagnostic">Event: <code>'test:diagnostic'</code></a></li>
 <li><a href="#event-testenqueue">Event: <code>'test:enqueue'</code></a></li>
@@ -459,6 +508,7 @@
 <li><a href="#contextaftereachfn-options"><code>context.afterEach([fn][, options])</code></a></li>
 <li><a href="#contextdiagnosticmessage"><code>context.diagnostic(message)</code></a></li>
 <li><a href="#contextname"><code>context.name</code></a></li>
+<li><span class="stability_1"><a href="#contextplancount"><code>context.plan(count)</code></a></span></li>
 <li><a href="#contextrunonlyshouldrunonlytests"><code>context.runOnly(shouldRunOnlyTests)</code></a></li>
 <li><a href="#contextsignal"><code>context.signal</code></a></li>
 <li><a href="#contextskipmessage"><code>context.skip([message])</code></a></li>
@@ -476,29 +526,37 @@
 </li>
 </ul></details>
 
-      <div id="apicontent">
+      <div role="main" id="apicontent">
         <h2>Test runner<span><a class="mark" href="#test-runner" id="test-runner">#</a></span><a aria-hidden="true" class="legacy" id="test_test_runner"></a></h2>
 
 <div class="api_metadata">
-<span>Added in: v18.0.0, v16.17.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v20.0.0</td>
+<td><p>The test runner is now stable.</p></td></tr>
+<tr><td>v18.0.0, v16.17.0</td>
+<td><p><span>Added in: v18.0.0, v16.17.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
-<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.19.1/lib/test.js">lib/test.js</a></p>
+<p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v20.15.1/lib/test.js">lib/test.js</a></p>
 <p>The <code>node:test</code> module facilitates the creation of JavaScript tests.
 To access it:</p>
 
-<pre class="with-34-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> test <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test'</span>;</code><code class="language-js cjs"><span class="hljs-keyword">const</span> test = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:test'</span>);</code><button class="copy-button">copy</button></pre>
+<pre class="with-34-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> test <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test'</span>;</code><code class="language-js cjs"><span class="hljs-keyword">const</span> test = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:test'</span>);</code><button class="copy-button">copy</button></pre>
 <p>This module is only available under the <code>node:</code> scheme. The following will not
 work:</p>
 
-<pre class="with-29-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> test <span class="hljs-keyword">from</span> <span class="hljs-string">'test'</span>;</code><code class="language-js cjs"><span class="hljs-keyword">const</span> test = <span class="hljs-built_in">require</span>(<span class="hljs-string">'test'</span>);</code><button class="copy-button">copy</button></pre>
+<pre class="with-29-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> test <span class="hljs-keyword">from</span> <span class="hljs-string">'test'</span>;</code><code class="language-js cjs"><span class="hljs-keyword">const</span> test = <span class="hljs-built_in">require</span>(<span class="hljs-string">'test'</span>);</code><button class="copy-button">copy</button></pre>
 <p>Tests created via the <code>test</code> module consist of a single function that is
 processed in one of three ways:</p>
 <ol>
 <li>A synchronous function that is considered failing if it throws an exception,
 and is considered passing otherwise.</li>
 <li>A function that returns a <code>Promise</code> that is considered failing if the
-<code>Promise</code> rejects, and is considered passing if the <code>Promise</code> resolves.</li>
+<code>Promise</code> rejects, and is considered passing if the <code>Promise</code> fulfills.</li>
 <li>A function that receives a callback function. If the callback receives any
 truthy value as its first argument, the test is considered failing. If a
 falsy value is passed as the first argument to the callback, the test is
@@ -519,7 +577,7 @@ also returns a <code>Promise</code>, the test will fail.</li>
 
 <span class="hljs-title function_">test</span>(<span class="hljs-string">'asynchronous passing test'</span>, <span class="hljs-keyword">async</span> (t) => {
   <span class="hljs-comment">// This test passes because the Promise returned by the async</span>
-  <span class="hljs-comment">// function is not rejected.</span>
+  <span class="hljs-comment">// function is settled and not rejected.</span>
   assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-number">1</span>, <span class="hljs-number">1</span>);
 });
 
@@ -553,9 +611,12 @@ also returns a <code>Promise</code>, the test will fail.</li>
 });</code> <button class="copy-button">copy</button></pre>
 <p>If any tests fail, the process exit code is set to <code>1</code>.</p>
 <section><h3>Subtests<span><a class="mark" href="#subtests" id="subtests">#</a></span><a aria-hidden="true" class="legacy" id="test_subtests"></a></h3>
-<p>The test context's <code>test()</code> method allows subtests to be created. This method
-behaves identically to the top level <code>test()</code> function. The following example
-demonstrates the creation of a top level test with two subtests.</p>
+<p>The test context's <code>test()</code> method allows subtests to be created.
+It allows you to structure your tests in a hierarchical manner,
+where you can create nested tests within a larger test.
+This method behaves identically to the top level <code>test()</code> function.
+The following example demonstrates the creation of a
+top level test with two subtests.</p>
 <pre><code class="language-js"><span class="hljs-title function_">test</span>(<span class="hljs-string">'top level test'</span>, <span class="hljs-keyword">async</span> (t) => {
   <span class="hljs-keyword">await</span> t.<span class="hljs-title function_">test</span>(<span class="hljs-string">'subtest 1'</span>, <span class="hljs-function">(<span class="hljs-params">t</span>) =></span> {
     assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-number">1</span>, <span class="hljs-number">1</span>);
@@ -565,9 +626,14 @@ demonstrates the creation of a top level test with two subtests.</p>
     assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-number">2</span>, <span class="hljs-number">2</span>);
   });
 });</code> <button class="copy-button">copy</button></pre>
+<blockquote>
+<p><strong>Note:</strong> <code>beforeEach</code> and <code>afterEach</code> hooks are triggered
+between each subtest execution.</p>
+</blockquote>
 <p>In this example, <code>await</code> is used to ensure that both subtests have completed.
-This is necessary because parent tests do not wait for their subtests to
-complete. Any subtests that are still outstanding when their parent finishes
+This is necessary because tests do not wait for their subtests to
+complete, unlike tests created within suites.
+Any subtests that are still outstanding when their parent finishes
 are cancelled and treated as failures. Any subtest failures cause the parent
 test to fail.</p>
 </section><section><h3>Skipping tests<span><a class="mark" href="#skipping-tests" id="skipping-tests">#</a></span><a aria-hidden="true" class="legacy" id="test_skipping_tests"></a></h3>
@@ -593,11 +659,36 @@ following example.</p>
   <span class="hljs-comment">// Make sure to return here as well if the test contains additional logic.</span>
   t.<span class="hljs-title function_">skip</span>(<span class="hljs-string">'this is skipped'</span>);
 });</code> <button class="copy-button">copy</button></pre>
-</section><section><h3><code>describe</code>/<code>it</code> syntax<span><a class="mark" href="#describeit-syntax" id="describeit-syntax">#</a></span><a aria-hidden="true" class="legacy" id="test_describe_it_syntax"></a></h3>
-<p>Running tests can also be done using <code>describe</code> to declare a suite
-and <code>it</code> to declare a test.
-A suite is used to organize and group related tests together.
-<code>it</code> is a shorthand for <a href="#testname-options-fn"><code>test()</code></a>.</p>
+</section><section><h3>TODO tests<span><a class="mark" href="#todo-tests" id="todo-tests">#</a></span><a aria-hidden="true" class="legacy" id="test_todo_tests"></a></h3>
+<p>Individual tests can be marked as flaky or incomplete by passing the <code>todo</code>
+option to the test, or by calling the test context's <code>todo()</code> method, as shown
+in the following example. These tests represent a pending implementation or bug
+that needs to be fixed. TODO tests are executed, but are not treated as test
+failures, and therefore do not affect the process exit code. If a test is marked
+as both TODO and skipped, the TODO option is ignored.</p>
+<pre><code class="language-js"><span class="hljs-comment">// The todo option is used, but no message is provided.</span>
+<span class="hljs-title function_">test</span>(<span class="hljs-string">'todo option'</span>, { <span class="hljs-attr">todo</span>: <span class="hljs-literal">true</span> }, <span class="hljs-function">(<span class="hljs-params">t</span>) =></span> {
+  <span class="hljs-comment">// This code is executed, but not treated as a failure.</span>
+  <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">'this does not fail the test'</span>);
+});
+
+<span class="hljs-comment">// The todo option is used, and a message is provided.</span>
+<span class="hljs-title function_">test</span>(<span class="hljs-string">'todo option with message'</span>, { <span class="hljs-attr">todo</span>: <span class="hljs-string">'this is a todo test'</span> }, <span class="hljs-function">(<span class="hljs-params">t</span>) =></span> {
+  <span class="hljs-comment">// This code is executed.</span>
+});
+
+<span class="hljs-title function_">test</span>(<span class="hljs-string">'todo() method'</span>, <span class="hljs-function">(<span class="hljs-params">t</span>) =></span> {
+  t.<span class="hljs-title function_">todo</span>();
+});
+
+<span class="hljs-title function_">test</span>(<span class="hljs-string">'todo() method with message'</span>, <span class="hljs-function">(<span class="hljs-params">t</span>) =></span> {
+  t.<span class="hljs-title function_">todo</span>(<span class="hljs-string">'this is a todo test and is not treated as a failure'</span>);
+  <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">'this does not fail the test'</span>);
+});</code> <button class="copy-button">copy</button></pre>
+</section><section><h3><code>describe()</code> and <code>it()</code> aliases<span><a class="mark" href="#describe-and-it-aliases" id="describe-and-it-aliases">#</a></span><a aria-hidden="true" class="legacy" id="test_describe_and_it_aliases"></a></h3>
+<p>Suites and tests can also be written using the <code>describe()</code> and <code>it()</code>
+functions. <a href="#describename-options-fn"><code>describe()</code></a> is an alias for <a href="#suitename-options-fn"><code>suite()</code></a>, and <a href="#itname-options-fn"><code>it()</code></a> is an
+alias for <a href="#testname-options-fn"><code>test()</code></a>.</p>
 <pre><code class="language-js"><span class="hljs-title function_">describe</span>(<span class="hljs-string">'A thing'</span>, <span class="hljs-function">() =></span> {
   <span class="hljs-title function_">it</span>(<span class="hljs-string">'should work'</span>, <span class="hljs-function">() =></span> {
     assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-number">1</span>, <span class="hljs-number">1</span>);
@@ -613,9 +704,9 @@ A suite is used to organize and group related tests together.
     });
   });
 });</code> <button class="copy-button">copy</button></pre>
-<p><code>describe</code> and <code>it</code> are imported from the <code>node:test</code> module.</p>
+<p><code>describe()</code> and <code>it()</code> are imported from the <code>node:test</code> module.</p>
 
-<pre class="with-46-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { describe, it } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test'</span>;</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { describe, it } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:test'</span>);</code><button class="copy-button">copy</button></pre>
+<pre class="with-46-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { describe, it } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test'</span>;</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { describe, it } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:test'</span>);</code><button class="copy-button">copy</button></pre>
 </section><section><h3><code>only</code> tests<span><a class="mark" href="#only-tests" id="only-tests">#</a></span><a aria-hidden="true" class="legacy" id="test_only_tests"></a></h3>
 <p>If Node.js is started with the <a href="cli.html#--test-only"><code>--test-only</code></a> command-line option, it is
 possible to skip all top level tests except for a selected subset by passing
@@ -705,7 +796,7 @@ warnings at the top level by the <a href="test.html#class-testsstream" class="ty
 });</code> <button class="copy-button">copy</button></pre>
 </section><section><h3>Watch mode<span><a class="mark" href="#watch-mode" id="watch-mode">#</a></span><a aria-hidden="true" class="legacy" id="test_watch_mode"></a></h3>
 <div class="api_metadata">
-<span>Added in: v18.13.0</span>
+<span>Added in: v19.2.0, v18.13.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <p>The Node.js test runner supports running in watch mode by passing the <code>--watch</code> flag:</p>
@@ -771,6 +862,7 @@ file itself uses <code>node:test</code> to define tests, all of those tests will
 executed within a single application thread, regardless of the value of the
 <code>concurrency</code> option of <a href="#testname-options-fn"><code>test()</code></a>.</p>
 </section><section><h3>Collecting code coverage<span><a class="mark" href="#collecting-code-coverage" id="collecting-code-coverage">#</a></span><a aria-hidden="true" class="legacy" id="test_collecting_code_coverage"></a></h3>
+<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <p>When Node.js is started with the <a href="cli.html#--experimental-test-coverage"><code>--experimental-test-coverage</code></a>
 command-line flag, code coverage is collected and statistics are reported once
 all tests have completed. If the <a href="cli.html#node_v8_coveragedir"><code>NODE_V8_COVERAGE</code></a> environment variable is
@@ -799,20 +891,21 @@ number of lines is not explicitly provided, a single line is ignored.</p>
 <span class="hljs-keyword">if</span> (anAlwaysFalseCondition) {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'this is never executed'</span>);
 }</code> <button class="copy-button">copy</button></pre>
-<p>The test runner's code coverage functionality has the following limitations,
-which will be addressed in a future Node.js release:</p>
-<ul>
-<li>Source maps are not supported.</li>
-<li>Excluding specific files or directories from the coverage report is not
-supported.</li>
-</ul>
+<h4>Coverage reporters<span><a class="mark" href="#coverage-reporters" id="coverage-reporters">#</a></span><a aria-hidden="true" class="legacy" id="test_coverage_reporters"></a></h4>
+<p>The tap and spec reporters will print a summary of the coverage statistics.
+There is also an lcov reporter that will generate an lcov file which can be
+used as an in depth coverage report.</p>
+<pre><code class="language-bash">node --<span class="hljs-built_in">test</span> --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=lcov.info</code> <button class="copy-button">copy</button></pre>
+<h4>Limitations<span><a class="mark" href="#limitations" id="limitations">#</a></span><a aria-hidden="true" class="legacy" id="test_limitations"></a></h4>
+<p>The test runner's code coverage functionality does not support excluding
+specific files or directories from the coverage report.</p>
 </section><section><h3>Mocking<span><a class="mark" href="#mocking" id="mocking">#</a></span><a aria-hidden="true" class="legacy" id="test_mocking"></a></h3>
 <p>The <code>node:test</code> module supports mocking during testing via a top-level <code>mock</code>
 object. The following example creates a spy on a function that adds two numbers
 together. The spy is then used to assert that the function was called as
 expected.</p>
 
-<pre class="with-39-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'node:assert'</span>;
+<pre class="with-39-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'node:assert'</span>;
 <span class="hljs-keyword">import</span> { mock, test } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test'</span>;
 
 <span class="hljs-title function_">test</span>(<span class="hljs-string">'spies on a function'</span>, <span class="hljs-function">() =></span> {
@@ -885,21 +978,22 @@ without actually waiting for the specified time intervals.</p>
 <p>This allows developers to write more reliable and
 predictable tests for time-dependent functionality.</p>
 <p>The example below shows how to mock <code>setTimeout</code>.
-Using <code>.enable(['setTimeout']);</code>
+Using <code>.enable({ apis: ['setTimeout'] });</code>
 it will mock the <code>setTimeout</code> functions in the <a href="./timers.html">node:timers</a> and
 <a href="./timers.html#timers-promises-api">node:timers/promises</a> modules,
 as well as from the Node.js global context.</p>
 <p><strong>Note:</strong> Destructuring functions such as
 <code>import { setTimeout } from 'node:timers'</code>
 is currently not supported by this API.</p>
-<pre><code class="language-js mjs"><span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'node:assert'</span>;
+
+<pre class="with-44-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'node:assert'</span>;
 <span class="hljs-keyword">import</span> { mock, test } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test'</span>;
 
 <span class="hljs-title function_">test</span>(<span class="hljs-string">'mocks setTimeout to be executed synchronously without having to actually wait for it'</span>, <span class="hljs-function">() =></span> {
   <span class="hljs-keyword">const</span> fn = mock.<span class="hljs-title function_">fn</span>();
 
   <span class="hljs-comment">// Optionally choose what to mock</span>
-  mock.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>([<span class="hljs-string">'setTimeout'</span>]);
+  mock.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'setTimeout'</span>] });
   <span class="hljs-built_in">setTimeout</span>(fn, <span class="hljs-number">9999</span>);
   assert.<span class="hljs-title function_">strictEqual</span>(fn.<span class="hljs-property">mock</span>.<span class="hljs-title function_">callCount</span>(), <span class="hljs-number">0</span>);
 
@@ -912,15 +1006,14 @@ is currently not supported by this API.</p>
 
   <span class="hljs-comment">// If you call reset mock instance, it will also reset timers instance</span>
   mock.<span class="hljs-title function_">reset</span>();
-});</code> <button class="copy-button">copy</button></pre>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> assert = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:assert'</span>);
+});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> assert = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:assert'</span>);
 <span class="hljs-keyword">const</span> { mock, test } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:test'</span>);
 
 <span class="hljs-title function_">test</span>(<span class="hljs-string">'mocks setTimeout to be executed synchronously without having to actually wait for it'</span>, <span class="hljs-function">() =></span> {
   <span class="hljs-keyword">const</span> fn = mock.<span class="hljs-title function_">fn</span>();
 
   <span class="hljs-comment">// Optionally choose what to mock</span>
-  mock.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>([<span class="hljs-string">'setTimeout'</span>]);
+  mock.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'setTimeout'</span>] });
   <span class="hljs-built_in">setTimeout</span>(fn, <span class="hljs-number">9999</span>);
   assert.<span class="hljs-title function_">strictEqual</span>(fn.<span class="hljs-property">mock</span>.<span class="hljs-title function_">callCount</span>(), <span class="hljs-number">0</span>);
 
@@ -931,52 +1024,225 @@ is currently not supported by this API.</p>
   <span class="hljs-comment">// Reset the globally tracked mocks.</span>
   mock.<span class="hljs-property">timers</span>.<span class="hljs-title function_">reset</span>();
 
-  <span class="hljs-comment">// If you call reset mock instance, it'll also reset timers instance</span>
+  <span class="hljs-comment">// If you call reset mock instance, it will also reset timers instance</span>
   mock.<span class="hljs-title function_">reset</span>();
-});</code> <button class="copy-button">copy</button></pre>
+});</code><button class="copy-button">copy</button></pre>
 <p>The same mocking functionality is also exposed in the mock property on the <a href="#class-testcontext"><code>TestContext</code></a> object
 of each test. The benefit of mocking via the test context is
 that the test runner will automatically restore all mocked timers
 functionality once the test finishes.</p>
-<pre><code class="language-js mjs"><span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'node:assert'</span>;
+
+<pre class="with-38-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'node:assert'</span>;
 <span class="hljs-keyword">import</span> { test } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test'</span>;
 
 <span class="hljs-title function_">test</span>(<span class="hljs-string">'mocks setTimeout to be executed synchronously without having to actually wait for it'</span>, <span class="hljs-function">(<span class="hljs-params">context</span>) =></span> {
   <span class="hljs-keyword">const</span> fn = context.<span class="hljs-property">mock</span>.<span class="hljs-title function_">fn</span>();
 
   <span class="hljs-comment">// Optionally choose what to mock</span>
-  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>([<span class="hljs-string">'setTimeout'</span>]);
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'setTimeout'</span>] });
   <span class="hljs-built_in">setTimeout</span>(fn, <span class="hljs-number">9999</span>);
   assert.<span class="hljs-title function_">strictEqual</span>(fn.<span class="hljs-property">mock</span>.<span class="hljs-title function_">callCount</span>(), <span class="hljs-number">0</span>);
 
   <span class="hljs-comment">// Advance in time</span>
   context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">tick</span>(<span class="hljs-number">9999</span>);
   assert.<span class="hljs-title function_">strictEqual</span>(fn.<span class="hljs-property">mock</span>.<span class="hljs-title function_">callCount</span>(), <span class="hljs-number">1</span>);
-});</code> <button class="copy-button">copy</button></pre>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> assert = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:assert'</span>);
+});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> assert = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:assert'</span>);
 <span class="hljs-keyword">const</span> { test } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:test'</span>);
 
 <span class="hljs-title function_">test</span>(<span class="hljs-string">'mocks setTimeout to be executed synchronously without having to actually wait for it'</span>, <span class="hljs-function">(<span class="hljs-params">context</span>) =></span> {
   <span class="hljs-keyword">const</span> fn = context.<span class="hljs-property">mock</span>.<span class="hljs-title function_">fn</span>();
 
   <span class="hljs-comment">// Optionally choose what to mock</span>
-  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>([<span class="hljs-string">'setTimeout'</span>]);
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'setTimeout'</span>] });
   <span class="hljs-built_in">setTimeout</span>(fn, <span class="hljs-number">9999</span>);
   assert.<span class="hljs-title function_">strictEqual</span>(fn.<span class="hljs-property">mock</span>.<span class="hljs-title function_">callCount</span>(), <span class="hljs-number">0</span>);
 
   <span class="hljs-comment">// Advance in time</span>
   context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">tick</span>(<span class="hljs-number">9999</span>);
   assert.<span class="hljs-title function_">strictEqual</span>(fn.<span class="hljs-property">mock</span>.<span class="hljs-title function_">callCount</span>(), <span class="hljs-number">1</span>);
-});</code> <button class="copy-button">copy</button></pre>
+});</code><button class="copy-button">copy</button></pre>
+<h4>Dates<span><a class="mark" href="#dates" id="dates">#</a></span><a aria-hidden="true" class="legacy" id="test_dates"></a></h4>
+<p>The mock timers API also allows the mocking of the <code>Date</code> object. This is a
+useful feature for testing time-dependent functionality, or to simulate
+internal calendar functions such as <code>Date.now()</code>.</p>
+<p>The dates implementation is also part of the <a href="#class-mocktimers"><code>MockTimers</code></a> class. Refer to it
+for a full list of methods and features.</p>
+<p><strong>Note:</strong> Dates and timers are dependent when mocked together. This means that
+if you have both the <code>Date</code> and <code>setTimeout</code> mocked, advancing the time will
+also advance the mocked date as they simulate a single internal clock.</p>
+<p>The example below show how to mock the <code>Date</code> object and obtain the current
+<code>Date.now()</code> value.</p>
+
+<pre class="with-38-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'node:assert'</span>;
+<span class="hljs-keyword">import</span> { test } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test'</span>;
+
+<span class="hljs-title function_">test</span>(<span class="hljs-string">'mocks the Date object'</span>, <span class="hljs-function">(<span class="hljs-params">context</span>) =></span> {
+  <span class="hljs-comment">// Optionally choose what to mock</span>
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'Date'</span>] });
+  <span class="hljs-comment">// If not specified, the initial date will be based on 0 in the UNIX epoch</span>
+  assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), <span class="hljs-number">0</span>);
+
+  <span class="hljs-comment">// Advance in time will also advance the date</span>
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">tick</span>(<span class="hljs-number">9999</span>);
+  assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), <span class="hljs-number">9999</span>);
+});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> assert = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:assert'</span>);
+<span class="hljs-keyword">const</span> { test } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:test'</span>);
+
+<span class="hljs-title function_">test</span>(<span class="hljs-string">'mocks the Date object'</span>, <span class="hljs-function">(<span class="hljs-params">context</span>) =></span> {
+  <span class="hljs-comment">// Optionally choose what to mock</span>
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'Date'</span>] });
+  <span class="hljs-comment">// If not specified, the initial date will be based on 0 in the UNIX epoch</span>
+  assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), <span class="hljs-number">0</span>);
+
+  <span class="hljs-comment">// Advance in time will also advance the date</span>
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">tick</span>(<span class="hljs-number">9999</span>);
+  assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), <span class="hljs-number">9999</span>);
+});</code><button class="copy-button">copy</button></pre>
+<p>If there is no initial epoch set, the initial date will be based on 0 in the
+Unix epoch. This is January 1st, 1970, 00:00:00 UTC. You can set an initial date
+by passing a <code>now</code> property to the <code>.enable()</code> method. This value will be used
+as the initial date for the mocked <code>Date</code> object. It can either be a positive
+integer, or another Date object.</p>
+
+<pre class="with-38-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'node:assert'</span>;
+<span class="hljs-keyword">import</span> { test } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test'</span>;
+
+<span class="hljs-title function_">test</span>(<span class="hljs-string">'mocks the Date object with initial time'</span>, <span class="hljs-function">(<span class="hljs-params">context</span>) =></span> {
+  <span class="hljs-comment">// Optionally choose what to mock</span>
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'Date'</span>], <span class="hljs-attr">now</span>: <span class="hljs-number">100</span> });
+  assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), <span class="hljs-number">100</span>);
+
+  <span class="hljs-comment">// Advance in time will also advance the date</span>
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">tick</span>(<span class="hljs-number">200</span>);
+  assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), <span class="hljs-number">300</span>);
+});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> assert = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:assert'</span>);
+<span class="hljs-keyword">const</span> { test } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:test'</span>);
+
+<span class="hljs-title function_">test</span>(<span class="hljs-string">'mocks the Date object with initial time'</span>, <span class="hljs-function">(<span class="hljs-params">context</span>) =></span> {
+  <span class="hljs-comment">// Optionally choose what to mock</span>
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'Date'</span>], <span class="hljs-attr">now</span>: <span class="hljs-number">100</span> });
+  assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), <span class="hljs-number">100</span>);
+
+  <span class="hljs-comment">// Advance in time will also advance the date</span>
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">tick</span>(<span class="hljs-number">200</span>);
+  assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), <span class="hljs-number">300</span>);
+});</code><button class="copy-button">copy</button></pre>
+<p>You can use the <code>.setTime()</code> method to manually move the mocked date to another
+time. This method only accepts a positive integer.</p>
+<p><strong>Note:</strong> This method will execute any mocked timers that are in the past
+from the new time.</p>
+<p>In the below example we are setting a new time for the mocked date.</p>
+
+<pre class="with-38-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'node:assert'</span>;
+<span class="hljs-keyword">import</span> { test } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test'</span>;
+
+<span class="hljs-title function_">test</span>(<span class="hljs-string">'sets the time of a date object'</span>, <span class="hljs-function">(<span class="hljs-params">context</span>) =></span> {
+  <span class="hljs-comment">// Optionally choose what to mock</span>
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'Date'</span>], <span class="hljs-attr">now</span>: <span class="hljs-number">100</span> });
+  assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), <span class="hljs-number">100</span>);
+
+  <span class="hljs-comment">// Advance in time will also advance the date</span>
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">setTime</span>(<span class="hljs-number">1000</span>);
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">tick</span>(<span class="hljs-number">200</span>);
+  assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), <span class="hljs-number">1200</span>);
+});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> assert = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:assert'</span>);
+<span class="hljs-keyword">const</span> { test } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:test'</span>);
+
+<span class="hljs-title function_">test</span>(<span class="hljs-string">'sets the time of a date object'</span>, <span class="hljs-function">(<span class="hljs-params">context</span>) =></span> {
+  <span class="hljs-comment">// Optionally choose what to mock</span>
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'Date'</span>], <span class="hljs-attr">now</span>: <span class="hljs-number">100</span> });
+  assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), <span class="hljs-number">100</span>);
+
+  <span class="hljs-comment">// Advance in time will also advance the date</span>
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">setTime</span>(<span class="hljs-number">1000</span>);
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">tick</span>(<span class="hljs-number">200</span>);
+  assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), <span class="hljs-number">1200</span>);
+});</code><button class="copy-button">copy</button></pre>
+<p>If you have any timer that's set to run in the past, it will be executed as if
+the <code>.tick()</code> method has been called. This is useful if you want to test
+time-dependent functionality that's already in the past.</p>
+
+<pre class="with-38-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'node:assert'</span>;
+<span class="hljs-keyword">import</span> { test } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test'</span>;
+
+<span class="hljs-title function_">test</span>(<span class="hljs-string">'runs timers as setTime passes ticks'</span>, <span class="hljs-function">(<span class="hljs-params">context</span>) =></span> {
+  <span class="hljs-comment">// Optionally choose what to mock</span>
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'setTimeout'</span>, <span class="hljs-string">'Date'</span>] });
+  <span class="hljs-keyword">const</span> fn = context.<span class="hljs-property">mock</span>.<span class="hljs-title function_">fn</span>();
+  <span class="hljs-built_in">setTimeout</span>(fn, <span class="hljs-number">1000</span>);
+
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">setTime</span>(<span class="hljs-number">800</span>);
+  <span class="hljs-comment">// Timer is not executed as the time is not yet reached</span>
+  assert.<span class="hljs-title function_">strictEqual</span>(fn.<span class="hljs-property">mock</span>.<span class="hljs-title function_">callCount</span>(), <span class="hljs-number">0</span>);
+  assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), <span class="hljs-number">800</span>);
+
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">setTime</span>(<span class="hljs-number">1200</span>);
+  <span class="hljs-comment">// Timer is executed as the time is now reached</span>
+  assert.<span class="hljs-title function_">strictEqual</span>(fn.<span class="hljs-property">mock</span>.<span class="hljs-title function_">callCount</span>(), <span class="hljs-number">1</span>);
+  assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), <span class="hljs-number">1200</span>);
+});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> assert = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:assert'</span>);
+<span class="hljs-keyword">const</span> { test } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:test'</span>);
+
+<span class="hljs-title function_">test</span>(<span class="hljs-string">'runs timers as setTime passes ticks'</span>, <span class="hljs-function">(<span class="hljs-params">context</span>) =></span> {
+  <span class="hljs-comment">// Optionally choose what to mock</span>
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'setTimeout'</span>, <span class="hljs-string">'Date'</span>] });
+  <span class="hljs-keyword">const</span> fn = context.<span class="hljs-property">mock</span>.<span class="hljs-title function_">fn</span>();
+  <span class="hljs-built_in">setTimeout</span>(fn, <span class="hljs-number">1000</span>);
+
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">setTime</span>(<span class="hljs-number">800</span>);
+  <span class="hljs-comment">// Timer is not executed as the time is not yet reached</span>
+  assert.<span class="hljs-title function_">strictEqual</span>(fn.<span class="hljs-property">mock</span>.<span class="hljs-title function_">callCount</span>(), <span class="hljs-number">0</span>);
+  assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), <span class="hljs-number">800</span>);
+
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">setTime</span>(<span class="hljs-number">1200</span>);
+  <span class="hljs-comment">// Timer is executed as the time is now reached</span>
+  assert.<span class="hljs-title function_">strictEqual</span>(fn.<span class="hljs-property">mock</span>.<span class="hljs-title function_">callCount</span>(), <span class="hljs-number">1</span>);
+  assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), <span class="hljs-number">1200</span>);
+});</code><button class="copy-button">copy</button></pre>
+<p>Using <code>.runAll()</code> will execute all timers that are currently in the queue. This
+will also advance the mocked date to the time of the last timer that was
+executed as if the time has passed.</p>
+
+<pre class="with-38-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'node:assert'</span>;
+<span class="hljs-keyword">import</span> { test } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test'</span>;
+
+<span class="hljs-title function_">test</span>(<span class="hljs-string">'runs timers as setTime passes ticks'</span>, <span class="hljs-function">(<span class="hljs-params">context</span>) =></span> {
+  <span class="hljs-comment">// Optionally choose what to mock</span>
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'setTimeout'</span>, <span class="hljs-string">'Date'</span>] });
+  <span class="hljs-keyword">const</span> fn = context.<span class="hljs-property">mock</span>.<span class="hljs-title function_">fn</span>();
+  <span class="hljs-built_in">setTimeout</span>(fn, <span class="hljs-number">1000</span>);
+  <span class="hljs-built_in">setTimeout</span>(fn, <span class="hljs-number">2000</span>);
+  <span class="hljs-built_in">setTimeout</span>(fn, <span class="hljs-number">3000</span>);
+
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">runAll</span>();
+  <span class="hljs-comment">// All timers are executed as the time is now reached</span>
+  assert.<span class="hljs-title function_">strictEqual</span>(fn.<span class="hljs-property">mock</span>.<span class="hljs-title function_">callCount</span>(), <span class="hljs-number">3</span>);
+  assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), <span class="hljs-number">3000</span>);
+});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> assert = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:assert'</span>);
+<span class="hljs-keyword">const</span> { test } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:test'</span>);
+
+<span class="hljs-title function_">test</span>(<span class="hljs-string">'runs timers as setTime passes ticks'</span>, <span class="hljs-function">(<span class="hljs-params">context</span>) =></span> {
+  <span class="hljs-comment">// Optionally choose what to mock</span>
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'setTimeout'</span>, <span class="hljs-string">'Date'</span>] });
+  <span class="hljs-keyword">const</span> fn = context.<span class="hljs-property">mock</span>.<span class="hljs-title function_">fn</span>();
+  <span class="hljs-built_in">setTimeout</span>(fn, <span class="hljs-number">1000</span>);
+  <span class="hljs-built_in">setTimeout</span>(fn, <span class="hljs-number">2000</span>);
+  <span class="hljs-built_in">setTimeout</span>(fn, <span class="hljs-number">3000</span>);
+
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">runAll</span>();
+  <span class="hljs-comment">// All timers are executed as the time is now reached</span>
+  assert.<span class="hljs-title function_">strictEqual</span>(fn.<span class="hljs-property">mock</span>.<span class="hljs-title function_">callCount</span>(), <span class="hljs-number">3</span>);
+  assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), <span class="hljs-number">3000</span>);
+});</code><button class="copy-button">copy</button></pre>
 </section><section><h3>Test reporters<span><a class="mark" href="#test-reporters" id="test-reporters">#</a></span><a aria-hidden="true" class="legacy" id="test_test_reporters"></a></h3>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.17.0</td>
+<tr><td>v19.9.0</td>
 <td><p>Reporters are now exposed at <code>node:test/reporters</code>.</p></td></tr>
-<tr><td>v18.15.0</td>
-<td><p><span>Added in: v18.15.0</span></p></td></tr>
+<tr><td>v19.6.0, v18.15.0</td>
+<td><p><span>Added in: v19.6.0, v18.15.0</span></p></td></tr>
 </tbody></table>
 </details>
 </div>
@@ -1002,12 +1268,21 @@ and each failing test is represented by a <code>X</code>.</p>
 <p><code>junit</code>
 The junit reporter outputs test results in a jUnit XML format</p>
 </li>
+<li>
+<p><code>lcov</code>
+The <code>lcov</code> reporter outputs test coverage when used with the
+<a href="cli.html#--experimental-test-coverage"><code>--experimental-test-coverage</code></a> flag.</p>
+</li>
 </ul>
 <p>When <code>stdout</code> is a <a href="tty.html">TTY</a>, the <code>spec</code> reporter is used by default.
 Otherwise, the <code>tap</code> reporter is used by default.</p>
+<p>The exact output of these reporters is subject to change between versions of
+Node.js, and should not be relied on programmatically. If programmatic access
+to the test runner's output is required, use the events emitted by the
+<a href="test.html#class-testsstream" class="type">&#x3C;TestsStream></a>.</p>
 <p>The reporters are available via the <code>node:test/reporters</code> module:</p>
 
-<pre class="with-65-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { tap, spec, dot, junit } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test/reporters'</span>;</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { tap, spec, dot, junit } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:test/reporters'</span>);</code><button class="copy-button">copy</button></pre>
+<pre class="with-71-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { tap, spec, dot, junit, lcov } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test/reporters'</span>;</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { tap, spec, dot, junit, lcov } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:test/reporters'</span>);</code><button class="copy-button">copy</button></pre>
 <h4>Custom reporters<span><a class="mark" href="#custom-reporters" id="custom-reporters">#</a></span><a aria-hidden="true" class="legacy" id="test_custom_reporters"></a></h4>
 <p><a href="cli.html#--test-reporter"><code>--test-reporter</code></a> can be used to specify a path to custom reporter.
 A custom reporter is a module that exports a value
@@ -1015,7 +1290,7 @@ accepted by <a href="stream.html#streamcomposestreams">stream.compose</a>.
 Reporters should transform events emitted by a <a href="test.html#class-testsstream" class="type">&#x3C;TestsStream></a></p>
 <p>Example of a custom reporter using <a href="stream.html#class-streamtransform" class="type">&#x3C;stream.Transform></a>:</p>
 
-<pre class="with-45-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Transform</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:stream'</span>;
+<pre class="with-45-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Transform</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:stream'</span>;
 
 <span class="hljs-keyword">const</span> customReporter = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Transform</span>({
   <span class="hljs-attr">writableObjectMode</span>: <span class="hljs-literal">true</span>,
@@ -1100,7 +1375,7 @@ Reporters should transform events emitted by a <a href="test.html#class-testsstr
 <span class="hljs-variable language_">module</span>.<span class="hljs-property">exports</span> = customReporter;</code><button class="copy-button">copy</button></pre>
 <p>Example of a custom reporter using a generator function:</p>
 
-<pre class="with-58-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> * <span class="hljs-title function_">customReporter</span>(<span class="hljs-params">source</span>) {
+<pre class="with-58-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> * <span class="hljs-title function_">customReporter</span>(<span class="hljs-params">source</span>) {
   <span class="hljs-keyword">for</span> <span class="hljs-keyword">await</span> (<span class="hljs-keyword">const</span> event <span class="hljs-keyword">of</span> source) {
     <span class="hljs-keyword">switch</span> (event.<span class="hljs-property">type</span>) {
       <span class="hljs-keyword">case</span> <span class="hljs-string">'test:dequeue'</span>:
@@ -1174,7 +1449,7 @@ Reporters should transform events emitted by a <a href="test.html#class-testsstr
   }
 };</code><button class="copy-button">copy</button></pre>
 <p>The value provided to <code>--test-reporter</code> should be a string like one used in an
-<code>import()</code> in JavaScript code.</p>
+<code>import()</code> in JavaScript code, or a value provided for <a href="cli.html#--importmodule"><code>--import</code></a>.</p>
 <h4>Multiple reporters<span><a class="mark" href="#multiple-reporters" id="multiple-reporters">#</a></span><a aria-hidden="true" class="legacy" id="test_multiple_reporters"></a></h4>
 <p>The <a href="cli.html#--test-reporter"><code>--test-reporter</code></a> flag can be specified multiple times to report test
 results in several formats. In this situation
@@ -1193,10 +1468,12 @@ unless a destination is explicitly provided.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.17.0</td>
+<tr><td>v20.14.0</td>
+<td><p>Added the <code>forceExit</code> option.</p></td></tr>
+<tr><td>v20.1.0, v18.17.0</td>
 <td><p>Add a testNamePatterns option.</p></td></tr>
-<tr><td>v18.9.0</td>
-<td><p><span>Added in: v18.9.0</span></p></td></tr>
+<tr><td>v18.9.0, v16.19.0</td>
+<td><p><span>Added in: v18.9.0, v16.19.0</span></p></td></tr>
 </tbody></table>
 </details>
 </div>
@@ -1213,6 +1490,9 @@ If <code>false</code>, it would only run one test file at a time.
 <strong>Default:</strong> <code>false</code>.</li>
 <li><code>files</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="type">&#x3C;Array></a> An array containing the list of files to run.
 <strong>Default</strong> matching files from <a href="#test-runner-execution-model">test runner execution model</a>.</li>
+<li><code>forceExit</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> Configures the test runner to exit the process once
+all known tests have finished executing even if the event loop would
+otherwise remain active. <strong>Default:</strong> <code>false</code>.</li>
 <li><code>inspectPort</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> Sets inspector port of test child process.
 This can be a number, or a function that takes no arguments and returns a
 number. If a nullish value is provided, each process gets its own port,
@@ -1247,30 +1527,78 @@ of shards to split the test files to. This option is <em>required</em>.</li>
 </li>
 <li>Returns: <a href="test.html#class-testsstream" class="type">&#x3C;TestsStream></a></li>
 </ul>
+<p><strong>Note:</strong> <code>shard</code> is used to horizontally parallelize test running across
+machines or processes, ideal for large-scale executions across varied
+environments. It's incompatible with <code>watch</code> mode, tailored for rapid
+code iteration by automatically rerunning tests on file changes.</p>
 
-<pre class="with-47-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { tap } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test/reporters'</span>;
+<pre class="with-47-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { tap } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test/reporters'</span>;
+<span class="hljs-keyword">import</span> { run } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test'</span>;
 <span class="hljs-keyword">import</span> process <span class="hljs-keyword">from</span> <span class="hljs-string">'node:process'</span>;
+<span class="hljs-keyword">import</span> path <span class="hljs-keyword">from</span> <span class="hljs-string">'node:path'</span>;
 
 <span class="hljs-title function_">run</span>({ <span class="hljs-attr">files</span>: [path.<span class="hljs-title function_">resolve</span>(<span class="hljs-string">'./tests/test.js'</span>)] })
-  .<span class="hljs-title function_">compose</span>(tap)
-  .<span class="hljs-title function_">pipe</span>(process.<span class="hljs-property">stdout</span>);</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { tap } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:test/reporters'</span>);
+ .<span class="hljs-title function_">on</span>(<span class="hljs-string">'test:fail'</span>, <span class="hljs-function">() =></span> {
+   process.<span class="hljs-property">exitCode</span> = <span class="hljs-number">1</span>;
+ })
+ .<span class="hljs-title function_">compose</span>(tap)
+ .<span class="hljs-title function_">pipe</span>(process.<span class="hljs-property">stdout</span>);</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { tap } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:test/reporters'</span>);
+<span class="hljs-keyword">const</span> { run } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:test'</span>);
+<span class="hljs-keyword">const</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:path'</span>);
 
 <span class="hljs-title function_">run</span>({ <span class="hljs-attr">files</span>: [path.<span class="hljs-title function_">resolve</span>(<span class="hljs-string">'./tests/test.js'</span>)] })
-  .<span class="hljs-title function_">compose</span>(tap)
-  .<span class="hljs-title function_">pipe</span>(process.<span class="hljs-property">stdout</span>);</code><button class="copy-button">copy</button></pre>
+ .<span class="hljs-title function_">on</span>(<span class="hljs-string">'test:fail'</span>, <span class="hljs-function">() =></span> {
+   process.<span class="hljs-property">exitCode</span> = <span class="hljs-number">1</span>;
+ })
+ .<span class="hljs-title function_">compose</span>(tap)
+ .<span class="hljs-title function_">pipe</span>(process.<span class="hljs-property">stdout</span>);</code><button class="copy-button">copy</button></pre>
+</section><section><h3><code>suite([name][, options][, fn])</code><span><a class="mark" href="#suitename-options-fn" id="suitename-options-fn">#</a></span><a aria-hidden="true" class="legacy" id="test_suite_name_options_fn"></a></h3>
+<div class="api_metadata">
+<span>Added in: v20.13.0</span>
+</div>
+<ul>
+<li><code>name</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> The name of the suite, which is displayed when reporting test
+results. <strong>Default:</strong> The <code>name</code> property of <code>fn</code>, or <code>'&#x3C;anonymous>'</code> if <code>fn</code>
+does not have a name.</li>
+<li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> Optional configuration options for the suite.
+This supports the same options as <code>test([name][, options][, fn])</code>.</li>
+<li><code>fn</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> | <a href="https://tc39.es/ecma262/#sec-async-function-constructor" class="type">&#x3C;AsyncFunction></a> The suite function declaring nested tests and
+suites. The first argument to this function is a <a href="#class-suitecontext"><code>SuiteContext</code></a> object.
+<strong>Default:</strong> A no-op function.</li>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> Immediately fulfilled with <code>undefined</code>.</li>
+</ul>
+<p>The <code>suite()</code> function is imported from the <code>node:test</code> module.</p>
+</section><section><h3><code>suite.skip([name][, options][, fn])</code><span><a class="mark" href="#suiteskipname-options-fn" id="suiteskipname-options-fn">#</a></span><a aria-hidden="true" class="legacy" id="test_suite_skip_name_options_fn"></a></h3>
+<div class="api_metadata">
+<span>Added in: v20.13.0</span>
+</div>
+<p>Shorthand for skipping a suite. This is the same as
+<a href="#suitename-options-fn"><code>suite([name], { skip: true }[, fn])</code></a>.</p>
+</section><section><h3><code>suite.todo([name][, options][, fn])</code><span><a class="mark" href="#suitetodoname-options-fn" id="suitetodoname-options-fn">#</a></span><a aria-hidden="true" class="legacy" id="test_suite_todo_name_options_fn"></a></h3>
+<div class="api_metadata">
+<span>Added in: v20.13.0</span>
+</div>
+<p>Shorthand for marking a suite as <code>TODO</code>. This is the same as
+<a href="#suitename-options-fn"><code>suite([name], { todo: true }[, fn])</code></a>.</p>
+</section><section><h3><code>suite.only([name][, options][, fn])</code><span><a class="mark" href="#suiteonlyname-options-fn" id="suiteonlyname-options-fn">#</a></span><a aria-hidden="true" class="legacy" id="test_suite_only_name_options_fn"></a></h3>
+<div class="api_metadata">
+<span>Added in: v20.13.0</span>
+</div>
+<p>Shorthand for marking a suite as <code>only</code>. This is the same as
+<a href="#suitename-options-fn"><code>suite([name], { only: true }[, fn])</code></a>.</p>
 </section><section><h3><code>test([name][, options][, fn])</code><span><a class="mark" href="#testname-options-fn" id="testname-options-fn">#</a></span><a aria-hidden="true" class="legacy" id="test_test_name_options_fn"></a></h3>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.17.0</td>
+<tr><td>v20.2.0</td>
 <td><p>Added the <code>skip</code>, <code>todo</code>, and <code>only</code> shorthands.</p></td></tr>
-<tr><td>v18.8.0</td>
+<tr><td>v18.8.0, v16.18.0</td>
 <td><p>Add a <code>signal</code> option.</p></td></tr>
-<tr><td>v18.7.0</td>
+<tr><td>v18.7.0, v16.17.0</td>
 <td><p>Add a <code>timeout</code> option.</p></td></tr>
-<tr><td>v18.0.0</td>
-<td><p><span>Added in: v18.0.0</span></p></td></tr>
+<tr><td>v18.0.0, v16.17.0</td>
+<td><p><span>Added in: v18.0.0, v16.17.0</span></p></td></tr>
 </tbody></table>
 </details>
 </div>
@@ -1300,22 +1628,26 @@ the test is <code>TODO</code>. <strong>Default:</strong> <code>false</code>.</li
 <li><code>timeout</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> A number of milliseconds the test will fail after.
 If unspecified, subtests inherit this value from their parent.
 <strong>Default:</strong> <code>Infinity</code>.</li>
+<li><code>plan</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The number of assertions and subtests expected to be run in the test.
+If the number of assertions run in the test does not match the number
+specified in the plan, the test will fail.
+<strong>Default:</strong> <code>undefined</code>.</li>
 </ul>
 </li>
 <li><code>fn</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> | <a href="https://tc39.es/ecma262/#sec-async-function-constructor" class="type">&#x3C;AsyncFunction></a> The function under test. The first argument
 to this function is a <a href="#class-testcontext"><code>TestContext</code></a> object. If the test uses callbacks,
 the callback function is passed as the second argument. <strong>Default:</strong> A no-op
 function.</li>
-<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> Resolved with <code>undefined</code> once
-the test completes, or immediately if the test runs within <a href="#describename-options-fn"><code>describe()</code></a>.</li>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> Fulfilled with <code>undefined</code> once
+the test completes, or immediately if the test runs within a suite.</li>
 </ul>
 <p>The <code>test()</code> function is the value imported from the <code>test</code> module. Each
 invocation of this function results in reporting the test to the <a href="test.html#class-testsstream" class="type">&#x3C;TestsStream></a>.</p>
 <p>The <code>TestContext</code> object passed to the <code>fn</code> argument can be used to perform
 actions related to the current test. Examples include skipping the test, adding
 additional diagnostic information, or creating subtests.</p>
-<p><code>test()</code> returns a <code>Promise</code> that resolves once the test completes.
-if <code>test()</code> is called within a <code>describe()</code> block, it resolve immediately.
+<p><code>test()</code> returns a <code>Promise</code> that fulfills once the test completes.
+if <code>test()</code> is called within a suite, it fulfills immediately.
 The return value can usually be discarded for top level tests.
 However, the return value from subtests should be used to prevent the parent
 test from finishing first and cancelling the subtest
@@ -1344,46 +1676,33 @@ same as <a href="#testname-options-fn"><code>test([name], { todo: true }[, fn])<
 <p>Shorthand for marking a test as <code>only</code>,
 same as <a href="#testname-options-fn"><code>test([name], { only: true }[, fn])</code></a>.</p>
 </section><section><h3><code>describe([name][, options][, fn])</code><span><a class="mark" href="#describename-options-fn" id="describename-options-fn">#</a></span><a aria-hidden="true" class="legacy" id="test_describe_name_options_fn"></a></h3>
-<ul>
-<li><code>name</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> The name of the suite, which is displayed when reporting test
-results. <strong>Default:</strong> The <code>name</code> property of <code>fn</code>, or <code>'&#x3C;anonymous>'</code> if <code>fn</code>
-does not have a name.</li>
-<li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> Configuration options for the suite.
-supports the same options as <code>test([name][, options][, fn])</code>.</li>
-<li><code>fn</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> | <a href="https://tc39.es/ecma262/#sec-async-function-constructor" class="type">&#x3C;AsyncFunction></a> The function under suite
-declaring all subtests and subsuites.
-The first argument to this function is a <a href="#class-suitecontext"><code>SuiteContext</code></a> object.
-<strong>Default:</strong> A no-op function.</li>
-<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> Immediately fulfilled with <code>undefined</code>.</li>
-</ul>
-<p>The <code>describe()</code> function imported from the <code>node:test</code> module. Each
-invocation of this function results in the creation of a Subtest.
-After invocation of top level <code>describe</code> functions,
-all top level tests and suites will execute.</p>
+<p>Alias for <a href="#suitename-options-fn"><code>suite()</code></a>.</p>
+<p>The <code>describe()</code> function is imported from the <code>node:test</code> module.</p>
 </section><section><h3><code>describe.skip([name][, options][, fn])</code><span><a class="mark" href="#describeskipname-options-fn" id="describeskipname-options-fn">#</a></span><a aria-hidden="true" class="legacy" id="test_describe_skip_name_options_fn"></a></h3>
-<p>Shorthand for skipping a suite, same as <a href="#describename-options-fn"><code>describe([name], { skip: true }[, fn])</code></a>.</p>
+<p>Shorthand for skipping a suite. This is the same as
+<a href="#describename-options-fn"><code>describe([name], { skip: true }[, fn])</code></a>.</p>
 </section><section><h3><code>describe.todo([name][, options][, fn])</code><span><a class="mark" href="#describetodoname-options-fn" id="describetodoname-options-fn">#</a></span><a aria-hidden="true" class="legacy" id="test_describe_todo_name_options_fn"></a></h3>
-<p>Shorthand for marking a suite as <code>TODO</code>, same as
+<p>Shorthand for marking a suite as <code>TODO</code>. This is the same as
 <a href="#describename-options-fn"><code>describe([name], { todo: true }[, fn])</code></a>.</p>
 </section><section><h3><code>describe.only([name][, options][, fn])</code><span><a class="mark" href="#describeonlyname-options-fn" id="describeonlyname-options-fn">#</a></span><a aria-hidden="true" class="legacy" id="test_describe_only_name_options_fn"></a></h3>
 <div class="api_metadata">
-<span>Added in: v18.15.0</span>
+<span>Added in: v19.8.0, v18.15.0</span>
 </div>
-<p>Shorthand for marking a suite as <code>only</code>, same as
+<p>Shorthand for marking a suite as <code>only</code>. This is the same as
 <a href="#describename-options-fn"><code>describe([name], { only: true }[, fn])</code></a>.</p>
 </section><section><h3><code>it([name][, options][, fn])</code><span><a class="mark" href="#itname-options-fn" id="itname-options-fn">#</a></span><a aria-hidden="true" class="legacy" id="test_it_name_options_fn"></a></h3>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.16.0</td>
+<tr><td>v19.8.0</td>
 <td><p>Calling <code>it()</code> is now equivalent to calling <code>test()</code>.</p></td></tr>
 <tr><td>v18.6.0, v16.17.0</td>
 <td><p><span>Added in: v18.6.0, v16.17.0</span></p></td></tr>
 </tbody></table>
 </details>
 </div>
-<p>Shorthand for <a href="#testname-options-fn"><code>test()</code></a>.</p>
+<p>Alias for <a href="#testname-options-fn"><code>test()</code></a>.</p>
 <p>The <code>it()</code> function is imported from the <code>node:test</code> module.</p>
 </section><section><h3><code>it.skip([name][, options][, fn])</code><span><a class="mark" href="#itskipname-options-fn" id="itskipname-options-fn">#</a></span><a aria-hidden="true" class="legacy" id="test_it_skip_name_options_fn"></a></h3>
 <p>Shorthand for skipping a test,
@@ -1393,13 +1712,13 @@ same as <a href="#testname-options-fn"><code>it([name], { skip: true }[, fn])</c
 same as <a href="#testname-options-fn"><code>it([name], { todo: true }[, fn])</code></a>.</p>
 </section><section><h3><code>it.only([name][, options][, fn])</code><span><a class="mark" href="#itonlyname-options-fn" id="itonlyname-options-fn">#</a></span><a aria-hidden="true" class="legacy" id="test_it_only_name_options_fn"></a></h3>
 <div class="api_metadata">
-<span>Added in: v18.15.0</span>
+<span>Added in: v19.8.0, v18.15.0</span>
 </div>
 <p>Shorthand for marking a test as <code>only</code>,
 same as <a href="#testname-options-fn"><code>it([name], { only: true }[, fn])</code></a>.</p>
 </section><section><h3><code>before([fn][, options])</code><span><a class="mark" href="#beforefn-options" id="beforefn-options">#</a></span><a aria-hidden="true" class="legacy" id="test_before_fn_options"></a></h3>
 <div class="api_metadata">
-<span>Added in: v18.8.0</span>
+<span>Added in: v18.8.0, v16.18.0</span>
 </div>
 <ul>
 <li><code>fn</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> | <a href="https://tc39.es/ecma262/#sec-async-function-constructor" class="type">&#x3C;AsyncFunction></a> The hook function.
@@ -1416,7 +1735,7 @@ If unspecified, subtests inherit this value from their parent.
 </ul>
 </li>
 </ul>
-<p>This function is used to create a hook running before running a suite.</p>
+<p>This function creates a hook that runs before executing a suite.</p>
 <pre><code class="language-js"><span class="hljs-title function_">describe</span>(<span class="hljs-string">'tests'</span>, <span class="hljs-keyword">async</span> () => {
   <span class="hljs-title function_">before</span>(<span class="hljs-function">() =></span> <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'about to run some test'</span>));
   <span class="hljs-title function_">it</span>(<span class="hljs-string">'is a subtest'</span>, <span class="hljs-function">() =></span> {
@@ -1425,7 +1744,7 @@ If unspecified, subtests inherit this value from their parent.
 });</code> <button class="copy-button">copy</button></pre>
 </section><section><h3><code>after([fn][, options])</code><span><a class="mark" href="#afterfn-options" id="afterfn-options">#</a></span><a aria-hidden="true" class="legacy" id="test_after_fn_options"></a></h3>
 <div class="api_metadata">
-<span>Added in: v18.8.0</span>
+<span>Added in: v18.8.0, v16.18.0</span>
 </div>
 <ul>
 <li><code>fn</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> | <a href="https://tc39.es/ecma262/#sec-async-function-constructor" class="type">&#x3C;AsyncFunction></a> The hook function.
@@ -1442,16 +1761,18 @@ If unspecified, subtests inherit this value from their parent.
 </ul>
 </li>
 </ul>
-<p>This function is used to create a hook running after  running a suite.</p>
+<p>This function creates a hook that runs after executing a suite.</p>
 <pre><code class="language-js"><span class="hljs-title function_">describe</span>(<span class="hljs-string">'tests'</span>, <span class="hljs-keyword">async</span> () => {
   <span class="hljs-title function_">after</span>(<span class="hljs-function">() =></span> <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'finished running tests'</span>));
   <span class="hljs-title function_">it</span>(<span class="hljs-string">'is a subtest'</span>, <span class="hljs-function">() =></span> {
     assert.<span class="hljs-title function_">ok</span>(<span class="hljs-string">'some relevant assertion here'</span>);
   });
 });</code> <button class="copy-button">copy</button></pre>
+<p><strong>Note:</strong> The <code>after</code> hook is guaranteed to run,
+even if tests within the suite fail.</p>
 </section><section><h3><code>beforeEach([fn][, options])</code><span><a class="mark" href="#beforeeachfn-options" id="beforeeachfn-options">#</a></span><a aria-hidden="true" class="legacy" id="test_beforeeach_fn_options"></a></h3>
 <div class="api_metadata">
-<span>Added in: v18.8.0</span>
+<span>Added in: v18.8.0, v16.18.0</span>
 </div>
 <ul>
 <li><code>fn</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> | <a href="https://tc39.es/ecma262/#sec-async-function-constructor" class="type">&#x3C;AsyncFunction></a> The hook function.
@@ -1468,8 +1789,7 @@ If unspecified, subtests inherit this value from their parent.
 </ul>
 </li>
 </ul>
-<p>This function is used to create a hook running
-before each subtest of the current suite.</p>
+<p>This function creates a hook that runs before each test in the current suite.</p>
 <pre><code class="language-js"><span class="hljs-title function_">describe</span>(<span class="hljs-string">'tests'</span>, <span class="hljs-keyword">async</span> () => {
   <span class="hljs-title function_">beforeEach</span>(<span class="hljs-function">() =></span> <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'about to run a test'</span>));
   <span class="hljs-title function_">it</span>(<span class="hljs-string">'is a subtest'</span>, <span class="hljs-function">() =></span> {
@@ -1478,7 +1798,7 @@ before each subtest of the current suite.</p>
 });</code> <button class="copy-button">copy</button></pre>
 </section><section><h3><code>afterEach([fn][, options])</code><span><a class="mark" href="#aftereachfn-options" id="aftereachfn-options">#</a></span><a aria-hidden="true" class="legacy" id="test_aftereach_fn_options"></a></h3>
 <div class="api_metadata">
-<span>Added in: v18.8.0</span>
+<span>Added in: v18.8.0, v16.18.0</span>
 </div>
 <ul>
 <li><code>fn</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> | <a href="https://tc39.es/ecma262/#sec-async-function-constructor" class="type">&#x3C;AsyncFunction></a> The hook function.
@@ -1495,8 +1815,8 @@ If unspecified, subtests inherit this value from their parent.
 </ul>
 </li>
 </ul>
-<p>This function is used to create a hook running
-after each subtest of the current test.</p>
+<p>This function creates a hook that runs after each test in the current suite.
+The <code>afterEach()</code> hook is run even if the test fails.</p>
 <pre><code class="language-js"><span class="hljs-title function_">describe</span>(<span class="hljs-string">'tests'</span>, <span class="hljs-keyword">async</span> () => {
   <span class="hljs-title function_">afterEach</span>(<span class="hljs-function">() =></span> <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'finished running a test'</span>));
   <span class="hljs-title function_">it</span>(<span class="hljs-string">'is a subtest'</span>, <span class="hljs-function">() =></span> {
@@ -1505,13 +1825,13 @@ after each subtest of the current test.</p>
 });</code> <button class="copy-button">copy</button></pre>
 </section><section><h3>Class: <code>MockFunctionContext</code><span><a class="mark" href="#class-mockfunctioncontext" id="class-mockfunctioncontext">#</a></span><a aria-hidden="true" class="legacy" id="test_class_mockfunctioncontext"></a></h3>
 <div class="api_metadata">
-<span>Added in: v18.13.0</span>
+<span>Added in: v19.1.0, v18.13.0</span>
 </div>
 <p>The <code>MockFunctionContext</code> class is used to inspect or manipulate the behavior of
 mocks created via the <a href="#class-mocktracker"><code>MockTracker</code></a> APIs.</p>
 <h4><code>ctx.calls</code><span><a class="mark" href="#ctxcalls" id="ctxcalls">#</a></span><a aria-hidden="true" class="legacy" id="test_ctx_calls"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.13.0</span>
+<span>Added in: v19.1.0, v18.13.0</span>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="type">&#x3C;Array></a></li>
@@ -1532,7 +1852,7 @@ field contains the class being constructed. Otherwise this will be
 </ul>
 <h4><code>ctx.callCount()</code><span><a class="mark" href="#ctxcallcount" id="ctxcallcount">#</a></span><a aria-hidden="true" class="legacy" id="test_ctx_callcount"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.13.0</span>
+<span>Added in: v19.1.0, v18.13.0</span>
 </div>
 <ul>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a> The number of times that this mock has been invoked.</li>
@@ -1542,7 +1862,7 @@ function is more efficient than checking <code>ctx.calls.length</code> because <
 is a getter that creates a copy of the internal call tracking array.</p>
 <h4><code>ctx.mockImplementation(implementation)</code><span><a class="mark" href="#ctxmockimplementationimplementation" id="ctxmockimplementationimplementation">#</a></span><a aria-hidden="true" class="legacy" id="test_ctx_mockimplementation_implementation"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.13.0</span>
+<span>Added in: v19.1.0, v18.13.0</span>
 </div>
 <ul>
 <li><code>implementation</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> | <a href="https://tc39.es/ecma262/#sec-async-function-constructor" class="type">&#x3C;AsyncFunction></a> The function to be used as the
@@ -1573,7 +1893,7 @@ mock function, and then changes the mock implementation to a different function.
 });</code> <button class="copy-button">copy</button></pre>
 <h4><code>ctx.mockImplementationOnce(implementation[, onCall])</code><span><a class="mark" href="#ctxmockimplementationonceimplementation-oncall" id="ctxmockimplementationonceimplementation-oncall">#</a></span><a aria-hidden="true" class="legacy" id="test_ctx_mockimplementationonce_implementation_oncall"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.13.0</span>
+<span>Added in: v19.1.0, v18.13.0</span>
 </div>
 <ul>
 <li><code>implementation</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> | <a href="https://tc39.es/ecma262/#sec-async-function-constructor" class="type">&#x3C;AsyncFunction></a> The function to be used as the
@@ -1611,18 +1931,18 @@ next invocation, and then resumes its previous behavior.</p>
 });</code> <button class="copy-button">copy</button></pre>
 <h4><code>ctx.resetCalls()</code><span><a class="mark" href="#ctxresetcalls" id="ctxresetcalls">#</a></span><a aria-hidden="true" class="legacy" id="test_ctx_resetcalls"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.13.0</span>
+<span>Added in: v19.3.0, v18.13.0</span>
 </div>
 <p>Resets the call history of the mock function.</p>
 <h4><code>ctx.restore()</code><span><a class="mark" href="#ctxrestore" id="ctxrestore">#</a></span><a aria-hidden="true" class="legacy" id="test_ctx_restore"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.13.0</span>
+<span>Added in: v19.1.0, v18.13.0</span>
 </div>
 <p>Resets the implementation of the mock function to its original behavior. The
 mock can still be used after calling this function.</p>
 </section><section><h3>Class: <code>MockTracker</code><span><a class="mark" href="#class-mocktracker" id="class-mocktracker">#</a></span><a aria-hidden="true" class="legacy" id="test_class_mocktracker"></a></h3>
 <div class="api_metadata">
-<span>Added in: v18.13.0</span>
+<span>Added in: v19.1.0, v18.13.0</span>
 </div>
 <p>The <code>MockTracker</code> class is used to manage mocking functionality. The test runner
 module provides a top level <code>mock</code> export which is a <code>MockTracker</code> instance.
@@ -1630,7 +1950,7 @@ Each test also provides its own <code>MockTracker</code> instance via the test c
 <code>mock</code> property.</p>
 <h4><code>mock.fn([original[, implementation]][, options])</code><span><a class="mark" href="#mockfnoriginal-implementation-options" id="mockfnoriginal-implementation-options">#</a></span><a aria-hidden="true" class="legacy" id="test_mock_fn_original_implementation_options"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.13.0</span>
+<span>Added in: v19.1.0, v18.13.0</span>
 </div>
 <ul>
 <li><code>original</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> | <a href="https://tc39.es/ecma262/#sec-async-function-constructor" class="type">&#x3C;AsyncFunction></a> An optional function to create a mock on.
@@ -1678,13 +1998,13 @@ that the first two invocations add two to the counter instead of one.</p>
 });</code> <button class="copy-button">copy</button></pre>
 <h4><code>mock.getter(object, methodName[, implementation][, options])</code><span><a class="mark" href="#mockgetterobject-methodname-implementation-options" id="mockgetterobject-methodname-implementation-options">#</a></span><a aria-hidden="true" class="legacy" id="test_mock_getter_object_methodname_implementation_options"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.13.0</span>
+<span>Added in: v19.3.0, v18.13.0</span>
 </div>
 <p>This function is syntax sugar for <a href="#mockmethodobject-methodname-implementation-options"><code>MockTracker.method</code></a> with <code>options.getter</code>
 set to <code>true</code>.</p>
 <h4><code>mock.method(object, methodName[, implementation][, options])</code><span><a class="mark" href="#mockmethodobject-methodname-implementation-options" id="mockmethodobject-methodname-implementation-options">#</a></span><a aria-hidden="true" class="legacy" id="test_mock_method_object_methodname_implementation_options"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.13.0</span>
+<span>Added in: v19.1.0, v18.13.0</span>
 </div>
 <ul>
 <li><code>object</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> The object whose method is being mocked.</li>
@@ -1736,7 +2056,7 @@ method.</p>
 });</code> <button class="copy-button">copy</button></pre>
 <h4><code>mock.reset()</code><span><a class="mark" href="#mockreset" id="mockreset">#</a></span><a aria-hidden="true" class="legacy" id="test_mock_reset"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.13.0</span>
+<span>Added in: v19.1.0, v18.13.0</span>
 </div>
 <p>This function restores the default behavior of all mocks that were previously
 created by this <code>MockTracker</code> and disassociates the mocks from the
@@ -1748,59 +2068,88 @@ otherwise interact with them.</p>
 function manually is recommended.</p>
 <h4><code>mock.restoreAll()</code><span><a class="mark" href="#mockrestoreall" id="mockrestoreall">#</a></span><a aria-hidden="true" class="legacy" id="test_mock_restoreall"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.13.0</span>
+<span>Added in: v19.1.0, v18.13.0</span>
 </div>
 <p>This function restores the default behavior of all mocks that were previously
 created by this <code>MockTracker</code>. Unlike <code>mock.reset()</code>, <code>mock.restoreAll()</code> does
 not disassociate the mocks from the <code>MockTracker</code> instance.</p>
 <h4><code>mock.setter(object, methodName[, implementation][, options])</code><span><a class="mark" href="#mocksetterobject-methodname-implementation-options" id="mocksetterobject-methodname-implementation-options">#</a></span><a aria-hidden="true" class="legacy" id="test_mock_setter_object_methodname_implementation_options"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.13.0</span>
+<span>Added in: v19.3.0, v18.13.0</span>
 </div>
 <p>This function is syntax sugar for <a href="#mockmethodobject-methodname-implementation-options"><code>MockTracker.method</code></a> with <code>options.setter</code>
 set to <code>true</code>.</p>
 </section><section><h3>Class: <code>MockTimers</code><span><a class="mark" href="#class-mocktimers" id="class-mocktimers">#</a></span><a aria-hidden="true" class="legacy" id="test_class_mocktimers"></a></h3>
 <div class="api_metadata">
-<span>Added in: v18.19.0</span>
+<span>Added in: v20.4.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <p>Mocking timers is a technique commonly used in software testing to simulate and
 control the behavior of timers, such as <code>setInterval</code> and <code>setTimeout</code>,
 without actually waiting for the specified time intervals.</p>
+<p>MockTimers is also able to mock the <code>Date</code> object.</p>
 <p>The <a href="#class-mocktracker"><code>MockTracker</code></a> provides a top-level <code>timers</code> export
 which is a <code>MockTimers</code> instance.</p>
-<h4><code>timers.enable([timers])</code><span><a class="mark" href="#timersenabletimers" id="timersenabletimers">#</a></span><a aria-hidden="true" class="legacy" id="test_timers_enable_timers"></a></h4>
+<h4><code>timers.enable([enableOptions])</code><span><a class="mark" href="#timersenableenableoptions" id="timersenableenableoptions">#</a></span><a aria-hidden="true" class="legacy" id="test_timers_enable_enableoptions"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.19.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v20.11.0</td>
+<td><p>Updated parameters to be an option object with available APIs and the default initial epoch.</p></td></tr>
+<tr><td>v20.4.0</td>
+<td><p><span>Added in: v20.4.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <p>Enables timer mocking for the specified timers.</p>
 <ul>
-<li><code>timers</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="type">&#x3C;Array></a> An optional array containing the timers to mock.
-The currently supported timer values are <code>'setInterval'</code>, <code>'setTimeout'</code>,
-and <code>'setImmediate'</code>.  If no value is provided, all timers (<code>'setInterval'</code>,
-<code>'clearInterval'</code>, <code>'setTimeout'</code>, <code>'clearTimeout'</code>, <code>'setImmediate'</code>,
-and <code>'clearImmediate'</code>) will be mocked by default.</li>
+<li><code>enableOptions</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> Optional configuration options for enabling timer
+mocking. The following properties are supported:
+<ul>
+<li><code>apis</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="type">&#x3C;Array></a> An optional array containing the timers to mock.
+The currently supported timer values are <code>'setInterval'</code>, <code>'setTimeout'</code>, <code>'setImmediate'</code>,
+and <code>'Date'</code>. <strong>Default:</strong> <code>['setInterval', 'setTimeout', 'setImmediate', 'Date']</code>.
+If no array is provided, all time related APIs (<code>'setInterval'</code>, <code>'clearInterval'</code>,
+<code>'setTimeout'</code>, <code>'clearTimeout'</code>, and <code>'Date'</code>) will be mocked by default.</li>
+<li><code>now</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date" class="type">&#x3C;Date></a> An optional number or Date object representing the
+initial time (in milliseconds) to use as the value
+for <code>Date.now()</code>. <strong>Default:</strong> <code>0</code>.</li>
+</ul>
+</li>
 </ul>
 <p><strong>Note:</strong> When you enable mocking for a specific timer, its associated
 clear function will also be implicitly mocked.</p>
-<p>Example usage:</p>
+<p><strong>Note:</strong> Mocking <code>Date</code> will affect the behavior of the mocked timers
+as they use the same internal clock.</p>
+<p>Example usage without setting initial time:</p>
 
-<pre class="with-38-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { mock } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test'</span>;
-mock.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>([<span class="hljs-string">'setInterval'</span>]);</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { mock } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:test'</span>);
-mock.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>([<span class="hljs-string">'setInterval'</span>]);</code><button class="copy-button">copy</button></pre>
+<pre class="with-46-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { mock } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test'</span>;
+mock.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'setInterval'</span>] });</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { mock } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:test'</span>);
+mock.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'setInterval'</span>] });</code><button class="copy-button">copy</button></pre>
 <p>The above example enables mocking for the <code>setInterval</code> timer and
 implicitly mocks the <code>clearInterval</code> function. Only the <code>setInterval</code>
 and <code>clearInterval</code> functions from <a href="./timers.html">node:timers</a>,
 <a href="./timers.html#timers-promises-api">node:timers/promises</a>, and
 <code>globalThis</code> will be mocked.</p>
+<p>Example usage with initial time set</p>
+
+<pre class="with-50-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { mock } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test'</span>;
+mock.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'Date'</span>], <span class="hljs-attr">now</span>: <span class="hljs-number">1000</span> });</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { mock } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:test'</span>);
+mock.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'Date'</span>], <span class="hljs-attr">now</span>: <span class="hljs-number">1000</span> });</code><button class="copy-button">copy</button></pre>
+<p>Example usage with initial Date object as time set</p>
+
+<pre class="with-56-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { mock } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test'</span>;
+mock.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'Date'</span>], <span class="hljs-attr">now</span>: <span class="hljs-keyword">new</span> <span class="hljs-title class_">Date</span>() });</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { mock } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:test'</span>);
+mock.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'Date'</span>], <span class="hljs-attr">now</span>: <span class="hljs-keyword">new</span> <span class="hljs-title class_">Date</span>() });</code><button class="copy-button">copy</button></pre>
 <p>Alternatively, if you call <code>mock.timers.enable()</code> without any parameters:</p>
 <p>All timers (<code>'setInterval'</code>, <code>'clearInterval'</code>, <code>'setTimeout'</code>, and <code>'clearTimeout'</code>)
 will be mocked. The <code>setInterval</code>, <code>clearInterval</code>, <code>setTimeout</code>, and <code>clearTimeout</code>
 functions from <code>node:timers</code>, <code>node:timers/promises</code>,
-and <code>globalThis</code> will be mocked.</p>
+and <code>globalThis</code> will be mocked. As well as the global <code>Date</code> object.</p>
 <h4><code>timers.reset()</code><span><a class="mark" href="#timersreset" id="timersreset">#</a></span><a aria-hidden="true" class="legacy" id="test_timers_reset"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.19.0</span>
+<span>Added in: v20.4.0</span>
 </div>
 <p>This function restores the default behavior of all mocks that were previously
 created by this  <code>MockTimers</code> instance and disassociates the mocks
@@ -1808,14 +2157,14 @@ from the  <code>MockTracker</code> instance.</p>
 <p><strong>Note:</strong> After each test completes, this function is called on
 the test context's  <code>MockTracker</code>.</p>
 
-<pre class="with-38-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { mock } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test'</span>;
+<pre class="with-38-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { mock } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test'</span>;
 mock.<span class="hljs-property">timers</span>.<span class="hljs-title function_">reset</span>();</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { mock } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:test'</span>);
 mock.<span class="hljs-property">timers</span>.<span class="hljs-title function_">reset</span>();</code><button class="copy-button">copy</button></pre>
 <h4><code>timers[Symbol.dispose]()</code><span><a class="mark" href="#timerssymboldispose" id="timerssymboldispose">#</a></span><a aria-hidden="true" class="legacy" id="test_timers_symbol_dispose"></a></h4>
 <p>Calls <code>timers.reset()</code>.</p>
 <h4><code>timers.tick(milliseconds)</code><span><a class="mark" href="#timerstickmilliseconds" id="timerstickmilliseconds">#</a></span><a aria-hidden="true" class="legacy" id="test_timers_tick_milliseconds"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.19.0</span>
+<span>Added in: v20.4.0</span>
 </div>
 <p>Advances time for all mocked timers.</p>
 <ul>
@@ -1829,13 +2178,13 @@ only supported for web compatibility reasons.</p>
 by using <code>.tick</code> advances in
 time triggering all pending timers.</p>
 
-<pre class="with-38-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'node:assert'</span>;
+<pre class="with-38-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'node:assert'</span>;
 <span class="hljs-keyword">import</span> { test } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test'</span>;
 
 <span class="hljs-title function_">test</span>(<span class="hljs-string">'mocks setTimeout to be executed synchronously without having to actually wait for it'</span>, <span class="hljs-function">(<span class="hljs-params">context</span>) =></span> {
   <span class="hljs-keyword">const</span> fn = context.<span class="hljs-property">mock</span>.<span class="hljs-title function_">fn</span>();
 
-  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>([<span class="hljs-string">'setTimeout'</span>]);
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'setTimeout'</span>] });
 
   <span class="hljs-built_in">setTimeout</span>(fn, <span class="hljs-number">9999</span>);
 
@@ -1850,7 +2199,7 @@ time triggering all pending timers.</p>
 
 <span class="hljs-title function_">test</span>(<span class="hljs-string">'mocks setTimeout to be executed synchronously without having to actually wait for it'</span>, <span class="hljs-function">(<span class="hljs-params">context</span>) =></span> {
   <span class="hljs-keyword">const</span> fn = context.<span class="hljs-property">mock</span>.<span class="hljs-title function_">fn</span>();
-  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>([<span class="hljs-string">'setTimeout'</span>]);
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'setTimeout'</span>] });
 
   <span class="hljs-built_in">setTimeout</span>(fn, <span class="hljs-number">9999</span>);
   assert.<span class="hljs-title function_">strictEqual</span>(fn.<span class="hljs-property">mock</span>.<span class="hljs-title function_">callCount</span>(), <span class="hljs-number">0</span>);
@@ -1862,12 +2211,12 @@ time triggering all pending timers.</p>
 });</code><button class="copy-button">copy</button></pre>
 <p>Alternativelly, the <code>.tick</code> function can be called many times</p>
 
-<pre class="with-38-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'node:assert'</span>;
+<pre class="with-38-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'node:assert'</span>;
 <span class="hljs-keyword">import</span> { test } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test'</span>;
 
 <span class="hljs-title function_">test</span>(<span class="hljs-string">'mocks setTimeout to be executed synchronously without having to actually wait for it'</span>, <span class="hljs-function">(<span class="hljs-params">context</span>) =></span> {
   <span class="hljs-keyword">const</span> fn = context.<span class="hljs-property">mock</span>.<span class="hljs-title function_">fn</span>();
-  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>([<span class="hljs-string">'setTimeout'</span>]);
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'setTimeout'</span>] });
   <span class="hljs-keyword">const</span> nineSecs = <span class="hljs-number">9000</span>;
   <span class="hljs-built_in">setTimeout</span>(fn, nineSecs);
 
@@ -1882,7 +2231,7 @@ time triggering all pending timers.</p>
 
 <span class="hljs-title function_">test</span>(<span class="hljs-string">'mocks setTimeout to be executed synchronously without having to actually wait for it'</span>, <span class="hljs-function">(<span class="hljs-params">context</span>) =></span> {
   <span class="hljs-keyword">const</span> fn = context.<span class="hljs-property">mock</span>.<span class="hljs-title function_">fn</span>();
-  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>([<span class="hljs-string">'setTimeout'</span>]);
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'setTimeout'</span>] });
   <span class="hljs-keyword">const</span> nineSecs = <span class="hljs-number">9000</span>;
   <span class="hljs-built_in">setTimeout</span>(fn, nineSecs);
 
@@ -1893,18 +2242,53 @@ time triggering all pending timers.</p>
 
   assert.<span class="hljs-title function_">strictEqual</span>(fn.<span class="hljs-property">mock</span>.<span class="hljs-title function_">callCount</span>(), <span class="hljs-number">1</span>);
 });</code><button class="copy-button">copy</button></pre>
+<p>Advancing time using <code>.tick</code> will also advance the time for any <code>Date</code> object
+created after the mock was enabled (if <code>Date</code> was also set to be mocked).</p>
+
+<pre class="with-38-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'node:assert'</span>;
+<span class="hljs-keyword">import</span> { test } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test'</span>;
+
+<span class="hljs-title function_">test</span>(<span class="hljs-string">'mocks setTimeout to be executed synchronously without having to actually wait for it'</span>, <span class="hljs-function">(<span class="hljs-params">context</span>) =></span> {
+  <span class="hljs-keyword">const</span> fn = context.<span class="hljs-property">mock</span>.<span class="hljs-title function_">fn</span>();
+
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'setTimeout'</span>, <span class="hljs-string">'Date'</span>] });
+  <span class="hljs-built_in">setTimeout</span>(fn, <span class="hljs-number">9999</span>);
+
+  assert.<span class="hljs-title function_">strictEqual</span>(fn.<span class="hljs-property">mock</span>.<span class="hljs-title function_">callCount</span>(), <span class="hljs-number">0</span>);
+  assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), <span class="hljs-number">0</span>);
+
+  <span class="hljs-comment">// Advance in time</span>
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">tick</span>(<span class="hljs-number">9999</span>);
+  assert.<span class="hljs-title function_">strictEqual</span>(fn.<span class="hljs-property">mock</span>.<span class="hljs-title function_">callCount</span>(), <span class="hljs-number">1</span>);
+  assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), <span class="hljs-number">9999</span>);
+});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> assert = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:assert'</span>);
+<span class="hljs-keyword">const</span> { test } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:test'</span>);
+
+<span class="hljs-title function_">test</span>(<span class="hljs-string">'mocks setTimeout to be executed synchronously without having to actually wait for it'</span>, <span class="hljs-function">(<span class="hljs-params">context</span>) =></span> {
+  <span class="hljs-keyword">const</span> fn = context.<span class="hljs-property">mock</span>.<span class="hljs-title function_">fn</span>();
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'setTimeout'</span>, <span class="hljs-string">'Date'</span>] });
+
+  <span class="hljs-built_in">setTimeout</span>(fn, <span class="hljs-number">9999</span>);
+  assert.<span class="hljs-title function_">strictEqual</span>(fn.<span class="hljs-property">mock</span>.<span class="hljs-title function_">callCount</span>(), <span class="hljs-number">0</span>);
+  assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), <span class="hljs-number">0</span>);
+
+  <span class="hljs-comment">// Advance in time</span>
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">tick</span>(<span class="hljs-number">9999</span>);
+  assert.<span class="hljs-title function_">strictEqual</span>(fn.<span class="hljs-property">mock</span>.<span class="hljs-title function_">callCount</span>(), <span class="hljs-number">1</span>);
+  assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), <span class="hljs-number">9999</span>);
+});</code><button class="copy-button">copy</button></pre>
 <h5>Using clear functions<span><a class="mark" href="#using-clear-functions" id="using-clear-functions">#</a></span><a aria-hidden="true" class="legacy" id="test_using_clear_functions"></a></h5>
 <p>As mentioned, all clear functions from timers (<code>clearTimeout</code> and <code>clearInterval</code>)
 are implicity mocked. Take a look at this example using <code>setTimeout</code>:</p>
 
-<pre class="with-38-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'node:assert'</span>;
+<pre class="with-38-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'node:assert'</span>;
 <span class="hljs-keyword">import</span> { test } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test'</span>;
 
 <span class="hljs-title function_">test</span>(<span class="hljs-string">'mocks setTimeout to be executed synchronously without having to actually wait for it'</span>, <span class="hljs-function">(<span class="hljs-params">context</span>) =></span> {
   <span class="hljs-keyword">const</span> fn = context.<span class="hljs-property">mock</span>.<span class="hljs-title function_">fn</span>();
 
   <span class="hljs-comment">// Optionally choose what to mock</span>
-  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>([<span class="hljs-string">'setTimeout'</span>]);
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'setTimeout'</span>] });
   <span class="hljs-keyword">const</span> id = <span class="hljs-built_in">setTimeout</span>(fn, <span class="hljs-number">9999</span>);
 
   <span class="hljs-comment">// Implicity mocked as well</span>
@@ -1920,7 +2304,7 @@ are implicity mocked. Take a look at this example using <code>setTimeout</code>:
   <span class="hljs-keyword">const</span> fn = context.<span class="hljs-property">mock</span>.<span class="hljs-title function_">fn</span>();
 
   <span class="hljs-comment">// Optionally choose what to mock</span>
-  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>([<span class="hljs-string">'setTimeout'</span>]);
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'setTimeout'</span>] });
   <span class="hljs-keyword">const</span> id = <span class="hljs-built_in">setTimeout</span>(fn, <span class="hljs-number">9999</span>);
 
   <span class="hljs-comment">// Implicity mocked as well</span>
@@ -1938,7 +2322,7 @@ and timers from the Node.js global context are enabled:</p>
 <code>import { setTimeout } from 'node:timers'</code> is currently
 not supported by this API.</p>
 
-<pre class="with-38-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'node:assert'</span>;
+<pre class="with-38-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'node:assert'</span>;
 <span class="hljs-keyword">import</span> { test } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test'</span>;
 <span class="hljs-keyword">import</span> nodeTimers <span class="hljs-keyword">from</span> <span class="hljs-string">'node:timers'</span>;
 <span class="hljs-keyword">import</span> nodeTimersPromises <span class="hljs-keyword">from</span> <span class="hljs-string">'node:timers/promises'</span>;
@@ -1949,7 +2333,7 @@ not supported by this API.</p>
   <span class="hljs-keyword">const</span> nodeTimerPromiseSpy = context.<span class="hljs-property">mock</span>.<span class="hljs-title function_">fn</span>();
 
   <span class="hljs-comment">// Optionally choose what to mock</span>
-  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>([<span class="hljs-string">'setTimeout'</span>]);
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'setTimeout'</span>] });
   <span class="hljs-built_in">setTimeout</span>(globalTimeoutObjectSpy, <span class="hljs-number">9999</span>);
   nodeTimers.<span class="hljs-built_in">setTimeout</span>(nodeTimerSpy, <span class="hljs-number">9999</span>);
 
@@ -1972,7 +2356,7 @@ not supported by this API.</p>
   <span class="hljs-keyword">const</span> nodeTimerPromiseSpy = context.<span class="hljs-property">mock</span>.<span class="hljs-title function_">fn</span>();
 
   <span class="hljs-comment">// Optionally choose what to mock</span>
-  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>([<span class="hljs-string">'setTimeout'</span>]);
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'setTimeout'</span>] });
   <span class="hljs-built_in">setTimeout</span>(globalTimeoutObjectSpy, <span class="hljs-number">9999</span>);
   nodeTimers.<span class="hljs-built_in">setTimeout</span>(nodeTimerSpy, <span class="hljs-number">9999</span>);
 
@@ -1988,11 +2372,11 @@ not supported by this API.</p>
 <p>In Node.js, <code>setInterval</code> from <a href="./timers.html#timers-promises-api">node:timers/promises</a>
 is an <code>AsyncGenerator</code> and is also supported by this API:</p>
 
-<pre class="with-38-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'node:assert'</span>;
+<pre class="with-38-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'node:assert'</span>;
 <span class="hljs-keyword">import</span> { test } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test'</span>;
 <span class="hljs-keyword">import</span> nodeTimersPromises <span class="hljs-keyword">from</span> <span class="hljs-string">'node:timers/promises'</span>;
 <span class="hljs-title function_">test</span>(<span class="hljs-string">'should tick five times testing a real use case'</span>, <span class="hljs-keyword">async</span> (context) => {
-  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>([<span class="hljs-string">'setInterval'</span>]);
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'setInterval'</span>] });
 
   <span class="hljs-keyword">const</span> expectedIterations = <span class="hljs-number">3</span>;
   <span class="hljs-keyword">const</span> interval = <span class="hljs-number">1000</span>;
@@ -2020,7 +2404,7 @@ is an <code>AsyncGenerator</code> and is also supported by this API:</p>
 <span class="hljs-keyword">const</span> { test } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:test'</span>);
 <span class="hljs-keyword">const</span> nodeTimersPromises = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:timers/promises'</span>);
 <span class="hljs-title function_">test</span>(<span class="hljs-string">'should tick five times testing a real use case'</span>, <span class="hljs-keyword">async</span> (context) => {
-  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>([<span class="hljs-string">'setInterval'</span>]);
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'setInterval'</span>] });
 
   <span class="hljs-keyword">const</span> expectedIterations = <span class="hljs-number">3</span>;
   <span class="hljs-keyword">const</span> interval = <span class="hljs-number">1000</span>;
@@ -2047,17 +2431,18 @@ is an <code>AsyncGenerator</code> and is also supported by this API:</p>
 });</code><button class="copy-button">copy</button></pre>
 <h4><code>timers.runAll()</code><span><a class="mark" href="#timersrunall" id="timersrunall">#</a></span><a aria-hidden="true" class="legacy" id="test_timers_runall"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.19.0</span>
+<span>Added in: v20.4.0</span>
 </div>
-<p>Triggers all pending mocked timers immediately.</p>
+<p>Triggers all pending mocked timers immediately. If the <code>Date</code> object is also
+mocked, it will also advance the <code>Date</code> object to the furthest timer's time.</p>
 <p>The example below triggers all pending timers immediately,
 causing them to execute without any delay.</p>
 
-<pre class="with-38-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'node:assert'</span>;
+<pre class="with-38-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'node:assert'</span>;
 <span class="hljs-keyword">import</span> { test } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test'</span>;
 
 <span class="hljs-title function_">test</span>(<span class="hljs-string">'runAll functions following the given order'</span>, <span class="hljs-function">(<span class="hljs-params">context</span>) =></span> {
-  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>([<span class="hljs-string">'setTimeout'</span>]);
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'setTimeout'</span>, <span class="hljs-string">'Date'</span>] });
   <span class="hljs-keyword">const</span> results = [];
   <span class="hljs-built_in">setTimeout</span>(<span class="hljs-function">() =></span> results.<span class="hljs-title function_">push</span>(<span class="hljs-number">1</span>), <span class="hljs-number">9999</span>);
 
@@ -2069,13 +2454,14 @@ causing them to execute without any delay.</p>
   assert.<span class="hljs-title function_">deepStrictEqual</span>(results, []);
 
   context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">runAll</span>();
-
   assert.<span class="hljs-title function_">deepStrictEqual</span>(results, [<span class="hljs-number">3</span>, <span class="hljs-number">2</span>, <span class="hljs-number">1</span>]);
+  <span class="hljs-comment">// The Date object is also advanced to the furthest timer's time</span>
+  assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), <span class="hljs-number">9999</span>);
 });</code><code class="language-js cjs"><span class="hljs-keyword">const</span> assert = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:assert'</span>);
 <span class="hljs-keyword">const</span> { test } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:test'</span>);
 
 <span class="hljs-title function_">test</span>(<span class="hljs-string">'runAll functions following the given order'</span>, <span class="hljs-function">(<span class="hljs-params">context</span>) =></span> {
-  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>([<span class="hljs-string">'setTimeout'</span>]);
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'setTimeout'</span>, <span class="hljs-string">'Date'</span>] });
   <span class="hljs-keyword">const</span> results = [];
   <span class="hljs-built_in">setTimeout</span>(<span class="hljs-function">() =></span> results.<span class="hljs-title function_">push</span>(<span class="hljs-number">1</span>), <span class="hljs-number">9999</span>);
 
@@ -2087,19 +2473,87 @@ causing them to execute without any delay.</p>
   assert.<span class="hljs-title function_">deepStrictEqual</span>(results, []);
 
   context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">runAll</span>();
-
   assert.<span class="hljs-title function_">deepStrictEqual</span>(results, [<span class="hljs-number">3</span>, <span class="hljs-number">2</span>, <span class="hljs-number">1</span>]);
+  <span class="hljs-comment">// The Date object is also advanced to the furthest timer's time</span>
+  assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), <span class="hljs-number">9999</span>);
 });</code><button class="copy-button">copy</button></pre>
 <p><strong>Note:</strong> The <code>runAll()</code> function is specifically designed for
 triggering timers in the context of timer mocking.
 It does not have any effect on real-time system
 clocks or actual timers outside of the mocking environment.</p>
+<h4><code>timers.setTime(milliseconds)</code><span><a class="mark" href="#timerssettimemilliseconds" id="timerssettimemilliseconds">#</a></span><a aria-hidden="true" class="legacy" id="test_timers_settime_milliseconds"></a></h4>
+<div class="api_metadata">
+<span>Added in: v20.11.0</span>
+</div>
+<p>Sets the current Unix timestamp that will be used as reference for any mocked
+<code>Date</code> objects.</p>
+
+<pre class="with-38-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'node:assert'</span>;
+<span class="hljs-keyword">import</span> { test } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test'</span>;
+
+<span class="hljs-title function_">test</span>(<span class="hljs-string">'runAll functions following the given order'</span>, <span class="hljs-function">(<span class="hljs-params">context</span>) =></span> {
+  <span class="hljs-keyword">const</span> now = <span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>();
+  <span class="hljs-keyword">const</span> setTime = <span class="hljs-number">1000</span>;
+  <span class="hljs-comment">// Date.now is not mocked</span>
+  assert.<span class="hljs-title function_">deepStrictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), now);
+
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'Date'</span>] });
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">setTime</span>(setTime);
+  <span class="hljs-comment">// Date.now is now 1000</span>
+  assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), setTime);
+});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> assert = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:assert'</span>);
+<span class="hljs-keyword">const</span> { test } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:test'</span>);
+
+<span class="hljs-title function_">test</span>(<span class="hljs-string">'setTime replaces current time'</span>, <span class="hljs-function">(<span class="hljs-params">context</span>) =></span> {
+  <span class="hljs-keyword">const</span> now = <span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>();
+  <span class="hljs-keyword">const</span> setTime = <span class="hljs-number">1000</span>;
+  <span class="hljs-comment">// Date.now is not mocked</span>
+  assert.<span class="hljs-title function_">deepStrictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), now);
+
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'Date'</span>] });
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">setTime</span>(setTime);
+  <span class="hljs-comment">// Date.now is now 1000</span>
+  assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), setTime);
+});</code><button class="copy-button">copy</button></pre>
+<h5>Dates and Timers working together<span><a class="mark" href="#dates-and-timers-working-together" id="dates-and-timers-working-together">#</a></span><a aria-hidden="true" class="legacy" id="test_dates_and_timers_working_together"></a></h5>
+<p>Dates and timer objects are dependent on each other. If you use <code>setTime()</code> to
+pass the current time to the mocked <code>Date</code> object, the set timers with
+<code>setTimeout</code> and <code>setInterval</code> will <strong>not</strong> be affected.</p>
+<p>However, the <code>tick</code> method <strong>will</strong> advanced the mocked <code>Date</code> object.</p>
+
+<pre class="with-38-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'node:assert'</span>;
+<span class="hljs-keyword">import</span> { test } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:test'</span>;
+
+<span class="hljs-title function_">test</span>(<span class="hljs-string">'runAll functions following the given order'</span>, <span class="hljs-function">(<span class="hljs-params">context</span>) =></span> {
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'setTimeout'</span>, <span class="hljs-string">'Date'</span>] });
+  <span class="hljs-keyword">const</span> results = [];
+  <span class="hljs-built_in">setTimeout</span>(<span class="hljs-function">() =></span> results.<span class="hljs-title function_">push</span>(<span class="hljs-number">1</span>), <span class="hljs-number">9999</span>);
+
+  assert.<span class="hljs-title function_">deepStrictEqual</span>(results, []);
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">setTime</span>(<span class="hljs-number">12000</span>);
+  assert.<span class="hljs-title function_">deepStrictEqual</span>(results, []);
+  <span class="hljs-comment">// The date is advanced but the timers don't tick</span>
+  assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), <span class="hljs-number">12000</span>);
+});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> assert = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:assert'</span>);
+<span class="hljs-keyword">const</span> { test } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:test'</span>);
+
+<span class="hljs-title function_">test</span>(<span class="hljs-string">'runAll functions following the given order'</span>, <span class="hljs-function">(<span class="hljs-params">context</span>) =></span> {
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">enable</span>({ <span class="hljs-attr">apis</span>: [<span class="hljs-string">'setTimeout'</span>, <span class="hljs-string">'Date'</span>] });
+  <span class="hljs-keyword">const</span> results = [];
+  <span class="hljs-built_in">setTimeout</span>(<span class="hljs-function">() =></span> results.<span class="hljs-title function_">push</span>(<span class="hljs-number">1</span>), <span class="hljs-number">9999</span>);
+
+  assert.<span class="hljs-title function_">deepStrictEqual</span>(results, []);
+  context.<span class="hljs-property">mock</span>.<span class="hljs-property">timers</span>.<span class="hljs-title function_">setTime</span>(<span class="hljs-number">12000</span>);
+  assert.<span class="hljs-title function_">deepStrictEqual</span>(results, []);
+  <span class="hljs-comment">// The date is advanced but the timers don't tick</span>
+  assert.<span class="hljs-title function_">strictEqual</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-title function_">now</span>(), <span class="hljs-number">12000</span>);
+});</code><button class="copy-button">copy</button></pre>
 </section><section><h3>Class: <code>TestsStream</code><span><a class="mark" href="#class-testsstream" id="class-testsstream">#</a></span><a aria-hidden="true" class="legacy" id="test_class_testsstream"></a></h3>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.17.0</td>
+<tr><td>v20.0.0, v19.9.0, v18.17.0</td>
 <td><p>added type to test:pass and test:fail events for when the test is a suite.</p></td></tr>
 <tr><td>v18.9.0, v16.19.0</td>
 <td><p><span>Added in: v18.9.0, v16.19.0</span></p></td></tr>
@@ -2107,11 +2561,13 @@ clocks or actual timers outside of the mocking environment.</p>
 </details>
 </div>
 <ul>
-<li>Extends <a href="webstreams.html#class-readablestream" class="type">&#x3C;ReadableStream></a></li>
+<li>Extends <a href="stream.html#class-streamreadable" class="type">&#x3C;Readable></a></li>
 </ul>
 <p>A successful call to <a href="#runoptions"><code>run()</code></a> method will return a new <a href="test.html#class-testsstream" class="type">&#x3C;TestsStream></a>
 object, streaming a series of events representing the execution of the tests.
 <code>TestsStream</code> will emit events, in the order of the tests definition</p>
+<p>Some of the events are guaranteed to be emitted in the same order as the tests
+are defined, while others are emitted in the order that the tests execute.</p>
 <h4>Event: <code>'test:coverage'</code><span><a class="mark" href="#event-testcoverage" id="event-testcoverage">#</a></span><a aria-hidden="true" class="legacy" id="test_event_test_coverage"></a></h4>
 <ul>
 <li><code>data</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
@@ -2131,8 +2587,27 @@ report is an object with the following schema:
 <li><code>coveredLinePercent</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The percentage of lines covered.</li>
 <li><code>coveredBranchPercent</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The percentage of branches covered.</li>
 <li><code>coveredFunctionPercent</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The percentage of functions covered.</li>
-<li><code>uncoveredLineNumbers</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="type">&#x3C;Array></a> An array of integers representing line
-numbers that are uncovered.</li>
+<li><code>functions</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="type">&#x3C;Array></a> An array of functions representing function
+coverage.
+<ul>
+<li><code>name</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> The name of the function.</li>
+<li><code>line</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The line number where the function is defined.</li>
+<li><code>count</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The number of times the function was called.</li>
+</ul>
+</li>
+<li><code>branches</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="type">&#x3C;Array></a> An array of branches representing branch coverage.
+<ul>
+<li><code>line</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The line number where the branch is defined.</li>
+<li><code>count</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The number of times the branch was taken.</li>
+</ul>
+</li>
+<li><code>lines</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="type">&#x3C;Array></a> An array of lines representing line
+numbers and the number of times they were covered.
+<ul>
+<li><code>line</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The line number.</li>
+<li><code>count</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The number of times the line was covered.</li>
+</ul>
+</li>
 </ul>
 </li>
 <li><code>totals</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> An object containing a summary of coverage for all
@@ -2159,6 +2634,42 @@ changed the working directory of the Node.js process.</li>
 </li>
 </ul>
 <p>Emitted when code coverage is enabled and all tests have completed.</p>
+<h4>Event: <code>'test:complete'</code><span><a class="mark" href="#event-testcomplete" id="event-testcomplete">#</a></span><a aria-hidden="true" class="legacy" id="test_event_test_complete"></a></h4>
+<ul>
+<li><code>data</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
+<ul>
+<li><code>column</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type" class="type">&#x3C;undefined></a> The column number where the test is defined, or
+<code>undefined</code> if the test was run through the REPL.</li>
+<li><code>details</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> Additional execution metadata.
+<ul>
+<li><code>passed</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> Whether the test passed or not.</li>
+<li><code>duration_ms</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The duration of the test in milliseconds.</li>
+<li><code>error</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error" class="type">&#x3C;Error></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type" class="type">&#x3C;undefined></a> An error wrapping the error thrown by the test
+if it did not pass.
+<ul>
+<li><code>cause</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error" class="type">&#x3C;Error></a> The actual error thrown by the test.</li>
+</ul>
+</li>
+<li><code>type</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type" class="type">&#x3C;undefined></a> The type of the test, used to denote whether
+this is a suite.</li>
+</ul>
+</li>
+<li><code>file</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type" class="type">&#x3C;undefined></a> The path of the test file,
+<code>undefined</code> if test was run through the REPL.</li>
+<li><code>line</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type" class="type">&#x3C;undefined></a> The line number where the test is defined, or
+<code>undefined</code> if the test was run through the REPL.</li>
+<li><code>name</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> The test name.</li>
+<li><code>nesting</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The nesting level of the test.</li>
+<li><code>testNumber</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The ordinal number of the test.</li>
+<li><code>todo</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type" class="type">&#x3C;undefined></a> Present if <a href="#contexttodomessage"><code>context.todo</code></a> is called</li>
+<li><code>skip</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type" class="type">&#x3C;undefined></a> Present if <a href="#contextskipmessage"><code>context.skip</code></a> is called</li>
+</ul>
+</li>
+</ul>
+<p>Emitted when a test completes its execution.
+This event is not emitted in the same order as the tests are
+defined.
+The corresponding declaration ordered events are <code>'test:pass'</code> and <code>'test:fail'</code>.</p>
 <h4>Event: <code>'test:dequeue'</code><span><a class="mark" href="#event-testdequeue" id="event-testdequeue">#</a></span><a aria-hidden="true" class="legacy" id="test_event_test_dequeue"></a></h4>
 <ul>
 <li><code>data</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
@@ -2174,7 +2685,9 @@ changed the working directory of the Node.js process.</li>
 </ul>
 </li>
 </ul>
-<p>Emitted when a test is dequeued, right before it is executed.</p>
+<p>Emitted when a test is dequeued, right before it is executed.
+This event is not guaranteed to be emitted in the same order as the tests are
+defined. The corresponding declaration ordered event is <code>'test:start'</code>.</p>
 <h4>Event: <code>'test:diagnostic'</code><span><a class="mark" href="#event-testdiagnostic" id="event-testdiagnostic">#</a></span><a aria-hidden="true" class="legacy" id="test_event_test_diagnostic"></a></h4>
 <ul>
 <li><code>data</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
@@ -2190,7 +2703,9 @@ changed the working directory of the Node.js process.</li>
 </ul>
 </li>
 </ul>
-<p>Emitted when <a href="#contextdiagnosticmessage"><code>context.diagnostic</code></a> is called.</p>
+<p>Emitted when <a href="#contextdiagnosticmessage"><code>context.diagnostic</code></a> is called.
+This event is guaranteed to be emitted in the same order as the tests are
+defined.</p>
 <h4>Event: <code>'test:enqueue'</code><span><a class="mark" href="#event-testenqueue" id="event-testenqueue">#</a></span><a aria-hidden="true" class="legacy" id="test_event_test_enqueue"></a></h4>
 <ul>
 <li><code>data</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
@@ -2237,7 +2752,10 @@ this is a suite.</li>
 </ul>
 </li>
 </ul>
-<p>Emitted when a test fails.</p>
+<p>Emitted when a test fails.
+This event is guaranteed to be emitted in the same order as the tests are
+defined.
+The corresponding execution ordered event is <code>'test:complete'</code>.</p>
 <h4>Event: <code>'test:pass'</code><span><a class="mark" href="#event-testpass" id="event-testpass">#</a></span><a aria-hidden="true" class="legacy" id="test_event_test_pass"></a></h4>
 <ul>
 <li><code>data</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
@@ -2263,7 +2781,10 @@ this is a suite.</li>
 </ul>
 </li>
 </ul>
-<p>Emitted when a test passes.</p>
+<p>Emitted when a test passes.
+This event is guaranteed to be emitted in the same order as the tests are
+defined.
+The corresponding execution ordered event is <code>'test:complete'</code>.</p>
 <h4>Event: <code>'test:plan'</code><span><a class="mark" href="#event-testplan" id="event-testplan">#</a></span><a aria-hidden="true" class="legacy" id="test_event_test_plan"></a></h4>
 <ul>
 <li><code>data</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
@@ -2279,7 +2800,9 @@ this is a suite.</li>
 </ul>
 </li>
 </ul>
-<p>Emitted when all subtests have completed for a given test.</p>
+<p>Emitted when all subtests have completed for a given test.
+This event is guaranteed to be emitted in the same order as the tests are
+defined.</p>
 <h4>Event: <code>'test:start'</code><span><a class="mark" href="#event-teststart" id="event-teststart">#</a></span><a aria-hidden="true" class="legacy" id="test_event_test_start"></a></h4>
 <ul>
 <li><code>data</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
@@ -2297,7 +2820,8 @@ this is a suite.</li>
 </ul>
 <p>Emitted when a test starts reporting its own and its subtests status.
 This event is guaranteed to be emitted in the same order as the tests are
-defined.</p>
+defined.
+The corresponding execution ordered event is <code>'test:dequeue'</code>.</p>
 <h4>Event: <code>'test:stderr'</code><span><a class="mark" href="#event-teststderr" id="event-teststderr">#</a></span><a aria-hidden="true" class="legacy" id="test_event_test_stderr"></a></h4>
 <ul>
 <li><code>data</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
@@ -2312,7 +2836,9 @@ defined.</p>
 </li>
 </ul>
 <p>Emitted when a running test writes to <code>stderr</code>.
-This event is only emitted if <code>--test</code> flag is passed.</p>
+This event is only emitted if <code>--test</code> flag is passed.
+This event is not guaranteed to be emitted in the same order as the tests are
+defined.</p>
 <h4>Event: <code>'test:stdout'</code><span><a class="mark" href="#event-teststdout" id="event-teststdout">#</a></span><a aria-hidden="true" class="legacy" id="test_event_test_stdout"></a></h4>
 <ul>
 <li><code>data</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
@@ -2327,7 +2853,9 @@ This event is only emitted if <code>--test</code> flag is passed.</p>
 </li>
 </ul>
 <p>Emitted when a running test writes to <code>stdout</code>.
-This event is only emitted if <code>--test</code> flag is passed.</p>
+This event is only emitted if <code>--test</code> flag is passed.
+This event is not guaranteed to be emitted in the same order as the tests are
+defined.</p>
 <h4>Event: <code>'test:watch:drained'</code><span><a class="mark" href="#event-testwatchdrained" id="event-testwatchdrained">#</a></span><a aria-hidden="true" class="legacy" id="test_event_test_watch_drained"></a></h4>
 <p>Emitted when no more tests are queued for execution in watch mode.</p>
 </section><section><h3>Class: <code>TestContext</code><span><a class="mark" href="#class-testcontext" id="class-testcontext">#</a></span><a aria-hidden="true" class="legacy" id="test_class_testcontext"></a></h3>
@@ -2335,10 +2863,10 @@ This event is only emitted if <code>--test</code> flag is passed.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.17.0</td>
+<tr><td>v20.1.0</td>
 <td><p>The <code>before</code> function was added to TestContext.</p></td></tr>
-<tr><td>v18.0.0</td>
-<td><p><span>Added in: v18.0.0</span></p></td></tr>
+<tr><td>v18.0.0, v16.17.0</td>
+<td><p><span>Added in: v18.0.0, v16.17.0</span></p></td></tr>
 </tbody></table>
 </details>
 </div>
@@ -2347,7 +2875,7 @@ interact with the test runner. However, the <code>TestContext</code> constructor
 exposed as part of the API.</p>
 <h4><code>context.before([fn][, options])</code><span><a class="mark" href="#contextbeforefn-options" id="contextbeforefn-options">#</a></span><a aria-hidden="true" class="legacy" id="test_context_before_fn_options"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.17.0</span>
+<span>Added in: v20.1.0</span>
 </div>
 <ul>
 <li><code>fn</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> | <a href="https://tc39.es/ecma262/#sec-async-function-constructor" class="type">&#x3C;AsyncFunction></a> The hook function. The first argument
@@ -2368,7 +2896,7 @@ If unspecified, subtests inherit this value from their parent.
 subtest of the current test.</p>
 <h4><code>context.beforeEach([fn][, options])</code><span><a class="mark" href="#contextbeforeeachfn-options" id="contextbeforeeachfn-options">#</a></span><a aria-hidden="true" class="legacy" id="test_context_beforeeach_fn_options"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.8.0</span>
+<span>Added in: v18.8.0, v16.18.0</span>
 </div>
 <ul>
 <li><code>fn</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> | <a href="https://tc39.es/ecma262/#sec-async-function-constructor" class="type">&#x3C;AsyncFunction></a> The hook function. The first argument
@@ -2398,7 +2926,7 @@ before each subtest of the current test.</p>
 });</code> <button class="copy-button">copy</button></pre>
 <h4><code>context.after([fn][, options])</code><span><a class="mark" href="#contextafterfn-options" id="contextafterfn-options">#</a></span><a aria-hidden="true" class="legacy" id="test_context_after_fn_options"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.13.0</span>
+<span>Added in: v19.3.0, v18.13.0</span>
 </div>
 <ul>
 <li><code>fn</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> | <a href="https://tc39.es/ecma262/#sec-async-function-constructor" class="type">&#x3C;AsyncFunction></a> The hook function. The first argument
@@ -2423,7 +2951,7 @@ finishes.</p>
 });</code> <button class="copy-button">copy</button></pre>
 <h4><code>context.afterEach([fn][, options])</code><span><a class="mark" href="#contextaftereachfn-options" id="contextaftereachfn-options">#</a></span><a aria-hidden="true" class="legacy" id="test_context_aftereach_fn_options"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.8.0</span>
+<span>Added in: v18.8.0, v16.18.0</span>
 </div>
 <ul>
 <li><code>fn</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> | <a href="https://tc39.es/ecma262/#sec-async-function-constructor" class="type">&#x3C;AsyncFunction></a> The hook function. The first argument
@@ -2453,7 +2981,7 @@ after each subtest of the current test.</p>
 });</code> <button class="copy-button">copy</button></pre>
 <h4><code>context.diagnostic(message)</code><span><a class="mark" href="#contextdiagnosticmessage" id="contextdiagnosticmessage">#</a></span><a aria-hidden="true" class="legacy" id="test_context_diagnostic_message"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.0.0</span>
+<span>Added in: v18.0.0, v16.17.0</span>
 </div>
 <ul>
 <li><code>message</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Message to be reported.</li>
@@ -2466,12 +2994,50 @@ not return a value.</p>
 });</code> <button class="copy-button">copy</button></pre>
 <h4><code>context.name</code><span><a class="mark" href="#contextname" id="contextname">#</a></span><a aria-hidden="true" class="legacy" id="test_context_name"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.8.0</span>
+<span>Added in: v18.8.0, v16.18.0</span>
 </div>
 <p>The name of the test.</p>
+<h4><code>context.plan(count)</code><span><a class="mark" href="#contextplancount" id="contextplancount">#</a></span><a aria-hidden="true" class="legacy" id="test_context_plan_count"></a></h4>
+<div class="api_metadata">
+<span>Added in: v20.15.0</span>
+</div>
+<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
+<ul>
+<li><code>count</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The number of assertions and subtests that are expected to run.</li>
+</ul>
+<p>This function is used to set the number of assertions and subtests that are expected to run
+within the test. If the number of assertions and subtests that run does not match the
+expected count, the test will fail.</p>
+<blockquote>
+<p>Note: To make sure assertions are tracked, <code>t.assert</code> must be used instead of <code>assert</code> directly.</p>
+</blockquote>
+<pre><code class="language-js"><span class="hljs-title function_">test</span>(<span class="hljs-string">'top level test'</span>, <span class="hljs-function">(<span class="hljs-params">t</span>) =></span> {
+  t.<span class="hljs-title function_">plan</span>(<span class="hljs-number">2</span>);
+  t.<span class="hljs-property">assert</span>.<span class="hljs-title function_">ok</span>(<span class="hljs-string">'some relevant assertion here'</span>);
+  t.<span class="hljs-title function_">subtest</span>(<span class="hljs-string">'subtest'</span>, <span class="hljs-function">() =></span> {});
+});</code> <button class="copy-button">copy</button></pre>
+<p>When working with asynchronous code, the <code>plan</code> function can be used to ensure that the
+correct number of assertions are run:</p>
+<pre><code class="language-js"><span class="hljs-title function_">test</span>(<span class="hljs-string">'planning with streams'</span>, <span class="hljs-function">(<span class="hljs-params">t, done</span>) =></span> {
+  <span class="hljs-keyword">function</span>* <span class="hljs-title function_">generate</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-keyword">yield</span> <span class="hljs-string">'a'</span>;
+    <span class="hljs-keyword">yield</span> <span class="hljs-string">'b'</span>;
+    <span class="hljs-keyword">yield</span> <span class="hljs-string">'c'</span>;
+  }
+  <span class="hljs-keyword">const</span> expected = [<span class="hljs-string">'a'</span>, <span class="hljs-string">'b'</span>, <span class="hljs-string">'c'</span>];
+  t.<span class="hljs-title function_">plan</span>(expected.<span class="hljs-property">length</span>);
+  <span class="hljs-keyword">const</span> stream = <span class="hljs-title class_">Readable</span>.<span class="hljs-title function_">from</span>(<span class="hljs-title function_">generate</span>());
+  stream.<span class="hljs-title function_">on</span>(<span class="hljs-string">'data'</span>, <span class="hljs-function">(<span class="hljs-params">chunk</span>) =></span> {
+    t.<span class="hljs-property">assert</span>.<span class="hljs-title function_">strictEqual</span>(chunk, expected.<span class="hljs-title function_">shift</span>());
+  });
+
+  stream.<span class="hljs-title function_">on</span>(<span class="hljs-string">'end'</span>, <span class="hljs-function">() =></span> {
+    <span class="hljs-title function_">done</span>();
+  });
+});</code> <button class="copy-button">copy</button></pre>
 <h4><code>context.runOnly(shouldRunOnlyTests)</code><span><a class="mark" href="#contextrunonlyshouldrunonlytests" id="contextrunonlyshouldrunonlytests">#</a></span><a aria-hidden="true" class="legacy" id="test_context_runonly_shouldrunonlytests"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.0.0</span>
+<span>Added in: v18.0.0, v16.17.0</span>
 </div>
 <ul>
 <li><code>shouldRunOnlyTests</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> Whether or not to run <code>only</code> tests.</li>
@@ -2490,18 +3056,18 @@ no-op.</p>
 });</code> <button class="copy-button">copy</button></pre>
 <h4><code>context.signal</code><span><a class="mark" href="#contextsignal" id="contextsignal">#</a></span><a aria-hidden="true" class="legacy" id="test_context_signal"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.7.0</span>
+<span>Added in: v18.7.0, v16.17.0</span>
 </div>
 <ul>
-<li><a href="globals.html#class-abortsignal" class="type">&#x3C;AbortSignal></a> Can be used to abort test subtasks when the test has been
-aborted.</li>
+<li>Type: <a href="globals.html#class-abortsignal" class="type">&#x3C;AbortSignal></a></li>
 </ul>
+<p>Can be used to abort test subtasks when the test has been aborted.</p>
 <pre><code class="language-js"><span class="hljs-title function_">test</span>(<span class="hljs-string">'top level test'</span>, <span class="hljs-keyword">async</span> (t) => {
   <span class="hljs-keyword">await</span> <span class="hljs-title function_">fetch</span>(<span class="hljs-string">'some/uri'</span>, { <span class="hljs-attr">signal</span>: t.<span class="hljs-property">signal</span> });
 });</code> <button class="copy-button">copy</button></pre>
 <h4><code>context.skip([message])</code><span><a class="mark" href="#contextskipmessage" id="contextskipmessage">#</a></span><a aria-hidden="true" class="legacy" id="test_context_skip_message"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.0.0</span>
+<span>Added in: v18.0.0, v16.17.0</span>
 </div>
 <ul>
 <li><code>message</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Optional skip message.</li>
@@ -2516,7 +3082,7 @@ value.</p>
 });</code> <button class="copy-button">copy</button></pre>
 <h4><code>context.todo([message])</code><span><a class="mark" href="#contexttodomessage" id="contexttodomessage">#</a></span><a aria-hidden="true" class="legacy" id="test_context_todo_message"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.0.0</span>
+<span>Added in: v18.0.0, v16.17.0</span>
 </div>
 <ul>
 <li><code>message</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Optional <code>TODO</code> message.</li>
@@ -2533,12 +3099,12 @@ execution of the test function. This function does not return a value.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.8.0</td>
+<tr><td>v18.8.0, v16.18.0</td>
 <td><p>Add a <code>signal</code> option.</p></td></tr>
-<tr><td>v18.7.0</td>
+<tr><td>v18.7.0, v16.17.0</td>
 <td><p>Add a <code>timeout</code> option.</p></td></tr>
-<tr><td>v18.0.0</td>
-<td><p><span>Added in: v18.0.0</span></p></td></tr>
+<tr><td>v18.0.0, v16.17.0</td>
+<td><p><span>Added in: v18.0.0, v16.17.0</span></p></td></tr>
 </tbody></table>
 </details>
 </div>
@@ -2568,20 +3134,24 @@ the test is <code>TODO</code>. <strong>Default:</strong> <code>false</code>.</li
 <li><code>timeout</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> A number of milliseconds the test will fail after.
 If unspecified, subtests inherit this value from their parent.
 <strong>Default:</strong> <code>Infinity</code>.</li>
+<li><code>plan</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The number of assertions and subtests expected to be run in the test.
+If the number of assertions run in the test does not match the number
+specified in the plan, the test will fail.
+<strong>Default:</strong> <code>undefined</code>.</li>
 </ul>
 </li>
 <li><code>fn</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> | <a href="https://tc39.es/ecma262/#sec-async-function-constructor" class="type">&#x3C;AsyncFunction></a> The function under test. The first argument
 to this function is a <a href="#class-testcontext"><code>TestContext</code></a> object. If the test uses callbacks,
 the callback function is passed as the second argument. <strong>Default:</strong> A no-op
 function.</li>
-<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> Resolved with <code>undefined</code> once the test completes.</li>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> Fulfilled with <code>undefined</code> once the test completes.</li>
 </ul>
 <p>This function is used to create subtests under the current test. This function
 behaves in the same fashion as the top level <a href="#testname-options-fn"><code>test()</code></a> function.</p>
 <pre><code class="language-js"><span class="hljs-title function_">test</span>(<span class="hljs-string">'top level test'</span>, <span class="hljs-keyword">async</span> (t) => {
   <span class="hljs-keyword">await</span> t.<span class="hljs-title function_">test</span>(
     <span class="hljs-string">'This is a subtest'</span>,
-    { <span class="hljs-attr">only</span>: <span class="hljs-literal">false</span>, <span class="hljs-attr">skip</span>: <span class="hljs-literal">false</span>, <span class="hljs-attr">concurrency</span>: <span class="hljs-number">1</span>, <span class="hljs-attr">todo</span>: <span class="hljs-literal">false</span> },
+    { <span class="hljs-attr">only</span>: <span class="hljs-literal">false</span>, <span class="hljs-attr">skip</span>: <span class="hljs-literal">false</span>, <span class="hljs-attr">concurrency</span>: <span class="hljs-number">1</span>, <span class="hljs-attr">todo</span>: <span class="hljs-literal">false</span>, <span class="hljs-attr">plan</span>: <span class="hljs-number">4</span> },
     <span class="hljs-function">(<span class="hljs-params">t</span>) =></span> {
       assert.<span class="hljs-title function_">ok</span>(<span class="hljs-string">'some relevant assertion here'</span>);
     },
@@ -2589,24 +3159,24 @@ behaves in the same fashion as the top level <a href="#testname-options-fn"><cod
 });</code> <button class="copy-button">copy</button></pre>
 </section><section><h3>Class: <code>SuiteContext</code><span><a class="mark" href="#class-suitecontext" id="class-suitecontext">#</a></span><a aria-hidden="true" class="legacy" id="test_class_suitecontext"></a></h3>
 <div class="api_metadata">
-<span>Added in: v18.7.0</span>
+<span>Added in: v18.7.0, v16.17.0</span>
 </div>
 <p>An instance of <code>SuiteContext</code> is passed to each suite function in order to
 interact with the test runner. However, the <code>SuiteContext</code> constructor is not
 exposed as part of the API.</p>
 <h4><code>context.name</code><span><a class="mark" href="#contextname_1" id="contextname_1">#</a></span><a aria-hidden="true" class="legacy" id="test_context_name_1"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.8.0</span>
+<span>Added in: v18.8.0, v16.18.0</span>
 </div>
 <p>The name of the suite.</p>
 <h4><code>context.signal</code><span><a class="mark" href="#contextsignal_1" id="contextsignal_1">#</a></span><a aria-hidden="true" class="legacy" id="test_context_signal_1"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.7.0</span>
+<span>Added in: v18.7.0, v16.17.0</span>
 </div>
 <ul>
-<li><a href="globals.html#class-abortsignal" class="type">&#x3C;AbortSignal></a> Can be used to abort test subtasks when the test has been
-aborted.</li>
-</ul></section>
+<li>Type: <a href="globals.html#class-abortsignal" class="type">&#x3C;AbortSignal></a></li>
+</ul>
+<p>Can be used to abort test subtasks when the test has been aborted.</p></section>
         <!-- API END -->
       </div>
     </div>

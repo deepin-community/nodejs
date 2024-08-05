@@ -3,18 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>File system | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.15.1">
+  <title>File system | Node.js v20.15.1 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/fs.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
-  <style>@media(max-width:534px){.with-39-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:462px){.with-30-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:598px){.with-47-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:526px){.with-38-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:558px){.with-42-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:286px){.with-8-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:582px){.with-45-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:590px){.with-46-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:614px){.with-49-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:630px){.with-51-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:646px){.with-53-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}</style>
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
+  <style>@media(max-width:534px){.with-39-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:462px){.with-30-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:598px){.with-47-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:526px){.with-38-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:558px){.with-42-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:286px){.with-8-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:582px){.with-45-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:590px){.with-46-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:614px){.with-49-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:630px){.with-51-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:646px){.with-53-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}</style>
 </head>
 <body class="alt apidoc" id="api-section-fs">
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +109,7 @@
     <div id="column1" data-id="fs" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.15.1 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,11 +124,11 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.15.1</li>
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
@@ -221,6 +234,7 @@
 <li><a href="#fsmkdirpath-options-callback"><code>fs.mkdir(path[, options], callback)</code></a></li>
 <li><a href="#fsmkdtempprefix-options-callback"><code>fs.mkdtemp(prefix[, options], callback)</code></a></li>
 <li><a href="#fsopenpath-flags-mode-callback"><code>fs.open(path[, flags[, mode]], callback)</code></a></li>
+<li><span class="stability_1"><a href="#fsopenasblobpath-options"><code>fs.openAsBlob(path[, options])</code></a></span></li>
 <li><a href="#fsopendirpath-options-callback"><code>fs.opendir(path[, options], callback)</code></a></li>
 <li><a href="#fsreadfd-buffer-offset-length-position-callback"><code>fs.read(fd, buffer, offset, length, position, callback)</code></a></li>
 <li><a href="#fsreadfd-options-callback"><code>fs.read(fd[, options], callback)</code></a></li>
@@ -343,7 +357,8 @@
 <li><a href="#direntissocket"><code>dirent.isSocket()</code></a></li>
 <li><a href="#direntissymboliclink"><code>dirent.isSymbolicLink()</code></a></li>
 <li><a href="#direntname"><code>dirent.name</code></a></li>
-<li><a href="#direntpath"><code>dirent.path</code></a></li>
+<li><span class="stability_1"><a href="#direntparentpath"><code>dirent.parentPath</code></a></span></li>
+<li><span class="stability_0"><a href="#direntpath"><code>dirent.path</code></a></span></li>
 </ul>
 </li>
 <li><a href="#class-fsfswatcher">Class: <code>fs.FSWatcher</code></a>
@@ -471,7 +486,7 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Index
       </a>
 
@@ -556,10 +571,11 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/fs.html">21.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v22.x/api/fs.html">22.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/fs.html">21.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v20.x/api/fs.html">20.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v19.x/api/fs.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/fs.html">18.x <b>LTS</b></a></li>
@@ -583,7 +599,7 @@
   
             <li class="picker-header">
               <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
@@ -604,7 +620,7 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
 <li><span class="stability_2"><a href="#file-system">File system</a></span>
 <ul>
 <li><a href="#promise-example">Promise example</a></li>
@@ -706,6 +722,7 @@
 <li><a href="#fsmkdirpath-options-callback"><code>fs.mkdir(path[, options], callback)</code></a></li>
 <li><a href="#fsmkdtempprefix-options-callback"><code>fs.mkdtemp(prefix[, options], callback)</code></a></li>
 <li><a href="#fsopenpath-flags-mode-callback"><code>fs.open(path[, flags[, mode]], callback)</code></a></li>
+<li><span class="stability_1"><a href="#fsopenasblobpath-options"><code>fs.openAsBlob(path[, options])</code></a></span></li>
 <li><a href="#fsopendirpath-options-callback"><code>fs.opendir(path[, options], callback)</code></a></li>
 <li><a href="#fsreadfd-buffer-offset-length-position-callback"><code>fs.read(fd, buffer, offset, length, position, callback)</code></a></li>
 <li><a href="#fsreadfd-options-callback"><code>fs.read(fd[, options], callback)</code></a></li>
@@ -828,7 +845,8 @@
 <li><a href="#direntissocket"><code>dirent.isSocket()</code></a></li>
 <li><a href="#direntissymboliclink"><code>dirent.isSymbolicLink()</code></a></li>
 <li><a href="#direntname"><code>dirent.name</code></a></li>
-<li><a href="#direntpath"><code>dirent.path</code></a></li>
+<li><span class="stability_1"><a href="#direntparentpath"><code>dirent.parentPath</code></a></span></li>
+<li><span class="stability_0"><a href="#direntpath"><code>dirent.path</code></a></span></li>
 </ul>
 </li>
 <li><a href="#class-fsfswatcher">Class: <code>fs.FSWatcher</code></a>
@@ -952,27 +970,27 @@
 </li>
 </ul></details>
 
-      <div id="apicontent">
+      <div role="main" id="apicontent">
         <h2>File system<span><a class="mark" href="#file-system" id="file-system">#</a></span><a aria-hidden="true" class="legacy" id="fs_file_system"></a></h2>
 
 <p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
 
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.19.1/lib/fs.js">lib/fs.js</a></p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v20.15.1/lib/fs.js">lib/fs.js</a></p>
 <p>The <code>node:fs</code> module enables interacting with the file system in a
 way modeled on standard POSIX functions.</p>
 <p>To use the promise-based APIs:</p>
 
-<pre class="with-39-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> fs <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs/promises'</span>;</code><code class="language-js cjs"><span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:fs/promises'</span>);</code><button class="copy-button">copy</button></pre>
+<pre class="with-39-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> fs <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs/promises'</span>;</code><code class="language-js cjs"><span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:fs/promises'</span>);</code><button class="copy-button">copy</button></pre>
 <p>To use the callback and sync APIs:</p>
 
-<pre class="with-30-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> fs <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs'</span>;</code><code class="language-js cjs"><span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:fs'</span>);</code><button class="copy-button">copy</button></pre>
+<pre class="with-30-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> fs <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs'</span>;</code><code class="language-js cjs"><span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:fs'</span>);</code><button class="copy-button">copy</button></pre>
 <p>All file system operations have synchronous, callback, and promise-based
 forms, and are accessible using both CommonJS syntax and ES6 Modules (ESM).</p>
 <section><h3>Promise example<span><a class="mark" href="#promise-example" id="promise-example">#</a></span><a aria-hidden="true" class="legacy" id="fs_promise_example"></a></h3>
 <p>Promise-based operations return a promise that is fulfilled when the
 asynchronous operation is complete.</p>
 
-<pre class="with-47-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { unlink } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs/promises'</span>;
+<pre class="with-47-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { unlink } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs/promises'</span>;
 
 <span class="hljs-keyword">try</span> {
   <span class="hljs-keyword">await</span> <span class="hljs-title function_">unlink</span>(<span class="hljs-string">'/tmp/hello'</span>);
@@ -996,7 +1014,7 @@ the completion callback depend on the method, but the first argument is always
 reserved for an exception. If the operation is completed successfully, then
 the first argument is <code>null</code> or <code>undefined</code>.</p>
 
-<pre class="with-38-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { unlink } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs'</span>;
+<pre class="with-38-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { unlink } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs'</span>;
 
 <span class="hljs-title function_">unlink</span>(<span class="hljs-string">'/tmp/hello'</span>, <span class="hljs-function">(<span class="hljs-params">err</span>) =></span> {
   <span class="hljs-keyword">if</span> (err) <span class="hljs-keyword">throw</span> err;
@@ -1015,7 +1033,7 @@ execution time and memory allocation) is required.</p>
 execution until the operation is complete. Exceptions are thrown immediately
 and can be handled using <code>try…catch</code>, or can be allowed to bubble up.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { unlinkSync } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { unlinkSync } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs'</span>;
 
 <span class="hljs-keyword">try</span> {
   <span class="hljs-title function_">unlinkSync</span>(<span class="hljs-string">'/tmp/hello'</span>);
@@ -1076,6 +1094,8 @@ longer be used.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v20.10.0</td>
+<td><p>The <code>flush</code> option is now supported.</p></td></tr>
 <tr><td>v15.14.0, v14.18.0</td>
 <td><p>The <code>data</code> argument supports <code>AsyncIterable</code>, <code>Iterable</code>, and <code>Stream</code>.</p></td></tr>
 <tr><td>v14.0.0</td>
@@ -1090,6 +1110,8 @@ longer be used.</p>
 <li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a>
 <ul>
 <li><code>encoding</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a> <strong>Default:</strong> <code>'utf8'</code></li>
+<li><code>flush</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If <code>true</code>, the underlying file descriptor is flushed
+prior to closing it. <strong>Default:</strong> <code>false</code>.</li>
 </ul>
 </li>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> Fulfills with <code>undefined</code> upon success.</li>
@@ -1193,7 +1215,15 @@ automatically.</p>
 fd.<span class="hljs-title function_">createReadStream</span>({ <span class="hljs-attr">start</span>: <span class="hljs-number">90</span>, <span class="hljs-attr">end</span>: <span class="hljs-number">99</span> });</code> <button class="copy-button">copy</button></pre>
 <h5><code>filehandle.createWriteStream([options])</code><span><a class="mark" href="#filehandlecreatewritestreamoptions" id="filehandlecreatewritestreamoptions">#</a></span><a aria-hidden="true" class="legacy" id="fs_filehandle_createwritestream_options"></a></h5>
 <div class="api_metadata">
-<span>Added in: v16.11.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v20.10.0</td>
+<td><p>The <code>flush</code> option is now supported.</p></td></tr>
+<tr><td>v16.11.0</td>
+<td><p><span>Added in: v16.11.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
@@ -1202,6 +1232,9 @@ fd.<span class="hljs-title function_">createReadStream</span>({ <span class="hlj
 <li><code>autoClose</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> <strong>Default:</strong> <code>true</code></li>
 <li><code>emitClose</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> <strong>Default:</strong> <code>true</code></li>
 <li><code>start</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a></li>
+<li><code>highWaterMark</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> <strong>Default:</strong> <code>16384</code></li>
+<li><code>flush</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If <code>true</code>, the underlying file descriptor is flushed
+prior to closing it. <strong>Default:</strong> <code>false</code>.</li>
 </ul>
 </li>
 <li>Returns: <a href="fs.html#class-fswritestream" class="type">&#x3C;fs.WriteStream></a></li>
@@ -1243,12 +1276,15 @@ operating system's synchronized I/O completion state. Refer to the POSIX
 <ul>
 <li><code>buffer</code> <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a> A buffer that will be filled with the
 file data read.</li>
-<li><code>offset</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a> The location in the buffer at which to start filling.</li>
-<li><code>length</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a> The number of bytes to read.</li>
-<li><code>position</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a> The location where to begin reading data from the
-file. If <code>null</code>, data will be read from the current file position, and
-the position will be updated. If <code>position</code> is an integer, the current
-file position will remain unchanged.</li>
+<li><code>offset</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a> The location in the buffer at which to start filling.
+<strong>Default:</strong> <code>0</code></li>
+<li><code>length</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a> The number of bytes to read. <strong>Default:</strong>
+<code>buffer.byteLength - offset</code></li>
+<li><code>position</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt" class="type">&#x3C;bigint></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a> The location where to begin reading data
+from the file. If <code>null</code> or <code>-1</code>, data will be read from the current file
+position, and the position will be updated. If <code>position</code> is a non-negative
+integer, the current file position will remain unchanged.
+<strong>Default:</strong>: <code>null</code></li>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> Fulfills upon success with an object with two properties:
 <ul>
 <li><code>bytesRead</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a> The number of bytes read</li>
@@ -1292,7 +1328,7 @@ argument.</li>
 number of bytes read is zero.</p>
 <h5><code>filehandle.read(buffer[, options])</code><span><a class="mark" href="#filehandlereadbuffer-options" id="filehandlereadbuffer-options">#</a></span><a aria-hidden="true" class="legacy" id="fs_filehandle_read_buffer_options"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.2.0</span>
+<span>Added in: v18.2.0, v16.17.0</span>
 </div>
 <ul>
 <li><code>buffer</code> <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a> A buffer that will be filled with the
@@ -1325,7 +1361,7 @@ number of bytes read is zero.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.17.0</td>
+<tr><td>v20.0.0</td>
 <td><p>Added option to create a 'bytes' stream.</p></td></tr>
 <tr><td>v17.0.0</td>
 <td><p><span>Added in: v17.0.0</span></p></td></tr>
@@ -1349,7 +1385,7 @@ number of bytes read is zero.</p>
 <p>An error will be thrown if this method is called more than once or is called
 after the <code>FileHandle</code> is closed or closing.</p>
 
-<pre class="with-8-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> {
+<pre class="with-8-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> {
   open,
 } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs/promises'</span>;
 
@@ -1415,7 +1451,7 @@ of the file.</p>
 <p>Convenience method to create a <code>readline</code> interface and stream over the file.
 See <a href="#filehandlecreatereadstreamoptions"><code>filehandle.createReadStream()</code></a> for the options.</p>
 
-<pre class="with-45-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { open } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs/promises'</span>;
+<pre class="with-45-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { open } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs/promises'</span>;
 
 <span class="hljs-keyword">const</span> file = <span class="hljs-keyword">await</span> <span class="hljs-title function_">open</span>(<span class="hljs-string">'./some/file/to/read'</span>);
 
@@ -1513,7 +1549,7 @@ extended part is filled with null bytes (<code>'\0'</code>):</p>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a></li>
 </ul>
 <p>Change the file system timestamps of the object referenced by the <a href="fs.html#class-filehandle" class="type">&#x3C;FileHandle></a>
-then resolves the promise with no arguments upon success.</p>
+then fulfills the promise with no arguments upon success.</p>
 <h5><code>filehandle.write(buffer, offset[, length[, position]])</code><span><a class="mark" href="#filehandlewritebuffer-offset-length-position" id="filehandlewritebuffer-offset-length-position">#</a></span><a aria-hidden="true" class="legacy" id="fs_filehandle_write_buffer_offset_length_position"></a></h5>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
@@ -1539,21 +1575,21 @@ documentation for more detail. <strong>Default:</strong> <code>null</code></li>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a></li>
 </ul>
 <p>Write <code>buffer</code> to the file.</p>
-<p>The promise is resolved with an object containing two properties:</p>
+<p>The promise is fulfilled with an object containing two properties:</p>
 <ul>
 <li><code>bytesWritten</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a> the number of bytes written</li>
 <li><code>buffer</code> <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a> a reference to the
 <code>buffer</code> written.</li>
 </ul>
 <p>It is unsafe to use <code>filehandle.write()</code> multiple times on the same file
-without waiting for the promise to be resolved (or rejected). For this
+without waiting for the promise to be fulfilled (or rejected). For this
 scenario, use <a href="#filehandlecreatewritestreamoptions"><code>filehandle.createWriteStream()</code></a>.</p>
 <p>On Linux, positional writes do not work when the file is opened in append mode.
 The kernel ignores the position argument and always appends the data to
 the end of the file.</p>
 <h5><code>filehandle.write(buffer[, options])</code><span><a class="mark" href="#filehandlewritebuffer-options" id="filehandlewritebuffer-options">#</a></span><a aria-hidden="true" class="legacy" id="fs_filehandle_write_buffer_options"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.3.0</span>
+<span>Added in: v18.3.0, v16.17.0</span>
 </div>
 <ul>
 <li><code>buffer</code> <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a></li>
@@ -1593,13 +1629,13 @@ documentation for more detail. <strong>Default:</strong> <code>null</code></li>
 </ul>
 <p>Write <code>string</code> to the file. If <code>string</code> is not a string, the promise is
 rejected with an error.</p>
-<p>The promise is resolved with an object containing two properties:</p>
+<p>The promise is fulfilled with an object containing two properties:</p>
 <ul>
 <li><code>bytesWritten</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a> the number of bytes written</li>
 <li><code>buffer</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> a reference to the <code>string</code> written.</li>
 </ul>
 <p>It is unsafe to use <code>filehandle.write()</code> multiple times on the same file
-without waiting for the promise to be resolved (or rejected). For this
+without waiting for the promise to be fulfilled (or rejected). For this
 scenario, use <a href="#filehandlecreatewritestreamoptions"><code>filehandle.createWriteStream()</code></a>.</p>
 <p>On Linux, positional writes do not work when the file is opened in append mode.
 The kernel ignores the position argument and always appends the data to
@@ -1630,11 +1666,11 @@ string. <strong>Default:</strong> <code>'utf8'</code></li>
 </ul>
 <p>Asynchronously writes data to a file, replacing the file if it already exists.
 <code>data</code> can be a string, a buffer, an <a href="https://tc39.github.io/ecma262/#sec-asynciterable-interface" class="type">&#x3C;AsyncIterable></a>, or an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#The_iterable_protocol" class="type">&#x3C;Iterable></a> object.
-The promise is resolved with no arguments upon success.</p>
+The promise is fulfilled with no arguments upon success.</p>
 <p>If <code>options</code> is a string, then it specifies the <code>encoding</code>.</p>
 <p>The <a href="fs.html#class-filehandle" class="type">&#x3C;FileHandle></a> has to support writing.</p>
 <p>It is unsafe to use <code>filehandle.writeFile()</code> multiple times on the same file
-without waiting for the promise to be resolved (or rejected).</p>
+without waiting for the promise to be fulfilled (or rejected).</p>
 <p>If one or more <code>filehandle.write()</code> calls are made on a file handle and then a
 <code>filehandle.writeFile()</code> call is made, the data will be written from the
 current position till the end of the file. It doesn't always write from the
@@ -1651,20 +1687,20 @@ the data will be written at the current position. <strong>Default:</strong> <cod
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a></li>
 </ul>
 <p>Write an array of <a href="https://developer.mozilla.org/en-US/docs/Web/API/ArrayBufferView" class="type">&#x3C;ArrayBufferView></a>s to the file.</p>
-<p>The promise is resolved with an object containing a two properties:</p>
+<p>The promise is fulfilled with an object containing a two properties:</p>
 <ul>
 <li><code>bytesWritten</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a> the number of bytes written</li>
 <li><code>buffers</code> <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer[]></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray[]></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView[]></a> a reference to the <code>buffers</code>
 input.</li>
 </ul>
 <p>It is unsafe to call <code>writev()</code> multiple times on the same file without waiting
-for the promise to be resolved (or rejected).</p>
+for the promise to be fulfilled (or rejected).</p>
 <p>On Linux, positional writes don't work when the file is opened in append mode.
 The kernel ignores the position argument and always appends the data to
 the end of the file.</p>
 <h5><code>filehandle[Symbol.asyncDispose]()</code><span><a class="mark" href="#filehandlesymbolasyncdispose" id="filehandlesymbolasyncdispose">#</a></span><a aria-hidden="true" class="legacy" id="fs_filehandle_symbol_asyncdispose"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.18.0</span>
+<span>Added in: v20.4.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <p>An alias for <code>filehandle.close()</code>.</p>
@@ -1684,7 +1720,7 @@ or a mask consisting of the bitwise OR of any of <code>fs.constants.R_OK</code>,
 <code>fs.constants.W_OK</code>, and <code>fs.constants.X_OK</code> (e.g.
 <code>fs.constants.W_OK | fs.constants.R_OK</code>). Check <a href="#file-access-constants">File access constants</a> for
 possible values of <code>mode</code>.</p>
-<p>If the accessibility check is successful, the promise is resolved with no
+<p>If the accessibility check is successful, the promise is fulfilled with no
 value. If any of the accessibility checks fail, the promise is rejected
 with an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error" class="type">&#x3C;Error></a> object. The following example checks if the file
 <code>/etc/passwd</code> can be read and written by the current process.</p>
@@ -1703,7 +1739,15 @@ calls. Instead, user code should open/read/write the file directly and handle
 the error raised if the file is not accessible.</p>
 <h4><code>fsPromises.appendFile(path, data[, options])</code><span><a class="mark" href="#fspromisesappendfilepath-data-options" id="fspromisesappendfilepath-data-options">#</a></span><a aria-hidden="true" class="legacy" id="fs_fspromises_appendfile_path_data_options"></a></h4>
 <div class="api_metadata">
-<span>Added in: v10.0.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v20.10.0</td>
+<td><p>The <code>flush</code> option is now supported.</p></td></tr>
+<tr><td>v10.0.0</td>
+<td><p><span>Added in: v10.0.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><code>path</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="url.html#the-whatwg-url-api" class="type">&#x3C;URL></a> | <a href="fs.html#class-filehandle" class="type">&#x3C;FileHandle></a> filename or <a href="fs.html#class-filehandle" class="type">&#x3C;FileHandle></a></li>
@@ -1713,6 +1757,8 @@ the error raised if the file is not accessible.</p>
 <li><code>encoding</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a> <strong>Default:</strong> <code>'utf8'</code></li>
 <li><code>mode</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a> <strong>Default:</strong> <code>0o666</code></li>
 <li><code>flag</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> See <a href="#file-system-flags">support of file system <code>flags</code></a>. <strong>Default:</strong> <code>'a'</code>.</li>
+<li><code>flush</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If <code>true</code>, the underlying file descriptor is flushed
+prior to closing it. <strong>Default:</strong> <code>false</code>.</li>
 </ul>
 </li>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> Fulfills with <code>undefined</code> upon success.</li>
@@ -1804,9 +1850,9 @@ will be made to remove the destination.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.17.0</td>
+<tr><td>v20.1.0</td>
 <td><p>Accept an additional <code>mode</code> option to specify the copy behavior as the <code>mode</code> argument of <code>fs.copyFile()</code>.</p></td></tr>
-<tr><td>v17.6.0</td>
+<tr><td>v17.6.0, v16.15.0</td>
 <td><p>Accepts an additional <code>verbatimSymlinks</code> option to specify whether to perform path resolution for symlinks.</p></td></tr>
 <tr><td>v16.7.0</td>
 <td><p><span>Added in: v16.7.0</span></p></td></tr>
@@ -1954,7 +2000,7 @@ property indicating whether parent directories should be created. Calling
 <code>fsPromises.mkdir()</code> when <code>path</code> is a directory that exists results in a
 rejection only when <code>recursive</code> is false.</p>
 
-<pre class="with-46-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { mkdir } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs/promises'</span>;
+<pre class="with-46-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { mkdir } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs/promises'</span>;
 
 <span class="hljs-keyword">try</span> {
   <span class="hljs-keyword">const</span> projectFolder = <span class="hljs-keyword">new</span> <span class="hljs-title function_">URL</span>(<span class="hljs-string">'./test/project/'</span>, <span class="hljs-keyword">import</span>.<span class="hljs-property">meta</span>.<span class="hljs-property">url</span>);
@@ -1980,7 +2026,7 @@ rejection only when <code>recursive</code> is false.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.19.0</td>
+<tr><td>v20.6.0</td>
 <td><p>The <code>prefix</code> parameter now accepts buffers and URL.</p></td></tr>
 <tr><td>v16.5.0, v14.18.0</td>
 <td><p>The <code>prefix</code> parameter now accepts an empty string.</p></td></tr>
@@ -2051,7 +2097,7 @@ a colon, Node.js will open a file system stream, as described by
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.17.0</td>
+<tr><td>v20.1.0</td>
 <td><p>Added <code>recursive</code> option.</p></td></tr>
 <tr><td>v13.1.0, v12.16.0</td>
 <td><p>The <code>bufferSize</code> option was introduced.</p></td></tr>
@@ -2097,7 +2143,7 @@ closed after the iterator exits.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.17.0</td>
+<tr><td>v20.1.0</td>
 <td><p>Added <code>recursive</code> option.</p></td></tr>
 <tr><td>v10.11.0</td>
 <td><p>New option <code>withFileTypes</code> was added.</p></td></tr>
@@ -2112,7 +2158,9 @@ closed after the iterator exits.</p>
 <ul>
 <li><code>encoding</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> <strong>Default:</strong> <code>'utf8'</code></li>
 <li><code>withFileTypes</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> <strong>Default:</strong> <code>false</code></li>
-<li><code>recursive</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> <strong>Default:</strong> <code>false</code></li>
+<li><code>recursive</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If <code>true</code>, reads the contents of a directory
+recursively. In recursive mode, it will list all files, sub files, and
+directories. <strong>Default:</strong> <code>false</code>.</li>
 </ul>
 </li>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a>  Fulfills with an array of the names of the files in
@@ -2123,7 +2171,7 @@ the directory excluding <code>'.'</code> and <code>'..'</code>.</li>
 object with an <code>encoding</code> property specifying the character encoding to use for
 the filenames. If the <code>encoding</code> is set to <code>'buffer'</code>, the filenames returned
 will be passed as <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> objects.</p>
-<p>If <code>options.withFileTypes</code> is set to <code>true</code>, the resolved array will contain
+<p>If <code>options.withFileTypes</code> is set to <code>true</code>, the returned array will contain
 <a href="fs.html#class-fsdirent" class="type">&#x3C;fs.Dirent></a> objects.</p>
 <pre><code class="language-js mjs"><span class="hljs-keyword">import</span> { readdir } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs/promises'</span>;
 
@@ -2168,7 +2216,7 @@ returned.</p>
 <p>An example of reading a <code>package.json</code> file located in the same directory of the
 running code:</p>
 
-<pre class="with-49-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { readFile } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs/promises'</span>;
+<pre class="with-49-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { readFile } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs/promises'</span>;
 <span class="hljs-keyword">try</span> {
   <span class="hljs-keyword">const</span> filePath = <span class="hljs-keyword">new</span> <span class="hljs-title function_">URL</span>(<span class="hljs-string">'./package.json'</span>, <span class="hljs-keyword">import</span>.<span class="hljs-property">meta</span>.<span class="hljs-property">url</span>);
   <span class="hljs-keyword">const</span> contents = <span class="hljs-keyword">await</span> <span class="hljs-title function_">readFile</span>(filePath, { <span class="hljs-attr">encoding</span>: <span class="hljs-string">'utf8'</span> });
@@ -2221,7 +2269,7 @@ system requests but rather the internal buffering <code>fs.readFile</code> perfo
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> Fulfills with the <code>linkString</code> upon success.</li>
 </ul>
 <p>Reads the contents of the symbolic link referred to by <code>path</code>. See the POSIX
-<a href="http://man7.org/linux/man-pages/man2/readlink.2.html"><code>readlink(2)</code></a> documentation for more detail. The promise is resolved with the
+<a href="http://man7.org/linux/man-pages/man2/readlink.2.html"><code>readlink(2)</code></a> documentation for more detail. The promise is fulfilled with the
 <code>linkString</code> upon success.</p>
 <p>The optional <code>options</code> argument can be a string specifying an encoding, or an
 object with an <code>encoding</code> property specifying the character encoding to use for
@@ -2357,7 +2405,7 @@ given <code>path</code>.</li>
 </ul>
 <h4><code>fsPromises.statfs(path[, options])</code><span><a class="mark" href="#fspromisesstatfspath-options" id="fspromisesstatfspath-options">#</a></span><a aria-hidden="true" class="legacy" id="fs_fspromises_statfs_path_options"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.15.0</span>
+<span>Added in: v19.6.0, v18.15.0</span>
 </div>
 <ul>
 <li><code>path</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="url.html#the-whatwg-url-api" class="type">&#x3C;URL></a></li>
@@ -2372,18 +2420,28 @@ given <code>path</code>.</li>
 </ul>
 <h4><code>fsPromises.symlink(target, path[, type])</code><span><a class="mark" href="#fspromisessymlinktarget-path-type" id="fspromisessymlinktarget-path-type">#</a></span><a aria-hidden="true" class="legacy" id="fs_fspromises_symlink_target_path_type"></a></h4>
 <div class="api_metadata">
-<span>Added in: v10.0.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>If the <code>type</code> argument is <code>null</code> or omitted, Node.js will autodetect <code>target</code> type and automatically select <code>dir</code> or <code>file</code>.</p></td></tr>
+<tr><td>v10.0.0</td>
+<td><p><span>Added in: v10.0.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><code>target</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="url.html#the-whatwg-url-api" class="type">&#x3C;URL></a></li>
 <li><code>path</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="url.html#the-whatwg-url-api" class="type">&#x3C;URL></a></li>
-<li><code>type</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> <strong>Default:</strong> <code>'file'</code></li>
+<li><code>type</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a> <strong>Default:</strong> <code>null</code></li>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> Fulfills with <code>undefined</code> upon success.</li>
 </ul>
 <p>Creates a symbolic link.</p>
 <p>The <code>type</code> argument is only used on Windows platforms and can be one of <code>'dir'</code>,
-<code>'file'</code>, or <code>'junction'</code>. Windows junction points require the destination path
-to be absolute. When using <code>'junction'</code>, the <code>target</code> argument will
+<code>'file'</code>, or <code>'junction'</code>. If the <code>type</code> argument is not a string, Node.js will
+autodetect <code>target</code> type and use <code>'file'</code> or <code>'dir'</code>. If the <code>target</code> does not
+exist, <code>'file'</code> will be used. Windows junction points require the destination
+path to be absolute. When using <code>'junction'</code>, the <code>target</code> argument will
 automatically be normalized to absolute path. Junction points on NTFS volumes
 can only point to directories.</p>
 <h4><code>fsPromises.truncate(path[, len])</code><span><a class="mark" href="#fspromisestruncatepath-len" id="fspromisestruncatepath-len">#</a></span><a aria-hidden="true" class="legacy" id="fs_fspromises_truncate_path_len"></a></h4>
@@ -2481,6 +2539,8 @@ disappears in the directory.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v20.10.0</td>
+<td><p>The <code>flush</code> option is now supported.</p></td></tr>
 <tr><td>v15.14.0, v14.18.0</td>
 <td><p>The <code>data</code> argument supports <code>AsyncIterable</code>, <code>Iterable</code>, and <code>Stream</code>.</p></td></tr>
 <tr><td>v15.2.0, v14.17.0</td>
@@ -2500,6 +2560,9 @@ disappears in the directory.</p>
 <li><code>encoding</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a> <strong>Default:</strong> <code>'utf8'</code></li>
 <li><code>mode</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a> <strong>Default:</strong> <code>0o666</code></li>
 <li><code>flag</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> See <a href="#file-system-flags">support of file system <code>flags</code></a>. <strong>Default:</strong> <code>'w'</code>.</li>
+<li><code>flush</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If all data is successfully written to the file, and
+<code>flush</code> is <code>true</code>, <code>filehandle.sync()</code> is used to flush the data.
+<strong>Default:</strong> <code>false</code>.</li>
 <li><code>signal</code> <a href="globals.html#class-abortsignal" class="type">&#x3C;AbortSignal></a> allows aborting an in-progress writeFile</li>
 </ul>
 </li>
@@ -2562,6 +2625,8 @@ concurrent modifications on the same file or data corruption may occur.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v20.8.0</td>
+<td><p>The constants <code>fs.F_OK</code>, <code>fs.R_OK</code>, <code>fs.W_OK</code> and <code>fs.X_OK</code> which were present directly on <code>fs</code> are deprecated.</p></td></tr>
 <tr><td>v18.0.0</td>
 <td><p>Passing an invalid callback to the <code>callback</code> argument now throws <code>ERR_INVALID_ARG_TYPE</code> instead of <code>ERR_INVALID_CALLBACK</code>.</p></td></tr>
 <tr><td>v7.6.0</td>
@@ -2723,6 +2788,8 @@ the user from reading or writing to it.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v20.10.0</td>
+<td><p>The <code>flush</code> option is now supported.</p></td></tr>
 <tr><td>v18.0.0</td>
 <td><p>Passing an invalid callback to the <code>callback</code> argument now throws <code>ERR_INVALID_ARG_TYPE</code> instead of <code>ERR_INVALID_CALLBACK</code>.</p></td></tr>
 <tr><td>v10.0.0</td>
@@ -2746,6 +2813,8 @@ the user from reading or writing to it.</p>
 <li><code>encoding</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a> <strong>Default:</strong> <code>'utf8'</code></li>
 <li><code>mode</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a> <strong>Default:</strong> <code>0o666</code></li>
 <li><code>flag</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> See <a href="#file-system-flags">support of file system <code>flags</code></a>. <strong>Default:</strong> <code>'a'</code>.</li>
+<li><code>flush</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If <code>true</code>, the underlying file descriptor is flushed
+prior to closing it. <strong>Default:</strong> <code>false</code>.</li>
 </ul>
 </li>
 <li><code>callback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a>
@@ -3066,11 +3135,11 @@ copy-on-write, then the operation will fail.</li>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.17.0</td>
+<tr><td>v20.1.0</td>
 <td><p>Accept an additional <code>mode</code> option to specify the copy behavior as the <code>mode</code> argument of <code>fs.copyFile()</code>.</p></td></tr>
 <tr><td>v18.0.0</td>
 <td><p>Passing an invalid callback to the <code>callback</code> argument now throws <code>ERR_INVALID_ARG_TYPE</code> instead of <code>ERR_INVALID_CALLBACK</code>.</p></td></tr>
-<tr><td>v17.6.0</td>
+<tr><td>v17.6.0, v16.15.0</td>
 <td><p>Accepts an additional <code>verbatimSymlinks</code> option to specify whether to perform path resolution for symlinks.</p></td></tr>
 <tr><td>v16.7.0</td>
 <td><p><span>Added in: v16.7.0</span></p></td></tr>
@@ -3222,6 +3291,8 @@ file was created.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v20.10.0</td>
+<td><p>The <code>flush</code> option is now supported.</p></td></tr>
 <tr><td>v16.10.0</td>
 <td><p>The <code>fs</code> option does not need <code>open</code> method if an <code>fd</code> was provided.</p></td></tr>
 <tr><td>v16.10.0</td>
@@ -3263,6 +3334,9 @@ file was created.</p>
 <li><code>start</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a></li>
 <li><code>fs</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a> <strong>Default:</strong> <code>null</code></li>
 <li><code>signal</code> <a href="globals.html#class-abortsignal" class="type">&#x3C;AbortSignal></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a> <strong>Default:</strong> <code>null</code></li>
+<li><code>highWaterMark</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> <strong>Default:</strong> <code>16384</code></li>
+<li><code>flush</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If <code>true</code>, the underlying file descriptor is flushed
+prior to closing it. <strong>Default:</strong> <code>false</code>.</li>
 </ul>
 </li>
 <li>Returns: <a href="fs.html#class-fswritestream" class="type">&#x3C;fs.WriteStream></a></li>
@@ -3882,7 +3956,7 @@ result in an error:</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.19.0</td>
+<tr><td>v20.6.0</td>
 <td><p>The <code>prefix</code> parameter now accepts buffers and URL.</p></td></tr>
 <tr><td>v18.0.0</td>
 <td><p>Passing an invalid callback to the <code>callback</code> argument now throws <code>ERR_INVALID_ARG_TYPE</code> instead of <code>ERR_INVALID_CALLBACK</code>.</p></td></tr>
@@ -4002,12 +4076,43 @@ a colon, Node.js will open a file system stream, as described by
 <a href="https://docs.microsoft.com/en-us/windows/desktop/FileIO/using-streams">this MSDN page</a>.</p>
 <p>Functions based on <code>fs.open()</code> exhibit this behavior as well:
 <code>fs.writeFile()</code>, <code>fs.readFile()</code>, etc.</p>
+<h4><code>fs.openAsBlob(path[, options])</code><span><a class="mark" href="#fsopenasblobpath-options" id="fsopenasblobpath-options">#</a></span><a aria-hidden="true" class="legacy" id="fs_fs_openasblob_path_options"></a></h4>
+<div class="api_metadata">
+<span>Added in: v19.8.0</span>
+</div>
+<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
+<ul>
+<li><code>path</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="url.html#the-whatwg-url-api" class="type">&#x3C;URL></a></li>
+<li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
+<ul>
+<li><code>type</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> An optional mime type for the blob.</li>
+</ul>
+</li>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> Fulfills with a <a href="buffer.html#class-blob" class="type">&#x3C;Blob></a> upon success.</li>
+</ul>
+<p>Returns a <a href="buffer.html#class-blob" class="type">&#x3C;Blob></a> whose data is backed by the given file.</p>
+<p>The file must not be modified after the <a href="buffer.html#class-blob" class="type">&#x3C;Blob></a> is created. Any modifications
+will cause reading the <a href="buffer.html#class-blob" class="type">&#x3C;Blob></a> data to fail with a <code>DOMException</code> error.
+Synchronous stat operations on the file when the <code>Blob</code> is created, and before
+each read in order to detect whether the file data has been modified on disk.</p>
+
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { openAsBlob } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs'</span>;
+
+<span class="hljs-keyword">const</span> blob = <span class="hljs-keyword">await</span> <span class="hljs-title function_">openAsBlob</span>(<span class="hljs-string">'the.file.txt'</span>);
+<span class="hljs-keyword">const</span> ab = <span class="hljs-keyword">await</span> blob.<span class="hljs-title function_">arrayBuffer</span>();
+blob.<span class="hljs-title function_">stream</span>();</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { openAsBlob } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:fs'</span>);
+
+(<span class="hljs-keyword">async</span> () => {
+  <span class="hljs-keyword">const</span> blob = <span class="hljs-keyword">await</span> <span class="hljs-title function_">openAsBlob</span>(<span class="hljs-string">'the.file.txt'</span>);
+  <span class="hljs-keyword">const</span> ab = <span class="hljs-keyword">await</span> blob.<span class="hljs-title function_">arrayBuffer</span>();
+  blob.<span class="hljs-title function_">stream</span>();
+})();</code><button class="copy-button">copy</button></pre>
 <h4><code>fs.opendir(path[, options], callback)</code><span><a class="mark" href="#fsopendirpath-options-callback" id="fsopendirpath-options-callback">#</a></span><a aria-hidden="true" class="legacy" id="fs_fs_opendir_path_options_callback"></a></h4>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.17.0</td>
+<tr><td>v20.1.0</td>
 <td><p>Added <code>recursive</code> option.</p></td></tr>
 <tr><td>v18.0.0</td>
 <td><p>Passing an invalid callback to the <code>callback</code> argument now throws <code>ERR_INVALID_ARG_TYPE</code> instead of <code>ERR_INVALID_CALLBACK</code>.</p></td></tr>
@@ -4084,6 +4189,34 @@ integer, the file position will be unchanged.</li>
 number of bytes read is zero.</p>
 <p>If this method is invoked as its <a href="util.html#utilpromisifyoriginal"><code>util.promisify()</code></a>ed version, it returns
 a promise for an <code>Object</code> with <code>bytesRead</code> and <code>buffer</code> properties.</p>
+<p>The <code>fs.read()</code> method reads data from the file specified
+by the file descriptor (<code>fd</code>).
+The <code>length</code> argument indicates the maximum number
+of bytes that Node.js
+will attempt to read from the kernel.
+However, the actual number of bytes read (<code>bytesRead</code>) can be lower
+than the specified <code>length</code> for various reasons.</p>
+<p>For example:</p>
+<ul>
+<li>If the file is shorter than the specified <code>length</code>, <code>bytesRead</code>
+will be set to the actual number of bytes read.</li>
+<li>If the file encounters EOF (End of File) before the buffer could
+be filled, Node.js will read all available bytes until EOF is encountered,
+and the <code>bytesRead</code> parameter in the callback will indicate
+the actual number of bytes read, which may be less than the specified <code>length</code>.</li>
+<li>If the file is on a slow network <code>filesystem</code>
+or encounters any other issue during reading,
+<code>bytesRead</code> can be lower than the specified <code>length</code>.</li>
+</ul>
+<p>Therefore, when using <code>fs.read()</code>, it's important to
+check the <code>bytesRead</code> value to
+determine how many bytes were actually read from the file.
+Depending on your application
+logic, you may need to handle cases where <code>bytesRead</code>
+is lower than the specified <code>length</code>,
+such as by wrapping the read call in a loop if you require
+a minimum amount of bytes.</p>
+<p>This behavior is similar to the POSIX <code>preadv2</code> function.</p>
 <h4><code>fs.read(fd[, options], callback)</code><span><a class="mark" href="#fsreadfd-options-callback" id="fsreadfd-options-callback">#</a></span><a aria-hidden="true" class="legacy" id="fs_fs_read_fd_options_callback"></a></h4>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
@@ -4119,7 +4252,7 @@ a promise for an <code>Object</code> with <code>bytesRead</code> and <code>buffe
 above values.</p>
 <h4><code>fs.read(fd, buffer[, options], callback)</code><span><a class="mark" href="#fsreadfd-buffer-options-callback" id="fsreadfd-buffer-options-callback">#</a></span><a aria-hidden="true" class="legacy" id="fs_fs_read_fd_buffer_options_callback"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.2.0</span>
+<span>Added in: v18.2.0, v16.17.0</span>
 </div>
 <ul>
 <li><code>fd</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a></li>
@@ -4148,7 +4281,7 @@ above values.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.17.0</td>
+<tr><td>v20.1.0</td>
 <td><p>Added <code>recursive</code> option.</p></td></tr>
 <tr><td>v18.0.0</td>
 <td><p>Passing an invalid callback to the <code>callback</code> argument now throws <code>ERR_INVALID_ARG_TYPE</code> instead of <code>ERR_INVALID_CALLBACK</code>.</p></td></tr>
@@ -4173,7 +4306,9 @@ above values.</p>
 <ul>
 <li><code>encoding</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> <strong>Default:</strong> <code>'utf8'</code></li>
 <li><code>withFileTypes</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> <strong>Default:</strong> <code>false</code></li>
-<li><code>recursive</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> <strong>Default:</strong> <code>false</code></li>
+<li><code>recursive</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If <code>true</code>, reads the contents of a directory
+recursively. In recursive mode, it will list all files, sub files and
+directories. <strong>Default:</strong> <code>false</code>.</li>
 </ul>
 </li>
 <li><code>callback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a>
@@ -4285,7 +4420,7 @@ system requests but rather the internal buffering <code>fs.readFile</code> perfo
 <li>If a file descriptor is specified as the <code>path</code>, it will not be closed
 automatically.</li>
 <li>The reading will begin at the current position. For example, if the file
-already had <code>'Hello World</code>' and six bytes are read with the file descriptor,
+already had <code>'Hello World'</code> and six bytes are read with the file descriptor,
 the call to <code>fs.readFile()</code> with the same file descriptor, would give
 <code>'World'</code>, rather than <code>'Hello World'</code>.</li>
 </ol>
@@ -4439,6 +4574,8 @@ the path passed to the callback. If the <code>encoding</code> is set to <code>'b
 the path returned will be passed as a <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> object.</p>
 <p>If <code>path</code> resolves to a socket or a pipe, the function will return a system
 dependent name for that object.</p>
+<p>A path that does not exist results in an ENOENT error.
+<code>error.path</code> is the absolute file path.</p>
 <h4><code>fs.realpath.native(path[, options], callback)</code><span><a class="mark" href="#fsrealpathnativepath-options-callback" id="fsrealpathnativepath-options-callback">#</a></span><a aria-hidden="true" class="legacy" id="fs_fs_realpath_native_path_options_callback"></a></h4>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
@@ -4718,7 +4855,7 @@ Stats {
 }</code> <button class="copy-button">copy</button></pre>
 <h4><code>fs.statfs(path[, options], callback)</code><span><a class="mark" href="#fsstatfspath-options-callback" id="fsstatfspath-options-callback">#</a></span><a aria-hidden="true" class="legacy" id="fs_fs_statfs_path_options_callback"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.15.0</span>
+<span>Added in: v19.6.0, v18.15.0</span>
 </div>
 <ul>
 <li><code>path</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="url.html#the-whatwg-url-api" class="type">&#x3C;URL></a></li>
@@ -4816,7 +4953,7 @@ same directory:</p>
 given to the completion callback. A file descriptor can also be passed as the
 first argument. In this case, <code>fs.ftruncate()</code> is called.</p>
 
-<pre class="with-51-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { truncate } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs'</span>;
+<pre class="with-51-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { truncate } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs'</span>;
 <span class="hljs-comment">// Assuming that 'path/file.txt' is a regular file.</span>
 <span class="hljs-title function_">truncate</span>(<span class="hljs-string">'path/file.txt'</span>, <span class="hljs-function">(<span class="hljs-params">err</span>) =></span> {
   <span class="hljs-keyword">if</span> (err) <span class="hljs-keyword">throw</span> err;
@@ -4929,6 +5066,8 @@ and <code>fs.unwatchFile()</code> when possible.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.1.0</td>
+<td><p>Added recursive support for Linux, AIX and IBMi.</p></td></tr>
 <tr><td>v15.9.0, v14.17.0</td>
 <td><p>Added support for closing the watcher with an AbortSignal.</p></td></tr>
 <tr><td>v7.6.0</td>
@@ -4981,9 +5120,6 @@ the returned <a href="fs.html#class-fsfswatcher" class="type">&#x3C;fs.FSWatcher
 
 <p>The <code>fs.watch</code> API is not 100% consistent across platforms, and is
 unavailable in some situations.</p>
-<p>The recursive option is only supported on macOS and Windows.
-An <code>ERR_FEATURE_UNAVAILABLE_ON_PLATFORM</code> exception will be thrown
-when the option is used on a platform that does not support it.</p>
 <p>On Windows, no events will be emitted if the watched directory is moved or
 renamed. An <code>EPERM</code> error is reported when the watched directory is deleted.</p>
 <h6>Availability<span><a class="mark" href="#availability" id="availability">#</a></span><a aria-hidden="true" class="legacy" id="fs_availability"></a></h6>
@@ -5155,7 +5291,7 @@ The kernel ignores the position argument and always appends the data to
 the end of the file.</p>
 <h4><code>fs.write(fd, buffer[, options], callback)</code><span><a class="mark" href="#fswritefd-buffer-options-callback" id="fswritefd-buffer-options-callback">#</a></span><a aria-hidden="true" class="legacy" id="fs_fs_write_fd_buffer_options_callback"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.3.0</span>
+<span>Added in: v18.3.0, v16.17.0</span>
 </div>
 <ul>
 <li><code>fd</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a></li>
@@ -5184,6 +5320,8 @@ default with the above values.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>Passing to the <code>string</code> parameter an object with an own <code>toString</code> function is no longer supported.</p></td></tr>
 <tr><td>v17.8.0</td>
 <td><p>Passing to the <code>string</code> parameter an object with an own <code>toString</code> function is deprecated.</p></td></tr>
 <tr><td>v14.12.0</td>
@@ -5203,7 +5341,7 @@ default with the above values.</p>
 </div>
 <ul>
 <li><code>fd</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a></li>
-<li><code>string</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a></li>
+<li><code>string</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
 <li><code>position</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a> <strong>Default:</strong> <code>null</code></li>
 <li><code>encoding</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> <strong>Default:</strong> <code>'utf8'</code></li>
 <li><code>callback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a>
@@ -5214,8 +5352,8 @@ default with the above values.</p>
 </ul>
 </li>
 </ul>
-<p>Write <code>string</code> to the file specified by <code>fd</code>. If <code>string</code> is not a string, or an
-object with an own <code>toString</code> function property, then an exception is thrown.</p>
+<p>Write <code>string</code> to the file specified by <code>fd</code>. If <code>string</code> is not a string,
+an exception is thrown.</p>
 <p><code>position</code> refers to the offset from the beginning of the file where this data
 should be written. If <code>typeof position !== 'number'</code> the data will be written at
 the current position. See <a href="http://man7.org/linux/man-pages/man2/pwrite.2.html"><code>pwrite(2)</code></a>.</p>
@@ -5241,6 +5379,10 @@ details.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v20.10.0</td>
+<td><p>The <code>flush</code> option is now supported.</p></td></tr>
+<tr><td>v19.0.0</td>
+<td><p>Passing to the <code>string</code> parameter an object with an own <code>toString</code> function is no longer supported.</p></td></tr>
 <tr><td>v18.0.0</td>
 <td><p>Passing an invalid callback to the <code>callback</code> argument now throws <code>ERR_INVALID_ARG_TYPE</code> instead of <code>ERR_INVALID_CALLBACK</code>.</p></td></tr>
 <tr><td>v17.8.0</td>
@@ -5270,12 +5412,15 @@ details.</p>
 </div>
 <ul>
 <li><code>file</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="url.html#the-whatwg-url-api" class="type">&#x3C;URL></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a> filename or file descriptor</li>
-<li><code>data</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a></li>
+<li><code>data</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a></li>
 <li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a>
 <ul>
 <li><code>encoding</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a> <strong>Default:</strong> <code>'utf8'</code></li>
 <li><code>mode</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a> <strong>Default:</strong> <code>0o666</code></li>
 <li><code>flag</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> See <a href="#file-system-flags">support of file system <code>flags</code></a>. <strong>Default:</strong> <code>'w'</code>.</li>
+<li><code>flush</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If all data is successfully written to the file, and
+<code>flush</code> is <code>true</code>, <code>fs.fsync()</code> is used to flush the data.
+<strong>Default:</strong> <code>false</code>.</li>
 <li><code>signal</code> <a href="globals.html#class-abortsignal" class="type">&#x3C;AbortSignal></a> allows aborting an in-progress writeFile</li>
 </ul>
 </li>
@@ -5427,6 +5572,8 @@ the method will return <code>undefined</code>.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v20.10.0</td>
+<td><p>The <code>flush</code> option is now supported.</p></td></tr>
 <tr><td>v7.0.0</td>
 <td><p>The passed <code>options</code> object will never be modified.</p></td></tr>
 <tr><td>v5.0.0</td>
@@ -5444,6 +5591,8 @@ the method will return <code>undefined</code>.</p>
 <li><code>encoding</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a> <strong>Default:</strong> <code>'utf8'</code></li>
 <li><code>mode</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a> <strong>Default:</strong> <code>0o666</code></li>
 <li><code>flag</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> See <a href="#file-system-flags">support of file system <code>flags</code></a>. <strong>Default:</strong> <code>'a'</code>.</li>
+<li><code>flush</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If <code>true</code>, the underlying file descriptor is flushed
+prior to closing it. <strong>Default:</strong> <code>false</code>.</li>
 </ul>
 </li>
 </ul>
@@ -5577,9 +5726,9 @@ copy-on-write, then the operation will fail.</li>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.17.0</td>
+<tr><td>v20.1.0</td>
 <td><p>Accept an additional <code>mode</code> option to specify the copy behavior as the <code>mode</code> argument of <code>fs.copyFile()</code>.</p></td></tr>
-<tr><td>v17.6.0</td>
+<tr><td>v17.6.0, v16.15.0</td>
 <td><p>Accepts an additional <code>verbatimSymlinks</code> option to specify whether to perform path resolution for symlinks.</p></td></tr>
 <tr><td>v16.7.0</td>
 <td><p><span>Added in: v16.7.0</span></p></td></tr>
@@ -5868,7 +6017,7 @@ This is the synchronous version of <a href="#fsmkdirpath-options-callback"><code
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.19.0</td>
+<tr><td>v20.6.0</td>
 <td><p>The <code>prefix</code> parameter now accepts buffers and URL.</p></td></tr>
 <tr><td>v16.5.0, v14.18.0</td>
 <td><p>The <code>prefix</code> parameter now accepts an empty string.</p></td></tr>
@@ -5896,7 +6045,7 @@ object with an <code>encoding</code> property specifying the character encoding 
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.17.0</td>
+<tr><td>v20.1.0</td>
 <td><p>Added <code>recursive</code> option.</p></td></tr>
 <tr><td>v13.1.0, v12.16.0</td>
 <td><p>The <code>bufferSize</code> option was introduced.</p></td></tr>
@@ -5954,7 +6103,7 @@ this API: <a href="#fsopenpath-flags-mode-callback"><code>fs.open()</code></a>.<
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.17.0</td>
+<tr><td>v20.1.0</td>
 <td><p>Added <code>recursive</code> option.</p></td></tr>
 <tr><td>v10.10.0</td>
 <td><p>New option <code>withFileTypes</code> was added.</p></td></tr>
@@ -5971,7 +6120,9 @@ this API: <a href="#fsopenpath-flags-mode-callback"><code>fs.open()</code></a>.<
 <ul>
 <li><code>encoding</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> <strong>Default:</strong> <code>'utf8'</code></li>
 <li><code>withFileTypes</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> <strong>Default:</strong> <code>false</code></li>
-<li><code>recursive</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> <strong>Default:</strong> <code>false</code></li>
+<li><code>recursive</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If <code>true</code>, reads the contents of a directory
+recursively. In recursive mode, it will list all files, sub files, and
+directories. <strong>Default:</strong> <code>false</code>.</li>
 </ul>
 </li>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string[]></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer[]></a> | <a href="fs.html#class-fsdirent" class="type">&#x3C;fs.Dirent[]></a></li>
@@ -6298,7 +6449,7 @@ if no file system entry exists, rather than returning <code>undefined</code>.
 <p>Retrieves the <a href="fs.html#class-fsstats" class="type">&#x3C;fs.Stats></a> for the path.</p>
 <h4><code>fs.statfsSync(path[, options])</code><span><a class="mark" href="#fsstatfssyncpath-options" id="fsstatfssyncpath-options">#</a></span><a aria-hidden="true" class="legacy" id="fs_fs_statfssync_path_options"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.15.0</span>
+<span>Added in: v19.6.0, v18.15.0</span>
 </div>
 <ul>
 <li><code>path</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="url.html#the-whatwg-url-api" class="type">&#x3C;URL></a></li>
@@ -6392,6 +6543,10 @@ this API: <a href="#fsutimespath-atime-mtime-callback"><code>fs.utimes()</code><
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v20.10.0</td>
+<td><p>The <code>flush</code> option is now supported.</p></td></tr>
+<tr><td>v19.0.0</td>
+<td><p>Passing to the <code>data</code> parameter an object with an own <code>toString</code> function is no longer supported.</p></td></tr>
 <tr><td>v17.8.0</td>
 <td><p>Passing to the <code>data</code> parameter an object with an own <code>toString</code> function is deprecated.</p></td></tr>
 <tr><td>v14.12.0</td>
@@ -6411,12 +6566,14 @@ this API: <a href="#fsutimespath-atime-mtime-callback"><code>fs.utimes()</code><
 </div>
 <ul>
 <li><code>file</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="url.html#the-whatwg-url-api" class="type">&#x3C;URL></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a> filename or file descriptor</li>
-<li><code>data</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a></li>
+<li><code>data</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a></li>
 <li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a>
 <ul>
 <li><code>encoding</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a> <strong>Default:</strong> <code>'utf8'</code></li>
 <li><code>mode</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a> <strong>Default:</strong> <code>0o666</code></li>
 <li><code>flag</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> See <a href="#file-system-flags">support of file system <code>flags</code></a>. <strong>Default:</strong> <code>'w'</code>.</li>
+<li><code>flush</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If all data is successfully written to the file, and
+<code>flush</code> is <code>true</code>, <code>fs.fsyncSync()</code> is used to flush the data.</li>
 </ul>
 </li>
 </ul>
@@ -6455,7 +6612,7 @@ this API: <a href="#fswritefilefile-data-options-callback"><code>fs.writeFile()<
 this API: <a href="#fswritefd-buffer-offset-length-position-callback"><code>fs.write(fd, buffer...)</code></a>.</p>
 <h4><code>fs.writeSync(fd, buffer[, options])</code><span><a class="mark" href="#fswritesyncfd-buffer-options" id="fswritesyncfd-buffer-options">#</a></span><a aria-hidden="true" class="legacy" id="fs_fs_writesync_fd_buffer_options"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.3.0</span>
+<span>Added in: v18.3.0, v16.17.0</span>
 </div>
 <ul>
 <li><code>fd</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a></li>
@@ -6536,7 +6693,7 @@ closed after the iterator exits.</p>
 </ul>
 <p>Asynchronously close the directory's underlying resource handle.
 Subsequent reads will result in errors.</p>
-<p>A promise is returned that will be resolved after the resource has been
+<p>A promise is returned that will be fulfilled after the resource has been
 closed.</p>
 <h5><code>dir.close(callback)</code><span><a class="mark" href="#dirclosecallback" id="dirclosecallback">#</a></span><a aria-hidden="true" class="legacy" id="fs_dir_close_callback"></a></h5>
 <div class="api_metadata">
@@ -6580,11 +6737,11 @@ Subsequent reads will result in errors.</p>
 <span>Added in: v12.12.0</span>
 </div>
 <ul>
-<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> containing <a href="fs.html#class-fsdirent" class="type">&#x3C;fs.Dirent></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a></li>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> Fulfills with a <a href="fs.html#class-fsdirent" class="type">&#x3C;fs.Dirent></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a></li>
 </ul>
 <p>Asynchronously read the next directory entry via <a href="http://man7.org/linux/man-pages/man3/readdir.3.html"><code>readdir(3)</code></a> as an
 <a href="fs.html#class-fsdirent" class="type">&#x3C;fs.Dirent></a>.</p>
-<p>A promise is returned that will be resolved with an <a href="fs.html#class-fsdirent" class="type">&#x3C;fs.Dirent></a>, or <code>null</code>
+<p>A promise is returned that will be fulfilled with an <a href="fs.html#class-fsdirent" class="type">&#x3C;fs.Dirent></a>, or <code>null</code>
 if there are no more directory entries to read.</p>
 <p>Directory entries returned by this function are in no particular order as
 provided by the operating system's underlying directory mechanisms.
@@ -6629,7 +6786,7 @@ included in the iteration results.</p>
 <span>Added in: v12.12.0</span>
 </div>
 <ul>
-<li>Returns: <a href="https://tc39.github.io/ecma262/#sec-asynciterator-interface" class="type">&#x3C;AsyncIterator></a> of <a href="fs.html#class-fsdirent" class="type">&#x3C;fs.Dirent></a></li>
+<li>Returns: <a href="https://tc39.github.io/ecma262/#sec-asynciterator-interface" class="type">&#x3C;AsyncIterator></a> An AsyncIterator of <a href="fs.html#class-fsdirent" class="type">&#x3C;fs.Dirent></a></li>
 </ul>
 <p>Asynchronously iterates over the directory until all entries have
 been read. Refer to the POSIX <a href="http://man7.org/linux/man-pages/man3/readdir.3.html"><code>readdir(3)</code></a> documentation for more detail.</p>
@@ -6718,14 +6875,24 @@ directory.</p>
 <p>The file name that this <a href="fs.html#class-fsdirent" class="type">&#x3C;fs.Dirent></a> object refers to. The type of this
 value is determined by the <code>options.encoding</code> passed to <a href="#fsreaddirpath-options-callback"><code>fs.readdir()</code></a> or
 <a href="#fsreaddirsyncpath-options"><code>fs.readdirSync()</code></a>.</p>
-<h5><code>dirent.path</code><span><a class="mark" href="#direntpath" id="direntpath">#</a></span><a aria-hidden="true" class="legacy" id="fs_dirent_path"></a></h5>
+<h5><code>dirent.parentPath</code><span><a class="mark" href="#direntparentpath" id="direntparentpath">#</a></span><a aria-hidden="true" class="legacy" id="fs_dirent_parentpath"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.17.0</span>
+<span>Added in: v20.12.0</span>
 </div>
+<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> – Experimental</div><p></p>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
 </ul>
-<p>The base path that this <a href="fs.html#class-fsdirent" class="type">&#x3C;fs.Dirent></a> object refers to.</p>
+<p>The path to the parent directory of the file this <a href="fs.html#class-fsdirent" class="type">&#x3C;fs.Dirent></a> object refers to.</p>
+<h5><code>dirent.path</code><span><a class="mark" href="#direntpath" id="direntpath">#</a></span><a aria-hidden="true" class="legacy" id="fs_dirent_path"></a></h5>
+<div class="api_metadata">
+<span>Added in: v20.1.0, v18.17.0</span><span>Deprecated since: v20.12.0</span>
+</div>
+<p></p><div class="api_stability api_stability_0"><a href="documentation.html#stability-index">Stability: 0</a> - Deprecated: Use <a href="#direntparentpath"><code>dirent.parentPath</code></a> instead.</div><p></p>
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
+</ul>
+<p>Alias for <code>dirent.parentPath</code>.</p>
 <h4>Class: <code>fs.FSWatcher</code><span><a class="mark" href="#class-fsfswatcher" id="class-fsfswatcher">#</a></span><a aria-hidden="true" class="legacy" id="fs_class_fs_fswatcher"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.5.8</span>
@@ -6901,6 +7068,8 @@ i.e. before the <code>'ready'</code> event is emitted.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v20.13.0</td>
+<td><p>Public constructor is deprecated.</p></td></tr>
 <tr><td>v8.1.0</td>
 <td><p>Added times as numbers.</p></td></tr>
 <tr><td>v0.1.21</td>
@@ -6913,7 +7082,8 @@ i.e. before the <code>'ready'</code> event is emitted.</p>
 their synchronous counterparts are of this type.
 If <code>bigint</code> in the <code>options</code> passed to those methods is true, the numeric values
 will be <code>bigint</code> instead of <code>number</code>, and the object will contain additional
-nanosecond-precision properties suffixed with <code>Ns</code>.</p>
+nanosecond-precision properties suffixed with <code>Ns</code>.
+<code>Stat</code> objects are not to be created directly using the <code>new</code> keyword.</p>
 <pre><code class="language-console">Stats {
   dev: 2114,
   ino: 48064969,
@@ -6981,8 +7151,9 @@ nanosecond-precision properties suffixed with <code>Ns</code>.</p>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a></li>
 </ul>
 <p>Returns <code>true</code> if the <a href="fs.html#class-fsstats" class="type">&#x3C;fs.Stats></a> object describes a file system directory.</p>
-<p>If the <a href="fs.html#class-fsstats" class="type">&#x3C;fs.Stats></a> object was obtained from <a href="#fslstatpath-options-callback"><code>fs.lstat()</code></a>, this method will
-always return <code>false</code>. This is because <a href="#fslstatpath-options-callback"><code>fs.lstat()</code></a> returns information
+<p>If the <a href="fs.html#class-fsstats" class="type">&#x3C;fs.Stats></a> object was obtained from calling <a href="#fslstatpath-options-callback"><code>fs.lstat()</code></a> on a
+symbolic link which resolves to a directory, this method will return <code>false</code>.
+This is because <a href="#fslstatpath-options-callback"><code>fs.lstat()</code></a> returns information
 about a symbolic link itself and not the path it resolves to.</p>
 <h5><code>stats.isFIFO()</code><span><a class="mark" href="#statsisfifo" id="statsisfifo">#</a></span><a aria-hidden="true" class="legacy" id="fs_stats_isfifo"></a></h5>
 <div class="api_metadata">
@@ -7219,7 +7390,7 @@ also set if the <code>atime</code> is explicitly set to an earlier value than th
 of 0.12, <code>ctime</code> is not "creation time", and on Unix systems, it never was.</p>
 <h4>Class: <code>fs.StatFs</code><span><a class="mark" href="#class-fsstatfs" id="class-fsstatfs">#</a></span><a aria-hidden="true" class="legacy" id="fs_class_fs_statfs"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.15.0</span>
+<span>Added in: v19.6.0, v18.15.0</span>
 </div>
 <p>Provides information about a mounted file system.</p>
 <p>Objects returned from <a href="#fsstatfspath-options-callback"><code>fs.statfs()</code></a> and its synchronous counterpart are of
@@ -7246,7 +7417,7 @@ numeric values will be <code>bigint</code> instead of <code>number</code>.</p>
 }</code> <button class="copy-button">copy</button></pre>
 <h5><code>statfs.bavail</code><span><a class="mark" href="#statfsbavail" id="statfsbavail">#</a></span><a aria-hidden="true" class="legacy" id="fs_statfs_bavail"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.15.0</span>
+<span>Added in: v19.6.0, v18.15.0</span>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt" class="type">&#x3C;bigint></a></li>
@@ -7254,7 +7425,7 @@ numeric values will be <code>bigint</code> instead of <code>number</code>.</p>
 <p>Free blocks available to unprivileged users.</p>
 <h5><code>statfs.bfree</code><span><a class="mark" href="#statfsbfree" id="statfsbfree">#</a></span><a aria-hidden="true" class="legacy" id="fs_statfs_bfree"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.15.0</span>
+<span>Added in: v19.6.0, v18.15.0</span>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt" class="type">&#x3C;bigint></a></li>
@@ -7262,7 +7433,7 @@ numeric values will be <code>bigint</code> instead of <code>number</code>.</p>
 <p>Free blocks in file system.</p>
 <h5><code>statfs.blocks</code><span><a class="mark" href="#statfsblocks" id="statfsblocks">#</a></span><a aria-hidden="true" class="legacy" id="fs_statfs_blocks"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.15.0</span>
+<span>Added in: v19.6.0, v18.15.0</span>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt" class="type">&#x3C;bigint></a></li>
@@ -7270,7 +7441,7 @@ numeric values will be <code>bigint</code> instead of <code>number</code>.</p>
 <p>Total data blocks in file system.</p>
 <h5><code>statfs.bsize</code><span><a class="mark" href="#statfsbsize" id="statfsbsize">#</a></span><a aria-hidden="true" class="legacy" id="fs_statfs_bsize"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.15.0</span>
+<span>Added in: v19.6.0, v18.15.0</span>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt" class="type">&#x3C;bigint></a></li>
@@ -7278,7 +7449,7 @@ numeric values will be <code>bigint</code> instead of <code>number</code>.</p>
 <p>Optimal transfer block size.</p>
 <h5><code>statfs.ffree</code><span><a class="mark" href="#statfsffree" id="statfsffree">#</a></span><a aria-hidden="true" class="legacy" id="fs_statfs_ffree"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.15.0</span>
+<span>Added in: v19.6.0, v18.15.0</span>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt" class="type">&#x3C;bigint></a></li>
@@ -7286,7 +7457,7 @@ numeric values will be <code>bigint</code> instead of <code>number</code>.</p>
 <p>Free file nodes in file system.</p>
 <h5><code>statfs.files</code><span><a class="mark" href="#statfsfiles" id="statfsfiles">#</a></span><a aria-hidden="true" class="legacy" id="fs_statfs_files"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.15.0</span>
+<span>Added in: v19.6.0, v18.15.0</span>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt" class="type">&#x3C;bigint></a></li>
@@ -7294,7 +7465,7 @@ numeric values will be <code>bigint</code> instead of <code>number</code>.</p>
 <p>Total file nodes in file system.</p>
 <h5><code>statfs.type</code><span><a class="mark" href="#statfstype" id="statfstype">#</a></span><a aria-hidden="true" class="legacy" id="fs_statfs_type"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.15.0</span>
+<span>Added in: v19.6.0, v18.15.0</span>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt" class="type">&#x3C;bigint></a></li>
@@ -7662,7 +7833,7 @@ fs.<span class="hljs-title function_">stat</span>(<span class="hljs-string">'/tm
 <p>It is important to correctly order the operations by awaiting the results
 of one before invoking the other:</p>
 
-<pre class="with-53-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { rename, stat } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs/promises'</span>;
+<pre class="with-53-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { rename, stat } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs/promises'</span>;
 
 <span class="hljs-keyword">const</span> oldPath = <span class="hljs-string">'/tmp/hello'</span>;
 <span class="hljs-keyword">const</span> newPath = <span class="hljs-string">'/tmp/world'</span>;
@@ -7687,7 +7858,7 @@ of one before invoking the other:</p>
 <p>Or, when using the callback APIs, move the <code>fs.stat()</code> call into the callback
 of the <code>fs.rename()</code> operation:</p>
 
-<pre class="with-53-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { rename, stat } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs'</span>;
+<pre class="with-53-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { rename, stat } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs'</span>;
 
 <span class="hljs-title function_">rename</span>(<span class="hljs-string">'/tmp/hello'</span>, <span class="hljs-string">'/tmp/world'</span>, <span class="hljs-function">(<span class="hljs-params">err</span>) =></span> {
   <span class="hljs-keyword">if</span> (err) <span class="hljs-keyword">throw</span> err;

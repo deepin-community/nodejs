@@ -3,18 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>Errors | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.15.1">
+  <title>Errors | Node.js v20.15.1 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/errors.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
   
 </head>
 <body class="alt apidoc" id="api-section-errors">
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +109,7 @@
     <div id="column1" data-id="errors" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.15.1 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,11 +124,11 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.15.1</li>
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
@@ -301,6 +314,7 @@
 <li><a href="#err_http2_stream_cancel"><code>ERR_HTTP2_STREAM_CANCEL</code></a></li>
 <li><a href="#err_http2_stream_error"><code>ERR_HTTP2_STREAM_ERROR</code></a></li>
 <li><a href="#err_http2_stream_self_dependency"><code>ERR_HTTP2_STREAM_SELF_DEPENDENCY</code></a></li>
+<li><a href="#err_http2_too_many_custom_settings"><code>ERR_HTTP2_TOO_MANY_CUSTOM_SETTINGS</code></a></li>
 <li><a href="#err_http2_too_many_invalid_frames"><code>ERR_HTTP2_TOO_MANY_INVALID_FRAMES</code></a></li>
 <li><a href="#err_http2_trailers_already_sent"><code>ERR_HTTP2_TRAILERS_ALREADY_SENT</code></a></li>
 <li><a href="#err_http2_trailers_not_ready"><code>ERR_HTTP2_TRAILERS_NOT_READY</code></a></li>
@@ -388,6 +402,8 @@
 <li><a href="#err_napi_tsfn_start_idle_loop"><code>ERR_NAPI_TSFN_START_IDLE_LOOP</code></a></li>
 <li><a href="#err_napi_tsfn_stop_idle_loop"><code>ERR_NAPI_TSFN_STOP_IDLE_LOOP</code></a></li>
 <li><a href="#err_not_building_snapshot"><code>ERR_NOT_BUILDING_SNAPSHOT</code></a></li>
+<li><a href="#err_not_in_single_executable_application"><code>ERR_NOT_IN_SINGLE_EXECUTABLE_APPLICATION</code></a></li>
+<li><a href="#err_not_supported_in_snapshot"><code>ERR_NOT_SUPPORTED_IN_SNAPSHOT</code></a></li>
 <li><a href="#err_no_crypto"><code>ERR_NO_CRYPTO</code></a></li>
 <li><a href="#err_no_icu"><code>ERR_NO_ICU</code></a></li>
 <li><a href="#err_non_context_aware_disabled"><code>ERR_NON_CONTEXT_AWARE_DISABLED</code></a></li>
@@ -405,6 +421,7 @@
 <li><a href="#err_script_execution_timeout"><code>ERR_SCRIPT_EXECUTION_TIMEOUT</code></a></li>
 <li><a href="#err_server_already_listen"><code>ERR_SERVER_ALREADY_LISTEN</code></a></li>
 <li><a href="#err_server_not_running"><code>ERR_SERVER_NOT_RUNNING</code></a></li>
+<li><a href="#err_single_executable_application_asset_not_found"><code>ERR_SINGLE_EXECUTABLE_APPLICATION_ASSET_NOT_FOUND</code></a></li>
 <li><a href="#err_socket_already_bound"><code>ERR_SOCKET_ALREADY_BOUND</code></a></li>
 <li><a href="#err_socket_bad_buffer_size"><code>ERR_SOCKET_BAD_BUFFER_SIZE</code></a></li>
 <li><a href="#err_socket_bad_port"><code>ERR_SOCKET_BAD_PORT</code></a></li>
@@ -412,6 +429,7 @@
 <li><a href="#err_socket_buffer_size"><code>ERR_SOCKET_BUFFER_SIZE</code></a></li>
 <li><a href="#err_socket_closed"><code>ERR_SOCKET_CLOSED</code></a></li>
 <li><a href="#err_socket_closed_before_connection"><code>ERR_SOCKET_CLOSED_BEFORE_CONNECTION</code></a></li>
+<li><a href="#err_socket_connection_timeout"><code>ERR_SOCKET_CONNECTION_TIMEOUT</code></a></li>
 <li><a href="#err_socket_dgram_is_connected"><code>ERR_SOCKET_DGRAM_IS_CONNECTED</code></a></li>
 <li><a href="#err_socket_dgram_not_connected"><code>ERR_SOCKET_DGRAM_NOT_CONNECTED</code></a></li>
 <li><a href="#err_socket_dgram_not_running"><code>ERR_SOCKET_DGRAM_NOT_RUNNING</code></a></li>
@@ -465,8 +483,10 @@
 <li><a href="#err_unknown_signal"><code>ERR_UNKNOWN_SIGNAL</code></a></li>
 <li><a href="#err_unsupported_dir_import"><code>ERR_UNSUPPORTED_DIR_IMPORT</code></a></li>
 <li><a href="#err_unsupported_esm_url_scheme"><code>ERR_UNSUPPORTED_ESM_URL_SCHEME</code></a></li>
+<li><a href="#err_unsupported_resolve_request"><code>ERR_UNSUPPORTED_RESOLVE_REQUEST</code></a></li>
 <li><span class="stability_1"><a href="#err_use_after_close"><code>ERR_USE_AFTER_CLOSE</code></a></span></li>
 <li><a href="#err_valid_performance_entry_type"><code>ERR_VALID_PERFORMANCE_ENTRY_TYPE</code></a></li>
+<li><a href="#err_vm_dynamic_import_callback_missing_flag"><code>ERR_VM_DYNAMIC_IMPORT_CALLBACK_MISSING_FLAG</code></a></li>
 <li><a href="#err_vm_dynamic_import_callback_missing"><code>ERR_VM_DYNAMIC_IMPORT_CALLBACK_MISSING</code></a></li>
 <li><a href="#err_vm_module_already_linked"><code>ERR_VM_MODULE_ALREADY_LINKED</code></a></li>
 <li><a href="#err_vm_module_cached_data_rejected"><code>ERR_VM_MODULE_CACHED_DATA_REJECTED</code></a></li>
@@ -530,6 +550,66 @@
 <li><a href="#err_cpu_usage"><code>ERR_CPU_USAGE</code></a></li>
 </ul>
 </li>
+<li><a href="#openssl-error-codes">OpenSSL Error Codes</a>
+<ul>
+<li><a href="#time-validity-errors">Time Validity Errors</a>
+<ul>
+<li><a href="#cert_not_yet_valid"><code>CERT_NOT_YET_VALID</code></a></li>
+<li><a href="#cert_has_expired"><code>CERT_HAS_EXPIRED</code></a></li>
+<li><a href="#crl_not_yet_valid"><code>CRL_NOT_YET_VALID</code></a></li>
+<li><a href="#crl_has_expired"><code>CRL_HAS_EXPIRED</code></a></li>
+<li><a href="#cert_revoked"><code>CERT_REVOKED</code></a></li>
+</ul>
+</li>
+<li><a href="#trust-or-chain-related-errors">Trust or Chain Related Errors</a>
+<ul>
+<li><a href="#unable_to_get_issuer_cert"><code>UNABLE_TO_GET_ISSUER_CERT</code></a></li>
+<li><a href="#unable_to_get_issuer_cert_locally"><code>UNABLE_TO_GET_ISSUER_CERT_LOCALLY</code></a></li>
+<li><a href="#depth_zero_self_signed_cert"><code>DEPTH_ZERO_SELF_SIGNED_CERT</code></a></li>
+<li><a href="#self_signed_cert_in_chain"><code>SELF_SIGNED_CERT_IN_CHAIN</code></a></li>
+<li><a href="#cert_chain_too_long"><code>CERT_CHAIN_TOO_LONG</code></a></li>
+<li><a href="#unable_to_get_crl"><code>UNABLE_TO_GET_CRL</code></a></li>
+<li><a href="#unable_to_verify_leaf_signature"><code>UNABLE_TO_VERIFY_LEAF_SIGNATURE</code></a></li>
+<li><a href="#cert_untrusted"><code>CERT_UNTRUSTED</code></a></li>
+</ul>
+</li>
+<li><a href="#basic-extension-errors">Basic Extension Errors</a>
+<ul>
+<li><a href="#invalid_ca"><code>INVALID_CA</code></a></li>
+<li><a href="#path_length_exceeded"><code>PATH_LENGTH_EXCEEDED</code></a></li>
+</ul>
+</li>
+<li><a href="#name-related-errors">Name Related Errors</a>
+<ul>
+<li><a href="#hostname_mismatch"><code>HOSTNAME_MISMATCH</code></a></li>
+</ul>
+</li>
+<li><a href="#usage-and-policy-errors">Usage and Policy Errors</a>
+<ul>
+<li><a href="#invalid_purpose"><code>INVALID_PURPOSE</code></a></li>
+<li><a href="#cert_rejected"><code>CERT_REJECTED</code></a></li>
+</ul>
+</li>
+<li><a href="#formatting-errors">Formatting Errors</a>
+<ul>
+<li><a href="#cert_signature_failure"><code>CERT_SIGNATURE_FAILURE</code></a></li>
+<li><a href="#crl_signature_failure"><code>CRL_SIGNATURE_FAILURE</code></a></li>
+<li><a href="#error_in_cert_not_before_field"><code>ERROR_IN_CERT_NOT_BEFORE_FIELD</code></a></li>
+<li><a href="#error_in_cert_not_after_field"><code>ERROR_IN_CERT_NOT_AFTER_FIELD</code></a></li>
+<li><a href="#error_in_crl_last_update_field"><code>ERROR_IN_CRL_LAST_UPDATE_FIELD</code></a></li>
+<li><a href="#error_in_crl_next_update_field"><code>ERROR_IN_CRL_NEXT_UPDATE_FIELD</code></a></li>
+<li><a href="#unable_to_decrypt_cert_signature"><code>UNABLE_TO_DECRYPT_CERT_SIGNATURE</code></a></li>
+<li><a href="#unable_to_decrypt_crl_signature"><code>UNABLE_TO_DECRYPT_CRL_SIGNATURE</code></a></li>
+<li><a href="#unable_to_decode_issuer_public_key"><code>UNABLE_TO_DECODE_ISSUER_PUBLIC_KEY</code></a></li>
+</ul>
+</li>
+<li><a href="#other-openssl-errors">Other OpenSSL Errors</a>
+<ul>
+<li><a href="#out_of_mem"><code>OUT_OF_MEM</code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul></div></div>
@@ -538,7 +618,7 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Index
       </a>
 
@@ -623,10 +703,11 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/errors.html">21.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v22.x/api/errors.html">22.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/errors.html">21.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v20.x/api/errors.html">20.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v19.x/api/errors.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/errors.html">18.x <b>LTS</b></a></li>
@@ -648,7 +729,7 @@
   
             <li class="picker-header">
               <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
@@ -669,7 +750,7 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
 <li><a href="#errors">Errors</a>
 <ul>
 <li><a href="#error-propagation-and-interception">Error propagation and interception</a></li>
@@ -851,6 +932,7 @@
 <li><a href="#err_http2_stream_cancel"><code>ERR_HTTP2_STREAM_CANCEL</code></a></li>
 <li><a href="#err_http2_stream_error"><code>ERR_HTTP2_STREAM_ERROR</code></a></li>
 <li><a href="#err_http2_stream_self_dependency"><code>ERR_HTTP2_STREAM_SELF_DEPENDENCY</code></a></li>
+<li><a href="#err_http2_too_many_custom_settings"><code>ERR_HTTP2_TOO_MANY_CUSTOM_SETTINGS</code></a></li>
 <li><a href="#err_http2_too_many_invalid_frames"><code>ERR_HTTP2_TOO_MANY_INVALID_FRAMES</code></a></li>
 <li><a href="#err_http2_trailers_already_sent"><code>ERR_HTTP2_TRAILERS_ALREADY_SENT</code></a></li>
 <li><a href="#err_http2_trailers_not_ready"><code>ERR_HTTP2_TRAILERS_NOT_READY</code></a></li>
@@ -938,6 +1020,8 @@
 <li><a href="#err_napi_tsfn_start_idle_loop"><code>ERR_NAPI_TSFN_START_IDLE_LOOP</code></a></li>
 <li><a href="#err_napi_tsfn_stop_idle_loop"><code>ERR_NAPI_TSFN_STOP_IDLE_LOOP</code></a></li>
 <li><a href="#err_not_building_snapshot"><code>ERR_NOT_BUILDING_SNAPSHOT</code></a></li>
+<li><a href="#err_not_in_single_executable_application"><code>ERR_NOT_IN_SINGLE_EXECUTABLE_APPLICATION</code></a></li>
+<li><a href="#err_not_supported_in_snapshot"><code>ERR_NOT_SUPPORTED_IN_SNAPSHOT</code></a></li>
 <li><a href="#err_no_crypto"><code>ERR_NO_CRYPTO</code></a></li>
 <li><a href="#err_no_icu"><code>ERR_NO_ICU</code></a></li>
 <li><a href="#err_non_context_aware_disabled"><code>ERR_NON_CONTEXT_AWARE_DISABLED</code></a></li>
@@ -955,6 +1039,7 @@
 <li><a href="#err_script_execution_timeout"><code>ERR_SCRIPT_EXECUTION_TIMEOUT</code></a></li>
 <li><a href="#err_server_already_listen"><code>ERR_SERVER_ALREADY_LISTEN</code></a></li>
 <li><a href="#err_server_not_running"><code>ERR_SERVER_NOT_RUNNING</code></a></li>
+<li><a href="#err_single_executable_application_asset_not_found"><code>ERR_SINGLE_EXECUTABLE_APPLICATION_ASSET_NOT_FOUND</code></a></li>
 <li><a href="#err_socket_already_bound"><code>ERR_SOCKET_ALREADY_BOUND</code></a></li>
 <li><a href="#err_socket_bad_buffer_size"><code>ERR_SOCKET_BAD_BUFFER_SIZE</code></a></li>
 <li><a href="#err_socket_bad_port"><code>ERR_SOCKET_BAD_PORT</code></a></li>
@@ -962,6 +1047,7 @@
 <li><a href="#err_socket_buffer_size"><code>ERR_SOCKET_BUFFER_SIZE</code></a></li>
 <li><a href="#err_socket_closed"><code>ERR_SOCKET_CLOSED</code></a></li>
 <li><a href="#err_socket_closed_before_connection"><code>ERR_SOCKET_CLOSED_BEFORE_CONNECTION</code></a></li>
+<li><a href="#err_socket_connection_timeout"><code>ERR_SOCKET_CONNECTION_TIMEOUT</code></a></li>
 <li><a href="#err_socket_dgram_is_connected"><code>ERR_SOCKET_DGRAM_IS_CONNECTED</code></a></li>
 <li><a href="#err_socket_dgram_not_connected"><code>ERR_SOCKET_DGRAM_NOT_CONNECTED</code></a></li>
 <li><a href="#err_socket_dgram_not_running"><code>ERR_SOCKET_DGRAM_NOT_RUNNING</code></a></li>
@@ -1015,8 +1101,10 @@
 <li><a href="#err_unknown_signal"><code>ERR_UNKNOWN_SIGNAL</code></a></li>
 <li><a href="#err_unsupported_dir_import"><code>ERR_UNSUPPORTED_DIR_IMPORT</code></a></li>
 <li><a href="#err_unsupported_esm_url_scheme"><code>ERR_UNSUPPORTED_ESM_URL_SCHEME</code></a></li>
+<li><a href="#err_unsupported_resolve_request"><code>ERR_UNSUPPORTED_RESOLVE_REQUEST</code></a></li>
 <li><span class="stability_1"><a href="#err_use_after_close"><code>ERR_USE_AFTER_CLOSE</code></a></span></li>
 <li><a href="#err_valid_performance_entry_type"><code>ERR_VALID_PERFORMANCE_ENTRY_TYPE</code></a></li>
+<li><a href="#err_vm_dynamic_import_callback_missing_flag"><code>ERR_VM_DYNAMIC_IMPORT_CALLBACK_MISSING_FLAG</code></a></li>
 <li><a href="#err_vm_dynamic_import_callback_missing"><code>ERR_VM_DYNAMIC_IMPORT_CALLBACK_MISSING</code></a></li>
 <li><a href="#err_vm_module_already_linked"><code>ERR_VM_MODULE_ALREADY_LINKED</code></a></li>
 <li><a href="#err_vm_module_cached_data_rejected"><code>ERR_VM_MODULE_CACHED_DATA_REJECTED</code></a></li>
@@ -1080,11 +1168,71 @@
 <li><a href="#err_cpu_usage"><code>ERR_CPU_USAGE</code></a></li>
 </ul>
 </li>
+<li><a href="#openssl-error-codes">OpenSSL Error Codes</a>
+<ul>
+<li><a href="#time-validity-errors">Time Validity Errors</a>
+<ul>
+<li><a href="#cert_not_yet_valid"><code>CERT_NOT_YET_VALID</code></a></li>
+<li><a href="#cert_has_expired"><code>CERT_HAS_EXPIRED</code></a></li>
+<li><a href="#crl_not_yet_valid"><code>CRL_NOT_YET_VALID</code></a></li>
+<li><a href="#crl_has_expired"><code>CRL_HAS_EXPIRED</code></a></li>
+<li><a href="#cert_revoked"><code>CERT_REVOKED</code></a></li>
+</ul>
+</li>
+<li><a href="#trust-or-chain-related-errors">Trust or Chain Related Errors</a>
+<ul>
+<li><a href="#unable_to_get_issuer_cert"><code>UNABLE_TO_GET_ISSUER_CERT</code></a></li>
+<li><a href="#unable_to_get_issuer_cert_locally"><code>UNABLE_TO_GET_ISSUER_CERT_LOCALLY</code></a></li>
+<li><a href="#depth_zero_self_signed_cert"><code>DEPTH_ZERO_SELF_SIGNED_CERT</code></a></li>
+<li><a href="#self_signed_cert_in_chain"><code>SELF_SIGNED_CERT_IN_CHAIN</code></a></li>
+<li><a href="#cert_chain_too_long"><code>CERT_CHAIN_TOO_LONG</code></a></li>
+<li><a href="#unable_to_get_crl"><code>UNABLE_TO_GET_CRL</code></a></li>
+<li><a href="#unable_to_verify_leaf_signature"><code>UNABLE_TO_VERIFY_LEAF_SIGNATURE</code></a></li>
+<li><a href="#cert_untrusted"><code>CERT_UNTRUSTED</code></a></li>
+</ul>
+</li>
+<li><a href="#basic-extension-errors">Basic Extension Errors</a>
+<ul>
+<li><a href="#invalid_ca"><code>INVALID_CA</code></a></li>
+<li><a href="#path_length_exceeded"><code>PATH_LENGTH_EXCEEDED</code></a></li>
+</ul>
+</li>
+<li><a href="#name-related-errors">Name Related Errors</a>
+<ul>
+<li><a href="#hostname_mismatch"><code>HOSTNAME_MISMATCH</code></a></li>
+</ul>
+</li>
+<li><a href="#usage-and-policy-errors">Usage and Policy Errors</a>
+<ul>
+<li><a href="#invalid_purpose"><code>INVALID_PURPOSE</code></a></li>
+<li><a href="#cert_rejected"><code>CERT_REJECTED</code></a></li>
+</ul>
+</li>
+<li><a href="#formatting-errors">Formatting Errors</a>
+<ul>
+<li><a href="#cert_signature_failure"><code>CERT_SIGNATURE_FAILURE</code></a></li>
+<li><a href="#crl_signature_failure"><code>CRL_SIGNATURE_FAILURE</code></a></li>
+<li><a href="#error_in_cert_not_before_field"><code>ERROR_IN_CERT_NOT_BEFORE_FIELD</code></a></li>
+<li><a href="#error_in_cert_not_after_field"><code>ERROR_IN_CERT_NOT_AFTER_FIELD</code></a></li>
+<li><a href="#error_in_crl_last_update_field"><code>ERROR_IN_CRL_LAST_UPDATE_FIELD</code></a></li>
+<li><a href="#error_in_crl_next_update_field"><code>ERROR_IN_CRL_NEXT_UPDATE_FIELD</code></a></li>
+<li><a href="#unable_to_decrypt_cert_signature"><code>UNABLE_TO_DECRYPT_CERT_SIGNATURE</code></a></li>
+<li><a href="#unable_to_decrypt_crl_signature"><code>UNABLE_TO_DECRYPT_CRL_SIGNATURE</code></a></li>
+<li><a href="#unable_to_decode_issuer_public_key"><code>UNABLE_TO_DECODE_ISSUER_PUBLIC_KEY</code></a></li>
+</ul>
+</li>
+<li><a href="#other-openssl-errors">Other OpenSSL Errors</a>
+<ul>
+<li><a href="#out_of_mem"><code>OUT_OF_MEM</code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul></details>
 
-      <div id="apicontent">
+      <div role="main" id="apicontent">
         <h2>Errors<span><a class="mark" href="#errors" id="errors">#</a></span><a aria-hidden="true" class="legacy" id="errors_errors"></a></h2>
 
 
@@ -1643,8 +1791,7 @@ order to be compatible with the web platform's <code>AbortError</code>.</p>
 <p><a id="ERR_ACCESS_DENIED"></a></p>
 <h4><code>ERR_ACCESS_DENIED</code><span><a class="mark" href="#err_access_denied" id="err_access_denied">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_access_denied"></a></h4>
 <p>A special type of error that is triggered whenever Node.js tries to get access
-to a resource restricted by the <a href="permissions.html#policies">policy</a> manifest.
-For example, <code>process.binding</code>.</p>
+to a resource restricted by the <a href="permissions.html#permission-model">Permission Model</a>.</p>
 <p><a id="ERR_AMBIGUOUS_ARGUMENT"></a></p>
 <h4><code>ERR_AMBIGUOUS_ARGUMENT</code><span><a class="mark" href="#err_ambiguous_argument" id="err_ambiguous_argument">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_ambiguous_argument"></a></h4>
 <p>A function argument is being used in a way that suggests that the function
@@ -1708,20 +1855,19 @@ size.</p>
 STDERR/STDOUT, and the data's length is longer than the <code>maxBuffer</code> option.</p>
 <p><a id="ERR_CLOSED_MESSAGE_PORT"></a></p>
 <h4><code>ERR_CLOSED_MESSAGE_PORT</code><span><a class="mark" href="#err_closed_message_port" id="err_closed_message_port">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_closed_message_port"></a></h4>
-<!--
-added:
-  - v16.2.0
-  - v14.17.1
-changes:
-  - version: 11.12.0
-    pr-url: https://github.com/nodejs/node/pull/26487
-    description: The error message was removed.
-  - version:
-      - v16.2.0
-      - v14.17.1
-    pr-url: https://github.com/nodejs/node/pull/38510
-    description: The error message was reintroduced.
--->
+<div class="api_metadata">
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v16.2.0, v14.17.1</td>
+<td><p>The error message was reintroduced.</p></td></tr>
+<tr><td>v11.12.0</td>
+<td><p>The error message was removed.</p></td></tr>
+<tr><td>v10.5.0</td>
+<td><p><span>Added in: v10.5.0</span></p></td></tr>
+</tbody></table>
+</details>
+</div>
 <p>There was an attempt to use a <code>MessagePort</code> instance in a closed
 state, usually after <code>.close()</code> has been called.</p>
 <p><a id="ERR_CONSOLE_WRITABLE_STREAM"></a></p>
@@ -1730,9 +1876,9 @@ state, usually after <code>.close()</code> has been called.</p>
 non-writable <code>stdout</code> or <code>stderr</code> stream.</p>
 <p><a id="ERR_CONSTRUCT_CALL_INVALID"></a></p>
 <h4><code>ERR_CONSTRUCT_CALL_INVALID</code><span><a class="mark" href="#err_construct_call_invalid" id="err_construct_call_invalid">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_construct_call_invalid"></a></h4>
-<!--
-added: v12.5.0
--->
+<div class="api_metadata">
+<span>Added in: v12.5.0</span>
+</div>
 <p>A class constructor was called that is not callable.</p>
 <p><a id="ERR_CONSTRUCT_CALL_REQUIRED"></a></p>
 <h4><code>ERR_CONSTRUCT_CALL_REQUIRED</code><span><a class="mark" href="#err_construct_call_required" id="err_construct_call_required">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_construct_call_required"></a></h4>
@@ -2001,23 +2147,23 @@ falsy value.</p>
 to the current platform which is running Node.js is used.</p>
 <p><a id="ERR_FS_CP_DIR_TO_NON_DIR"></a></p>
 <h4><code>ERR_FS_CP_DIR_TO_NON_DIR</code><span><a class="mark" href="#err_fs_cp_dir_to_non_dir" id="err_fs_cp_dir_to_non_dir">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_fs_cp_dir_to_non_dir"></a></h4>
-<!--
-added: v16.7.0
--->
+<div class="api_metadata">
+<span>Added in: v16.7.0</span>
+</div>
 <p>An attempt was made to copy a directory to a non-directory (file, symlink,
 etc.) using <a href="fs.html#fscpsrc-dest-options-callback"><code>fs.cp()</code></a>.</p>
 <p><a id="ERR_FS_CP_EEXIST"></a></p>
 <h4><code>ERR_FS_CP_EEXIST</code><span><a class="mark" href="#err_fs_cp_eexist" id="err_fs_cp_eexist">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_fs_cp_eexist"></a></h4>
-<!--
-added: v16.7.0
--->
+<div class="api_metadata">
+<span>Added in: v16.7.0</span>
+</div>
 <p>An attempt was made to copy over a file that already existed with
 <a href="fs.html#fscpsrc-dest-options-callback"><code>fs.cp()</code></a>, with the <code>force</code> and <code>errorOnExist</code> set to <code>true</code>.</p>
 <p><a id="ERR_FS_CP_EINVAL"></a></p>
 <h4><code>ERR_FS_CP_EINVAL</code><span><a class="mark" href="#err_fs_cp_einval" id="err_fs_cp_einval">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_fs_cp_einval"></a></h4>
-<!--
-added: v16.7.0
--->
+<div class="api_metadata">
+<span>Added in: v16.7.0</span>
+</div>
 <p>When using <a href="fs.html#fscpsrc-dest-options-callback"><code>fs.cp()</code></a>, <code>src</code> or <code>dest</code> pointed to an invalid path.</p>
 <p><a id="ERR_FS_CP_FIFO_PIPE"></a></p>
 <h4><code>ERR_HTTP_BODY_NOT_ALLOWED</code><span><a class="mark" href="#err_http_body_not_allowed" id="err_http_body_not_allowed">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_http_body_not_allowed"></a></h4>
@@ -2027,35 +2173,35 @@ contents. <a id="ERR_HTTP_BODY_NOT_ALLOWED"></a></p>
 <p>Response body size doesn't match with the specified content-length header value.</p>
 <p><a id="ERR_HTTP_CONTENT_LENGTH_MISMATCH"></a></p>
 <h4><code>ERR_FS_CP_FIFO_PIPE</code><span><a class="mark" href="#err_fs_cp_fifo_pipe" id="err_fs_cp_fifo_pipe">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_fs_cp_fifo_pipe"></a></h4>
-<!--
-added: v16.7.0
--->
+<div class="api_metadata">
+<span>Added in: v16.7.0</span>
+</div>
 <p>An attempt was made to copy a named pipe with <a href="fs.html#fscpsrc-dest-options-callback"><code>fs.cp()</code></a>.</p>
 <p><a id="ERR_FS_CP_NON_DIR_TO_DIR"></a></p>
 <h4><code>ERR_FS_CP_NON_DIR_TO_DIR</code><span><a class="mark" href="#err_fs_cp_non_dir_to_dir" id="err_fs_cp_non_dir_to_dir">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_fs_cp_non_dir_to_dir"></a></h4>
-<!--
-added: v16.7.0
--->
+<div class="api_metadata">
+<span>Added in: v16.7.0</span>
+</div>
 <p>An attempt was made to copy a non-directory (file, symlink, etc.) to a directory
 using <a href="fs.html#fscpsrc-dest-options-callback"><code>fs.cp()</code></a>.</p>
 <p><a id="ERR_FS_CP_SOCKET"></a></p>
 <h4><code>ERR_FS_CP_SOCKET</code><span><a class="mark" href="#err_fs_cp_socket" id="err_fs_cp_socket">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_fs_cp_socket"></a></h4>
-<!--
-added: v16.7.0
--->
+<div class="api_metadata">
+<span>Added in: v16.7.0</span>
+</div>
 <p>An attempt was made to copy to a socket with <a href="fs.html#fscpsrc-dest-options-callback"><code>fs.cp()</code></a>.</p>
 <p><a id="ERR_FS_CP_SYMLINK_TO_SUBDIRECTORY"></a></p>
 <h4><code>ERR_FS_CP_SYMLINK_TO_SUBDIRECTORY</code><span><a class="mark" href="#err_fs_cp_symlink_to_subdirectory" id="err_fs_cp_symlink_to_subdirectory">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_fs_cp_symlink_to_subdirectory"></a></h4>
-<!--
-added: v16.7.0
--->
+<div class="api_metadata">
+<span>Added in: v16.7.0</span>
+</div>
 <p>When using <a href="fs.html#fscpsrc-dest-options-callback"><code>fs.cp()</code></a>, a symlink in <code>dest</code> pointed to a subdirectory
 of <code>src</code>.</p>
 <p><a id="ERR_FS_CP_UNKNOWN"></a></p>
 <h4><code>ERR_FS_CP_UNKNOWN</code><span><a class="mark" href="#err_fs_cp_unknown" id="err_fs_cp_unknown">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_fs_cp_unknown"></a></h4>
-<!--
-added: v16.7.0
--->
+<div class="api_metadata">
+<span>Added in: v16.7.0</span>
+</div>
 <p>An attempt was made to copy to an unknown file type with <a href="fs.html#fscpsrc-dest-options-callback"><code>fs.cp()</code></a>.</p>
 <p><a id="ERR_FS_EISDIR"></a></p>
 <h4><code>ERR_FS_EISDIR</code><span><a class="mark" href="#err_fs_eisdir" id="err_fs_eisdir">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_fs_eisdir"></a></h4>
@@ -2247,11 +2393,14 @@ peer.</p>
 <p>When setting the priority for an HTTP/2 stream, the stream may be marked as
 a dependency for a parent stream. This error code is used when an attempt is
 made to mark a stream and dependent of itself.</p>
+<p><a id="ERR_HTTP2_TOO_MANY_CUSTOM_SETTINGS"></a></p>
+<h4><code>ERR_HTTP2_TOO_MANY_CUSTOM_SETTINGS</code><span><a class="mark" href="#err_http2_too_many_custom_settings" id="err_http2_too_many_custom_settings">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_http2_too_many_custom_settings"></a></h4>
+<p>The number of supported custom settings (10) has been exceeded.</p>
 <p><a id="ERR_HTTP2_TOO_MANY_INVALID_FRAMES"></a></p>
 <h4><code>ERR_HTTP2_TOO_MANY_INVALID_FRAMES</code><span><a class="mark" href="#err_http2_too_many_invalid_frames" id="err_http2_too_many_invalid_frames">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_http2_too_many_invalid_frames"></a></h4>
-<!--
-added: v15.14.0
--->
+<div class="api_metadata">
+<span>Added in: v15.14.0</span>
+</div>
 <p>The limit of acceptable invalid HTTP/2 protocol frames sent by the peer,
 as specified through the <code>maxSessionInvalidFrames</code> option, has been exceeded.</p>
 <p><a id="ERR_HTTP2_TRAILERS_ALREADY_SENT"></a></p>
@@ -2292,7 +2441,7 @@ different type.</p>
 <p><a id="ERR_IMPORT_ATTRIBUTE_UNSUPPORTED"></a></p>
 <h4><code>ERR_IMPORT_ATTRIBUTE_UNSUPPORTED</code><span><a class="mark" href="#err_import_attribute_unsupported" id="err_import_attribute_unsupported">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_import_attribute_unsupported"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.19.0</span>
+<span>Added in: v20.10.0</span>
 </div>
 <p>An import attribute is not supported by this version of Node.js.</p>
 <p><a id="ERR_INCOMPATIBLE_OPTION_PAIR"></a></p>
@@ -2508,7 +2657,7 @@ for more information.</p>
 <p><a id="ERR_LOADER_CHAIN_INCOMPLETE"></a></p>
 <h4><code>ERR_LOADER_CHAIN_INCOMPLETE</code><span><a class="mark" href="#err_loader_chain_incomplete" id="err_loader_chain_incomplete">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_loader_chain_incomplete"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.6.0</span>
+<span>Added in: v18.6.0, v16.17.0</span>
 </div>
 <p>An ESM loader hook returned without calling <code>next()</code> and without explicitly
 signaling a short circuit.</p>
@@ -2642,6 +2791,17 @@ error indicates that the idle loop has failed to stop.</p>
 <h4><code>ERR_NOT_BUILDING_SNAPSHOT</code><span><a class="mark" href="#err_not_building_snapshot" id="err_not_building_snapshot">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_not_building_snapshot"></a></h4>
 <p>An attempt was made to use operations that can only be used when building
 V8 startup snapshot even though Node.js isn't building one.</p>
+<p><a id="ERR_NOT_IN_SINGLE_EXECUTABLE_APPLICATION"></a></p>
+<h4><code>ERR_NOT_IN_SINGLE_EXECUTABLE_APPLICATION</code><span><a class="mark" href="#err_not_in_single_executable_application" id="err_not_in_single_executable_application">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_not_in_single_executable_application"></a></h4>
+<div class="api_metadata">
+<span>Added in: v20.12.0</span>
+</div>
+<p>The operation cannot be performed when it's not in a single-executable
+application.</p>
+<p><a id="ERR_NOT_SUPPORTED_IN_SNAPSHOT"></a></p>
+<h4><code>ERR_NOT_SUPPORTED_IN_SNAPSHOT</code><span><a class="mark" href="#err_not_supported_in_snapshot" id="err_not_supported_in_snapshot">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_not_supported_in_snapshot"></a></h4>
+<p>An attempt was made to perform operations that are not supported when
+building a startup snapshot.</p>
 <p><a id="ERR_NO_CRYPTO"></a></p>
 <h4><code>ERR_NO_CRYPTO</code><span><a class="mark" href="#err_no_crypto" id="err_no_crypto">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_no_crypto"></a></h4>
 <p>An attempt was made to use crypto features while Node.js was not compiled with
@@ -2668,7 +2828,7 @@ cannot be imported through the package resolution, unless using an absolute URL.
 <p><a id="ERR_PARSE_ARGS_INVALID_OPTION_VALUE"></a></p>
 <h4><code>ERR_PARSE_ARGS_INVALID_OPTION_VALUE</code><span><a class="mark" href="#err_parse_args_invalid_option_value" id="err_parse_args_invalid_option_value">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_parse_args_invalid_option_value"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.3.0</span>
+<span>Added in: v18.3.0, v16.17.0</span>
 </div>
 <p>When <code>strict</code> set to <code>true</code>, thrown by <a href="util.html#utilparseargsconfig"><code>util.parseArgs()</code></a> if a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a>
 value is provided for an option of type <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a>, or if a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a>
@@ -2676,14 +2836,14 @@ value is provided for an option of type <a href="https://developer.mozilla.org/e
 <p><a id="ERR_PARSE_ARGS_UNEXPECTED_POSITIONAL"></a></p>
 <h4><code>ERR_PARSE_ARGS_UNEXPECTED_POSITIONAL</code><span><a class="mark" href="#err_parse_args_unexpected_positional" id="err_parse_args_unexpected_positional">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_parse_args_unexpected_positional"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.3.0</span>
+<span>Added in: v18.3.0, v16.17.0</span>
 </div>
 <p>Thrown by <a href="util.html#utilparseargsconfig"><code>util.parseArgs()</code></a>, when a positional argument is provided and
 <code>allowPositionals</code> is set to <code>false</code>.</p>
 <p><a id="ERR_PARSE_ARGS_UNKNOWN_OPTION"></a></p>
 <h4><code>ERR_PARSE_ARGS_UNKNOWN_OPTION</code><span><a class="mark" href="#err_parse_args_unknown_option" id="err_parse_args_unknown_option">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_parse_args_unknown_option"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.3.0</span>
+<span>Added in: v18.3.0, v16.17.0</span>
 </div>
 <p>When <code>strict</code> set to <code>true</code>, thrown by <a href="util.html#utilparseargsconfig"><code>util.parseArgs()</code></a> if an argument
 is not configured in <code>options</code>.</p>
@@ -2720,6 +2880,13 @@ and HTTP/2 <code>Server</code> instances.</p>
 <p>The <a href="net.html#serverclosecallback"><code>server.close()</code></a> method was called when a <code>net.Server</code> was not
 running. This applies to all instances of <code>net.Server</code>, including HTTP, HTTPS,
 and HTTP/2 <code>Server</code> instances.</p>
+<p><a id="ERR_SINGLE_EXECUTABLE_APPLICATION_ASSET_NOT_FOUND"></a></p>
+<h4><code>ERR_SINGLE_EXECUTABLE_APPLICATION_ASSET_NOT_FOUND</code><span><a class="mark" href="#err_single_executable_application_asset_not_found" id="err_single_executable_application_asset_not_found">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_single_executable_application_asset_not_found"></a></h4>
+<div class="api_metadata">
+<span>Added in: v20.12.0</span>
+</div>
+<p>A key was passed to single executable application APIs to identify an asset,
+but no match could be found.</p>
 <p><a id="ERR_SOCKET_ALREADY_BOUND"></a></p>
 <h4><code>ERR_SOCKET_ALREADY_BOUND</code><span><a class="mark" href="#err_socket_already_bound" id="err_socket_already_bound">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_socket_already_bound"></a></h4>
 <p>An attempt was made to bind a socket that has already been bound.</p>
@@ -2745,6 +2912,10 @@ could not be determined.</p>
 <h4><code>ERR_SOCKET_CLOSED_BEFORE_CONNECTION</code><span><a class="mark" href="#err_socket_closed_before_connection" id="err_socket_closed_before_connection">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_socket_closed_before_connection"></a></h4>
 <p>When calling <a href="net.html#socketwritedata-encoding-callback"><code>net.Socket.write()</code></a> on a connecting socket and the socket was
 closed before the connection was established.</p>
+<p><a id="ERR_SOCKET_CONNECTION_TIMEOUT"></a></p>
+<h4><code>ERR_SOCKET_CONNECTION_TIMEOUT</code><span><a class="mark" href="#err_socket_connection_timeout" id="err_socket_connection_timeout">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_socket_connection_timeout"></a></h4>
+<p>The socket was unable to connect to any address returned by the DNS within the
+allowed timeout when using the family autoselection algorithm.</p>
 <p><a id="ERR_SOCKET_DGRAM_IS_CONNECTED"></a></p>
 <h4><code>ERR_SOCKET_DGRAM_IS_CONNECTED</code><span><a class="mark" href="#err_socket_dgram_is_connected" id="err_socket_dgram_is_connected">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_socket_dgram_is_connected"></a></h4>
 <p>A <a href="dgram.html#socketconnectport-address-callback"><code>dgram.connect()</code></a> call was made on an already connected socket.</p>
@@ -2960,13 +3131,27 @@ signal (such as <a href="child_process.html#subprocesskillsignal"><code>subproce
 <p><code>import</code> a directory URL is unsupported. Instead,
 <a href="packages.html#self-referencing-a-package-using-its-name">self-reference a package using its name</a> and <a href="packages.html#subpath-exports">define a custom subpath</a> in
 the <a href="packages.html#exports"><code>"exports"</code></a> field of the <a href="packages.html#nodejs-packagejson-field-definitions"><code>package.json</code></a> file.</p>
-<!-- eslint-skip -->
-<pre><code class="language-js"><span class="hljs-keyword">import</span> <span class="hljs-string">'./'</span>; <span class="hljs-comment">// unsupported</span>
+<pre><code class="language-js mjs"><span class="hljs-keyword">import</span> <span class="hljs-string">'./'</span>; <span class="hljs-comment">// unsupported</span>
 <span class="hljs-keyword">import</span> <span class="hljs-string">'./index.js'</span>; <span class="hljs-comment">// supported</span>
 <span class="hljs-keyword">import</span> <span class="hljs-string">'package-name'</span>; <span class="hljs-comment">// supported</span></code> <button class="copy-button">copy</button></pre>
 <p><a id="ERR_UNSUPPORTED_ESM_URL_SCHEME"></a></p>
 <h4><code>ERR_UNSUPPORTED_ESM_URL_SCHEME</code><span><a class="mark" href="#err_unsupported_esm_url_scheme" id="err_unsupported_esm_url_scheme">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_unsupported_esm_url_scheme"></a></h4>
 <p><code>import</code> with URL schemes other than <code>file</code> and <code>data</code> is unsupported.</p>
+<p><a id="ERR_UNSUPPORTED_RESOLVE_REQUEST"></a></p>
+<h4><code>ERR_UNSUPPORTED_RESOLVE_REQUEST</code><span><a class="mark" href="#err_unsupported_resolve_request" id="err_unsupported_resolve_request">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_unsupported_resolve_request"></a></h4>
+<p>An attempt was made to resolve an invalid module referrer. This can happen when
+importing or calling <code>import.meta.resolve()</code> with either:</p>
+<ul>
+<li>a bare specifier that is not a builtin module from a module whose URL scheme
+is not <code>file</code>.</li>
+<li>a <a href="https://url.spec.whatwg.org/#relative-url-string">relative URL</a> from a module whose URL scheme is not a <a href="https://url.spec.whatwg.org/#special-scheme">special scheme</a>.</li>
+</ul>
+<pre><code class="language-js mjs"><span class="hljs-keyword">try</span> {
+  <span class="hljs-comment">// Trying to import the package 'bare-specifier' from a `data:` URL module:</span>
+  <span class="hljs-keyword">await</span> <span class="hljs-keyword">import</span>(<span class="hljs-string">'data:text/javascript,import "bare-specifier"'</span>);
+} <span class="hljs-keyword">catch</span> (e) {
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(e.<span class="hljs-property">code</span>); <span class="hljs-comment">// ERR_UNSUPPORTED_RESOLVE_REQUEST</span>
+}</code> <button class="copy-button">copy</button></pre>
 <p><a id="ERR_USE_AFTER_CLOSE"></a></p>
 <h4><code>ERR_USE_AFTER_CLOSE</code><span><a class="mark" href="#err_use_after_close" id="err_use_after_close">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_use_after_close"></a></h4>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
@@ -2975,6 +3160,9 @@ the <a href="packages.html#exports"><code>"exports"</code></a> field of the <a h
 <h4><code>ERR_VALID_PERFORMANCE_ENTRY_TYPE</code><span><a class="mark" href="#err_valid_performance_entry_type" id="err_valid_performance_entry_type">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_valid_performance_entry_type"></a></h4>
 <p>While using the Performance Timing API (<code>perf_hooks</code>), no valid performance
 entry types are found.</p>
+<p><a id="ERR_VM_DYNAMIC_IMPORT_CALLBACK_MISSING_FLAG"></a></p>
+<h4><code>ERR_VM_DYNAMIC_IMPORT_CALLBACK_MISSING_FLAG</code><span><a class="mark" href="#err_vm_dynamic_import_callback_missing_flag" id="err_vm_dynamic_import_callback_missing_flag">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_vm_dynamic_import_callback_missing_flag"></a></h4>
+<p>A dynamic import callback was invoked without <code>--experimental-vm-modules</code>.</p>
 <p><a id="ERR_VM_DYNAMIC_IMPORT_CALLBACK_MISSING"></a></p>
 <h4><code>ERR_VM_DYNAMIC_IMPORT_CALLBACK_MISSING</code><span><a class="mark" href="#err_vm_dynamic_import_callback_missing" id="err_vm_dynamic_import_callback_missing">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_vm_dynamic_import_callback_missing"></a></h4>
 <p>A dynamic import callback was not specified.</p>
@@ -3064,7 +3252,7 @@ an <code>Error</code> with this code will be emitted.</p>
 <p><a id="HPE_CHUNK_EXTENSIONS_OVERFLOW"></a></p>
 <h4><code>HPE_CHUNK_EXTENSIONS_OVERFLOW</code><span><a class="mark" href="#hpe_chunk_extensions_overflow" id="hpe_chunk_extensions_overflow">#</a></span><a aria-hidden="true" class="legacy" id="errors_hpe_chunk_extensions_overflow"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.19.1</span>
+<span>Added in: v20.11.1</span>
 </div>
 <p>Too much data was received for a chunk extensions. In order to protect against
 malicious or malconfigured clients, if more than 16 KiB of data is received
@@ -3094,10 +3282,9 @@ attempting a <a href="modules.html#requireid"><code>require()</code></a> operati
 been removed.</div><p></p>
 <p><a id="ERR_CANNOT_TRANSFER_OBJECT"></a></p>
 <h4><code>ERR_CANNOT_TRANSFER_OBJECT</code><span><a class="mark" href="#err_cannot_transfer_object" id="err_cannot_transfer_object">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_cannot_transfer_object"></a></h4>
-<!--
-added: v10.5.0
-removed: v12.5.0
--->
+<div class="api_metadata">
+<span>Added in: v10.5.0</span><span>Removed in: v12.5.0</span>
+</div>
 <p>The value passed to <code>postMessage()</code> contained an object that is not supported
 for transferring.</p>
 <p><a id="ERR_CRYPTO_HASH_DIGEST_NO_UTF16"></a></p>
@@ -3304,7 +3491,7 @@ itself, although it is possible for user code to trigger it.</p>
 <p><a id="ERR_VM_MODULE_LINKING_ERRORED"></a></p>
 <h4><code>ERR_VM_MODULE_LINKING_ERRORED</code><span><a class="mark" href="#err_vm_module_linking_errored" id="err_vm_module_linking_errored">#</a></span><a aria-hidden="true" class="legacy" id="errors_err_vm_module_linking_errored"></a></h4>
 <div class="api_metadata">
-<span>Added in: v10.0.0</span><span>Removed in: v18.1.0</span>
+<span>Added in: v10.0.0</span><span>Removed in: v18.1.0, v16.17.0</span>
 </div>
 <p>The linker function returned a module for which linking has failed.</p>
 <p><a id="ERR_WORKER_UNSUPPORTED_EXTENSION"></a></p>
@@ -3326,7 +3513,118 @@ closed.</p>
 <div class="api_metadata">
 <span>Removed in: v15.0.0</span>
 </div>
-<p>The native call from <code>process.cpuUsage</code> could not be processed.</p></section>
+<p>The native call from <code>process.cpuUsage</code> could not be processed.</p>
+<p><a id="openssl-error-codes"></a></p>
+</section><section><h3>OpenSSL Error Codes<span><a class="mark" href="#openssl-error-codes" id="openssl-error-codes">#</a></span><a aria-hidden="true" class="legacy" id="errors_openssl_error_codes"></a></h3>
+<p><a id="Time Validity Errors"></a></p>
+<h4>Time Validity Errors<span><a class="mark" href="#time-validity-errors" id="time-validity-errors">#</a></span><a aria-hidden="true" class="legacy" id="errors_time_validity_errors"></a></h4>
+<p><a id="CERT_NOT_YET_VALID"></a></p>
+<h5><code>CERT_NOT_YET_VALID</code><span><a class="mark" href="#cert_not_yet_valid" id="cert_not_yet_valid">#</a></span><a aria-hidden="true" class="legacy" id="errors_cert_not_yet_valid"></a></h5>
+<p>The certificate is not yet valid: the notBefore date is after the current time.</p>
+<p><a id="CERT_HAS_EXPIRED"></a></p>
+<h5><code>CERT_HAS_EXPIRED</code><span><a class="mark" href="#cert_has_expired" id="cert_has_expired">#</a></span><a aria-hidden="true" class="legacy" id="errors_cert_has_expired"></a></h5>
+<p>The certificate has expired: the notAfter date is before the current time.</p>
+<p><a id="CRL_NOT_YET_VALID"></a></p>
+<h5><code>CRL_NOT_YET_VALID</code><span><a class="mark" href="#crl_not_yet_valid" id="crl_not_yet_valid">#</a></span><a aria-hidden="true" class="legacy" id="errors_crl_not_yet_valid"></a></h5>
+<p>The certificate revocation list (CRL) has a future issue date.</p>
+<p><a id="CRL_HAS_EXPIRED"></a></p>
+<h5><code>CRL_HAS_EXPIRED</code><span><a class="mark" href="#crl_has_expired" id="crl_has_expired">#</a></span><a aria-hidden="true" class="legacy" id="errors_crl_has_expired"></a></h5>
+<p>The certificate revocation list (CRL) has expired.</p>
+<p><a id="CERT_REVOKED"></a></p>
+<h5><code>CERT_REVOKED</code><span><a class="mark" href="#cert_revoked" id="cert_revoked">#</a></span><a aria-hidden="true" class="legacy" id="errors_cert_revoked"></a></h5>
+<p>The certificate has been revoked; it is on a certificate revocation list (CRL).</p>
+<p><a id="Trust or Chain Related Errors"></a></p>
+<h4>Trust or Chain Related Errors<span><a class="mark" href="#trust-or-chain-related-errors" id="trust-or-chain-related-errors">#</a></span><a aria-hidden="true" class="legacy" id="errors_trust_or_chain_related_errors"></a></h4>
+<p><a id="UNABLE_TO_GET_ISSUER_CERT"></a></p>
+<h5><code>UNABLE_TO_GET_ISSUER_CERT</code><span><a class="mark" href="#unable_to_get_issuer_cert" id="unable_to_get_issuer_cert">#</a></span><a aria-hidden="true" class="legacy" id="errors_unable_to_get_issuer_cert"></a></h5>
+<p>The issuer certificate of a looked up certificate could not be found. This
+normally means the list of trusted certificates is not complete.</p>
+<p><a id="UNABLE_TO_GET_ISSUER_CERT_LOCALLY"></a></p>
+<h5><code>UNABLE_TO_GET_ISSUER_CERT_LOCALLY</code><span><a class="mark" href="#unable_to_get_issuer_cert_locally" id="unable_to_get_issuer_cert_locally">#</a></span><a aria-hidden="true" class="legacy" id="errors_unable_to_get_issuer_cert_locally"></a></h5>
+<p>The certificate’s issuer is not known. This is the case if the issuer is not
+included in the trusted certificate list.</p>
+<p><a id="DEPTH_ZERO_SELF_SIGNED_CERT"></a></p>
+<h5><code>DEPTH_ZERO_SELF_SIGNED_CERT</code><span><a class="mark" href="#depth_zero_self_signed_cert" id="depth_zero_self_signed_cert">#</a></span><a aria-hidden="true" class="legacy" id="errors_depth_zero_self_signed_cert"></a></h5>
+<p>The passed certificate is self-signed and the same certificate cannot be found
+in the list of trusted certificates.</p>
+<p><a id="SELF_SIGNED_CERT_IN_CHAIN"></a></p>
+<h5><code>SELF_SIGNED_CERT_IN_CHAIN</code><span><a class="mark" href="#self_signed_cert_in_chain" id="self_signed_cert_in_chain">#</a></span><a aria-hidden="true" class="legacy" id="errors_self_signed_cert_in_chain"></a></h5>
+<p>The certificate’s issuer is not known. This is the case if the issuer is not
+included in the trusted certificate list.</p>
+<p><a id="CERT_CHAIN_TOO_LONG"></a></p>
+<h5><code>CERT_CHAIN_TOO_LONG</code><span><a class="mark" href="#cert_chain_too_long" id="cert_chain_too_long">#</a></span><a aria-hidden="true" class="legacy" id="errors_cert_chain_too_long"></a></h5>
+<p>The certificate chain length is greater than the maximum depth.</p>
+<p><a id="UNABLE_TO_GET_CRL"></a></p>
+<h5><code>UNABLE_TO_GET_CRL</code><span><a class="mark" href="#unable_to_get_crl" id="unable_to_get_crl">#</a></span><a aria-hidden="true" class="legacy" id="errors_unable_to_get_crl"></a></h5>
+<p>The CRL reference by the certificate could not be found.</p>
+<p><a id="UNABLE_TO_VERIFY_LEAF_SIGNATURE"></a></p>
+<h5><code>UNABLE_TO_VERIFY_LEAF_SIGNATURE</code><span><a class="mark" href="#unable_to_verify_leaf_signature" id="unable_to_verify_leaf_signature">#</a></span><a aria-hidden="true" class="legacy" id="errors_unable_to_verify_leaf_signature"></a></h5>
+<p>No signatures could be verified because the chain contains only one certificate
+and it is not self signed.</p>
+<p><a id="CERT_UNTRUSTED"></a></p>
+<h5><code>CERT_UNTRUSTED</code><span><a class="mark" href="#cert_untrusted" id="cert_untrusted">#</a></span><a aria-hidden="true" class="legacy" id="errors_cert_untrusted"></a></h5>
+<p>The root certificate authority (CA) is not marked as trusted for the specified
+purpose.</p>
+<p><a id="Basic Extension Errors"></a></p>
+<h4>Basic Extension Errors<span><a class="mark" href="#basic-extension-errors" id="basic-extension-errors">#</a></span><a aria-hidden="true" class="legacy" id="errors_basic_extension_errors"></a></h4>
+<p><a id="INVALID_CA"></a></p>
+<h5><code>INVALID_CA</code><span><a class="mark" href="#invalid_ca" id="invalid_ca">#</a></span><a aria-hidden="true" class="legacy" id="errors_invalid_ca"></a></h5>
+<p>A CA certificate is invalid. Either it is not a CA or its extensions are not
+consistent with the supplied purpose.</p>
+<p><a id="PATH_LENGTH_EXCEEDED"></a></p>
+<h5><code>PATH_LENGTH_EXCEEDED</code><span><a class="mark" href="#path_length_exceeded" id="path_length_exceeded">#</a></span><a aria-hidden="true" class="legacy" id="errors_path_length_exceeded"></a></h5>
+<p>The basicConstraints pathlength parameter has been exceeded.</p>
+<p><a id="Name Related Errors"></a></p>
+<h4>Name Related Errors<span><a class="mark" href="#name-related-errors" id="name-related-errors">#</a></span><a aria-hidden="true" class="legacy" id="errors_name_related_errors"></a></h4>
+<p><a id="HOSTNAME_MISMATCH"></a></p>
+<h5><code>HOSTNAME_MISMATCH</code><span><a class="mark" href="#hostname_mismatch" id="hostname_mismatch">#</a></span><a aria-hidden="true" class="legacy" id="errors_hostname_mismatch"></a></h5>
+<p>Certificate does not match provided name.</p>
+<p><a id="Usage and Policy Errors"></a></p>
+<h4>Usage and Policy Errors<span><a class="mark" href="#usage-and-policy-errors" id="usage-and-policy-errors">#</a></span><a aria-hidden="true" class="legacy" id="errors_usage_and_policy_errors"></a></h4>
+<p><a id="INVALID_PURPOSE"></a></p>
+<h5><code>INVALID_PURPOSE</code><span><a class="mark" href="#invalid_purpose" id="invalid_purpose">#</a></span><a aria-hidden="true" class="legacy" id="errors_invalid_purpose"></a></h5>
+<p>The supplied certificate cannot be used for the specified purpose.</p>
+<p><a id="CERT_REJECTED"></a></p>
+<h5><code>CERT_REJECTED</code><span><a class="mark" href="#cert_rejected" id="cert_rejected">#</a></span><a aria-hidden="true" class="legacy" id="errors_cert_rejected"></a></h5>
+<p>The root CA is marked to reject the specified purpose.</p>
+<p><a id="Formatting Errors"></a></p>
+<h4>Formatting Errors<span><a class="mark" href="#formatting-errors" id="formatting-errors">#</a></span><a aria-hidden="true" class="legacy" id="errors_formatting_errors"></a></h4>
+<p><a id="CERT_SIGNATURE_FAILURE"></a></p>
+<h5><code>CERT_SIGNATURE_FAILURE</code><span><a class="mark" href="#cert_signature_failure" id="cert_signature_failure">#</a></span><a aria-hidden="true" class="legacy" id="errors_cert_signature_failure"></a></h5>
+<p>The signature of the certificate is invalid.</p>
+<p><a id="CRL_SIGNATURE_FAILURE"></a></p>
+<h5><code>CRL_SIGNATURE_FAILURE</code><span><a class="mark" href="#crl_signature_failure" id="crl_signature_failure">#</a></span><a aria-hidden="true" class="legacy" id="errors_crl_signature_failure"></a></h5>
+<p>The signature of the certificate revocation list (CRL) is invalid.</p>
+<p><a id="ERROR_IN_CERT_NOT_BEFORE_FIELD"></a></p>
+<h5><code>ERROR_IN_CERT_NOT_BEFORE_FIELD</code><span><a class="mark" href="#error_in_cert_not_before_field" id="error_in_cert_not_before_field">#</a></span><a aria-hidden="true" class="legacy" id="errors_error_in_cert_not_before_field"></a></h5>
+<p>The certificate notBefore field contains an invalid time.</p>
+<p><a id="ERROR_IN_CERT_NOT_AFTER_FIELD"></a></p>
+<h5><code>ERROR_IN_CERT_NOT_AFTER_FIELD</code><span><a class="mark" href="#error_in_cert_not_after_field" id="error_in_cert_not_after_field">#</a></span><a aria-hidden="true" class="legacy" id="errors_error_in_cert_not_after_field"></a></h5>
+<p>The certificate notAfter field contains an invalid time.</p>
+<p><a id="ERROR_IN_CRL_LAST_UPDATE_FIELD"></a></p>
+<h5><code>ERROR_IN_CRL_LAST_UPDATE_FIELD</code><span><a class="mark" href="#error_in_crl_last_update_field" id="error_in_crl_last_update_field">#</a></span><a aria-hidden="true" class="legacy" id="errors_error_in_crl_last_update_field"></a></h5>
+<p>The CRL lastUpdate field contains an invalid time.</p>
+<p><a id="ERROR_IN_CRL_NEXT_UPDATE_FIELD"></a></p>
+<h5><code>ERROR_IN_CRL_NEXT_UPDATE_FIELD</code><span><a class="mark" href="#error_in_crl_next_update_field" id="error_in_crl_next_update_field">#</a></span><a aria-hidden="true" class="legacy" id="errors_error_in_crl_next_update_field"></a></h5>
+<p>The CRL nextUpdate field contains an invalid time.</p>
+<p><a id="UNABLE_TO_DECRYPT_CERT_SIGNATURE"></a></p>
+<h5><code>UNABLE_TO_DECRYPT_CERT_SIGNATURE</code><span><a class="mark" href="#unable_to_decrypt_cert_signature" id="unable_to_decrypt_cert_signature">#</a></span><a aria-hidden="true" class="legacy" id="errors_unable_to_decrypt_cert_signature"></a></h5>
+<p>The certificate signature could not be decrypted. This means that the actual
+signature value could not be determined rather than it not matching the expected
+value, this is only meaningful for RSA keys.</p>
+<p><a id="UNABLE_TO_DECRYPT_CRL_SIGNATURE"></a></p>
+<h5><code>UNABLE_TO_DECRYPT_CRL_SIGNATURE</code><span><a class="mark" href="#unable_to_decrypt_crl_signature" id="unable_to_decrypt_crl_signature">#</a></span><a aria-hidden="true" class="legacy" id="errors_unable_to_decrypt_crl_signature"></a></h5>
+<p>The certificate revocation list (CRL) signature could not be decrypted: this
+means that the actual signature value could not be determined rather than it not
+matching the expected value.</p>
+<p><a id="UNABLE_TO_DECODE_ISSUER_PUBLIC_KEY"></a></p>
+<h5><code>UNABLE_TO_DECODE_ISSUER_PUBLIC_KEY</code><span><a class="mark" href="#unable_to_decode_issuer_public_key" id="unable_to_decode_issuer_public_key">#</a></span><a aria-hidden="true" class="legacy" id="errors_unable_to_decode_issuer_public_key"></a></h5>
+<p>The public key in the certificate SubjectPublicKeyInfo could not be read.</p>
+<p><a id="Other OpenSSL Errors"></a></p>
+<h4>Other OpenSSL Errors<span><a class="mark" href="#other-openssl-errors" id="other-openssl-errors">#</a></span><a aria-hidden="true" class="legacy" id="errors_other_openssl_errors"></a></h4>
+<p><a id="OUT_OF_MEM"></a></p>
+<h5><code>OUT_OF_MEM</code><span><a class="mark" href="#out_of_mem" id="out_of_mem">#</a></span><a aria-hidden="true" class="legacy" id="errors_out_of_mem"></a></h5>
+<p>An error occurred trying to allocate memory. This should never happen.</p></section>
         <!-- API END -->
       </div>
     </div>

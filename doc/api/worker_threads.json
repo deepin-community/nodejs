@@ -8,7 +8,7 @@
       "introduced_in": "v10.5.0",
       "stability": 2,
       "stabilityText": "Stable",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.19.1/lib/worker_threads.js\">lib/worker_threads.js</a></p>\n<p>The <code>node:worker_threads</code> module enables the use of threads that execute\nJavaScript in parallel. To access it:</p>\n<pre><code class=\"language-js\">const worker = require('node:worker_threads');\n</code></pre>\n<p>Workers (threads) are useful for performing CPU-intensive JavaScript operations.\nThey do not help much with I/O-intensive work. The Node.js built-in\nasynchronous I/O operations are more efficient than Workers can be.</p>\n<p>Unlike <code>child_process</code> or <code>cluster</code>, <code>worker_threads</code> can share memory. They do\nso by transferring <code>ArrayBuffer</code> instances or sharing <code>SharedArrayBuffer</code>\ninstances.</p>\n<pre><code class=\"language-js\">const {\n  Worker, isMainThread, parentPort, workerData,\n} = require('node:worker_threads');\n\nif (isMainThread) {\n  module.exports = function parseJSAsync(script) {\n    return new Promise((resolve, reject) => {\n      const worker = new Worker(__filename, {\n        workerData: script,\n      });\n      worker.on('message', resolve);\n      worker.on('error', reject);\n      worker.on('exit', (code) => {\n        if (code !== 0)\n          reject(new Error(`Worker stopped with exit code ${code}`));\n      });\n    });\n  };\n} else {\n  const { parse } = require('some-js-parsing-library');\n  const script = workerData;\n  parentPort.postMessage(parse(script));\n}\n</code></pre>\n<p>The above example spawns a Worker thread for each <code>parseJSAsync()</code> call. In\npractice, use a pool of Workers for these kinds of tasks. Otherwise, the\noverhead of creating Workers would likely exceed their benefit.</p>\n<p>When implementing a worker pool, use the <a href=\"async_hooks.html#class-asyncresource\"><code>AsyncResource</code></a> API to inform\ndiagnostic tools (e.g. to provide asynchronous stack traces) about the\ncorrelation between tasks and their outcomes. See\n<a href=\"async_context.html#using-asyncresource-for-a-worker-thread-pool\">\"Using <code>AsyncResource</code> for a <code>Worker</code> thread pool\"</a>\nin the <code>async_hooks</code> documentation for an example implementation.</p>\n<p>Worker threads inherit non-process-specific options by default. Refer to\n<a href=\"#new-workerfilename-options\"><code>Worker constructor options</code></a> to know how to customize worker thread options,\nspecifically <code>argv</code> and <code>execArgv</code> options.</p>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v20.15.1/lib/worker_threads.js\">lib/worker_threads.js</a></p>\n<p>The <code>node:worker_threads</code> module enables the use of threads that execute\nJavaScript in parallel. To access it:</p>\n<pre><code class=\"language-js\">const worker = require('node:worker_threads');\n</code></pre>\n<p>Workers (threads) are useful for performing CPU-intensive JavaScript operations.\nThey do not help much with I/O-intensive work. The Node.js built-in\nasynchronous I/O operations are more efficient than Workers can be.</p>\n<p>Unlike <code>child_process</code> or <code>cluster</code>, <code>worker_threads</code> can share memory. They do\nso by transferring <code>ArrayBuffer</code> instances or sharing <code>SharedArrayBuffer</code>\ninstances.</p>\n<pre><code class=\"language-js\">const {\n  Worker, isMainThread, parentPort, workerData,\n} = require('node:worker_threads');\n\nif (isMainThread) {\n  module.exports = function parseJSAsync(script) {\n    return new Promise((resolve, reject) => {\n      const worker = new Worker(__filename, {\n        workerData: script,\n      });\n      worker.on('message', resolve);\n      worker.on('error', reject);\n      worker.on('exit', (code) => {\n        if (code !== 0)\n          reject(new Error(`Worker stopped with exit code ${code}`));\n      });\n    });\n  };\n} else {\n  const { parse } = require('some-js-parsing-library');\n  const script = workerData;\n  parentPort.postMessage(parse(script));\n}\n</code></pre>\n<p>The above example spawns a Worker thread for each <code>parseJSAsync()</code> call. In\npractice, use a pool of Workers for these kinds of tasks. Otherwise, the\noverhead of creating Workers would likely exceed their benefit.</p>\n<p>When implementing a worker pool, use the <a href=\"async_hooks.html#class-asyncresource\"><code>AsyncResource</code></a> API to inform\ndiagnostic tools (e.g. to provide asynchronous stack traces) about the\ncorrelation between tasks and their outcomes. See\n<a href=\"async_context.html#using-asyncresource-for-a-worker-thread-pool\">\"Using <code>AsyncResource</code> for a <code>Worker</code> thread pool\"</a>\nin the <code>async_hooks</code> documentation for an example implementation.</p>\n<p>Worker threads inherit non-process-specific options by default. Refer to\n<a href=\"#new-workerfilename-options\"><code>Worker constructor options</code></a> to know how to customize worker thread options,\nspecifically <code>argv</code> and <code>execArgv</code> options.</p>",
       "methods": [
         {
           "textRaw": "`worker.getEnvironmentData(key)`",
@@ -21,7 +21,10 @@
             ],
             "changes": [
               {
-                "version": "v17.5.0",
+                "version": [
+                  "v17.5.0",
+                  "v16.15.0"
+                ],
                 "pr-url": "https://github.com/nodejs/node/pull/41272",
                 "description": "No longer experimental."
               }
@@ -144,7 +147,10 @@
             ],
             "changes": [
               {
-                "version": "v17.5.0",
+                "version": [
+                  "v17.5.0",
+                  "v16.15.0"
+                ],
                 "pr-url": "https://github.com/nodejs/node/pull/41272",
                 "description": "No longer experimental."
               }
@@ -598,7 +604,8 @@
               "name": "hasRef",
               "meta": {
                 "added": [
-                  "v18.1.0"
+                  "v18.1.0",
+                  "v16.17.0"
                 ],
                 "changes": []
               },
@@ -776,7 +783,7 @@
           ],
           "methods": [
             {
-              "textRaw": "`worker.getHeapSnapshot()`",
+              "textRaw": "`worker.getHeapSnapshot([options])`",
               "type": "method",
               "name": "getHeapSnapshot",
               "meta": {
@@ -784,7 +791,13 @@
                   "v13.9.0",
                   "v12.17.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v19.1.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/44989",
+                    "description": "Support options to configure the heap snapshot."
+                  }
+                ]
               },
               "signatures": [
                 {
@@ -794,10 +807,32 @@
                     "type": "Promise",
                     "desc": "A promise for a Readable Stream containing a V8 heap snapshot"
                   },
-                  "params": []
+                  "params": [
+                    {
+                      "textRaw": "`options` {Object}",
+                      "name": "options",
+                      "type": "Object",
+                      "options": [
+                        {
+                          "textRaw": "`exposeInternals` {boolean} If true, expose internals in the heap snapshot. **Default:** `false`.",
+                          "name": "exposeInternals",
+                          "type": "boolean",
+                          "default": "`false`",
+                          "desc": "If true, expose internals in the heap snapshot."
+                        },
+                        {
+                          "textRaw": "`exposeNumericValues` {boolean} If true, expose numeric values in artificial fields. **Default:** `false`.",
+                          "name": "exposeNumericValues",
+                          "type": "boolean",
+                          "default": "`false`",
+                          "desc": "If true, expose numeric values in artificial fields."
+                        }
+                      ]
+                    }
+                  ]
                 }
               ],
-              "desc": "<p>Returns a readable stream for a V8 snapshot of the current state of the Worker.\nSee <a href=\"v8.html#v8getheapsnapshot\"><code>v8.getHeapSnapshot()</code></a> for more details.</p>\n<p>If the Worker thread is no longer running, which may occur before the\n<a href=\"#event-exit\"><code>'exit'</code> event</a> is emitted, the returned <code>Promise</code> is rejected\nimmediately with an <a href=\"errors.html#err_worker_not_running\"><code>ERR_WORKER_NOT_RUNNING</code></a> error.</p>"
+              "desc": "<p>Returns a readable stream for a V8 snapshot of the current state of the Worker.\nSee <a href=\"v8.html#v8getheapsnapshotoptions\"><code>v8.getHeapSnapshot()</code></a> for more details.</p>\n<p>If the Worker thread is no longer running, which may occur before the\n<a href=\"#event-exit\"><code>'exit'</code> event</a> is emitted, the returned <code>Promise</code> is rejected\nimmediately with an <a href=\"errors.html#err_worker_not_running\"><code>ERR_WORKER_NOT_RUNNING</code></a> error.</p>"
             },
             {
               "textRaw": "`worker.postMessage(value[, transferList])`",
@@ -919,7 +954,7 @@
                   "signatures": [
                     {
                       "return": {
-                        "textRaw": "Returns {Object}",
+                        "textRaw": "Returns: {Object}",
                         "name": "return",
                         "type": "Object",
                         "options": [

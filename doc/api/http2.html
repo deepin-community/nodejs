@@ -3,18 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>HTTP/2 | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.15.1">
+  <title>HTTP/2 | Node.js v20.15.1 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/http2.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
   
 </head>
 <body class="alt apidoc" id="api-section-http2">
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +109,7 @@
     <div id="column1" data-id="http2" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.15.1 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,11 +124,11 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.15.1</li>
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
@@ -241,6 +254,7 @@
 <li><a href="#event-stream_1">Event: <code>'stream'</code></a></li>
 <li><a href="#event-timeout_2">Event: <code>'timeout'</code></a></li>
 <li><a href="#serverclosecallback"><code>server.close([callback])</code></a></li>
+<li><span class="stability_1"><a href="#serversymbolasyncdispose"><code>server[Symbol.asyncDispose]()</code></a></span></li>
 <li><a href="#serversettimeoutmsecs-callback"><code>server.setTimeout([msecs][, callback])</code></a></li>
 <li><a href="#servertimeout"><code>server.timeout</code></a></li>
 <li><a href="#serverupdatesettingssettings"><code>server.updateSettings([settings])</code></a></li>
@@ -273,6 +287,7 @@
 <li><a href="#http2getdefaultsettings"><code>http2.getDefaultSettings()</code></a></li>
 <li><a href="#http2getpackedsettingssettings"><code>http2.getPackedSettings([settings])</code></a></li>
 <li><a href="#http2getunpackedsettingsbuf"><code>http2.getUnpackedSettings(buf)</code></a></li>
+<li><a href="#http2performserverhandshakesocket-options"><code>http2.performServerHandshake(socket[, options])</code></a></li>
 <li><a href="#http2sensitiveheaders"><code>http2.sensitiveHeaders</code></a></li>
 <li><a href="#headers-object">Headers object</a>
 <ul>
@@ -317,6 +332,7 @@
 <li><a href="#event-close_3">Event: <code>'close'</code></a></li>
 <li><a href="#event-finish">Event: <code>'finish'</code></a></li>
 <li><a href="#responseaddtrailersheaders"><code>response.addTrailers(headers)</code></a></li>
+<li><a href="#responseappendheadername-value"><code>response.appendHeader(name, value)</code></a></li>
 <li><span class="stability_0"><a href="#responseconnection"><code>response.connection</code></a></span></li>
 <li><a href="#responsecreatepushresponseheaders-callback"><code>response.createPushResponse(headers, callback)</code></a></li>
 <li><a href="#responseenddata-encoding-callback"><code>response.end([data[, encoding]][, callback])</code></a></li>
@@ -354,7 +370,7 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Index
       </a>
 
@@ -439,10 +455,11 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/http2.html">21.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v22.x/api/http2.html">22.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/http2.html">21.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v20.x/api/http2.html">20.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v19.x/api/http2.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/http2.html">18.x <b>LTS</b></a></li>
@@ -460,7 +477,7 @@
   
             <li class="picker-header">
               <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
@@ -481,7 +498,7 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
 <li><span class="stability_2"><a href="#http2">HTTP/2</a></span>
 <ul>
 <li><a href="#determining-if-crypto-support-is-unavailable">Determining if crypto support is unavailable</a></li>
@@ -603,6 +620,7 @@
 <li><a href="#event-stream_1">Event: <code>'stream'</code></a></li>
 <li><a href="#event-timeout_2">Event: <code>'timeout'</code></a></li>
 <li><a href="#serverclosecallback"><code>server.close([callback])</code></a></li>
+<li><span class="stability_1"><a href="#serversymbolasyncdispose"><code>server[Symbol.asyncDispose]()</code></a></span></li>
 <li><a href="#serversettimeoutmsecs-callback"><code>server.setTimeout([msecs][, callback])</code></a></li>
 <li><a href="#servertimeout"><code>server.timeout</code></a></li>
 <li><a href="#serverupdatesettingssettings"><code>server.updateSettings([settings])</code></a></li>
@@ -635,6 +653,7 @@
 <li><a href="#http2getdefaultsettings"><code>http2.getDefaultSettings()</code></a></li>
 <li><a href="#http2getpackedsettingssettings"><code>http2.getPackedSettings([settings])</code></a></li>
 <li><a href="#http2getunpackedsettingsbuf"><code>http2.getUnpackedSettings(buf)</code></a></li>
+<li><a href="#http2performserverhandshakesocket-options"><code>http2.performServerHandshake(socket[, options])</code></a></li>
 <li><a href="#http2sensitiveheaders"><code>http2.sensitiveHeaders</code></a></li>
 <li><a href="#headers-object">Headers object</a>
 <ul>
@@ -679,6 +698,7 @@
 <li><a href="#event-close_3">Event: <code>'close'</code></a></li>
 <li><a href="#event-finish">Event: <code>'finish'</code></a></li>
 <li><a href="#responseaddtrailersheaders"><code>response.addTrailers(headers)</code></a></li>
+<li><a href="#responseappendheadername-value"><code>response.appendHeader(name, value)</code></a></li>
 <li><span class="stability_0"><a href="#responseconnection"><code>response.connection</code></a></span></li>
 <li><a href="#responsecreatepushresponseheaders-callback"><code>response.createPushResponse(headers, callback)</code></a></li>
 <li><a href="#responseenddata-encoding-callback"><code>response.end([data[, encoding]][, callback])</code></a></li>
@@ -712,7 +732,7 @@
 </li>
 </ul></details>
 
-      <div id="apicontent">
+      <div role="main" id="apicontent">
         <h2>HTTP/2<span><a class="mark" href="#http2" id="http2">#</a></span><a aria-hidden="true" class="legacy" id="http2_http_2"></a></h2>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
@@ -731,7 +751,7 @@
 </div>
 
 <p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.19.1/lib/http2.js">lib/http2.js</a></p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v20.15.1/lib/http2.js">lib/http2.js</a></p>
 <p>The <code>node:http2</code> module provides an implementation of the <a href="https://tools.ietf.org/html/rfc7540">HTTP/2</a> protocol.
 It can be accessed using:</p>
 <pre><code class="language-js"><span class="hljs-keyword">const</span> http2 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:http2'</span>);</code> <button class="copy-button">copy</button></pre>
@@ -1194,11 +1214,12 @@ the delta.</p>
 
 <span class="hljs-keyword">const</span> server = http2.<span class="hljs-title function_">createServer</span>();
 <span class="hljs-keyword">const</span> expectedWindowSize = <span class="hljs-number">2</span> ** <span class="hljs-number">20</span>;
-server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'connect'</span>, <span class="hljs-function">(<span class="hljs-params">session</span>) =></span> {
+server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'session'</span>, <span class="hljs-function">(<span class="hljs-params">session</span>) =></span> {
 
   <span class="hljs-comment">// Set local window size to be 2 ** 20</span>
   session.<span class="hljs-title function_">setLocalWindowSize</span>(expectedWindowSize);
 });</code> <button class="copy-button">copy</button></pre>
+<p>For http2 clients the proper event is either <code>'connect'</code> or <code>'remoteSettings'</code>.</p>
 <h5><code>http2session.setTimeout(msecs, callback)</code><span><a class="mark" href="#http2sessionsettimeoutmsecs-callback" id="http2sessionsettimeoutmsecs-callback">#</a></span><a aria-hidden="true" class="legacy" id="http2_http2session_settimeout_msecs_callback"></a></h5>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
@@ -2437,6 +2458,13 @@ all active sessions.</p>
 <p>If <code>callback</code> is provided, it is not invoked until all active sessions have been
 closed, although the server has already stopped allowing new sessions. See
 <a href="net.html#serverclosecallback"><code>net.Server.close()</code></a> for more details.</p>
+<h5><code>server[Symbol.asyncDispose]()</code><span><a class="mark" href="#serversymbolasyncdispose" id="serversymbolasyncdispose">#</a></span><a aria-hidden="true" class="legacy" id="http2_server_symbol_asyncdispose"></a></h5>
+<div class="api_metadata">
+<span>Added in: v20.4.0</span>
+</div>
+<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
+<p>Calls <a href="#serverclosecallback"><code>server.close()</code></a> and returns a promise that fulfills when the
+server has closed.</p>
 <h5><code>server.setTimeout([msecs][, callback])</code><span><a class="mark" href="#serversettimeoutmsecs-callback" id="serversettimeoutmsecs-callback">#</a></span><a aria-hidden="true" class="legacy" id="http2_server_settimeout_msecs_callback"></a></h5>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
@@ -2607,7 +2635,15 @@ a given number of milliseconds set using <code>http2secureServer.setTimeout()</c
 <strong>Default:</strong> 2 minutes.</p>
 <h5>Event: <code>'unknownProtocol'</code><span><a class="mark" href="#event-unknownprotocol" id="event-unknownprotocol">#</a></span><a aria-hidden="true" class="legacy" id="http2_event_unknownprotocol"></a></h5>
 <div class="api_metadata">
-<span>Added in: v8.4.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>This event will only be emitted if the client did not transmit an ALPN extension during the TLS handshake.</p></td></tr>
+<tr><td>v8.4.0</td>
+<td><p><span>Added in: v8.4.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><code>socket</code> <a href="stream.html#class-streamduplex" class="type">&#x3C;stream.Duplex></a></li>
@@ -2616,8 +2652,15 @@ a given number of milliseconds set using <code>http2secureServer.setTimeout()</c
 negotiate an allowed protocol (i.e. HTTP/2 or HTTP/1.1). The event handler
 receives the socket for handling. If no listener is registered for this event,
 the connection is terminated. A timeout may be specified using the
-<code>'unknownProtocolTimeout'</code> option passed to <a href="#http2createsecureserveroptions-onrequesthandler"><code>http2.createSecureServer()</code></a>.
-See the <a href="#compatibility-api">Compatibility API</a>.</p>
+<code>'unknownProtocolTimeout'</code> option passed to <a href="#http2createsecureserveroptions-onrequesthandler"><code>http2.createSecureServer()</code></a>.</p>
+<p>In earlier versions of Node.js, this event would be emitted if <code>allowHTTP1</code> is
+<code>false</code> and, during the TLS handshake, the client either does not send an ALPN
+extension or sends an ALPN extension that does not include HTTP/2 (<code>h2</code>). Newer
+versions of Node.js only emit this event if <code>allowHTTP1</code> is <code>false</code> and the
+client does not send an ALPN extension. If the client sends an ALPN extension
+that does not include HTTP/2 (or HTTP/1.1 if <code>allowHTTP1</code> is <code>true</code>), the TLS
+handshake will fail and no secure connection will be established.</p>
+<p>See the <a href="#compatibility-api">Compatibility API</a>.</p>
 <h5><code>server.close([callback])</code><span><a class="mark" href="#serverclosecallback_1" id="serverclosecallback_1">#</a></span><a aria-hidden="true" class="legacy" id="http2_server_close_callback_1"></a></h5>
 <div class="api_metadata">
 <span>Added in: v8.4.0</span>
@@ -2773,6 +2816,11 @@ to open streams is therefore regarded as a sign of a misbehaving peer.
 <strong>Default:</strong> <code>100</code>.</li>
 <li><code>settings</code> <a href="http2.html#settings-object" class="type">&#x3C;HTTP/2 Settings Object></a> The initial settings to send to the
 remote peer upon connection.</li>
+<li><code>remoteCustomSettings</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="type">&#x3C;Array></a> The array of integer values determines the
+settings types, which are included in the <code>CustomSettings</code>-property of
+the received remoteSettings. Please see the <code>CustomSettings</code>-property of
+the <code>Http2Settings</code> object for more information,
+on the allowed setting types.</li>
 <li><code>Http1IncomingMessage</code> <a href="http.html#class-httpincomingmessage" class="type">&#x3C;http.IncomingMessage></a> Specifies the
 <code>IncomingMessage</code> class to used for HTTP/1 fallback. Useful for extending
 the original <code>http.IncomingMessage</code>. <strong>Default:</strong> <code>http.IncomingMessage</code>.</li>
@@ -2907,6 +2955,10 @@ to open streams is therefore regarded as a sign of a misbehaving peer.
 <strong>Default:</strong> <code>100</code>.</li>
 <li><code>settings</code> <a href="http2.html#settings-object" class="type">&#x3C;HTTP/2 Settings Object></a> The initial settings to send to the
 remote peer upon connection.</li>
+<li><code>remoteCustomSettings</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="type">&#x3C;Array></a> The array of integer values determines the
+settings types, which are included in the <code>customSettings</code>-property of the
+received remoteSettings. Please see the <code>customSettings</code>-property of the
+<code>Http2Settings</code> object for more information, on the allowed setting types.</li>
 <li>...: Any <a href="tls.html#tlscreateserveroptions-secureconnectionlistener"><code>tls.createServer()</code></a> options can be provided. For
 servers, the identity options (<code>pfx</code> or <code>key</code>/<code>cert</code>) are usually required.</li>
 <li><code>origins</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string[]></a> An array of origin strings to send within an <code>ORIGIN</code>
@@ -3024,6 +3076,10 @@ be overridden if the remote peer sets its own value for
 <code>'https:'</code></li>
 <li><code>settings</code> <a href="http2.html#settings-object" class="type">&#x3C;HTTP/2 Settings Object></a> The initial settings to send to the
 remote peer upon connection.</li>
+<li><code>remoteCustomSettings</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="type">&#x3C;Array></a> The array of integer values determines the
+settings types, which are included in the <code>CustomSettings</code>-property of the
+received remoteSettings. Please see the <code>CustomSettings</code>-property of the
+<code>Http2Settings</code> object for more information, on the allowed setting types.</li>
 <li><code>createConnection</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> An optional callback that receives the <code>URL</code>
 instance passed to <code>connect</code> and the <code>options</code> object, and returns any
 <a href="stream.html#class-streamduplex"><code>Duplex</code></a> stream that is to be used as the connection for this session.</li>
@@ -3170,6 +3226,20 @@ for use with the <code>HTTP2-Settings</code> header field.</p>
 </ul>
 <p>Returns a <a href="#settings-object">HTTP/2 Settings Object</a> containing the deserialized settings from
 the given <code>Buffer</code> as generated by <code>http2.getPackedSettings()</code>.</p>
+<h4><code>http2.performServerHandshake(socket[, options])</code><span><a class="mark" href="#http2performserverhandshakesocket-options" id="http2performserverhandshakesocket-options">#</a></span><a aria-hidden="true" class="legacy" id="http2_http2_performserverhandshake_socket_options"></a></h4>
+<div class="api_metadata">
+<span>Added in: v20.12.0</span>
+</div>
+<ul>
+<li><code>socket</code> <a href="stream.html#class-streamduplex" class="type">&#x3C;stream.Duplex></a></li>
+<li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
+<ul>
+<li>...: Any <a href="#http2createserveroptions-onrequesthandler"><code>http2.createServer()</code></a> option can be provided.</li>
+</ul>
+</li>
+<li>Returns: <a href="http2.html#class-serverhttp2session" class="type">&#x3C;ServerHttp2Session></a></li>
+</ul>
+<p>Create an HTTP/2 server session from an existing socket.</p>
 <h4><code>http2.sensitiveHeaders</code><span><a class="mark" href="#http2sensitiveheaders" id="http2sensitiveheaders">#</a></span><a aria-hidden="true" class="legacy" id="http2_http2_sensitiveheaders"></a></h4>
 <div class="api_metadata">
 <span>Added in: v15.0.0, v14.18.0</span>
@@ -3286,6 +3356,21 @@ Protocol" defined by <a href="https://tools.ietf.org/html/rfc8441">RFC 8441</a> 
 meaningful if sent by the server. Once the <code>enableConnectProtocol</code> setting
 has been enabled for a given <code>Http2Session</code>, it cannot be disabled.
 <strong>Default:</strong> <code>false</code>.</li>
+<li><code>customSettings</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> Specifies additional settings, yet not implemented
+in node and the underlying libraries. The key of the object defines the
+numeric value of the settings type (as defined in the "HTTP/2 SETTINGS"
+registry established by [RFC 7540]) and the values the actual numeric value
+of the settings.
+The settings type has to be an integer in the range from 1 to 2^16-1.
+It should not be a settings type already handled by node, i.e. currently
+it should be greater than 6, although it is not an error.
+The values need to be unsigned integers in the range from 0 to 2^32-1.
+Currently, a maximum of up 10 custom settings is supported.
+It is only supported for sending SETTINGS, or for receiving settings values
+specified in the <code>remoteCustomSettings</code> options of the server or client
+object. Do not mix the <code>customSettings</code>-mechanism for a settings id with
+interfaces for the natively handled settings, in case a setting becomes
+natively supported in a future node version.</li>
 </ul>
 <p>All additional properties on the settings object are ignored.</p>
 <h4>Error handling<span><a class="mark" href="#error-handling" id="error-handling">#</a></span><a aria-hidden="true" class="legacy" id="http2_error_handling"></a></h4>
@@ -3692,7 +3777,7 @@ HTTP request. If the request is:</p>
 <pre><code class="language-http"><span class="hljs-keyword">GET</span> <span class="hljs-string">/status?name=ryan</span> <span class="hljs-meta">HTTP/1.1</span>
 <span class="hljs-attribute">Accept</span><span class="hljs-punctuation">: </span>text/plain</code> <button class="copy-button">copy</button></pre>
 <p>Then <code>request.url</code> will be:</p>
-<!-- eslint-disable semi -->
+<!-- eslint-disable @stylistic/js/semi -->
 <pre><code class="language-js"><span class="hljs-string">'/status?name=ryan'</span></code> <button class="copy-button">copy</button></pre>
 <p>To parse the url into its parts, <code>new URL()</code> can be used:</p>
 <pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">node</span>
@@ -3746,6 +3831,28 @@ does not imply that the client has received anything yet.</p>
 message) to the response.</p>
 <p>Attempting to set a header field name or value that contains invalid characters
 will result in a <a href="errors.html#class-typeerror"><code>TypeError</code></a> being thrown.</p>
+<h5><code>response.appendHeader(name, value)</code><span><a class="mark" href="#responseappendheadername-value" id="responseappendheadername-value">#</a></span><a aria-hidden="true" class="legacy" id="http2_response_appendheader_name_value"></a></h5>
+<div class="api_metadata">
+<span>Added in: v20.12.0</span>
+</div>
+<ul>
+<li><code>name</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
+<li><code>value</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string[]></a></li>
+</ul>
+<p>Append a single header value to the header object.</p>
+<p>If the value is an array, this is equivalent to calling this method multiple
+times.</p>
+<p>If there were no previous values for the header, this is equivalent to calling
+<a href="#responsesetheadername-value"><code>response.setHeader()</code></a>.</p>
+<p>Attempting to set a header field name or value that contains invalid characters
+will result in a <a href="errors.html#class-typeerror"><code>TypeError</code></a> being thrown.</p>
+<pre><code class="language-js"><span class="hljs-comment">// Returns headers including "set-cookie: a" and "set-cookie: b"</span>
+<span class="hljs-keyword">const</span> server = http2.<span class="hljs-title function_">createServer</span>(<span class="hljs-function">(<span class="hljs-params">req, res</span>) =></span> {
+  res.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">'set-cookie'</span>, <span class="hljs-string">'a'</span>);
+  res.<span class="hljs-title function_">appendHeader</span>(<span class="hljs-string">'set-cookie'</span>, <span class="hljs-string">'b'</span>);
+  res.<span class="hljs-title function_">writeHead</span>(<span class="hljs-number">200</span>);
+  res.<span class="hljs-title function_">end</span>(<span class="hljs-string">'ok'</span>);
+});</code> <button class="copy-button">copy</button></pre>
 <h5><code>response.connection</code><span><a class="mark" href="#responseconnection" id="responseconnection">#</a></span><a aria-hidden="true" class="legacy" id="http2_response_connection"></a></h5>
 <div class="api_metadata">
 <span>Added in: v8.4.0</span><span>Deprecated since: v13.0.0</span>

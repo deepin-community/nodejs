@@ -3,18 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>C++ addons | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.15.1">
+  <title>C++ addons | Node.js v20.15.1 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/addons.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
   
 </head>
 <body class="alt apidoc" id="api-section-addons">
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +109,7 @@
     <div id="column1" data-id="addons" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.15.1 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,11 +124,11 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.15.1</li>
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
@@ -155,7 +168,7 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Index
       </a>
 
@@ -240,10 +253,11 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/addons.html">21.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v22.x/api/addons.html">22.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/addons.html">21.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v20.x/api/addons.html">20.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v19.x/api/addons.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/addons.html">18.x <b>LTS</b></a></li>
@@ -267,7 +281,7 @@
   
             <li class="picker-header">
               <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
@@ -288,7 +302,7 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
 <li><a href="#c-addons">C++ addons</a>
 <ul>
 <li><a href="#hello-world">Hello world</a>
@@ -320,7 +334,7 @@
 </li>
 </ul></details>
 
-      <div id="apicontent">
+      <div role="main" id="apicontent">
         <h2>C++ addons<span><a class="mark" href="#c-addons" id="c-addons">#</a></span><a aria-hidden="true" class="legacy" id="addons_c_addons"></a></h2>
 
 
@@ -765,7 +779,7 @@ filename to the <code>sources</code> array:</p>
 <pre><code class="language-json"><span class="hljs-attr">"sources"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">"addon.cc"</span><span class="hljs-punctuation">,</span> <span class="hljs-string">"myexample.cc"</span><span class="hljs-punctuation">]</span></code> <button class="copy-button">copy</button></pre>
 <p>Once the <code>binding.gyp</code> file is ready, the example addons can be configured and
 built using <code>node-gyp</code>:</p>
-<pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">node-gyp configure build</span></code> <button class="copy-button">copy</button></pre>
+<pre><code class="language-bash">node-gyp configure build</code> <button class="copy-button">copy</button></pre>
 <h4>Function arguments<span><a class="mark" href="#function-arguments" id="function-arguments">#</a></span><a aria-hidden="true" class="legacy" id="addons_function_arguments"></a></h4>
 <p>Addons will typically expose objects and functions that can be accessed from
 JavaScript running within Node.js. When functions are invoked from JavaScript,
@@ -1027,8 +1041,8 @@ instances to be created using the JavaScript <code>new</code> operator:</p>
 
 <span class="hljs-meta">#<span class="hljs-keyword">endif</span></span></code> <button class="copy-button">copy</button></pre>
 <p>In <code>myobject.cc</code>, implement the various methods that are to be exposed.
-Below, the method <code>plusOne()</code> is exposed by adding it to the constructor's
-prototype:</p>
+In the following code, the method <code>plusOne()</code> is exposed by adding it to the
+constructor's prototype:</p>
 <pre><code class="language-cpp"><span class="hljs-comment">// myobject.cc</span>
 <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"myobject.h"</span></span>
 
@@ -1092,7 +1106,8 @@ MyObject::~<span class="hljs-built_in">MyObject</span>() {
     <span class="hljs-type">const</span> <span class="hljs-type">int</span> argc = <span class="hljs-number">1</span>;
     Local&#x3C;Value> argv[argc] = { args[<span class="hljs-number">0</span>] };
     Local&#x3C;Function> cons =
-        args.<span class="hljs-built_in">Data</span>().<span class="hljs-built_in">As</span>&#x3C;Object>()-><span class="hljs-built_in">GetInternalField</span>(<span class="hljs-number">0</span>).<span class="hljs-built_in">As</span>&#x3C;Function>();
+        args.<span class="hljs-built_in">Data</span>().<span class="hljs-built_in">As</span>&#x3C;Object>()-><span class="hljs-built_in">GetInternalField</span>(<span class="hljs-number">0</span>)
+            .<span class="hljs-built_in">As</span>&#x3C;Value>().<span class="hljs-built_in">As</span>&#x3C;Function>();
     Local&#x3C;Object> result =
         cons-><span class="hljs-built_in">NewInstance</span>(context, argc, argv).<span class="hljs-built_in">ToLocalChecked</span>();
     args.<span class="hljs-built_in">GetReturnValue</span>().<span class="hljs-built_in">Set</span>(result);

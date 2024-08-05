@@ -153,10 +153,10 @@
                           "type": "Object",
                           "options": [
                             {
-                              "textRaw": "`readable` {ReadableStream} The `ReadableStream` to which `transform.writable` will push the potentially modified data is receives from this `ReadableStream`.",
+                              "textRaw": "`readable` {ReadableStream} The `ReadableStream` to which `transform.writable` will push the potentially modified data it receives from this `ReadableStream`.",
                               "name": "readable",
                               "type": "ReadableStream",
-                              "desc": "The `ReadableStream` to which `transform.writable` will push the potentially modified data is receives from this `ReadableStream`."
+                              "desc": "The `ReadableStream` to which `transform.writable` will push the potentially modified data it receives from this `ReadableStream`."
                             },
                             {
                               "textRaw": "`writable` {WritableStream} The `WritableStream` to which this `ReadableStream`'s data will be written.",
@@ -200,7 +200,7 @@
                       ]
                     }
                   ],
-                  "desc": "<p>Connects this <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> to the pair of <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> and\n<a href=\"webstreams.html#class-writablestream\" class=\"type\">&lt;WritableStream&gt;</a> provided in the <code>transform</code> argument such that the\ndata from this <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> is written in to <code>transform.writable</code>,\npossibly transformed, then pushed to <code>transform.readable</code>. Once the\npipeline is configured, <code>transform.readable</code> is returned.</p>\n<p>Causes the <code>readableStream.locked</code> to be <code>true</code> while the pipe operation\nis active.</p>\n<pre><code class=\"language-mjs\">import {\n  ReadableStream,\n  TransformStream,\n} from 'node:stream/web';\n\nconst stream = new ReadableStream({\n  start(controller) {\n    controller.enqueue('a');\n  },\n});\n\nconst transform = new TransformStream({\n  transform(chunk, controller) {\n    controller.enqueue(chunk.toUpperCase());\n  },\n});\n\nconst transformedStream = stream.pipeThrough(transform);\n\nfor await (const chunk of transformedStream)\n  console.log(chunk);\n</code></pre>\n<pre><code class=\"language-cjs\">const {\n  ReadableStream,\n  TransformStream,\n} = require('node:stream/web');\n\nconst stream = new ReadableStream({\n  start(controller) {\n    controller.enqueue('a');\n  },\n});\n\nconst transform = new TransformStream({\n  transform(chunk, controller) {\n    controller.enqueue(chunk.toUpperCase());\n  },\n});\n\nconst transformedStream = stream.pipeThrough(transform);\n\n(async () => {\n  for await (const chunk of transformedStream)\n    console.log(chunk);\n})();\n</code></pre>"
+                  "desc": "<p>Connects this <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> to the pair of <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> and\n<a href=\"webstreams.html#class-writablestream\" class=\"type\">&lt;WritableStream&gt;</a> provided in the <code>transform</code> argument such that the\ndata from this <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> is written in to <code>transform.writable</code>,\npossibly transformed, then pushed to <code>transform.readable</code>. Once the\npipeline is configured, <code>transform.readable</code> is returned.</p>\n<p>Causes the <code>readableStream.locked</code> to be <code>true</code> while the pipe operation\nis active.</p>\n<pre><code class=\"language-mjs\">import {\n  ReadableStream,\n  TransformStream,\n} from 'node:stream/web';\n\nconst stream = new ReadableStream({\n  start(controller) {\n    controller.enqueue('a');\n  },\n});\n\nconst transform = new TransformStream({\n  transform(chunk, controller) {\n    controller.enqueue(chunk.toUpperCase());\n  },\n});\n\nconst transformedStream = stream.pipeThrough(transform);\n\nfor await (const chunk of transformedStream)\n  console.log(chunk);\n  // Prints: A\n</code></pre>\n<pre><code class=\"language-cjs\">const {\n  ReadableStream,\n  TransformStream,\n} = require('node:stream/web');\n\nconst stream = new ReadableStream({\n  start(controller) {\n    controller.enqueue('a');\n  },\n});\n\nconst transform = new TransformStream({\n  transform(chunk, controller) {\n    controller.enqueue(chunk.toUpperCase());\n  },\n});\n\nconst transformedStream = stream.pipeThrough(transform);\n\n(async () => {\n  for await (const chunk of transformedStream)\n    console.log(chunk);\n    // Prints: A\n})();\n</code></pre>"
                 },
                 {
                   "textRaw": "`readableStream.pipeTo(destination[, options])`",
@@ -272,7 +272,10 @@
                     ],
                     "changes": [
                       {
-                        "version": "v18.10.0",
+                        "version": [
+                          "v18.10.0",
+                          "v16.18.0"
+                        ],
                         "pr-url": "https://github.com/nodejs/node/pull/44505",
                         "description": "Support teeing a readable byte stream."
                       }
@@ -1297,7 +1300,7 @@
                   }
                 ]
               },
-              "desc": "<p>The <code>WritableStreamDefaultController</code> manage's the <a href=\"webstreams.html#class-writablestream\" class=\"type\">&lt;WritableStream&gt;</a>'s\ninternal state.</p>",
+              "desc": "<p>The <code>WritableStreamDefaultController</code> manages the <a href=\"webstreams.html#class-writablestream\" class=\"type\">&lt;WritableStream&gt;</a>'s\ninternal state.</p>",
               "methods": [
                 {
                   "textRaw": "`writableStreamDefaultController.error([error])`",
@@ -1982,10 +1985,10 @@
                 {
                   "params": [
                     {
-                      "textRaw": "`format` {string} One of either `'deflate'` or `'gzip'`.",
+                      "textRaw": "`format` {string} One of `'deflate'`, `'deflate-raw'`, or `'gzip'`.",
                       "name": "format",
                       "type": "string",
-                      "desc": "One of either `'deflate'` or `'gzip'`."
+                      "desc": "One of `'deflate'`, `'deflate-raw'`, or `'gzip'`."
                     }
                   ]
                 }
@@ -2035,14 +2038,40 @@
                 {
                   "params": [
                     {
-                      "textRaw": "`format` {string} One of either `'deflate'` or `'gzip'`.",
+                      "textRaw": "`format` {string} One of `'deflate'`, `'deflate-raw'`, or `'gzip'`.",
                       "name": "format",
                       "type": "string",
-                      "desc": "One of either `'deflate'` or `'gzip'`."
+                      "desc": "One of `'deflate'`, `'deflate-raw'`, or `'gzip'`."
                     }
                   ]
                 }
               ]
+            }
+          ],
+          "methods": [
+            {
+              "textRaw": "`ReadableStream.from(iterable)`",
+              "type": "method",
+              "name": "from",
+              "meta": {
+                "added": [
+                  "v20.6.0"
+                ],
+                "changes": []
+              },
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "textRaw": "`iterable` {Iterable} Object implementing the `Symbol.asyncIterator` or `Symbol.iterator` iterable protocol.",
+                      "name": "iterable",
+                      "type": "Iterable",
+                      "desc": "Object implementing the `Symbol.asyncIterator` or `Symbol.iterator` iterable protocol."
+                    }
+                  ]
+                }
+              ],
+              "desc": "<p>A utility method that creates a new <a href=\"webstreams.html#class-readablestream\" class=\"type\">&lt;ReadableStream&gt;</a> from an iterable.</p>\n<pre><code class=\"language-mjs\">import { ReadableStream } from 'node:stream/web';\n\nasync function* asyncIterableGenerator() {\n  yield 'a';\n  yield 'b';\n  yield 'c';\n}\n\nconst stream = ReadableStream.from(asyncIterableGenerator());\n\nfor await (const chunk of stream)\n  console.log(chunk); // Prints: 'a', 'b', 'c'\n</code></pre>\n<pre><code class=\"language-cjs\">const { ReadableStream } = require('node:stream/web');\n\nasync function* asyncIterableGenerator() {\n  yield 'a';\n  yield 'b';\n  yield 'c';\n}\n\n(async () => {\n  const stream = ReadableStream.from(asyncIterableGenerator());\n\n  for await (const chunk of stream)\n    console.log(chunk); // Prints: 'a', 'b', 'c'\n})();\n</code></pre>"
             }
           ],
           "modules": [
@@ -2084,7 +2113,7 @@
                       ]
                     }
                   ],
-                  "desc": "<pre><code class=\"language-mjs\">import { arrayBuffer } from 'node:stream/consumers';\nimport { Readable } from 'node:stream';\nimport { TextEncoder } from 'node:util';\n\nconst encoder = new TextEncoder();\nconst dataArray = encoder.encode('hello world from consumers!');\n\nconst readable = Readable.from(dataArray);\nconst data = await arrayBuffer(readable);\nconsole.log(`from readable: ${data.byteLength}`);\n</code></pre>\n<pre><code class=\"language-cjs\">const { arrayBuffer } = require('node:stream/consumers');\nconst { Readable } = require('node:stream');\nconst { TextEncoder } = require('node:util');\n\nconst encoder = new TextEncoder();\nconst dataArray = encoder.encode('hello world from consumers!');\nconst readable = Readable.from(dataArray);\narrayBuffer(readable).then((data) => {\n  console.log(`from readable: ${data.byteLength}`);\n});\n</code></pre>"
+                  "desc": "<pre><code class=\"language-mjs\">import { arrayBuffer } from 'node:stream/consumers';\nimport { Readable } from 'node:stream';\nimport { TextEncoder } from 'node:util';\n\nconst encoder = new TextEncoder();\nconst dataArray = encoder.encode('hello world from consumers!');\n\nconst readable = Readable.from(dataArray);\nconst data = await arrayBuffer(readable);\nconsole.log(`from readable: ${data.byteLength}`);\n// Prints: from readable: 76\n</code></pre>\n<pre><code class=\"language-cjs\">const { arrayBuffer } = require('node:stream/consumers');\nconst { Readable } = require('node:stream');\nconst { TextEncoder } = require('node:util');\n\nconst encoder = new TextEncoder();\nconst dataArray = encoder.encode('hello world from consumers!');\nconst readable = Readable.from(dataArray);\narrayBuffer(readable).then((data) => {\n  console.log(`from readable: ${data.byteLength}`);\n  // Prints: from readable: 76\n});\n</code></pre>"
                 },
                 {
                   "textRaw": "`streamConsumers.blob(stream)`",
@@ -2113,7 +2142,7 @@
                       ]
                     }
                   ],
-                  "desc": "<pre><code class=\"language-mjs\">import { blob } from 'node:stream/consumers';\n\nconst dataBlob = new Blob(['hello world from consumers!']);\n\nconst readable = dataBlob.stream();\nconst data = await blob(readable);\nconsole.log(`from readable: ${data.size}`);\n</code></pre>\n<pre><code class=\"language-cjs\">const { blob } = require('node:stream/consumers');\n\nconst dataBlob = new Blob(['hello world from consumers!']);\n\nconst readable = dataBlob.stream();\nblob(readable).then((data) => {\n  console.log(`from readable: ${data.size}`);\n});\n</code></pre>"
+                  "desc": "<pre><code class=\"language-mjs\">import { blob } from 'node:stream/consumers';\n\nconst dataBlob = new Blob(['hello world from consumers!']);\n\nconst readable = dataBlob.stream();\nconst data = await blob(readable);\nconsole.log(`from readable: ${data.size}`);\n// Prints: from readable: 27\n</code></pre>\n<pre><code class=\"language-cjs\">const { blob } = require('node:stream/consumers');\n\nconst dataBlob = new Blob(['hello world from consumers!']);\n\nconst readable = dataBlob.stream();\nblob(readable).then((data) => {\n  console.log(`from readable: ${data.size}`);\n  // Prints: from readable: 27\n});\n</code></pre>"
                 },
                 {
                   "textRaw": "`streamConsumers.buffer(stream)`",
@@ -2142,7 +2171,7 @@
                       ]
                     }
                   ],
-                  "desc": "<pre><code class=\"language-mjs\">import { buffer } from 'node:stream/consumers';\nimport { Readable } from 'node:stream';\nimport { Buffer } from 'node:buffer';\n\nconst dataBuffer = Buffer.from('hello world from consumers!');\n\nconst readable = Readable.from(dataBuffer);\nconst data = await buffer(readable);\nconsole.log(`from readable: ${data.length}`);\n</code></pre>\n<pre><code class=\"language-cjs\">const { buffer } = require('node:stream/consumers');\nconst { Readable } = require('node:stream');\nconst { Buffer } = require('node:buffer');\n\nconst dataBuffer = Buffer.from('hello world from consumers!');\n\nconst readable = Readable.from(dataBuffer);\nbuffer(readable).then((data) => {\n  console.log(`from readable: ${data.length}`);\n});\n</code></pre>"
+                  "desc": "<pre><code class=\"language-mjs\">import { buffer } from 'node:stream/consumers';\nimport { Readable } from 'node:stream';\nimport { Buffer } from 'node:buffer';\n\nconst dataBuffer = Buffer.from('hello world from consumers!');\n\nconst readable = Readable.from(dataBuffer);\nconst data = await buffer(readable);\nconsole.log(`from readable: ${data.length}`);\n// Prints: from readable: 27\n</code></pre>\n<pre><code class=\"language-cjs\">const { buffer } = require('node:stream/consumers');\nconst { Readable } = require('node:stream');\nconst { Buffer } = require('node:buffer');\n\nconst dataBuffer = Buffer.from('hello world from consumers!');\n\nconst readable = Readable.from(dataBuffer);\nbuffer(readable).then((data) => {\n  console.log(`from readable: ${data.length}`);\n  // Prints: from readable: 27\n});\n</code></pre>"
                 },
                 {
                   "textRaw": "`streamConsumers.json(stream)`",
@@ -2171,7 +2200,7 @@
                       ]
                     }
                   ],
-                  "desc": "<pre><code class=\"language-mjs\">import { json } from 'node:stream/consumers';\nimport { Readable } from 'node:stream';\n\nconst items = Array.from(\n  {\n    length: 100,\n  },\n  () => ({\n    message: 'hello world from consumers!',\n  }),\n);\n\nconst readable = Readable.from(JSON.stringify(items));\nconst data = await json(readable);\nconsole.log(`from readable: ${data.length}`);\n</code></pre>\n<pre><code class=\"language-cjs\">const { json } = require('node:stream/consumers');\nconst { Readable } = require('node:stream');\n\nconst items = Array.from(\n  {\n    length: 100,\n  },\n  () => ({\n    message: 'hello world from consumers!',\n  }),\n);\n\nconst readable = Readable.from(JSON.stringify(items));\njson(readable).then((data) => {\n  console.log(`from readable: ${data.length}`);\n});\n</code></pre>"
+                  "desc": "<pre><code class=\"language-mjs\">import { json } from 'node:stream/consumers';\nimport { Readable } from 'node:stream';\n\nconst items = Array.from(\n  {\n    length: 100,\n  },\n  () => ({\n    message: 'hello world from consumers!',\n  }),\n);\n\nconst readable = Readable.from(JSON.stringify(items));\nconst data = await json(readable);\nconsole.log(`from readable: ${data.length}`);\n// Prints: from readable: 100\n</code></pre>\n<pre><code class=\"language-cjs\">const { json } = require('node:stream/consumers');\nconst { Readable } = require('node:stream');\n\nconst items = Array.from(\n  {\n    length: 100,\n  },\n  () => ({\n    message: 'hello world from consumers!',\n  }),\n);\n\nconst readable = Readable.from(JSON.stringify(items));\njson(readable).then((data) => {\n  console.log(`from readable: ${data.length}`);\n  // Prints: from readable: 100\n});\n</code></pre>"
                 },
                 {
                   "textRaw": "`streamConsumers.text(stream)`",
@@ -2200,7 +2229,7 @@
                       ]
                     }
                   ],
-                  "desc": "<pre><code class=\"language-mjs\">import { text } from 'node:stream/consumers';\nimport { Readable } from 'node:stream';\n\nconst readable = Readable.from('Hello world from consumers!');\nconst data = await text(readable);\nconsole.log(`from readable: ${data.length}`);\n</code></pre>\n<pre><code class=\"language-cjs\">const { text } = require('node:stream/consumers');\nconst { Readable } = require('node:stream');\n\nconst readable = Readable.from('Hello world from consumers!');\ntext(readable).then((data) => {\n  console.log(`from readable: ${data.length}`);\n});\n</code></pre>"
+                  "desc": "<pre><code class=\"language-mjs\">import { text } from 'node:stream/consumers';\nimport { Readable } from 'node:stream';\n\nconst readable = Readable.from('Hello world from consumers!');\nconst data = await text(readable);\nconsole.log(`from readable: ${data.length}`);\n// Prints: from readable: 27\n</code></pre>\n<pre><code class=\"language-cjs\">const { text } = require('node:stream/consumers');\nconst { Readable } = require('node:stream');\n\nconst readable = Readable.from('Hello world from consumers!');\ntext(readable).then((data) => {\n  console.log(`from readable: ${data.length}`);\n  // Prints: from readable: 27\n});\n</code></pre>"
                 }
               ],
               "type": "module",

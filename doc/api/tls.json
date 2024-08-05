@@ -8,12 +8,12 @@
       "introduced_in": "v0.10.0",
       "stability": 2,
       "stabilityText": "Stable",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.19.1/lib/tls.js\">lib/tls.js</a></p>\n<p>The <code>node:tls</code> module provides an implementation of the Transport Layer Security\n(TLS) and Secure Socket Layer (SSL) protocols that is built on top of OpenSSL.\nThe module can be accessed using:</p>\n<pre><code class=\"language-js\">const tls = require('node:tls');\n</code></pre>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v20.15.1/lib/tls.js\">lib/tls.js</a></p>\n<p>The <code>node:tls</code> module provides an implementation of the Transport Layer Security\n(TLS) and Secure Socket Layer (SSL) protocols that is built on top of OpenSSL.\nThe module can be accessed using:</p>\n<pre><code class=\"language-js\">const tls = require('node:tls');\n</code></pre>",
       "modules": [
         {
           "textRaw": "Determining if crypto support is unavailable",
           "name": "determining_if_crypto_support_is_unavailable",
-          "desc": "<p>It is possible for Node.js to be built without including support for the\n<code>node:crypto</code> module. In such cases, attempting to <code>import</code> from <code>tls</code> or\ncalling <code>require('node:tls')</code> will result in an error being thrown.</p>\n<p>When using CommonJS, the error thrown can be caught using try/catch:</p>\n<!-- eslint-skip -->\n<pre><code class=\"language-cjs\">let tls;\ntry {\n  tls = require('node:tls');\n} catch (err) {\n  console.error('tls support is disabled!');\n}\n</code></pre>\n<p>When using the lexical ESM <code>import</code> keyword, the error can only be\ncaught if a handler for <code>process.on('uncaughtException')</code> is registered\n<em>before</em> any attempt to load the module is made (using, for instance,\na preload module).</p>\n<p>When using ESM, if there is a chance that the code may be run on a build\nof Node.js where crypto support is not enabled, consider using the\n<a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import\"><code>import()</code></a> function instead of the lexical <code>import</code> keyword:</p>\n<pre><code class=\"language-mjs\">let tls;\ntry {\n  tls = await import('node:tls');\n} catch (err) {\n  console.error('tls support is disabled!');\n}\n</code></pre>",
+          "desc": "<p>It is possible for Node.js to be built without including support for the\n<code>node:crypto</code> module. In such cases, attempting to <code>import</code> from <code>tls</code> or\ncalling <code>require('node:tls')</code> will result in an error being thrown.</p>\n<p>When using CommonJS, the error thrown can be caught using try/catch:</p>\n<pre><code class=\"language-cjs\">let tls;\ntry {\n  tls = require('node:tls');\n} catch (err) {\n  console.error('tls support is disabled!');\n}\n</code></pre>\n<p>When using the lexical ESM <code>import</code> keyword, the error can only be\ncaught if a handler for <code>process.on('uncaughtException')</code> is registered\n<em>before</em> any attempt to load the module is made (using, for instance,\na preload module).</p>\n<p>When using ESM, if there is a chance that the code may be run on a build\nof Node.js where crypto support is not enabled, consider using the\n<a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import\"><code>import()</code></a> function instead of the lexical <code>import</code> keyword:</p>\n<pre><code class=\"language-mjs\">let tls;\ntry {\n  tls = await import('node:tls');\n} catch (err) {\n  console.error('tls support is disabled!');\n}\n</code></pre>",
           "type": "module",
           "displayName": "Determining if crypto support is unavailable"
         },
@@ -63,7 +63,7 @@
                 {
                   "textRaw": "Session tickets",
                   "name": "session_tickets",
-                  "desc": "<p>The servers encrypt the entire session state and send it\nto the client as a \"ticket\". When reconnecting, the state is sent to the server\nin the initial connection. This mechanism avoids the need for a server-side\nsession cache. If the server doesn't use the ticket, for any reason (failure\nto decrypt it, it's too old, etc.), it will create a new session and send a new\nticket. See <a href=\"https://tools.ietf.org/html/rfc5077\">RFC 5077</a> for more information.</p>\n<p>Resumption using session tickets is becoming commonly supported by many web\nbrowsers when making HTTPS requests.</p>\n<p>For Node.js, clients use the same APIs for resumption with session identifiers\nas for resumption with session tickets. For debugging, if\n<a href=\"#tlssocketgettlsticket\"><code>tls.TLSSocket.getTLSTicket()</code></a> returns a value, the session data contains a\nticket, otherwise it contains client-side session state.</p>\n<p>With TLSv1.3, be aware that multiple tickets may be sent by the server,\nresulting in multiple <code>'session'</code> events, see <a href=\"#event-session\"><code>'session'</code></a> for more\ninformation.</p>\n<p>Single process servers need no specific implementation to use session tickets.\nTo use session tickets across server restarts or load balancers, servers must\nall have the same ticket keys. There are three 16-byte keys internally, but the\ntls API exposes them as a single 48-byte buffer for convenience.</p>\n<p>It's possible to get the ticket keys by calling <a href=\"#servergetticketkeys\"><code>server.getTicketKeys()</code></a> on\none server instance and then distribute them, but it is more reasonable to\nsecurely generate 48 bytes of secure random data and set them with the\n<code>ticketKeys</code> option of <a href=\"#tlscreateserveroptions-secureconnectionlistener\"><code>tls.createServer()</code></a>. The keys should be regularly\nregenerated and server's keys can be reset with\n<a href=\"#serversetticketkeyskeys\"><code>server.setTicketKeys()</code></a>.</p>\n<p>Session ticket keys are cryptographic keys, and they <em><strong>must be stored\nsecurely</strong></em>. With TLS 1.2 and below, if they are compromised all sessions that\nused tickets encrypted with them can be decrypted. They should not be stored\non disk, and they should be regenerated regularly.</p>\n<p>If clients advertise support for tickets, the server will send them. The\nserver can disable tickets by supplying\n<code>require('node:constants').SSL_OP_NO_TICKET</code> in <code>secureOptions</code>.</p>\n<p>Both session identifiers and session tickets timeout, causing the server to\ncreate new sessions. The timeout can be configured with the <code>sessionTimeout</code>\noption of <a href=\"#tlscreateserveroptions-secureconnectionlistener\"><code>tls.createServer()</code></a>.</p>\n<p>For all the mechanisms, when resumption fails, servers will create new sessions.\nSince failing to resume the session does not cause TLS/HTTPS connection\nfailures, it is easy to not notice unnecessarily poor TLS performance. The\nOpenSSL CLI can be used to verify that servers are resuming sessions. Use the\n<code>-reconnect</code> option to <code>openssl s_client</code>, for example:</p>\n<pre><code class=\"language-console\">$ openssl s_client -connect localhost:443 -reconnect\n</code></pre>\n<p>Read through the debug output. The first connection should say \"New\", for\nexample:</p>\n<pre><code class=\"language-text\">New, TLSv1.2, Cipher is ECDHE-RSA-AES128-GCM-SHA256\n</code></pre>\n<p>Subsequent connections should say \"Reused\", for example:</p>\n<pre><code class=\"language-text\">Reused, TLSv1.2, Cipher is ECDHE-RSA-AES128-GCM-SHA256\n</code></pre>",
+                  "desc": "<p>The servers encrypt the entire session state and send it\nto the client as a \"ticket\". When reconnecting, the state is sent to the server\nin the initial connection. This mechanism avoids the need for a server-side\nsession cache. If the server doesn't use the ticket, for any reason (failure\nto decrypt it, it's too old, etc.), it will create a new session and send a new\nticket. See <a href=\"https://tools.ietf.org/html/rfc5077\">RFC 5077</a> for more information.</p>\n<p>Resumption using session tickets is becoming commonly supported by many web\nbrowsers when making HTTPS requests.</p>\n<p>For Node.js, clients use the same APIs for resumption with session identifiers\nas for resumption with session tickets. For debugging, if\n<a href=\"#tlssocketgettlsticket\"><code>tls.TLSSocket.getTLSTicket()</code></a> returns a value, the session data contains a\nticket, otherwise it contains client-side session state.</p>\n<p>With TLSv1.3, be aware that multiple tickets may be sent by the server,\nresulting in multiple <code>'session'</code> events, see <a href=\"#event-session\"><code>'session'</code></a> for more\ninformation.</p>\n<p>Single process servers need no specific implementation to use session tickets.\nTo use session tickets across server restarts or load balancers, servers must\nall have the same ticket keys. There are three 16-byte keys internally, but the\ntls API exposes them as a single 48-byte buffer for convenience.</p>\n<p>It's possible to get the ticket keys by calling <a href=\"#servergetticketkeys\"><code>server.getTicketKeys()</code></a> on\none server instance and then distribute them, but it is more reasonable to\nsecurely generate 48 bytes of secure random data and set them with the\n<code>ticketKeys</code> option of <a href=\"#tlscreateserveroptions-secureconnectionlistener\"><code>tls.createServer()</code></a>. The keys should be regularly\nregenerated and server's keys can be reset with\n<a href=\"#serversetticketkeyskeys\"><code>server.setTicketKeys()</code></a>.</p>\n<p>Session ticket keys are cryptographic keys, and they <em><strong>must be stored\nsecurely</strong></em>. With TLS 1.2 and below, if they are compromised all sessions that\nused tickets encrypted with them can be decrypted. They should not be stored\non disk, and they should be regenerated regularly.</p>\n<p>If clients advertise support for tickets, the server will send them. The\nserver can disable tickets by supplying\n<code>require('node:constants').SSL_OP_NO_TICKET</code> in <code>secureOptions</code>.</p>\n<p>Both session identifiers and session tickets timeout, causing the server to\ncreate new sessions. The timeout can be configured with the <code>sessionTimeout</code>\noption of <a href=\"#tlscreateserveroptions-secureconnectionlistener\"><code>tls.createServer()</code></a>.</p>\n<p>For all the mechanisms, when resumption fails, servers will create new sessions.\nSince failing to resume the session does not cause TLS/HTTPS connection\nfailures, it is easy to not notice unnecessarily poor TLS performance. The\nOpenSSL CLI can be used to verify that servers are resuming sessions. Use the\n<code>-reconnect</code> option to <code>openssl s_client</code>, for example:</p>\n<pre><code class=\"language-bash\">openssl s_client -connect localhost:443 -reconnect\n</code></pre>\n<p>Read through the debug output. The first connection should say \"New\", for\nexample:</p>\n<pre><code class=\"language-text\">New, TLSv1.2, Cipher is ECDHE-RSA-AES128-GCM-SHA256\n</code></pre>\n<p>Subsequent connections should say \"Reused\", for example:</p>\n<pre><code class=\"language-text\">Reused, TLSv1.2, Cipher is ECDHE-RSA-AES128-GCM-SHA256\n</code></pre>",
                   "type": "module",
                   "displayName": "Session tickets"
                 }
@@ -273,7 +273,7 @@
                 "changes": []
               },
               "params": [],
-              "desc": "<p>The <code>'secureConnection'</code> event is emitted after the handshaking process for a\nnew connection has successfully completed. The listener callback is passed a\nsingle argument when called:</p>\n<ul>\n<li><code>tlsSocket</code> <a href=\"tls.html#class-tlstlssocket\" class=\"type\">&lt;tls.TLSSocket&gt;</a> The established TLS socket.</li>\n</ul>\n<p>The <code>tlsSocket.authorized</code> property is a <code>boolean</code> indicating whether the\nclient has been verified by one of the supplied Certificate Authorities for the\nserver. If <code>tlsSocket.authorized</code> is <code>false</code>, then <code>socket.authorizationError</code>\nis set to describe how authorization failed. Depending on the settings\nof the TLS server, unauthorized connections may still be accepted.</p>\n<p>The <code>tlsSocket.alpnProtocol</code> property is a string that contains the selected\nALPN protocol. When ALPN has no selected protocol, <code>tlsSocket.alpnProtocol</code>\nequals <code>false</code>.</p>\n<p>The <code>tlsSocket.servername</code> property is a string containing the server name\nrequested via SNI.</p>"
+              "desc": "<p>The <code>'secureConnection'</code> event is emitted after the handshaking process for a\nnew connection has successfully completed. The listener callback is passed a\nsingle argument when called:</p>\n<ul>\n<li><code>tlsSocket</code> <a href=\"tls.html#class-tlstlssocket\" class=\"type\">&lt;tls.TLSSocket&gt;</a> The established TLS socket.</li>\n</ul>\n<p>The <code>tlsSocket.authorized</code> property is a <code>boolean</code> indicating whether the\nclient has been verified by one of the supplied Certificate Authorities for the\nserver. If <code>tlsSocket.authorized</code> is <code>false</code>, then <code>socket.authorizationError</code>\nis set to describe how authorization failed. Depending on the settings\nof the TLS server, unauthorized connections may still be accepted.</p>\n<p>The <code>tlsSocket.alpnProtocol</code> property is a string that contains the selected\nALPN protocol. When ALPN has no selected protocol because the client or the\nserver did not send an ALPN extension, <code>tlsSocket.alpnProtocol</code> equals <code>false</code>.</p>\n<p>The <code>tlsSocket.servername</code> property is a string containing the server name\nrequested via SNI.</p>"
             },
             {
               "textRaw": "Event: `'tlsClientError'`",
@@ -804,7 +804,10 @@
                   "meta": {
                     "changes": [
                       {
-                        "version": "v18.13.0",
+                        "version": [
+                          "v19.1.0",
+                          "v18.13.0"
+                        ],
                         "pr-url": "https://github.com/nodejs/node/pull/44935",
                         "description": "Add \"ca\" property."
                       },
@@ -1468,10 +1471,10 @@
                           "desc": "optional message sent from the server to help client decide which identity to use during negotiation. Always `null` if TLS 1.3 is used."
                         },
                         {
-                          "textRaw": "Returns: {Object} in the form `{ psk: <Buffer|TypedArray|DataView>, identity: <string> }` or `null` to stop the negotiation process. `psk` must be compatible with the selected cipher's digest. `identity` must use UTF-8 encoding.",
+                          "textRaw": "Returns: {Object} An object in the form `{ psk: <Buffer|TypedArray|DataView>, identity: <string> }` or `null` to stop the negotiation process. `psk` must be compatible with the selected cipher's digest. `identity` must use UTF-8 encoding.",
                           "name": "return",
                           "type": "Object",
-                          "desc": "in the form `{ psk: <Buffer|TypedArray|DataView>, identity: <string> }` or `null` to stop the negotiation process. `psk` must be compatible with the selected cipher's digest. `identity` must use UTF-8 encoding."
+                          "desc": "An object in the form `{ psk: <Buffer|TypedArray|DataView>, identity: <string> }` or `null` to stop the negotiation process. `psk` must be compatible with the selected cipher's digest. `identity` must use UTF-8 encoding."
                         }
                       ]
                     },
@@ -1643,7 +1646,7 @@
             ],
             "changes": [
               {
-                "version": "v18.16.0",
+                "version": "v19.8.0",
                 "pr-url": "https://github.com/nodejs/node/pull/46978",
                 "description": "The `dhparam` option can now be set to `'auto'` to enable DHE with appropriate well-known parameters."
               },
@@ -1971,9 +1974,14 @@
             ],
             "changes": [
               {
-                "version": "v18.19.0",
+                "version": "v20.4.0",
                 "pr-url": "https://github.com/nodejs/node/pull/45190",
                 "description": "The `options` parameter can now include `ALPNCallback`."
+              },
+              {
+                "version": "v19.0.0",
+                "pr-url": "https://github.com/nodejs/node/pull/44031",
+                "description": "If `ALPNProtocols` is set, incoming connections that send an ALPN extension with no supported protocols are terminated with a fatal `no_application_protocol` alert."
               },
               {
                 "version": "v12.3.0",
@@ -2213,7 +2221,7 @@
           "name": "DEFAULT_CIPHERS",
           "meta": {
             "added": [
-              "v18.16.0"
+              "v19.8.0"
             ],
             "changes": []
           },

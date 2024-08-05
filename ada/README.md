@@ -48,6 +48,12 @@ Ada has improved the performance of the popular JavaScript environment Node.js:
 
 > Since Node.js 18, a new URL parser dependency was added to Node.js — Ada. This addition bumped the Node.js performance when parsing URLs to a new level. Some results could reach up to an improvement of **400%**. ([State of Node.js Performance 2023](https://blog.rafaelgss.dev/state-of-nodejs-performance-2023))
 
+The Ada library is used by important systems besides Node.js such as Redpanda and Cloudflare Workers.
+
+
+
+[![the ada library](http://img.youtube.com/vi/tQ-6OWRDsZg/0.jpg)](https://www.youtube.com/watch?v=tQ-6OWRDsZg)<br />
+
 ## Quick Start
 
 
@@ -312,3 +318,8 @@ You may amalgamate all source files into only two files (`ada.h` and `ada.cpp`) 
 This code is made available under the Apache License 2.0 as well as the MIT license.
 
 Our tests include third-party code and data. The benchmarking code includes third-party code: it is provided for research purposes only and not part of the library.
+
+### Further reading
+
+
+* Yagiz Nizipli, Daniel Lemire, [Parsing Millions of URLs per Second](https://doi.org/10.1002/spe.3296), Software: Practice and Experience 54(5) May 2024.

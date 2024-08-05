@@ -3,18 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>Web Crypto API | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.15.1">
+  <title>Web Crypto API | Node.js v20.15.1 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/webcrypto.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
   
 </head>
 <body class="alt apidoc" id="api-section-webcrypto">
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +109,7 @@
     <div id="column1" data-id="webcrypto" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.15.1 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,16 +124,16 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.15.1</li>
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
       <div class="picker"><div class="toc"><ul>
-<li><span class="stability_1"><a href="#web-crypto-api">Web Crypto API</a></span>
+<li><span class="stability_2"><a href="#web-crypto-api">Web Crypto API</a></span>
 <ul>
 <li><a href="#examples">Examples</a>
 <ul>
@@ -309,7 +322,7 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Index
       </a>
 
@@ -394,10 +407,11 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/webcrypto.html">21.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v22.x/api/webcrypto.html">22.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/webcrypto.html">21.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v20.x/api/webcrypto.html">20.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v19.x/api/webcrypto.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/webcrypto.html">18.x <b>LTS</b></a></li>
@@ -408,7 +422,7 @@
   
             <li class="picker-header">
               <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
@@ -429,8 +443,8 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
-<li><span class="stability_1"><a href="#web-crypto-api">Web Crypto API</a></span>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
+<li><span class="stability_2"><a href="#web-crypto-api">Web Crypto API</a></span>
 <ul>
 <li><a href="#examples">Examples</a>
 <ul>
@@ -615,32 +629,35 @@
 </li>
 </ul></details>
 
-      <div id="apicontent">
+      <div role="main" id="apicontent">
         <h2>Web Crypto API<span><a class="mark" href="#web-crypto-api" id="web-crypto-api">#</a></span><a aria-hidden="true" class="legacy" id="webcrypto_web_crypto_api"></a></h2>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.17.0</td>
+<tr><td>v20.0.0</td>
 <td><p>Arguments are now coerced and validated as per their WebIDL definitions like in other Web Crypto API implementations.</p></td></tr>
-<tr><td>v18.4.0</td>
+<tr><td>v19.0.0</td>
+<td><p>No longer experimental except for the <code>Ed25519</code>, <code>Ed448</code>, <code>X25519</code>, and <code>X448</code> algorithms.</p></td></tr>
+<tr><td>v18.4.0, v16.17.0</td>
 <td><p>Removed proprietary <code>'node.keyObject'</code> import/export format.</p></td></tr>
-<tr><td>v18.4.0</td>
+<tr><td>v18.4.0, v16.17.0</td>
 <td><p>Removed proprietary <code>'NODE-DSA'</code>, <code>'NODE-DH'</code>, and <code>'NODE-SCRYPT'</code> algorithms.</p></td></tr>
-<tr><td>v18.4.0</td>
+<tr><td>v18.4.0, v16.17.0</td>
 <td><p>Added <code>'Ed25519'</code>, <code>'Ed448'</code>, <code>'X25519'</code>, and <code>'X448'</code> algorithms.</p></td></tr>
-<tr><td>v18.4.0</td>
+<tr><td>v18.4.0, v16.17.0</td>
 <td><p>Removed proprietary <code>'NODE-ED25519'</code> and <code>'NODE-ED448'</code> algorithms.</p></td></tr>
-<tr><td>v18.4.0</td>
+<tr><td>v18.4.0, v16.17.0</td>
 <td><p>Removed proprietary <code>'NODE-X25519'</code> and <code>'NODE-X448'</code> named curves from the <code>'ECDH'</code> algorithm.</p></td></tr>
 </tbody></table>
 </details>
 </div>
 
-<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
+<p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
 <p>Node.js provides an implementation of the standard <a href="https://www.w3.org/TR/WebCryptoAPI/">Web Crypto API</a>.</p>
-<p>Use <code>require('node:crypto').webcrypto</code> to access this module.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> { subtle } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:crypto'</span>).<span class="hljs-property">webcrypto</span>;
+<p>Use <code>globalThis.crypto</code> or <code>require('node:crypto').webcrypto</code> to access this
+module.</p>
+<pre><code class="language-js"><span class="hljs-keyword">const</span> { subtle } = globalThis.<span class="hljs-property">crypto</span>;
 
 (<span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
 
@@ -663,7 +680,7 @@
 <p>The <a href="webcrypto.html#class-subtlecrypto" class="type">&#x3C;SubtleCrypto></a> class can be used to generate symmetric (secret) keys
 or asymmetric key pairs (public key and private key).</p>
 <h5>AES keys<span><a class="mark" href="#aes-keys" id="aes-keys">#</a></span><a aria-hidden="true" class="legacy" id="webcrypto_aes_keys"></a></h5>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> { subtle } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:crypto'</span>).<span class="hljs-property">webcrypto</span>;
+<pre><code class="language-js"><span class="hljs-keyword">const</span> { subtle } = globalThis.<span class="hljs-property">crypto</span>;
 
 <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">generateAesKey</span>(<span class="hljs-params">length = <span class="hljs-number">256</span></span>) {
   <span class="hljs-keyword">const</span> key = <span class="hljs-keyword">await</span> subtle.<span class="hljs-title function_">generateKey</span>({
@@ -674,7 +691,7 @@ or asymmetric key pairs (public key and private key).</p>
   <span class="hljs-keyword">return</span> key;
 }</code> <button class="copy-button">copy</button></pre>
 <h5>ECDSA key pairs<span><a class="mark" href="#ecdsa-key-pairs" id="ecdsa-key-pairs">#</a></span><a aria-hidden="true" class="legacy" id="webcrypto_ecdsa_key_pairs"></a></h5>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> { subtle } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:crypto'</span>).<span class="hljs-property">webcrypto</span>;
+<pre><code class="language-js"><span class="hljs-keyword">const</span> { subtle } = globalThis.<span class="hljs-property">crypto</span>;
 
 <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">generateEcKey</span>(<span class="hljs-params">namedCurve = <span class="hljs-string">'P-521'</span></span>) {
   <span class="hljs-keyword">const</span> {
@@ -689,7 +706,7 @@ or asymmetric key pairs (public key and private key).</p>
 }</code> <button class="copy-button">copy</button></pre>
 <h5>Ed25519/Ed448/X25519/X448 key pairs<span><a class="mark" href="#ed25519ed448x25519x448-key-pairs" id="ed25519ed448x25519x448-key-pairs">#</a></span><a aria-hidden="true" class="legacy" id="webcrypto_ed25519_ed448_x25519_x448_key_pairs"></a></h5>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> { subtle } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:crypto'</span>).<span class="hljs-property">webcrypto</span>;
+<pre><code class="language-js"><span class="hljs-keyword">const</span> { subtle } = globalThis.<span class="hljs-property">crypto</span>;
 
 <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">generateEd25519Key</span>(<span class="hljs-params"></span>) {
   <span class="hljs-keyword">return</span> subtle.<span class="hljs-title function_">generateKey</span>({
@@ -703,7 +720,7 @@ or asymmetric key pairs (public key and private key).</p>
   }, <span class="hljs-literal">true</span>, [<span class="hljs-string">'deriveKey'</span>]);
 }</code> <button class="copy-button">copy</button></pre>
 <h5>HMAC keys<span><a class="mark" href="#hmac-keys" id="hmac-keys">#</a></span><a aria-hidden="true" class="legacy" id="webcrypto_hmac_keys"></a></h5>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> { subtle } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:crypto'</span>).<span class="hljs-property">webcrypto</span>;
+<pre><code class="language-js"><span class="hljs-keyword">const</span> { subtle } = globalThis.<span class="hljs-property">crypto</span>;
 
 <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">generateHmacKey</span>(<span class="hljs-params">hash = <span class="hljs-string">'SHA-256'</span></span>) {
   <span class="hljs-keyword">const</span> key = <span class="hljs-keyword">await</span> subtle.<span class="hljs-title function_">generateKey</span>({
@@ -714,7 +731,7 @@ or asymmetric key pairs (public key and private key).</p>
   <span class="hljs-keyword">return</span> key;
 }</code> <button class="copy-button">copy</button></pre>
 <h5>RSA key pairs<span><a class="mark" href="#rsa-key-pairs" id="rsa-key-pairs">#</a></span><a aria-hidden="true" class="legacy" id="webcrypto_rsa_key_pairs"></a></h5>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> { subtle } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:crypto'</span>).<span class="hljs-property">webcrypto</span>;
+<pre><code class="language-js"><span class="hljs-keyword">const</span> { subtle } = globalThis.<span class="hljs-property">crypto</span>;
 <span class="hljs-keyword">const</span> publicExponent = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Uint8Array</span>([<span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>]);
 
 <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">generateRsaKey</span>(<span class="hljs-params">modulusLength = <span class="hljs-number">2048</span>, hash = <span class="hljs-string">'SHA-256'</span></span>) {
@@ -731,7 +748,7 @@ or asymmetric key pairs (public key and private key).</p>
   <span class="hljs-keyword">return</span> { publicKey, privateKey };
 }</code> <button class="copy-button">copy</button></pre>
 <h4>Encryption and decryption<span><a class="mark" href="#encryption-and-decryption" id="encryption-and-decryption">#</a></span><a aria-hidden="true" class="legacy" id="webcrypto_encryption_and_decryption"></a></h4>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> crypto = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:crypto'</span>).<span class="hljs-property">webcrypto</span>;
+<pre><code class="language-js"><span class="hljs-keyword">const</span> crypto = globalThis.<span class="hljs-property">crypto</span>;
 
 <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">aesEncrypt</span>(<span class="hljs-params">plaintext</span>) {
   <span class="hljs-keyword">const</span> ec = <span class="hljs-keyword">new</span> <span class="hljs-title class_">TextEncoder</span>();
@@ -760,7 +777,7 @@ or asymmetric key pairs (public key and private key).</p>
   <span class="hljs-keyword">return</span> dec.<span class="hljs-title function_">decode</span>(plaintext);
 }</code> <button class="copy-button">copy</button></pre>
 <h4>Exporting and importing keys<span><a class="mark" href="#exporting-and-importing-keys" id="exporting-and-importing-keys">#</a></span><a aria-hidden="true" class="legacy" id="webcrypto_exporting_and_importing_keys"></a></h4>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> { subtle } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:crypto'</span>).<span class="hljs-property">webcrypto</span>;
+<pre><code class="language-js"><span class="hljs-keyword">const</span> { subtle } = globalThis.<span class="hljs-property">crypto</span>;
 
 <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">generateAndExportHmacKey</span>(<span class="hljs-params">format = <span class="hljs-string">'jwk'</span>, hash = <span class="hljs-string">'SHA-512'</span></span>) {
   <span class="hljs-keyword">const</span> key = <span class="hljs-keyword">await</span> subtle.<span class="hljs-title function_">generateKey</span>({
@@ -780,7 +797,7 @@ or asymmetric key pairs (public key and private key).</p>
   <span class="hljs-keyword">return</span> key;
 }</code> <button class="copy-button">copy</button></pre>
 <h4>Wrapping and unwrapping keys<span><a class="mark" href="#wrapping-and-unwrapping-keys" id="wrapping-and-unwrapping-keys">#</a></span><a aria-hidden="true" class="legacy" id="webcrypto_wrapping_and_unwrapping_keys"></a></h4>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> { subtle } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:crypto'</span>).<span class="hljs-property">webcrypto</span>;
+<pre><code class="language-js"><span class="hljs-keyword">const</span> { subtle } = globalThis.<span class="hljs-property">crypto</span>;
 
 <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">generateAndWrapHmacKey</span>(<span class="hljs-params">format = <span class="hljs-string">'jwk'</span>, hash = <span class="hljs-string">'SHA-512'</span></span>) {
   <span class="hljs-keyword">const</span> [
@@ -819,7 +836,7 @@ or asymmetric key pairs (public key and private key).</p>
   <span class="hljs-keyword">return</span> key;
 }</code> <button class="copy-button">copy</button></pre>
 <h4>Sign and verify<span><a class="mark" href="#sign-and-verify" id="sign-and-verify">#</a></span><a aria-hidden="true" class="legacy" id="webcrypto_sign_and_verify"></a></h4>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> { subtle } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:crypto'</span>).<span class="hljs-property">webcrypto</span>;
+<pre><code class="language-js"><span class="hljs-keyword">const</span> { subtle } = globalThis.<span class="hljs-property">crypto</span>;
 
 <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">sign</span>(<span class="hljs-params">key, data</span>) {
   <span class="hljs-keyword">const</span> ec = <span class="hljs-keyword">new</span> <span class="hljs-title class_">TextEncoder</span>();
@@ -839,7 +856,7 @@ or asymmetric key pairs (public key and private key).</p>
   <span class="hljs-keyword">return</span> verified;
 }</code> <button class="copy-button">copy</button></pre>
 <h4>Deriving bits and keys<span><a class="mark" href="#deriving-bits-and-keys" id="deriving-bits-and-keys">#</a></span><a aria-hidden="true" class="legacy" id="webcrypto_deriving_bits_and_keys"></a></h4>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> { subtle } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:crypto'</span>).<span class="hljs-property">webcrypto</span>;
+<pre><code class="language-js"><span class="hljs-keyword">const</span> { subtle } = globalThis.<span class="hljs-property">crypto</span>;
 
 <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">pbkdf2</span>(<span class="hljs-params">pass, salt, iterations = <span class="hljs-number">1000</span>, length = <span class="hljs-number">256</span></span>) {
   <span class="hljs-keyword">const</span> ec = <span class="hljs-keyword">new</span> <span class="hljs-title class_">TextEncoder</span>();
@@ -873,12 +890,12 @@ or asymmetric key pairs (public key and private key).</p>
     iterations,
   }, keyMaterial, {
     <span class="hljs-attr">name</span>: <span class="hljs-string">'AES-GCM'</span>,
-    <span class="hljs-attr">length</span>: <span class="hljs-number">256</span>,
+    length,
   }, <span class="hljs-literal">true</span>, [<span class="hljs-string">'encrypt'</span>, <span class="hljs-string">'decrypt'</span>]);
   <span class="hljs-keyword">return</span> key;
 }</code> <button class="copy-button">copy</button></pre>
 <h4>Digest<span><a class="mark" href="#digest" id="digest">#</a></span><a aria-hidden="true" class="legacy" id="webcrypto_digest"></a></h4>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> { subtle } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:crypto'</span>).<span class="hljs-property">webcrypto</span>;
+<pre><code class="language-js"><span class="hljs-keyword">const</span> { subtle } = globalThis.<span class="hljs-property">crypto</span>;
 
 <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">digest</span>(<span class="hljs-params">data, algorithm = <span class="hljs-string">'SHA-512'</span></span>) {
   <span class="hljs-keyword">const</span> ec = <span class="hljs-keyword">new</span> <span class="hljs-title class_">TextEncoder</span>();
@@ -1213,7 +1230,7 @@ implementation and the APIs supported for each:</p>
 <div class="api_metadata">
 <span>Added in: v15.0.0</span>
 </div>
-<p>Calling <code>require('node:crypto').webcrypto</code> returns an instance of the <code>Crypto</code>
+<p><code>globalThis.crypto</code> is an instance of the <code>Crypto</code>
 class. <code>Crypto</code> is a singleton that provides access to the remainder of the
 crypto API.</p>
 <h4><code>crypto.subtle</code><span><a class="mark" href="#cryptosubtle" id="cryptosubtle">#</a></span><a aria-hidden="true" class="legacy" id="webcrypto_crypto_subtle"></a></h4>
@@ -1528,7 +1545,7 @@ key may be used.</p>
 <li><code>algorithm</code>: <a href="webcrypto.html#class-rsaoaepparams" class="type">&#x3C;RsaOaepParams></a> | <a href="webcrypto.html#class-aesctrparams" class="type">&#x3C;AesCtrParams></a> | <a href="webcrypto.html#class-aescbcparams" class="type">&#x3C;AesCbcParams></a> | <a href="webcrypto.html#class-aesgcmparams" class="type">&#x3C;AesGcmParams></a></li>
 <li><code>key</code>: <a href="webcrypto.html#class-cryptokey" class="type">&#x3C;CryptoKey></a></li>
 <li><code>data</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer" class="type">&#x3C;ArrayBuffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a></li>
-<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> containing <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer" class="type">&#x3C;ArrayBuffer></a></li>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> Fulfills with an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer" class="type">&#x3C;ArrayBuffer></a></li>
 </ul>
 <p>Using the method and parameters specified in <code>algorithm</code> and the keying
 material provided by <code>key</code>, <code>subtle.decrypt()</code> attempts to decipher the
@@ -1546,7 +1563,7 @@ an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Gl
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.4.0</td>
+<tr><td>v18.4.0, v16.17.0</td>
 <td><p>Added <code>'X25519'</code>, and <code>'X448'</code> algorithms.</p></td></tr>
 <tr><td>v15.0.0</td>
 <td><p><span>Added in: v15.0.0</span></p></td></tr>
@@ -1558,7 +1575,7 @@ an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Gl
 <li><code>algorithm</code>: <a href="webcrypto.html#class-algorithmidentifier" class="type">&#x3C;AlgorithmIdentifier></a> | <a href="webcrypto.html#class-ecdhkeyderiveparams" class="type">&#x3C;EcdhKeyDeriveParams></a> | <a href="webcrypto.html#class-hkdfparams" class="type">&#x3C;HkdfParams></a> | <a href="webcrypto.html#class-pbkdf2params" class="type">&#x3C;Pbkdf2Params></a></li>
 <li><code>baseKey</code>: <a href="webcrypto.html#class-cryptokey" class="type">&#x3C;CryptoKey></a></li>
 <li><code>length</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a></li>
-<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> containing <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer" class="type">&#x3C;ArrayBuffer></a></li>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> Fulfills with an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer" class="type">&#x3C;ArrayBuffer></a></li>
 </ul>
 <!--lint enable maximum-line-length remark-lint-->
 <p>Using the method and parameters specified in <code>algorithm</code> and the keying
@@ -1584,7 +1601,7 @@ containing the generated data.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.4.0</td>
+<tr><td>v18.4.0, v16.17.0</td>
 <td><p>Added <code>'X25519'</code>, and <code>'X448'</code> algorithms.</p></td></tr>
 <tr><td>v15.0.0</td>
 <td><p><span>Added in: v15.0.0</span></p></td></tr>
@@ -1598,7 +1615,7 @@ containing the generated data.</p>
 <li><code>derivedKeyAlgorithm</code>: <a href="webcrypto.html#class-hmackeygenparams" class="type">&#x3C;HmacKeyGenParams></a> | <a href="webcrypto.html#class-aeskeygenparams" class="type">&#x3C;AesKeyGenParams></a></li>
 <li><code>extractable</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a></li>
 <li><code>keyUsages</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string[]></a> See <a href="#cryptokeyusages">Key usages</a>.</li>
-<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> containing <a href="webcrypto.html#class-cryptokey" class="type">&#x3C;CryptoKey></a></li>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> Fulfills with a <a href="webcrypto.html#class-cryptokey" class="type">&#x3C;CryptoKey></a></li>
 </ul>
 <!--lint enable maximum-line-length remark-lint-->
 <p>Using the method and parameters specified in <code>algorithm</code>, and the keying
@@ -1623,7 +1640,7 @@ generate raw keying material, then passing the result into the
 <ul>
 <li><code>algorithm</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a></li>
 <li><code>data</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer" class="type">&#x3C;ArrayBuffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a></li>
-<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> containing <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer" class="type">&#x3C;ArrayBuffer></a></li>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> Fulfills with an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer" class="type">&#x3C;ArrayBuffer></a></li>
 </ul>
 <p>Using the method identified by <code>algorithm</code>, <code>subtle.digest()</code> attempts to
 generate a digest of <code>data</code>. If successful, the returned promise is resolved
@@ -1644,7 +1661,8 @@ whose value is one of the above.</p>
 <ul>
 <li><code>algorithm</code>: <a href="webcrypto.html#class-rsaoaepparams" class="type">&#x3C;RsaOaepParams></a> | <a href="webcrypto.html#class-aesctrparams" class="type">&#x3C;AesCtrParams></a> | <a href="webcrypto.html#class-aescbcparams" class="type">&#x3C;AesCbcParams></a> | <a href="webcrypto.html#class-aesgcmparams" class="type">&#x3C;AesGcmParams></a></li>
 <li><code>key</code>: <a href="webcrypto.html#class-cryptokey" class="type">&#x3C;CryptoKey></a></li>
-<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> containing <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer" class="type">&#x3C;ArrayBuffer></a></li>
+<li><code>data</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer" class="type">&#x3C;ArrayBuffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a></li>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> Fulfills with an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer" class="type">&#x3C;ArrayBuffer></a></li>
 </ul>
 <p>Using the method and parameters specified by <code>algorithm</code> and the keying
 material provided by <code>key</code>, <code>subtle.encrypt()</code> attempts to encipher <code>data</code>.
@@ -1662,7 +1680,7 @@ containing the encrypted result.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.4.0</td>
+<tr><td>v18.4.0, v16.17.0</td>
 <td><p>Added <code>'Ed25519'</code>, <code>'Ed448'</code>, <code>'X25519'</code>, and <code>'X448'</code> algorithms.</p></td></tr>
 <tr><td>v15.9.0</td>
 <td><p>Removed <code>'NODE-DSA'</code> JWK export.</p></td></tr>
@@ -1674,7 +1692,7 @@ containing the encrypted result.</p>
 <ul>
 <li><code>format</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Must be one of <code>'raw'</code>, <code>'pkcs8'</code>, <code>'spki'</code>, or <code>'jwk'</code>.</li>
 <li><code>key</code>: <a href="webcrypto.html#class-cryptokey" class="type">&#x3C;CryptoKey></a></li>
-<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> containing <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer" class="type">&#x3C;ArrayBuffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>.</li>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> Fulfills with an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer" class="type">&#x3C;ArrayBuffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>.</li>
 </ul>
 <p>Exports the given key into the specified format, if supported.</p>
 <p>If the <a href="webcrypto.html#class-cryptokey" class="type">&#x3C;CryptoKey></a> is not extractable, the returned promise will reject.</p>
@@ -1807,7 +1825,7 @@ specification.</p>
 <ul>
 <li><code>extractable</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a></li>
 <li><code>keyUsages</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string[]></a> See <a href="#cryptokeyusages">Key usages</a>.</li>
-<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> containing <a href="webcrypto.html#class-cryptokey" class="type">&#x3C;CryptoKey></a> | <a href="webcrypto.html#class-cryptokeypair" class="type">&#x3C;CryptoKeyPair></a></li>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> Fulfills with a <a href="webcrypto.html#class-cryptokey" class="type">&#x3C;CryptoKey></a> | <a href="webcrypto.html#class-cryptokeypair" class="type">&#x3C;CryptoKeyPair></a></li>
 </ul>
 <p>Using the method and parameters provided in <code>algorithm</code>, <code>subtle.generateKey()</code>
 attempts to generate new keying material. Depending the method used, the method
@@ -1838,7 +1856,7 @@ include:</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.4.0</td>
+<tr><td>v18.4.0, v16.17.0</td>
 <td><p>Added <code>'Ed25519'</code>, <code>'Ed448'</code>, <code>'X25519'</code>, and <code>'X448'</code> algorithms.</p></td></tr>
 <tr><td>v15.9.0</td>
 <td><p>Removed <code>'NODE-DSA'</code> JWK import.</p></td></tr>
@@ -1859,7 +1877,7 @@ include:</p>
 <ul>
 <li><code>extractable</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a></li>
 <li><code>keyUsages</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string[]></a> See <a href="#cryptokeyusages">Key usages</a>.</li>
-<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> containing <a href="webcrypto.html#class-cryptokey" class="type">&#x3C;CryptoKey></a></li>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> Fulfills with a <a href="webcrypto.html#class-cryptokey" class="type">&#x3C;CryptoKey></a></li>
 </ul>
 <p>The <code>subtle.importKey()</code> method attempts to interpret the provided <code>keyData</code>
 as the given <code>format</code> to create a <a href="webcrypto.html#class-cryptokey" class="type">&#x3C;CryptoKey></a> instance using the provided
@@ -1997,7 +2015,7 @@ successful, the returned promise will be resolved with the created <a href="webc
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.4.0</td>
+<tr><td>v18.4.0, v16.17.0</td>
 <td><p>Added <code>'Ed25519'</code>, and <code>'Ed448'</code> algorithms.</p></td></tr>
 <tr><td>v15.0.0</td>
 <td><p><span>Added in: v15.0.0</span></p></td></tr>
@@ -2009,7 +2027,7 @@ successful, the returned promise will be resolved with the created <a href="webc
 <li><code>algorithm</code>: <a href="webcrypto.html#class-algorithmidentifier" class="type">&#x3C;AlgorithmIdentifier></a> | <a href="webcrypto.html#class-rsapssparams" class="type">&#x3C;RsaPssParams></a> | <a href="webcrypto.html#class-ecdsaparams" class="type">&#x3C;EcdsaParams></a> | <a href="webcrypto.html#class-ed448params" class="type">&#x3C;Ed448Params></a></li>
 <li><code>key</code>: <a href="webcrypto.html#class-cryptokey" class="type">&#x3C;CryptoKey></a></li>
 <li><code>data</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer" class="type">&#x3C;ArrayBuffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a></li>
-<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> containing <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer" class="type">&#x3C;ArrayBuffer></a></li>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> Fulfills with an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer" class="type">&#x3C;ArrayBuffer></a></li>
 </ul>
 <!--lint enable maximum-line-length remark-lint-->
 <p>Using the method and parameters given by <code>algorithm</code> and the keying material
@@ -2043,7 +2061,7 @@ an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Gl
 <ul>
 <li><code>extractable</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a></li>
 <li><code>keyUsages</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string[]></a> See <a href="#cryptokeyusages">Key usages</a>.</li>
-<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> containing <a href="webcrypto.html#class-cryptokey" class="type">&#x3C;CryptoKey></a></li>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> Fulfills with a <a href="webcrypto.html#class-cryptokey" class="type">&#x3C;CryptoKey></a></li>
 </ul>
 <p>In cryptography, "wrapping a key" refers to exporting and then encrypting the
 keying material. The <code>subtle.unwrapKey()</code> method attempts to decrypt a wrapped
@@ -2083,7 +2101,7 @@ promise is resolved with a <a href="webcrypto.html#class-cryptokey" class="type"
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.4.0</td>
+<tr><td>v18.4.0, v16.17.0</td>
 <td><p>Added <code>'Ed25519'</code>, and <code>'Ed448'</code> algorithms.</p></td></tr>
 <tr><td>v15.0.0</td>
 <td><p><span>Added in: v15.0.0</span></p></td></tr>
@@ -2096,7 +2114,7 @@ promise is resolved with a <a href="webcrypto.html#class-cryptokey" class="type"
 <li><code>key</code>: <a href="webcrypto.html#class-cryptokey" class="type">&#x3C;CryptoKey></a></li>
 <li><code>signature</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer" class="type">&#x3C;ArrayBuffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a></li>
 <li><code>data</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer" class="type">&#x3C;ArrayBuffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a></li>
-<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> containing <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a></li>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> Fulfills with a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a></li>
 </ul>
 <!--lint enable maximum-line-length remark-lint-->
 <p>Using the method and parameters given in <code>algorithm</code> and the keying material
@@ -2122,7 +2140,7 @@ with either <code>true</code> or <code>false</code>.</p>
 <li><code>key</code>: <a href="webcrypto.html#class-cryptokey" class="type">&#x3C;CryptoKey></a></li>
 <li><code>wrappingKey</code>: <a href="webcrypto.html#class-cryptokey" class="type">&#x3C;CryptoKey></a></li>
 <li><code>wrapAlgo</code>: <a href="webcrypto.html#class-algorithmidentifier" class="type">&#x3C;AlgorithmIdentifier></a> | <a href="webcrypto.html#class-rsaoaepparams" class="type">&#x3C;RsaOaepParams></a> | <a href="webcrypto.html#class-aesctrparams" class="type">&#x3C;AesCtrParams></a> | <a href="webcrypto.html#class-aescbcparams" class="type">&#x3C;AesCbcParams></a> | <a href="webcrypto.html#class-aesgcmparams" class="type">&#x3C;AesGcmParams></a></li>
-<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> containing <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer" class="type">&#x3C;ArrayBuffer></a></li>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> Fulfills with an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer" class="type">&#x3C;ArrayBuffer></a></li>
 </ul>
 <!--lint enable maximum-line-length remark-lint-->
 <p>In cryptography, "wrapping a key" refers to exporting and then encrypting the
@@ -2148,11 +2166,11 @@ the various <a href="webcrypto.html#class-subtlecrypto" class="type">&#x3C;Subtl
 are simple JavaScript dictionary objects.</p>
 <h4>Class: <code>AlgorithmIdentifier</code><span><a class="mark" href="#class-algorithmidentifier" id="class-algorithmidentifier">#</a></span><a aria-hidden="true" class="legacy" id="webcrypto_class_algorithmidentifier"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.4.0</span>
+<span>Added in: v18.4.0, v16.17.0</span>
 </div>
 <h5><code>algorithmIdentifier.name</code><span><a class="mark" href="#algorithmidentifiername" id="algorithmidentifiername">#</a></span><a aria-hidden="true" class="legacy" id="webcrypto_algorithmidentifier_name"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.4.0</span>
+<span>Added in: v18.4.0, v16.17.0</span>
 </div>
 <ul>
 <li>Type: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
@@ -2362,14 +2380,14 @@ whose value is one of the above listed values.</p>
 </div>
 <h5><code>ed448Params.name</code><span><a class="mark" href="#ed448paramsname" id="ed448paramsname">#</a></span><a aria-hidden="true" class="legacy" id="webcrypto_ed448params_name"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.4.0</span>
+<span>Added in: v18.4.0, v16.17.0</span>
 </div>
 <ul>
 <li>Type: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Must be <code>'Ed448'</code>.</li>
 </ul>
 <h5><code>ed448Params.context</code><span><a class="mark" href="#ed448paramscontext" id="ed448paramscontext">#</a></span><a aria-hidden="true" class="legacy" id="webcrypto_ed448params_context"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.4.0</span>
+<span>Added in: v18.4.0, v16.17.0</span>
 </div>
 <ul>
 <li>Type: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer" class="type">&#x3C;ArrayBuffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type" class="type">&#x3C;undefined></a></li>
@@ -2662,7 +2680,7 @@ to the generated ciphertext.</p>
 <ol>
 <li id="user-content-fn-1">
 <p>An experimental implementation of
-<a href="https://wicg.github.io/webcrypto-secure-curves/">Secure Curves in the Web Cryptography API</a> as of 05 May 2022 <a href="#user-content-fnref-1" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a> <a href="#user-content-fnref-1-2" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>2</sup></a> <a href="#user-content-fnref-1-3" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>3</sup></a> <a href="#user-content-fnref-1-4" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>4</sup></a> <a href="#user-content-fnref-1-5" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>5</sup></a> <a href="#user-content-fnref-1-6" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>6</sup></a> <a href="#user-content-fnref-1-7" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>7</sup></a> <a href="#user-content-fnref-1-8" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>8</sup></a> <a href="#user-content-fnref-1-9" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>9</sup></a> <a href="#user-content-fnref-1-10" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>10</sup></a> <a href="#user-content-fnref-1-11" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>11</sup></a> <a href="#user-content-fnref-1-12" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>12</sup></a> <a href="#user-content-fnref-1-13" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>13</sup></a> <a href="#user-content-fnref-1-14" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>14</sup></a> <a href="#user-content-fnref-1-15" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>15</sup></a> <a href="#user-content-fnref-1-16" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>16</sup></a> <a href="#user-content-fnref-1-17" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>17</sup></a> <a href="#user-content-fnref-1-18" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>18</sup></a> <a href="#user-content-fnref-1-19" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>19</sup></a> <a href="#user-content-fnref-1-20" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>20</sup></a> <a href="#user-content-fnref-1-21" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>21</sup></a> <a href="#user-content-fnref-1-22" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>22</sup></a> <a href="#user-content-fnref-1-23" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>23</sup></a> <a href="#user-content-fnref-1-24" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>24</sup></a> <a href="#user-content-fnref-1-25" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>25</sup></a> <a href="#user-content-fnref-1-26" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>26</sup></a> <a href="#user-content-fnref-1-27" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>27</sup></a> <a href="#user-content-fnref-1-28" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>28</sup></a> <a href="#user-content-fnref-1-29" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>29</sup></a> <a href="#user-content-fnref-1-30" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>30</sup></a></p>
+<a href="https://wicg.github.io/webcrypto-secure-curves/">Secure Curves in the Web Cryptography API</a> as of 30 August 2023 <a href="#user-content-fnref-1" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a> <a href="#user-content-fnref-1-2" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>2</sup></a> <a href="#user-content-fnref-1-3" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>3</sup></a> <a href="#user-content-fnref-1-4" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>4</sup></a> <a href="#user-content-fnref-1-5" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>5</sup></a> <a href="#user-content-fnref-1-6" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>6</sup></a> <a href="#user-content-fnref-1-7" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>7</sup></a> <a href="#user-content-fnref-1-8" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>8</sup></a> <a href="#user-content-fnref-1-9" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>9</sup></a> <a href="#user-content-fnref-1-10" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>10</sup></a> <a href="#user-content-fnref-1-11" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>11</sup></a> <a href="#user-content-fnref-1-12" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>12</sup></a> <a href="#user-content-fnref-1-13" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>13</sup></a> <a href="#user-content-fnref-1-14" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>14</sup></a> <a href="#user-content-fnref-1-15" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>15</sup></a> <a href="#user-content-fnref-1-16" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>16</sup></a> <a href="#user-content-fnref-1-17" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>17</sup></a> <a href="#user-content-fnref-1-18" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>18</sup></a> <a href="#user-content-fnref-1-19" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>19</sup></a> <a href="#user-content-fnref-1-20" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>20</sup></a> <a href="#user-content-fnref-1-21" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>21</sup></a> <a href="#user-content-fnref-1-22" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>22</sup></a> <a href="#user-content-fnref-1-23" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>23</sup></a> <a href="#user-content-fnref-1-24" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>24</sup></a> <a href="#user-content-fnref-1-25" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>25</sup></a> <a href="#user-content-fnref-1-26" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>26</sup></a> <a href="#user-content-fnref-1-27" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>27</sup></a> <a href="#user-content-fnref-1-28" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>28</sup></a> <a href="#user-content-fnref-1-29" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>29</sup></a> <a href="#user-content-fnref-1-30" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>30</sup></a></p>
 </li>
 </ol>
 </section></section>

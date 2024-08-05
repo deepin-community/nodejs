@@ -3,18 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>Worker threads | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.15.1">
+  <title>Worker threads | Node.js v20.15.1 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/worker_threads.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
-  <style>@media(max-width:326px){.with-13-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}</style>
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
+  <style>@media(max-width:326px){.with-13-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}</style>
 </head>
 <body class="alt apidoc" id="api-section-worker_threads">
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +109,7 @@
     <div id="column1" data-id="worker_threads" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.15.1 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,11 +124,11 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.15.1</li>
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
@@ -171,7 +184,7 @@
 <li><a href="#event-message_1">Event: <code>'message'</code></a></li>
 <li><a href="#event-messageerror_1">Event: <code>'messageerror'</code></a></li>
 <li><a href="#event-online">Event: <code>'online'</code></a></li>
-<li><a href="#workergetheapsnapshot"><code>worker.getHeapSnapshot()</code></a></li>
+<li><a href="#workergetheapsnapshotoptions"><code>worker.getHeapSnapshot([options])</code></a></li>
 <li><a href="#workerperformance"><code>worker.performance</code></a>
 <ul>
 <li><a href="#performanceeventlooputilizationutilization1-utilization2"><code>performance.eventLoopUtilization([utilization1[, utilization2]])</code></a></li>
@@ -202,7 +215,7 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Index
       </a>
 
@@ -287,10 +300,11 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/worker_threads.html">21.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v22.x/api/worker_threads.html">22.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/worker_threads.html">21.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v20.x/api/worker_threads.html">20.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v19.x/api/worker_threads.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/worker_threads.html">18.x <b>LTS</b></a></li>
@@ -306,7 +320,7 @@
   
             <li class="picker-header">
               <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
@@ -327,7 +341,7 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
 <li><span class="stability_2"><a href="#worker-threads">Worker threads</a></span>
 <ul>
 <li><a href="#workergetenvironmentdatakey"><code>worker.getEnvironmentData(key)</code></a></li>
@@ -379,7 +393,7 @@
 <li><a href="#event-message_1">Event: <code>'message'</code></a></li>
 <li><a href="#event-messageerror_1">Event: <code>'messageerror'</code></a></li>
 <li><a href="#event-online">Event: <code>'online'</code></a></li>
-<li><a href="#workergetheapsnapshot"><code>worker.getHeapSnapshot()</code></a></li>
+<li><a href="#workergetheapsnapshotoptions"><code>worker.getHeapSnapshot([options])</code></a></li>
 <li><a href="#workerperformance"><code>worker.performance</code></a>
 <ul>
 <li><a href="#performanceeventlooputilizationutilization1-utilization2"><code>performance.eventLoopUtilization([utilization1[, utilization2]])</code></a></li>
@@ -406,11 +420,11 @@
 </li>
 </ul></details>
 
-      <div id="apicontent">
+      <div role="main" id="apicontent">
         <h2>Worker threads<span><a class="mark" href="#worker-threads" id="worker-threads">#</a></span><a aria-hidden="true" class="legacy" id="worker_threads_worker_threads"></a></h2>
 
 <p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.19.1/lib/worker_threads.js">lib/worker_threads.js</a></p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v20.15.1/lib/worker_threads.js">lib/worker_threads.js</a></p>
 <p>The <code>node:worker_threads</code> module enables the use of threads that execute
 JavaScript in parallel. To access it:</p>
 <pre><code class="language-js"><span class="hljs-keyword">const</span> worker = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:worker_threads'</span>);</code> <button class="copy-button">copy</button></pre>
@@ -459,7 +473,7 @@ specifically <code>argv</code> and <code>execArgv</code> options.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v17.5.0</td>
+<tr><td>v17.5.0, v16.15.0</td>
 <td><p>No longer experimental.</p></td></tr>
 <tr><td>v15.12.0, v14.18.0</td>
 <td><p><span>Added in: v15.12.0, v14.18.0</span></p></td></tr>
@@ -659,7 +673,7 @@ share read and write access to the same set of environment variables.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v17.5.0</td>
+<tr><td>v17.5.0, v16.15.0</td>
 <td><p>No longer experimental.</p></td></tr>
 <tr><td>v15.12.0, v14.18.0</td>
 <td><p><span>Added in: v15.12.0, v14.18.0</span></p></td></tr>
@@ -1041,7 +1055,7 @@ port2.<span class="hljs-title function_">postMessage</span>(<span class="hljs-ke
 <span class="hljs-comment">// Prints: { }</span></code> <button class="copy-button">copy</button></pre>
 <h4><code>port.hasRef()</code><span><a class="mark" href="#porthasref" id="porthasref">#</a></span><a aria-hidden="true" class="legacy" id="worker_threads_port_hasref"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.1.0</span>
+<span>Added in: v18.1.0, v16.17.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <ul>
@@ -1153,7 +1167,7 @@ the thread barrier.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.16.0</td>
+<tr><td>v19.8.0</td>
 <td><p>Added support for a <code>name</code> option, which allows adding a name to worker title for debugging.</p></td></tr>
 <tr><td>v14.9.0</td>
 <td><p>The <code>filename</code> parameter can be a WHATWG <code>URL</code> object using <code>data:</code> protocol.</p></td></tr>
@@ -1295,16 +1309,32 @@ See the <a href="#event-message"><code>port.on('message')</code></a> event for m
 </div>
 <p>The <code>'online'</code> event is emitted when the worker thread has started executing
 JavaScript code.</p>
-<h4><code>worker.getHeapSnapshot()</code><span><a class="mark" href="#workergetheapsnapshot" id="workergetheapsnapshot">#</a></span><a aria-hidden="true" class="legacy" id="worker_threads_worker_getheapsnapshot"></a></h4>
+<h4><code>worker.getHeapSnapshot([options])</code><span><a class="mark" href="#workergetheapsnapshotoptions" id="workergetheapsnapshotoptions">#</a></span><a aria-hidden="true" class="legacy" id="worker_threads_worker_getheapsnapshot_options"></a></h4>
 <div class="api_metadata">
-<span>Added in: v13.9.0, v12.17.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.1.0</td>
+<td><p>Support options to configure the heap snapshot.</p></td></tr>
+<tr><td>v13.9.0, v12.17.0</td>
+<td><p><span>Added in: v13.9.0, v12.17.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
+<li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
+<ul>
+<li><code>exposeInternals</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If true, expose internals in the heap snapshot.
+<strong>Default:</strong> <code>false</code>.</li>
+<li><code>exposeNumericValues</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If true, expose numeric values in
+artificial fields. <strong>Default:</strong> <code>false</code>.</li>
+</ul>
+</li>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> A promise for a Readable Stream containing
 a V8 heap snapshot</li>
 </ul>
 <p>Returns a readable stream for a V8 snapshot of the current state of the Worker.
-See <a href="v8.html#v8getheapsnapshot"><code>v8.getHeapSnapshot()</code></a> for more details.</p>
+See <a href="v8.html#v8getheapsnapshotoptions"><code>v8.getHeapSnapshot()</code></a> for more details.</p>
 <p>If the Worker thread is no longer running, which may occur before the
 <a href="#event-exit"><code>'exit'</code> event</a> is emitted, the returned <code>Promise</code> is rejected
 immediately with an <a href="errors.html#err_worker_not_running"><code>ERR_WORKER_NOT_RUNNING</code></a> error.</p>
@@ -1323,7 +1353,7 @@ instance. Similar to <a href="perf_hooks.html#perf_hooksperformance"><code>perf_
 <code>eventLoopUtilization()</code>.</li>
 <li><code>utilization2</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> The result of a previous call to
 <code>eventLoopUtilization()</code> prior to <code>utilization1</code>.</li>
-<li>Returns <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
 <ul>
 <li><code>idle</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
 <li><code>active</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
@@ -1472,7 +1502,7 @@ with <code>stdio</code>. This means that <code>stdio</code> output originating f
 get blocked by synchronous code on the receiving end that is blocking the
 Node.js event loop.</p>
 
-<pre class="with-13-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> {
+<pre class="with-13-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> {
   <span class="hljs-title class_">Worker</span>,
   isMainThread,
 } <span class="hljs-keyword">from</span> <span class="hljs-string">'worker_threads'</span>;

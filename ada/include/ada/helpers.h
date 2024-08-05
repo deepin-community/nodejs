@@ -13,6 +13,9 @@
 #include <optional>
 
 /**
+ * These functions are not part of our public API and may
+ * change at any time.
+ *
  * @private
  * @namespace ada::helpers
  * @brief Includes the definitions for helper functions
@@ -145,18 +148,6 @@ ada_really_inline void strip_trailing_spaces_from_opaque_path(
 
 /**
  * @private
- * Reverse the order of the bytes.
- */
-ada_really_inline uint64_t swap_bytes(uint64_t val) noexcept;
-
-/**
- * @private
- * Reverse the order of the bytes but only if the system is big endian
- */
-ada_really_inline uint64_t swap_bytes_if_big_endian(uint64_t val) noexcept;
-
-/**
- * @private
  * Finds the delimiter of a view in authority state.
  */
 ada_really_inline size_t
@@ -187,6 +178,7 @@ inline void inner_concat(std::string& buffer, T t, Args... args) {
 }
 
 /**
+ * @private
  * Concatenate the arguments and return a string.
  * @returns a string
  */
@@ -198,6 +190,7 @@ std::string concat(Args... args) {
 }
 
 /**
+ * @private
  * @return Number of leading zeroes.
  */
 inline int leading_zeroes(uint32_t input_num) noexcept {
@@ -211,6 +204,7 @@ inline int leading_zeroes(uint32_t input_num) noexcept {
 }
 
 /**
+ * @private
  * Counts the number of decimal digits necessary to represent x.
  * faster than std::to_string(x).size().
  * @return digit count

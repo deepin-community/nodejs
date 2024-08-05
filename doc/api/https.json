@@ -8,12 +8,12 @@
       "introduced_in": "v0.10.0",
       "stability": 2,
       "stabilityText": "Stable",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.19.1/lib/https.js\">lib/https.js</a></p>\n<p>HTTPS is the HTTP protocol over TLS/SSL. In Node.js this is implemented as a\nseparate module.</p>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v20.15.1/lib/https.js\">lib/https.js</a></p>\n<p>HTTPS is the HTTP protocol over TLS/SSL. In Node.js this is implemented as a\nseparate module.</p>",
       "modules": [
         {
           "textRaw": "Determining if crypto support is unavailable",
           "name": "determining_if_crypto_support_is_unavailable",
-          "desc": "<p>It is possible for Node.js to be built without including support for the\n<code>node:crypto</code> module. In such cases, attempting to <code>import</code> from <code>https</code> or\ncalling <code>require('node:https')</code> will result in an error being thrown.</p>\n<p>When using CommonJS, the error thrown can be caught using try/catch:</p>\n<!-- eslint-skip -->\n<pre><code class=\"language-cjs\">let https;\ntry {\n  https = require('node:https');\n} catch (err) {\n  console.error('https support is disabled!');\n}\n</code></pre>\n<p>When using the lexical ESM <code>import</code> keyword, the error can only be\ncaught if a handler for <code>process.on('uncaughtException')</code> is registered\n<em>before</em> any attempt to load the module is made (using, for instance,\na preload module).</p>\n<p>When using ESM, if there is a chance that the code may be run on a build\nof Node.js where crypto support is not enabled, consider using the\n<a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import\"><code>import()</code></a> function instead of the lexical <code>import</code> keyword:</p>\n<pre><code class=\"language-mjs\">let https;\ntry {\n  https = await import('node:https');\n} catch (err) {\n  console.error('https support is disabled!');\n}\n</code></pre>",
+          "desc": "<p>It is possible for Node.js to be built without including support for the\n<code>node:crypto</code> module. In such cases, attempting to <code>import</code> from <code>https</code> or\ncalling <code>require('node:https')</code> will result in an error being thrown.</p>\n<p>When using CommonJS, the error thrown can be caught using try/catch:</p>\n<pre><code class=\"language-cjs\">let https;\ntry {\n  https = require('node:https');\n} catch (err) {\n  console.error('https support is disabled!');\n}\n</code></pre>\n<p>When using the lexical ESM <code>import</code> keyword, the error can only be\ncaught if a handler for <code>process.on('uncaughtException')</code> is registered\n<em>before</em> any attempt to load the module is made (using, for instance,\na preload module).</p>\n<p>When using ESM, if there is a chance that the code may be run on a build\nof Node.js where crypto support is not enabled, consider using the\n<a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import\"><code>import()</code></a> function instead of the lexical <code>import</code> keyword:</p>\n<pre><code class=\"language-mjs\">let https;\ntry {\n  https = await import('node:https');\n} catch (err) {\n  console.error('https support is disabled!');\n}\n</code></pre>",
           "type": "module",
           "displayName": "Determining if crypto support is unavailable"
         }
@@ -109,6 +109,25 @@
                 }
               ],
               "desc": "<p>See <a href=\"http.html#serverclosecallback\"><code>server.close()</code></a> in the <code>node:http</code> module.</p>"
+            },
+            {
+              "textRaw": "`server[Symbol.asyncDispose]()`",
+              "type": "method",
+              "name": "[Symbol.asyncDispose]",
+              "meta": {
+                "added": [
+                  "v20.4.0"
+                ],
+                "changes": []
+              },
+              "stability": 1,
+              "stabilityText": "Experimental",
+              "signatures": [
+                {
+                  "params": []
+                }
+              ],
+              "desc": "<p>Calls <a href=\"#serverclosecallback\"><code>server.close()</code></a> and returns a promise that\nfulfills when the server has closed.</p>"
             },
             {
               "textRaw": "`server.closeAllConnections()`",
@@ -576,9 +595,17 @@
             "added": [
               "v0.5.9"
             ],
-            "changes": []
+            "changes": [
+              {
+                "version": [
+                  "v19.0.0"
+                ],
+                "pr-url": "https://github.com/nodejs/node/pull/43522",
+                "description": "The agent now uses HTTP Keep-Alive and a 5 second timeout by default."
+              }
+            ]
           },
-          "desc": "<p>Global instance of <a href=\"#class-httpsagent\"><code>https.Agent</code></a> for all HTTPS client requests.</p>"
+          "desc": "<p>Global instance of <a href=\"#class-httpsagent\"><code>https.Agent</code></a> for all HTTPS client requests. Diverges\nfrom a default <a href=\"#class-httpsagent\"><code>https.Agent</code></a> configuration by having <code>keepAlive</code> enabled and\na <code>timeout</code> of 5 seconds.</p>"
         }
       ],
       "type": "module",

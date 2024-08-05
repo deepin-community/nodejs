@@ -8,7 +8,7 @@
       "introduced_in": "v0.10.0",
       "stability": 2,
       "stabilityText": "Stable",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.19.1/lib/dns.js\">lib/dns.js</a></p>\n<p>The <code>node:dns</code> module enables name resolution. For example, use it to look up IP\naddresses of host names.</p>\n<p>Although named for the <a href=\"https://en.wikipedia.org/wiki/Domain_Name_System\">Domain Name System (DNS)</a>, it does not always use the\nDNS protocol for lookups. <a href=\"#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a> uses the operating system\nfacilities to perform name resolution. It may not need to perform any network\ncommunication. To perform name resolution the way other applications on the same\nsystem do, use <a href=\"#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a>.</p>\n<pre><code class=\"language-js\">const dns = require('node:dns');\n\ndns.lookup('example.org', (err, address, family) => {\n  console.log('address: %j family: IPv%s', address, family);\n});\n// address: \"93.184.216.34\" family: IPv4\n</code></pre>\n<p>All other functions in the <code>node:dns</code> module connect to an actual DNS server to\nperform name resolution. They will always use the network to perform DNS\nqueries. These functions do not use the same set of configuration files used by\n<a href=\"#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a> (e.g. <code>/etc/hosts</code>). Use these functions to always perform\nDNS queries, bypassing other name-resolution facilities.</p>\n<pre><code class=\"language-js\">const dns = require('node:dns');\n\ndns.resolve4('archive.org', (err, addresses) => {\n  if (err) throw err;\n\n  console.log(`addresses: ${JSON.stringify(addresses)}`);\n\n  addresses.forEach((a) => {\n    dns.reverse(a, (err, hostnames) => {\n      if (err) {\n        throw err;\n      }\n      console.log(`reverse for ${a}: ${JSON.stringify(hostnames)}`);\n    });\n  });\n});\n</code></pre>\n<p>See the <a href=\"#implementation-considerations\">Implementation considerations section</a> for more information.</p>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v20.15.1/lib/dns.js\">lib/dns.js</a></p>\n<p>The <code>node:dns</code> module enables name resolution. For example, use it to look up IP\naddresses of host names.</p>\n<p>Although named for the <a href=\"https://en.wikipedia.org/wiki/Domain_Name_System\">Domain Name System (DNS)</a>, it does not always use the\nDNS protocol for lookups. <a href=\"#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a> uses the operating system\nfacilities to perform name resolution. It may not need to perform any network\ncommunication. To perform name resolution the way other applications on the same\nsystem do, use <a href=\"#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a>.</p>\n<pre><code class=\"language-js\">const dns = require('node:dns');\n\ndns.lookup('example.org', (err, address, family) => {\n  console.log('address: %j family: IPv%s', address, family);\n});\n// address: \"93.184.216.34\" family: IPv4\n</code></pre>\n<p>All other functions in the <code>node:dns</code> module connect to an actual DNS server to\nperform name resolution. They will always use the network to perform DNS\nqueries. These functions do not use the same set of configuration files used by\n<a href=\"#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a> (e.g. <code>/etc/hosts</code>). Use these functions to always perform\nDNS queries, bypassing other name-resolution facilities.</p>\n<pre><code class=\"language-js\">const dns = require('node:dns');\n\ndns.resolve4('archive.org', (err, addresses) => {\n  if (err) throw err;\n\n  console.log(`addresses: ${JSON.stringify(addresses)}`);\n\n  addresses.forEach((a) => {\n    dns.reverse(a, (err, hostnames) => {\n      if (err) {\n        throw err;\n      }\n      console.log(`reverse for ${a}: ${JSON.stringify(hostnames)}`);\n    });\n  });\n});\n</code></pre>\n<p>See the <a href=\"#implementation-considerations\">Implementation considerations section</a> for more information.</p>",
       "classes": [
         {
           "textRaw": "Class: `dns.Resolver`",
@@ -127,7 +127,7 @@
               "params": []
             }
           ],
-          "desc": "<p>Returns an array of IP address strings, formatted according to <a href=\"https://tools.ietf.org/html/rfc5952#section-6\">RFC 5952</a>,\nthat are currently configured for DNS resolution. A string will include a port\nsection if a custom port is used.</p>\n<!-- eslint-disable semi-->\n<pre><code class=\"language-js\">[\n  '4.4.4.4',\n  '2001:4860:4860::8888',\n  '4.4.4.4:1053',\n  '[2001:4860:4860::8888]:1053',\n]\n</code></pre>"
+          "desc": "<p>Returns an array of IP address strings, formatted according to <a href=\"https://tools.ietf.org/html/rfc5952#section-6\">RFC 5952</a>,\nthat are currently configured for DNS resolution. A string will include a port\nsection if a custom port is used.</p>\n<!-- eslint-disable @stylistic/js/semi-->\n<pre><code class=\"language-js\">[\n  '8.8.8.8',\n  '2001:4860:4860::8888',\n  '8.8.8.8:1053',\n  '[2001:4860:4860::8888]:1053',\n]\n</code></pre>"
         },
         {
           "textRaw": "`dns.lookup(hostname[, options], callback)`",
@@ -138,6 +138,11 @@
               "v0.1.90"
             ],
             "changes": [
+              {
+                "version": "v20.13.0",
+                "pr-url": "https://github.com/nodejs/node/pull/52492",
+                "description": "The `verbatim` option is now deprecated in favor of the new `order` option."
+              },
               {
                 "version": "v18.4.0",
                 "pr-url": "https://github.com/nodejs/node/pull/43054",
@@ -179,11 +184,11 @@
                   "type": "integer | Object",
                   "options": [
                     {
-                      "textRaw": "`family` {integer|string} The record family. Must be `4`, `6`, or `0`. For backward compatibility reasons,`'IPv4'` and `'IPv6'` are interpreted as `4` and `6` respectively. The value `0` indicates that IPv4 and IPv6 addresses are both returned. **Default:** `0`.",
+                      "textRaw": "`family` {integer|string} The record family. Must be `4`, `6`, or `0`. For backward compatibility reasons,`'IPv4'` and `'IPv6'` are interpreted as `4` and `6` respectively. The value `0` indicates that either an IPv4 or IPv6 address is returned. If the value `0` is used with `{ all: true }` (see below), either one of or both IPv4 and IPv6 addresses are returned, depending on the system's DNS resolver. **Default:** `0`.",
                       "name": "family",
                       "type": "integer|string",
                       "default": "`0`",
-                      "desc": "The record family. Must be `4`, `6`, or `0`. For backward compatibility reasons,`'IPv4'` and `'IPv6'` are interpreted as `4` and `6` respectively. The value `0` indicates that IPv4 and IPv6 addresses are both returned."
+                      "desc": "The record family. Must be `4`, `6`, or `0`. For backward compatibility reasons,`'IPv4'` and `'IPv6'` are interpreted as `4` and `6` respectively. The value `0` indicates that either an IPv4 or IPv6 address is returned. If the value `0` is used with `{ all: true }` (see below), either one of or both IPv4 and IPv6 addresses are returned, depending on the system's DNS resolver."
                     },
                     {
                       "textRaw": "`hints` {number} One or more [supported `getaddrinfo` flags][]. Multiple flags may be passed by bitwise `OR`ing their values.",
@@ -199,11 +204,18 @@
                       "desc": "When `true`, the callback returns all resolved addresses in an array. Otherwise, returns a single address."
                     },
                     {
-                      "textRaw": "`verbatim` {boolean} When `true`, the callback receives IPv4 and IPv6 addresses in the order the DNS resolver returned them. When `false`, IPv4 addresses are placed before IPv6 addresses. **Default:** `true` (addresses are not reordered). Default value is configurable using [`dns.setDefaultResultOrder()`][] or [`--dns-result-order`][].",
+                      "textRaw": "`order` {string} When `verbatim`, the resolved addresses are return unsorted. When `ipv4first`, the resolved addresses are sorted by placing IPv4 addresses before IPv6 addresses. When `ipv6first`, the resolved addresses are sorted by placing IPv6 addresses before IPv4 addresses. **Default:** `verbatim` (addresses are not reordered). Default value is configurable using [`dns.setDefaultResultOrder()`][] or [`--dns-result-order`][].",
+                      "name": "order",
+                      "type": "string",
+                      "default": "`verbatim` (addresses are not reordered). Default value is configurable using [`dns.setDefaultResultOrder()`][] or [`--dns-result-order`][]",
+                      "desc": "When `verbatim`, the resolved addresses are return unsorted. When `ipv4first`, the resolved addresses are sorted by placing IPv4 addresses before IPv6 addresses. When `ipv6first`, the resolved addresses are sorted by placing IPv6 addresses before IPv4 addresses."
+                    },
+                    {
+                      "textRaw": "`verbatim` {boolean} When `true`, the callback receives IPv4 and IPv6 addresses in the order the DNS resolver returned them. When `false`, IPv4 addresses are placed before IPv6 addresses. This option will be deprecated in favor of `order`. When both are specified, `order` has higher precedence. New code should only use `order`. **Default:** `true` (addresses are not reordered). Default value is configurable using [`dns.setDefaultResultOrder()`][] or [`--dns-result-order`][].",
                       "name": "verbatim",
                       "type": "boolean",
                       "default": "`true` (addresses are not reordered). Default value is configurable using [`dns.setDefaultResultOrder()`][] or [`--dns-result-order`][]",
-                      "desc": "When `true`, the callback receives IPv4 and IPv6 addresses in the order the DNS resolver returned them. When `false`, IPv4 addresses are placed before IPv6 addresses."
+                      "desc": "When `true`, the callback receives IPv4 and IPv6 addresses in the order the DNS resolver returned them. When `false`, IPv4 addresses are placed before IPv6 addresses. This option will be deprecated in favor of `order`. When both are specified, `order` has higher precedence. New code should only use `order`."
                     }
                   ]
                 },
@@ -234,7 +246,7 @@
               ]
             }
           ],
-          "desc": "<p>Resolves a host name (e.g. <code>'nodejs.org'</code>) into the first found A (IPv4) or\nAAAA (IPv6) record. All <code>option</code> properties are optional. If <code>options</code> is an\ninteger, then it must be <code>4</code> or <code>6</code> – if <code>options</code> is <code>0</code> or not provided, then\nIPv4 and IPv6 addresses are both returned if found.</p>\n<p>With the <code>all</code> option set to <code>true</code>, the arguments for <code>callback</code> change to\n<code>(err, addresses)</code>, with <code>addresses</code> being an array of objects with the\nproperties <code>address</code> and <code>family</code>.</p>\n<p>On error, <code>err</code> is an <a href=\"errors.html#class-error\"><code>Error</code></a> object, where <code>err.code</code> is the error code.\nKeep in mind that <code>err.code</code> will be set to <code>'ENOTFOUND'</code> not only when\nthe host name does not exist but also when the lookup fails in other ways\nsuch as no available file descriptors.</p>\n<p><code>dns.lookup()</code> does not necessarily have anything to do with the DNS protocol.\nThe implementation uses an operating system facility that can associate names\nwith addresses and vice versa. This implementation can have subtle but\nimportant consequences on the behavior of any Node.js program. Please take some\ntime to consult the <a href=\"#implementation-considerations\">Implementation considerations section</a> before using\n<code>dns.lookup()</code>.</p>\n<p>Example usage:</p>\n<pre><code class=\"language-js\">const dns = require('node:dns');\nconst options = {\n  family: 6,\n  hints: dns.ADDRCONFIG | dns.V4MAPPED,\n};\ndns.lookup('example.com', options, (err, address, family) =>\n  console.log('address: %j family: IPv%s', address, family));\n// address: \"2606:2800:220:1:248:1893:25c8:1946\" family: IPv6\n\n// When options.all is true, the result will be an Array.\noptions.all = true;\ndns.lookup('example.com', options, (err, addresses) =>\n  console.log('addresses: %j', addresses));\n// addresses: [{\"address\":\"2606:2800:220:1:248:1893:25c8:1946\",\"family\":6}]\n</code></pre>\n<p>If this method is invoked as its <a href=\"util.html#utilpromisifyoriginal\"><code>util.promisify()</code></a>ed version, and <code>all</code>\nis not set to <code>true</code>, it returns a <code>Promise</code> for an <code>Object</code> with <code>address</code> and\n<code>family</code> properties.</p>",
+          "desc": "<p>Resolves a host name (e.g. <code>'nodejs.org'</code>) into the first found A (IPv4) or\nAAAA (IPv6) record. All <code>option</code> properties are optional. If <code>options</code> is an\ninteger, then it must be <code>4</code> or <code>6</code> – if <code>options</code> is not provided, then\neither IPv4 or IPv6 addresses, or both, are returned if found.</p>\n<p>With the <code>all</code> option set to <code>true</code>, the arguments for <code>callback</code> change to\n<code>(err, addresses)</code>, with <code>addresses</code> being an array of objects with the\nproperties <code>address</code> and <code>family</code>.</p>\n<p>On error, <code>err</code> is an <a href=\"errors.html#class-error\"><code>Error</code></a> object, where <code>err.code</code> is the error code.\nKeep in mind that <code>err.code</code> will be set to <code>'ENOTFOUND'</code> not only when\nthe host name does not exist but also when the lookup fails in other ways\nsuch as no available file descriptors.</p>\n<p><code>dns.lookup()</code> does not necessarily have anything to do with the DNS protocol.\nThe implementation uses an operating system facility that can associate names\nwith addresses and vice versa. This implementation can have subtle but\nimportant consequences on the behavior of any Node.js program. Please take some\ntime to consult the <a href=\"#implementation-considerations\">Implementation considerations section</a> before using\n<code>dns.lookup()</code>.</p>\n<p>Example usage:</p>\n<pre><code class=\"language-js\">const dns = require('node:dns');\nconst options = {\n  family: 6,\n  hints: dns.ADDRCONFIG | dns.V4MAPPED,\n};\ndns.lookup('example.com', options, (err, address, family) =>\n  console.log('address: %j family: IPv%s', address, family));\n// address: \"2606:2800:220:1:248:1893:25c8:1946\" family: IPv6\n\n// When options.all is true, the result will be an Array.\noptions.all = true;\ndns.lookup('example.com', options, (err, addresses) =>\n  console.log('addresses: %j', addresses));\n// addresses: [{\"address\":\"2606:2800:220:1:248:1893:25c8:1946\",\"family\":6}]\n</code></pre>\n<p>If this method is invoked as its <a href=\"util.html#utilpromisifyoriginal\"><code>util.promisify()</code></a>ed version, and <code>all</code>\nis not set to <code>true</code>, it returns a <code>Promise</code> for an <code>Object</code> with <code>address</code> and\n<code>family</code> properties.</p>",
           "modules": [
             {
               "textRaw": "Supported getaddrinfo flags",
@@ -540,7 +552,7 @@
               ]
             }
           ],
-          "desc": "<p>Uses the DNS protocol to resolve all records (also known as <code>ANY</code> or <code>*</code> query).\nThe <code>ret</code> argument passed to the <code>callback</code> function will be an array containing\nvarious types of records. Each object has a property <code>type</code> that indicates the\ntype of the current record. And depending on the <code>type</code>, additional properties\nwill be present on the object:</p>\n<table>\n<thead>\n<tr>\n<th>Type</th>\n<th>Properties</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>'A'</code></td>\n<td><code>address</code>/<code>ttl</code></td>\n</tr>\n<tr>\n<td><code>'AAAA'</code></td>\n<td><code>address</code>/<code>ttl</code></td>\n</tr>\n<tr>\n<td><code>'CNAME'</code></td>\n<td><code>value</code></td>\n</tr>\n<tr>\n<td><code>'MX'</code></td>\n<td>Refer to <a href=\"#dnsresolvemxhostname-callback\"><code>dns.resolveMx()</code></a></td>\n</tr>\n<tr>\n<td><code>'NAPTR'</code></td>\n<td>Refer to <a href=\"#dnsresolvenaptrhostname-callback\"><code>dns.resolveNaptr()</code></a></td>\n</tr>\n<tr>\n<td><code>'NS'</code></td>\n<td><code>value</code></td>\n</tr>\n<tr>\n<td><code>'PTR'</code></td>\n<td><code>value</code></td>\n</tr>\n<tr>\n<td><code>'SOA'</code></td>\n<td>Refer to <a href=\"#dnsresolvesoahostname-callback\"><code>dns.resolveSoa()</code></a></td>\n</tr>\n<tr>\n<td><code>'SRV'</code></td>\n<td>Refer to <a href=\"#dnsresolvesrvhostname-callback\"><code>dns.resolveSrv()</code></a></td>\n</tr>\n<tr>\n<td><code>'TXT'</code></td>\n<td>This type of record contains an array property called <code>entries</code> which refers to <a href=\"#dnsresolvetxthostname-callback\"><code>dns.resolveTxt()</code></a>, e.g. <code>{ entries: ['...'], type: 'TXT' }</code></td>\n</tr>\n</tbody>\n</table>\n<p>Here is an example of the <code>ret</code> object passed to the callback:</p>\n<!-- eslint-disable semi -->\n<pre><code class=\"language-js\">[ { type: 'A', address: '127.0.0.1', ttl: 299 },\n  { type: 'CNAME', value: 'example.com' },\n  { type: 'MX', exchange: 'alt4.aspmx.l.example.com', priority: 50 },\n  { type: 'NS', value: 'ns1.example.com' },\n  { type: 'TXT', entries: [ 'v=spf1 include:_spf.example.com ~all' ] },\n  { type: 'SOA',\n    nsname: 'ns1.example.com',\n    hostmaster: 'admin.example.com',\n    serial: 156696742,\n    refresh: 900,\n    retry: 900,\n    expire: 1800,\n    minttl: 60 } ]\n</code></pre>\n<p>DNS server operators may choose not to respond to <code>ANY</code>\nqueries. It may be better to call individual methods like <a href=\"#dnsresolve4hostname-options-callback\"><code>dns.resolve4()</code></a>,\n<a href=\"#dnsresolvemxhostname-callback\"><code>dns.resolveMx()</code></a>, and so on. For more details, see <a href=\"https://tools.ietf.org/html/rfc8482\">RFC 8482</a>.</p>"
+          "desc": "<p>Uses the DNS protocol to resolve all records (also known as <code>ANY</code> or <code>*</code> query).\nThe <code>ret</code> argument passed to the <code>callback</code> function will be an array containing\nvarious types of records. Each object has a property <code>type</code> that indicates the\ntype of the current record. And depending on the <code>type</code>, additional properties\nwill be present on the object:</p>\n<table>\n<thead>\n<tr>\n<th>Type</th>\n<th>Properties</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>'A'</code></td>\n<td><code>address</code>/<code>ttl</code></td>\n</tr>\n<tr>\n<td><code>'AAAA'</code></td>\n<td><code>address</code>/<code>ttl</code></td>\n</tr>\n<tr>\n<td><code>'CNAME'</code></td>\n<td><code>value</code></td>\n</tr>\n<tr>\n<td><code>'MX'</code></td>\n<td>Refer to <a href=\"#dnsresolvemxhostname-callback\"><code>dns.resolveMx()</code></a></td>\n</tr>\n<tr>\n<td><code>'NAPTR'</code></td>\n<td>Refer to <a href=\"#dnsresolvenaptrhostname-callback\"><code>dns.resolveNaptr()</code></a></td>\n</tr>\n<tr>\n<td><code>'NS'</code></td>\n<td><code>value</code></td>\n</tr>\n<tr>\n<td><code>'PTR'</code></td>\n<td><code>value</code></td>\n</tr>\n<tr>\n<td><code>'SOA'</code></td>\n<td>Refer to <a href=\"#dnsresolvesoahostname-callback\"><code>dns.resolveSoa()</code></a></td>\n</tr>\n<tr>\n<td><code>'SRV'</code></td>\n<td>Refer to <a href=\"#dnsresolvesrvhostname-callback\"><code>dns.resolveSrv()</code></a></td>\n</tr>\n<tr>\n<td><code>'TXT'</code></td>\n<td>This type of record contains an array property called <code>entries</code> which refers to <a href=\"#dnsresolvetxthostname-callback\"><code>dns.resolveTxt()</code></a>, e.g. <code>{ entries: ['...'], type: 'TXT' }</code></td>\n</tr>\n</tbody>\n</table>\n<p>Here is an example of the <code>ret</code> object passed to the callback:</p>\n<!-- eslint-disable @stylistic/js/semi -->\n<pre><code class=\"language-js\">[ { type: 'A', address: '127.0.0.1', ttl: 299 },\n  { type: 'CNAME', value: 'example.com' },\n  { type: 'MX', exchange: 'alt4.aspmx.l.example.com', priority: 50 },\n  { type: 'NS', value: 'ns1.example.com' },\n  { type: 'TXT', entries: [ 'v=spf1 include:_spf.example.com ~all' ] },\n  { type: 'SOA',\n    nsname: 'ns1.example.com',\n    hostmaster: 'admin.example.com',\n    serial: 156696742,\n    refresh: 900,\n    retry: 900,\n    expire: 1800,\n    minttl: 60 } ]\n</code></pre>\n<p>DNS server operators may choose not to respond to <code>ANY</code>\nqueries. It may be better to call individual methods like <a href=\"#dnsresolve4hostname-options-callback\"><code>dns.resolve4()</code></a>,\n<a href=\"#dnsresolvemxhostname-callback\"><code>dns.resolveMx()</code></a>, and so on. For more details, see <a href=\"https://tools.ietf.org/html/rfc8482\">RFC 8482</a>.</p>"
         },
         {
           "textRaw": "`dns.resolveCname(hostname, callback)`",
@@ -985,6 +997,11 @@
             ],
             "changes": [
               {
+                "version": "v20.13.0",
+                "pr-url": "https://github.com/nodejs/node/pull/52492",
+                "description": "The `ipv6first` value is supported now."
+              },
+              {
                 "version": "v17.0.0",
                 "pr-url": "https://github.com/nodejs/node/pull/39987",
                 "description": "Changed default value to `verbatim`."
@@ -995,15 +1012,15 @@
             {
               "params": [
                 {
-                  "textRaw": "`order` {string} must be `'ipv4first'` or `'verbatim'`.",
+                  "textRaw": "`order` {string} must be `'ipv4first'`, `'ipv6first'` or `'verbatim'`.",
                   "name": "order",
                   "type": "string",
-                  "desc": "must be `'ipv4first'` or `'verbatim'`."
+                  "desc": "must be `'ipv4first'`, `'ipv6first'` or `'verbatim'`."
                 }
               ]
             }
           ],
-          "desc": "<p>Set the default value of <code>verbatim</code> in <a href=\"#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a> and\n<a href=\"#dnspromiseslookuphostname-options\"><code>dnsPromises.lookup()</code></a>. The value could be:</p>\n<ul>\n<li><code>ipv4first</code>: sets default <code>verbatim</code> <code>false</code>.</li>\n<li><code>verbatim</code>: sets default <code>verbatim</code> <code>true</code>.</li>\n</ul>\n<p>The default is <code>verbatim</code> and <a href=\"#dnssetdefaultresultorderorder\"><code>dns.setDefaultResultOrder()</code></a> have higher\npriority than <a href=\"cli.html#--dns-result-orderorder\"><code>--dns-result-order</code></a>. When using <a href=\"worker_threads.html\">worker threads</a>,\n<a href=\"#dnssetdefaultresultorderorder\"><code>dns.setDefaultResultOrder()</code></a> from the main thread won't affect the default\ndns orders in workers.</p>"
+          "desc": "<p>Set the default value of <code>order</code> in <a href=\"#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a> and\n<a href=\"#dnspromiseslookuphostname-options\"><code>dnsPromises.lookup()</code></a>. The value could be:</p>\n<ul>\n<li><code>ipv4first</code>: sets default <code>order</code> to <code>ipv4first</code>.</li>\n<li><code>ipv6first</code>: sets default <code>order</code> to <code>ipv6first</code>.</li>\n<li><code>verbatim</code>: sets default <code>order</code> to <code>verbatim</code>.</li>\n</ul>\n<p>The default is <code>verbatim</code> and <a href=\"#dnssetdefaultresultorderorder\"><code>dns.setDefaultResultOrder()</code></a> have higher\npriority than <a href=\"cli.html#--dns-result-orderorder\"><code>--dns-result-order</code></a>. When using <a href=\"worker_threads.html\">worker threads</a>,\n<a href=\"#dnssetdefaultresultorderorder\"><code>dns.setDefaultResultOrder()</code></a> from the main thread won't affect the default\ndns orders in workers.</p>"
         },
         {
           "textRaw": "`dns.getDefaultResultOrder()`",
@@ -1011,16 +1028,23 @@
           "name": "getDefaultResultOrder",
           "meta": {
             "added": [
+              "v20.1.0",
               "v18.17.0"
             ],
-            "changes": []
+            "changes": [
+              {
+                "version": "v20.13.0",
+                "pr-url": "https://github.com/nodejs/node/pull/52492",
+                "description": "The `ipv6first` value is supported now."
+              }
+            ]
           },
           "signatures": [
             {
               "params": []
             }
           ],
-          "desc": "<p>Get the default value for <code>verbatim</code> in <a href=\"#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a> and\n<a href=\"#dnspromiseslookuphostname-options\"><code>dnsPromises.lookup()</code></a>. The value could be:</p>\n<ul>\n<li><code>ipv4first</code>: for <code>verbatim</code> defaulting to <code>false</code>.</li>\n<li><code>verbatim</code>: for <code>verbatim</code> defaulting to <code>true</code>.</li>\n</ul>"
+          "desc": "<p>Get the default value for <code>order</code> in <a href=\"#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a> and\n<a href=\"#dnspromiseslookuphostname-options\"><code>dnsPromises.lookup()</code></a>. The value could be:</p>\n<ul>\n<li><code>ipv4first</code>: for <code>order</code> defaulting to <code>ipv4first</code>.</li>\n<li><code>ipv6first</code>: for <code>order</code> defaulting to <code>ipv6first</code>.</li>\n<li><code>verbatim</code>: for <code>order</code> defaulting to <code>verbatim</code>.</li>\n</ul>"
         },
         {
           "textRaw": "`dns.setServers(servers)`",
@@ -1044,7 +1068,7 @@
               ]
             }
           ],
-          "desc": "<p>Sets the IP address and port of servers to be used when performing DNS\nresolution. The <code>servers</code> argument is an array of <a href=\"https://tools.ietf.org/html/rfc5952#section-6\">RFC 5952</a> formatted\naddresses. If the port is the IANA default DNS port (53) it can be omitted.</p>\n<pre><code class=\"language-js\">dns.setServers([\n  '4.4.4.4',\n  '[2001:4860:4860::8888]',\n  '4.4.4.4:1053',\n  '[2001:4860:4860::8888]:1053',\n]);\n</code></pre>\n<p>An error will be thrown if an invalid address is provided.</p>\n<p>The <code>dns.setServers()</code> method must not be called while a DNS query is in\nprogress.</p>\n<p>The <a href=\"#dnssetserversservers\"><code>dns.setServers()</code></a> method affects only <a href=\"#dnsresolvehostname-rrtype-callback\"><code>dns.resolve()</code></a>,\n<code>dns.resolve*()</code> and <a href=\"#dnsreverseip-callback\"><code>dns.reverse()</code></a> (and specifically <em>not</em>\n<a href=\"#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a>).</p>\n<p>This method works much like\n<a href=\"https://man7.org/linux/man-pages/man5/resolv.conf.5.html\">resolve.conf</a>.\nThat is, if attempting to resolve with the first server provided results in a\n<code>NOTFOUND</code> error, the <code>resolve()</code> method will <em>not</em> attempt to resolve with\nsubsequent servers provided. Fallback DNS servers will only be used if the\nearlier ones time out or result in some other error.</p>"
+          "desc": "<p>Sets the IP address and port of servers to be used when performing DNS\nresolution. The <code>servers</code> argument is an array of <a href=\"https://tools.ietf.org/html/rfc5952#section-6\">RFC 5952</a> formatted\naddresses. If the port is the IANA default DNS port (53) it can be omitted.</p>\n<pre><code class=\"language-js\">dns.setServers([\n  '8.8.8.8',\n  '[2001:4860:4860::8888]',\n  '8.8.8.8:1053',\n  '[2001:4860:4860::8888]:1053',\n]);\n</code></pre>\n<p>An error will be thrown if an invalid address is provided.</p>\n<p>The <code>dns.setServers()</code> method must not be called while a DNS query is in\nprogress.</p>\n<p>The <a href=\"#dnssetserversservers\"><code>dns.setServers()</code></a> method affects only <a href=\"#dnsresolvehostname-rrtype-callback\"><code>dns.resolve()</code></a>,\n<code>dns.resolve*()</code> and <a href=\"#dnsreverseip-callback\"><code>dns.reverse()</code></a> (and specifically <em>not</em>\n<a href=\"#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a>).</p>\n<p>This method works much like\n<a href=\"https://man7.org/linux/man-pages/man5/resolv.conf.5.html\">resolve.conf</a>.\nThat is, if attempting to resolve with the first server provided results in a\n<code>NOTFOUND</code> error, the <code>resolve()</code> method will <em>not</em> attempt to resolve with\nsubsequent servers provided. Fallback DNS servers will only be used if the\nearlier ones time out or result in some other error.</p>"
         }
       ],
       "modules": [
@@ -1125,7 +1149,7 @@
                   "params": []
                 }
               ],
-              "desc": "<p>Returns an array of IP address strings, formatted according to <a href=\"https://tools.ietf.org/html/rfc5952#section-6\">RFC 5952</a>,\nthat are currently configured for DNS resolution. A string will include a port\nsection if a custom port is used.</p>\n<!-- eslint-disable semi-->\n<pre><code class=\"language-js\">[\n  '4.4.4.4',\n  '2001:4860:4860::8888',\n  '4.4.4.4:1053',\n  '[2001:4860:4860::8888]:1053',\n]\n</code></pre>"
+              "desc": "<p>Returns an array of IP address strings, formatted according to <a href=\"https://tools.ietf.org/html/rfc5952#section-6\">RFC 5952</a>,\nthat are currently configured for DNS resolution. A string will include a port\nsection if a custom port is used.</p>\n<!-- eslint-disable @stylistic/js/semi-->\n<pre><code class=\"language-js\">[\n  '8.8.8.8',\n  '2001:4860:4860::8888',\n  '8.8.8.8:1053',\n  '[2001:4860:4860::8888]:1053',\n]\n</code></pre>"
             },
             {
               "textRaw": "`dnsPromises.lookup(hostname[, options])`",
@@ -1135,7 +1159,13 @@
                 "added": [
                   "v10.6.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v20.13.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/52492",
+                    "description": "The `verbatim` option is now deprecated in favor of the new `order` option."
+                  }
+                ]
               },
               "signatures": [
                 {
@@ -1151,11 +1181,11 @@
                       "type": "integer | Object",
                       "options": [
                         {
-                          "textRaw": "`family` {integer} The record family. Must be `4`, `6`, or `0`. The value `0` indicates that IPv4 and IPv6 addresses are both returned. **Default:** `0`.",
+                          "textRaw": "`family` {integer} The record family. Must be `4`, `6`, or `0`. The value `0` indicates that either an IPv4 or IPv6 address is returned. If the value `0` is used with `{ all: true }` (see below), either one of or both IPv4 and IPv6 addresses are returned, depending on the system's DNS resolver. **Default:** `0`.",
                           "name": "family",
                           "type": "integer",
                           "default": "`0`",
-                          "desc": "The record family. Must be `4`, `6`, or `0`. The value `0` indicates that IPv4 and IPv6 addresses are both returned."
+                          "desc": "The record family. Must be `4`, `6`, or `0`. The value `0` indicates that either an IPv4 or IPv6 address is returned. If the value `0` is used with `{ all: true }` (see below), either one of or both IPv4 and IPv6 addresses are returned, depending on the system's DNS resolver."
                         },
                         {
                           "textRaw": "`hints` {number} One or more [supported `getaddrinfo` flags][]. Multiple flags may be passed by bitwise `OR`ing their values.",
@@ -1171,18 +1201,25 @@
                           "desc": "When `true`, the `Promise` is resolved with all addresses in an array. Otherwise, returns a single address."
                         },
                         {
-                          "textRaw": "`verbatim` {boolean} When `true`, the `Promise` is resolved with IPv4 and IPv6 addresses in the order the DNS resolver returned them. When `false`, IPv4 addresses are placed before IPv6 addresses. **Default:** currently `false` (addresses are reordered) but this is expected to change in the not too distant future. Default value is configurable using [`dns.setDefaultResultOrder()`][] or [`--dns-result-order`][]. New code should use `{ verbatim: true }`.",
+                          "textRaw": "`order` {string} When `verbatim`, the `Promise` is resolved with IPv4 and IPv6 addresses in the order the DNS resolver returned them. When `ipv4first`, IPv4 addresses are placed before IPv6 addresses. When `ipv6first`, IPv6 addresses are placed before IPv4 addresses. **Default:** `verbatim` (addresses are not reordered). Default value is configurable using [`dns.setDefaultResultOrder()`][] or [`--dns-result-order`][]. New code should use `{ order: 'verbatim' }`.",
+                          "name": "order",
+                          "type": "string",
+                          "default": "`verbatim` (addresses are not reordered). Default value is configurable using [`dns.setDefaultResultOrder()`][] or [`--dns-result-order`][]. New code should use `{ order: 'verbatim' }`",
+                          "desc": "When `verbatim`, the `Promise` is resolved with IPv4 and IPv6 addresses in the order the DNS resolver returned them. When `ipv4first`, IPv4 addresses are placed before IPv6 addresses. When `ipv6first`, IPv6 addresses are placed before IPv4 addresses."
+                        },
+                        {
+                          "textRaw": "`verbatim` {boolean} When `true`, the `Promise` is resolved with IPv4 and IPv6 addresses in the order the DNS resolver returned them. When `false`, IPv4 addresses are placed before IPv6 addresses. This option will be deprecated in favor of `order`. When both are specified, `order` has higher precedence. New code should only use `order`. **Default:** currently `false` (addresses are reordered) but this is expected to change in the not too distant future. Default value is configurable using [`dns.setDefaultResultOrder()`][] or [`--dns-result-order`][].",
                           "name": "verbatim",
                           "type": "boolean",
-                          "default": "currently `false` (addresses are reordered) but this is expected to change in the not too distant future. Default value is configurable using [`dns.setDefaultResultOrder()`][] or [`--dns-result-order`][]. New code should use `{ verbatim: true }`",
-                          "desc": "When `true`, the `Promise` is resolved with IPv4 and IPv6 addresses in the order the DNS resolver returned them. When `false`, IPv4 addresses are placed before IPv6 addresses."
+                          "default": "currently `false` (addresses are reordered) but this is expected to change in the not too distant future. Default value is configurable using [`dns.setDefaultResultOrder()`][] or [`--dns-result-order`][]",
+                          "desc": "When `true`, the `Promise` is resolved with IPv4 and IPv6 addresses in the order the DNS resolver returned them. When `false`, IPv4 addresses are placed before IPv6 addresses. This option will be deprecated in favor of `order`. When both are specified, `order` has higher precedence. New code should only use `order`."
                         }
                       ]
                     }
                   ]
                 }
               ],
-              "desc": "<p>Resolves a host name (e.g. <code>'nodejs.org'</code>) into the first found A (IPv4) or\nAAAA (IPv6) record. All <code>option</code> properties are optional. If <code>options</code> is an\ninteger, then it must be <code>4</code> or <code>6</code> – if <code>options</code> is not provided, then IPv4\nand IPv6 addresses are both returned if found.</p>\n<p>With the <code>all</code> option set to <code>true</code>, the <code>Promise</code> is resolved with <code>addresses</code>\nbeing an array of objects with the properties <code>address</code> and <code>family</code>.</p>\n<p>On error, the <code>Promise</code> is rejected with an <a href=\"errors.html#class-error\"><code>Error</code></a> object, where <code>err.code</code>\nis the error code.\nKeep in mind that <code>err.code</code> will be set to <code>'ENOTFOUND'</code> not only when\nthe host name does not exist but also when the lookup fails in other ways\nsuch as no available file descriptors.</p>\n<p><a href=\"#dnspromiseslookuphostname-options\"><code>dnsPromises.lookup()</code></a> does not necessarily have anything to do with the DNS\nprotocol. The implementation uses an operating system facility that can\nassociate names with addresses and vice versa. This implementation can have\nsubtle but important consequences on the behavior of any Node.js program. Please\ntake some time to consult the <a href=\"#implementation-considerations\">Implementation considerations section</a> before\nusing <code>dnsPromises.lookup()</code>.</p>\n<p>Example usage:</p>\n<pre><code class=\"language-js\">const dns = require('node:dns');\nconst dnsPromises = dns.promises;\nconst options = {\n  family: 6,\n  hints: dns.ADDRCONFIG | dns.V4MAPPED,\n};\n\ndnsPromises.lookup('example.com', options).then((result) => {\n  console.log('address: %j family: IPv%s', result.address, result.family);\n  // address: \"2606:2800:220:1:248:1893:25c8:1946\" family: IPv6\n});\n\n// When options.all is true, the result will be an Array.\noptions.all = true;\ndnsPromises.lookup('example.com', options).then((result) => {\n  console.log('addresses: %j', result);\n  // addresses: [{\"address\":\"2606:2800:220:1:248:1893:25c8:1946\",\"family\":6}]\n});\n</code></pre>"
+              "desc": "<p>Resolves a host name (e.g. <code>'nodejs.org'</code>) into the first found A (IPv4) or\nAAAA (IPv6) record. All <code>option</code> properties are optional. If <code>options</code> is an\ninteger, then it must be <code>4</code> or <code>6</code> – if <code>options</code> is not provided, then\neither IPv4 or IPv6 addresses, or both, are returned if found.</p>\n<p>With the <code>all</code> option set to <code>true</code>, the <code>Promise</code> is resolved with <code>addresses</code>\nbeing an array of objects with the properties <code>address</code> and <code>family</code>.</p>\n<p>On error, the <code>Promise</code> is rejected with an <a href=\"errors.html#class-error\"><code>Error</code></a> object, where <code>err.code</code>\nis the error code.\nKeep in mind that <code>err.code</code> will be set to <code>'ENOTFOUND'</code> not only when\nthe host name does not exist but also when the lookup fails in other ways\nsuch as no available file descriptors.</p>\n<p><a href=\"#dnspromiseslookuphostname-options\"><code>dnsPromises.lookup()</code></a> does not necessarily have anything to do with the DNS\nprotocol. The implementation uses an operating system facility that can\nassociate names with addresses and vice versa. This implementation can have\nsubtle but important consequences on the behavior of any Node.js program. Please\ntake some time to consult the <a href=\"#implementation-considerations\">Implementation considerations section</a> before\nusing <code>dnsPromises.lookup()</code>.</p>\n<p>Example usage:</p>\n<pre><code class=\"language-js\">const dns = require('node:dns');\nconst dnsPromises = dns.promises;\nconst options = {\n  family: 6,\n  hints: dns.ADDRCONFIG | dns.V4MAPPED,\n};\n\ndnsPromises.lookup('example.com', options).then((result) => {\n  console.log('address: %j family: IPv%s', result.address, result.family);\n  // address: \"2606:2800:220:1:248:1893:25c8:1946\" family: IPv6\n});\n\n// When options.all is true, the result will be an Array.\noptions.all = true;\ndnsPromises.lookup('example.com', options).then((result) => {\n  console.log('addresses: %j', result);\n  // addresses: [{\"address\":\"2606:2800:220:1:248:1893:25c8:1946\",\"family\":6}]\n});\n</code></pre>"
             },
             {
               "textRaw": "`dnsPromises.lookupService(address, port)`",
@@ -1338,7 +1375,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Uses the DNS protocol to resolve all records (also known as <code>ANY</code> or <code>*</code> query).\nOn success, the <code>Promise</code> is resolved with an array containing various types of\nrecords. Each object has a property <code>type</code> that indicates the type of the\ncurrent record. And depending on the <code>type</code>, additional properties will be\npresent on the object:</p>\n<table>\n<thead>\n<tr>\n<th>Type</th>\n<th>Properties</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>'A'</code></td>\n<td><code>address</code>/<code>ttl</code></td>\n</tr>\n<tr>\n<td><code>'AAAA'</code></td>\n<td><code>address</code>/<code>ttl</code></td>\n</tr>\n<tr>\n<td><code>'CNAME'</code></td>\n<td><code>value</code></td>\n</tr>\n<tr>\n<td><code>'MX'</code></td>\n<td>Refer to <a href=\"#dnspromisesresolvemxhostname\"><code>dnsPromises.resolveMx()</code></a></td>\n</tr>\n<tr>\n<td><code>'NAPTR'</code></td>\n<td>Refer to <a href=\"#dnspromisesresolvenaptrhostname\"><code>dnsPromises.resolveNaptr()</code></a></td>\n</tr>\n<tr>\n<td><code>'NS'</code></td>\n<td><code>value</code></td>\n</tr>\n<tr>\n<td><code>'PTR'</code></td>\n<td><code>value</code></td>\n</tr>\n<tr>\n<td><code>'SOA'</code></td>\n<td>Refer to <a href=\"#dnspromisesresolvesoahostname\"><code>dnsPromises.resolveSoa()</code></a></td>\n</tr>\n<tr>\n<td><code>'SRV'</code></td>\n<td>Refer to <a href=\"#dnspromisesresolvesrvhostname\"><code>dnsPromises.resolveSrv()</code></a></td>\n</tr>\n<tr>\n<td><code>'TXT'</code></td>\n<td>This type of record contains an array property called <code>entries</code> which refers to <a href=\"#dnspromisesresolvetxthostname\"><code>dnsPromises.resolveTxt()</code></a>, e.g. <code>{ entries: ['...'], type: 'TXT' }</code></td>\n</tr>\n</tbody>\n</table>\n<p>Here is an example of the result object:</p>\n<!-- eslint-disable semi -->\n<pre><code class=\"language-js\">[ { type: 'A', address: '127.0.0.1', ttl: 299 },\n  { type: 'CNAME', value: 'example.com' },\n  { type: 'MX', exchange: 'alt4.aspmx.l.example.com', priority: 50 },\n  { type: 'NS', value: 'ns1.example.com' },\n  { type: 'TXT', entries: [ 'v=spf1 include:_spf.example.com ~all' ] },\n  { type: 'SOA',\n    nsname: 'ns1.example.com',\n    hostmaster: 'admin.example.com',\n    serial: 156696742,\n    refresh: 900,\n    retry: 900,\n    expire: 1800,\n    minttl: 60 } ]\n</code></pre>"
+              "desc": "<p>Uses the DNS protocol to resolve all records (also known as <code>ANY</code> or <code>*</code> query).\nOn success, the <code>Promise</code> is resolved with an array containing various types of\nrecords. Each object has a property <code>type</code> that indicates the type of the\ncurrent record. And depending on the <code>type</code>, additional properties will be\npresent on the object:</p>\n<table>\n<thead>\n<tr>\n<th>Type</th>\n<th>Properties</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>'A'</code></td>\n<td><code>address</code>/<code>ttl</code></td>\n</tr>\n<tr>\n<td><code>'AAAA'</code></td>\n<td><code>address</code>/<code>ttl</code></td>\n</tr>\n<tr>\n<td><code>'CNAME'</code></td>\n<td><code>value</code></td>\n</tr>\n<tr>\n<td><code>'MX'</code></td>\n<td>Refer to <a href=\"#dnspromisesresolvemxhostname\"><code>dnsPromises.resolveMx()</code></a></td>\n</tr>\n<tr>\n<td><code>'NAPTR'</code></td>\n<td>Refer to <a href=\"#dnspromisesresolvenaptrhostname\"><code>dnsPromises.resolveNaptr()</code></a></td>\n</tr>\n<tr>\n<td><code>'NS'</code></td>\n<td><code>value</code></td>\n</tr>\n<tr>\n<td><code>'PTR'</code></td>\n<td><code>value</code></td>\n</tr>\n<tr>\n<td><code>'SOA'</code></td>\n<td>Refer to <a href=\"#dnspromisesresolvesoahostname\"><code>dnsPromises.resolveSoa()</code></a></td>\n</tr>\n<tr>\n<td><code>'SRV'</code></td>\n<td>Refer to <a href=\"#dnspromisesresolvesrvhostname\"><code>dnsPromises.resolveSrv()</code></a></td>\n</tr>\n<tr>\n<td><code>'TXT'</code></td>\n<td>This type of record contains an array property called <code>entries</code> which refers to <a href=\"#dnspromisesresolvetxthostname\"><code>dnsPromises.resolveTxt()</code></a>, e.g. <code>{ entries: ['...'], type: 'TXT' }</code></td>\n</tr>\n</tbody>\n</table>\n<p>Here is an example of the result object:</p>\n<!-- eslint-disable @stylistic/js/semi -->\n<pre><code class=\"language-js\">[ { type: 'A', address: '127.0.0.1', ttl: 299 },\n  { type: 'CNAME', value: 'example.com' },\n  { type: 'MX', exchange: 'alt4.aspmx.l.example.com', priority: 50 },\n  { type: 'NS', value: 'ns1.example.com' },\n  { type: 'TXT', entries: [ 'v=spf1 include:_spf.example.com ~all' ] },\n  { type: 'SOA',\n    nsname: 'ns1.example.com',\n    hostmaster: 'admin.example.com',\n    serial: 156696742,\n    refresh: 900,\n    retry: 900,\n    expire: 1800,\n    minttl: 60 } ]\n</code></pre>"
             },
             {
               "textRaw": "`dnsPromises.resolveCaa(hostname)`",
@@ -1582,6 +1619,11 @@
                 ],
                 "changes": [
                   {
+                    "version": "v20.13.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/52492",
+                    "description": "The `ipv6first` value is supported now."
+                  },
+                  {
                     "version": "v17.0.0",
                     "pr-url": "https://github.com/nodejs/node/pull/39987",
                     "description": "Changed default value to `verbatim`."
@@ -1592,15 +1634,15 @@
                 {
                   "params": [
                     {
-                      "textRaw": "`order` {string} must be `'ipv4first'` or `'verbatim'`.",
+                      "textRaw": "`order` {string} must be `'ipv4first'`, `'ipv6first'` or `'verbatim'`.",
                       "name": "order",
                       "type": "string",
-                      "desc": "must be `'ipv4first'` or `'verbatim'`."
+                      "desc": "must be `'ipv4first'`, `'ipv6first'` or `'verbatim'`."
                     }
                   ]
                 }
               ],
-              "desc": "<p>Set the default value of <code>verbatim</code> in <a href=\"#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a> and\n<a href=\"#dnspromiseslookuphostname-options\"><code>dnsPromises.lookup()</code></a>. The value could be:</p>\n<ul>\n<li><code>ipv4first</code>: sets default <code>verbatim</code> <code>false</code>.</li>\n<li><code>verbatim</code>: sets default <code>verbatim</code> <code>true</code>.</li>\n</ul>\n<p>The default is <code>verbatim</code> and <a href=\"#dnspromisessetdefaultresultorderorder\"><code>dnsPromises.setDefaultResultOrder()</code></a> have\nhigher priority than <a href=\"cli.html#--dns-result-orderorder\"><code>--dns-result-order</code></a>. When using <a href=\"worker_threads.html\">worker threads</a>,\n<a href=\"#dnspromisessetdefaultresultorderorder\"><code>dnsPromises.setDefaultResultOrder()</code></a> from the main thread won't affect the\ndefault dns orders in workers.</p>"
+              "desc": "<p>Set the default value of <code>order</code> in <a href=\"#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a> and\n<a href=\"#dnspromiseslookuphostname-options\"><code>dnsPromises.lookup()</code></a>. The value could be:</p>\n<ul>\n<li><code>ipv4first</code>: sets default <code>order</code> to <code>ipv4first</code>.</li>\n<li><code>ipv6first</code>: sets default <code>order</code> to <code>ipv6first</code>.</li>\n<li><code>verbatim</code>: sets default <code>order</code> to <code>verbatim</code>.</li>\n</ul>\n<p>The default is <code>verbatim</code> and <a href=\"#dnspromisessetdefaultresultorderorder\"><code>dnsPromises.setDefaultResultOrder()</code></a> have\nhigher priority than <a href=\"cli.html#--dns-result-orderorder\"><code>--dns-result-order</code></a>. When using <a href=\"worker_threads.html\">worker threads</a>,\n<a href=\"#dnspromisessetdefaultresultorderorder\"><code>dnsPromises.setDefaultResultOrder()</code></a> from the main thread won't affect the\ndefault dns orders in workers.</p>"
             },
             {
               "textRaw": "`dnsPromises.getDefaultResultOrder()`",
@@ -1608,7 +1650,7 @@
               "name": "getDefaultResultOrder",
               "meta": {
                 "added": [
-                  "v18.17.0"
+                  "v20.1.0"
                 ],
                 "changes": []
               },
@@ -1641,7 +1683,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Sets the IP address and port of servers to be used when performing DNS\nresolution. The <code>servers</code> argument is an array of <a href=\"https://tools.ietf.org/html/rfc5952#section-6\">RFC 5952</a> formatted\naddresses. If the port is the IANA default DNS port (53) it can be omitted.</p>\n<pre><code class=\"language-js\">dnsPromises.setServers([\n  '4.4.4.4',\n  '[2001:4860:4860::8888]',\n  '4.4.4.4:1053',\n  '[2001:4860:4860::8888]:1053',\n]);\n</code></pre>\n<p>An error will be thrown if an invalid address is provided.</p>\n<p>The <code>dnsPromises.setServers()</code> method must not be called while a DNS query is in\nprogress.</p>\n<p>This method works much like\n<a href=\"https://man7.org/linux/man-pages/man5/resolv.conf.5.html\">resolve.conf</a>.\nThat is, if attempting to resolve with the first server provided results in a\n<code>NOTFOUND</code> error, the <code>resolve()</code> method will <em>not</em> attempt to resolve with\nsubsequent servers provided. Fallback DNS servers will only be used if the\nearlier ones time out or result in some other error.</p>"
+              "desc": "<p>Sets the IP address and port of servers to be used when performing DNS\nresolution. The <code>servers</code> argument is an array of <a href=\"https://tools.ietf.org/html/rfc5952#section-6\">RFC 5952</a> formatted\naddresses. If the port is the IANA default DNS port (53) it can be omitted.</p>\n<pre><code class=\"language-js\">dnsPromises.setServers([\n  '8.8.8.8',\n  '[2001:4860:4860::8888]',\n  '8.8.8.8:1053',\n  '[2001:4860:4860::8888]:1053',\n]);\n</code></pre>\n<p>An error will be thrown if an invalid address is provided.</p>\n<p>The <code>dnsPromises.setServers()</code> method must not be called while a DNS query is in\nprogress.</p>\n<p>This method works much like\n<a href=\"https://man7.org/linux/man-pages/man5/resolv.conf.5.html\">resolve.conf</a>.\nThat is, if attempting to resolve with the first server provided results in a\n<code>NOTFOUND</code> error, the <code>resolve()</code> method will <em>not</em> attempt to resolve with\nsubsequent servers provided. Fallback DNS servers will only be used if the\nearlier ones time out or result in some other error.</p>"
             }
           ],
           "type": "module",

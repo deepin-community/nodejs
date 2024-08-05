@@ -3,18 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>Diagnostics Channel | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.15.1">
+  <title>Diagnostics Channel | Node.js v20.15.1 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/diagnostics_channel.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
-  <style>@media(max-width:734px){.with-64-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}</style>
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
+  <style>@media(max-width:734px){.with-64-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}</style>
 </head>
 <body class="alt apidoc" id="api-section-diagnostics_channel">
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +109,7 @@
     <div id="column1" data-id="diagnostics_channel" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.15.1 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,11 +124,11 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.15.1</li>
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
@@ -150,7 +163,7 @@
 <li><span class="stability_1"><a href="#tracingchannelunsubscribesubscribers"><code>tracingChannel.unsubscribe(subscribers)</code></a></span></li>
 <li><span class="stability_1"><a href="#tracingchanneltracesyncfn-context-thisarg-args"><code>tracingChannel.traceSync(fn[, context[, thisArg[, ...args]]])</code></a></span></li>
 <li><span class="stability_1"><a href="#tracingchanneltracepromisefn-context-thisarg-args"><code>tracingChannel.tracePromise(fn[, context[, thisArg[, ...args]]])</code></a></span></li>
-<li><span class="stability_1"><a href="#tracingchanneltracecallbackfn-position-context-thisarg-args"><code>tracingChannel.traceCallback(fn[, position[, context[, thisArg[, ...args]]]])</code></a></span></li>
+<li><span class="stability_1"><a href="#tracingchanneltracecallbackfn-position-context-thisarg-args"><code>tracingChannel.traceCallback(fn, position, context, thisArg, ...args)</code></a></span></li>
 </ul>
 </li>
 <li><a href="#tracingchannel-channels">TracingChannel Channels</a>
@@ -165,6 +178,10 @@
 <li><span class="stability_1"><a href="#built-in-channels">Built-in Channels</a></span>
 <ul>
 <li><a href="#http">HTTP</a></li>
+<li><a href="#net">NET</a></li>
+<li><a href="#udp">UDP</a></li>
+<li><a href="#process">Process</a></li>
+<li><a href="#worker-thread">Worker Thread</a></li>
 </ul>
 </li>
 </ul>
@@ -177,7 +194,7 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Index
       </a>
 
@@ -262,10 +279,11 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/diagnostics_channel.html">21.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v22.x/api/diagnostics_channel.html">22.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/diagnostics_channel.html">21.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v20.x/api/diagnostics_channel.html">20.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v19.x/api/diagnostics_channel.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/diagnostics_channel.html">18.x <b>LTS</b></a></li>
@@ -276,7 +294,7 @@
   
             <li class="picker-header">
               <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
@@ -297,7 +315,7 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
 <li><span class="stability_2"><a href="#diagnostics-channel">Diagnostics Channel</a></span>
 <ul>
 <li><a href="#public-api">Public API</a>
@@ -328,7 +346,7 @@
 <li><span class="stability_1"><a href="#tracingchannelunsubscribesubscribers"><code>tracingChannel.unsubscribe(subscribers)</code></a></span></li>
 <li><span class="stability_1"><a href="#tracingchanneltracesyncfn-context-thisarg-args"><code>tracingChannel.traceSync(fn[, context[, thisArg[, ...args]]])</code></a></span></li>
 <li><span class="stability_1"><a href="#tracingchanneltracepromisefn-context-thisarg-args"><code>tracingChannel.tracePromise(fn[, context[, thisArg[, ...args]]])</code></a></span></li>
-<li><span class="stability_1"><a href="#tracingchanneltracecallbackfn-position-context-thisarg-args"><code>tracingChannel.traceCallback(fn[, position[, context[, thisArg[, ...args]]]])</code></a></span></li>
+<li><span class="stability_1"><a href="#tracingchanneltracecallbackfn-position-context-thisarg-args"><code>tracingChannel.traceCallback(fn, position, context, thisArg, ...args)</code></a></span></li>
 </ul>
 </li>
 <li><a href="#tracingchannel-channels">TracingChannel Channels</a>
@@ -343,6 +361,10 @@
 <li><span class="stability_1"><a href="#built-in-channels">Built-in Channels</a></span>
 <ul>
 <li><a href="#http">HTTP</a></li>
+<li><a href="#net">NET</a></li>
+<li><a href="#udp">UDP</a></li>
+<li><a href="#process">Process</a></li>
+<li><a href="#worker-thread">Worker Thread</a></li>
 </ul>
 </li>
 </ul>
@@ -351,13 +373,13 @@
 </li>
 </ul></details>
 
-      <div id="apicontent">
+      <div role="main" id="apicontent">
         <h2>Diagnostics Channel<span><a class="mark" href="#diagnostics-channel" id="diagnostics-channel">#</a></span><a aria-hidden="true" class="legacy" id="diagnostics_channel_diagnostics_channel"></a></h2>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.13.0</td>
+<tr><td>v19.2.0, v18.13.0</td>
 <td><p>diagnostics_channel is now Stable.</p></td></tr>
 <tr><td>v15.1.0, v14.17.0</td>
 <td><p><span>Added in: v15.1.0, v14.17.0</span></p></td></tr>
@@ -366,12 +388,12 @@
 </div>
 
 <p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.19.1/lib/diagnostics_channel.js">lib/diagnostics_channel.js</a></p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v20.15.1/lib/diagnostics_channel.js">lib/diagnostics_channel.js</a></p>
 <p>The <code>node:diagnostics_channel</code> module provides an API to create named channels
 to report arbitrary message data for diagnostics purposes.</p>
 <p>It can be accessed using:</p>
 
-<pre class="with-64-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;</code><code class="language-js cjs"><span class="hljs-keyword">const</span> diagnostics_channel = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:diagnostics_channel'</span>);</code><button class="copy-button">copy</button></pre>
+<pre class="with-64-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;</code><code class="language-js cjs"><span class="hljs-keyword">const</span> diagnostics_channel = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:diagnostics_channel'</span>);</code><button class="copy-button">copy</button></pre>
 <p>It is intended that a module writer wanting to report diagnostics messages
 will create one or many top-level channels to report messages through.
 Channels may also be acquired at runtime but it is not encouraged
@@ -386,7 +408,7 @@ other modules.</p>
 <h4>Overview<span><a class="mark" href="#overview" id="overview">#</a></span><a aria-hidden="true" class="legacy" id="diagnostics_channel_overview"></a></h4>
 <p>Following is a simple overview of the public API.</p>
 
-<pre class="with-64-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
+<pre class="with-64-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
 
 <span class="hljs-comment">// Get a reusable channel object</span>
 <span class="hljs-keyword">const</span> channel = diagnostics_channel.<span class="hljs-title function_">channel</span>(<span class="hljs-string">'my-channel'</span>);
@@ -442,7 +464,7 @@ the message you want to send might be expensive to prepare.</p>
 <p>This API is optional but helpful when trying to publish messages from very
 performance-sensitive code.</p>
 
-<pre class="with-64-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
+<pre class="with-64-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
 
 <span class="hljs-keyword">if</span> (diagnostics_channel.<span class="hljs-title function_">hasSubscribers</span>(<span class="hljs-string">'my-channel'</span>)) {
   <span class="hljs-comment">// There are subscribers, prepare and publish message</span>
@@ -463,14 +485,14 @@ performance-sensitive code.</p>
 channel. It produces a channel object which is optimized to reduce overhead at
 publish time as much as possible.</p>
 
-<pre class="with-64-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
+<pre class="with-64-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
 
 <span class="hljs-keyword">const</span> channel = diagnostics_channel.<span class="hljs-title function_">channel</span>(<span class="hljs-string">'my-channel'</span>);</code><code class="language-js cjs"><span class="hljs-keyword">const</span> diagnostics_channel = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:diagnostics_channel'</span>);
 
 <span class="hljs-keyword">const</span> channel = diagnostics_channel.<span class="hljs-title function_">channel</span>(<span class="hljs-string">'my-channel'</span>);</code><button class="copy-button">copy</button></pre>
 <h5><code>diagnostics_channel.subscribe(name, onMessage)</code><span><a class="mark" href="#diagnostics_channelsubscribename-onmessage" id="diagnostics_channelsubscribename-onmessage">#</a></span><a aria-hidden="true" class="legacy" id="diagnostics_channel_diagnostics_channel_subscribe_name_onmessage"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.7.0</span>
+<span>Added in: v18.7.0, v16.17.0</span>
 </div>
 <ul>
 <li><code>name</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Symbol_type" class="type">&#x3C;symbol></a> The channel name</li>
@@ -485,7 +507,7 @@ publish time as much as possible.</p>
 will be run synchronously whenever a message is published to the channel. Any
 errors thrown in the message handler will trigger an <a href="process.html#event-uncaughtexception"><code>'uncaughtException'</code></a>.</p>
 
-<pre class="with-64-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
+<pre class="with-64-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
 
 diagnostics_channel.<span class="hljs-title function_">subscribe</span>(<span class="hljs-string">'my-channel'</span>, <span class="hljs-function">(<span class="hljs-params">message, name</span>) =></span> {
   <span class="hljs-comment">// Received data</span>
@@ -496,7 +518,7 @@ diagnostics_channel.<span class="hljs-title function_">subscribe</span>(<span cl
 });</code><button class="copy-button">copy</button></pre>
 <h5><code>diagnostics_channel.unsubscribe(name, onMessage)</code><span><a class="mark" href="#diagnostics_channelunsubscribename-onmessage" id="diagnostics_channelunsubscribename-onmessage">#</a></span><a aria-hidden="true" class="legacy" id="diagnostics_channel_diagnostics_channel_unsubscribe_name_onmessage"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.7.0</span>
+<span>Added in: v18.7.0, v16.17.0</span>
 </div>
 <ul>
 <li><code>name</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Symbol_type" class="type">&#x3C;symbol></a> The channel name</li>
@@ -506,7 +528,7 @@ diagnostics_channel.<span class="hljs-title function_">subscribe</span>(<span cl
 <p>Remove a message handler previously registered to this channel with
 <a href="#diagnostics_channelsubscribename-onmessage"><code>diagnostics_channel.subscribe(name, onMessage)</code></a>.</p>
 
-<pre class="with-64-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
+<pre class="with-64-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
 
 <span class="hljs-keyword">function</span> <span class="hljs-title function_">onMessage</span>(<span class="hljs-params">message, name</span>) {
   <span class="hljs-comment">// Received data</span>
@@ -525,7 +547,7 @@ diagnostics_channel.<span class="hljs-title function_">subscribe</span>(<span cl
 diagnostics_channel.<span class="hljs-title function_">unsubscribe</span>(<span class="hljs-string">'my-channel'</span>, onMessage);</code><button class="copy-button">copy</button></pre>
 <h5><code>diagnostics_channel.tracingChannel(nameOrChannels)</code><span><a class="mark" href="#diagnostics_channeltracingchannelnameorchannels" id="diagnostics_channeltracingchannelnameorchannels">#</a></span><a aria-hidden="true" class="legacy" id="diagnostics_channel_diagnostics_channel_tracingchannel_nameorchannels"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.19.0</span>
+<span>Added in: v19.9.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <ul>
@@ -538,7 +560,7 @@ object containing all the <a href="#tracingchannel-channels">TracingChannel Chan
 channels will be created in the form of <code>tracing:${name}:${eventType}</code> where
 <code>eventType</code> corresponds to the types of <a href="#tracingchannel-channels">TracingChannel Channels</a>.</p>
 
-<pre class="with-64-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
+<pre class="with-64-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
 
 <span class="hljs-keyword">const</span> channelsByName = diagnostics_channel.<span class="hljs-title function_">tracingChannel</span>(<span class="hljs-string">'my-channel'</span>);
 
@@ -586,7 +608,7 @@ the message you want to send might be expensive to prepare.</p>
 <p>This API is optional but helpful when trying to publish messages from very
 performance-sensitive code.</p>
 
-<pre class="with-64-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
+<pre class="with-64-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
 
 <span class="hljs-keyword">const</span> channel = diagnostics_channel.<span class="hljs-title function_">channel</span>(<span class="hljs-string">'my-channel'</span>);
 
@@ -609,7 +631,7 @@ performance-sensitive code.</p>
 <p>Publish a message to any subscribers to the channel. This will trigger
 message handlers synchronously so they will execute within the same context.</p>
 
-<pre class="with-64-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
+<pre class="with-64-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
 
 <span class="hljs-keyword">const</span> channel = diagnostics_channel.<span class="hljs-title function_">channel</span>(<span class="hljs-string">'my-channel'</span>);
 
@@ -624,7 +646,7 @@ channel.<span class="hljs-title function_">publish</span>({
 });</code><button class="copy-button">copy</button></pre>
 <h5><code>channel.subscribe(onMessage)</code><span><a class="mark" href="#channelsubscribeonmessage" id="channelsubscribeonmessage">#</a></span><a aria-hidden="true" class="legacy" id="diagnostics_channel_channel_subscribe_onmessage"></a></h5>
 <div class="api_metadata">
-<span>Added in: v15.1.0, v14.17.0</span><span>Deprecated since: v18.7.0</span>
+<span>Added in: v15.1.0, v14.17.0</span><span>Deprecated since: v18.7.0, v16.17.0</span>
 </div>
 <p></p><div class="api_stability api_stability_0"><a href="documentation.html#stability-index">Stability: 0</a> - Deprecated: Use <a href="#diagnostics_channelsubscribename-onmessage"><code>diagnostics_channel.subscribe(name, onMessage)</code></a></div><p></p>
 <ul>
@@ -639,7 +661,7 @@ channel.<span class="hljs-title function_">publish</span>({
 will be run synchronously whenever a message is published to the channel. Any
 errors thrown in the message handler will trigger an <a href="process.html#event-uncaughtexception"><code>'uncaughtException'</code></a>.</p>
 
-<pre class="with-64-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
+<pre class="with-64-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
 
 <span class="hljs-keyword">const</span> channel = diagnostics_channel.<span class="hljs-title function_">channel</span>(<span class="hljs-string">'my-channel'</span>);
 
@@ -657,8 +679,8 @@ channel.<span class="hljs-title function_">subscribe</span>(<span class="hljs-fu
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.7.0</td>
-<td><p><span>Deprecated since: v18.7.0</span></p></td></tr>
+<tr><td>v18.7.0, v16.17.0</td>
+<td><p><span>Deprecated since: v18.7.0, v16.17.0</span></p></td></tr>
 <tr><td>v17.1.0, v16.14.0, v14.19.0</td>
 <td><p>Added return value. Added to channels without subscribers.</p></td></tr>
 <tr><td>v15.1.0, v14.17.0</td>
@@ -674,7 +696,7 @@ channel.<span class="hljs-title function_">subscribe</span>(<span class="hljs-fu
 <p>Remove a message handler previously registered to this channel with
 <a href="#channelsubscribeonmessage"><code>channel.subscribe(onMessage)</code></a>.</p>
 
-<pre class="with-64-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
+<pre class="with-64-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
 
 <span class="hljs-keyword">const</span> channel = diagnostics_channel.<span class="hljs-title function_">channel</span>(<span class="hljs-string">'my-channel'</span>);
 
@@ -697,7 +719,7 @@ channel.<span class="hljs-title function_">subscribe</span>(onMessage);
 channel.<span class="hljs-title function_">unsubscribe</span>(onMessage);</code><button class="copy-button">copy</button></pre>
 <h5><code>channel.bindStore(store[, transform])</code><span><a class="mark" href="#channelbindstorestore-transform" id="channelbindstorestore-transform">#</a></span><a aria-hidden="true" class="legacy" id="diagnostics_channel_channel_bindstore_store_transform"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.19.0</span>
+<span>Added in: v19.9.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <ul>
@@ -710,7 +732,7 @@ bound the previous <code>transform</code> function will be replaced with the new
 The <code>transform</code> function may be omitted to set the given context data as the
 context directly.</p>
 
-<pre class="with-64-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
+<pre class="with-64-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
 <span class="hljs-keyword">import</span> { <span class="hljs-title class_">AsyncLocalStorage</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:async_hooks'</span>;
 
 <span class="hljs-keyword">const</span> store = <span class="hljs-keyword">new</span> <span class="hljs-title class_">AsyncLocalStorage</span>();
@@ -731,7 +753,7 @@ channel.<span class="hljs-title function_">bindStore</span>(store, <span class="
 });</code><button class="copy-button">copy</button></pre>
 <h5><code>channel.unbindStore(store)</code><span><a class="mark" href="#channelunbindstorestore" id="channelunbindstorestore">#</a></span><a aria-hidden="true" class="legacy" id="diagnostics_channel_channel_unbindstore_store"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.19.0</span>
+<span>Added in: v19.9.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <ul>
@@ -741,7 +763,7 @@ channel.<span class="hljs-title function_">bindStore</span>(store, <span class="
 <p>Remove a message handler previously registered to this channel with
 <a href="#channelbindstorestore-transform"><code>channel.bindStore(store)</code></a>.</p>
 
-<pre class="with-64-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
+<pre class="with-64-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
 <span class="hljs-keyword">import</span> { <span class="hljs-title class_">AsyncLocalStorage</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:async_hooks'</span>;
 
 <span class="hljs-keyword">const</span> store = <span class="hljs-keyword">new</span> <span class="hljs-title class_">AsyncLocalStorage</span>();
@@ -760,7 +782,7 @@ channel.<span class="hljs-title function_">bindStore</span>(store);
 channel.<span class="hljs-title function_">unbindStore</span>(store);</code><button class="copy-button">copy</button></pre>
 <h5><code>channel.runStores(context, fn[, thisArg[, ...args]])</code><span><a class="mark" href="#channelrunstorescontext-fn-thisarg-args" id="channelrunstorescontext-fn-thisarg-args">#</a></span><a aria-hidden="true" class="legacy" id="diagnostics_channel_channel_runstores_context_fn_thisarg_args"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.19.0</span>
+<span>Added in: v19.9.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <ul>
@@ -776,11 +798,11 @@ the scope of that data is applied to the stores.</p>
 applied to transform the message data before it becomes the context value for
 the store. The prior storage context is accessible from within the transform
 function in cases where context linking is required.</p>
-<p>The context applied to the store should be accesible in any async code which
+<p>The context applied to the store should be accessible in any async code which
 continues from execution which began during the given function, however
 there are some situations in which <a href="async_context.html#troubleshooting-context-loss">context loss</a> may occur.</p>
 
-<pre class="with-64-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
+<pre class="with-64-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
 <span class="hljs-keyword">import</span> { <span class="hljs-title class_">AsyncLocalStorage</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:async_hooks'</span>;
 
 <span class="hljs-keyword">const</span> store = <span class="hljs-keyword">new</span> <span class="hljs-title class_">AsyncLocalStorage</span>();
@@ -809,7 +831,7 @@ channel.<span class="hljs-title function_">runStores</span>({ <span class="hljs-
 });</code><button class="copy-button">copy</button></pre>
 <h4>Class: <code>TracingChannel</code><span><a class="mark" href="#class-tracingchannel" id="class-tracingchannel">#</a></span><a aria-hidden="true" class="legacy" id="diagnostics_channel_class_tracingchannel"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.19.0</span>
+<span>Added in: v19.9.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <p>The class <code>TracingChannel</code> is a collection of <a href="#tracingchannel-channels">TracingChannel Channels</a> which
@@ -821,7 +843,7 @@ single <code>TracingChannel</code> at the top-level of the file rather than crea
 dynamically.</p>
 <h5><code>tracingChannel.subscribe(subscribers)</code><span><a class="mark" href="#tracingchannelsubscribesubscribers" id="tracingchannelsubscribesubscribers">#</a></span><a aria-hidden="true" class="legacy" id="diagnostics_channel_tracingchannel_subscribe_subscribers"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.19.0</span>
+<span>Added in: v19.9.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <ul>
@@ -839,7 +861,7 @@ dynamically.</p>
 This is the same as calling <a href="#channelsubscribeonmessage"><code>channel.subscribe(onMessage)</code></a> on each channel
 individually.</p>
 
-<pre class="with-64-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
+<pre class="with-64-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
 
 <span class="hljs-keyword">const</span> channels = diagnostics_channel.<span class="hljs-title function_">tracingChannel</span>(<span class="hljs-string">'my-channel'</span>);
 
@@ -882,7 +904,7 @@ channels.<span class="hljs-title function_">subscribe</span>({
 });</code><button class="copy-button">copy</button></pre>
 <h5><code>tracingChannel.unsubscribe(subscribers)</code><span><a class="mark" href="#tracingchannelunsubscribesubscribers" id="tracingchannelunsubscribesubscribers">#</a></span><a aria-hidden="true" class="legacy" id="diagnostics_channel_tracingchannel_unsubscribe_subscribers"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.19.0</span>
+<span>Added in: v19.9.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <ul>
@@ -902,7 +924,7 @@ and <code>false</code> otherwise.</li>
 This is the same as calling <a href="#channelunsubscribeonmessage"><code>channel.unsubscribe(onMessage)</code></a> on each channel
 individually.</p>
 
-<pre class="with-64-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
+<pre class="with-64-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
 
 <span class="hljs-keyword">const</span> channels = diagnostics_channel.<span class="hljs-title function_">tracingChannel</span>(<span class="hljs-string">'my-channel'</span>);
 
@@ -945,7 +967,7 @@ channels.<span class="hljs-title function_">unsubscribe</span>({
 });</code><button class="copy-button">copy</button></pre>
 <h5><code>tracingChannel.traceSync(fn[, context[, thisArg[, ...args]]])</code><span><a class="mark" href="#tracingchanneltracesyncfn-context-thisarg-args" id="tracingchanneltracesyncfn-context-thisarg-args">#</a></span><a aria-hidden="true" class="legacy" id="diagnostics_channel_tracingchannel_tracesync_fn_context_thisarg_args"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.19.0</span>
+<span>Added in: v19.9.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <ul>
@@ -960,8 +982,12 @@ and <a href="#endevent"><code>end</code> event</a> around the execution and may 
 if the given function throws an error. This will run the given function using
 <a href="#channelrunstorescontext-fn-thisarg-args"><code>channel.runStores(context, ...)</code></a> on the <code>start</code> channel which ensures all
 events should have any bound stores set to match this trace context.</p>
+<p>To ensure only correct trace graphs are formed, events will only be published
+if subscribers are present prior to starting the trace. Subscriptions which are
+added after the trace begins will not receive future events from that trace,
+only future traces will be seen.</p>
 
-<pre class="with-64-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
+<pre class="with-64-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
 
 <span class="hljs-keyword">const</span> channels = diagnostics_channel.<span class="hljs-title function_">tracingChannel</span>(<span class="hljs-string">'my-channel'</span>);
 
@@ -980,7 +1006,7 @@ channels.<span class="hljs-title function_">traceSync</span>(<span class="hljs-f
 });</code><button class="copy-button">copy</button></pre>
 <h5><code>tracingChannel.tracePromise(fn[, context[, thisArg[, ...args]]])</code><span><a class="mark" href="#tracingchanneltracepromisefn-context-thisarg-args" id="tracingchanneltracepromisefn-context-thisarg-args">#</a></span><a aria-hidden="true" class="legacy" id="diagnostics_channel_tracingchannel_tracepromise_fn_context_thisarg_args"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.19.0</span>
+<span>Added in: v19.9.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <ul>
@@ -998,8 +1024,12 @@ produce an <a href="#errorevent"><code>error</code> event</a> if the given funct
 returned promise rejects. This will run the given function using
 <a href="#channelrunstorescontext-fn-thisarg-args"><code>channel.runStores(context, ...)</code></a> on the <code>start</code> channel which ensures all
 events should have any bound stores set to match this trace context.</p>
+<p>To ensure only correct trace graphs are formed, events will only be published
+if subscribers are present prior to starting the trace. Subscriptions which are
+added after the trace begins will not receive future events from that trace,
+only future traces will be seen.</p>
 
-<pre class="with-64-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
+<pre class="with-64-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
 
 <span class="hljs-keyword">const</span> channels = diagnostics_channel.<span class="hljs-title function_">tracingChannel</span>(<span class="hljs-string">'my-channel'</span>);
 
@@ -1016,31 +1046,36 @@ channels.<span class="hljs-title function_">tracePromise</span>(<span class="hlj
 }, {
   <span class="hljs-attr">some</span>: <span class="hljs-string">'thing'</span>,
 });</code><button class="copy-button">copy</button></pre>
-<h5><code>tracingChannel.traceCallback(fn[, position[, context[, thisArg[, ...args]]]])</code><span><a class="mark" href="#tracingchanneltracecallbackfn-position-context-thisarg-args" id="tracingchanneltracecallbackfn-position-context-thisarg-args">#</a></span><a aria-hidden="true" class="legacy" id="diagnostics_channel_tracingchannel_tracecallback_fn_position_context_thisarg_args"></a></h5>
+<h5><code>tracingChannel.traceCallback(fn, position, context, thisArg, ...args)</code><span><a class="mark" href="#tracingchanneltracecallbackfn-position-context-thisarg-args" id="tracingchanneltracecallbackfn-position-context-thisarg-args">#</a></span><a aria-hidden="true" class="legacy" id="diagnostics_channel_tracingchannel_tracecallback_fn_position_context_thisarg_args"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.19.0</span>
+<span>Added in: v19.9.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <ul>
 <li><code>fn</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> callback using function to wrap a trace around</li>
-<li><code>position</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Zero-indexed argument position of expected callback</li>
-<li><code>context</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> Shared object to correlate trace events through</li>
+<li><code>position</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Zero-indexed argument position of expected callback
+(defaults to last argument if <code>undefined</code> is passed)</li>
+<li><code>context</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> Shared object to correlate trace events through (defaults
+to <code>{}</code> if <code>undefined</code> is passed)</li>
 <li><code>thisArg</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types" class="type">&#x3C;any></a> The receiver to be used for the function call</li>
-<li><code>...args</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types" class="type">&#x3C;any></a> Optional arguments to pass to the function</li>
+<li><code>...args</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types" class="type">&#x3C;any></a> arguments to pass to the function (must include the callback)</li>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types" class="type">&#x3C;any></a> The return value of the given function</li>
 </ul>
-<p>Trace a callback-receiving function call. This will always produce a
+<p>Trace a callback-receiving function call. The callback is expected to follow
+the error as first arg convention typically used. This will always produce a
 <a href="#startevent"><code>start</code> event</a> and <a href="#endevent"><code>end</code> event</a> around the synchronous portion of the
 function execution, and will produce a <a href="#asyncstartevent"><code>asyncStart</code> event</a> and
 <a href="#asyncendevent"><code>asyncEnd</code> event</a> around the callback execution. It may also produce an
-<a href="#errorevent"><code>error</code> event</a> if the given function throws an error or the returned
-promise rejects. This will run the given function using
+<a href="#errorevent"><code>error</code> event</a> if the given function throws or the first argument passed to
+the callback is set. This will run the given function using
 <a href="#channelrunstorescontext-fn-thisarg-args"><code>channel.runStores(context, ...)</code></a> on the <code>start</code> channel which ensures all
 events should have any bound stores set to match this trace context.</p>
-<p>The <code>position</code> will be -1 by default to indicate the final argument should
-be used as the callback.</p>
+<p>To ensure only correct trace graphs are formed, events will only be published
+if subscribers are present prior to starting the trace. Subscriptions which are
+added after the trace begins will not receive future events from that trace,
+only future traces will be seen.</p>
 
-<pre class="with-64-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
+<pre class="with-64-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
 
 <span class="hljs-keyword">const</span> channels = diagnostics_channel.<span class="hljs-title function_">tracingChannel</span>(<span class="hljs-string">'my-channel'</span>);
 
@@ -1062,7 +1097,7 @@ channels.<span class="hljs-title function_">traceCallback</span>(<span class="hl
 <p>The callback will also be run with <a href="#channelrunstorescontext-fn-thisarg-args"><code>channel.runStores(context, ...)</code></a> which
 enables context loss recovery in some cases.</p>
 
-<pre class="with-64-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
+<pre class="with-64-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> diagnostics_channel <span class="hljs-keyword">from</span> <span class="hljs-string">'node:diagnostics_channel'</span>;
 <span class="hljs-keyword">import</span> { <span class="hljs-title class_">AsyncLocalStorage</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:async_hooks'</span>;
 
 <span class="hljs-keyword">const</span> channels = diagnostics_channel.<span class="hljs-title function_">tracingChannel</span>(<span class="hljs-string">'my-channel'</span>);
@@ -1100,7 +1135,7 @@ channels.<span class="hljs-property">asyncStart</span>.<span class="hljs-title f
 <h4>TracingChannel Channels<span><a class="mark" href="#tracingchannel-channels" id="tracingchannel-channels">#</a></span><a aria-hidden="true" class="legacy" id="diagnostics_channel_tracingchannel_channels"></a></h4>
 <p>A TracingChannel is a collection of several diagnostics_channels representing
 specific points in the execution lifecycle of a single traceable action. The
-behaviour is split into five diagnostics_channels consisting of <code>start</code>,
+behavior is split into five diagnostics_channels consisting of <code>start</code>,
 <code>end</code>, <code>asyncStart</code>, <code>asyncEnd</code>, and <code>error</code>. A single traceable action will
 share the same event object between all events, this can be helpful for
 managing correlation through a weakmap.</p>
@@ -1111,6 +1146,10 @@ With callback-based async functions the <code>result</code> will be the second a
 of the callback while the <code>error</code> will either be a thrown error visible in the
 <code>end</code> event or the first callback argument in either of the <code>asyncStart</code> or
 <code>asyncEnd</code> events.</p>
+<p>To ensure only correct trace graphs are formed, events should only be published
+if subscribers are present prior to starting the trace. Subscriptions which are
+added after the trace begins should not receive future events from that trace,
+only future traces will be seen.</p>
 <p>Tracing channels should follow a naming pattern of:</p>
 <ul>
 <li><code>tracing:module.class.method:start</code> or <code>tracing:module.function:start</code></li>
@@ -1211,6 +1250,7 @@ independently.</p>
 <li><code>server</code> <a href="http.html#class-httpserver" class="type">&#x3C;http.Server></a></li>
 </ul>
 <p>Emitted when server sends a response.</p>
+<h5>NET<span><a class="mark" href="#net" id="net">#</a></span><a aria-hidden="true" class="legacy" id="diagnostics_channel_net"></a></h5>
 <p><code>net.client.socket</code></p>
 <ul>
 <li><code>socket</code> <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket></a></li>
@@ -1221,11 +1261,30 @@ independently.</p>
 <li><code>socket</code> <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket></a></li>
 </ul>
 <p>Emitted when a new TCP or pipe connection is received.</p>
+<h5>UDP<span><a class="mark" href="#udp" id="udp">#</a></span><a aria-hidden="true" class="legacy" id="diagnostics_channel_udp"></a></h5>
 <p><code>udp.socket</code></p>
 <ul>
 <li><code>socket</code> <a href="dgram.html#class-dgramsocket" class="type">&#x3C;dgram.Socket></a></li>
 </ul>
-<p>Emitted when a new UDP socket is created.</p></section>
+<p>Emitted when a new UDP socket is created.</p>
+<h5>Process<span><a class="mark" href="#process" id="process">#</a></span><a aria-hidden="true" class="legacy" id="diagnostics_channel_process"></a></h5>
+<div class="api_metadata">
+<span>Added in: v16.18.0</span>
+</div>
+<p><code>child_process</code></p>
+<ul>
+<li><code>process</code> <a href="child_process.html#class-childprocess" class="type">&#x3C;ChildProcess></a></li>
+</ul>
+<p>Emitted when a new process is created.</p>
+<h5>Worker Thread<span><a class="mark" href="#worker-thread" id="worker-thread">#</a></span><a aria-hidden="true" class="legacy" id="diagnostics_channel_worker_thread"></a></h5>
+<div class="api_metadata">
+<span>Added in: v16.18.0</span>
+</div>
+<p><code>worker_threads</code></p>
+<ul>
+<li><code>worker</code> <a href="worker_threads.html#class-worker"><code>Worker</code></a></li>
+</ul>
+<p>Emitted when a new thread is created.</p></section>
         <!-- API END -->
       </div>
     </div>

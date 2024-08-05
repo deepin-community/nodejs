@@ -3,18 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>Node-API | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.15.1">
+  <title>Node-API | Node.js v20.15.1 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/n-api.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
   
 </head>
 <body class="alt apidoc" id="api-section-n-api">
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +109,7 @@
     <div id="column1" data-id="n-api" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.15.1 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,11 +124,11 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.15.1</li>
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
@@ -153,6 +166,7 @@
 <li><a href="#napi_status"><code>napi_status</code></a></li>
 <li><a href="#napi_extended_error_info"><code>napi_extended_error_info</code></a></li>
 <li><a href="#napi_env"><code>napi_env</code></a></li>
+<li><span class="stability_1"><a href="#node_api_nogc_env"><code>node_api_nogc_env</code></a></span></li>
 <li><a href="#napi_value"><code>napi_value</code></a></li>
 <li><a href="#napi_threadsafe_function"><code>napi_threadsafe_function</code></a></li>
 <li><a href="#napi_threadsafe_function_release_mode"><code>napi_threadsafe_function_release_mode</code></a></li>
@@ -170,6 +184,7 @@
 <ul>
 <li><a href="#napi_callback_info"><code>napi_callback_info</code></a></li>
 <li><a href="#napi_callback"><code>napi_callback</code></a></li>
+<li><span class="stability_1"><a href="#node_api_nogc_finalize"><code>node_api_nogc_finalize</code></a></span></li>
 <li><a href="#napi_finalize"><code>napi_finalize</code></a></li>
 <li><a href="#napi_async_execute_callback"><code>napi_async_execute_callback</code></a></li>
 <li><a href="#napi_async_complete_callback"><code>napi_async_complete_callback</code></a></li>
@@ -286,6 +301,7 @@
 <li><a href="#napi_create_string_utf16"><code>napi_create_string_utf16</code></a></li>
 <li><span class="stability_1"><a href="#node_api_create_external_string_utf16"><code>node_api_create_external_string_utf16</code></a></span></li>
 <li><a href="#napi_create_string_utf8"><code>napi_create_string_utf8</code></a></li>
+<li><span class="stability_1"><a href="#node_api_create_property_key_utf16"><code>node_api_create_property_key_utf16</code></a></span></li>
 </ul>
 </li>
 <li><a href="#functions-to-convert-from-node-api-to-c-types">Functions to convert from Node-API to C types</a>
@@ -469,7 +485,7 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Index
       </a>
 
@@ -554,10 +570,11 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/n-api.html">21.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v22.x/api/n-api.html">22.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/n-api.html">21.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v20.x/api/n-api.html">20.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v19.x/api/n-api.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/n-api.html">18.x <b>LTS</b></a></li>
@@ -575,7 +592,7 @@
   
             <li class="picker-header">
               <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
@@ -596,7 +613,7 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
 <li><span class="stability_2"><a href="#node-api">Node-API</a></span>
 <ul>
 <li><a href="#implications-of-abi-stability">Implications of ABI stability</a></li>
@@ -630,6 +647,7 @@
 <li><a href="#napi_status"><code>napi_status</code></a></li>
 <li><a href="#napi_extended_error_info"><code>napi_extended_error_info</code></a></li>
 <li><a href="#napi_env"><code>napi_env</code></a></li>
+<li><span class="stability_1"><a href="#node_api_nogc_env"><code>node_api_nogc_env</code></a></span></li>
 <li><a href="#napi_value"><code>napi_value</code></a></li>
 <li><a href="#napi_threadsafe_function"><code>napi_threadsafe_function</code></a></li>
 <li><a href="#napi_threadsafe_function_release_mode"><code>napi_threadsafe_function_release_mode</code></a></li>
@@ -647,6 +665,7 @@
 <ul>
 <li><a href="#napi_callback_info"><code>napi_callback_info</code></a></li>
 <li><a href="#napi_callback"><code>napi_callback</code></a></li>
+<li><span class="stability_1"><a href="#node_api_nogc_finalize"><code>node_api_nogc_finalize</code></a></span></li>
 <li><a href="#napi_finalize"><code>napi_finalize</code></a></li>
 <li><a href="#napi_async_execute_callback"><code>napi_async_execute_callback</code></a></li>
 <li><a href="#napi_async_complete_callback"><code>napi_async_complete_callback</code></a></li>
@@ -763,6 +782,7 @@
 <li><a href="#napi_create_string_utf16"><code>napi_create_string_utf16</code></a></li>
 <li><span class="stability_1"><a href="#node_api_create_external_string_utf16"><code>node_api_create_external_string_utf16</code></a></span></li>
 <li><a href="#napi_create_string_utf8"><code>napi_create_string_utf8</code></a></li>
+<li><span class="stability_1"><a href="#node_api_create_property_key_utf16"><code>node_api_create_property_key_utf16</code></a></span></li>
 </ul>
 </li>
 <li><a href="#functions-to-convert-from-node-api-to-c-types">Functions to convert from Node-API to C types</a>
@@ -942,7 +962,7 @@
 </li>
 </ul></details>
 
-      <div id="apicontent">
+      <div role="main" id="apicontent">
         <h2>Node-API<span><a class="mark" href="#node-api" id="node-api">#</a></span><a aria-hidden="true" class="legacy" id="n_api_node_api"></a></h2>
 
 
@@ -1008,7 +1028,7 @@ status = <span class="hljs-built_in">napi_set_named_property</span>(env, object,
 it still gets the benefits of the ABI stability provided by the C API.</p>
 <p>When using <code>node-addon-api</code> instead of the C APIs, start with the API <a href="https://github.com/nodejs/node-addon-api#api-documentation">docs</a>
 for <code>node-addon-api</code>.</p>
-<p>The <a href="https://nodejs.github.io/node-addon-examples/">Node-API Resource</a> offers
+<p>The <a href="https://nodejs.github.io/node-addon-examples/">Node-API Resource</a> offers
 an excellent orientation and tips for developers just getting started with
 Node-API and <code>node-addon-api</code>. Additional media resources can be found on the
 <a href="https://github.com/nodejs/abi-stable-node/blob/HEAD/node-api-media.md">Node-API Media</a> page.</p>
@@ -1074,7 +1094,8 @@ developers have run into limitations in node-gyp.</p>
 <h5>CMake.js<span><a class="mark" href="#cmakejs" id="cmakejs">#</a></span><a aria-hidden="true" class="legacy" id="n_api_cmake_js"></a></h5>
 <p><a href="https://github.com/cmake-js/cmake-js">CMake.js</a> is an alternative build system based on <a href="https://cmake.org">CMake</a>.</p>
 <p>CMake.js is a good choice for projects that already use CMake or for
-developers affected by limitations in node-gyp.</p>
+developers affected by limitations in node-gyp. <a href="https://github.com/nodejs/node-addon-examples/tree/main/src/8-tooling/build_with_cmake"><code>build_with_cmake</code></a> is an
+example of a CMake-based native addon project.</p>
 <h4>Uploading precompiled binaries<span><a class="mark" href="#uploading-precompiled-binaries" id="uploading-precompiled-binaries">#</a></span><a aria-hidden="true" class="legacy" id="n_api_uploading_precompiled_binaries"></a></h4>
 <p>The three tools listed here permit native addon developers and maintainers
 to create and upload binaries to public or private servers. These tools are
@@ -1112,12 +1133,38 @@ in the specified (and earlier) versions.</p>
 <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&#x3C;node_api.h></span></span></code> <button class="copy-button">copy</button></pre>
 <p>In this case the entire API surface, including any experimental APIs, will be
 available to the module code.</p>
+<p>Occasionally, experimental features are introduced that affect already-released
+and stable APIs. These features can be disabled by an opt-out:</p>
+<pre><code class="language-c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> NAPI_EXPERIMENTAL</span>
+<span class="hljs-meta">#<span class="hljs-keyword">define</span> NODE_API_EXPERIMENTAL_<span class="hljs-string">&#x3C;FEATURE_NAME></span>_OPT_OUT</span>
+<span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&#x3C;node_api.h></span></span></code> <button class="copy-button">copy</button></pre>
+<p>where <code>&#x3C;FEATURE_NAME></code> is the name of an experimental feature that affects both
+experimental and stable APIs.</p>
 </section><section><h3>Node-API version matrix<span><a class="mark" href="#node-api-version-matrix" id="node-api-version-matrix">#</a></span><a aria-hidden="true" class="legacy" id="n_api_node_api_version_matrix"></a></h3>
-<p>Node-API versions are additive and versioned independently from Node.js.
-Version 4 is an extension to version 3 in that it has all of the APIs
-from version 3 with some additions. This means that it is not necessary
-to recompile for new versions of Node.js which are
-listed as supporting a later version.</p>
+<p>Up until version 9, Node-API versions were additive and versioned
+independently from Node.js. This meant that any version was
+an extension to the previous version in that it had all of
+the APIs from the previous version with some additions. Each
+Node.js version only supported a single Node-API version.
+For example v18.15.0 supports only Node-API version 8. ABI stability was
+achieved because 8 was a strict superset of all previous versions.</p>
+<p>As of version 9, while Node-API versions continue to be versioned
+independently an add-on that ran with Node-API version 9 may need
+code updates to run with Node-API version 10. ABI stability
+is maintained, however, because Node.js versions that support
+Node-API versions higher than 8 will support all versions
+between 8 and the highest version they support and will default
+to providing the version 8 APIs unless an add-on opts into a
+higher Node-API version. This approach provides the flexibility
+of better optimizing existing Node-API functions while
+maintaining ABI stability. Existing add-ons can continue to run without
+recompilation using an earlier version of Node-API. If an add-on
+needs functionality from a newer Node-API version, changes to existing
+code and recompilation will be needed to use those new functions anyway.</p>
+<p>In versions of Node.js that support Node-API version 9 and later, defining
+<code>NAPI_VERSION=X</code> and using the existing add-on initialization macros
+will bake in the requested Node-API version that will be used at runtime
+into the add-on. If <code>NAPI_VERSION</code> is not set it will default to 8.</p>
 <p>This table may not be up to date in older streams, the most up to date
 information is in the latest API documentation in:
 <a href="https://nodejs.org/docs/latest/api/n-api.html#node-api-version-matrix">Node-API version matrix</a></p>
@@ -1255,7 +1302,7 @@ napi_value <span class="hljs-title function_">create_addon</span><span class="hl
 <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&#x3C;node_api.h></span></span>
 <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"addon.h"</span></span>
 
-NAPI_MODULE_INIT() {
+NAPI_MODULE_INIT(<span class="hljs-comment">/* napi_env env, napi_value exports */</span>) {
   <span class="hljs-comment">// This function body is expected to return a `napi_value`.</span>
   <span class="hljs-comment">// The variables `napi_env env` and `napi_value exports` may be used within</span>
   <span class="hljs-comment">// the body, as they are provided by the definition of `NAPI_MODULE_INIT()`.</span>
@@ -1287,7 +1334,7 @@ is tied to the life cycle of a Node.js environment.</p>
 <span>Added in: v12.8.0, v10.20.0</span>
 <span>N-API version: 6</span>
 </div>
-<pre><code class="language-c">napi_status <span class="hljs-title function_">napi_set_instance_data</span><span class="hljs-params">(napi_env env,
+<pre><code class="language-c">napi_status <span class="hljs-title function_">napi_set_instance_data</span><span class="hljs-params">(node_api_nogc_env env,
                                    <span class="hljs-type">void</span>* data,
                                    napi_finalize finalize_cb,
                                    <span class="hljs-type">void</span>* finalize_hint)</span>;</code> <button class="copy-button">copy</button></pre>
@@ -1311,7 +1358,7 @@ of a previous call to <code>napi_set_instance_data()</code> will be overwritten.
 <span>Added in: v12.8.0, v10.20.0</span>
 <span>N-API version: 6</span>
 </div>
-<pre><code class="language-c">napi_status <span class="hljs-title function_">napi_get_instance_data</span><span class="hljs-params">(napi_env env,
+<pre><code class="language-c">napi_status <span class="hljs-title function_">napi_get_instance_data</span><span class="hljs-params">(node_api_nogc_env env,
                                    <span class="hljs-type">void</span>** data)</span>;</code> <button class="copy-button">copy</button></pre>
 <ul>
 <li><code>[in] env</code>: The environment that the Node-API call is invoked under.</li>
@@ -1394,6 +1441,19 @@ different <a href="worker_threads.html#class-worker"><code>Worker</code></a> thr
 when an instance of a native addon is unloaded. Notification of this event is
 delivered through the callbacks given to <a href="#napi_add_env_cleanup_hook"><code>napi_add_env_cleanup_hook</code></a> and
 <a href="#napi_set_instance_data"><code>napi_set_instance_data</code></a>.</p>
+<h4><code>node_api_nogc_env</code><span><a class="mark" href="#node_api_nogc_env" id="node_api_nogc_env">#</a></span><a aria-hidden="true" class="legacy" id="n_api_node_api_nogc_env"></a></h4>
+<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
+<p>This variant of <code>napi_env</code> is passed to synchronous finalizers
+(<a href="#node_api_nogc_finalize"><code>node_api_nogc_finalize</code></a>). There is a subset of Node-APIs which accept
+a parameter of type <code>node_api_nogc_env</code> as their first argument. These APIs do
+not access the state of the JavaScript engine and are thus safe to call from
+synchronous finalizers. Passing a parameter of type <code>napi_env</code> to these APIs is
+allowed, however, passing a parameter of type <code>node_api_nogc_env</code> to APIs that
+access the JavaScript engine state is not allowed. Attempting to do so without
+a cast will produce a compiler warning or an error when add-ons are compiled
+with flags which cause them to emit warnings and/or errors when incorrect
+pointer types are passed into a function. Calling such APIs from a synchronous
+finalizer will ultimately result in the termination of the application.</p>
 <h4><code>napi_value</code><span><a class="mark" href="#napi_value" id="napi_value">#</a></span><a aria-hidden="true" class="legacy" id="n_api_napi_value"></a></h4>
 <p>This is an opaque pointer that is used to represent a JavaScript value.</p>
 <h4><code>napi_threadsafe_function</code><span><a class="mark" href="#napi_threadsafe_function" id="napi_threadsafe_function">#</a></span><a aria-hidden="true" class="legacy" id="n_api_napi_threadsafe_function"></a></h4>
@@ -1505,25 +1565,28 @@ following signature:</p>
 <pre><code class="language-c"><span class="hljs-keyword">typedef</span> <span class="hljs-title function_">napi_value</span> <span class="hljs-params">(*napi_callback)</span><span class="hljs-params">(napi_env, napi_callback_info)</span>;</code> <button class="copy-button">copy</button></pre>
 <p>Unless for reasons discussed in <a href="#object-lifetime-management">Object Lifetime Management</a>, creating a
 handle and/or callback scope inside a <code>napi_callback</code> is not necessary.</p>
-<h5><code>napi_finalize</code><span><a class="mark" href="#napi_finalize" id="napi_finalize">#</a></span><a aria-hidden="true" class="legacy" id="n_api_napi_finalize"></a></h5>
+<h5><code>node_api_nogc_finalize</code><span><a class="mark" href="#node_api_nogc_finalize" id="node_api_nogc_finalize">#</a></span><a aria-hidden="true" class="legacy" id="n_api_node_api_nogc_finalize"></a></h5>
 <div class="api_metadata">
-<span>Added in: v8.0.0</span>
-<span>N-API version: 1</span>
+<span>Added in: v20.12.0</span>
 </div>
+<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <p>Function pointer type for add-on provided functions that allow the user to be
 notified when externally-owned data is ready to be cleaned up because the
-object with which it was associated with has been garbage-collected. The user
-must provide a function satisfying the following signature which would get
-called upon the object's collection. Currently, <code>napi_finalize</code> can be used for
+object it was associated with has been garbage-collected. The user must provide
+a function satisfying the following signature which would get called upon the
+object's collection. Currently, <code>node_api_nogc_finalize</code> can be used for
 finding out when objects that have external data are collected.</p>
-<pre><code class="language-c"><span class="hljs-keyword">typedef</span> <span class="hljs-title function_">void</span> <span class="hljs-params">(*napi_finalize)</span><span class="hljs-params">(napi_env env,
-                              <span class="hljs-type">void</span>* finalize_data,
-                              <span class="hljs-type">void</span>* finalize_hint)</span>;</code> <button class="copy-button">copy</button></pre>
+<pre><code class="language-c"><span class="hljs-keyword">typedef</span> <span class="hljs-title function_">void</span> <span class="hljs-params">(*node_api_nogc_finalize)</span><span class="hljs-params">(node_api_nogc_env env,
+                                      <span class="hljs-type">void</span>* finalize_data,
+                                      <span class="hljs-type">void</span>* finalize_hint)</span>;</code> <button class="copy-button">copy</button></pre>
 <p>Unless for reasons discussed in <a href="#object-lifetime-management">Object Lifetime Management</a>, creating a
 handle and/or callback scope inside the function body is not necessary.</p>
 <p>Since these functions may be called while the JavaScript engine is in a state
-where it cannot execute JavaScript code, some Node-API calls may return
-<code>napi_pending_exception</code> even when there is no exception pending.</p>
+where it cannot execute JavaScript code, only Node-APIs which accept a
+<code>node_api_nogc_env</code> as their first parameter may be called.
+<a href="#node_api_post_finalizer"><code>node_api_post_finalizer</code></a> can be used to schedule Node-API calls that
+require access to the JavaScript engine's state to run after the current
+garbage collection cycle has completed.</p>
 <p>In the case of <a href="#node_api_create_external_string_latin1"><code>node_api_create_external_string_latin1</code></a> and
 <a href="#node_api_create_external_string_utf16"><code>node_api_create_external_string_utf16</code></a> the <code>env</code> parameter may be null,
 because external strings can be collected during the latter part of environment
@@ -1531,10 +1594,33 @@ shutdown.</p>
 <p>Change History:</p>
 <ul>
 <li>
+<p>experimental (<code>NAPI_EXPERIMENTAL</code>):</p>
+<p>Only Node-API calls that accept a <code>node_api_nogc_env</code> as their first
+parameter may be called, otherwise the application will be terminated with an
+appropriate error message. This feature can be turned off by defining
+<code>NODE_API_EXPERIMENTAL_NOGC_ENV_OPT_OUT</code>.</p>
+</li>
+</ul>
+<h5><code>napi_finalize</code><span><a class="mark" href="#napi_finalize" id="napi_finalize">#</a></span><a aria-hidden="true" class="legacy" id="n_api_napi_finalize"></a></h5>
+<div class="api_metadata">
+<span>Added in: v8.0.0</span>
+<span>N-API version: 1</span>
+</div>
+<p>Function pointer type for add-on provided function that allow the user to
+schedule a group of calls to Node-APIs in response to a garbage collection
+event, after the garbage collection cycle has completed. These function
+pointers can be used with <a href="#node_api_post_finalizer"><code>node_api_post_finalizer</code></a>.</p>
+<pre><code class="language-c"><span class="hljs-keyword">typedef</span> <span class="hljs-title function_">void</span> <span class="hljs-params">(*napi_finalize)</span><span class="hljs-params">(napi_env env,
+                              <span class="hljs-type">void</span>* finalize_data,
+                              <span class="hljs-type">void</span>* finalize_hint)</span>;</code> <button class="copy-button">copy</button></pre>
+<p>Change History:</p>
+<ul>
+<li>
 <p>experimental (<code>NAPI_EXPERIMENTAL</code> is defined):</p>
-<p>Node-API calls made from a finalizer will return <code>napi_cannot_run_js</code> when
-the JavaScript engine is unable to execute JavaScript, and will return
-<code>napi_exception_pending</code> if there is a pending exception.</p>
+<p>A function of this type may no longer be used as a finalizer, except with
+<a href="#node_api_post_finalizer"><code>node_api_post_finalizer</code></a>. <a href="#node_api_nogc_finalize"><code>node_api_nogc_finalize</code></a> must be used
+instead. This feature can be turned off by defining
+<code>NODE_API_EXPERIMENTAL_NOGC_ENV_OPT_OUT</code>.</p>
 </li>
 </ul>
 <h5><code>napi_async_execute_callback</code><span><a class="mark" href="#napi_async_execute_callback" id="napi_async_execute_callback">#</a></span><a aria-hidden="true" class="legacy" id="n_api_napi_async_execute_callback"></a></h5>
@@ -1601,7 +1687,7 @@ callback should free the data.</li>
 handle and/or callback scope inside the function body is not necessary.</p>
 <h5><code>napi_cleanup_hook</code><span><a class="mark" href="#napi_cleanup_hook" id="napi_cleanup_hook">#</a></span><a aria-hidden="true" class="legacy" id="n_api_napi_cleanup_hook"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.13.0</span>
+<span>Added in: v19.2.0, v18.13.0</span>
 <span>N-API version: 3</span>
 </div>
 <p>Function pointer used with <a href="#napi_add_env_cleanup_hook"><code>napi_add_env_cleanup_hook</code></a>. It will be called
@@ -1680,7 +1766,7 @@ logging purposes.</p>
 <span>N-API version: 1</span>
 </div>
 <pre><code class="language-c">napi_status
-<span class="hljs-title function_">napi_get_last_error_info</span><span class="hljs-params">(napi_env env,
+<span class="hljs-title function_">napi_get_last_error_info</span><span class="hljs-params">(node_api_nogc_env env,
                          <span class="hljs-type">const</span> napi_extended_error_info** result)</span>;</code> <button class="copy-button">copy</button></pre>
 <ul>
 <li><code>[in] env</code>: The environment that the API is invoked under.</li>
@@ -2291,7 +2377,7 @@ should be freed up.</p>
 <span>Added in: v10.2.0</span>
 <span>N-API version: 3</span>
 </div>
-<pre><code class="language-c">NODE_EXTERN napi_status <span class="hljs-title function_">napi_add_env_cleanup_hook</span><span class="hljs-params">(napi_env env,
+<pre><code class="language-c">NODE_EXTERN napi_status <span class="hljs-title function_">napi_add_env_cleanup_hook</span><span class="hljs-params">(node_api_nogc_env env,
                                                   napi_cleanup_hook fun,
                                                   <span class="hljs-type">void</span>* arg)</span>;</code> <button class="copy-button">copy</button></pre>
 <p>Registers <code>fun</code> as a function to be run with the <code>arg</code> parameter once the
@@ -2311,7 +2397,7 @@ is being torn down anyway.</p>
 <span>Added in: v10.2.0</span>
 <span>N-API version: 3</span>
 </div>
-<pre><code class="language-c">NAPI_EXTERN napi_status <span class="hljs-title function_">napi_remove_env_cleanup_hook</span><span class="hljs-params">(napi_env env,
+<pre><code class="language-c">NAPI_EXTERN napi_status <span class="hljs-title function_">napi_remove_env_cleanup_hook</span><span class="hljs-params">(node_api_nogc_env env,
                                                      <span class="hljs-type">void</span> (*fun)(<span class="hljs-type">void</span>* arg),
                                                      <span class="hljs-type">void</span>* arg)</span>;</code> <button class="copy-button">copy</button></pre>
 <p>Unregisters <code>fun</code> as a function to be run with the <code>arg</code> parameter once the
@@ -2333,7 +2419,7 @@ with <code>napi_add_env_cleanup_hook</code>, otherwise the process will abort.</
 <span>N-API version: 8</span>
 </div>
 <pre><code class="language-c">NAPI_EXTERN napi_status <span class="hljs-title function_">napi_add_async_cleanup_hook</span><span class="hljs-params">(
-    napi_env env,
+    node_api_nogc_env env,
     napi_async_cleanup_hook hook,
     <span class="hljs-type">void</span>* arg,
     napi_async_cleanup_hook_handle* remove_handle)</span>;</code> <button class="copy-button">copy</button></pre>
@@ -2454,7 +2540,7 @@ napi_value <span class="hljs-title function_">Init</span><span class="hljs-param
 }</code> <button class="copy-button">copy</button></pre>
 <p>You can also use the <code>NAPI_MODULE_INIT</code> macro, which acts as a shorthand
 for <code>NAPI_MODULE</code> and defining an <code>Init</code> function:</p>
-<pre><code class="language-c">NAPI_MODULE_INIT() {
+<pre><code class="language-c">NAPI_MODULE_INIT(<span class="hljs-comment">/* napi_env env, napi_value exports */</span>) {
   napi_value answer;
   napi_status result;
 
@@ -2466,6 +2552,8 @@ for <code>NAPI_MODULE</code> and defining an <code>Init</code> function:</p>
 
   <span class="hljs-keyword">return</span> exports;
 }</code> <button class="copy-button">copy</button></pre>
+<p>The parameters <code>env</code> and <code>exports</code> are provided to the body of the
+<code>NAPI_MODULE_INIT</code> macro.</p>
 <p>All Node-API addons are context-aware, meaning they may be loaded multiple
 times. There are a few design considerations when declaring such a module.
 The documentation on <a href="addons.html#context-aware-addons">context-aware addons</a> provides more details.</p>
@@ -2529,9 +2617,9 @@ of the objects's prototype chain as well.</p>
   napi_key_keep_numbers,
   napi_key_numbers_to_strings
 } napi_key_conversion;</code> <button class="copy-button">copy</button></pre>
-<p><code>napi_key_numbers_to_strings</code> will convert integer indices to
+<p><code>napi_key_numbers_to_strings</code> will convert integer indexes to
 strings. <code>napi_key_keep_numbers</code> will return numbers for integer
-indices.</p>
+indexes.</p>
 <h5><code>napi_valuetype</code><span><a class="mark" href="#napi_valuetype" id="napi_valuetype">#</a></span><a aria-hidden="true" class="legacy" id="n_api_napi_valuetype"></a></h5>
 <pre><code class="language-c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">enum</span> {</span>
   <span class="hljs-comment">// ES6 types (corresponds to typeof)</span>
@@ -2842,7 +2930,7 @@ ECMAScript Language Specification.</p>
 of the ECMAScript Language Specification.</p>
 <h5><code>node_api_symbol_for</code><span><a class="mark" href="#node_api_symbol_for" id="node_api_symbol_for">#</a></span><a aria-hidden="true" class="legacy" id="n_api_node_api_symbol_for"></a></h5>
 <div class="api_metadata">
-<span>Added in: v17.5.0</span>
+<span>Added in: v17.5.0, v16.15.0</span>
 <span>N-API version: 9</span>
 </div>
 <pre><code class="language-c">napi_status <span class="hljs-title function_">node_api_symbol_for</span><span class="hljs-params">(napi_env env,
@@ -3064,7 +3152,7 @@ string. The native string is copied.</p>
 <a href="https://tc39.github.io/ecma262/#sec-ecmascript-language-types-string-type">Section 6.1.4</a> of the ECMAScript Language Specification.</p>
 <h5><code>node_api_create_external_string_latin1</code><span><a class="mark" href="#node_api_create_external_string_latin1" id="node_api_create_external_string_latin1">#</a></span><a aria-hidden="true" class="legacy" id="n_api_node_api_create_external_string_latin1"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.18.0</span>
+<span>Added in: v20.4.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <pre><code class="language-c">napi_status
@@ -3130,7 +3218,7 @@ The native string is copied.</p>
 <a href="https://tc39.github.io/ecma262/#sec-ecmascript-language-types-string-type">Section 6.1.4</a> of the ECMAScript Language Specification.</p>
 <h5><code>node_api_create_external_string_utf16</code><span><a class="mark" href="#node_api_create_external_string_utf16" id="node_api_create_external_string_utf16">#</a></span><a aria-hidden="true" class="legacy" id="n_api_node_api_create_external_string_utf16"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.18.0</span>
+<span>Added in: v20.4.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <pre><code class="language-c">napi_status
@@ -3192,6 +3280,40 @@ is null-terminated.</li>
 <p>Returns <code>napi_ok</code> if the API succeeded.</p>
 <p>This API creates a JavaScript <code>string</code> value from a UTF8-encoded C string.
 The native string is copied.</p>
+<p>The JavaScript <code>string</code> type is described in
+<a href="https://tc39.github.io/ecma262/#sec-ecmascript-language-types-string-type">Section 6.1.4</a> of the ECMAScript Language Specification.</p>
+<h5><code>node_api_create_property_key_utf16</code><span><a class="mark" href="#node_api_create_property_key_utf16" id="node_api_create_property_key_utf16">#</a></span><a aria-hidden="true" class="legacy" id="n_api_node_api_create_property_key_utf16"></a></h5>
+<div class="api_metadata">
+<span>Added in: v20.12.0</span>
+</div>
+<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
+<pre><code class="language-c">napi_status NAPI_CDECL <span class="hljs-title function_">node_api_create_property_key_utf16</span><span class="hljs-params">(napi_env env,
+                                                          <span class="hljs-type">const</span> <span class="hljs-type">char16_t</span>* str,
+                                                          <span class="hljs-type">size_t</span> length,
+                                                          napi_value* result)</span>;</code> <button class="copy-button">copy</button></pre>
+<ul>
+<li><code>[in] env</code>: The environment that the API is invoked under.</li>
+<li><code>[in] str</code>: Character buffer representing a UTF16-LE-encoded string.</li>
+<li><code>[in] length</code>: The length of the string in two-byte code units, or
+<code>NAPI_AUTO_LENGTH</code> if it is null-terminated.</li>
+<li><code>[out] result</code>: A <code>napi_value</code> representing an optimized JavaScript <code>string</code>
+to be used as a property key for objects.</li>
+</ul>
+<p>Returns <code>napi_ok</code> if the API succeeded.</p>
+<p>This API creates an optimized JavaScript <code>string</code> value from
+a UTF16-LE-encoded C string to be used as a property key for objects.
+The native string is copied.</p>
+<p>Many JavaScript engines including V8 use internalized strings as keys
+to set and get property values. They typically use a hash table to create
+and lookup such strings. While it adds some cost per key creation, it improves
+the performance after that by enabling comparison of string pointers instead
+of the whole strings.</p>
+<p>If a new JavaScript string is intended to be used as a property key, then for
+some JavaScript engines it will be more efficient to use
+the <code>node_api_create_property_key_utf16</code> function.
+Otherwise, use the <code>napi_create_string_utf16</code> or
+<code>node_api_create_external_string_utf16</code> functions as there may be additional
+overhead in creating/storing strings with this method.</p>
 <p>The JavaScript <code>string</code> type is described in
 <a href="https://tc39.github.io/ecma262/#sec-ecmascript-language-types-string-type">Section 6.1.4</a> of the ECMAScript Language Specification.</p>
 <h4>Functions to convert from Node-API to C types<span><a class="mark" href="#functions-to-convert-from-node-api-to-c-types" id="functions-to-convert-from-node-api-to-c-types">#</a></span><a aria-hidden="true" class="legacy" id="n_api_functions_to_convert_from_node_api_to_c_types"></a></h4>
@@ -5049,7 +5171,7 @@ matches <code>type_tag</code>, then <code>result</code> is set to <code>true</co
 <pre><code class="language-c">napi_status <span class="hljs-title function_">napi_add_finalizer</span><span class="hljs-params">(napi_env env,
                                napi_value js_object,
                                <span class="hljs-type">void</span>* finalize_data,
-                               napi_finalize finalize_cb,
+                               node_api_nogc_finalize finalize_cb,
                                <span class="hljs-type">void</span>* finalize_hint,
                                napi_ref* result)</span>;</code> <button class="copy-button">copy</button></pre>
 <ul>
@@ -5075,10 +5197,10 @@ be invoked. Therefore, when obtaining a reference a finalize callback is also
 required in order to enable correct disposal of the reference.</p>
 <h5><code>node_api_post_finalizer</code><span><a class="mark" href="#node_api_post_finalizer" id="node_api_post_finalizer">#</a></span><a aria-hidden="true" class="legacy" id="n_api_node_api_post_finalizer"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.19.0</span>
+<span>Added in: v20.10.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
-<pre><code class="language-c">napi_status <span class="hljs-title function_">node_api_post_finalizer</span><span class="hljs-params">(napi_env env,
+<pre><code class="language-c">napi_status <span class="hljs-title function_">node_api_post_finalizer</span><span class="hljs-params">(node_api_nogc_env env,
                                     napi_finalize finalize_cb,
                                     <span class="hljs-type">void</span>* finalize_data,
                                     <span class="hljs-type">void</span>* finalize_hint)</span>;</code> <button class="copy-button">copy</button></pre>
@@ -5130,7 +5252,7 @@ addon-provided <code>void*</code> data that was passed into the
 <code>napi_create_async_work</code> call.</p>
 <p>Once created the async worker can be queued
 for execution using the <a href="#napi_queue_async_work"><code>napi_queue_async_work</code></a> function:</p>
-<pre><code class="language-c">napi_status <span class="hljs-title function_">napi_queue_async_work</span><span class="hljs-params">(napi_env env,
+<pre><code class="language-c">napi_status <span class="hljs-title function_">napi_queue_async_work</span><span class="hljs-params">(node_api_nogc_env env,
                                   napi_async_work work)</span>;</code> <button class="copy-button">copy</button></pre>
 <p><a href="#napi_cancel_async_work"><code>napi_cancel_async_work</code></a> can be used if the work needs
 to be cancelled before the work has started execution.</p>
@@ -5204,7 +5326,7 @@ the <a href="async_hooks.html#type"><code>async_hooks</code> documentation</a> f
 <span>Added in: v8.0.0</span>
 <span>N-API version: 1</span>
 </div>
-<pre><code class="language-c">napi_status <span class="hljs-title function_">napi_queue_async_work</span><span class="hljs-params">(napi_env env,
+<pre><code class="language-c">napi_status <span class="hljs-title function_">napi_queue_async_work</span><span class="hljs-params">(node_api_nogc_env env,
                                   napi_async_work work)</span>;</code> <button class="copy-button">copy</button></pre>
 <ul>
 <li><code>[in] env</code>: The environment that the API is invoked under.</li>
@@ -5219,7 +5341,7 @@ with the same <code>napi_async_work</code> item or the result will be undefined.
 <span>Added in: v8.0.0</span>
 <span>N-API version: 1</span>
 </div>
-<pre><code class="language-c">napi_status <span class="hljs-title function_">napi_cancel_async_work</span><span class="hljs-params">(napi_env env,
+<pre><code class="language-c">napi_status <span class="hljs-title function_">napi_cancel_async_work</span><span class="hljs-params">(node_api_nogc_env env,
                                    napi_async_work work)</span>;</code> <button class="copy-button">copy</button></pre>
 <ul>
 <li><code>[in] env</code>: The environment that the API is invoked under.</li>
@@ -5386,7 +5508,7 @@ the required scope.</p>
   <span class="hljs-type">const</span> <span class="hljs-type">char</span>* release;
 } napi_node_version;
 
-napi_status <span class="hljs-title function_">napi_get_node_version</span><span class="hljs-params">(napi_env env,
+napi_status <span class="hljs-title function_">napi_get_node_version</span><span class="hljs-params">(node_api_nogc_env env,
                                   <span class="hljs-type">const</span> napi_node_version** version)</span>;</code> <button class="copy-button">copy</button></pre>
 <ul>
 <li><code>[in] env</code>: The environment that the API is invoked under.</li>
@@ -5402,7 +5524,7 @@ value of <a href="process.html#processrelease"><code>process.release.name</code>
 <span>Added in: v8.0.0</span>
 <span>N-API version: 1</span>
 </div>
-<pre><code class="language-c">napi_status <span class="hljs-title function_">napi_get_version</span><span class="hljs-params">(napi_env env,
+<pre><code class="language-c">napi_status <span class="hljs-title function_">napi_get_version</span><span class="hljs-params">(node_api_nogc_env env,
                              <span class="hljs-type">uint32_t</span>* result)</span>;</code> <button class="copy-button">copy</button></pre>
 <ul>
 <li><code>[in] env</code>: The environment that the API is invoked under.</li>
@@ -5429,7 +5551,7 @@ that does not use the function.</li>
 <span>Added in: v8.5.0</span>
 <span>N-API version: 1</span>
 </div>
-<pre><code class="language-c">NAPI_EXTERN napi_status <span class="hljs-title function_">napi_adjust_external_memory</span><span class="hljs-params">(napi_env env,
+<pre><code class="language-c">NAPI_EXTERN napi_status <span class="hljs-title function_">napi_adjust_external_memory</span><span class="hljs-params">(node_api_nogc_env env,
                                                     <span class="hljs-type">int64_t</span> change_in_bytes,
                                                     <span class="hljs-type">int64_t</span>* result)</span>;</code> <button class="copy-button">copy</button></pre>
 <ul>
@@ -5598,7 +5720,7 @@ a specific <code>napi_env</code>.</p>
 <span>Added in: v9.3.0, v8.10.0</span>
 <span>N-API version: 2</span>
 </div>
-<pre><code class="language-c">NAPI_EXTERN napi_status <span class="hljs-title function_">napi_get_uv_event_loop</span><span class="hljs-params">(napi_env env,
+<pre><code class="language-c">NAPI_EXTERN napi_status <span class="hljs-title function_">napi_get_uv_event_loop</span><span class="hljs-params">(node_api_nogc_env env,
                                                <span class="hljs-keyword">struct</span> uv_loop_s** loop)</span>;</code> <button class="copy-button">copy</button></pre>
 <ul>
 <li><code>[in] env</code>: The environment that the API is invoked under.</li>
@@ -5863,7 +5985,7 @@ to any thread-safe APIs after having called this API has undefined results, as
 <span>N-API version: 4</span>
 </div>
 <pre><code class="language-c">NAPI_EXTERN napi_status
-<span class="hljs-title function_">napi_ref_threadsafe_function</span><span class="hljs-params">(napi_env env, napi_threadsafe_function func)</span>;</code> <button class="copy-button">copy</button></pre>
+<span class="hljs-title function_">napi_ref_threadsafe_function</span><span class="hljs-params">(node_api_nogc_env env, napi_threadsafe_function func)</span>;</code> <button class="copy-button">copy</button></pre>
 <ul>
 <li><code>[in] env</code>: The environment that the API is invoked under.</li>
 <li><code>[in] func</code>: The thread-safe function to reference.</li>
@@ -5882,7 +6004,7 @@ being destroyed. <code>napi_acquire_threadsafe_function</code> and
 <span>N-API version: 4</span>
 </div>
 <pre><code class="language-c">NAPI_EXTERN napi_status
-<span class="hljs-title function_">napi_unref_threadsafe_function</span><span class="hljs-params">(napi_env env, napi_threadsafe_function func)</span>;</code> <button class="copy-button">copy</button></pre>
+<span class="hljs-title function_">napi_unref_threadsafe_function</span><span class="hljs-params">(node_api_nogc_env env, napi_threadsafe_function func)</span>;</code> <button class="copy-button">copy</button></pre>
 <ul>
 <li><code>[in] env</code>: The environment that the API is invoked under.</li>
 <li><code>[in] func</code>: The thread-safe function to unreference.</li>
@@ -5898,7 +6020,7 @@ idempotent.</p>
 <span>N-API version: 9</span>
 </div>
 <pre><code class="language-c">NAPI_EXTERN napi_status
-<span class="hljs-title function_">node_api_get_module_file_name</span><span class="hljs-params">(napi_env env, <span class="hljs-type">const</span> <span class="hljs-type">char</span>** result)</span>;
+<span class="hljs-title function_">node_api_get_module_file_name</span><span class="hljs-params">(node_api_nogc_env env, <span class="hljs-type">const</span> <span class="hljs-type">char</span>** result)</span>;
 </code> <button class="copy-button">copy</button></pre>
 <ul>
 <li><code>[in] env</code>: The environment that the API is invoked under.</li>

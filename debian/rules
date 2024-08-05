@@ -10,10 +10,10 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 builtins := /usr/share/nodejs/node
 
 # source equivalent of nodejs -e 'console.log(process.versions.modules)'
-ABI = $(shell awk '/^#define NODE_MODULE_VERSION/ {print $$3}' src/node_version.h)
+ABI = $(shell awk '/^#define NODE_MODULE_VERSION [0-9]+/ {print $$3}' src/node_version.h)
 
 # archs
-ARCHS := amd64 arm64 armel armhf i386 kfreebsd-i386 kfreebsd-amd64 mips mips64el mips64r6el mipsel loong64 ppc64 ppc64el riscv64 s390x
+ARCHS := amd64 arm64 armel armhf i386 mips64el mips64r6el loong64 ppc64 ppc64el riscv64 s390x
 
 # branch
 BRANCH := $(word 1, $(subst .,$(space), $(DEB_UPSTREAM_VERSION)))
@@ -41,7 +41,8 @@ DEB_CONFIGURE_EXTRA_FLAGS = \
 --openssl-use-def-ca-store \
 --arch-triplet=$(DEB_HOST_MULTIARCH) \
 --node-relative-path="lib/$(DEB_HOST_MULTIARCH)/nodejs:share/nodejs" \
---shared-libuv
+--shared-libuv \
+--dest-os=linux
 
 ifneq ($(filter pkg.nodejs.nobuiltin,$(DEB_BUILD_PROFILES)),)
 	DEB_CONFIGURE_EXTRA_FLAGS += --node-builtin-modules-path=$(builtins)
@@ -52,60 +53,21 @@ endif
 destCpu =
 destCpu := $(or $(destCpu),$(if $(filter i386,$(DEB_HOST_ARCH)),ia32))
 destCpu := $(or $(destCpu),$(if $(filter x32,$(DEB_HOST_ARCH)),x32))
-destCpu := $(or $(destCpu),$(if $(filter kfreebsd-i386,$(DEB_HOST_ARCH)),ia32))
 destCpu := $(or $(destCpu),$(if $(filter hurd-i386,$(DEB_HOST_ARCH)),ia32))
 destCpu := $(or $(destCpu),$(if $(filter amd64,$(DEB_HOST_ARCH)),x64))
-destCpu := $(or $(destCpu),$(if $(filter kfreebsd-amd64,$(DEB_HOST_ARCH)),x64))
 destCpu := $(or $(destCpu),$(if $(filter armel,$(DEB_HOST_ARCH)),arm))
 destCpu := $(or $(destCpu),$(if $(filter armhf,$(DEB_HOST_ARCH)),arm))
 destCpu := $(or $(destCpu),$(if $(filter aarch64,$(DEB_HOST_ARCH)),arm64))
-destCpu := $(or $(destCpu),$(if $(filter mipsel,$(DEB_HOST_ARCH)),mipsel))
 destCpu := $(or $(destCpu),$(if $(filter mips64el,$(DEB_HOST_ARCH)),mips64el))
 destCpu := $(or $(destCpu),$(if $(filter mips64r6el,$(DEB_HOST_ARCH)),mips64el))
-destCpu := $(or $(destCpu),$(if $(filter mips,$(DEB_HOST_ARCH)),mips))
 destCpu := $(or $(destCpu),$(if $(filter loong64,$(DEB_HOST_ARCH)),loong64))
 destCpu := $(or $(destCpu),$(if $(filter powerpc,$(DEB_HOST_ARCH)),ppc))
 destCpu := $(or $(destCpu),$(if $(filter ppc64,$(DEB_HOST_ARCH)),ppc64))
 destCpu := $(or $(destCpu),$(if $(filter riscv64,$(DEB_HOST_ARCH)),riscv64))
 destCpu := $(or $(destCpu),$(if $(filter s390x,$(DEB_HOST_ARCH)),s390x))
 
-# solaris freebsd openbsd linux
-destOs =
-destOs := $(or $(destOs),$(if $(filter linux,$(DEB_HOST_ARCH_OS)),linux))
-destOs := $(or $(destOs),$(if $(filter kfreebsd,$(DEB_HOST_ARCH_OS)),freebsd))
-
-ifneq (, $(destOs))
-DEB_CONFIGURE_EXTRA_FLAGS += --dest-os=$(destOs)
-endif
-ifeq (unsupported, $(destCpu))
-$(error "nodejs cannot run on $(DEB_HOST_ARCH), please consult maintainers")
-endif
 ifneq (, $(destCpu))
 DEB_CONFIGURE_EXTRA_FLAGS += --dest-cpu=$(destCpu)
-endif
-
-ifeq (freebsd, $(destOs))
-LDFLAGS += -lbsd
-endif
-
-# mips and fpu
-# https://github.com/paul99/v8m-rb/issues/192
-# https://bugs.debian.org/800410
-# mips and big binaries
-# http://gcc.gnu.org/wiki/DebugFission
-# https://bugs.debian.org/829139
-
-# use r2, which is the supported variant for these architectures
-# https://lists.debian.org/debian-mips/2016/07/msg00000.html
-ifeq (mipsel, $(DEB_HOST_ARCH))
-DEB_CONFIGURE_EXTRA_FLAGS += --with-mips-arch-variant=r2 --with-mips-fpu-mode=fpxx
-CFLAGS += -gsplit-dwarf
-CPPFLAGS += -gsplit-dwarf
-endif
-ifeq (mips, $(DEB_HOST_ARCH))
-DEB_CONFIGURE_EXTRA_FLAGS += --with-mips-arch-variant=r2 --with-mips-fpu-mode=fpxx
-CFLAGS += -gsplit-dwarf
-CPPFLAGS += -gsplit-dwarf
 endif
 
 # mips32r1 or greater, detected at runtime
@@ -153,7 +115,6 @@ DEB_MAKE_BUILD_TARGET = build
 #  relax regression tests when targeted experimental suite
 export HOME = $(CURDIR)/tmp
 export FLAKY_TESTS = dontcare
-export TEST_CI_ARGS = --arch=$(destCpu) --timeout=3000
 export CI_JS_SUITES = message parallel sequential
 export NODE_TEST_DIR = $(CURDIR)/tmp
 export NODE_TEST_NO_INTERNET = 1
@@ -162,6 +123,15 @@ export OPENSSL_CONF = $(CURDIR)/deps/openssl/openssl/apps/openssl.cnf
 # keep in mind ./debian/rules check is also invoked by adt-run, see debian/tests/
 exp-relax-check := $(if $(shell dpkg-parsechangelog | grep -x 'Distribution: \(experimental\|UNRELEASED\)'),-i)
 DEB_MAKE_CHECK_TARGET = $(exp-relax-check) test-ci-js
+TEST_CI_ARGS = --arch=$(destCpu) --timeout=3000
+
+# override Node.js path when running under adt-run (no build directory present)
+ifeq (,$(wildcard $(CURDIR)/out))
+TEST_CI_ARGS += --shell=/usr/bin/node
+else
+TEST_CI_ARGS += --shell=out/Release/node
+endif
+export TEST_CI_ARGS
 
 # build -fPIC
 CFLAGS += -fPIC
@@ -254,10 +224,8 @@ override_dh_auto_test-indep:
 
 override_dh_auto_test-arch:
 ifeq ($(filter nocheck,$(DEB_BUILD_PROFILES)),)
-	-ln -s /usr/bin/node node
 	mkdir -p $(NODE_TEST_DIR)
 	$(MAKE) $(DEB_MAKE_CHECK_TARGET)
-	rm -f node
 	rm -rf $(NODE_TEST_DIR)
 endif
 
@@ -268,7 +236,7 @@ override_dh_auto_install-arch:
 	dh_auto_install
 
 override_dh_install-arch:
-	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' debian/libnode.install > debian/libnode$(ABI).install
+	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' debian/libnode.install.in > debian/libnode$(ABI).install
 	sed -e 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' -e 's/@ABI@/$(ABI)/g' debian/libnode-dev.links.in > debian/libnode-dev.links
 	cp debian/nodejs.install.in debian/nodejs.install
 ifneq ($(filter pkg.nodejs.nobuiltin,$(DEB_BUILD_PROFILES)),)

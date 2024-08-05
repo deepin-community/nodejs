@@ -396,3 +396,38 @@ TYPED_TEST(basic_tests, nodejs_50235) {
   ASSERT_EQ(out->get_href(), "http://test.com:5/path?param=1");
   SUCCEED();
 }
+
+// https://github.com/nodejs/node/issues/51514
+TYPED_TEST(basic_tests, nodejs_51514) {
+  auto out = ada::parse<TypeParam>("http://1.1.1.256");
+  ASSERT_FALSE(out);
+}
+
+// https://github.com/nodejs/node/issues/51593
+TYPED_TEST(basic_tests, nodejs_51593) {
+  auto out = ada::parse<TypeParam>("http://\u200b123.123.123.123");
+  ASSERT_TRUE(out);
+  ASSERT_EQ(out->get_href(), "http://123.123.123.123/");
+  SUCCEED();
+}
+
+// https://github.com/nodejs/node/issues/51619
+TYPED_TEST(basic_tests, nodejs_51619) {
+  auto out = ada::parse<TypeParam>("https://0.0.0.0x100/");
+  ASSERT_FALSE(out);
+  SUCCEED();
+}
+
+// https://github.com/nodejs/undici/pull/2971
+TYPED_TEST(basic_tests, nodejs_undici_2971) {
+  std::string_view base =
+      "https://non-ascii-location-header.sys.workers.dev/redirect";
+  auto base_url = ada::parse<TypeParam>(base);
+  ASSERT_TRUE(base_url);
+  auto out = ada::parse<TypeParam>("/\xec\x95\x88\xeb\x85\x95", &*base_url);
+  ASSERT_TRUE(out);
+  ASSERT_EQ(
+      out->get_href(),
+      R"(https://non-ascii-location-header.sys.workers.dev/%EC%95%88%EB%85%95)");
+  SUCCEED();
+}

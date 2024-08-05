@@ -3,18 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>Buffer | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.15.1">
+  <title>Buffer | Node.js v20.15.1 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/buffer.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
-  <style>@media(max-width:558px){.with-42-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:718px){.with-62-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:646px){.with-53-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}</style>
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
+  <style>@media(max-width:558px){.with-42-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:718px){.with-62-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:646px){.with-53-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}</style>
 </head>
 <body class="alt apidoc" id="api-section-buffer">
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +109,7 @@
     <div id="column1" data-id="buffer" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.15.1 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,11 +124,11 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.15.1</li>
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
@@ -228,7 +241,7 @@
 <li><span class="stability_0"><a href="#new-bufferstring-encoding"><code>new Buffer(string[, encoding])</code></a></span></li>
 </ul>
 </li>
-<li><span class="stability_1"><a href="#class-file">Class: <code>File</code></a></span>
+<li><a href="#class-file">Class: <code>File</code></a>
 <ul>
 <li><a href="#new-bufferfilesources-filename-options"><code>new buffer.File(sources, fileName[, options])</code></a></li>
 <li><a href="#filename"><code>file.name</code></a></li>
@@ -273,7 +286,7 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Index
       </a>
 
@@ -358,10 +371,11 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/buffer.html">21.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v22.x/api/buffer.html">22.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/buffer.html">21.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v20.x/api/buffer.html">20.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v19.x/api/buffer.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/buffer.html">18.x <b>LTS</b></a></li>
@@ -385,7 +399,7 @@
   
             <li class="picker-header">
               <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
@@ -406,7 +420,7 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
 <li><span class="stability_2"><a href="#buffer">Buffer</a></span>
 <ul>
 <li><a href="#buffers-and-character-encodings">Buffers and character encodings</a></li>
@@ -515,7 +529,7 @@
 <li><span class="stability_0"><a href="#new-bufferstring-encoding"><code>new Buffer(string[, encoding])</code></a></span></li>
 </ul>
 </li>
-<li><span class="stability_1"><a href="#class-file">Class: <code>File</code></a></span>
+<li><a href="#class-file">Class: <code>File</code></a>
 <ul>
 <li><a href="#new-bufferfilesources-filename-options"><code>new buffer.File(sources, fileName[, options])</code></a></li>
 <li><a href="#filename"><code>file.name</code></a></li>
@@ -556,11 +570,11 @@
 </li>
 </ul></details>
 
-      <div id="apicontent">
+      <div role="main" id="apicontent">
         <h2>Buffer<span><a class="mark" href="#buffer" id="buffer">#</a></span><a aria-hidden="true" class="legacy" id="buffer_buffer"></a></h2>
 
 <p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.19.1/lib/buffer.js">lib/buffer.js</a></p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v20.15.1/lib/buffer.js">lib/buffer.js</a></p>
 <p><code>Buffer</code> objects are used to represent a fixed-length sequence of bytes. Many
 Node.js APIs support <code>Buffer</code>s.</p>
 <p>The <code>Buffer</code> class is a subclass of JavaScript's <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array"><code>Uint8Array</code></a> class and
@@ -569,7 +583,7 @@ plain <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference
 <p>While the <code>Buffer</code> class is available within the global scope, it is still
 recommended to explicitly reference it via an import or require statement.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-comment">// Creates a zero-filled Buffer of length 10.</span>
 <span class="hljs-keyword">const</span> buf1 = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">alloc</span>(<span class="hljs-number">10</span>);
@@ -646,7 +660,7 @@ recommended to explicitly reference it via an import or require statement.</p>
 specified. If no character encoding is specified, UTF-8 will be used as the
 default.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'hello world'</span>, <span class="hljs-string">'utf8'</span>);
 
@@ -745,7 +759,7 @@ U+FFFF. In Node.js, these code points are always supported.</p>
 </li>
 </ul>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'1ag123'</span>, <span class="hljs-string">'hex'</span>);
 <span class="hljs-comment">// Prints &#x3C;Buffer 1a>, data truncated when first non-hexadecimal value</span>
@@ -804,7 +818,7 @@ contents, interpreted as an array of integers, and not as a byte sequence
 of the target type.</li>
 </ul>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>]);
 <span class="hljs-keyword">const</span> uint32array = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Uint32Array</span>(buf);
@@ -824,7 +838,7 @@ of the target type.</li>
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code>TypedArray</code></a> that shares its memory with the <code>Buffer</code>.</li>
 </ul>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'hello'</span>, <span class="hljs-string">'utf16le'</span>);
 <span class="hljs-keyword">const</span> uint16array = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Uint16Array</span>(
@@ -850,7 +864,7 @@ memory as a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Ref
 <code>.buffer</code> property in the same way. <a href="#static-method-bufferfromarraybuffer-byteoffset-length"><code>Buffer.from()</code></a>
 behaves like <code>new Uint8Array()</code> in this context.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> arr = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Uint16Array</span>(<span class="hljs-number">2</span>);
 
@@ -901,7 +915,7 @@ arr[<span class="hljs-number">1</span>] = <span class="hljs-number">6000</span>;
 possible to use only a portion of the underlying <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code>ArrayBuffer</code></a> by passing in
 <code>byteOffset</code> and <code>length</code> parameters.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> arr = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Uint16Array</span>(<span class="hljs-number">20</span>);
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(arr.<span class="hljs-property">buffer</span>, <span class="hljs-number">0</span>, <span class="hljs-number">16</span>);
@@ -932,7 +946,7 @@ function:</p>
 </section><section><h3>Buffers and iteration<span><a class="mark" href="#buffers-and-iteration" id="buffers-and-iteration">#</a></span><a aria-hidden="true" class="legacy" id="buffer_buffers_and_iteration"></a></h3>
 <p><code>Buffer</code> instances can be iterated over using <code>for..of</code> syntax:</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>]);
 
@@ -960,7 +974,7 @@ function:</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.0.0</td>
+<tr><td>v18.0.0, v16.17.0</td>
 <td><p>No longer experimental.</p></td></tr>
 <tr><td>v15.7.0, v14.18.0</td>
 <td><p><span>Added in: v15.7.0, v14.18.0</span></p></td></tr>
@@ -1058,7 +1072,7 @@ destinations without transferring or immediately copying the data. The data
 contained by the <code>Blob</code> is copied only when the <code>arrayBuffer()</code> or <code>text()</code>
 methods are called.</p>
 
-<pre class="with-62-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Blob</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-62-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Blob</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 <span class="hljs-keyword">import</span> { <span class="hljs-built_in">setTimeout</span> <span class="hljs-keyword">as</span> delay } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:timers/promises'</span>;
 
 <span class="hljs-keyword">const</span> blob = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Blob</span>([<span class="hljs-string">'hello there'</span>]);
@@ -1138,7 +1152,7 @@ with. <strong>Default:</strong> <code>0</code>.</li>
 <p>Allocates a new <code>Buffer</code> of <code>size</code> bytes. If <code>fill</code> is <code>undefined</code>, the
 <code>Buffer</code> will be zero-filled.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">alloc</span>(<span class="hljs-number">5</span>);
 
@@ -1155,7 +1169,7 @@ is thrown.</p>
 <p>If <code>fill</code> is specified, the allocated <code>Buffer</code> will be initialized by calling
 <a href="#buffillvalue-offset-end-encoding"><code>buf.fill(fill)</code></a>.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">alloc</span>(<span class="hljs-number">5</span>, <span class="hljs-string">'a'</span>);
 
@@ -1169,7 +1183,7 @@ is thrown.</p>
 <p>If both <code>fill</code> and <code>encoding</code> are specified, the allocated <code>Buffer</code> will be
 initialized by calling <a href="#buffillvalue-offset-end-encoding"><code>buf.fill(fill, encoding)</code></a>.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">alloc</span>(<span class="hljs-number">11</span>, <span class="hljs-string">'aGVsbG8gd29ybGQ='</span>, <span class="hljs-string">'base64'</span>);
 
@@ -1212,7 +1226,7 @@ initialized</em>. The contents of the newly created <code>Buffer</code> are unkn
 <em>may contain sensitive data</em>. Use <a href="#static-method-bufferallocsize-fill-encoding"><code>Buffer.alloc()</code></a> instead to initialize
 <code>Buffer</code> instances with zeroes.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">allocUnsafe</span>(<span class="hljs-number">10</span>);
 
@@ -1237,8 +1251,8 @@ buf.<span class="hljs-title function_">fill</span>(<span class="hljs-number">0</
 <p>The <code>Buffer</code> module pre-allocates an internal <code>Buffer</code> instance of
 size <a href="#class-property-bufferpoolsize"><code>Buffer.poolSize</code></a> that is used as a pool for the fast allocation of new
 <code>Buffer</code> instances created using <a href="#static-method-bufferallocunsafesize"><code>Buffer.allocUnsafe()</code></a>, <a href="#static-method-bufferfromarray"><code>Buffer.from(array)</code></a>,
-and <a href="#static-method-bufferconcatlist-totallength"><code>Buffer.concat()</code></a> only when <code>size</code> is less than or equal to
-<code>Buffer.poolSize >> 1</code> (floor of <a href="#class-property-bufferpoolsize"><code>Buffer.poolSize</code></a> divided by two).</p>
+and <a href="#static-method-bufferconcatlist-totallength"><code>Buffer.concat()</code></a> only when <code>size</code> is less than
+<code>Buffer.poolSize >>> 1</code> (floor of <a href="#class-property-bufferpoolsize"><code>Buffer.poolSize</code></a> divided by two).</p>
 <p>Use of this pre-allocated internal memory pool is a key difference between
 calling <code>Buffer.alloc(size, fill)</code> vs. <code>Buffer.allocUnsafe(size).fill(fill)</code>.
 Specifically, <code>Buffer.alloc(size, fill)</code> will <em>never</em> use the internal <code>Buffer</code>
@@ -1281,7 +1295,7 @@ memory from a pool for an indeterminate amount of time, it may be appropriate
 to create an un-pooled <code>Buffer</code> instance using <code>Buffer.allocUnsafeSlow()</code> and
 then copying out the relevant bits.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-comment">// Need to keep around a few small chunks of memory.</span>
 <span class="hljs-keyword">const</span> store = [];
@@ -1344,7 +1358,7 @@ For strings that contain non-base64/hex-encoded data (e.g. whitespace), the
 return value might be greater than the length of a <code>Buffer</code> created from the
 string.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> str = <span class="hljs-string">'\u00bd + \u00bc = \u00be'</span>;
 
@@ -1382,7 +1396,7 @@ comparison. See <a href="#bufcomparetarget-targetstart-targetend-sourcestart-sou
 <code>Buffer</code> instances. This is equivalent to calling
 <a href="#bufcomparetarget-targetstart-targetend-sourcestart-sourceend"><code>buf1.compare(buf2)</code></a>.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf1 = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'1234'</span>);
 <span class="hljs-keyword">const</span> buf2 = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'0123'</span>);
@@ -1428,7 +1442,7 @@ in <code>list</code> by adding their lengths.</p>
 combined length of the <code>Buffer</code>s in <code>list</code> exceeds <code>totalLength</code>, the result is
 truncated to <code>totalLength</code>.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-comment">// Create a single `Buffer` from a list of three `Buffer` instances.</span>
 
@@ -1467,7 +1481,7 @@ truncated to <code>totalLength</code>.</p>
 <a href="#static-method-bufferallocunsafesize"><code>Buffer.allocUnsafe()</code></a> does.</p>
 <h4>Static method: <code>Buffer.copyBytesFrom(view[, offset[, length]])</code><span><a class="mark" href="#static-method-buffercopybytesfromview-offset-length" id="static-method-buffercopybytesfromview-offset-length">#</a></span><a aria-hidden="true" class="legacy" id="buffer_static_method_buffer_copybytesfrom_view_offset_length"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.16.0</span>
+<span>Added in: v19.8.0</span>
 </div>
 <ul>
 <li><code>view</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> The <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> to copy.</li>
@@ -1492,7 +1506,7 @@ u16[<span class="hljs-number">1</span>] = <span class="hljs-number">0</span>;
 <p>Allocates a new <code>Buffer</code> using an <code>array</code> of bytes in the range <code>0</code> – <code>255</code>.
 Array entries outside that range will be truncated to fit into it.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-comment">// Creates a new Buffer containing the UTF-8 bytes of the string 'buffer'.</span>
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">0x62</span>, <span class="hljs-number">0x75</span>, <span class="hljs-number">0x66</span>, <span class="hljs-number">0x66</span>, <span class="hljs-number">0x65</span>, <span class="hljs-number">0x72</span>]);</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { <span class="hljs-title class_">Buffer</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:buffer'</span>);
@@ -1525,7 +1539,7 @@ memory. For example, when passed a reference to the <code>.buffer</code> propert
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code>TypedArray</code></a> instance, the newly created <code>Buffer</code> will share the same
 allocated memory as the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code>TypedArray</code></a>'s underlying <code>ArrayBuffer</code>.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> arr = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Uint16Array</span>(<span class="hljs-number">2</span>);
 
@@ -1563,7 +1577,7 @@ arr[<span class="hljs-number">1</span>] = <span class="hljs-number">6000</span>;
 <p>The optional <code>byteOffset</code> and <code>length</code> arguments specify a memory range within
 the <code>arrayBuffer</code> that will be shared by the <code>Buffer</code>.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> ab = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayBuffer</span>(<span class="hljs-number">10</span>);
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(ab, <span class="hljs-number">0</span>, <span class="hljs-number">2</span>);
@@ -1584,7 +1598,7 @@ of memory that extends beyond the bounds of a <code>TypedArray</code> view. A ne
 <code>Buffer</code> created using the <code>buffer</code> property of a <code>TypedArray</code> may extend
 beyond the range of the <code>TypedArray</code>:</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> arrA = <span class="hljs-title class_">Uint8Array</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">0x63</span>, <span class="hljs-number">0x64</span>, <span class="hljs-number">0x65</span>, <span class="hljs-number">0x66</span>]); <span class="hljs-comment">// 4 elements</span>
 <span class="hljs-keyword">const</span> arrB = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Uint8Array</span>(arrA.<span class="hljs-property">buffer</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>); <span class="hljs-comment">// 2 elements</span>
@@ -1611,7 +1625,7 @@ which to copy data.</li>
 </ul>
 <p>Copies the passed <code>buffer</code> data onto a new <code>Buffer</code> instance.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf1 = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'buffer'</span>);
 <span class="hljs-keyword">const</span> buf2 = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(buf1);
@@ -1646,7 +1660,7 @@ appropriate for <code>Buffer.from()</code> variants.</p>
 <p>For objects whose <code>valueOf()</code> function returns a value not strictly equal to
 <code>object</code>, returns <code>Buffer.from(object.valueOf(), offsetOrEncoding, length)</code>.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(<span class="hljs-string">'this is a test'</span>));
 <span class="hljs-comment">// Prints: &#x3C;Buffer 74 68 69 73 20 69 73 20 61 20 74 65 73 74></span></code><code class="language-js cjs"><span class="hljs-keyword">const</span> { <span class="hljs-title class_">Buffer</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:buffer'</span>);
@@ -1656,7 +1670,7 @@ appropriate for <code>Buffer.from()</code> variants.</p>
 <p>For objects that support <code>Symbol.toPrimitive</code>, returns
 <code>Buffer.from(object[Symbol.toPrimitive]('string'), offsetOrEncoding)</code>.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">class</span> <span class="hljs-title class_">Foo</span> {
   [<span class="hljs-title class_">Symbol</span>.<span class="hljs-property">toPrimitive</span>]() {
@@ -1688,7 +1702,7 @@ is not of another type appropriate for <code>Buffer.from()</code> variants.</p>
 <p>Creates a new <code>Buffer</code> containing <code>string</code>. The <code>encoding</code> parameter identifies
 the character encoding to be used when converting <code>string</code> into bytes.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf1 = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'this is a tést'</span>);
 <span class="hljs-keyword">const</span> buf2 = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'7468697320697320612074c3a97374'</span>, <span class="hljs-string">'hex'</span>);
@@ -1721,7 +1735,7 @@ appropriate for <code>Buffer.from()</code> variants.</p>
 </ul>
 <p>Returns <code>true</code> if <code>obj</code> is a <code>Buffer</code>, <code>false</code> otherwise.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">isBuffer</span>(<span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">alloc</span>(<span class="hljs-number">10</span>)); <span class="hljs-comment">// true</span>
 <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">isBuffer</span>(<span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'foo'</span>)); <span class="hljs-comment">// true</span>
@@ -1745,7 +1759,7 @@ appropriate for <code>Buffer.from()</code> variants.</p>
 <p>Returns <code>true</code> if <code>encoding</code> is the name of a supported character encoding,
 or <code>false</code> otherwise.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">isEncoding</span>(<span class="hljs-string">'utf8'</span>));
 <span class="hljs-comment">// Prints: true</span>
@@ -1792,7 +1806,7 @@ access is the same as <code>Uint8Array</code>. In other words, <code>buf[index]<
 <code>buf[index] = value</code> does not modify the buffer if <code>index</code> is negative or
 <code>>= buf.length</code>.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-comment">// Copy an ASCII string into a `Buffer` one byte at a time.</span>
 <span class="hljs-comment">// (This only works for ASCII-only strings. In general, one should use</span>
@@ -1829,7 +1843,7 @@ object is created.</li>
 <p>This <code>ArrayBuffer</code> is not guaranteed to correspond exactly to the original
 <code>Buffer</code>. See the notes on <code>buf.byteOffset</code> for details.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> arrayBuffer = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayBuffer</span>(<span class="hljs-number">16</span>);
 <span class="hljs-keyword">const</span> buffer = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(arrayBuffer);
@@ -1855,7 +1869,7 @@ to the <code>Buffer</code> object itself.</p>
 <p>A common issue when creating a <code>TypedArray</code> object that shares its memory with
 a <code>Buffer</code> is that in this case one needs to specify the <code>byteOffset</code> correctly:</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-comment">// Create a buffer smaller than `Buffer.poolSize`.</span>
 <span class="hljs-keyword">const</span> nodeBuffer = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>]);
@@ -1908,7 +1922,7 @@ Comparison is based on the actual sequence of bytes in each <code>Buffer</code>.
 <li><code>-1</code> is returned if <code>target</code> should come <em>after</em> <code>buf</code> when sorted.</li>
 </ul>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf1 = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'ABC'</span>);
 <span class="hljs-keyword">const</span> buf2 = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'BCD'</span>);
@@ -1949,7 +1963,7 @@ Comparison is based on the actual sequence of bytes in each <code>Buffer</code>.
 arguments can be used to limit the comparison to specific ranges within <code>target</code>
 and <code>buf</code> respectively.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf1 = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>]);
 <span class="hljs-keyword">const</span> buf2 = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>]);
@@ -1992,7 +2006,7 @@ memory region overlaps with <code>buf</code>.</p>
 for all TypedArrays, including Node.js <code>Buffer</code>s, although it takes
 different function arguments.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-comment">// Create two `Buffer` instances.</span>
 <span class="hljs-keyword">const</span> buf1 = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">allocUnsafe</span>(<span class="hljs-number">26</span>);
@@ -2028,7 +2042,7 @@ buf1.<span class="hljs-title function_">copy</span>(buf2, <span class="hljs-numb
 <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(buf2.<span class="hljs-title function_">toString</span>(<span class="hljs-string">'ascii'</span>, <span class="hljs-number">0</span>, <span class="hljs-number">25</span>));
 <span class="hljs-comment">// Prints: !!!!!!!!qrst!!!!!!!!!!!!!</span></code><button class="copy-button">copy</button></pre>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-comment">// Create a `Buffer` and copy data from one region to an overlapping region</span>
 <span class="hljs-comment">// within the same `Buffer`.</span>
@@ -2069,7 +2083,7 @@ buf.<span class="hljs-title function_">copy</span>(buf, <span class="hljs-number
 <p>Creates and returns an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols">iterator</a> of <code>[index, byte]</code> pairs from the contents
 of <code>buf</code>.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-comment">// Log the entire contents of a `Buffer`.</span>
 
@@ -2121,7 +2135,7 @@ compare <code>buf</code>.</li>
 <code>false</code> otherwise. Equivalent to
 <a href="#bufcomparetarget-targetstart-targetend-sourcestart-sourceend"><code>buf.compare(otherBuffer) === 0</code></a>.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf1 = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'ABC'</span>);
 <span class="hljs-keyword">const</span> buf2 = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'414243'</span>, <span class="hljs-string">'hex'</span>);
@@ -2174,7 +2188,7 @@ Empty value (string, Uint8Array, Buffer) is coerced to <code>0</code>.</li>
 <p>Fills <code>buf</code> with the specified <code>value</code>. If the <code>offset</code> and <code>end</code> are not given,
 the entire <code>buf</code> will be filled:</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-comment">// Fill a `Buffer` with the ASCII character 'h'.</span>
 
@@ -2207,7 +2221,7 @@ filled with <code>value &#x26; 255</code>.</p>
 <p>If the final write of a <code>fill()</code> operation falls on a multi-byte character,
 then only the bytes of that character that fit into <code>buf</code> are written:</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-comment">// Fill a `Buffer` with character that takes up two bytes in UTF-8.</span>
 
@@ -2221,7 +2235,7 @@ then only the bytes of that character that fit into <code>buf</code> are written
 <p>If <code>value</code> contains invalid characters, it is truncated; if no valid
 fill data remains, an exception is thrown:</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">allocUnsafe</span>(<span class="hljs-number">5</span>);
 
@@ -2254,7 +2268,7 @@ offset is calculated from the end of <code>buf</code>. <strong>Default:</strong>
 </ul>
 <p>Equivalent to <a href="#bufindexofvalue-byteoffset-encoding"><code>buf.indexOf() !== -1</code></a>.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'this is a buffer'</span>);
 
@@ -2323,7 +2337,7 @@ To compare a partial <code>Buffer</code>, use <a href="#bufsubarraystart-end"><c
 value between <code>0</code> and <code>255</code>.</li>
 </ul>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'this is a buffer'</span>);
 
@@ -2375,7 +2389,7 @@ an integer between 0 and 255.</p>
 of coercion is <code>NaN</code> or <code>0</code>, then the entire buffer will be searched. This
 behavior matches <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/indexOf"><code>String.prototype.indexOf()</code></a>.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> b = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'abcdef'</span>);
 
@@ -2414,9 +2428,9 @@ than <code>buf.length</code>, <code>byteOffset</code> will be returned. If <code
 <ul>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#The_iterator_protocol" class="type">&#x3C;Iterator></a></li>
 </ul>
-<p>Creates and returns an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols">iterator</a> of <code>buf</code> keys (indices).</p>
+<p>Creates and returns an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols">iterator</a> of <code>buf</code> keys (indexes).</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'buffer'</span>);
 
@@ -2469,7 +2483,7 @@ determine the binary representation of the string that will be searched for in
 <p>Identical to <a href="#bufindexofvalue-byteoffset-encoding"><code>buf.indexOf()</code></a>, except the last occurrence of <code>value</code> is found
 rather than the first occurrence.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'this buffer is a buffer'</span>);
 
@@ -2525,7 +2539,7 @@ an integer between 0 and 255.</p>
 that coerce to <code>NaN</code>, like <code>{}</code> or <code>undefined</code>, will search the whole buffer.
 This behavior matches <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/lastIndexOf"><code>String.prototype.lastIndexOf()</code></a>.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> b = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'abcdef'</span>);
 
@@ -2570,7 +2584,7 @@ This behavior matches <a href="https://developer.mozilla.org/en-US/docs/Web/Java
 </ul>
 <p>Returns the number of bytes in <code>buf</code>.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-comment">// Create a `Buffer` and write a shorter string to it using UTF-8.</span>
 
@@ -2647,7 +2661,7 @@ satisfy: <code>0 &#x3C;= offset &#x3C;= buf.length - 8</code>. <strong>Default:<
 <code>offset</code>.</p>
 <p>This function is also available under the <code>readBigUint64BE</code> alias.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">0x00</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0xff</span>, <span class="hljs-number">0xff</span>, <span class="hljs-number">0xff</span>, <span class="hljs-number">0xff</span>]);
 
@@ -2679,7 +2693,7 @@ satisfy: <code>0 &#x3C;= offset &#x3C;= buf.length - 8</code>. <strong>Default:<
 <code>offset</code>.</p>
 <p>This function is also available under the <code>readBigUint64LE</code> alias.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">0x00</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0xff</span>, <span class="hljs-number">0xff</span>, <span class="hljs-number">0xff</span>, <span class="hljs-number">0xff</span>]);
 
@@ -2709,7 +2723,7 @@ satisfy <code>0 &#x3C;= offset &#x3C;= buf.length - 8</code>. <strong>Default:</
 </ul>
 <p>Reads a 64-bit, big-endian double from <code>buf</code> at the specified <code>offset</code>.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>]);
 
@@ -2739,7 +2753,7 @@ satisfy <code>0 &#x3C;= offset &#x3C;= buf.length - 8</code>. <strong>Default:</
 </ul>
 <p>Reads a 64-bit, little-endian double from <code>buf</code> at the specified <code>offset</code>.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>]);
 
@@ -2773,7 +2787,7 @@ satisfy <code>0 &#x3C;= offset &#x3C;= buf.length - 4</code>. <strong>Default:</
 </ul>
 <p>Reads a 32-bit, big-endian float from <code>buf</code> at the specified <code>offset</code>.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>]);
 
@@ -2803,7 +2817,7 @@ satisfy <code>0 &#x3C;= offset &#x3C;= buf.length - 4</code>. <strong>Default:</
 </ul>
 <p>Reads a 32-bit, little-endian float from <code>buf</code> at the specified <code>offset</code>.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>]);
 
@@ -2838,7 +2852,7 @@ satisfy <code>0 &#x3C;= offset &#x3C;= buf.length - 1</code>. <strong>Default:</
 <p>Reads a signed 8-bit integer from <code>buf</code> at the specified <code>offset</code>.</p>
 <p>Integers read from a <code>Buffer</code> are interpreted as two's complement signed values.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([-<span class="hljs-number">1</span>, <span class="hljs-number">5</span>]);
 
@@ -2877,7 +2891,7 @@ satisfy <code>0 &#x3C;= offset &#x3C;= buf.length - 2</code>. <strong>Default:</
 <p>Reads a signed, big-endian 16-bit integer from <code>buf</code> at the specified <code>offset</code>.</p>
 <p>Integers read from a <code>Buffer</code> are interpreted as two's complement signed values.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">0</span>, <span class="hljs-number">5</span>]);
 
@@ -2909,7 +2923,7 @@ satisfy <code>0 &#x3C;= offset &#x3C;= buf.length - 2</code>. <strong>Default:</
 <code>offset</code>.</p>
 <p>Integers read from a <code>Buffer</code> are interpreted as two's complement signed values.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">0</span>, <span class="hljs-number">5</span>]);
 
@@ -2944,7 +2958,7 @@ satisfy <code>0 &#x3C;= offset &#x3C;= buf.length - 4</code>. <strong>Default:</
 <p>Reads a signed, big-endian 32-bit integer from <code>buf</code> at the specified <code>offset</code>.</p>
 <p>Integers read from a <code>Buffer</code> are interpreted as two's complement signed values.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">5</span>]);
 
@@ -2976,7 +2990,7 @@ satisfy <code>0 &#x3C;= offset &#x3C;= buf.length - 4</code>. <strong>Default:</
 <code>offset</code>.</p>
 <p>Integers read from a <code>Buffer</code> are interpreted as two's complement signed values.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">5</span>]);
 
@@ -3014,7 +3028,7 @@ satisfy <code>0 &#x3C;= offset &#x3C;= buf.length - byteLength</code>.</li>
 and interprets the result as a big-endian, two's complement signed value
 supporting up to 48 bits of accuracy.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">0x12</span>, <span class="hljs-number">0x34</span>, <span class="hljs-number">0x56</span>, <span class="hljs-number">0x78</span>, <span class="hljs-number">0x90</span>, <span class="hljs-number">0xab</span>]);
 
@@ -3056,7 +3070,7 @@ satisfy <code>0 &#x3C;= offset &#x3C;= buf.length - byteLength</code>.</li>
 and interprets the result as a little-endian, two's complement signed value
 supporting up to 48 bits of accuracy.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">0x12</span>, <span class="hljs-number">0x34</span>, <span class="hljs-number">0x56</span>, <span class="hljs-number">0x78</span>, <span class="hljs-number">0x90</span>, <span class="hljs-number">0xab</span>]);
 
@@ -3089,7 +3103,7 @@ satisfy <code>0 &#x3C;= offset &#x3C;= buf.length - 1</code>. <strong>Default:</
 <p>Reads an unsigned 8-bit integer from <code>buf</code> at the specified <code>offset</code>.</p>
 <p>This function is also available under the <code>readUint8</code> alias.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">1</span>, -<span class="hljs-number">2</span>]);
 
@@ -3131,7 +3145,7 @@ satisfy <code>0 &#x3C;= offset &#x3C;= buf.length - 2</code>. <strong>Default:</
 <code>offset</code>.</p>
 <p>This function is also available under the <code>readUint16BE</code> alias.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">0x12</span>, <span class="hljs-number">0x34</span>, <span class="hljs-number">0x56</span>]);
 
@@ -3169,7 +3183,7 @@ satisfy <code>0 &#x3C;= offset &#x3C;= buf.length - 2</code>. <strong>Default:</
 <code>offset</code>.</p>
 <p>This function is also available under the <code>readUint16LE</code> alias.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">0x12</span>, <span class="hljs-number">0x34</span>, <span class="hljs-number">0x56</span>]);
 
@@ -3211,7 +3225,7 @@ satisfy <code>0 &#x3C;= offset &#x3C;= buf.length - 4</code>. <strong>Default:</
 <code>offset</code>.</p>
 <p>This function is also available under the <code>readUint32BE</code> alias.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">0x12</span>, <span class="hljs-number">0x34</span>, <span class="hljs-number">0x56</span>, <span class="hljs-number">0x78</span>]);
 
@@ -3245,7 +3259,7 @@ satisfy <code>0 &#x3C;= offset &#x3C;= buf.length - 4</code>. <strong>Default:</
 <code>offset</code>.</p>
 <p>This function is also available under the <code>readUint32LE</code> alias.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">0x12</span>, <span class="hljs-number">0x34</span>, <span class="hljs-number">0x56</span>, <span class="hljs-number">0x78</span>]);
 
@@ -3286,7 +3300,7 @@ and interprets the result as an unsigned big-endian integer supporting
 up to 48 bits of accuracy.</p>
 <p>This function is also available under the <code>readUintBE</code> alias.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">0x12</span>, <span class="hljs-number">0x34</span>, <span class="hljs-number">0x56</span>, <span class="hljs-number">0x78</span>, <span class="hljs-number">0x90</span>, <span class="hljs-number">0xab</span>]);
 
@@ -3327,7 +3341,7 @@ and interprets the result as an unsigned, little-endian integer supporting
 up to 48 bits of accuracy.</p>
 <p>This function is also available under the <code>readUintLE</code> alias.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">0x12</span>, <span class="hljs-number">0x34</span>, <span class="hljs-number">0x56</span>, <span class="hljs-number">0x78</span>, <span class="hljs-number">0x90</span>, <span class="hljs-number">0xab</span>]);
 
@@ -3349,14 +3363,14 @@ up to 48 bits of accuracy.</p>
 <li>Returns: <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a></li>
 </ul>
 <p>Returns a new <code>Buffer</code> that references the same memory as the original, but
-offset and cropped by the <code>start</code> and <code>end</code> indices.</p>
+offset and cropped by the <code>start</code> and <code>end</code> indexes.</p>
 <p>Specifying <code>end</code> greater than <a href="#buflength"><code>buf.length</code></a> will return the same result as
 that of <code>end</code> equal to <a href="#buflength"><code>buf.length</code></a>.</p>
 <p>This method is inherited from <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/subarray"><code>TypedArray.prototype.subarray()</code></a>.</p>
 <p>Modifying the new <code>Buffer</code> slice will modify the memory in the original <code>Buffer</code>
 because the allocated memory of the two objects overlap.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-comment">// Create a `Buffer` with the ASCII alphabet, take a slice, and modify one byte</span>
 <span class="hljs-comment">// from the original `Buffer`.</span>
@@ -3400,7 +3414,7 @@ buf1[<span class="hljs-number">0</span>] = <span class="hljs-number">33</span>;
 <p>Specifying negative indexes causes the slice to be generated relative to the
 end of <code>buf</code> rather than the beginning.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'buffer'</span>);
 
@@ -3434,7 +3448,7 @@ end of <code>buf</code> rather than the beginning.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v17.5.0</td>
+<tr><td>v17.5.0, v16.15.0</td>
 <td><p>The buf.slice() method has been deprecated.</p></td></tr>
 <tr><td>v7.0.0</td>
 <td><p>All offsets are now coerced to integers before doing any calculations with them.</p></td></tr>
@@ -3453,12 +3467,12 @@ end of <code>buf</code> rather than the beginning.</p>
 </ul>
 <p></p><div class="api_stability api_stability_0"><a href="documentation.html#stability-index">Stability: 0</a> - Deprecated: Use <a href="#bufsubarraystart-end"><code>buf.subarray</code></a> instead.</div><p></p>
 <p>Returns a new <code>Buffer</code> that references the same memory as the original, but
-offset and cropped by the <code>start</code> and <code>end</code> indices.</p>
+offset and cropped by the <code>start</code> and <code>end</code> indexes.</p>
 <p>This method is not compatible with the <code>Uint8Array.prototype.slice()</code>,
 which is a superclass of <code>Buffer</code>. To copy the slice, use
 <code>Uint8Array.prototype.slice()</code>.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'buffer'</span>);
 
@@ -3506,7 +3520,7 @@ notReallyCopiedBuf[<span class="hljs-number">0</span>]++;
 byte order <em>in-place</em>. Throws <a href="errors.html#err_invalid_buffer_size"><code>ERR_INVALID_BUFFER_SIZE</code></a> if <a href="#buflength"><code>buf.length</code></a>
 is not a multiple of 2.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf1 = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">0x1</span>, <span class="hljs-number">0x2</span>, <span class="hljs-number">0x3</span>, <span class="hljs-number">0x4</span>, <span class="hljs-number">0x5</span>, <span class="hljs-number">0x6</span>, <span class="hljs-number">0x7</span>, <span class="hljs-number">0x8</span>]);
 
@@ -3540,7 +3554,7 @@ buf2.<span class="hljs-title function_">swap16</span>();
 <p>One convenient use of <code>buf.swap16()</code> is to perform a fast in-place conversion
 between UTF-16 little-endian and UTF-16 big-endian:</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'This is little-endian UTF-16'</span>, <span class="hljs-string">'utf16le'</span>);
 buf.<span class="hljs-title function_">swap16</span>(); <span class="hljs-comment">// Convert to big-endian UTF-16 text.</span></code><code class="language-js cjs"><span class="hljs-keyword">const</span> { <span class="hljs-title class_">Buffer</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:buffer'</span>);
@@ -3558,7 +3572,7 @@ buf.<span class="hljs-title function_">swap16</span>(); <span class="hljs-commen
 byte order <em>in-place</em>. Throws <a href="errors.html#err_invalid_buffer_size"><code>ERR_INVALID_BUFFER_SIZE</code></a> if <a href="#buflength"><code>buf.length</code></a>
 is not a multiple of 4.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf1 = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">0x1</span>, <span class="hljs-number">0x2</span>, <span class="hljs-number">0x3</span>, <span class="hljs-number">0x4</span>, <span class="hljs-number">0x5</span>, <span class="hljs-number">0x6</span>, <span class="hljs-number">0x7</span>, <span class="hljs-number">0x8</span>]);
 
@@ -3599,7 +3613,7 @@ buf2.<span class="hljs-title function_">swap32</span>();
 <p>Interprets <code>buf</code> as an array of 64-bit numbers and swaps byte order <em>in-place</em>.
 Throws <a href="errors.html#err_invalid_buffer_size"><code>ERR_INVALID_BUFFER_SIZE</code></a> if <a href="#buflength"><code>buf.length</code></a> is not a multiple of 8.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf1 = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">0x1</span>, <span class="hljs-number">0x2</span>, <span class="hljs-number">0x3</span>, <span class="hljs-number">0x4</span>, <span class="hljs-number">0x5</span>, <span class="hljs-number">0x6</span>, <span class="hljs-number">0x7</span>, <span class="hljs-number">0x8</span>]);
 
@@ -3642,7 +3656,7 @@ this function when stringifying a <code>Buffer</code> instance.</p>
 <p><code>Buffer.from()</code> accepts objects in the format returned from this method.
 In particular, <code>Buffer.from(buf.toJSON())</code> works like <code>Buffer.from(buf)</code>.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">0x1</span>, <span class="hljs-number">0x2</span>, <span class="hljs-number">0x3</span>, <span class="hljs-number">0x4</span>, <span class="hljs-number">0x5</span>]);
 <span class="hljs-keyword">const</span> json = <span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">stringify</span>(buf);
@@ -3691,7 +3705,7 @@ then each invalid byte is replaced with the replacement character <code>U+FFFD</
 <p>The maximum length of a string instance (in UTF-16 code units) is available
 as <a href="#bufferconstantsmax_string_length"><code>buffer.constants.MAX_STRING_LENGTH</code></a>.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf1 = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">allocUnsafe</span>(<span class="hljs-number">26</span>);
 
@@ -3744,7 +3758,7 @@ as <a href="#bufferconstantsmax_string_length"><code>buffer.constants.MAX_STRING
 <p>Creates and returns an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols">iterator</a> for <code>buf</code> values (bytes). This function is
 called automatically when a <code>Buffer</code> is used in a <code>for..of</code> statement.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'buffer'</span>);
 
@@ -3811,7 +3825,7 @@ exceed <code>buf.length - offset</code>). <strong>Default:</strong> <code>buf.le
 not contain enough space to fit the entire string, only part of <code>string</code> will be
 written. However, partially encoded characters will not be written.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">alloc</span>(<span class="hljs-number">256</span>);
 
@@ -3853,7 +3867,7 @@ satisfy: <code>0 &#x3C;= offset &#x3C;= buf.length - 8</code>. <strong>Default:<
 <p>Writes <code>value</code> to <code>buf</code> at the specified <code>offset</code> as big-endian.</p>
 <p><code>value</code> is interpreted and written as a two's complement signed integer.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">allocUnsafe</span>(<span class="hljs-number">8</span>);
 
@@ -3881,7 +3895,7 @@ satisfy: <code>0 &#x3C;= offset &#x3C;= buf.length - 8</code>. <strong>Default:<
 <p>Writes <code>value</code> to <code>buf</code> at the specified <code>offset</code> as little-endian.</p>
 <p><code>value</code> is interpreted and written as a two's complement signed integer.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">allocUnsafe</span>(<span class="hljs-number">8</span>);
 
@@ -3917,7 +3931,7 @@ satisfy: <code>0 &#x3C;= offset &#x3C;= buf.length - 8</code>. <strong>Default:<
 <p>Writes <code>value</code> to <code>buf</code> at the specified <code>offset</code> as big-endian.</p>
 <p>This function is also available under the <code>writeBigUint64BE</code> alias.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">allocUnsafe</span>(<span class="hljs-number">8</span>);
 
@@ -3952,7 +3966,7 @@ satisfy: <code>0 &#x3C;= offset &#x3C;= buf.length - 8</code>. <strong>Default:<
 </ul>
 <p>Writes <code>value</code> to <code>buf</code> at the specified <code>offset</code> as little-endian</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">allocUnsafe</span>(<span class="hljs-number">8</span>);
 
@@ -3990,7 +4004,7 @@ satisfy <code>0 &#x3C;= offset &#x3C;= buf.length - 8</code>. <strong>Default:</
 must be a JavaScript number. Behavior is undefined when <code>value</code> is anything
 other than a JavaScript number.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">allocUnsafe</span>(<span class="hljs-number">8</span>);
 
@@ -4027,7 +4041,7 @@ satisfy <code>0 &#x3C;= offset &#x3C;= buf.length - 8</code>. <strong>Default:</
 must be a JavaScript number. Behavior is undefined when <code>value</code> is anything
 other than a JavaScript number.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">allocUnsafe</span>(<span class="hljs-number">8</span>);
 
@@ -4063,7 +4077,7 @@ satisfy <code>0 &#x3C;= offset &#x3C;= buf.length - 4</code>. <strong>Default:</
 <p>Writes <code>value</code> to <code>buf</code> at the specified <code>offset</code> as big-endian. Behavior is
 undefined when <code>value</code> is anything other than a JavaScript number.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">allocUnsafe</span>(<span class="hljs-number">4</span>);
 
@@ -4099,7 +4113,7 @@ satisfy <code>0 &#x3C;= offset &#x3C;= buf.length - 4</code>. <strong>Default:</
 <p>Writes <code>value</code> to <code>buf</code> at the specified <code>offset</code> as little-endian. Behavior is
 undefined when <code>value</code> is anything other than a JavaScript number.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">allocUnsafe</span>(<span class="hljs-number">4</span>);
 
@@ -4137,7 +4151,7 @@ signed 8-bit integer. Behavior is undefined when <code>value</code> is anything 
 a signed 8-bit integer.</p>
 <p><code>value</code> is interpreted and written as a two's complement signed integer.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">allocUnsafe</span>(<span class="hljs-number">2</span>);
 
@@ -4177,7 +4191,7 @@ must be a valid signed 16-bit integer. Behavior is undefined when <code>value</c
 anything other than a signed 16-bit integer.</p>
 <p>The <code>value</code> is interpreted and written as a two's complement signed integer.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">allocUnsafe</span>(<span class="hljs-number">2</span>);
 
@@ -4215,7 +4229,7 @@ must be a valid signed 16-bit integer. Behavior is undefined when <code>value</c
 anything other than a signed 16-bit integer.</p>
 <p>The <code>value</code> is interpreted and written as a two's complement signed integer.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">allocUnsafe</span>(<span class="hljs-number">2</span>);
 
@@ -4253,7 +4267,7 @@ must be a valid signed 32-bit integer. Behavior is undefined when <code>value</c
 anything other than a signed 32-bit integer.</p>
 <p>The <code>value</code> is interpreted and written as a two's complement signed integer.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">allocUnsafe</span>(<span class="hljs-number">4</span>);
 
@@ -4291,7 +4305,7 @@ must be a valid signed 32-bit integer. Behavior is undefined when <code>value</c
 anything other than a signed 32-bit integer.</p>
 <p>The <code>value</code> is interpreted and written as a two's complement signed integer.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">allocUnsafe</span>(<span class="hljs-number">4</span>);
 
@@ -4330,7 +4344,7 @@ satisfy <code>0 &#x3C;= offset &#x3C;= buf.length - byteLength</code>.</li>
 as big-endian. Supports up to 48 bits of accuracy. Behavior is undefined when
 <code>value</code> is anything other than a signed integer.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">allocUnsafe</span>(<span class="hljs-number">6</span>);
 
@@ -4369,7 +4383,7 @@ satisfy <code>0 &#x3C;= offset &#x3C;= buf.length - byteLength</code>.</li>
 as little-endian. Supports up to 48 bits of accuracy. Behavior is undefined
 when <code>value</code> is anything other than a signed integer.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">allocUnsafe</span>(<span class="hljs-number">6</span>);
 
@@ -4409,7 +4423,7 @@ valid unsigned 8-bit integer. Behavior is undefined when <code>value</code> is a
 other than an unsigned 8-bit integer.</p>
 <p>This function is also available under the <code>writeUint8</code> alias.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">allocUnsafe</span>(<span class="hljs-number">4</span>);
 
@@ -4455,7 +4469,7 @@ must be a valid unsigned 16-bit integer. Behavior is undefined when <code>value<
 is anything other than an unsigned 16-bit integer.</p>
 <p>This function is also available under the <code>writeUint16BE</code> alias.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">allocUnsafe</span>(<span class="hljs-number">4</span>);
 
@@ -4497,7 +4511,7 @@ must be a valid unsigned 16-bit integer. Behavior is undefined when <code>value<
 anything other than an unsigned 16-bit integer.</p>
 <p>This function is also available under the <code>writeUint16LE</code> alias.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">allocUnsafe</span>(<span class="hljs-number">4</span>);
 
@@ -4539,7 +4553,7 @@ must be a valid unsigned 32-bit integer. Behavior is undefined when <code>value<
 is anything other than an unsigned 32-bit integer.</p>
 <p>This function is also available under the <code>writeUint32BE</code> alias.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">allocUnsafe</span>(<span class="hljs-number">4</span>);
 
@@ -4579,7 +4593,7 @@ must be a valid unsigned 32-bit integer. Behavior is undefined when <code>value<
 anything other than an unsigned 32-bit integer.</p>
 <p>This function is also available under the <code>writeUint32LE</code> alias.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">allocUnsafe</span>(<span class="hljs-number">4</span>);
 
@@ -4621,7 +4635,7 @@ as big-endian. Supports up to 48 bits of accuracy. Behavior is undefined
 when <code>value</code> is anything other than an unsigned integer.</p>
 <p>This function is also available under the <code>writeUintBE</code> alias.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">allocUnsafe</span>(<span class="hljs-number">6</span>);
 
@@ -4663,7 +4677,7 @@ as little-endian. Supports up to 48 bits of accuracy. Behavior is undefined
 when <code>value</code> is anything other than an unsigned integer.</p>
 <p>This function is also available under the <code>writeUintLE</code> alias.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> buf = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">allocUnsafe</span>(<span class="hljs-number">6</span>);
 
@@ -4803,16 +4817,23 @@ Use <a href="#static-method-bufferfromstring-encoding"><code>Buffer.from(string[
 <p>See <a href="#static-method-bufferfromstring-encoding"><code>Buffer.from(string[, encoding])</code></a>.</p>
 </section><section><h3>Class: <code>File</code><span><a class="mark" href="#class-file" id="class-file">#</a></span><a aria-hidden="true" class="legacy" id="buffer_class_file"></a></h3>
 <div class="api_metadata">
-<span>Added in: v18.13.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v20.0.0</td>
+<td><p>No longer experimental.</p></td></tr>
+<tr><td>v19.2.0, v18.13.0</td>
+<td><p><span>Added in: v19.2.0, v18.13.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
-<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <ul>
 <li>Extends: <a href="buffer.html#class-blob" class="type">&#x3C;Blob></a></li>
 </ul>
 <p>A <a href="https://developer.mozilla.org/en-US/docs/Web/API/File"><code>File</code></a> provides information about files.</p>
 <h4><code>new buffer.File(sources, fileName[, options])</code><span><a class="mark" href="#new-bufferfilesources-filename-options" id="new-bufferfilesources-filename-options">#</a></span><a aria-hidden="true" class="legacy" id="buffer_new_buffer_file_sources_filename_options"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.13.0</span>
+<span>Added in: v19.2.0, v18.13.0</span>
 </div>
 <ul>
 <li><code>sources</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string[]></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer" class="type">&#x3C;ArrayBuffer[]></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray[]></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView[]></a> | <a href="buffer.html#class-blob" class="type">&#x3C;Blob[]></a> | <a href="buffer.html#class-file" class="type">&#x3C;File[]></a>
@@ -4832,7 +4853,7 @@ the platform native line-ending as specified by <code>require('node:os').EOL</co
 </ul>
 <h4><code>file.name</code><span><a class="mark" href="#filename" id="filename">#</a></span><a aria-hidden="true" class="legacy" id="buffer_file_name"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.13.0</span>
+<span>Added in: v19.2.0, v18.13.0</span>
 </div>
 <ul>
 <li>Type: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
@@ -4840,7 +4861,7 @@ the platform native line-ending as specified by <code>require('node:os').EOL</co
 <p>The name of the <code>File</code>.</p>
 <h4><code>file.lastModified</code><span><a class="mark" href="#filelastmodified" id="filelastmodified">#</a></span><a aria-hidden="true" class="legacy" id="buffer_file_lastmodified"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.13.0</span>
+<span>Added in: v19.2.0, v18.13.0</span>
 </div>
 <ul>
 <li>Type: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
@@ -4886,7 +4907,7 @@ and binary data should be performed using <code>Buffer.from(str, 'base64')</code
 <code>buf.toString('base64')</code>.</strong></p>
 <h4><code>buffer.isAscii(input)</code><span><a class="mark" href="#bufferisasciiinput" id="bufferisasciiinput">#</a></span><a aria-hidden="true" class="legacy" id="buffer_buffer_isascii_input"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.15.0</span>
+<span>Added in: v19.6.0, v18.15.0</span>
 </div>
 <ul>
 <li>input <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer" class="type">&#x3C;ArrayBuffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> The input to validate.</li>
@@ -4897,7 +4918,7 @@ including the case in which <code>input</code> is empty.</p>
 <p>Throws if the <code>input</code> is a detached array buffer.</p>
 <h4><code>buffer.isUtf8(input)</code><span><a class="mark" href="#bufferisutf8input" id="bufferisutf8input">#</a></span><a aria-hidden="true" class="legacy" id="buffer_buffer_isutf8_input"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.14.0</span>
+<span>Added in: v19.4.0, v18.14.0</span>
 </div>
 <ul>
 <li>input <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer" class="type">&#x3C;ArrayBuffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> The input to validate.</li>
@@ -4971,7 +4992,7 @@ conversion from <code>fromEnc</code> to <code>toEnc</code> is not permitted.</p>
 <p>The transcoding process will use substitution characters if a given byte
 sequence cannot be adequately represented in the target encoding. For instance:</p>
 
-<pre class="with-53-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span>, transcode } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+<pre class="with-53-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span>, transcode } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
 
 <span class="hljs-keyword">const</span> newBuf = <span class="hljs-title function_">transcode</span>(<span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(<span class="hljs-string">'€'</span>), <span class="hljs-string">'utf8'</span>, <span class="hljs-string">'ascii'</span>);
 <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(newBuf.<span class="hljs-title function_">toString</span>(<span class="hljs-string">'ascii'</span>));

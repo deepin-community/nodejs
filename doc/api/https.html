@@ -3,18 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>HTTPS | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.15.1">
+  <title>HTTPS | Node.js v20.15.1 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/https.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
   
 </head>
 <body class="alt apidoc" id="api-section-https">
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +109,7 @@
     <div id="column1" data-id="https" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.15.1 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,11 +124,11 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.15.1</li>
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
@@ -135,6 +148,7 @@
 <li><a href="#class-httpsserver">Class: <code>https.Server</code></a>
 <ul>
 <li><a href="#serverclosecallback"><code>server.close([callback])</code></a></li>
+<li><span class="stability_1"><a href="#serversymbolasyncdispose"><code>server[Symbol.asyncDispose]()</code></a></span></li>
 <li><a href="#servercloseallconnections"><code>server.closeAllConnections()</code></a></li>
 <li><a href="#servercloseidleconnections"><code>server.closeIdleConnections()</code></a></li>
 <li><a href="#serverheaderstimeout"><code>server.headersTimeout</code></a></li>
@@ -160,7 +174,7 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Index
       </a>
 
@@ -245,10 +259,11 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/https.html">21.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v22.x/api/https.html">22.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/https.html">21.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v20.x/api/https.html">20.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v19.x/api/https.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/https.html">18.x <b>LTS</b></a></li>
@@ -272,7 +287,7 @@
   
             <li class="picker-header">
               <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
@@ -293,7 +308,7 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
 <li><span class="stability_2"><a href="#https">HTTPS</a></span>
 <ul>
 <li><a href="#determining-if-crypto-support-is-unavailable">Determining if crypto support is unavailable</a></li>
@@ -309,6 +324,7 @@
 <li><a href="#class-httpsserver">Class: <code>https.Server</code></a>
 <ul>
 <li><a href="#serverclosecallback"><code>server.close([callback])</code></a></li>
+<li><span class="stability_1"><a href="#serversymbolasyncdispose"><code>server[Symbol.asyncDispose]()</code></a></span></li>
 <li><a href="#servercloseallconnections"><code>server.closeAllConnections()</code></a></li>
 <li><a href="#servercloseidleconnections"><code>server.closeIdleConnections()</code></a></li>
 <li><a href="#serverheaderstimeout"><code>server.headersTimeout</code></a></li>
@@ -330,11 +346,11 @@
 </li>
 </ul></details>
 
-      <div id="apicontent">
+      <div role="main" id="apicontent">
         <h2>HTTPS<span><a class="mark" href="#https" id="https">#</a></span><a aria-hidden="true" class="legacy" id="https_https"></a></h2>
 
 <p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.19.1/lib/https.js">lib/https.js</a></p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v20.15.1/lib/https.js">lib/https.js</a></p>
 <p>HTTPS is the HTTP protocol over TLS/SSL. In Node.js this is implemented as a
 separate module.</p>
 <section><h3>Determining if crypto support is unavailable<span><a class="mark" href="#determining-if-crypto-support-is-unavailable" id="determining-if-crypto-support-is-unavailable">#</a></span><a aria-hidden="true" class="legacy" id="https_determining_if_crypto_support_is_unavailable"></a></h3>
@@ -342,7 +358,6 @@ separate module.</p>
 <code>node:crypto</code> module. In such cases, attempting to <code>import</code> from <code>https</code> or
 calling <code>require('node:https')</code> will result in an error being thrown.</p>
 <p>When using CommonJS, the error thrown can be caught using try/catch:</p>
-<!-- eslint-skip -->
 <pre><code class="language-js cjs"><span class="hljs-keyword">let</span> https;
 <span class="hljs-keyword">try</span> {
   https = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:https'</span>);
@@ -445,6 +460,13 @@ https.<span class="hljs-property">globalAgent</span>.<span class="hljs-title fun
 <li>Returns: <a href="https.html#class-httpsserver" class="type">&#x3C;https.Server></a></li>
 </ul>
 <p>See <a href="http.html#serverclosecallback"><code>server.close()</code></a> in the <code>node:http</code> module.</p>
+<h4><code>server[Symbol.asyncDispose]()</code><span><a class="mark" href="#serversymbolasyncdispose" id="serversymbolasyncdispose">#</a></span><a aria-hidden="true" class="legacy" id="https_server_symbol_asyncdispose"></a></h4>
+<div class="api_metadata">
+<span>Added in: v20.4.0</span>
+</div>
+<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
+<p>Calls <a href="#serverclosecallback"><code>server.close()</code></a> and returns a promise that
+fulfills when the server has closed.</p>
 <h4><code>server.closeAllConnections()</code><span><a class="mark" href="#servercloseallconnections" id="servercloseallconnections">#</a></span><a aria-hidden="true" class="legacy" id="https_server_closeallconnections"></a></h4>
 <div class="api_metadata">
 <span>Added in: v18.2.0</span>
@@ -597,9 +619,19 @@ https.<span class="hljs-title function_">get</span>(<span class="hljs-string">'h
 });</code> <button class="copy-button">copy</button></pre>
 </section><section><h3><code>https.globalAgent</code><span><a class="mark" href="#httpsglobalagent" id="httpsglobalagent">#</a></span><a aria-hidden="true" class="legacy" id="https_https_globalagent"></a></h3>
 <div class="api_metadata">
-<span>Added in: v0.5.9</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.0.0</td>
+<td><p>The agent now uses HTTP Keep-Alive and a 5 second timeout by default.</p></td></tr>
+<tr><td>v0.5.9</td>
+<td><p><span>Added in: v0.5.9</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
-<p>Global instance of <a href="#class-httpsagent"><code>https.Agent</code></a> for all HTTPS client requests.</p>
+<p>Global instance of <a href="#class-httpsagent"><code>https.Agent</code></a> for all HTTPS client requests. Diverges
+from a default <a href="#class-httpsagent"><code>https.Agent</code></a> configuration by having <code>keepAlive</code> enabled and
+a <code>timeout</code> of 5 seconds.</p>
 </section><section><h3><code>https.request(options[, callback])</code><span><a class="mark" href="#httpsrequestoptions-callback" id="httpsrequestoptions-callback">#</a></span><a aria-hidden="true" class="legacy" id="https_https_request_options_callback"></a></h3>
 </section><section><h3><code>https.request(url[, options][, callback])</code><span><a class="mark" href="#httpsrequesturl-options-callback" id="httpsrequesturl-options-callback">#</a></span><a aria-hidden="true" class="legacy" id="https_https_request_url_options_callback"></a></h3>
 <div class="api_metadata">

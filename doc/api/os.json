@@ -8,7 +8,7 @@
       "introduced_in": "v0.10.0",
       "stability": 2,
       "stabilityText": "Stable",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.19.1/lib/os.js\">lib/os.js</a></p>\n<p>The <code>node:os</code> module provides operating system-related utility methods and\nproperties. It can be accessed using:</p>\n<pre><code class=\"language-js\">const os = require('node:os');\n</code></pre>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v20.15.1/lib/os.js\">lib/os.js</a></p>\n<p>The <code>node:os</code> module provides operating system-related utility methods and\nproperties. It can be accessed using:</p>\n<pre><code class=\"language-js\">const os = require('node:os');\n</code></pre>",
       "properties": [
         {
           "textRaw": "`EOL` {string}",
@@ -55,6 +55,7 @@
           "name": "availableParallelism",
           "meta": {
             "added": [
+              "v19.4.0",
               "v18.14.0"
             ],
             "changes": []
@@ -91,7 +92,7 @@
               "params": []
             }
           ],
-          "desc": "<p>Returns the operating system CPU architecture for which the Node.js binary was\ncompiled. Possible values are <code>'arm'</code>, <code>'arm64'</code>, <code>'ia32'</code>, <code>'mips'</code>,\n<code>'mipsel'</code>, <code>'ppc'</code>, <code>'ppc64'</code>, <code>'s390'</code>, <code>'s390x'</code>, and <code>'x64'</code>.</p>\n<p>The return value is equivalent to <a href=\"process.html#processarch\"><code>process.arch</code></a>.</p>"
+          "desc": "<p>Returns the operating system CPU architecture for which the Node.js binary was\ncompiled. Possible values are <code>'arm'</code>, <code>'arm64'</code>, <code>'ia32'</code>, <code>'loong64'</code>,\n<code>'mips'</code>, <code>'mipsel'</code>, <code>'ppc'</code>, <code>'ppc64'</code>, <code>'riscv64'</code>, <code>'s390'</code>, <code>'s390x'</code>,\nand <code>'x64'</code>.</p>\n<p>The return value is equivalent to <a href=\"process.html#processarch\"><code>process.arch</code></a>.</p>"
         },
         {
           "textRaw": "`os.cpus()`",
@@ -113,7 +114,7 @@
               "params": []
             }
           ],
-          "desc": "<p>Returns an array of objects containing information about each logical CPU core.\nThe array will be empty if no CPU information is available, such as if the\n<code>/proc</code> file system is unavailable.</p>\n<p>The properties included on each object include:</p>\n<ul>\n<li><code>model</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a></li>\n<li><code>speed</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> (in MHz)</li>\n<li><code>times</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object\" class=\"type\">&lt;Object&gt;</a>\n<ul>\n<li><code>user</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> The number of milliseconds the CPU has spent in user mode.</li>\n<li><code>nice</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> The number of milliseconds the CPU has spent in nice mode.</li>\n<li><code>sys</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> The number of milliseconds the CPU has spent in sys mode.</li>\n<li><code>idle</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> The number of milliseconds the CPU has spent in idle mode.</li>\n<li><code>irq</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> The number of milliseconds the CPU has spent in irq mode.</li>\n</ul>\n</li>\n</ul>\n<!-- eslint-disable semi -->\n<pre><code class=\"language-js\">[\n  {\n    model: 'Intel(R) Core(TM) i7 CPU         860  @ 2.80GHz',\n    speed: 2926,\n    times: {\n      user: 252020,\n      nice: 0,\n      sys: 30340,\n      idle: 1070356870,\n      irq: 0,\n    },\n  },\n  {\n    model: 'Intel(R) Core(TM) i7 CPU         860  @ 2.80GHz',\n    speed: 2926,\n    times: {\n      user: 306960,\n      nice: 0,\n      sys: 26980,\n      idle: 1071569080,\n      irq: 0,\n    },\n  },\n  {\n    model: 'Intel(R) Core(TM) i7 CPU         860  @ 2.80GHz',\n    speed: 2926,\n    times: {\n      user: 248450,\n      nice: 0,\n      sys: 21750,\n      idle: 1070919370,\n      irq: 0,\n    },\n  },\n  {\n    model: 'Intel(R) Core(TM) i7 CPU         860  @ 2.80GHz',\n    speed: 2926,\n    times: {\n      user: 256880,\n      nice: 0,\n      sys: 19430,\n      idle: 1070905480,\n      irq: 20,\n    },\n  },\n]\n</code></pre>\n<p><code>nice</code> values are POSIX-only. On Windows, the <code>nice</code> values of all processors\nare always 0.</p>\n<p><code>os.cpus().length</code> should not be used to calculate the amount of parallelism\navailable to an application. Use\n<a href=\"#osavailableparallelism\"><code>os.availableParallelism()</code></a> for this purpose.</p>"
+          "desc": "<p>Returns an array of objects containing information about each logical CPU core.\nThe array will be empty if no CPU information is available, such as if the\n<code>/proc</code> file system is unavailable.</p>\n<p>The properties included on each object include:</p>\n<ul>\n<li><code>model</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a></li>\n<li><code>speed</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> (in MHz)</li>\n<li><code>times</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object\" class=\"type\">&lt;Object&gt;</a>\n<ul>\n<li><code>user</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> The number of milliseconds the CPU has spent in user mode.</li>\n<li><code>nice</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> The number of milliseconds the CPU has spent in nice mode.</li>\n<li><code>sys</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> The number of milliseconds the CPU has spent in sys mode.</li>\n<li><code>idle</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> The number of milliseconds the CPU has spent in idle mode.</li>\n<li><code>irq</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> The number of milliseconds the CPU has spent in irq mode.</li>\n</ul>\n</li>\n</ul>\n<!-- eslint-disable @stylistic/js/semi -->\n<pre><code class=\"language-js\">[\n  {\n    model: 'Intel(R) Core(TM) i7 CPU         860  @ 2.80GHz',\n    speed: 2926,\n    times: {\n      user: 252020,\n      nice: 0,\n      sys: 30340,\n      idle: 1070356870,\n      irq: 0,\n    },\n  },\n  {\n    model: 'Intel(R) Core(TM) i7 CPU         860  @ 2.80GHz',\n    speed: 2926,\n    times: {\n      user: 306960,\n      nice: 0,\n      sys: 26980,\n      idle: 1071569080,\n      irq: 0,\n    },\n  },\n  {\n    model: 'Intel(R) Core(TM) i7 CPU         860  @ 2.80GHz',\n    speed: 2926,\n    times: {\n      user: 248450,\n      nice: 0,\n      sys: 21750,\n      idle: 1070919370,\n      irq: 0,\n    },\n  },\n  {\n    model: 'Intel(R) Core(TM) i7 CPU         860  @ 2.80GHz',\n    speed: 2926,\n    times: {\n      user: 256880,\n      nice: 0,\n      sys: 19430,\n      idle: 1070905480,\n      irq: 20,\n    },\n  },\n]\n</code></pre>\n<p><code>nice</code> values are POSIX-only. On Windows, the <code>nice</code> values of all processors\nare always 0.</p>\n<p><code>os.cpus().length</code> should not be used to calculate the amount of parallelism\navailable to an application. Use\n<a href=\"#osavailableparallelism\"><code>os.availableParallelism()</code></a> for this purpose.</p>"
         },
         {
           "textRaw": "`os.endianness()`",
@@ -261,14 +262,15 @@
           "name": "machine",
           "meta": {
             "added": [
-              "v18.9.0"
+              "v18.9.0",
+              "v16.18.0"
             ],
             "changes": []
           },
           "signatures": [
             {
               "return": {
-                "textRaw": "Returns {string}",
+                "textRaw": "Returns: {string}",
                 "name": "return",
                 "type": "string"
               },
@@ -536,7 +538,7 @@
           "signatures": [
             {
               "return": {
-                "textRaw": "Returns {string}",
+                "textRaw": "Returns: {string}",
                 "name": "return",
                 "type": "string"
               },

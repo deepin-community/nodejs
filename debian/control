@@ -12,7 +12,7 @@ Build-Depends:
  bash-completion,
  ca-certificates,
  curl <!nocheck>,
- gyp (>= 0.1~svn1773),
+ gyp (>= 0.16.0~),
  jq,
  libbrotli-dev,
  libbrotli-dev:native,
@@ -21,7 +21,6 @@ Build-Depends:
  libhttp-parser-dev (>= 2.9.2~),
  libicu-dev (>= 70.1~),
  libicu-dev:native,
- libkvm-dev [kfreebsd-any],
  libnghttp2-dev (>= 1.41.0~),
  libnghttp2-dev:native,
  libssl-dev (>= 1.1.1~),
@@ -35,7 +34,7 @@ Build-Depends:
  pkgconf,
  pkg-js-tools (>= 0.8.2~) <!nocheck>,
  python3:native,
- python3-distutils,
+ python3-packaging,
  procps <!nocheck>,
  zlib1g-dev,
  zlib1g-dev:native,
@@ -45,17 +44,17 @@ Build-Depends-Indep:
  node-highlight.js <!nodoc>,
 Standards-Version: 4.6.2
 Homepage: https://nodejs.org/
-Vcs-Browser: https://salsa.debian.org/js-team/nodejs/tree/master-18.x
-Vcs-Git: https://salsa.debian.org/js-team/nodejs.git -b master-18.x
+Vcs-Browser: https://salsa.debian.org/js-team/nodejs/tree/master-20.x
+Vcs-Git: https://salsa.debian.org/js-team/nodejs.git -b master-20.x
 Rules-Requires-Root: no
 
 Package: libnode-dev
 Section: libdevel
-Architecture: amd64 arm64 armel armhf i386 kfreebsd-i386 kfreebsd-amd64 mips mips64el mips64r6el mipsel loong64 powerpc ppc64 ppc64el riscv64 s390x
+Architecture: amd64 arm64 armel armhf i386 mips64el mips64r6el loong64 powerpc ppc64 ppc64el riscv64 s390x
 Depends: ${misc:Depends},
  libssl-dev (>= 1.1.1~),
  libuv1-dev (>= 1.33.0~),
- libnode108 (= ${binary:Version})
+ libnode115 (= ${binary:Version})
 Breaks: nodejs-dev (<< 10.0.0~dfsg1-3)
 Replaces: libv8-dev,
  nodejs-dev (<< 10.0.0~dfsg1-3)
@@ -68,29 +67,34 @@ Description: evented I/O for V8 javascript (development files)
  efficient, perfect for data-intensive real-time applications that run
  across distributed devices.
  .
- This package provides development headers for libnode108
+ This package provides development headers for libnode115
 
 Package: nodejs
-Architecture: amd64 arm64 armel armhf i386 kfreebsd-i386 kfreebsd-amd64 mips mips64el mips64r6el mipsel loong64 powerpc ppc64 ppc64el riscv64 s390x
+Architecture: amd64 arm64 armel armhf i386 mips64el mips64r6el loong64 powerpc ppc64 ppc64el riscv64 s390x
 Multi-Arch: allowed
 Depends:
  ${shlibs:Depends},
  ${misc:Depends},
  sse2-support [i386],
  armv6k-support [armel], vfpv2-support [armel],
- libnode108 (= ${binary:Version})
+ libnode115 (= ${binary:Version})
 Recommends: ca-certificates,
  nodejs-doc
-Suggests: npm
+Suggests: npm, node-corepack
 Replaces: nodejs-legacy
  , libnode72 (<< 13)
  , libnode83 (<< 16.13.2+really14.19.1~dfsg~)
+ , libnode105
+ , libnode108
+ , libnode109
 Conflicts: nodejs-legacy
 Breaks: node-typescript-types (<< 20210110~)
  , node-babel-runtime (<< 7)
  , node-jest (<< 29~)
  , libnode72 (<< 13)
  , libnode83 (<< 16.13.2+really14.19.1~dfsg~)
+ , libnode108 (<< 19)
+ , libnode109 (<< 19)
 Provides: node-types-node (= ${types:Node})
 Description: evented I/O for V8 javascript - runtime executable
  Node.js is a platform built on Chrome's JavaScript runtime for easily
@@ -105,9 +109,9 @@ Description: evented I/O for V8 javascript - runtime executable
  System, Events, Standard I/O, Modules, Timers, Child Processes, POSIX,
  HTTP, Multipart Parsing, TCP, DNS, Assert, Path, URL, Query Strings.
 
-Package: libnode108
+Package: libnode115
 Section: libs
-Architecture: amd64 arm64 armel armhf i386 kfreebsd-i386 kfreebsd-amd64 mips mips64el mips64r6el mipsel loong64 powerpc ppc64 ppc64el riscv64 s390x
+Architecture: amd64 arm64 armel armhf i386 mips64el mips64r6el loong64 powerpc ppc64 ppc64el riscv64 s390x
 Multi-Arch: same
 Depends: ${shlibs:Depends},
  ${misc:Depends},
@@ -118,8 +122,10 @@ Depends: ${shlibs:Depends},
  node-undici (>= 5.0.0~) <!pkg.nodejs.nobuiltin>
 Breaks: node-modern-syslog (<< 1.1.4-2),
  libnode64 (<< 10.24.1~),
- libnode72 (<< 13)
-Replaces: nodejs-legacy, libnode72, libnode83, libnode93
+ libnode72 (<< 13),
+ libnode108 (<< 19),
+ libnode109 (<<19)
+Replaces: nodejs-legacy, libnode72, libnode83, libnode93, libnode108, libnode109
 Conflicts: nodejs-legacy
 Description: evented I/O for V8 javascript - runtime library
  Node.js is a platform built on Chrome's JavaScript runtime for easily
