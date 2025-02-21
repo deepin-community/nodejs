@@ -3,18 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>REPL | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.18.3">
+  <title>REPL | Node.js v20.18.3 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/repl.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
-  
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
+  <style>@media(max-width:494px){.with-34-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}</style>
 </head>
 <body class="alt apidoc" id="api-section-repl">
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +109,7 @@
     <div id="column1" data-id="repl" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.18.3 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,11 +124,11 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.18.3</li>
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
@@ -151,7 +164,6 @@
 <li><a href="#replserverdefinecommandkeyword-cmd"><code>replServer.defineCommand(keyword, cmd)</code></a></li>
 <li><a href="#replserverdisplaypromptpreservecursor"><code>replServer.displayPrompt([preserveCursor])</code></a></li>
 <li><a href="#replserverclearbufferedcommand"><code>replServer.clearBufferedCommand()</code></a></li>
-<li><span class="stability_0"><a href="#replserverparsereplkeywordkeyword-rest"><code>replServer.parseREPLKeyword(keyword[, rest])</code></a></span></li>
 <li><a href="#replserversetuphistoryhistorypath-callback"><code>replServer.setupHistory(historyPath, callback)</code></a></li>
 </ul>
 </li>
@@ -173,7 +185,7 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Index
       </a>
 
@@ -258,10 +270,12 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/repl.html">21.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v23.x/api/repl.html">23.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v22.x/api/repl.html">22.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/repl.html">21.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v20.x/api/repl.html">20.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v19.x/api/repl.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/repl.html">18.x <b>LTS</b></a></li>
@@ -285,7 +299,7 @@
   
             <li class="picker-header">
               <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
@@ -306,7 +320,7 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
 <li><span class="stability_2"><a href="#repl">REPL</a></span>
 <ul>
 <li><a href="#design-and-features">Design and features</a>
@@ -338,7 +352,6 @@
 <li><a href="#replserverdefinecommandkeyword-cmd"><code>replServer.defineCommand(keyword, cmd)</code></a></li>
 <li><a href="#replserverdisplaypromptpreservecursor"><code>replServer.displayPrompt([preserveCursor])</code></a></li>
 <li><a href="#replserverclearbufferedcommand"><code>replServer.clearBufferedCommand()</code></a></li>
-<li><span class="stability_0"><a href="#replserverparsereplkeywordkeyword-rest"><code>replServer.parseREPLKeyword(keyword[, rest])</code></a></span></li>
 <li><a href="#replserversetuphistoryhistorypath-callback"><code>replServer.setupHistory(historyPath, callback)</code></a></li>
 </ul>
 </li>
@@ -356,15 +369,16 @@
 </li>
 </ul></details>
 
-      <div id="apicontent">
+      <div role="main" id="apicontent">
         <h2>REPL<span><a class="mark" href="#repl" id="repl">#</a></span><a aria-hidden="true" class="legacy" id="repl_repl"></a></h2>
 
 <p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.19.1/lib/repl.js">lib/repl.js</a></p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v20.18.3/lib/repl.js">lib/repl.js</a></p>
 <p>The <code>node:repl</code> module provides a Read-Eval-Print-Loop (REPL) implementation
 that is available both as a standalone program or includible in other
 applications. It can be accessed using:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> repl = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:repl'</span>);</code> <button class="copy-button">copy</button></pre>
+
+<pre class="with-34-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> repl <span class="hljs-keyword">from</span> <span class="hljs-string">'node:repl'</span>;</code><code class="language-js cjs"><span class="hljs-keyword">const</span> repl = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:repl'</span>);</code><button class="copy-button">copy</button></pre>
 <section><h3>Design and features<span><a class="mark" href="#design-and-features" id="design-and-features">#</a></span><a aria-hidden="true" class="legacy" id="repl_design_and_features"></a></h3>
 <p>The <code>node:repl</code> module exports the <a href="#class-replserver"><code>repl.REPLServer</code></a> class. While running,
 instances of <a href="#class-replserver"><code>repl.REPLServer</code></a> will accept individual lines of user input,
@@ -439,17 +453,22 @@ are declared at the global scope.</p>
 <p>The default evaluator provides access to any variables that exist in the global
 scope. It is possible to expose a variable to the REPL explicitly by assigning
 it to the <code>context</code> object associated with each <code>REPLServer</code>:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> repl = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:repl'</span>);
+
+<pre class="with-34-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> repl <span class="hljs-keyword">from</span> <span class="hljs-string">'node:repl'</span>;
 <span class="hljs-keyword">const</span> msg = <span class="hljs-string">'message'</span>;
 
-repl.<span class="hljs-title function_">start</span>(<span class="hljs-string">'> '</span>).<span class="hljs-property">context</span>.<span class="hljs-property">m</span> = msg;</code> <button class="copy-button">copy</button></pre>
+repl.<span class="hljs-title function_">start</span>(<span class="hljs-string">'> '</span>).<span class="hljs-property">context</span>.<span class="hljs-property">m</span> = msg;</code><code class="language-js cjs"><span class="hljs-keyword">const</span> repl = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:repl'</span>);
+<span class="hljs-keyword">const</span> msg = <span class="hljs-string">'message'</span>;
+
+repl.<span class="hljs-title function_">start</span>(<span class="hljs-string">'> '</span>).<span class="hljs-property">context</span>.<span class="hljs-property">m</span> = msg;</code><button class="copy-button">copy</button></pre>
 <p>Properties in the <code>context</code> object appear as local within the REPL:</p>
 <pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">node repl_test.js</span>
 <span class="hljs-meta prompt_">> </span><span class="language-bash">m</span>
 'message'</code> <button class="copy-button">copy</button></pre>
 <p>Context properties are not read-only by default. To specify read-only globals,
 context properties must be defined using <code>Object.defineProperty()</code>:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> repl = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:repl'</span>);
+
+<pre class="with-34-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> repl <span class="hljs-keyword">from</span> <span class="hljs-string">'node:repl'</span>;
 <span class="hljs-keyword">const</span> msg = <span class="hljs-string">'message'</span>;
 
 <span class="hljs-keyword">const</span> r = repl.<span class="hljs-title function_">start</span>(<span class="hljs-string">'> '</span>);
@@ -457,7 +476,15 @@ context properties must be defined using <code>Object.defineProperty()</code>:</
   <span class="hljs-attr">configurable</span>: <span class="hljs-literal">false</span>,
   <span class="hljs-attr">enumerable</span>: <span class="hljs-literal">true</span>,
   <span class="hljs-attr">value</span>: msg,
-});</code> <button class="copy-button">copy</button></pre>
+});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> repl = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:repl'</span>);
+<span class="hljs-keyword">const</span> msg = <span class="hljs-string">'message'</span>;
+
+<span class="hljs-keyword">const</span> r = repl.<span class="hljs-title function_">start</span>(<span class="hljs-string">'> '</span>);
+<span class="hljs-title class_">Object</span>.<span class="hljs-title function_">defineProperty</span>(r.<span class="hljs-property">context</span>, <span class="hljs-string">'m'</span>, {
+  <span class="hljs-attr">configurable</span>: <span class="hljs-literal">false</span>,
+  <span class="hljs-attr">enumerable</span>: <span class="hljs-literal">true</span>,
+  <span class="hljs-attr">value</span>: msg,
+});</code><button class="copy-button">copy</button></pre>
 <h5>Accessing core Node.js modules<span><a class="mark" href="#accessing-core-nodejs-modules" id="accessing-core-nodejs-modules">#</a></span><a aria-hidden="true" class="legacy" id="repl_accessing_core_node_js_modules"></a></h5>
 <p>The default evaluator will automatically load Node.js core modules into the
 REPL environment when used. For instance, unless otherwise declared as a
@@ -568,18 +595,29 @@ direction from the current position on.</p>
 <p>When a new <a href="#class-replserver"><code>repl.REPLServer</code></a> is created, a custom evaluation function may be
 provided. This can be used, for instance, to implement fully customized REPL
 applications.</p>
-<p>The following illustrates a hypothetical example of a REPL that performs
-translation of text from one language to another:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> repl = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:repl'</span>);
-<span class="hljs-keyword">const</span> { <span class="hljs-title class_">Translator</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'translator'</span>);
+<p>The following illustrates an example of a REPL that squares a given number:</p>
 
-<span class="hljs-keyword">const</span> myTranslator = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Translator</span>(<span class="hljs-string">'en'</span>, <span class="hljs-string">'fr'</span>);
+<pre class="with-34-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> repl <span class="hljs-keyword">from</span> <span class="hljs-string">'node:repl'</span>;
 
-<span class="hljs-keyword">function</span> <span class="hljs-title function_">myEval</span>(<span class="hljs-params">cmd, context, filename, callback</span>) {
-  <span class="hljs-title function_">callback</span>(<span class="hljs-literal">null</span>, myTranslator.<span class="hljs-title function_">translate</span>(cmd));
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">byThePowerOfTwo</span>(<span class="hljs-params">number</span>) {
+  <span class="hljs-keyword">return</span> number * number;
 }
 
-repl.<span class="hljs-title function_">start</span>({ <span class="hljs-attr">prompt</span>: <span class="hljs-string">'> '</span>, <span class="hljs-attr">eval</span>: myEval });</code> <button class="copy-button">copy</button></pre>
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">myEval</span>(<span class="hljs-params">cmd, context, filename, callback</span>) {
+  <span class="hljs-title function_">callback</span>(<span class="hljs-literal">null</span>, <span class="hljs-title function_">byThePowerOfTwo</span>(cmd));
+}
+
+repl.<span class="hljs-title function_">start</span>({ <span class="hljs-attr">prompt</span>: <span class="hljs-string">'Enter a number: '</span>, <span class="hljs-attr">eval</span>: myEval });</code><code class="language-js cjs"><span class="hljs-keyword">const</span> repl = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:repl'</span>);
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">byThePowerOfTwo</span>(<span class="hljs-params">number</span>) {
+  <span class="hljs-keyword">return</span> number * number;
+}
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">myEval</span>(<span class="hljs-params">cmd, context, filename, callback</span>) {
+  <span class="hljs-title function_">callback</span>(<span class="hljs-literal">null</span>, <span class="hljs-title function_">byThePowerOfTwo</span>(cmd));
+}
+
+repl.<span class="hljs-title function_">start</span>({ <span class="hljs-attr">prompt</span>: <span class="hljs-string">'Enter a number: '</span>, <span class="hljs-attr">eval</span>: myEval });</code><button class="copy-button">copy</button></pre>
 <h5>Recoverable errors<span><a class="mark" href="#recoverable-errors" id="recoverable-errors">#</a></span><a aria-hidden="true" class="legacy" id="repl_recoverable_errors"></a></h5>
 <p>At the REPL prompt, pressing <kbd>Enter</kbd> sends the current line of input to
 the <code>eval</code> function. In order to support multi-line input, the <code>eval</code> function
@@ -625,7 +663,8 @@ false
 <p>To fully customize the output of a <a href="#class-replserver"><code>repl.REPLServer</code></a> instance pass in a new
 function for the <code>writer</code> option on construction. The following example, for
 instance, simply converts any input text to upper case:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> repl = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:repl'</span>);
+
+<pre class="with-34-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> repl <span class="hljs-keyword">from</span> <span class="hljs-string">'node:repl'</span>;
 
 <span class="hljs-keyword">const</span> r = repl.<span class="hljs-title function_">start</span>({ <span class="hljs-attr">prompt</span>: <span class="hljs-string">'> '</span>, <span class="hljs-attr">eval</span>: myEval, <span class="hljs-attr">writer</span>: myWriter });
 
@@ -635,7 +674,17 @@ instance, simply converts any input text to upper case:</p>
 
 <span class="hljs-keyword">function</span> <span class="hljs-title function_">myWriter</span>(<span class="hljs-params">output</span>) {
   <span class="hljs-keyword">return</span> output.<span class="hljs-title function_">toUpperCase</span>();
-}</code> <button class="copy-button">copy</button></pre>
+}</code><code class="language-js cjs"><span class="hljs-keyword">const</span> repl = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:repl'</span>);
+
+<span class="hljs-keyword">const</span> r = repl.<span class="hljs-title function_">start</span>({ <span class="hljs-attr">prompt</span>: <span class="hljs-string">'> '</span>, <span class="hljs-attr">eval</span>: myEval, <span class="hljs-attr">writer</span>: myWriter });
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">myEval</span>(<span class="hljs-params">cmd, context, filename, callback</span>) {
+  <span class="hljs-title function_">callback</span>(<span class="hljs-literal">null</span>, cmd);
+}
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">myWriter</span>(<span class="hljs-params">output</span>) {
+  <span class="hljs-keyword">return</span> output.<span class="hljs-title function_">toUpperCase</span>();
+}</code><button class="copy-button">copy</button></pre>
 </section><section><h3>Class: <code>REPLServer</code><span><a class="mark" href="#class-replserver" id="class-replserver">#</a></span><a aria-hidden="true" class="legacy" id="repl_class_replserver"></a></h3>
 <div class="api_metadata">
 <span>Added in: v0.1.91</span>
@@ -646,12 +695,18 @@ instance, simply converts any input text to upper case:</p>
 </ul>
 <p>Instances of <code>repl.REPLServer</code> are created using the <a href="#replstartoptions"><code>repl.start()</code></a> method
 or directly using the JavaScript <code>new</code> keyword.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> repl = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:repl'</span>);
+
+<pre class="with-34-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> repl <span class="hljs-keyword">from</span> <span class="hljs-string">'node:repl'</span>;
 
 <span class="hljs-keyword">const</span> options = { <span class="hljs-attr">useColors</span>: <span class="hljs-literal">true</span> };
 
 <span class="hljs-keyword">const</span> firstInstance = repl.<span class="hljs-title function_">start</span>(options);
-<span class="hljs-keyword">const</span> secondInstance = <span class="hljs-keyword">new</span> repl.<span class="hljs-title class_">REPLServer</span>(options);</code> <button class="copy-button">copy</button></pre>
+<span class="hljs-keyword">const</span> secondInstance = <span class="hljs-keyword">new</span> repl.<span class="hljs-title class_">REPLServer</span>(options);</code><code class="language-js cjs"><span class="hljs-keyword">const</span> repl = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:repl'</span>);
+
+<span class="hljs-keyword">const</span> options = { <span class="hljs-attr">useColors</span>: <span class="hljs-literal">true</span> };
+
+<span class="hljs-keyword">const</span> firstInstance = repl.<span class="hljs-title function_">start</span>(options);
+<span class="hljs-keyword">const</span> secondInstance = <span class="hljs-keyword">new</span> repl.<span class="hljs-title class_">REPLServer</span>(options);</code><button class="copy-button">copy</button></pre>
 <h4>Event: <code>'exit'</code><span><a class="mark" href="#event-exit" id="event-exit">#</a></span><a aria-hidden="true" class="legacy" id="repl_event_exit"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.7.7</span>
@@ -677,7 +732,8 @@ the default evaluator and the <code>repl.REPLServer</code> instance was created 
 reference to the <code>context</code> object as the only argument.</p>
 <p>This can be used primarily to re-initialize REPL context to some pre-defined
 state:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> repl = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:repl'</span>);
+
+<pre class="with-34-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> repl <span class="hljs-keyword">from</span> <span class="hljs-string">'node:repl'</span>;
 
 <span class="hljs-keyword">function</span> <span class="hljs-title function_">initializeContext</span>(<span class="hljs-params">context</span>) {
   context.<span class="hljs-property">m</span> = <span class="hljs-string">'test'</span>;
@@ -686,7 +742,16 @@ state:</p>
 <span class="hljs-keyword">const</span> r = repl.<span class="hljs-title function_">start</span>({ <span class="hljs-attr">prompt</span>: <span class="hljs-string">'> '</span> });
 <span class="hljs-title function_">initializeContext</span>(r.<span class="hljs-property">context</span>);
 
-r.<span class="hljs-title function_">on</span>(<span class="hljs-string">'reset'</span>, initializeContext);</code> <button class="copy-button">copy</button></pre>
+r.<span class="hljs-title function_">on</span>(<span class="hljs-string">'reset'</span>, initializeContext);</code><code class="language-js cjs"><span class="hljs-keyword">const</span> repl = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:repl'</span>);
+
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">initializeContext</span>(<span class="hljs-params">context</span>) {
+  context.<span class="hljs-property">m</span> = <span class="hljs-string">'test'</span>;
+}
+
+<span class="hljs-keyword">const</span> r = repl.<span class="hljs-title function_">start</span>({ <span class="hljs-attr">prompt</span>: <span class="hljs-string">'> '</span> });
+<span class="hljs-title function_">initializeContext</span>(r.<span class="hljs-property">context</span>);
+
+r.<span class="hljs-title function_">on</span>(<span class="hljs-string">'reset'</span>, initializeContext);</code><button class="copy-button">copy</button></pre>
 <p>When this code is executed, the global <code>'m'</code> variable can be modified but then
 reset to its initial value using the <code>.clear</code> command:</p>
 <pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">./node example.js</span>
@@ -719,7 +784,8 @@ properties:</p>
 string argument.</li>
 </ul>
 <p>The following example shows two new commands added to the REPL instance:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> repl = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:repl'</span>);
+
+<pre class="with-34-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> repl <span class="hljs-keyword">from</span> <span class="hljs-string">'node:repl'</span>;
 
 <span class="hljs-keyword">const</span> replServer = repl.<span class="hljs-title function_">start</span>({ <span class="hljs-attr">prompt</span>: <span class="hljs-string">'> '</span> });
 replServer.<span class="hljs-title function_">defineCommand</span>(<span class="hljs-string">'sayhello'</span>, {
@@ -733,7 +799,21 @@ replServer.<span class="hljs-title function_">defineCommand</span>(<span class="
 replServer.<span class="hljs-title function_">defineCommand</span>(<span class="hljs-string">'saybye'</span>, <span class="hljs-keyword">function</span> <span class="hljs-title function_">saybye</span>(<span class="hljs-params"></span>) {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'Goodbye!'</span>);
   <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">close</span>();
-});</code> <button class="copy-button">copy</button></pre>
+});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> repl = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:repl'</span>);
+
+<span class="hljs-keyword">const</span> replServer = repl.<span class="hljs-title function_">start</span>({ <span class="hljs-attr">prompt</span>: <span class="hljs-string">'> '</span> });
+replServer.<span class="hljs-title function_">defineCommand</span>(<span class="hljs-string">'sayhello'</span>, {
+  <span class="hljs-attr">help</span>: <span class="hljs-string">'Say hello'</span>,
+  <span class="hljs-title function_">action</span>(<span class="hljs-params">name</span>) {
+    <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">clearBufferedCommand</span>();
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`Hello, <span class="hljs-subst">${name}</span>!`</span>);
+    <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">displayPrompt</span>();
+  },
+});
+replServer.<span class="hljs-title function_">defineCommand</span>(<span class="hljs-string">'saybye'</span>, <span class="hljs-keyword">function</span> <span class="hljs-title function_">saybye</span>(<span class="hljs-params"></span>) {
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'Goodbye!'</span>);
+  <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">close</span>();
+});</code><button class="copy-button">copy</button></pre>
 <p>The new commands can then be used from within the REPL instance:</p>
 <pre><code class="language-console"><span class="hljs-meta prompt_">> </span><span class="language-bash">.sayhello Node.js User</span>
 Hello, Node.js User!
@@ -763,18 +843,6 @@ within the action function for commands registered using the
 buffered but not yet executed. This method is primarily intended to be
 called from within the action function for commands registered using the
 <code>replServer.defineCommand()</code> method.</p>
-<h4><code>replServer.parseREPLKeyword(keyword[, rest])</code><span><a class="mark" href="#replserverparsereplkeywordkeyword-rest" id="replserverparsereplkeywordkeyword-rest">#</a></span><a aria-hidden="true" class="legacy" id="repl_replserver_parsereplkeyword_keyword_rest"></a></h4>
-<div class="api_metadata">
-<span>Added in: v0.8.9</span><span>Deprecated since: v9.0.0</span>
-</div>
-<p></p><div class="api_stability api_stability_0"><a href="documentation.html#stability-index">Stability: 0</a> - Deprecated.</div><p></p>
-<ul>
-<li><code>keyword</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> the potential keyword to parse and execute</li>
-<li><code>rest</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types" class="type">&#x3C;any></a> any parameters to the keyword command</li>
-<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a></li>
-</ul>
-<p>An internal method used to parse and execute <code>REPLServer</code> keywords.
-Returns <code>true</code> if <code>keyword</code> is a valid keyword, otherwise <code>false</code>.</p>
 <h4><code>replServer.setupHistory(historyPath, callback)</code><span><a class="mark" href="#replserversetuphistoryhistorypath-callback" id="replserversetuphistoryhistorypath-callback">#</a></span><a aria-hidden="true" class="legacy" id="repl_replserver_setuphistory_historypath_callback"></a></h4>
 <div class="api_metadata">
 <span>Added in: v11.10.0</span>
@@ -877,10 +945,14 @@ there are no previews and the value of <code>preview</code> has no effect.</li>
 </ul>
 <p>The <code>repl.start()</code> method creates and starts a <a href="#class-replserver"><code>repl.REPLServer</code></a> instance.</p>
 <p>If <code>options</code> is a string, then it specifies the input prompt:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> repl = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:repl'</span>);
+
+<pre class="with-34-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> repl <span class="hljs-keyword">from</span> <span class="hljs-string">'node:repl'</span>;
 
 <span class="hljs-comment">// a Unix style prompt</span>
-repl.<span class="hljs-title function_">start</span>(<span class="hljs-string">'$ '</span>);</code> <button class="copy-button">copy</button></pre>
+repl.<span class="hljs-title function_">start</span>(<span class="hljs-string">'$ '</span>);</code><code class="language-js cjs"><span class="hljs-keyword">const</span> repl = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:repl'</span>);
+
+<span class="hljs-comment">// a Unix style prompt</span>
+repl.<span class="hljs-title function_">start</span>(<span class="hljs-string">'$ '</span>);</code><button class="copy-button">copy</button></pre>
 </section><section><h3>The Node.js REPL<span><a class="mark" href="#the-nodejs-repl" id="the-nodejs-repl">#</a></span><a aria-hidden="true" class="legacy" id="repl_the_node_js_repl"></a></h3>
 <p>Node.js itself uses the <code>node:repl</code> module to provide its own interactive
 interface for executing JavaScript. This can be used by executing the Node.js
@@ -922,14 +994,47 @@ directory. This can be disabled by setting the environment variable
 <code>NODE_NO_READLINE=1</code>. This will start the main and debugger REPL in canonical
 terminal settings, which will allow use with <code>rlwrap</code>.</p>
 <p>For example, the following can be added to a <code>.bashrc</code> file:</p>
-<pre><code class="language-text">alias node="env NODE_NO_READLINE=1 rlwrap node"</code> <button class="copy-button">copy</button></pre>
+<pre><code class="language-bash"><span class="hljs-built_in">alias</span> node=<span class="hljs-string">"env NODE_NO_READLINE=1 rlwrap node"</span></code> <button class="copy-button">copy</button></pre>
 <h4>Starting multiple REPL instances against a single running instance<span><a class="mark" href="#starting-multiple-repl-instances-against-a-single-running-instance" id="starting-multiple-repl-instances-against-a-single-running-instance">#</a></span><a aria-hidden="true" class="legacy" id="repl_starting_multiple_repl_instances_against_a_single_running_instance"></a></h4>
 <p>It is possible to create and run multiple REPL instances against a single
 running instance of Node.js that share a single <code>global</code> object but have
 separate I/O interfaces.</p>
 <p>The following example, for instance, provides separate REPLs on <code>stdin</code>, a Unix
 socket, and a TCP socket:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> net = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:net'</span>);
+
+<pre class="with-34-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> net <span class="hljs-keyword">from</span> <span class="hljs-string">'node:net'</span>;
+<span class="hljs-keyword">import</span> repl <span class="hljs-keyword">from</span> <span class="hljs-string">'node:repl'</span>;
+<span class="hljs-keyword">import</span> process <span class="hljs-keyword">from</span> <span class="hljs-string">'node:process'</span>;
+
+<span class="hljs-keyword">let</span> connections = <span class="hljs-number">0</span>;
+
+repl.<span class="hljs-title function_">start</span>({
+  <span class="hljs-attr">prompt</span>: <span class="hljs-string">'Node.js via stdin> '</span>,
+  <span class="hljs-attr">input</span>: process.<span class="hljs-property">stdin</span>,
+  <span class="hljs-attr">output</span>: process.<span class="hljs-property">stdout</span>,
+});
+
+net.<span class="hljs-title function_">createServer</span>(<span class="hljs-function">(<span class="hljs-params">socket</span>) =></span> {
+  connections += <span class="hljs-number">1</span>;
+  repl.<span class="hljs-title function_">start</span>({
+    <span class="hljs-attr">prompt</span>: <span class="hljs-string">'Node.js via Unix socket> '</span>,
+    <span class="hljs-attr">input</span>: socket,
+    <span class="hljs-attr">output</span>: socket,
+  }).<span class="hljs-title function_">on</span>(<span class="hljs-string">'exit'</span>, <span class="hljs-function">() =></span> {
+    socket.<span class="hljs-title function_">end</span>();
+  });
+}).<span class="hljs-title function_">listen</span>(<span class="hljs-string">'/tmp/node-repl-sock'</span>);
+
+net.<span class="hljs-title function_">createServer</span>(<span class="hljs-function">(<span class="hljs-params">socket</span>) =></span> {
+  connections += <span class="hljs-number">1</span>;
+  repl.<span class="hljs-title function_">start</span>({
+    <span class="hljs-attr">prompt</span>: <span class="hljs-string">'Node.js via TCP socket> '</span>,
+    <span class="hljs-attr">input</span>: socket,
+    <span class="hljs-attr">output</span>: socket,
+  }).<span class="hljs-title function_">on</span>(<span class="hljs-string">'exit'</span>, <span class="hljs-function">() =></span> {
+    socket.<span class="hljs-title function_">end</span>();
+  });
+}).<span class="hljs-title function_">listen</span>(<span class="hljs-number">5001</span>);</code><code class="language-js cjs"><span class="hljs-keyword">const</span> net = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:net'</span>);
 <span class="hljs-keyword">const</span> repl = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:repl'</span>);
 <span class="hljs-keyword">let</span> connections = <span class="hljs-number">0</span>;
 
@@ -959,7 +1064,7 @@ net.<span class="hljs-title function_">createServer</span>(<span class="hljs-fun
   }).<span class="hljs-title function_">on</span>(<span class="hljs-string">'exit'</span>, <span class="hljs-function">() =></span> {
     socket.<span class="hljs-title function_">end</span>();
   });
-}).<span class="hljs-title function_">listen</span>(<span class="hljs-number">5001</span>);</code> <button class="copy-button">copy</button></pre>
+}).<span class="hljs-title function_">listen</span>(<span class="hljs-number">5001</span>);</code><button class="copy-button">copy</button></pre>
 <p>Running this application from the command line will start a REPL on stdin.
 Other REPL clients may connect through the Unix socket or TCP socket. <code>telnet</code>,
 for instance, is useful for connecting to TCP sockets, while <code>socat</code> can be used
@@ -970,7 +1075,14 @@ possible to connect to a long-running Node.js process without restarting it.</p>
 a <code>net.Server</code> and <code>net.Socket</code> instance, see:
 <a href="https://gist.github.com/TooTallNate/2209310">https://gist.github.com/TooTallNate/2209310</a>.</p>
 <p>For an example of running a REPL instance over <a href="https://curl.haxx.se/docs/manpage.html"><code>curl(1)</code></a>, see:
-<a href="https://gist.github.com/TooTallNate/2053342">https://gist.github.com/TooTallNate/2053342</a>.</p></section>
+<a href="https://gist.github.com/TooTallNate/2053342">https://gist.github.com/TooTallNate/2053342</a>.</p>
+<p>This example is intended purely for educational purposes to demonstrate how
+Node.js REPLs can be started using different I/O streams.
+It should <strong>not</strong> be used in production environments or any context where security
+is a concern without additional protective measures.
+If you need to implement REPLs in a real-world application, consider alternative
+approaches that mitigate these risks, such as using secure input mechanisms and
+avoiding open network interfaces.</p></section>
         <!-- API END -->
       </div>
     </div>

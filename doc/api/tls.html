@@ -3,18 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>TLS (SSL) | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.18.3">
+  <title>TLS (SSL) | Node.js v20.18.3 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/tls.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
   
 </head>
 <body class="alt apidoc" id="api-section-tls">
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +109,7 @@
     <div id="column1" data-id="tls" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.18.3 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,11 +124,11 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.18.3</li>
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
@@ -204,6 +217,7 @@
 <li><a href="#tlssocketremotefamily"><code>tlsSocket.remoteFamily</code></a></li>
 <li><a href="#tlssocketremoteport"><code>tlsSocket.remotePort</code></a></li>
 <li><a href="#tlssocketrenegotiateoptions-callback"><code>tlsSocket.renegotiate(options, callback)</code></a></li>
+<li><a href="#tlssocketsetkeycertcontext"><code>tlsSocket.setKeyCert(context)</code></a></li>
 <li><a href="#tlssocketsetmaxsendfragmentsize"><code>tlsSocket.setMaxSendFragment(size)</code></a></li>
 </ul>
 </li>
@@ -228,7 +242,7 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Index
       </a>
 
@@ -313,10 +327,12 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/tls.html">21.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v23.x/api/tls.html">23.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v22.x/api/tls.html">22.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/tls.html">21.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v20.x/api/tls.html">20.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v19.x/api/tls.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/tls.html">18.x <b>LTS</b></a></li>
@@ -340,7 +356,7 @@
   
             <li class="picker-header">
               <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
@@ -361,7 +377,7 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
 <li><span class="stability_2"><a href="#tls-ssl">TLS (SSL)</a></span>
 <ul>
 <li><a href="#determining-if-crypto-support-is-unavailable">Determining if crypto support is unavailable</a></li>
@@ -446,6 +462,7 @@
 <li><a href="#tlssocketremotefamily"><code>tlsSocket.remoteFamily</code></a></li>
 <li><a href="#tlssocketremoteport"><code>tlsSocket.remotePort</code></a></li>
 <li><a href="#tlssocketrenegotiateoptions-callback"><code>tlsSocket.renegotiate(options, callback)</code></a></li>
+<li><a href="#tlssocketsetkeycertcontext"><code>tlsSocket.setKeyCert(context)</code></a></li>
 <li><a href="#tlssocketsetmaxsendfragmentsize"><code>tlsSocket.setMaxSendFragment(size)</code></a></li>
 </ul>
 </li>
@@ -466,11 +483,11 @@
 </li>
 </ul></details>
 
-      <div id="apicontent">
+      <div role="main" id="apicontent">
         <h2>TLS (SSL)<span><a class="mark" href="#tls-ssl" id="tls-ssl">#</a></span><a aria-hidden="true" class="legacy" id="tls_tls_ssl"></a></h2>
 
 <p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.19.1/lib/tls.js">lib/tls.js</a></p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v20.18.3/lib/tls.js">lib/tls.js</a></p>
 <p>The <code>node:tls</code> module provides an implementation of the Transport Layer Security
 (TLS) and Secure Socket Layer (SSL) protocols that is built on top of OpenSSL.
 The module can be accessed using:</p>
@@ -480,7 +497,6 @@ The module can be accessed using:</p>
 <code>node:crypto</code> module. In such cases, attempting to <code>import</code> from <code>tls</code> or
 calling <code>require('node:tls')</code> will result in an error being thrown.</p>
 <p>When using CommonJS, the error thrown can be caught using try/catch:</p>
-<!-- eslint-skip -->
 <pre><code class="language-js cjs"><span class="hljs-keyword">let</span> tls;
 <span class="hljs-keyword">try</span> {
   tls = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:tls'</span>);
@@ -590,12 +606,36 @@ low-entropy sources is not secure.</p>
 specifying a cipher suite with the <code>ciphers</code> option. The list of available
 ciphers can be retrieved via <code>openssl ciphers -v 'PSK'</code>. All TLS 1.3
 ciphers are eligible for PSK and can be retrieved via
-<code>openssl ciphers -v -s -tls1_3 -psk</code>.</p>
+<code>openssl ciphers -v -s -tls1_3 -psk</code>.
+On the client connection, a custom <code>checkServerIdentity</code> should be passed
+because the default one will fail in the absence of a certificate.</p>
 <p>According to the <a href="https://tools.ietf.org/html/rfc4279">RFC 4279</a>, PSK identities up to 128 bytes in length and
 PSKs up to 64 bytes in length must be supported. As of OpenSSL 1.1.0
 maximum identity size is 128 bytes, and maximum PSK length is 256 bytes.</p>
 <p>The current implementation doesn't support asynchronous PSK callbacks due to the
 limitations of the underlying OpenSSL API.</p>
+<p>To use TLS-PSK, client and server must specify the <code>pskCallback</code> option,
+a function that returns the PSK to use (which must be compatible with
+the selected cipher's digest).</p>
+<p>It will be called first on the client:</p>
+<ul>
+<li>hint: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> optional message sent from the server to help the client
+decide which identity to use during negotiation.
+Always <code>null</code> if TLS 1.3 is used.</li>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> in the form
+<code>{ psk: &#x3C;Buffer|TypedArray|DataView>, identity: &#x3C;string> }</code> or <code>null</code>.</li>
+</ul>
+<p>Then on the server:</p>
+<ul>
+<li>socket: <a href="tls.html#class-tlstlssocket" class="type">&#x3C;tls.TLSSocket></a> the server socket instance, equivalent to <code>this</code>.</li>
+<li>identity: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> identity parameter sent from the client.</li>
+<li>Returns: <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a> the PSK (or <code>null</code>).</li>
+</ul>
+<p>A return value of <code>null</code> stops the negotiation process and sends an
+<code>unknown_psk_identity</code> alert message to the other party.
+If the server wishes to hide the fact that the PSK identity was not known,
+the callback must provide some random data as <code>psk</code> to make the connection
+fail with <code>decrypt_error</code> before negotiation is finished.</p>
 <h4>Client-initiated renegotiation attack mitigation<span><a class="mark" href="#client-initiated-renegotiation-attack-mitigation" id="client-initiated-renegotiation-attack-mitigation">#</a></span><a aria-hidden="true" class="legacy" id="tls_client_initiated_renegotiation_attack_mitigation"></a></h4>
 
 <p>The TLS protocol allows clients to renegotiate certain aspects of the TLS
@@ -676,7 +716,7 @@ Since failing to resume the session does not cause TLS/HTTPS connection
 failures, it is easy to not notice unnecessarily poor TLS performance. The
 OpenSSL CLI can be used to verify that servers are resuming sessions. Use the
 <code>-reconnect</code> option to <code>openssl s_client</code>, for example:</p>
-<pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">openssl s_client -connect localhost:443 -reconnect</span></code> <button class="copy-button">copy</button></pre>
+<pre><code class="language-bash">openssl s_client -connect localhost:443 -reconnect</code> <button class="copy-button">copy</button></pre>
 <p>Read through the debug output. The first connection should say "New", for
 example:</p>
 <pre><code class="language-text">New, TLSv1.2, Cipher is ECDHE-RSA-AES128-GCM-SHA256</code> <button class="copy-button">copy</button></pre>
@@ -1005,8 +1045,8 @@ server. If <code>tlsSocket.authorized</code> is <code>false</code>, then <code>s
 is set to describe how authorization failed. Depending on the settings
 of the TLS server, unauthorized connections may still be accepted.</p>
 <p>The <code>tlsSocket.alpnProtocol</code> property is a string that contains the selected
-ALPN protocol. When ALPN has no selected protocol, <code>tlsSocket.alpnProtocol</code>
-equals <code>false</code>.</p>
+ALPN protocol. When ALPN has no selected protocol because the client or the
+server did not send an ALPN extension, <code>tlsSocket.alpnProtocol</code> equals <code>false</code>.</p>
 <p>The <code>tlsSocket.servername</code> property is a string containing the server name
 requested via SNI.</p>
 <h4>Event: <code>'tlsClientError'</code><span><a class="mark" href="#event-tlsclienterror" id="event-tlsclienterror">#</a></span><a aria-hidden="true" class="legacy" id="tls_event_tlsclienterror"></a></h4>
@@ -1416,7 +1456,7 @@ certificate.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.13.0</td>
+<tr><td>v19.1.0, v18.13.0</td>
 <td><p>Add "ca" property.</p></td></tr>
 <tr><td>v17.2.0, v16.14.0</td>
 <td><p>Add fingerprint512.</p></td></tr>
@@ -1690,6 +1730,18 @@ connection has been established.</p>
 <code>handshakeTimeout</code> timeout.</p>
 <p>For TLSv1.3, renegotiation cannot be initiated, it is not supported by the
 protocol.</p>
+<h4><code>tlsSocket.setKeyCert(context)</code><span><a class="mark" href="#tlssocketsetkeycertcontext" id="tlssocketsetkeycertcontext">#</a></span><a aria-hidden="true" class="legacy" id="tls_tlssocket_setkeycert_context"></a></h4>
+<div class="api_metadata">
+<span>Added in: v20.17.0</span>
+</div>
+<ul>
+<li><code>context</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> | <a href="tls.html#tlscreatesecurecontextoptions" class="type">&#x3C;tls.SecureContext></a> An object containing at least <code>key</code> and
+<code>cert</code> properties from the <a href="#tlscreatesecurecontextoptions"><code>tls.createSecureContext()</code></a> <code>options</code>, or a
+TLS context object created with <a href="#tlscreatesecurecontextoptions"><code>tls.createSecureContext()</code></a> itself.</li>
+</ul>
+<p>The <code>tlsSocket.setKeyCert()</code> method sets the private key and certificate to use
+for the socket. This is mainly useful if you wish to select a server certificate
+from a TLS server's <code>ALPNCallback</code>.</p>
 <h4><code>tlsSocket.setMaxSendFragment(size)</code><span><a class="mark" href="#tlssocketsetmaxsendfragmentsize" id="tlssocketsetmaxsendfragmentsize">#</a></span><a aria-hidden="true" class="legacy" id="tls_tlssocket_setmaxsendfragment_size"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.11.11</span>
@@ -1778,22 +1830,13 @@ was present (see <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-202
 <ul>
 <li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
 <ul>
-<li>
-<p><code>enableTrace</code>: See <a href="#tlscreateserveroptions-secureconnectionlistener"><code>tls.createServer()</code></a></p>
-</li>
-<li>
-<p><code>host</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Host the client should connect to. <strong>Default:</strong>
-<code>'localhost'</code>.</p>
-</li>
-<li>
-<p><code>port</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Port the client should connect to.</p>
-</li>
-<li>
-<p><code>path</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Creates Unix socket connection to path. If this option is
-specified, <code>host</code> and <code>port</code> are ignored.</p>
-</li>
-<li>
-<p><code>socket</code> <a href="stream.html#class-streamduplex" class="type">&#x3C;stream.Duplex></a> Establish secure connection on a given socket
+<li><code>enableTrace</code>: See <a href="#tlscreateserveroptions-secureconnectionlistener"><code>tls.createServer()</code></a></li>
+<li><code>host</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Host the client should connect to. <strong>Default:</strong>
+<code>'localhost'</code>.</li>
+<li><code>port</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Port the client should connect to.</li>
+<li><code>path</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Creates Unix socket connection to path. If this option is
+specified, <code>host</code> and <code>port</code> are ignored.</li>
+<li><code>socket</code> <a href="stream.html#class-streamduplex" class="type">&#x3C;stream.Duplex></a> Establish secure connection on a given socket
 rather than creating a new socket. Typically, this is an instance of
 <a href="net.html#class-netsocket"><code>net.Socket</code></a>, but any <code>Duplex</code> stream is allowed.
 If this option is specified, <code>path</code>, <code>host</code>, and <code>port</code> are ignored,
@@ -1801,98 +1844,53 @@ except for certificate validation. Usually, a socket is already connected
 when passed to <code>tls.connect()</code>, but it can be connected later.
 Connection/disconnection/destruction of <code>socket</code> is the user's
 responsibility; calling <code>tls.connect()</code> will not cause <code>net.connect()</code> to be
-called.</p>
-</li>
-<li>
-<p><code>allowHalfOpen</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If set to <code>false</code>, then the socket will
+called.</li>
+<li><code>allowHalfOpen</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If set to <code>false</code>, then the socket will
 automatically end the writable side when the readable side ends. If the
 <code>socket</code> option is set, this option has no effect. See the <code>allowHalfOpen</code>
-option of <a href="net.html#class-netsocket"><code>net.Socket</code></a> for details. <strong>Default:</strong> <code>false</code>.</p>
-</li>
-<li>
-<p><code>rejectUnauthorized</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If not <code>false</code>, the server certificate is
+option of <a href="net.html#class-netsocket"><code>net.Socket</code></a> for details. <strong>Default:</strong> <code>false</code>.</li>
+<li><code>rejectUnauthorized</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If not <code>false</code>, the server certificate is
 verified against the list of supplied CAs. An <code>'error'</code> event is emitted if
 verification fails; <code>err.code</code> contains the OpenSSL error code. <strong>Default:</strong>
-<code>true</code>.</p>
-</li>
-<li>
-<p><code>pskCallback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a></p>
-<ul>
-<li>hint: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> optional message sent from the server to help client
-decide which identity to use during negotiation.
-Always <code>null</code> if TLS 1.3 is used.</li>
-<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> in the form
-<code>{ psk: &#x3C;Buffer|TypedArray|DataView>, identity: &#x3C;string> }</code>
-or <code>null</code> to stop the negotiation process. <code>psk</code> must be
-compatible with the selected cipher's digest.
-<code>identity</code> must use UTF-8 encoding.</li>
-</ul>
-<p>When negotiating TLS-PSK (pre-shared keys), this function is called
-with optional identity <code>hint</code> provided by the server or <code>null</code>
-in case of TLS 1.3 where <code>hint</code> was removed.
-It will be necessary to provide a custom <code>tls.checkServerIdentity()</code>
-for the connection as the default one will try to check host name/IP
-of the server against the certificate but that's not applicable for PSK
-because there won't be a certificate present.
-More information can be found in the <a href="https://tools.ietf.org/html/rfc4279">RFC 4279</a>.</p>
-</li>
-<li>
-<p><code>ALPNProtocols</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string[]></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer[]></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray[]></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView[]></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a>
+<code>true</code>.</li>
+<li><code>pskCallback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> For TLS-PSK negotiation, see <a href="#pre-shared-keys">Pre-shared keys</a>.</li>
+<li><code>ALPNProtocols</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string[]></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer[]></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray[]></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView[]></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a>
 An array of strings, <code>Buffer</code>s, <code>TypedArray</code>s, or <code>DataView</code>s, or a
 single <code>Buffer</code>, <code>TypedArray</code>, or <code>DataView</code> containing the supported ALPN
 protocols. <code>Buffer</code>s should have the format <code>[len][name][len][name]...</code>
 e.g. <code>'\x08http/1.1\x08http/1.0'</code>, where the <code>len</code> byte is the length of the
 next protocol name. Passing an array is usually much simpler, e.g.
 <code>['http/1.1', 'http/1.0']</code>. Protocols earlier in the list have higher
-preference than those later.</p>
-</li>
-<li>
-<p><code>servername</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Server name for the SNI (Server Name Indication) TLS
+preference than those later.</li>
+<li><code>servername</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Server name for the SNI (Server Name Indication) TLS
 extension. It is the name of the host being connected to, and must be a host
 name, and not an IP address. It can be used by a multi-homed server to
 choose the correct certificate to present to the client, see the
-<code>SNICallback</code> option to <a href="#tlscreateserveroptions-secureconnectionlistener"><code>tls.createServer()</code></a>.</p>
-</li>
-<li>
-<p><code>checkServerIdentity(servername, cert)</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> A callback function
+<code>SNICallback</code> option to <a href="#tlscreateserveroptions-secureconnectionlistener"><code>tls.createServer()</code></a>.</li>
+<li><code>checkServerIdentity(servername, cert)</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> A callback function
 to be used (instead of the builtin <code>tls.checkServerIdentity()</code> function)
 when checking the server's host name (or the provided <code>servername</code> when
 explicitly set) against the certificate. This should return an <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error" class="type">&#x3C;Error></a> if
 verification fails. The method should return <code>undefined</code> if the <code>servername</code>
-and <code>cert</code> are verified.</p>
-</li>
-<li>
-<p><code>session</code> <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> A <code>Buffer</code> instance, containing TLS session.</p>
-</li>
-<li>
-<p><code>minDHSize</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Minimum size of the DH parameter in bits to accept a
+and <code>cert</code> are verified.</li>
+<li><code>session</code> <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> A <code>Buffer</code> instance, containing TLS session.</li>
+<li><code>minDHSize</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Minimum size of the DH parameter in bits to accept a
 TLS connection. When a server offers a DH parameter with a size less
 than <code>minDHSize</code>, the TLS connection is destroyed and an error is thrown.
-<strong>Default:</strong> <code>1024</code>.</p>
-</li>
-<li>
-<p><code>highWaterMark</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Consistent with the readable stream <code>highWaterMark</code> parameter.
-<strong>Default:</strong> <code>16 * 1024</code>.</p>
-</li>
-<li>
-<p><code>secureContext</code>: TLS context object created with
+<strong>Default:</strong> <code>1024</code>.</li>
+<li><code>highWaterMark</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Consistent with the readable stream <code>highWaterMark</code> parameter.
+<strong>Default:</strong> <code>16 * 1024</code>.</li>
+<li><code>secureContext</code>: TLS context object created with
 <a href="#tlscreatesecurecontextoptions"><code>tls.createSecureContext()</code></a>. If a <code>secureContext</code> is <em>not</em> provided, one
 will be created by passing the entire <code>options</code> object to
-<code>tls.createSecureContext()</code>.</p>
-</li>
-<li>
-<p><code>onread</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> If the <code>socket</code> option is missing, incoming data is
+<code>tls.createSecureContext()</code>.</li>
+<li><code>onread</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> If the <code>socket</code> option is missing, incoming data is
 stored in a single <code>buffer</code> and passed to the supplied <code>callback</code> when
 data arrives on the socket, otherwise the option is ignored. See the
-<code>onread</code> option of <a href="net.html#class-netsocket"><code>net.Socket</code></a> for details.</p>
-</li>
-<li>
-<p>...: <a href="#tlscreatesecurecontextoptions"><code>tls.createSecureContext()</code></a> options that are used if the
-<code>secureContext</code> option is missing, otherwise they are ignored.</p>
-</li>
-<li>
-<p>...: Any <a href="net.html#socketconnectoptions-connectlistener"><code>socket.connect()</code></a> option not already listed.</p>
-</li>
+<code>onread</code> option of <a href="net.html#class-netsocket"><code>net.Socket</code></a> for details.</li>
+<li>...: <a href="#tlscreatesecurecontextoptions"><code>tls.createSecureContext()</code></a> options that are used if the
+<code>secureContext</code> option is missing, otherwise they are ignored.</li>
+<li>...: Any <a href="net.html#socketconnectoptions-connectlistener"><code>socket.connect()</code></a> option not already listed.</li>
 </ul>
 </li>
 <li><code>callback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a></li>
@@ -1970,7 +1968,11 @@ argument.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.16.0</td>
+<tr><td>v20.18.0</td>
+<td><p>The <code>allowPartialTrustChain</code> option has been added.</p></td></tr>
+<tr><td>v20.16.0</td>
+<td><p>The <code>clientCertEngine</code>, <code>privateKeyEngine</code> and <code>privateKeyIdentifier</code> options depend on custom engine support in OpenSSL which is deprecated in OpenSSL 3.</p></td></tr>
+<tr><td>v19.8.0, v18.16.0</td>
 <td><p>The <code>dhparam</code> option can now be set to <code>'auto'</code> to enable DHE with appropriate well-known parameters.</p></td></tr>
 <tr><td>v12.12.0</td>
 <td><p>Added <code>privateKeyIdentifier</code> and <code>privateKeyEngine</code> options to get private key from an OpenSSL engine.</p></td></tr>
@@ -2000,6 +2002,8 @@ argument.</p>
 <ul>
 <li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
 <ul>
+<li><code>allowPartialTrustChain</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> Treat intermediate (non-self-signed)
+certificates in the trust CA certificate list as trusted.</li>
 <li><code>ca</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string[]></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer[]></a> Optionally override the trusted CA
 certificates. Default is to trust the well-known CAs curated by Mozilla.
 Mozilla's CAs are completely replaced when CAs are explicitly specified
@@ -2038,7 +2042,7 @@ more information, see <a href="#modifying-the-default-tls-cipher-suite">Modifyin
 ciphers can be obtained via <a href="#tlsgetciphers"><code>tls.getCiphers()</code></a>. Cipher names must be
 uppercased in order for OpenSSL to accept them.</li>
 <li><code>clientCertEngine</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Name of an OpenSSL engine which can provide the
-client certificate.</li>
+client certificate. <strong>Deprecated.</strong></li>
 <li><code>crl</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string[]></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer[]></a> PEM formatted CRLs (Certificate
 Revocation Lists).</li>
 <li><code>dhparam</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> <code>'auto'</code> or custom Diffie-Hellman parameters,
@@ -2066,11 +2070,11 @@ occur in an array. <code>object.passphrase</code> is optional. Encrypted keys wi
 decrypted with <code>object.passphrase</code> if provided, or <code>options.passphrase</code> if
 it is not.</li>
 <li><code>privateKeyEngine</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Name of an OpenSSL engine to get private key
-from. Should be used together with <code>privateKeyIdentifier</code>.</li>
+from. Should be used together with <code>privateKeyIdentifier</code>. <strong>Deprecated.</strong></li>
 <li><code>privateKeyIdentifier</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Identifier of a private key managed by
 an OpenSSL engine. Should be used together with <code>privateKeyEngine</code>.
 Should not be set together with <code>key</code>, because both options define a
-private key in different ways.</li>
+private key in different ways. <strong>Deprecated.</strong></li>
 <li><code>maxVersion</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Optionally set the maximum TLS version to allow. One
 of <code>'TLSv1.3'</code>, <code>'TLSv1.2'</code>, <code>'TLSv1.1'</code>, or <code>'TLSv1'</code>. Cannot be specified
 along with the <code>secureProtocol</code> option; use one or the other.
@@ -2197,7 +2201,11 @@ socket.<span class="hljs-title function_">pipe</span>(pair.<span class="hljs-pro
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.19.0</td>
+<tr><td>v20.16.0</td>
+<td><p>The <code>clientCertEngine</code> option depends on custom engine support in OpenSSL which is deprecated in OpenSSL 3.</p></td></tr>
+<tr><td>v19.0.0</td>
+<td><p>If <code>ALPNProtocols</code> is set, incoming connections that send an ALPN extension with no supported protocols are terminated with a fatal <code>no_application_protocol</code> alert.</p></td></tr>
+<tr><td>v20.4.0, v18.19.0</td>
 <td><p>The <code>options</code> parameter can now include <code>ALPNCallback</code>.</p></td></tr>
 <tr><td>v12.3.0</td>
 <td><p>The <code>options</code> parameter now supports <code>net.createServer()</code> options.</p></td></tr>
@@ -2215,17 +2223,14 @@ socket.<span class="hljs-title function_">pipe</span>(pair.<span class="hljs-pro
 <ul>
 <li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
 <ul>
-<li>
-<p><code>ALPNProtocols</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string[]></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer[]></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray[]></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView[]></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a>
+<li><code>ALPNProtocols</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string[]></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer[]></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray[]></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView[]></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a>
 An array of strings, <code>Buffer</code>s, <code>TypedArray</code>s, or <code>DataView</code>s, or a single
 <code>Buffer</code>, <code>TypedArray</code>, or <code>DataView</code> containing the supported ALPN
 protocols. <code>Buffer</code>s should have the format <code>[len][name][len][name]...</code>
 e.g. <code>0x05hello0x05world</code>, where the first byte is the length of the next
 protocol name. Passing an array is usually much simpler, e.g.
-<code>['hello', 'world']</code>. (Protocols should be ordered by their priority.)</p>
-</li>
-<li>
-<p><code>ALPNCallback</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> If set, this will be called when a
+<code>['hello', 'world']</code>. (Protocols should be ordered by their priority.)</li>
+<li><code>ALPNCallback</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> If set, this will be called when a
 client opens a connection using the ALPN extension. One argument will
 be passed to the callback: an object containing <code>servername</code> and
 <code>protocols</code> fields, respectively containing the server name from
@@ -2235,41 +2240,27 @@ callback must return either one of the strings listed in
 ALPN protocol, or <code>undefined</code>, to reject the connection with a fatal alert.
 If a string is returned that does not match one of the client's ALPN
 protocols, an error will be thrown. This option cannot be used with the
-<code>ALPNProtocols</code> option, and setting both options will throw an error.</p>
-</li>
-<li>
-<p><code>clientCertEngine</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Name of an OpenSSL engine which can provide the
-client certificate.</p>
-</li>
-<li>
-<p><code>enableTrace</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If <code>true</code>, <a href="#tlssocketenabletrace"><code>tls.TLSSocket.enableTrace()</code></a> will be
+<code>ALPNProtocols</code> option, and setting both options will throw an error.</li>
+<li><code>clientCertEngine</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Name of an OpenSSL engine which can provide the
+client certificate. <strong>Deprecated.</strong></li>
+<li><code>enableTrace</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If <code>true</code>, <a href="#tlssocketenabletrace"><code>tls.TLSSocket.enableTrace()</code></a> will be
 called on new connections. Tracing can be enabled after the secure
 connection is established, but this option must be used to trace the secure
-connection setup. <strong>Default:</strong> <code>false</code>.</p>
-</li>
-<li>
-<p><code>handshakeTimeout</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Abort the connection if the SSL/TLS handshake
+connection setup. <strong>Default:</strong> <code>false</code>.</li>
+<li><code>handshakeTimeout</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Abort the connection if the SSL/TLS handshake
 does not finish in the specified number of milliseconds.
 A <code>'tlsClientError'</code> is emitted on the <code>tls.Server</code> object whenever
-a handshake times out. <strong>Default:</strong> <code>120000</code> (120 seconds).</p>
-</li>
-<li>
-<p><code>rejectUnauthorized</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If not <code>false</code> the server will reject any
+a handshake times out. <strong>Default:</strong> <code>120000</code> (120 seconds).</li>
+<li><code>rejectUnauthorized</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If not <code>false</code> the server will reject any
 connection which is not authorized with the list of supplied CAs. This
-option only has an effect if <code>requestCert</code> is <code>true</code>. <strong>Default:</strong> <code>true</code>.</p>
-</li>
-<li>
-<p><code>requestCert</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If <code>true</code> the server will request a certificate from
+option only has an effect if <code>requestCert</code> is <code>true</code>. <strong>Default:</strong> <code>true</code>.</li>
+<li><code>requestCert</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If <code>true</code> the server will request a certificate from
 clients that connect and attempt to verify that certificate. <strong>Default:</strong>
-<code>false</code>.</p>
-</li>
-<li>
-<p><code>sessionTimeout</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The number of seconds after which a TLS session
+<code>false</code>.</li>
+<li><code>sessionTimeout</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The number of seconds after which a TLS session
 created by the server will no longer be resumable. See
-<a href="#session-resumption">Session Resumption</a> for more information. <strong>Default:</strong> <code>300</code>.</p>
-</li>
-<li>
-<p><code>SNICallback(servername, callback)</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> A function that will be
+<a href="#session-resumption">Session Resumption</a> for more information. <strong>Default:</strong> <code>300</code>.</li>
+<li><code>SNICallback(servername, callback)</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> A function that will be
 called if the client supports SNI TLS extension. Two arguments will be
 passed when called: <code>servername</code> and <code>callback</code>. <code>callback</code> is an
 error-first callback that takes two optional arguments: <code>error</code> and <code>ctx</code>.
@@ -2277,47 +2268,18 @@ error-first callback that takes two optional arguments: <code>error</code> and <
 <a href="#tlscreatesecurecontextoptions"><code>tls.createSecureContext()</code></a> can be used to get a proper <code>SecureContext</code>.
 If <code>callback</code> is called with a falsy <code>ctx</code> argument, the default secure
 context of the server will be used. If <code>SNICallback</code> wasn't provided the
-default callback with high-level API will be used (see below).</p>
-</li>
-<li>
-<p><code>ticketKeys</code>: <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> 48-bytes of cryptographically strong pseudorandom
-data. See <a href="#session-resumption">Session Resumption</a> for more information.</p>
-</li>
-<li>
-<p><code>pskCallback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a></p>
-<ul>
-<li>socket: <a href="tls.html#class-tlstlssocket" class="type">&#x3C;tls.TLSSocket></a> the server <a href="#class-tlstlssocket"><code>tls.TLSSocket</code></a> instance for
-this connection.</li>
-<li>identity: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> identity parameter sent from the client.</li>
-<li>Returns: <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a> pre-shared key that must either be
-a buffer or <code>null</code> to stop the negotiation process. Returned PSK must be
-compatible with the selected cipher's digest.</li>
-</ul>
-<p>When negotiating TLS-PSK (pre-shared keys), this function is called
-with the identity provided by the client.
-If the return value is <code>null</code> the negotiation process will stop and an
-"unknown_psk_identity" alert message will be sent to the other party.
-If the server wishes to hide the fact that the PSK identity was not known,
-the callback must provide some random data as <code>psk</code> to make the connection
-fail with "decrypt_error" before negotiation is finished.
-PSK ciphers are disabled by default, and using TLS-PSK thus
-requires explicitly specifying a cipher suite with the <code>ciphers</code> option.
-More information can be found in the <a href="https://tools.ietf.org/html/rfc4279">RFC 4279</a>.</p>
-</li>
-<li>
-<p><code>pskIdentityHint</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> optional hint to send to a client to help
+default callback with high-level API will be used (see below).</li>
+<li><code>ticketKeys</code>: <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> 48-bytes of cryptographically strong pseudorandom
+data. See <a href="#session-resumption">Session Resumption</a> for more information.</li>
+<li><code>pskCallback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> For TLS-PSK negotiation, see <a href="#pre-shared-keys">Pre-shared keys</a>.</li>
+<li><code>pskIdentityHint</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> optional hint to send to a client to help
 with selecting the identity during TLS-PSK negotiation. Will be ignored
 in TLS 1.3. Upon failing to set pskIdentityHint <code>'tlsClientError'</code> will be
-emitted with <code>'ERR_TLS_PSK_SET_IDENTIY_HINT_FAILED'</code> code.</p>
-</li>
-<li>
-<p>...: Any <a href="#tlscreatesecurecontextoptions"><code>tls.createSecureContext()</code></a> option can be provided. For
+emitted with <code>'ERR_TLS_PSK_SET_IDENTIY_HINT_FAILED'</code> code.</li>
+<li>...: Any <a href="#tlscreatesecurecontextoptions"><code>tls.createSecureContext()</code></a> option can be provided. For
 servers, the identity options (<code>pfx</code>, <code>key</code>/<code>cert</code>, or <code>pskCallback</code>)
-are usually required.</p>
-</li>
-<li>
-<p>...: Any <a href="net.html#netcreateserveroptions-connectionlistener"><code>net.createServer()</code></a> option can be provided.</p>
-</li>
+are usually required.</li>
+<li>...: Any <a href="net.html#netcreateserveroptions-connectionlistener"><code>net.createServer()</code></a> option can be provided.</li>
 </ul>
 </li>
 <li><code>secureConnectionListener</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a></li>
@@ -2424,7 +2386,7 @@ used.</li>
 </ul>
 </section><section><h3><code>tls.DEFAULT_CIPHERS</code><span><a class="mark" href="#tlsdefault_ciphers" id="tlsdefault_ciphers">#</a></span><a aria-hidden="true" class="legacy" id="tls_tls_default_ciphers"></a></h3>
 <div class="api_metadata">
-<span>Added in: v18.16.0</span>
+<span>Added in: v19.8.0</span>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> The default value of the <code>ciphers</code> option of

@@ -304,7 +304,7 @@ inline void url_aggregator::append_base_pathname(const std::string_view input) {
   ADA_ASSERT_TRUE(!helpers::overlaps(input, buffer));
 #if ADA_DEVELOPMENT_CHECKS
   // computing the expected password.
-  std::string path_expected = std::string(get_pathname());
+  std::string path_expected(get_pathname());
   path_expected.append(input);
 #endif  // ADA_DEVELOPMENT_CHECKS
   uint32_t ending_index = uint32_t(buffer.size());
@@ -374,7 +374,7 @@ inline void url_aggregator::append_base_username(const std::string_view input) {
   ADA_ASSERT_TRUE(!helpers::overlaps(input, buffer));
 #if ADA_DEVELOPMENT_CHECKS
   // computing the expected password.
-  std::string username_expected = std::string(get_username());
+  std::string username_expected(get_username());
   username_expected.append(input);
 #endif  // ADA_DEVELOPMENT_CHECKS
   add_authority_slashes_if_needed();
@@ -404,7 +404,7 @@ inline void url_aggregator::append_base_username(const std::string_view input) {
     components.hash_start += difference;
   }
 #if ADA_DEVELOPMENT_CHECKS
-  std::string username_after = std::string(get_username());
+  std::string username_after(get_username());
   ADA_ASSERT_EQUAL(
       username_expected, username_after,
       "append_base_username problem after inserting " + std::string(input));
@@ -530,7 +530,7 @@ inline void url_aggregator::append_base_password(const std::string_view input) {
     components.hash_start += difference;
   }
 #if ADA_DEVELOPMENT_CHECKS
-  std::string password_after = std::string(get_password());
+  std::string password_after(get_password());
   ADA_ASSERT_EQUAL(
       password_expected, password_after,
       "append_base_password problem after inserting " + std::string(input));
@@ -844,8 +844,8 @@ inline bool url_aggregator::has_port() const noexcept {
          buffer[components.host_end + 1] == '.';
 }
 
-[[nodiscard]] inline std::string_view url_aggregator::get_href()
-    const noexcept {
+[[nodiscard]] inline std::string_view url_aggregator::get_href() const noexcept
+    ada_lifetime_bound {
   ada_log("url_aggregator::get_href");
   return buffer;
 }
@@ -853,10 +853,15 @@ inline bool url_aggregator::has_port() const noexcept {
 ada_really_inline size_t url_aggregator::parse_port(
     std::string_view view, bool check_trailing_content) noexcept {
   ada_log("url_aggregator::parse_port('", view, "') ", view.size());
+  if (!view.empty() && view[0] == '-') {
+    ada_log("parse_port: view[0] == '0' && view.size() > 1");
+    is_valid = false;
+    return 0;
+  }
   uint16_t parsed_port{};
   auto r = std::from_chars(view.data(), view.data() + view.size(), parsed_port);
   if (r.ec == std::errc::result_out_of_range) {
-    ada_log("parse_port: std::errc::result_out_of_range");
+    ada_log("parse_port: r.ec == std::errc::result_out_of_range");
     is_valid = false;
     return 0;
   }

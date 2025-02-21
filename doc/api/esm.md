@@ -7,11 +7,18 @@
 <!-- YAML
 added: v8.5.0
 changes:
-  - version: v18.19.0
+  - version: v20.18.3
+    pr-url: https://github.com/nodejs/node/pull/55333
+    description: Import attributes are no longer experimental.
+  - version: v20.10.0
+    pr-url: https://github.com/nodejs/node/pull/50140
+    description: Add experimental support for import attributes.
+  - version: v20.0.0
     pr-url: https://github.com/nodejs/node/pull/44710
     description: Module customization hooks are executed off the main thread.
   - version:
     - v18.6.0
+    - v16.17.0
     pr-url: https://github.com/nodejs/node/pull/42623
     description: Add support for chaining module customization hooks.
   - version:
@@ -105,11 +112,21 @@ provides interoperability between them and its original module format,
 
 Node.js has two module systems: [CommonJS][] modules and ECMAScript modules.
 
-Authors can tell Node.js to use the ECMAScript modules loader via the `.mjs`
-file extension, the `package.json` [`"type"`][] field, the [`--input-type`][]
-flag, or the [`--experimental-default-type`][] flag. Outside of those cases,
-Node.js will use the CommonJS module loader. See [Determining module system][]
-for more details.
+Authors can tell Node.js to interpret JavaScript as an ES module via the `.mjs`
+file extension, the `package.json` [`"type"`][] field with a value `"module"`,
+the [`--input-type`][] flag with a value of `"module"`, or the
+[`--experimental-default-type`][] flag with a value of `"module"`. These are
+explicit markers of code being intended to run as an ES module.
+
+Inversely, authors can tell Node.js to interpret JavaScript as CommonJS via the
+`.cjs` file extension, the `package.json` [`"type"`][] field with a value
+`"commonjs"`, the [`--input-type`][] flag with a value of `"commonjs"`, or the
+[`--experimental-default-type`][] flag with a value of `"commonjs"`.
+
+When code lacks explicit markers for either module system, Node.js will inspect
+the source code of a module to look for ES module syntax. If such syntax is
+found, Node.js will run the code as an ES module; otherwise it will run the
+module as CommonJS. See [Determining module system][] for more details.
 
 <!-- Anchors to make sure old links find a target -->
 
@@ -202,7 +219,7 @@ added: v12.10.0
 
 ```js
 import 'data:text/javascript,console.log("hello!");';
-import _ from 'data:application/json,"world!"' assert { type: 'json' };
+import _ from 'data:application/json,"world!"' with { type: 'json' };
 ```
 
 `data:` URLs only resolve [bare specifiers][Terminology] for builtin modules
@@ -243,41 +260,37 @@ added:
   - v17.1.0
   - v16.14.0
 changes:
-  - version: v18.19.0
+  - version: v20.10.0
     pr-url: https://github.com/nodejs/node/pull/50140
     description: Switch from Import Assertions to Import Attributes.
 -->
 
-> Stability: 1.1 - Active development
+> Stability: 2 - Stable
 
-> This feature was previously named "Import assertions", and using the `assert`
-> keyword instead of `with`. Because the version of V8 on this release line does
-> not support the `with` keyword, you need to keep using `assert` to support
-> this version of Node.js.
-
-The [Import Attributes proposal][] adds an inline syntax for module import
+[Import attributes][Import Attributes MDN] are an inline syntax for module import
 statements to pass on more information alongside the module specifier.
 
 ```js
-import fooData from './foo.json' assert { type: 'json' };
+import fooData from './foo.json' with { type: 'json' };
 
 const { default: barData } =
-  await import('./bar.json', { assert: { type: 'json' } });
+  await import('./bar.json', { with: { type: 'json' } });
 ```
 
-Node.js supports the following `type` values, for which the attribute is
-mandatory:
+Node.js only supports the `type` attribute, for which it supports the following values:
 
 | Attribute `type` | Needed for       |
 | ---------------- | ---------------- |
 | `'json'`         | [JSON modules][] |
 
-## Builtin modules
+The `type: 'json'` attribute is mandatory when importing JSON modules.
 
-[Core modules][] provide named exports of their public API. A
+## Built-in modules
+
+[Built-in modules][] provide named exports of their public API. A
 default export is also provided which is the value of the CommonJS exports.
 The default export can be used for, among other things, modifying the named
-exports. Named exports of builtin modules are updated only by calling
+exports. Named exports of built-in modules are updated only by calling
 [`module.syncBuiltinESMExports()`][].
 
 ```js
@@ -317,7 +330,36 @@ modules it can be used to load ES modules.
 * {Object}
 
 The `import.meta` meta property is an `Object` that contains the following
-properties.
+properties. It is only supported in ES modules.
+
+### `import.meta.dirname`
+
+<!-- YAML
+added: v20.11.0
+-->
+
+> Stability: 1.2 - Release candidate
+
+* {string} The directory name of the current module. This is the same as the
+  [`path.dirname()`][] of the [`import.meta.filename`][].
+
+> **Caveat**: only present on `file:` modules.
+
+### `import.meta.filename`
+
+<!-- YAML
+added: v20.11.0
+-->
+
+> Stability: 1.2 - Release candidate
+
+* {string} The full absolute path and filename of the current module, with
+  symlinks resolved.
+* This is the same as the [`url.fileURLToPath()`][] of the
+  [`import.meta.url`][].
+
+> **Caveat** only local modules support this property. Modules not using the
+> `file:` protocol will not provide it.
 
 ### `import.meta.url`
 
@@ -340,15 +382,15 @@ added:
   - v13.9.0
   - v12.16.2
 changes:
-  - version: v18.19.0
+  - version: v20.6.0
     pr-url: https://github.com/nodejs/node/pull/49028
-    description: Unflag `import.meta.resolve``, with `parentURL` parameter still
+    description: Unflag `import.meta.resolve`, with `parentURL` parameter still
                  flagged.
-  - version: v18.19.0
+  - version: v20.6.0
     pr-url: https://github.com/nodejs/node/pull/49038
     description: This API no longer throws when targeting `file:` URLs that do
                  not map to an existing file on the local FS.
-  - version: v18.19.0
+  - version: v20.0.0
     pr-url: https://github.com/nodejs/node/pull/44710
     description: This API now returns a string synchronously instead of a Promise.
   - version:
@@ -407,11 +449,10 @@ compatibility.
 
 ### `require`
 
-The CommonJS module `require` always treats the files it references as CommonJS.
+The CommonJS module `require` currently only supports loading synchronous ES
+modules when `--experimental-require-module` is enabled.
 
-Using `require` to load an ES module is not supported because ES modules have
-asynchronous execution. Instead, use [`import()`][] to load an ES module
-from a CommonJS module.
+See [Loading ECMAScript modules using `require()`][] for details.
 
 ### CommonJS Namespaces
 
@@ -513,7 +554,7 @@ If needed, a `require` function can be constructed within an ES module using
 These CommonJS variables are not available in ES modules.
 
 `__filename` and `__dirname` use cases can be replicated via
-[`import.meta.url`][].
+[`import.meta.filename`][] and [`import.meta.dirname`][].
 
 #### No Addon Loading
 
@@ -550,15 +591,22 @@ separate cache.
 
 ## JSON modules
 
-> Stability: 1 - Experimental
+<!-- YAML
+changes:
+  - version: v20.18.3
+    pr-url: https://github.com/nodejs/node/pull/55333
+    description: JSON modules are no longer experimental.
+-->
+
+> Stability: 2 - Stable
 
 JSON files can be referenced by `import`:
 
 ```js
-import packageConfig from './package.json' assert { type: 'json' };
+import packageConfig from './package.json' with { type: 'json' };
 ```
 
-The `assert { type: 'json' }` syntax is mandatory; see [Import Attributes][].
+The `with { type: 'json' }` syntax is mandatory; see [Import Attributes][].
 
 The imported JSON only exposes a `default` export. There is no support for named
 exports. A cache entry is created in the CommonJS cache to avoid duplication.
@@ -891,9 +939,9 @@ The resolver can throw the following errors:
 >       2. If _resolved_ is not **null** or **undefined**, return _resolved_.
 > 3. Otherwise, if _exports_ is an Object and all keys of _exports_ start with
 >    _"."_, then
->    1. Let _matchKey_ be the string _"./"_ concatenated with _subpath_.
+>    1. Assert: _subpath_ begins with _"./"_.
 >    2. Let _resolved_ be the result of **PACKAGE\_IMPORTS\_EXPORTS\_RESOLVE**(
->       _matchKey_, _exports_, _packageURL_, **false**, _conditions_).
+>       _subpath_, _exports_, _packageURL_, **false**, _conditions_).
 >    3. If _resolved_ is not **null** or **undefined**, return _resolved_.
 > 4. Throw a _Package Path Not Exported_ error.
 
@@ -941,19 +989,15 @@ _isImports_, _conditions_)
 
 **PATTERN\_KEY\_COMPARE**(_keyA_, _keyB_)
 
-> 1. Assert: _keyA_ ends with _"/"_ or contains only a single _"\*"_.
-> 2. Assert: _keyB_ ends with _"/"_ or contains only a single _"\*"_.
-> 3. Let _baseLengthA_ be the index of _"\*"_ in _keyA_ plus one, if _keyA_
->    contains _"\*"_, or the length of _keyA_ otherwise.
-> 4. Let _baseLengthB_ be the index of _"\*"_ in _keyB_ plus one, if _keyB_
->    contains _"\*"_, or the length of _keyB_ otherwise.
+> 1. Assert: _keyA_ contains only a single _"\*"_.
+> 2. Assert: _keyB_ contains only a single _"\*"_.
+> 3. Let _baseLengthA_ be the index of _"\*"_ in _keyA_.
+> 4. Let _baseLengthB_ be the index of _"\*"_ in _keyB_.
 > 5. If _baseLengthA_ is greater than _baseLengthB_, return -1.
 > 6. If _baseLengthB_ is greater than _baseLengthA_, return 1.
-> 7. If _keyA_ does not contain _"\*"_, return 1.
-> 8. If _keyB_ does not contain _"\*"_, return -1.
-> 9. If the length of _keyA_ is greater than the length of _keyB_, return -1.
-> 10. If the length of _keyB_ is greater than the length of _keyA_, return 1.
-> 11. Return 0.
+> 7. If the length of _keyA_ is greater than the length of _keyB_, return -1.
+> 8. If the length of _keyB_ is greater than the length of _keyA_, return 1.
+> 9. Return 0.
 
 **PACKAGE\_TARGET\_RESOLVE**(_packageURL_, _target_, _patternMatch_,
 _isImports_, _conditions_)
@@ -973,7 +1017,7 @@ _isImports_, _conditions_)
 >       Package Target_ error.
 >    3. Let _resolvedTarget_ be the URL resolution of the concatenation of
 >       _packageURL_ and _target_.
->    4. Assert: _resolvedTarget_ is contained in _packageURL_.
+>    4. Assert: _packageURL_ is contained in _resolvedTarget_.
 >    5. If _patternMatch_ is **null**, then
 >       1. Return _resolvedTarget_.
 >    6. If _patternMatch_ split on _"/"_ or _"\\"_ contains any _""_, _"."_,
@@ -982,7 +1026,7 @@ _isImports_, _conditions_)
 >    7. Return the URL resolution of _resolvedTarget_ with every instance of
 >       _"\*"_ replaced with _patternMatch_.
 > 2. Otherwise, if _target_ is a non-null Object, then
->    1. If _exports_ contains any index property keys, as defined in ECMA-262
+>    1. If _target_ contains any index property keys, as defined in ECMA-262
 >       [6.1.7 Array Index][], throw an _Invalid Package Configuration_ error.
 >    2. For each property _p_ of _target_, in object insertion order as,
 >       1. If _p_ equals _"default"_ or _conditions_ contains an entry for _p_,
@@ -1016,18 +1060,33 @@ _isImports_, _conditions_)
 >    1. Return _"commonjs"_.
 > 4. If _url_ ends in _".json"_, then
 >    1. Return _"json"_.
-> 5. Let _packageURL_ be the result of **LOOKUP\_PACKAGE\_SCOPE**(_url_).
-> 6. Let _pjson_ be the result of **READ\_PACKAGE\_JSON**(_packageURL_).
-> 7. If _pjson?.type_ exists and is _"module"_, then
->    1. If _url_ ends in _".js"_ or has no file extension, then
->       1. If `--experimental-wasm-modules` is enabled and the file at _url_
->          contains the header for a WebAssembly module, then
->          1. Return _"wasm"_.
->       2. Otherwise,
->          1. Return _"module"_.
->    2. Return **undefined**.
-> 8. Otherwise,
->    1. Return **undefined**.
+> 5. If `--experimental-wasm-modules` is enabled and _url_ ends in
+>    _".wasm"_, then
+>    1. Return _"wasm"_.
+> 6. Let _packageURL_ be the result of **LOOKUP\_PACKAGE\_SCOPE**(_url_).
+> 7. Let _pjson_ be the result of **READ\_PACKAGE\_JSON**(_packageURL_).
+> 8. Let _packageType_ be **null**.
+> 9. If _pjson?.type_ is _"module"_ or _"commonjs"_, then
+>    1. Set _packageType_ to _pjson.type_.
+> 10. If _url_ ends in _".js"_, then
+>     1. If _packageType_ is not **null**, then
+>        1. Return _packageType_.
+>     2. If `--experimental-detect-module` is enabled and the result of
+>        **DETECT\_MODULE\_SYNTAX**(_source_) is true, then
+>        1. Return _"module"_.
+>     3. Return _"commonjs"_.
+> 11. If _url_ does not have any extension, then
+>     1. If _packageType_ is _"module"_ and `--experimental-wasm-modules` is
+>        enabled and the file at _url_ contains the header for a WebAssembly
+>        module, then
+>        1. Return _"wasm"_.
+>     2. If _packageType_ is not **null**, then
+>        1. Return _packageType_.
+>     3. If `--experimental-detect-module` is enabled and the source of
+>        module contains static import or export syntax, then
+>        1. Return _"module"_.
+>     4. Return _"commonjs"_.
+> 12. Return **undefined** (will throw during load phase).
 
 **LOOKUP\_PACKAGE\_SCOPE**(_url_)
 
@@ -1050,46 +1109,36 @@ _isImports_, _conditions_)
 >    1. Throw an _Invalid Package Configuration_ error.
 > 4. Return the parsed JSON source of the file at _pjsonURL_.
 
+**DETECT\_MODULE\_SYNTAX**(_source_)
+
+> 1. Parse _source_ as an ECMAScript module.
+> 2. If the parse is successful, then
+>    1. If _source_ contains top-level `await`, static `import` or `export`
+>       statements, or `import.meta`, return **true**.
+>    2. If _source_ contains a top-level lexical declaration (`const`, `let`,
+>       or `class`) of any of the CommonJS wrapper variables (`require`,
+>       `exports`, `module`, `__filename`, or `__dirname`) then return **true**.
+> 3. Else return **false**.
+
 ### Customizing ESM specifier resolution algorithm
 
-> Stability: 1 - Experimental
-
-> Do not rely on this flag. We plan to remove it once the
-> [Module customization hooks][] have advanced to the point that equivalent
-> functionality can be achieved via custom hooks.
-
-The current specifier resolution does not support all default behavior of
-the CommonJS loader. One of the behavior differences is automatic resolution
-of file extensions and the ability to import directories that have an index
-file.
-
-The `--experimental-specifier-resolution=[mode]` flag can be used to customize
-the extension resolution algorithm. The default mode is `explicit`, which
-requires the full path to a module be provided to the loader. To enable the
-automatic extension resolution and importing from directories that include an
-index file use the `node` mode.
-
-```console
-$ node index.mjs
-success!
-$ node index # Failure!
-Error: Cannot find module
-$ node --experimental-specifier-resolution=node index
-success!
-```
+[Module customization hooks][] provide a mechanism for customizing the ESM
+specifier resolution algorithm. An example that provides CommonJS-style
+resolution for ESM specifiers is [commonjs-extension-resolution-loader][].
 
 <!-- Note: The cjs-module-lexer link should be kept in-sync with the deps version -->
 
 [6.1.7 Array Index]: https://tc39.es/ecma262/#integer-index
 [Addons]: addons.md
+[Built-in modules]: modules.md#built-in-modules
 [CommonJS]: modules.md
-[Core modules]: modules.md#core-modules
 [Determining module system]: packages.md#determining-module-system
 [Dynamic `import()`]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import
 [ES Module Integration Proposal for WebAssembly]: https://github.com/webassembly/esm-integration
 [Import Attributes]: #import-attributes
-[Import Attributes proposal]: https://github.com/tc39/proposal-import-attributes
+[Import Attributes MDN]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import/with
 [JSON modules]: #json-modules
+[Loading ECMAScript modules using `require()`]: modules.md#loading-ecmascript-modules-using-require
 [Module customization hooks]: module.md#customization-hooks
 [Node.js Module Resolution And Loading Algorithm]: #resolution-algorithm-specification
 [Terminology]: #terminology
@@ -1101,18 +1150,23 @@ success!
 [`data:` URLs]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs
 [`export`]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export
 [`import()`]: #import-expressions
+[`import.meta.dirname`]: #importmetadirname
+[`import.meta.filename`]: #importmetafilename
 [`import.meta.resolve`]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import.meta/resolve
 [`import.meta.url`]: #importmetaurl
 [`import`]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import
 [`module.createRequire()`]: module.md#modulecreaterequirefilename
 [`module.syncBuiltinESMExports()`]: module.md#modulesyncbuiltinesmexports
 [`package.json`]: packages.md#nodejs-packagejson-field-definitions
+[`path.dirname()`]: path.md#pathdirnamepath
 [`process.dlopen`]: process.md#processdlopenmodule-filename-flags
+[`url.fileURLToPath()`]: url.md#urlfileurltopathurl-options
 [cjs-module-lexer]: https://github.com/nodejs/cjs-module-lexer/tree/1.2.2
+[commonjs-extension-resolution-loader]: https://github.com/nodejs/loaders-test/tree/main/commonjs-extension-resolution-loader
 [custom https loader]: module.md#import-from-https
 [import.meta.resolve]: #importmetaresolvespecifier
 [percent-encoded]: url.md#percent-encoding-in-urls
 [special scheme]: https://url.spec.whatwg.org/#special-scheme
 [status code]: process.md#exit-codes
 [the official standard format]: https://tc39.github.io/ecma262/#sec-modules
-[url.pathToFileURL]: url.md#urlpathtofileurlpath
+[url.pathToFileURL]: url.md#urlpathtofileurlpath-options

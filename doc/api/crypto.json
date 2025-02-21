@@ -8,12 +8,12 @@
       "introduced_in": "v0.3.6",
       "stability": 2,
       "stabilityText": "Stable",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.19.1/lib/crypto.js\">lib/crypto.js</a></p>\n<p>The <code>node:crypto</code> module provides cryptographic functionality that includes a\nset of wrappers for OpenSSL's hash, HMAC, cipher, decipher, sign, and verify\nfunctions.</p>\n<pre><code class=\"language-mjs\">const { createHmac } = await import('node:crypto');\n\nconst secret = 'abcdefg';\nconst hash = createHmac('sha256', secret)\n               .update('I love cupcakes')\n               .digest('hex');\nconsole.log(hash);\n// Prints:\n//   c0fa1bc00531bd78ef38c628449c5102aeabd49b5dc3a2a516ea6ea959d6658e\n</code></pre>\n<pre><code class=\"language-cjs\">const { createHmac } = require('node:crypto');\n\nconst secret = 'abcdefg';\nconst hash = createHmac('sha256', secret)\n               .update('I love cupcakes')\n               .digest('hex');\nconsole.log(hash);\n// Prints:\n//   c0fa1bc00531bd78ef38c628449c5102aeabd49b5dc3a2a516ea6ea959d6658e\n</code></pre>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v20.18.3/lib/crypto.js\">lib/crypto.js</a></p>\n<p>The <code>node:crypto</code> module provides cryptographic functionality that includes a\nset of wrappers for OpenSSL's hash, HMAC, cipher, decipher, sign, and verify\nfunctions.</p>\n<pre><code class=\"language-mjs\">const { createHmac } = await import('node:crypto');\n\nconst secret = 'abcdefg';\nconst hash = createHmac('sha256', secret)\n               .update('I love cupcakes')\n               .digest('hex');\nconsole.log(hash);\n// Prints:\n//   c0fa1bc00531bd78ef38c628449c5102aeabd49b5dc3a2a516ea6ea959d6658e\n</code></pre>\n<pre><code class=\"language-cjs\">const { createHmac } = require('node:crypto');\n\nconst secret = 'abcdefg';\nconst hash = createHmac('sha256', secret)\n               .update('I love cupcakes')\n               .digest('hex');\nconsole.log(hash);\n// Prints:\n//   c0fa1bc00531bd78ef38c628449c5102aeabd49b5dc3a2a516ea6ea959d6658e\n</code></pre>",
       "modules": [
         {
           "textRaw": "Determining if crypto support is unavailable",
           "name": "determining_if_crypto_support_is_unavailable",
-          "desc": "<p>It is possible for Node.js to be built without including support for the\n<code>node:crypto</code> module. In such cases, attempting to <code>import</code> from <code>crypto</code> or\ncalling <code>require('node:crypto')</code> will result in an error being thrown.</p>\n<p>When using CommonJS, the error thrown can be caught using try/catch:</p>\n<!-- eslint-skip -->\n<pre><code class=\"language-cjs\">let crypto;\ntry {\n  crypto = require('node:crypto');\n} catch (err) {\n  console.error('crypto support is disabled!');\n}\n</code></pre>\n<p>When using the lexical ESM <code>import</code> keyword, the error can only be\ncaught if a handler for <code>process.on('uncaughtException')</code> is registered\n<em>before</em> any attempt to load the module is made (using, for instance,\na preload module).</p>\n<p>When using ESM, if there is a chance that the code may be run on a build\nof Node.js where crypto support is not enabled, consider using the\n<a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import\"><code>import()</code></a> function instead of the lexical <code>import</code> keyword:</p>\n<pre><code class=\"language-mjs\">let crypto;\ntry {\n  crypto = await import('node:crypto');\n} catch (err) {\n  console.error('crypto support is disabled!');\n}\n</code></pre>",
+          "desc": "<p>It is possible for Node.js to be built without including support for the\n<code>node:crypto</code> module. In such cases, attempting to <code>import</code> from <code>crypto</code> or\ncalling <code>require('node:crypto')</code> will result in an error being thrown.</p>\n<p>When using CommonJS, the error thrown can be caught using try/catch:</p>\n<!-- eslint-disable no-global-assign -->\n<pre><code class=\"language-cjs\">let crypto;\ntry {\n  crypto = require('node:crypto');\n} catch (err) {\n  console.error('crypto support is disabled!');\n}\n</code></pre>\n<!-- eslint-enable no-global-assign -->\n<p>When using the lexical ESM <code>import</code> keyword, the error can only be\ncaught if a handler for <code>process.on('uncaughtException')</code> is registered\n<em>before</em> any attempt to load the module is made (using, for instance,\na preload module).</p>\n<p>When using ESM, if there is a chance that the code may be run on a build\nof Node.js where crypto support is not enabled, consider using the\n<a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import\"><code>import()</code></a> function instead of the lexical <code>import</code> keyword:</p>\n<pre><code class=\"language-mjs\">let crypto;\ntry {\n  crypto = await import('node:crypto');\n} catch (err) {\n  console.error('crypto support is disabled!');\n}\n</code></pre>",
           "type": "module",
           "displayName": "Determining if crypto support is unavailable"
         },
@@ -32,22 +32,6 @@
                 "changes": []
               },
               "desc": "<p>An object containing commonly used constants for crypto and security related\noperations. The specific constants currently defined are described in\n<a href=\"#crypto-constants\">Crypto constants</a>.</p>"
-            },
-            {
-              "textRaw": "`crypto.DEFAULT_ENCODING`",
-              "name": "DEFAULT_ENCODING",
-              "meta": {
-                "added": [
-                  "v0.9.3"
-                ],
-                "deprecated": [
-                  "v10.0.0"
-                ],
-                "changes": []
-              },
-              "stability": 0,
-              "stabilityText": "Deprecated",
-              "desc": "<p>The default encoding to use for functions that can take either strings\nor <a href=\"buffer.html\">buffers</a>. The default value is <code>'buffer'</code>, which makes methods\ndefault to <a href=\"buffer.html\"><code>Buffer</code></a> objects.</p>\n<p>The <code>crypto.DEFAULT_ENCODING</code> mechanism is provided for backward compatibility\nwith legacy programs that expect <code>'latin1'</code> to be the default encoding.</p>\n<p>New applications should expect the default to be <code>'buffer'</code>.</p>\n<p>This property is deprecated.</p>"
             },
             {
               "textRaw": "`crypto.fips`",
@@ -210,7 +194,10 @@
                 ],
                 "changes": [
                   {
-                    "version": "v17.9.0",
+                    "version": [
+                      "v17.9.0",
+                      "v16.17.0"
+                    ],
                     "pr-url": "https://github.com/nodejs/node/pull/42427",
                     "description": "The `authTagLength` option is now optional when using the `chacha20-poly1305` cipher and defaults to 16 bytes."
                   },
@@ -272,7 +259,10 @@
                 ],
                 "changes": [
                   {
-                    "version": "v17.9.0",
+                    "version": [
+                      "v17.9.0",
+                      "v16.17.0"
+                    ],
                     "pr-url": "https://github.com/nodejs/node/pull/42427",
                     "description": "The `authTagLength` option is now optional when using the `chacha20-poly1305` cipher and defaults to 16 bytes."
                   },
@@ -358,7 +348,10 @@
                 ],
                 "changes": [
                   {
-                    "version": "v17.9.0",
+                    "version": [
+                      "v17.9.0",
+                      "v16.17.0"
+                    ],
                     "pr-url": "https://github.com/nodejs/node/pull/42427",
                     "description": "The `authTagLength` option is now optional when using the `chacha20-poly1305` cipher and defaults to 16 bytes."
                   },
@@ -410,7 +403,10 @@
                 ],
                 "changes": [
                   {
-                    "version": "v17.9.0",
+                    "version": [
+                      "v17.9.0",
+                      "v16.17.0"
+                    ],
                     "pr-url": "https://github.com/nodejs/node/pull/42427",
                     "description": "The `authTagLength` option is now optional when using the `chacha20-poly1305` cipher and defaults to 16 bytes."
                   },
@@ -804,7 +800,10 @@
                 ],
                 "changes": [
                   {
-                    "version": "v18.8.0",
+                    "version": [
+                      "v18.8.0",
+                      "v16.18.0"
+                    ],
                     "pr-url": "https://github.com/nodejs/node/pull/44201",
                     "description": "The key can now be zero-length."
                   },
@@ -946,7 +945,50 @@
                   ]
                 }
               ],
-              "desc": "<p>Computes the Diffie-Hellman secret based on a <code>privateKey</code> and a <code>publicKey</code>.\nBoth keys must have the same <code>asymmetricKeyType</code>, which must be one of <code>'dh'</code>\n(for Diffie-Hellman), <code>'ec'</code> (for ECDH), <code>'x448'</code>, or <code>'x25519'</code> (for ECDH-ES).</p>"
+              "desc": "<p>Computes the Diffie-Hellman secret based on a <code>privateKey</code> and a <code>publicKey</code>.\nBoth keys must have the same <code>asymmetricKeyType</code>, which must be one of <code>'dh'</code>\n(for Diffie-Hellman), <code>'ec'</code>, <code>'x448'</code>, or <code>'x25519'</code> (for ECDH).</p>"
+            },
+            {
+              "textRaw": "`crypto.hash(algorithm, data[, outputEncoding])`",
+              "type": "method",
+              "name": "hash",
+              "meta": {
+                "added": [
+                  "v20.12.0"
+                ],
+                "changes": []
+              },
+              "stability": 1,
+              "stabilityText": ".2 - Release candidate",
+              "signatures": [
+                {
+                  "return": {
+                    "textRaw": "Returns: {string|Buffer}",
+                    "name": "return",
+                    "type": "string|Buffer"
+                  },
+                  "params": [
+                    {
+                      "textRaw": "`algorithm` {string|undefined}",
+                      "name": "algorithm",
+                      "type": "string|undefined"
+                    },
+                    {
+                      "textRaw": "`data` {string|Buffer|TypedArray|DataView} When `data` is a string, it will be encoded as UTF-8 before being hashed. If a different input encoding is desired for a string input, user could encode the string into a `TypedArray` using either `TextEncoder` or `Buffer.from()` and passing the encoded `TypedArray` into this API instead.",
+                      "name": "data",
+                      "type": "string|Buffer|TypedArray|DataView",
+                      "desc": "When `data` is a string, it will be encoded as UTF-8 before being hashed. If a different input encoding is desired for a string input, user could encode the string into a `TypedArray` using either `TextEncoder` or `Buffer.from()` and passing the encoded `TypedArray` into this API instead."
+                    },
+                    {
+                      "textRaw": "`outputEncoding` {string|undefined} [Encoding][encoding] used to encode the returned digest. **Default:** `'hex'`.",
+                      "name": "outputEncoding",
+                      "type": "string|undefined",
+                      "default": "`'hex'`",
+                      "desc": "[Encoding][encoding] used to encode the returned digest."
+                    }
+                  ]
+                }
+              ],
+              "desc": "<p>A utility for creating one-shot hash digests of data. It can be faster than\nthe object-based <code>crypto.createHash()</code> when hashing a smaller amount of data\n(&#x3C;= 5MB) that's readily available. If the data can be big or if it is streamed,\nit's still recommended to use <code>crypto.createHash()</code> instead.</p>\n<p>The <code>algorithm</code> is dependent on the available algorithms supported by the\nversion of OpenSSL on the platform. Examples are <code>'sha256'</code>, <code>'sha512'</code>, etc.\nOn recent releases of OpenSSL, <code>openssl list -digest-algorithms</code> will\ndisplay the available digest algorithms.</p>\n<p>Example:</p>\n<pre><code class=\"language-cjs\">const crypto = require('node:crypto');\nconst { Buffer } = require('node:buffer');\n\n// Hashing a string and return the result as a hex-encoded string.\nconst string = 'Node.js';\n// 10b3493287f831e81a438811a1ffba01f8cec4b7\nconsole.log(crypto.hash('sha1', string));\n\n// Encode a base64-encoded string into a Buffer, hash it and return\n// the result as a buffer.\nconst base64 = 'Tm9kZS5qcw==';\n// &#x3C;Buffer 10 b3 49 32 87 f8 31 e8 1a 43 88 11 a1 ff ba 01 f8 ce c4 b7>\nconsole.log(crypto.hash('sha1', Buffer.from(base64, 'base64'), 'buffer'));\n</code></pre>\n<pre><code class=\"language-mjs\">import crypto from 'node:crypto';\nimport { Buffer } from 'node:buffer';\n\n// Hashing a string and return the result as a hex-encoded string.\nconst string = 'Node.js';\n// 10b3493287f831e81a438811a1ffba01f8cec4b7\nconsole.log(crypto.hash('sha1', string));\n\n// Encode a base64-encoded string into a Buffer, hash it and return\n// the result as a buffer.\nconst base64 = 'Tm9kZS5qcw==';\n// &#x3C;Buffer 10 b3 49 32 87 f8 31 e8 1a 43 88 11 a1 ff ba 01 f8 ce c4 b7>\nconsole.log(crypto.hash('sha1', Buffer.from(base64, 'base64'), 'buffer'));\n</code></pre>"
             },
             {
               "textRaw": "`crypto.generateKey(type, options, callback)`",
@@ -1800,7 +1842,10 @@
                 ],
                 "changes": [
                   {
-                    "version": "v18.8.0",
+                    "version": [
+                      "v18.8.0",
+                      "v16.18.0"
+                    ],
                     "pr-url": "https://github.com/nodejs/node/pull/44201",
                     "description": "The input keying material can now be zero-length."
                   },
@@ -1876,7 +1921,10 @@
                 ],
                 "changes": [
                   {
-                    "version": "v18.8.0",
+                    "version": [
+                      "v18.8.0",
+                      "v16.18.0"
+                    ],
                     "pr-url": "https://github.com/nodejs/node/pull/44201",
                     "description": "The input keying material can now be zero-length."
                   }
@@ -2090,6 +2138,15 @@
                 ],
                 "changes": [
                   {
+                    "version": [
+                      "v21.6.2",
+                      "v20.11.1",
+                      "v18.19.1"
+                    ],
+                    "pr-url": "https://github.com/nodejs-private/node-private/pull/515",
+                    "description": "The `RSA_PKCS1_PADDING` padding was disabled unless the OpenSSL build supports implicit rejection."
+                  },
+                  {
                     "version": "v15.0.0",
                     "pr-url": "https://github.com/nodejs/node/pull/35093",
                     "description": "Added string, ArrayBuffer, and CryptoKey as allowable key types. The oaepLabel can be an ArrayBuffer. The buffer can be a string or ArrayBuffer. All types that accept buffers are limited to a maximum of 2 ** 31 - 1 bytes."
@@ -2116,7 +2173,7 @@
                   "params": []
                 }
               ],
-              "desc": "<!--lint disable maximum-line-length remark-lint-->\n<ul>\n<li><code>privateKey</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object\" class=\"type\">&lt;Object&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer\" class=\"type\">&lt;ArrayBuffer&gt;</a> | <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray\" class=\"type\">&lt;TypedArray&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView\" class=\"type\">&lt;DataView&gt;</a> | <a href=\"crypto.html#class-keyobject\" class=\"type\">&lt;KeyObject&gt;</a> | <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a>\n<ul>\n<li><code>oaepHash</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> The hash function to use for OAEP padding and MGF1.\n<strong>Default:</strong> <code>'sha1'</code></li>\n<li><code>oaepLabel</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer\" class=\"type\">&lt;ArrayBuffer&gt;</a> | <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray\" class=\"type\">&lt;TypedArray&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView\" class=\"type\">&lt;DataView&gt;</a> The label to\nuse for OAEP padding. If not specified, no label is used.</li>\n<li><code>padding</code> <a href=\"crypto.html#cryptoconstants\" class=\"type\">&lt;crypto.constants&gt;</a> An optional padding value defined in\n<code>crypto.constants</code>, which may be: <code>crypto.constants.RSA_NO_PADDING</code>,\n<code>crypto.constants.RSA_PKCS1_PADDING</code>, or\n<code>crypto.constants.RSA_PKCS1_OAEP_PADDING</code>.</li>\n</ul>\n</li>\n<li><code>buffer</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer\" class=\"type\">&lt;ArrayBuffer&gt;</a> | <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray\" class=\"type\">&lt;TypedArray&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView\" class=\"type\">&lt;DataView&gt;</a></li>\n<li>Returns: <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a> A new <code>Buffer</code> with the decrypted content.</li>\n</ul>\n<!--lint enable maximum-line-length remark-lint-->\n<p>Decrypts <code>buffer</code> with <code>privateKey</code>. <code>buffer</code> was previously encrypted using\nthe corresponding public key, for example using <a href=\"#cryptopublicencryptkey-buffer\"><code>crypto.publicEncrypt()</code></a>.</p>\n<p>If <code>privateKey</code> is not a <a href=\"#class-keyobject\"><code>KeyObject</code></a>, this function behaves as if\n<code>privateKey</code> had been passed to <a href=\"#cryptocreateprivatekeykey\"><code>crypto.createPrivateKey()</code></a>. If it is an\nobject, the <code>padding</code> property can be passed. Otherwise, this function uses\n<code>RSA_PKCS1_OAEP_PADDING</code>.</p>"
+              "desc": "<!--lint disable maximum-line-length remark-lint-->\n<ul>\n<li><code>privateKey</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object\" class=\"type\">&lt;Object&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer\" class=\"type\">&lt;ArrayBuffer&gt;</a> | <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray\" class=\"type\">&lt;TypedArray&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView\" class=\"type\">&lt;DataView&gt;</a> | <a href=\"crypto.html#class-keyobject\" class=\"type\">&lt;KeyObject&gt;</a> | <a href=\"webcrypto.html#class-cryptokey\" class=\"type\">&lt;CryptoKey&gt;</a>\n<ul>\n<li><code>oaepHash</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> The hash function to use for OAEP padding and MGF1.\n<strong>Default:</strong> <code>'sha1'</code></li>\n<li><code>oaepLabel</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer\" class=\"type\">&lt;ArrayBuffer&gt;</a> | <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray\" class=\"type\">&lt;TypedArray&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView\" class=\"type\">&lt;DataView&gt;</a> The label to\nuse for OAEP padding. If not specified, no label is used.</li>\n<li><code>padding</code> <a href=\"crypto.html#cryptoconstants\" class=\"type\">&lt;crypto.constants&gt;</a> An optional padding value defined in\n<code>crypto.constants</code>, which may be: <code>crypto.constants.RSA_NO_PADDING</code>,\n<code>crypto.constants.RSA_PKCS1_PADDING</code>, or\n<code>crypto.constants.RSA_PKCS1_OAEP_PADDING</code>.</li>\n</ul>\n</li>\n<li><code>buffer</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer\" class=\"type\">&lt;ArrayBuffer&gt;</a> | <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray\" class=\"type\">&lt;TypedArray&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView\" class=\"type\">&lt;DataView&gt;</a></li>\n<li>Returns: <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a> A new <code>Buffer</code> with the decrypted content.</li>\n</ul>\n<!--lint enable maximum-line-length remark-lint-->\n<p>Decrypts <code>buffer</code> with <code>privateKey</code>. <code>buffer</code> was previously encrypted using\nthe corresponding public key, for example using <a href=\"#cryptopublicencryptkey-buffer\"><code>crypto.publicEncrypt()</code></a>.</p>\n<p>If <code>privateKey</code> is not a <a href=\"#class-keyobject\"><code>KeyObject</code></a>, this function behaves as if\n<code>privateKey</code> had been passed to <a href=\"#cryptocreateprivatekeykey\"><code>crypto.createPrivateKey()</code></a>. If it is an\nobject, the <code>padding</code> property can be passed. Otherwise, this function uses\n<code>RSA_PKCS1_OAEP_PADDING</code>.</p>\n<p>Using <code>crypto.constants.RSA_PKCS1_PADDING</code> in <a href=\"#cryptoprivatedecryptprivatekey-buffer\"><code>crypto.privateDecrypt()</code></a>\nrequires OpenSSL to support implicit rejection (<code>rsa_pkcs1_implicit_rejection</code>).\nIf the version of OpenSSL used by Node.js does not support this feature,\nattempting to use <code>RSA_PKCS1_PADDING</code> will fail.</p>"
             },
             {
               "textRaw": "`crypto.privateEncrypt(privateKey, buffer)`",
@@ -2742,7 +2799,13 @@
                 "added": [
                   "v0.11.11"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v20.16.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/53329",
+                    "description": "Custom engine support in OpenSSL 3 is deprecated."
+                  }
+                ]
               },
               "signatures": [
                 {
@@ -2761,7 +2824,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Load and set the <code>engine</code> for some or all OpenSSL functions (selected by flags).</p>\n<p><code>engine</code> could be either an id or a path to the engine's shared library.</p>\n<p>The optional <code>flags</code> argument uses <code>ENGINE_METHOD_ALL</code> by default. The <code>flags</code>\nis a bit field taking one of or a mix of the following flags (defined in\n<code>crypto.constants</code>):</p>\n<ul>\n<li><code>crypto.constants.ENGINE_METHOD_RSA</code></li>\n<li><code>crypto.constants.ENGINE_METHOD_DSA</code></li>\n<li><code>crypto.constants.ENGINE_METHOD_DH</code></li>\n<li><code>crypto.constants.ENGINE_METHOD_RAND</code></li>\n<li><code>crypto.constants.ENGINE_METHOD_EC</code></li>\n<li><code>crypto.constants.ENGINE_METHOD_CIPHERS</code></li>\n<li><code>crypto.constants.ENGINE_METHOD_DIGESTS</code></li>\n<li><code>crypto.constants.ENGINE_METHOD_PKEY_METHS</code></li>\n<li><code>crypto.constants.ENGINE_METHOD_PKEY_ASN1_METHS</code></li>\n<li><code>crypto.constants.ENGINE_METHOD_ALL</code></li>\n<li><code>crypto.constants.ENGINE_METHOD_NONE</code></li>\n</ul>"
+              "desc": "<p>Load and set the <code>engine</code> for some or all OpenSSL functions (selected by flags).\nSupport for custom engines in OpenSSL is deprecated from OpenSSL 3.</p>\n<p><code>engine</code> could be either an id or a path to the engine's shared library.</p>\n<p>The optional <code>flags</code> argument uses <code>ENGINE_METHOD_ALL</code> by default. The <code>flags</code>\nis a bit field taking one of or a mix of the following flags (defined in\n<code>crypto.constants</code>):</p>\n<ul>\n<li><code>crypto.constants.ENGINE_METHOD_RSA</code></li>\n<li><code>crypto.constants.ENGINE_METHOD_DSA</code></li>\n<li><code>crypto.constants.ENGINE_METHOD_DH</code></li>\n<li><code>crypto.constants.ENGINE_METHOD_RAND</code></li>\n<li><code>crypto.constants.ENGINE_METHOD_EC</code></li>\n<li><code>crypto.constants.ENGINE_METHOD_CIPHERS</code></li>\n<li><code>crypto.constants.ENGINE_METHOD_DIGESTS</code></li>\n<li><code>crypto.constants.ENGINE_METHOD_PKEY_METHS</code></li>\n<li><code>crypto.constants.ENGINE_METHOD_PKEY_ASN1_METHS</code></li>\n<li><code>crypto.constants.ENGINE_METHOD_ALL</code></li>\n<li><code>crypto.constants.ENGINE_METHOD_NONE</code></li>\n</ul>"
             },
             {
               "textRaw": "`crypto.setFips(bool)`",
@@ -2958,7 +3021,7 @@
             {
               "textRaw": "OpenSSL options",
               "name": "openssl_options",
-              "desc": "<p>See the <a href=\"https://wiki.openssl.org/index.php/List_of_SSL_OP_Flags#Table_of_Options\">list of SSL OP Flags</a> for details.</p>\n<table>\n  <tr>\n    <th>Constant</th>\n    <th>Description</th>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_ALL</code></td>\n    <td>Applies multiple bug workarounds within OpenSSL. See\n    <a href=\"https://www.openssl.org/docs/man3.0/man3/SSL_CTX_set_options.html\">https://www.openssl.org/docs/man3.0/man3/SSL_CTX_set_options.html</a>\n    for detail.</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_ALLOW_NO_DHE_KEX</code></td>\n    <td>Instructs OpenSSL to allow a non-[EC]DHE-based key exchange mode\n    for TLS v1.3</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION</code></td>\n    <td>Allows legacy insecure renegotiation between OpenSSL and unpatched\n    clients or servers. See\n    <a href=\"https://www.openssl.org/docs/man3.0/man3/SSL_CTX_set_options.html\">https://www.openssl.org/docs/man3.0/man3/SSL_CTX_set_options.html</a>.</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_CIPHER_SERVER_PREFERENCE</code></td>\n    <td>Attempts to use the server's preferences instead of the client's when\n    selecting a cipher. Behavior depends on protocol version. See\n    <a href=\"https://www.openssl.org/docs/man3.0/man3/SSL_CTX_set_options.html\">https://www.openssl.org/docs/man3.0/man3/SSL_CTX_set_options.html</a>.</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_CISCO_ANYCONNECT</code></td>\n    <td>Instructs OpenSSL to use Cisco's \"speshul\" version of DTLS_BAD_VER.</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_COOKIE_EXCHANGE</code></td>\n    <td>Instructs OpenSSL to turn on cookie exchange.</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_CRYPTOPRO_TLSEXT_BUG</code></td>\n    <td>Instructs OpenSSL to add server-hello extension from an early version\n    of the cryptopro draft.</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS</code></td>\n    <td>Instructs OpenSSL to disable a SSL 3.0/TLS 1.0 vulnerability\n    workaround added in OpenSSL 0.9.6d.</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_LEGACY_SERVER_CONNECT</code></td>\n    <td>Allows initial connection to servers that do not support RI.</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_NO_COMPRESSION</code></td>\n    <td>Instructs OpenSSL to disable support for SSL/TLS compression.</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_NO_ENCRYPT_THEN_MAC</code></td>\n    <td>Instructs OpenSSL to disable encrypt-then-MAC.</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_NO_QUERY_MTU</code></td>\n    <td></td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_NO_RENEGOTIATION</code></td>\n    <td>Instructs OpenSSL to disable renegotiation.</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION</code></td>\n    <td>Instructs OpenSSL to always start a new session when performing\n    renegotiation.</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_NO_SSLv2</code></td>\n    <td>Instructs OpenSSL to turn off SSL v2</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_NO_SSLv3</code></td>\n    <td>Instructs OpenSSL to turn off SSL v3</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_NO_TICKET</code></td>\n    <td>Instructs OpenSSL to disable use of RFC4507bis tickets.</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_NO_TLSv1</code></td>\n    <td>Instructs OpenSSL to turn off TLS v1</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_NO_TLSv1_1</code></td>\n    <td>Instructs OpenSSL to turn off TLS v1.1</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_NO_TLSv1_2</code></td>\n    <td>Instructs OpenSSL to turn off TLS v1.2</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_NO_TLSv1_3</code></td>\n    <td>Instructs OpenSSL to turn off TLS v1.3</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_PRIORITIZE_CHACHA</code></td>\n    <td>Instructs OpenSSL server to prioritize ChaCha20-Poly1305\n    when the client does.\n    This option has no effect if\n    <code>SSL_OP_CIPHER_SERVER_PREFERENCE</code>\n    is not enabled.</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_TLS_ROLLBACK_BUG</code></td>\n    <td>Instructs OpenSSL to disable version rollback attack detection.</td>\n  </tr>\n</table>",
+              "desc": "<p>See the <a href=\"https://wiki.openssl.org/index.php/List_of_SSL_OP_Flags#Table_of_Options\">list of SSL OP Flags</a> for details.</p>\n<table>\n  <tr>\n    <th>Constant</th>\n    <th>Description</th>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_ALL</code></td>\n    <td>Applies multiple bug workarounds within OpenSSL. See\n    <a href=\"https://www.openssl.org/docs/man3.0/man3/SSL_CTX_set_options.html\">https://www.openssl.org/docs/man3.0/man3/SSL_CTX_set_options.html</a>\n    for detail.</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_ALLOW_NO_DHE_KEX</code></td>\n    <td>Instructs OpenSSL to allow a non-[EC]DHE-based key exchange mode\n    for TLS v1.3</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION</code></td>\n    <td>Allows legacy insecure renegotiation between OpenSSL and unpatched\n    clients or servers. See\n    <a href=\"https://www.openssl.org/docs/man3.0/man3/SSL_CTX_set_options.html\">https://www.openssl.org/docs/man3.0/man3/SSL_CTX_set_options.html</a>.</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_CIPHER_SERVER_PREFERENCE</code></td>\n    <td>Attempts to use the server's preferences instead of the client's when\n    selecting a cipher. Behavior depends on protocol version. See\n    <a href=\"https://www.openssl.org/docs/man3.0/man3/SSL_CTX_set_options.html\">https://www.openssl.org/docs/man3.0/man3/SSL_CTX_set_options.html</a>.</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_CISCO_ANYCONNECT</code></td>\n    <td>Instructs OpenSSL to use Cisco's version identifier of DTLS_BAD_VER.</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_COOKIE_EXCHANGE</code></td>\n    <td>Instructs OpenSSL to turn on cookie exchange.</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_CRYPTOPRO_TLSEXT_BUG</code></td>\n    <td>Instructs OpenSSL to add server-hello extension from an early version\n    of the cryptopro draft.</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS</code></td>\n    <td>Instructs OpenSSL to disable a SSL 3.0/TLS 1.0 vulnerability\n    workaround added in OpenSSL 0.9.6d.</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_LEGACY_SERVER_CONNECT</code></td>\n    <td>Allows initial connection to servers that do not support RI.</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_NO_COMPRESSION</code></td>\n    <td>Instructs OpenSSL to disable support for SSL/TLS compression.</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_NO_ENCRYPT_THEN_MAC</code></td>\n    <td>Instructs OpenSSL to disable encrypt-then-MAC.</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_NO_QUERY_MTU</code></td>\n    <td></td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_NO_RENEGOTIATION</code></td>\n    <td>Instructs OpenSSL to disable renegotiation.</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION</code></td>\n    <td>Instructs OpenSSL to always start a new session when performing\n    renegotiation.</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_NO_SSLv2</code></td>\n    <td>Instructs OpenSSL to turn off SSL v2</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_NO_SSLv3</code></td>\n    <td>Instructs OpenSSL to turn off SSL v3</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_NO_TICKET</code></td>\n    <td>Instructs OpenSSL to disable use of RFC4507bis tickets.</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_NO_TLSv1</code></td>\n    <td>Instructs OpenSSL to turn off TLS v1</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_NO_TLSv1_1</code></td>\n    <td>Instructs OpenSSL to turn off TLS v1.1</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_NO_TLSv1_2</code></td>\n    <td>Instructs OpenSSL to turn off TLS v1.2</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_NO_TLSv1_3</code></td>\n    <td>Instructs OpenSSL to turn off TLS v1.3</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_PRIORITIZE_CHACHA</code></td>\n    <td>Instructs OpenSSL server to prioritize ChaCha20-Poly1305\n    when the client does.\n    This option has no effect if\n    <code>SSL_OP_CIPHER_SERVER_PREFERENCE</code>\n    is not enabled.</td>\n  </tr>\n  <tr>\n    <td><code>SSL_OP_TLS_ROLLBACK_BUG</code></td>\n    <td>Instructs OpenSSL to disable version rollback attack detection.</td>\n  </tr>\n</table>",
               "type": "module",
               "displayName": "OpenSSL options"
             },
@@ -2972,7 +3035,7 @@
             {
               "textRaw": "Other OpenSSL constants",
               "name": "other_openssl_constants",
-              "desc": "<table>\n  <tr>\n    <th>Constant</th>\n    <th>Description</th>\n  </tr>\n  <tr>\n    <td><code>DH_CHECK_P_NOT_SAFE_PRIME</code></td>\n    <td></td>\n  </tr>\n  <tr>\n    <td><code>DH_CHECK_P_NOT_PRIME</code></td>\n    <td></td>\n  </tr>\n  <tr>\n    <td><code>DH_UNABLE_TO_CHECK_GENERATOR</code></td>\n    <td></td>\n  </tr>\n  <tr>\n    <td><code>DH_NOT_SUITABLE_GENERATOR</code></td>\n    <td></td>\n  </tr>\n  <tr>\n    <td><code>ALPN_ENABLED</code></td>\n    <td></td>\n  </tr>\n  <tr>\n    <td><code>RSA_PKCS1_PADDING</code></td>\n    <td></td>\n  </tr>\n  <tr>\n    <td><code>RSA_SSLV23_PADDING</code></td>\n    <td></td>\n  </tr>\n  <tr>\n    <td><code>RSA_NO_PADDING</code></td>\n    <td></td>\n  </tr>\n  <tr>\n    <td><code>RSA_PKCS1_OAEP_PADDING</code></td>\n    <td></td>\n  </tr>\n  <tr>\n    <td><code>RSA_X931_PADDING</code></td>\n    <td></td>\n  </tr>\n  <tr>\n    <td><code>RSA_PKCS1_PSS_PADDING</code></td>\n    <td></td>\n  </tr>\n  <tr>\n    <td><code>RSA_PSS_SALTLEN_DIGEST</code></td>\n    <td>Sets the salt length for <code>RSA_PKCS1_PSS_PADDING</code> to the\n        digest size when signing or verifying.</td>\n  </tr>\n  <tr>\n    <td><code>RSA_PSS_SALTLEN_MAX_SIGN</code></td>\n    <td>Sets the salt length for <code>RSA_PKCS1_PSS_PADDING</code> to the\n        maximum permissible value when signing data.</td>\n  </tr>\n  <tr>\n    <td><code>RSA_PSS_SALTLEN_AUTO</code></td>\n    <td>Causes the salt length for <code>RSA_PKCS1_PSS_PADDING</code> to be\n        determined automatically when verifying a signature.</td>\n  </tr>\n  <tr>\n    <td><code>POINT_CONVERSION_COMPRESSED</code></td>\n    <td></td>\n  </tr>\n  <tr>\n    <td><code>POINT_CONVERSION_UNCOMPRESSED</code></td>\n    <td></td>\n  </tr>\n  <tr>\n    <td><code>POINT_CONVERSION_HYBRID</code></td>\n    <td></td>\n  </tr>\n</table>",
+              "desc": "<table>\n  <tr>\n    <th>Constant</th>\n    <th>Description</th>\n  </tr>\n  <tr>\n    <td><code>DH_CHECK_P_NOT_SAFE_PRIME</code></td>\n    <td></td>\n  </tr>\n  <tr>\n    <td><code>DH_CHECK_P_NOT_PRIME</code></td>\n    <td></td>\n  </tr>\n  <tr>\n    <td><code>DH_UNABLE_TO_CHECK_GENERATOR</code></td>\n    <td></td>\n  </tr>\n  <tr>\n    <td><code>DH_NOT_SUITABLE_GENERATOR</code></td>\n    <td></td>\n  </tr>\n  <tr>\n    <td><code>RSA_PKCS1_PADDING</code></td>\n    <td></td>\n  </tr>\n  <tr>\n    <td><code>RSA_SSLV23_PADDING</code></td>\n    <td></td>\n  </tr>\n  <tr>\n    <td><code>RSA_NO_PADDING</code></td>\n    <td></td>\n  </tr>\n  <tr>\n    <td><code>RSA_PKCS1_OAEP_PADDING</code></td>\n    <td></td>\n  </tr>\n  <tr>\n    <td><code>RSA_X931_PADDING</code></td>\n    <td></td>\n  </tr>\n  <tr>\n    <td><code>RSA_PKCS1_PSS_PADDING</code></td>\n    <td></td>\n  </tr>\n  <tr>\n    <td><code>RSA_PSS_SALTLEN_DIGEST</code></td>\n    <td>Sets the salt length for <code>RSA_PKCS1_PSS_PADDING</code> to the\n        digest size when signing or verifying.</td>\n  </tr>\n  <tr>\n    <td><code>RSA_PSS_SALTLEN_MAX_SIGN</code></td>\n    <td>Sets the salt length for <code>RSA_PKCS1_PSS_PADDING</code> to the\n        maximum permissible value when signing data.</td>\n  </tr>\n  <tr>\n    <td><code>RSA_PSS_SALTLEN_AUTO</code></td>\n    <td>Causes the salt length for <code>RSA_PKCS1_PSS_PADDING</code> to be\n        determined automatically when verifying a signature.</td>\n  </tr>\n  <tr>\n    <td><code>POINT_CONVERSION_COMPRESSED</code></td>\n    <td></td>\n  </tr>\n  <tr>\n    <td><code>POINT_CONVERSION_UNCOMPRESSED</code></td>\n    <td></td>\n  </tr>\n  <tr>\n    <td><code>POINT_CONVERSION_HYBRID</code></td>\n    <td></td>\n  </tr>\n</table>",
               "type": "module",
               "displayName": "Other OpenSSL constants"
             },
@@ -3335,10 +3398,10 @@
               "signatures": [
                 {
                   "return": {
-                    "textRaw": "Returns: {Cipher} for method chaining.",
+                    "textRaw": "Returns: {Cipher} The same `Cipher` instance for method chaining.",
                     "name": "return",
                     "type": "Cipher",
-                    "desc": "for method chaining."
+                    "desc": "The same `Cipher` instance for method chaining."
                   },
                   "params": [
                     {
@@ -3383,10 +3446,10 @@
               "signatures": [
                 {
                   "return": {
-                    "textRaw": "Returns: {Cipher} for method chaining.",
+                    "textRaw": "Returns: {Cipher} The same `Cipher` instance for method chaining.",
                     "name": "return",
                     "type": "Cipher",
-                    "desc": "for method chaining."
+                    "desc": "The same `Cipher` instance for method chaining."
                   },
                   "params": [
                     {
@@ -3514,10 +3577,10 @@
               "signatures": [
                 {
                   "return": {
-                    "textRaw": "Returns: {Decipher} for method chaining.",
+                    "textRaw": "Returns: {Decipher} The same Decipher for method chaining.",
                     "name": "return",
                     "type": "Decipher",
-                    "desc": "for method chaining."
+                    "desc": "The same Decipher for method chaining."
                   },
                   "params": [
                     {
@@ -3559,6 +3622,11 @@
                 ],
                 "changes": [
                   {
+                    "version": "v20.13.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/52345",
+                    "description": "Using GCM tag lengths other than 128 bits without specifying the `authTagLength` option when creating `decipher` is deprecated."
+                  },
+                  {
                     "version": "v15.0.0",
                     "pr-url": "https://github.com/nodejs/node/pull/35093",
                     "description": "The buffer argument can be a string or ArrayBuffer and is limited to no more than 2 ** 31 - 1 bytes."
@@ -3578,10 +3646,10 @@
               "signatures": [
                 {
                   "return": {
-                    "textRaw": "Returns: {Decipher} for method chaining.",
+                    "textRaw": "Returns: {Decipher} The same Decipher for method chaining.",
                     "name": "return",
                     "type": "Decipher",
-                    "desc": "for method chaining."
+                    "desc": "The same Decipher for method chaining."
                   },
                   "params": [
                     {
@@ -3613,10 +3681,10 @@
               "signatures": [
                 {
                   "return": {
-                    "textRaw": "Returns: {Decipher} for method chaining.",
+                    "textRaw": "Returns: {Decipher} The same Decipher for method chaining.",
                     "name": "return",
                     "type": "Decipher",
-                    "desc": "for method chaining."
+                    "desc": "The same Decipher for method chaining."
                   },
                   "params": [
                     {
@@ -3674,7 +3742,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Updates the decipher with <code>data</code>. If the <code>inputEncoding</code> argument is given,\nthe <code>data</code>\nargument is a string using the specified encoding. If the <code>inputEncoding</code>\nargument is not given, <code>data</code> must be a <a href=\"buffer.html\"><code>Buffer</code></a>. If <code>data</code> is a\n<a href=\"buffer.html\"><code>Buffer</code></a> then <code>inputEncoding</code> is ignored.</p>\n<p>The <code>outputEncoding</code> specifies the output format of the enciphered\ndata. If the <code>outputEncoding</code>\nis specified, a string using the specified encoding is returned. If no\n<code>outputEncoding</code> is provided, a <a href=\"buffer.html\"><code>Buffer</code></a> is returned.</p>\n<p>The <code>decipher.update()</code> method can be called multiple times with new data until\n<a href=\"#decipherfinaloutputencoding\"><code>decipher.final()</code></a> is called. Calling <code>decipher.update()</code> after\n<a href=\"#decipherfinaloutputencoding\"><code>decipher.final()</code></a> will result in an error being thrown.</p>"
+              "desc": "<p>Updates the decipher with <code>data</code>. If the <code>inputEncoding</code> argument is given,\nthe <code>data</code>\nargument is a string using the specified encoding. If the <code>inputEncoding</code>\nargument is not given, <code>data</code> must be a <a href=\"buffer.html\"><code>Buffer</code></a>. If <code>data</code> is a\n<a href=\"buffer.html\"><code>Buffer</code></a> then <code>inputEncoding</code> is ignored.</p>\n<p>The <code>outputEncoding</code> specifies the output format of the enciphered\ndata. If the <code>outputEncoding</code>\nis specified, a string using the specified encoding is returned. If no\n<code>outputEncoding</code> is provided, a <a href=\"buffer.html\"><code>Buffer</code></a> is returned.</p>\n<p>The <code>decipher.update()</code> method can be called multiple times with new data until\n<a href=\"#decipherfinaloutputencoding\"><code>decipher.final()</code></a> is called. Calling <code>decipher.update()</code> after\n<a href=\"#decipherfinaloutputencoding\"><code>decipher.final()</code></a> will result in an error being thrown.</p>\n<p>Even if the underlying cipher implements authentication, the authenticity and\nintegrity of the plaintext returned from this function may be uncertain at this\ntime. For authenticated encryption algorithms, authenticity is generally only\nestablished when the application calls <a href=\"#decipherfinaloutputencoding\"><code>decipher.final()</code></a>.</p>"
             }
           ]
         },
@@ -4479,7 +4547,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Example: Converting a <code>CryptoKey</code> instance to a <code>KeyObject</code>:</p>\n<pre><code class=\"language-mjs\">const { webcrypto, KeyObject } = await import('node:crypto');\nconst { subtle } = webcrypto;\n\nconst key = await subtle.generateKey({\n  name: 'HMAC',\n  hash: 'SHA-256',\n  length: 256,\n}, true, ['sign', 'verify']);\n\nconst keyObject = KeyObject.from(key);\nconsole.log(keyObject.symmetricKeySize);\n// Prints: 32 (symmetric key size in bytes)\n</code></pre>\n<pre><code class=\"language-cjs\">const {\n  webcrypto: {\n    subtle,\n  },\n  KeyObject,\n} = require('node:crypto');\n\n(async function() {\n  const key = await subtle.generateKey({\n    name: 'HMAC',\n    hash: 'SHA-256',\n    length: 256,\n  }, true, ['sign', 'verify']);\n\n  const keyObject = KeyObject.from(key);\n  console.log(keyObject.symmetricKeySize);\n  // Prints: 32 (symmetric key size in bytes)\n})();\n</code></pre>"
+              "desc": "<p>Example: Converting a <code>CryptoKey</code> instance to a <code>KeyObject</code>:</p>\n<pre><code class=\"language-mjs\">const { KeyObject } = await import('node:crypto');\nconst { subtle } = globalThis.crypto;\n\nconst key = await subtle.generateKey({\n  name: 'HMAC',\n  hash: 'SHA-256',\n  length: 256,\n}, true, ['sign', 'verify']);\n\nconst keyObject = KeyObject.from(key);\nconsole.log(keyObject.symmetricKeySize);\n// Prints: 32 (symmetric key size in bytes)\n</code></pre>\n<pre><code class=\"language-cjs\">const { KeyObject } = require('node:crypto');\nconst { subtle } = globalThis.crypto;\n\n(async function() {\n  const key = await subtle.generateKey({\n    name: 'HMAC',\n    hash: 'SHA-256',\n    length: 256,\n  }, true, ['sign', 'verify']);\n\n  const keyObject = KeyObject.from(key);\n  console.log(keyObject.symmetricKeySize);\n  // Prints: 32 (symmetric key size in bytes)\n})();\n</code></pre>"
             }
           ],
           "properties": [
@@ -4652,7 +4720,8 @@
               "name": "equals",
               "meta": {
                 "added": [
-                  "v17.7.0"
+                  "v17.7.0",
+                  "v16.15.0"
                 ],
                 "changes": []
               },
@@ -4974,7 +5043,7 @@
               "desc": "<p>The issuer certificate or <code>undefined</code> if the issuer certificate is not\navailable.</p>"
             },
             {
-              "textRaw": "`keyUsage` Type: {string\\[]}",
+              "textRaw": "`extKeyUsage` Type: {string\\[]}",
               "type": "string\\[]",
               "name": "Type",
               "meta": {
@@ -4983,7 +5052,7 @@
                 ],
                 "changes": []
               },
-              "desc": "<p>An array detailing the key usages for this certificate.</p>"
+              "desc": "<p>An array detailing the key extended usages for this certificate.</p>"
             },
             {
               "textRaw": "`publicKey` Type: {KeyObject}",
@@ -5064,7 +5133,7 @@
                 ],
                 "changes": []
               },
-              "desc": "<p>The date/time from which this certificate is considered valid.</p>"
+              "desc": "<p>The date/time from which this certificate is valid.</p>"
             },
             {
               "textRaw": "`validTo` Type: {string}",
@@ -5076,7 +5145,7 @@
                 ],
                 "changes": []
               },
-              "desc": "<p>The date/time until which this certificate is considered valid.</p>"
+              "desc": "<p>The date/time until which this certificate is valid.</p>"
             }
           ],
           "methods": [
@@ -5103,7 +5172,10 @@
                     "description": "The `wildcards`, `partialWildcards`, `multiLabelWildcards`, and `singleLabelSubdomains` options have been removed since they had no effect."
                   },
                   {
-                    "version": "v17.5.0",
+                    "version": [
+                      "v17.5.0",
+                      "v16.15.0"
+                    ],
                     "pr-url": "https://github.com/nodejs/node/pull/41569",
                     "description": "The subject option can now be set to `'default'`."
                   }
@@ -5157,7 +5229,10 @@
                     "description": "The subject option now defaults to `'default'`."
                   },
                   {
-                    "version": "v17.5.0",
+                    "version": [
+                      "v17.5.0",
+                      "v16.15.0"
+                    ],
                     "pr-url": "https://github.com/nodejs/node/pull/41569",
                     "description": "The subject option can now be set to `'default'`."
                   }

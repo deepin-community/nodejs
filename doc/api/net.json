@@ -6,17 +6,26 @@
       "textRaw": "Net",
       "name": "net",
       "introduced_in": "v0.10.0",
-      "desc": "<!--lint disable maximum-line-length-->\n<blockquote>\n<p>Stability: 2 - Stable</p>\n</blockquote>\n<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.19.1/lib/net.js\">lib/net.js</a></p>\n<p>The <code>node:net</code> module provides an asynchronous network API for creating stream-based\nTCP or <a href=\"#ipc-support\">IPC</a> servers (<a href=\"#netcreateserveroptions-connectionlistener\"><code>net.createServer()</code></a>) and clients\n(<a href=\"#netcreateconnection\"><code>net.createConnection()</code></a>).</p>\n<p>It can be accessed using:</p>\n<pre><code class=\"language-js\">const net = require('node:net');\n</code></pre>",
+      "desc": "<!--lint disable maximum-line-length-->\n<blockquote>\n<p>Stability: 2 - Stable</p>\n</blockquote>\n<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v20.18.3/lib/net.js\">lib/net.js</a></p>\n<p>The <code>node:net</code> module provides an asynchronous network API for creating stream-based\nTCP or <a href=\"#ipc-support\">IPC</a> servers (<a href=\"#netcreateserveroptions-connectionlistener\"><code>net.createServer()</code></a>) and clients\n(<a href=\"#netcreateconnection\"><code>net.createConnection()</code></a>).</p>\n<p>It can be accessed using:</p>\n<pre><code class=\"language-mjs\">import net from 'node:net';\n</code></pre>\n<pre><code class=\"language-cjs\">const net = require('node:net');\n</code></pre>",
       "modules": [
         {
           "textRaw": "IPC support",
           "name": "ipc_support",
+          "meta": {
+            "changes": [
+              {
+                "version": "v20.8.0",
+                "pr-url": "https://github.com/nodejs/node/pull/49667",
+                "description": "Support binding to abstract Unix domain socket path like `\\0abstract`. We can bind '\\0' for Node.js `< v20.4.0`."
+              }
+            ]
+          },
           "desc": "<p>The <code>node:net</code> module supports IPC with named pipes on Windows, and Unix domain\nsockets on other operating systems.</p>",
           "modules": [
             {
               "textRaw": "Identifying paths for IPC connections",
               "name": "identifying_paths_for_ipc_connections",
-              "desc": "<p><a href=\"#netconnect\"><code>net.connect()</code></a>, <a href=\"#netcreateconnection\"><code>net.createConnection()</code></a>, <a href=\"#serverlisten\"><code>server.listen()</code></a>, and\n<a href=\"#socketconnect\"><code>socket.connect()</code></a> take a <code>path</code> parameter to identify IPC endpoints.</p>\n<p>On Unix, the local domain is also known as the Unix domain. The path is a\nfile system pathname. It gets truncated to an OS-dependent length of\n<code>sizeof(sockaddr_un.sun_path) - 1</code>. Typical values are 107 bytes on Linux and\n103 bytes on macOS. If a Node.js API abstraction creates the Unix domain socket,\nit will unlink the Unix domain socket as well. For example,\n<a href=\"#netcreateserveroptions-connectionlistener\"><code>net.createServer()</code></a> may create a Unix domain socket and\n<a href=\"#serverclosecallback\"><code>server.close()</code></a> will unlink it. But if a user creates the Unix domain\nsocket outside of these abstractions, the user will need to remove it. The same\napplies when a Node.js API creates a Unix domain socket but the program then\ncrashes. In short, a Unix domain socket will be visible in the file system and\nwill persist until unlinked.</p>\n<p>On Windows, the local domain is implemented using a named pipe. The path <em>must</em>\nrefer to an entry in <code>\\\\?\\pipe\\</code> or <code>\\\\.\\pipe\\</code>. Any characters are permitted,\nbut the latter may do some processing of pipe names, such as resolving <code>..</code>\nsequences. Despite how it might look, the pipe namespace is flat. Pipes will\n<em>not persist</em>. They are removed when the last reference to them is closed.\nUnlike Unix domain sockets, Windows will close and remove the pipe when the\nowning process exits.</p>\n<p>JavaScript string escaping requires paths to be specified with extra backslash\nescaping such as:</p>\n<pre><code class=\"language-js\">net.createServer().listen(\n  path.join('\\\\\\\\?\\\\pipe', process.cwd(), 'myctl'));\n</code></pre>",
+              "desc": "<p><a href=\"#netconnect\"><code>net.connect()</code></a>, <a href=\"#netcreateconnection\"><code>net.createConnection()</code></a>, <a href=\"#serverlisten\"><code>server.listen()</code></a>, and\n<a href=\"#socketconnect\"><code>socket.connect()</code></a> take a <code>path</code> parameter to identify IPC endpoints.</p>\n<p>On Unix, the local domain is also known as the Unix domain. The path is a\nfile system pathname. It gets truncated to an OS-dependent length of\n<code>sizeof(sockaddr_un.sun_path) - 1</code>. Typical values are 107 bytes on Linux and\n103 bytes on macOS. If a Node.js API abstraction creates the Unix domain socket,\nit will unlink the Unix domain socket as well. For example,\n<a href=\"#netcreateserveroptions-connectionlistener\"><code>net.createServer()</code></a> may create a Unix domain socket and\n<a href=\"#serverclosecallback\"><code>server.close()</code></a> will unlink it. But if a user creates the Unix domain\nsocket outside of these abstractions, the user will need to remove it. The same\napplies when a Node.js API creates a Unix domain socket but the program then\ncrashes. In short, a Unix domain socket will be visible in the file system and\nwill persist until unlinked. On Linux, You can use Unix abstract socket by adding\n<code>\\0</code> to the beginning of the path, such as <code>\\0abstract</code>. The path to the Unix\nabstract socket is not visible in the file system and it will disappear automatically\nwhen all open references to the socket are closed.</p>\n<p>On Windows, the local domain is implemented using a named pipe. The path <em>must</em>\nrefer to an entry in <code>\\\\?\\pipe\\</code> or <code>\\\\.\\pipe\\</code>. Any characters are permitted,\nbut the latter may do some processing of pipe names, such as resolving <code>..</code>\nsequences. Despite how it might look, the pipe namespace is flat. Pipes will\n<em>not persist</em>. They are removed when the last reference to them is closed.\nUnlike Unix domain sockets, Windows will close and remove the pipe when the\nowning process exits.</p>\n<p>JavaScript string escaping requires paths to be specified with extra backslash\nescaping such as:</p>\n<pre><code class=\"language-js\">net.createServer().listen(\n  path.join('\\\\\\\\?\\\\pipe', process.cwd(), 'myctl'));\n</code></pre>",
               "type": "module",
               "displayName": "Identifying paths for IPC connections"
             }
@@ -383,7 +392,8 @@
               "name": "drop",
               "meta": {
                 "added": [
-                  "v18.6.0"
+                  "v18.6.0",
+                  "v16.17.0"
                 ],
                 "changes": []
               },
@@ -460,7 +470,7 @@
               "name": "[Symbol.asyncDispose]",
               "meta": {
                 "added": [
-                  "v18.18.0"
+                  "v20.5.0"
                 ],
                 "changes": []
               },
@@ -587,22 +597,6 @@
                           "desc": "Required. Supports the following properties:",
                           "options": [
                             {
-                              "textRaw": "`port` {number}",
-                              "name": "port",
-                              "type": "number"
-                            },
-                            {
-                              "textRaw": "`host` {string}",
-                              "name": "host",
-                              "type": "string"
-                            },
-                            {
-                              "textRaw": "`path` {string} Will be ignored if `port` is specified. See [Identifying paths for IPC connections][].",
-                              "name": "path",
-                              "type": "string",
-                              "desc": "Will be ignored if `port` is specified. See [Identifying paths for IPC connections][]."
-                            },
-                            {
                               "textRaw": "`backlog` {number} Common parameter of [`server.listen()`][] functions.",
                               "name": "backlog",
                               "type": "number",
@@ -615,18 +609,9 @@
                               "default": "`false`"
                             },
                             {
-                              "textRaw": "`readableAll` {boolean} For IPC servers makes the pipe readable for all users. **Default:** `false`.",
-                              "name": "readableAll",
-                              "type": "boolean",
-                              "default": "`false`",
-                              "desc": "For IPC servers makes the pipe readable for all users."
-                            },
-                            {
-                              "textRaw": "`writableAll` {boolean} For IPC servers makes the pipe writable for all users. **Default:** `false`.",
-                              "name": "writableAll",
-                              "type": "boolean",
-                              "default": "`false`",
-                              "desc": "For IPC servers makes the pipe writable for all users."
+                              "textRaw": "`host` {string}",
+                              "name": "host",
+                              "type": "string"
                             },
                             {
                               "textRaw": "`ipv6Only` {boolean} For TCP servers, setting `ipv6Only` to `true` will disable dual-stack support, i.e., binding to host `::` won't make `0.0.0.0` be bound. **Default:** `false`.",
@@ -636,10 +621,35 @@
                               "desc": "For TCP servers, setting `ipv6Only` to `true` will disable dual-stack support, i.e., binding to host `::` won't make `0.0.0.0` be bound."
                             },
                             {
+                              "textRaw": "`path` {string} Will be ignored if `port` is specified. See [Identifying paths for IPC connections][].",
+                              "name": "path",
+                              "type": "string",
+                              "desc": "Will be ignored if `port` is specified. See [Identifying paths for IPC connections][]."
+                            },
+                            {
+                              "textRaw": "`port` {number}",
+                              "name": "port",
+                              "type": "number"
+                            },
+                            {
+                              "textRaw": "`readableAll` {boolean} For IPC servers makes the pipe readable for all users. **Default:** `false`.",
+                              "name": "readableAll",
+                              "type": "boolean",
+                              "default": "`false`",
+                              "desc": "For IPC servers makes the pipe readable for all users."
+                            },
+                            {
                               "textRaw": "`signal` {AbortSignal} An AbortSignal that may be used to close a listening server.",
                               "name": "signal",
                               "type": "AbortSignal",
                               "desc": "An AbortSignal that may be used to close a listening server."
+                            },
+                            {
+                              "textRaw": "`writableAll` {boolean} For IPC servers makes the pipe writable for all users. **Default:** `false`.",
+                              "name": "writableAll",
+                              "type": "boolean",
+                              "default": "`false`",
+                              "desc": "For IPC servers makes the pipe writable for all users."
                             }
                           ]
                         },
@@ -884,6 +894,108 @@
               "desc": "<p>Emitted when a socket connection is successfully established.\nSee <a href=\"#netcreateconnection\"><code>net.createConnection()</code></a>.</p>"
             },
             {
+              "textRaw": "Event: `'connectionAttempt'`",
+              "type": "event",
+              "name": "connectionAttempt",
+              "meta": {
+                "added": [
+                  "v20.12.0"
+                ],
+                "changes": []
+              },
+              "params": [
+                {
+                  "textRaw": "`ip` {string} The IP which the socket is attempting to connect to.",
+                  "name": "ip",
+                  "type": "string",
+                  "desc": "The IP which the socket is attempting to connect to."
+                },
+                {
+                  "textRaw": "`port` {number} The port which the socket is attempting to connect to.",
+                  "name": "port",
+                  "type": "number",
+                  "desc": "The port which the socket is attempting to connect to."
+                },
+                {
+                  "textRaw": "`family` {number} The family of the IP. It can be `6` for IPv6 or `4` for IPv4.",
+                  "name": "family",
+                  "type": "number",
+                  "desc": "The family of the IP. It can be `6` for IPv6 or `4` for IPv4."
+                }
+              ],
+              "desc": "<p>Emitted when a new connection attempt is started. This may be emitted multiple times\nif the family autoselection algorithm is enabled in <a href=\"#socketconnectoptions-connectlistener\"><code>socket.connect(options)</code></a>.</p>"
+            },
+            {
+              "textRaw": "Event: `'connectionAttemptFailed'`",
+              "type": "event",
+              "name": "connectionAttemptFailed",
+              "meta": {
+                "added": [
+                  "v20.12.0"
+                ],
+                "changes": []
+              },
+              "params": [
+                {
+                  "textRaw": "`ip` {string} The IP which the socket attempted to connect to.",
+                  "name": "ip",
+                  "type": "string",
+                  "desc": "The IP which the socket attempted to connect to."
+                },
+                {
+                  "textRaw": "`port` {number} The port which the socket attempted to connect to.",
+                  "name": "port",
+                  "type": "number",
+                  "desc": "The port which the socket attempted to connect to."
+                },
+                {
+                  "textRaw": "`family` {number} The family of the IP. It can be `6` for IPv6 or `4` for IPv4.",
+                  "name": "family",
+                  "type": "number",
+                  "desc": "The family of the IP. It can be `6` for IPv6 or `4` for IPv4."
+                },
+                {
+                  "textRaw": "`error` {Error} The error associated with the failure.",
+                  "name": "error",
+                  "type": "Error",
+                  "desc": "The error associated with the failure."
+                }
+              ],
+              "desc": "<p>Emitted when a connection attempt failed. This may be emitted multiple times\nif the family autoselection algorithm is enabled in <a href=\"#socketconnectoptions-connectlistener\"><code>socket.connect(options)</code></a>.</p>"
+            },
+            {
+              "textRaw": "Event: `'connectionAttemptTimeout'`",
+              "type": "event",
+              "name": "connectionAttemptTimeout",
+              "meta": {
+                "added": [
+                  "v20.12.0"
+                ],
+                "changes": []
+              },
+              "params": [
+                {
+                  "textRaw": "`ip` {string} The IP which the socket attempted to connect to.",
+                  "name": "ip",
+                  "type": "string",
+                  "desc": "The IP which the socket attempted to connect to."
+                },
+                {
+                  "textRaw": "`port` {number} The port which the socket attempted to connect to.",
+                  "name": "port",
+                  "type": "number",
+                  "desc": "The port which the socket attempted to connect to."
+                },
+                {
+                  "textRaw": "`family` {number} The family of the IP. It can be `6` for IPv6 or `4` for IPv4.",
+                  "name": "family",
+                  "type": "number",
+                  "desc": "The family of the IP. It can be `6` for IPv6 or `4` for IPv4."
+                }
+              ],
+              "desc": "<p>Emitted when a connection attempt timed out. This is only emitted (and may be\nemitted multiple times) if the family autoselection algorithm is enabled\nin <a href=\"#socketconnectoptions-connectlistener\"><code>socket.connect(options)</code></a>.</p>"
+            },
+            {
               "textRaw": "Event: `'data'`",
               "type": "event",
               "name": "data",
@@ -1046,24 +1158,30 @@
                     ],
                     "changes": [
                       {
-                        "version": "v18.18.0",
+                        "version": "v20.0.0",
+                        "pr-url": "https://github.com/nodejs/node/pull/46790",
+                        "description": "The default value for the autoSelectFamily option is now true. The `--enable-network-family-autoselection` CLI flag has been renamed to `--network-family-autoselection`. The old name is now an alias but it is discouraged."
+                      },
+                      {
+                        "version": "v19.4.0",
                         "pr-url": "https://github.com/nodejs/node/pull/45777",
                         "description": "The default value for autoSelectFamily option can be changed at runtime using `setDefaultAutoSelectFamily` or via the command line option `--enable-network-family-autoselection`."
                       },
                       {
-                        "version": "v18.13.0",
+                        "version": [
+                          "v19.3.0",
+                          "v18.13.0"
+                        ],
                         "pr-url": "https://github.com/nodejs/node/pull/44731",
                         "description": "Added the `autoSelectFamily` option."
                       },
                       {
-                        "version": "v17.7.0",
+                        "version": [
+                          "v17.7.0",
+                          "v16.15.0"
+                        ],
                         "pr-url": "https://github.com/nodejs/node/pull/41310",
                         "description": "The `noDelay`, `keepAlive`, and `keepAliveInitialDelay` options are supported now."
-                      },
-                      {
-                        "version": "v12.10.0",
-                        "pr-url": "https://github.com/nodejs/node/pull/25436",
-                        "description": "Added `onread` option."
                       },
                       {
                         "version": "v6.0.0",
@@ -1100,7 +1218,7 @@
                       ]
                     }
                   ],
-                  "desc": "<p>Initiate a connection on a given socket. Normally this method is not needed,\nthe socket should be created and opened with <a href=\"#netcreateconnection\"><code>net.createConnection()</code></a>. Use\nthis only when implementing a custom Socket.</p>\n<p>For TCP connections, available <code>options</code> are:</p>\n<ul>\n<li><code>port</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> Required. Port the socket should connect to.</li>\n<li><code>host</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> Host the socket should connect to. <strong>Default:</strong> <code>'localhost'</code>.</li>\n<li><code>localAddress</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> Local address the socket should connect from.</li>\n<li><code>localPort</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> Local port the socket should connect from.</li>\n<li><code>family</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a>: Version of IP stack. Must be <code>4</code>, <code>6</code>, or <code>0</code>. The value\n<code>0</code> indicates that both IPv4 and IPv6 addresses are allowed. <strong>Default:</strong> <code>0</code>.</li>\n<li><code>hints</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> Optional <a href=\"dns.html#supported-getaddrinfo-flags\"><code>dns.lookup()</code> hints</a>.</li>\n<li><code>lookup</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function\" class=\"type\">&lt;Function&gt;</a> Custom lookup function. <strong>Default:</strong> <a href=\"dns.html#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a>.</li>\n<li><code>noDelay</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> If set to <code>true</code>, it disables the use of Nagle's algorithm immediately\nafter the socket is established. <strong>Default:</strong> <code>false</code>.</li>\n<li><code>keepAlive</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> If set to <code>true</code>, it enables keep-alive functionality on the socket\nimmediately after the connection is established, similarly on what is done in\n<a href=\"#socketsetkeepaliveenable-initialdelay\"><code>socket.setKeepAlive([enable][, initialDelay])</code></a>.\n<strong>Default:</strong> <code>false</code>.</li>\n<li><code>keepAliveInitialDelay</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> If set to a positive number, it sets the initial delay before\nthe first keepalive probe is sent on an idle socket.<strong>Default:</strong> <code>0</code>.</li>\n<li><code>autoSelectFamily</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a>: If set to <code>true</code>, it enables a family autodetection algorithm\nthat loosely implements section 5 of <a href=\"https://www.rfc-editor.org/rfc/rfc8305.txt\">RFC 8305</a>.\nThe <code>all</code> option passed to lookup is set to <code>true</code> and the sockets attempts to connect to all\nobtained IPv6 and IPv4 addresses, in sequence, until a connection is established.\nThe first returned AAAA address is tried first, then the first returned A address,\nthen the second returned AAAA address and so on.\nEach connection attempt is given the amount of time specified by the <code>autoSelectFamilyAttemptTimeout</code>\noption before timing out and trying the next address.\nIgnored if the <code>family</code> option is not <code>0</code> or if <code>localAddress</code> is set.\nConnection errors are not emitted if at least one connection succeeds.\n<strong>Default:</strong> initially <code>false</code>, but it can be changed at runtime using <a href=\"#netsetdefaultautoselectfamilyvalue\"><code>net.setDefaultAutoSelectFamily(value)</code></a>\nor via the command line option <code>--enable-network-family-autoselection</code>.</li>\n<li><code>autoSelectFamilyAttemptTimeout</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a>: The amount of time in milliseconds to wait\nfor a connection attempt to finish before trying the next address when using the <code>autoSelectFamily</code> option.\nIf set to a positive integer less than <code>10</code>, then the value <code>10</code> will be used instead.\n<strong>Default:</strong> initially <code>250</code>, but it can be changed at runtime using <a href=\"#netsetdefaultautoselectfamilyattempttimeoutvalue\"><code>net.setDefaultAutoSelectFamilyAttemptTimeout(value)</code></a></li>\n</ul>\n<p>For <a href=\"#ipc-support\">IPC</a> connections, available <code>options</code> are:</p>\n<ul>\n<li><code>path</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> Required. Path the client should connect to.\nSee <a href=\"#identifying-paths-for-ipc-connections\">Identifying paths for IPC connections</a>. If provided, the TCP-specific\noptions above are ignored.</li>\n</ul>\n<p>For both types, available <code>options</code> include:</p>\n<ul>\n<li><code>onread</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object\" class=\"type\">&lt;Object&gt;</a> If specified, incoming data is stored in a single <code>buffer</code>\nand passed to the supplied <code>callback</code> when data arrives on the socket.\nThis will cause the streaming functionality to not provide any data.\nThe socket will emit events like <code>'error'</code>, <code>'end'</code>, and <code>'close'</code>\nas usual. Methods like <code>pause()</code> and <code>resume()</code> will also behave as\nexpected.\n<ul>\n<li><code>buffer</code> <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array\" class=\"type\">&lt;Uint8Array&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function\" class=\"type\">&lt;Function&gt;</a> Either a reusable chunk of memory to\nuse for storing incoming data or a function that returns such.</li>\n<li><code>callback</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function\" class=\"type\">&lt;Function&gt;</a> This function is called for every chunk of incoming\ndata. Two arguments are passed to it: the number of bytes written to\n<code>buffer</code> and a reference to <code>buffer</code>. Return <code>false</code> from this function to\nimplicitly <code>pause()</code> the socket. This function will be executed in the\nglobal context.</li>\n</ul>\n</li>\n</ul>\n<p>Following is an example of a client using the <code>onread</code> option:</p>\n<pre><code class=\"language-js\">const net = require('node:net');\nnet.connect({\n  port: 80,\n  onread: {\n    // Reuses a 4KiB Buffer for every read from the socket.\n    buffer: Buffer.alloc(4 * 1024),\n    callback: function(nread, buf) {\n      // Received data is available in `buf` from 0 to `nread`.\n      console.log(buf.toString('utf8', 0, nread));\n    },\n  },\n});\n</code></pre>"
+                  "desc": "<p>Initiate a connection on a given socket. Normally this method is not needed,\nthe socket should be created and opened with <a href=\"#netcreateconnection\"><code>net.createConnection()</code></a>. Use\nthis only when implementing a custom Socket.</p>\n<p>For TCP connections, available <code>options</code> are:</p>\n<ul>\n<li><code>autoSelectFamily</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a>: If set to <code>true</code>, it enables a family\nautodetection algorithm that loosely implements section 5 of <a href=\"https://www.rfc-editor.org/rfc/rfc8305.txt\">RFC 8305</a>. The\n<code>all</code> option passed to lookup is set to <code>true</code> and the sockets attempts to\nconnect to all obtained IPv6 and IPv4 addresses, in sequence, until a\nconnection is established. The first returned AAAA address is tried first,\nthen the first returned A address, then the second returned AAAA address and\nso on. Each connection attempt (but the last one) is given the amount of time\nspecified by the <code>autoSelectFamilyAttemptTimeout</code> option before timing out and\ntrying the next address. Ignored if the <code>family</code> option is not <code>0</code> or if\n<code>localAddress</code> is set. Connection errors are not emitted if at least one\nconnection succeeds. If all connections attempts fails, a single\n<code>AggregateError</code> with all failed attempts is emitted. <strong>Default:</strong>\n<a href=\"#netgetdefaultautoselectfamily\"><code>net.getDefaultAutoSelectFamily()</code></a>.</li>\n<li><code>autoSelectFamilyAttemptTimeout</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a>: The amount of time in milliseconds\nto wait for a connection attempt to finish before trying the next address when\nusing the <code>autoSelectFamily</code> option. If set to a positive integer less than\n<code>10</code>, then the value <code>10</code> will be used instead. <strong>Default:</strong>\n<a href=\"#netgetdefaultautoselectfamilyattempttimeout\"><code>net.getDefaultAutoSelectFamilyAttemptTimeout()</code></a>.</li>\n<li><code>family</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a>: Version of IP stack. Must be <code>4</code>, <code>6</code>, or <code>0</code>. The value\n<code>0</code> indicates that both IPv4 and IPv6 addresses are allowed. <strong>Default:</strong> <code>0</code>.</li>\n<li><code>hints</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> Optional <a href=\"dns.html#supported-getaddrinfo-flags\"><code>dns.lookup()</code> hints</a>.</li>\n<li><code>host</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> Host the socket should connect to. <strong>Default:</strong> <code>'localhost'</code>.</li>\n<li><code>keepAlive</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> If set to <code>true</code>, it enables keep-alive functionality on\nthe socket immediately after the connection is established, similarly on what\nis done in <a href=\"#socketsetkeepaliveenable-initialdelay\"><code>socket.setKeepAlive()</code></a>. <strong>Default:</strong> <code>false</code>.</li>\n<li><code>keepAliveInitialDelay</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> If set to a positive number, it sets the\ninitial delay before the first keepalive probe is sent on an idle socket.\n<strong>Default:</strong> <code>0</code>.</li>\n<li><code>localAddress</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> Local address the socket should connect from.</li>\n<li><code>localPort</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> Local port the socket should connect from.</li>\n<li><code>lookup</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function\" class=\"type\">&lt;Function&gt;</a> Custom lookup function. <strong>Default:</strong> <a href=\"dns.html#dnslookuphostname-options-callback\"><code>dns.lookup()</code></a>.</li>\n<li><code>noDelay</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> If set to <code>true</code>, it disables the use of Nagle's algorithm\nimmediately after the socket is established. <strong>Default:</strong> <code>false</code>.</li>\n<li><code>port</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> Required. Port the socket should connect to.</li>\n</ul>\n<p>For <a href=\"#ipc-support\">IPC</a> connections, available <code>options</code> are:</p>\n<ul>\n<li><code>path</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> Required. Path the client should connect to.\nSee <a href=\"#identifying-paths-for-ipc-connections\">Identifying paths for IPC connections</a>. If provided, the TCP-specific\noptions above are ignored.</li>\n</ul>"
                 },
                 {
                   "textRaw": "`socket.connect(path[, connectListener])`",
@@ -1309,7 +1427,8 @@
               "name": "resetAndDestroy",
               "meta": {
                 "added": [
-                  "v18.3.0"
+                  "v18.3.0",
+                  "v16.17.0"
                 ],
                 "changes": []
               },
@@ -1557,7 +1676,7 @@
               "name": "autoSelectFamilyAttemptedAddresses",
               "meta": {
                 "added": [
-                  "v18.18.0"
+                  "v19.4.0"
                 ],
                 "changes": []
               },
@@ -1653,7 +1772,8 @@
               "name": "localFamily",
               "meta": {
                 "added": [
-                  "v18.8.0"
+                  "v18.8.0",
+                  "v16.18.0"
                 ],
                 "changes": []
               },
@@ -1748,17 +1868,37 @@
                   "desc": "Available options are:",
                   "options": [
                     {
+                      "textRaw": "`allowHalfOpen` {boolean} If set to `false`, then the socket will automatically end the writable side when the readable side ends. See [`net.createServer()`][] and the [`'end'`][] event for details. **Default:** `false`.",
+                      "name": "allowHalfOpen",
+                      "type": "boolean",
+                      "default": "`false`",
+                      "desc": "If set to `false`, then the socket will automatically end the writable side when the readable side ends. See [`net.createServer()`][] and the [`'end'`][] event for details."
+                    },
+                    {
                       "textRaw": "`fd` {number} If specified, wrap around an existing socket with the given file descriptor, otherwise a new socket will be created.",
                       "name": "fd",
                       "type": "number",
                       "desc": "If specified, wrap around an existing socket with the given file descriptor, otherwise a new socket will be created."
                     },
                     {
-                      "textRaw": "`allowHalfOpen` {boolean} If set to `false`, then the socket will automatically end the writable side when the readable side ends. See [`net.createServer()`][] and the [`'end'`][] event for details. **Default:** `false`.",
-                      "name": "allowHalfOpen",
-                      "type": "boolean",
-                      "default": "`false`",
-                      "desc": "If set to `false`, then the socket will automatically end the writable side when the readable side ends. See [`net.createServer()`][] and the [`'end'`][] event for details."
+                      "textRaw": "`onread` {Object} If specified, incoming data is stored in a single `buffer` and passed to the supplied `callback` when data arrives on the socket. This will cause the streaming functionality to not provide any data. The socket will emit events like `'error'`, `'end'`, and `'close'` as usual. Methods like `pause()` and `resume()` will also behave as expected.",
+                      "name": "onread",
+                      "type": "Object",
+                      "desc": "If specified, incoming data is stored in a single `buffer` and passed to the supplied `callback` when data arrives on the socket. This will cause the streaming functionality to not provide any data. The socket will emit events like `'error'`, `'end'`, and `'close'` as usual. Methods like `pause()` and `resume()` will also behave as expected.",
+                      "options": [
+                        {
+                          "textRaw": "`buffer` {Buffer|Uint8Array|Function} Either a reusable chunk of memory to use for storing incoming data or a function that returns such.",
+                          "name": "buffer",
+                          "type": "Buffer|Uint8Array|Function",
+                          "desc": "Either a reusable chunk of memory to use for storing incoming data or a function that returns such."
+                        },
+                        {
+                          "textRaw": "`callback` {Function} This function is called for every chunk of incoming data. Two arguments are passed to it: the number of bytes written to `buffer` and a reference to `buffer`. Return `false` from this function to implicitly `pause()` the socket. This function will be executed in the global context.",
+                          "name": "callback",
+                          "type": "Function",
+                          "desc": "This function is called for every chunk of incoming data. Two arguments are passed to it: the number of bytes written to `buffer` and a reference to `buffer`. Return `false` from this function to implicitly `pause()` the socket. This function will be executed in the global context."
+                        }
+                      ]
                     },
                     {
                       "textRaw": "`readable` {boolean} Allow reads on the socket when an `fd` is passed, otherwise ignored. **Default:** `false`.",
@@ -1768,17 +1908,17 @@
                       "desc": "Allow reads on the socket when an `fd` is passed, otherwise ignored."
                     },
                     {
+                      "textRaw": "`signal` {AbortSignal} An Abort signal that may be used to destroy the socket.",
+                      "name": "signal",
+                      "type": "AbortSignal",
+                      "desc": "An Abort signal that may be used to destroy the socket."
+                    },
+                    {
                       "textRaw": "`writable` {boolean} Allow writes on the socket when an `fd` is passed, otherwise ignored. **Default:** `false`.",
                       "name": "writable",
                       "type": "boolean",
                       "default": "`false`",
                       "desc": "Allow writes on the socket when an `fd` is passed, otherwise ignored."
-                    },
-                    {
-                      "textRaw": "`signal` {AbortSignal} An Abort signal that may be used to destroy the socket.",
-                      "name": "signal",
-                      "type": "AbortSignal",
-                      "desc": "An Abort signal that may be used to destroy the socket."
                     }
                   ]
                 }
@@ -1951,7 +2091,7 @@
                   ]
                 }
               ],
-              "desc": "<p>For available options, see\n<a href=\"#new-netsocketoptions\"><code>new net.Socket([options])</code></a>\nand <a href=\"#socketconnectoptions-connectlistener\"><code>socket.connect(options[, connectListener])</code></a>.</p>\n<p>Additional options:</p>\n<ul>\n<li><code>timeout</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> If set, will be used to call\n<a href=\"#socketsettimeouttimeout-callback\"><code>socket.setTimeout(timeout)</code></a> after the socket is created, but before\nit starts the connection.</li>\n</ul>\n<p>Following is an example of a client of the echo server described\nin the <a href=\"#netcreateserveroptions-connectionlistener\"><code>net.createServer()</code></a> section:</p>\n<pre><code class=\"language-js\">const net = require('node:net');\nconst client = net.createConnection({ port: 8124 }, () => {\n  // 'connect' listener.\n  console.log('connected to server!');\n  client.write('world!\\r\\n');\n});\nclient.on('data', (data) => {\n  console.log(data.toString());\n  client.end();\n});\nclient.on('end', () => {\n  console.log('disconnected from server');\n});\n</code></pre>\n<p>To connect on the socket <code>/tmp/echo.sock</code>:</p>\n<pre><code class=\"language-js\">const client = net.createConnection({ path: '/tmp/echo.sock' });\n</code></pre>"
+              "desc": "<p>For available options, see\n<a href=\"#new-netsocketoptions\"><code>new net.Socket([options])</code></a>\nand <a href=\"#socketconnectoptions-connectlistener\"><code>socket.connect(options[, connectListener])</code></a>.</p>\n<p>Additional options:</p>\n<ul>\n<li><code>timeout</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> If set, will be used to call\n<a href=\"#socketsettimeouttimeout-callback\"><code>socket.setTimeout(timeout)</code></a> after the socket is created, but before\nit starts the connection.</li>\n</ul>\n<p>Following is an example of a client of the echo server described\nin the <a href=\"#netcreateserveroptions-connectionlistener\"><code>net.createServer()</code></a> section:</p>\n<pre><code class=\"language-mjs\">import net from 'node:net';\nconst client = net.createConnection({ port: 8124 }, () => {\n  // 'connect' listener.\n  console.log('connected to server!');\n  client.write('world!\\r\\n');\n});\nclient.on('data', (data) => {\n  console.log(data.toString());\n  client.end();\n});\nclient.on('end', () => {\n  console.log('disconnected from server');\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const net = require('node:net');\nconst client = net.createConnection({ port: 8124 }, () => {\n  // 'connect' listener.\n  console.log('connected to server!');\n  client.write('world!\\r\\n');\n});\nclient.on('data', (data) => {\n  console.log(data.toString());\n  client.end();\n});\nclient.on('end', () => {\n  console.log('disconnected from server');\n});\n</code></pre>\n<p>To connect on the socket <code>/tmp/echo.sock</code>:</p>\n<pre><code class=\"language-js\">const client = net.createConnection({ path: '/tmp/echo.sock' });\n</code></pre>\n<p>Following is an example of a client using the <code>port</code> and <code>onread</code>\noption. In this case, the <code>onread</code> option will be only used to call\n<code>new net.Socket([options])</code> and the <code>port</code> option will be used to\ncall <code>socket.connect(options[, connectListener])</code>.</p>\n<pre><code class=\"language-mjs\">import net from 'node:net';\nimport { Buffer } from 'node:buffer';\nnet.createConnection({\n  port: 8124,\n  onread: {\n    // Reuses a 4KiB Buffer for every read from the socket.\n    buffer: Buffer.alloc(4 * 1024),\n    callback: function(nread, buf) {\n      // Received data is available in `buf` from 0 to `nread`.\n      console.log(buf.toString('utf8', 0, nread));\n    },\n  },\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const net = require('node:net');\nnet.createConnection({\n  port: 8124,\n  onread: {\n    // Reuses a 4KiB Buffer for every read from the socket.\n    buffer: Buffer.alloc(4 * 1024),\n    callback: function(nread, buf) {\n      // Received data is available in `buf` from 0 to `nread`.\n      console.log(buf.toString('utf8', 0, nread));\n    },\n  },\n});\n</code></pre>"
             },
             {
               "textRaw": "`net.createConnection(path[, connectListener])`",
@@ -2044,7 +2184,7 @@
             ],
             "changes": [
               {
-                "version": "v18.17.0",
+                "version": "v20.1.0",
                 "pr-url": "https://github.com/nodejs/node/pull/47405",
                 "description": "The `highWaterMark` option is supported now."
               },
@@ -2086,11 +2226,18 @@
                       "desc": "Optionally overrides all [`net.Socket`][]s' `readableHighWaterMark` and `writableHighWaterMark`."
                     },
                     {
-                      "textRaw": "`pauseOnConnect` {boolean} Indicates whether the socket should be paused on incoming connections. **Default:** `false`.",
-                      "name": "pauseOnConnect",
+                      "textRaw": "`keepAlive` {boolean} If set to `true`, it enables keep-alive functionality on the socket immediately after a new incoming connection is received, similarly on what is done in [`socket.setKeepAlive()`][]. **Default:** `false`.",
+                      "name": "keepAlive",
                       "type": "boolean",
                       "default": "`false`",
-                      "desc": "Indicates whether the socket should be paused on incoming connections."
+                      "desc": "If set to `true`, it enables keep-alive functionality on the socket immediately after a new incoming connection is received, similarly on what is done in [`socket.setKeepAlive()`][]."
+                    },
+                    {
+                      "textRaw": "`keepAliveInitialDelay` {number} If set to a positive number, it sets the initial delay before the first keepalive probe is sent on an idle socket. **Default:** `0`.",
+                      "name": "keepAliveInitialDelay",
+                      "type": "number",
+                      "default": "`0`",
+                      "desc": "If set to a positive number, it sets the initial delay before the first keepalive probe is sent on an idle socket."
                     },
                     {
                       "textRaw": "`noDelay` {boolean} If set to `true`, it disables the use of Nagle's algorithm immediately after a new incoming connection is received. **Default:** `false`.",
@@ -2100,18 +2247,11 @@
                       "desc": "If set to `true`, it disables the use of Nagle's algorithm immediately after a new incoming connection is received."
                     },
                     {
-                      "textRaw": "`keepAlive` {boolean} If set to `true`, it enables keep-alive functionality on the socket immediately after a new incoming connection is received, similarly on what is done in [`socket.setKeepAlive([enable][, initialDelay])`][`socket.setKeepAlive(enable, initialDelay)`]. **Default:** `false`.",
-                      "name": "keepAlive",
+                      "textRaw": "`pauseOnConnect` {boolean} Indicates whether the socket should be paused on incoming connections. **Default:** `false`.",
+                      "name": "pauseOnConnect",
                       "type": "boolean",
                       "default": "`false`",
-                      "desc": "If set to `true`, it enables keep-alive functionality on the socket immediately after a new incoming connection is received, similarly on what is done in [`socket.setKeepAlive([enable][, initialDelay])`][`socket.setKeepAlive(enable, initialDelay)`]."
-                    },
-                    {
-                      "textRaw": "`keepAliveInitialDelay` {number} If set to a positive number, it sets the initial delay before the first keepalive probe is sent on an idle socket.**Default:** `0`.",
-                      "name": "keepAliveInitialDelay",
-                      "type": "number",
-                      "default": "`0`",
-                      "desc": "If set to a positive number, it sets the initial delay before the first keepalive probe is sent on an idle socket."
+                      "desc": "Indicates whether the socket should be paused on incoming connections."
                     }
                   ]
                 },
@@ -2124,7 +2264,7 @@
               ]
             }
           ],
-          "desc": "<p>Creates a new TCP or <a href=\"#ipc-support\">IPC</a> server.</p>\n<p>If <code>allowHalfOpen</code> is set to <code>true</code>, when the other end of the socket\nsignals the end of transmission, the server will only send back the end of\ntransmission when <a href=\"#socketenddata-encoding-callback\"><code>socket.end()</code></a> is explicitly called. For example, in the\ncontext of TCP, when a FIN packed is received, a FIN packed is sent\nback only when <a href=\"#socketenddata-encoding-callback\"><code>socket.end()</code></a> is explicitly called. Until then the\nconnection is half-closed (non-readable but still writable). See <a href=\"#event-end\"><code>'end'</code></a>\nevent and <a href=\"https://tools.ietf.org/html/rfc1122\">RFC 1122</a> (section 4.2.2.13) for more information.</p>\n<p>If <code>pauseOnConnect</code> is set to <code>true</code>, then the socket associated with each\nincoming connection will be paused, and no data will be read from its handle.\nThis allows connections to be passed between processes without any data being\nread by the original process. To begin reading data from a paused socket, call\n<a href=\"#socketresume\"><code>socket.resume()</code></a>.</p>\n<p>The server can be a TCP server or an <a href=\"#ipc-support\">IPC</a> server, depending on what it\n<a href=\"#serverlisten\"><code>listen()</code></a> to.</p>\n<p>Here is an example of a TCP echo server which listens for connections\non port 8124:</p>\n<pre><code class=\"language-js\">const net = require('node:net');\nconst server = net.createServer((c) => {\n  // 'connection' listener.\n  console.log('client connected');\n  c.on('end', () => {\n    console.log('client disconnected');\n  });\n  c.write('hello\\r\\n');\n  c.pipe(c);\n});\nserver.on('error', (err) => {\n  throw err;\n});\nserver.listen(8124, () => {\n  console.log('server bound');\n});\n</code></pre>\n<p>Test this by using <code>telnet</code>:</p>\n<pre><code class=\"language-console\">$ telnet localhost 8124\n</code></pre>\n<p>To listen on the socket <code>/tmp/echo.sock</code>:</p>\n<pre><code class=\"language-js\">server.listen('/tmp/echo.sock', () => {\n  console.log('server bound');\n});\n</code></pre>\n<p>Use <code>nc</code> to connect to a Unix domain socket server:</p>\n<pre><code class=\"language-console\">$ nc -U /tmp/echo.sock\n</code></pre>"
+          "desc": "<p>Creates a new TCP or <a href=\"#ipc-support\">IPC</a> server.</p>\n<p>If <code>allowHalfOpen</code> is set to <code>true</code>, when the other end of the socket\nsignals the end of transmission, the server will only send back the end of\ntransmission when <a href=\"#socketenddata-encoding-callback\"><code>socket.end()</code></a> is explicitly called. For example, in the\ncontext of TCP, when a FIN packed is received, a FIN packed is sent\nback only when <a href=\"#socketenddata-encoding-callback\"><code>socket.end()</code></a> is explicitly called. Until then the\nconnection is half-closed (non-readable but still writable). See <a href=\"#event-end\"><code>'end'</code></a>\nevent and <a href=\"https://tools.ietf.org/html/rfc1122\">RFC 1122</a> (section 4.2.2.13) for more information.</p>\n<p>If <code>pauseOnConnect</code> is set to <code>true</code>, then the socket associated with each\nincoming connection will be paused, and no data will be read from its handle.\nThis allows connections to be passed between processes without any data being\nread by the original process. To begin reading data from a paused socket, call\n<a href=\"#socketresume\"><code>socket.resume()</code></a>.</p>\n<p>The server can be a TCP server or an <a href=\"#ipc-support\">IPC</a> server, depending on what it\n<a href=\"#serverlisten\"><code>listen()</code></a> to.</p>\n<p>Here is an example of a TCP echo server which listens for connections\non port 8124:</p>\n<pre><code class=\"language-mjs\">import net from 'node:net';\nconst server = net.createServer((c) => {\n  // 'connection' listener.\n  console.log('client connected');\n  c.on('end', () => {\n    console.log('client disconnected');\n  });\n  c.write('hello\\r\\n');\n  c.pipe(c);\n});\nserver.on('error', (err) => {\n  throw err;\n});\nserver.listen(8124, () => {\n  console.log('server bound');\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const net = require('node:net');\nconst server = net.createServer((c) => {\n  // 'connection' listener.\n  console.log('client connected');\n  c.on('end', () => {\n    console.log('client disconnected');\n  });\n  c.write('hello\\r\\n');\n  c.pipe(c);\n});\nserver.on('error', (err) => {\n  throw err;\n});\nserver.listen(8124, () => {\n  console.log('server bound');\n});\n</code></pre>\n<p>Test this by using <code>telnet</code>:</p>\n<pre><code class=\"language-bash\">telnet localhost 8124\n</code></pre>\n<p>To listen on the socket <code>/tmp/echo.sock</code>:</p>\n<pre><code class=\"language-js\">server.listen('/tmp/echo.sock', () => {\n  console.log('server bound');\n});\n</code></pre>\n<p>Use <code>nc</code> to connect to a Unix domain socket server:</p>\n<pre><code class=\"language-bash\">nc -U /tmp/echo.sock\n</code></pre>"
         },
         {
           "textRaw": "`net.getDefaultAutoSelectFamily()`",
@@ -2141,7 +2281,7 @@
               "params": []
             }
           ],
-          "desc": "<p>Gets the current default value of the <code>autoSelectFamily</code> option of <a href=\"#socketconnectoptions-connectlistener\"><code>socket.connect(options)</code></a>.</p>\n<ul>\n<li>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> The current default value of the <code>autoSelectFamily</code> option.</li>\n</ul>"
+          "desc": "<p>Gets the current default value of the <code>autoSelectFamily</code> option of <a href=\"#socketconnectoptions-connectlistener\"><code>socket.connect(options)</code></a>.\nThe initial default value is <code>true</code>, unless the command line option\n<code>--no-network-family-autoselection</code> is provided.</p>\n<ul>\n<li>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> The current default value of the <code>autoSelectFamily</code> option.</li>\n</ul>"
         },
         {
           "textRaw": "`net.setDefaultAutoSelectFamily(value)`",
@@ -2158,7 +2298,7 @@
               "params": []
             }
           ],
-          "desc": "<p>Sets the default value of the <code>autoSelectFamily</code> option of <a href=\"#socketconnectoptions-connectlistener\"><code>socket.connect(options)</code></a>.</p>\n<ul>\n<li><code>value</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> The new default value. The initial default value is <code>false</code>.</li>\n</ul>"
+          "desc": "<p>Sets the default value of the <code>autoSelectFamily</code> option of <a href=\"#socketconnectoptions-connectlistener\"><code>socket.connect(options)</code></a>.</p>\n<ul>\n<li><code>value</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> The new default value.\nThe initial default value is <code>true</code>, unless the command line option\n<code>--no-network-family-autoselection</code> is provided.</li>\n</ul>"
         },
         {
           "textRaw": "`net.getDefaultAutoSelectFamilyAttemptTimeout()`",
@@ -2166,7 +2306,7 @@
           "name": "getDefaultAutoSelectFamilyAttemptTimeout",
           "meta": {
             "added": [
-              "v18.18.0"
+              "v19.8.0"
             ],
             "changes": []
           },
@@ -2175,7 +2315,7 @@
               "params": []
             }
           ],
-          "desc": "<p>Gets the current default value of the <code>autoSelectFamilyAttemptTimeout</code> option of <a href=\"#socketconnectoptions-connectlistener\"><code>socket.connect(options)</code></a>.</p>\n<ul>\n<li>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> The current default value of the <code>autoSelectFamilyAttemptTimeout</code> option.</li>\n</ul>"
+          "desc": "<p>Gets the current default value of the <code>autoSelectFamilyAttemptTimeout</code> option of <a href=\"#socketconnectoptions-connectlistener\"><code>socket.connect(options)</code></a>.\nThe initial default value is <code>250</code> or the value specified via the command line\noption <code>--network-family-autoselection-attempt-timeout</code>.</p>\n<ul>\n<li>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> The current default value of the <code>autoSelectFamilyAttemptTimeout</code> option.</li>\n</ul>"
         },
         {
           "textRaw": "`net.setDefaultAutoSelectFamilyAttemptTimeout(value)`",
@@ -2183,7 +2323,7 @@
           "name": "setDefaultAutoSelectFamilyAttemptTimeout",
           "meta": {
             "added": [
-              "v18.18.0"
+              "v19.8.0"
             ],
             "changes": []
           },
@@ -2192,7 +2332,7 @@
               "params": []
             }
           ],
-          "desc": "<p>Sets the default value of the <code>autoSelectFamilyAttemptTimeout</code> option of <a href=\"#socketconnectoptions-connectlistener\"><code>socket.connect(options)</code></a>.</p>\n<ul>\n<li><code>value</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> The new default value, which must be a positive number. If the number is less than <code>10</code>,\nthe value <code>10</code> is used instead. The initial default value is <code>250</code>.</li>\n</ul>"
+          "desc": "<p>Sets the default value of the <code>autoSelectFamilyAttemptTimeout</code> option of <a href=\"#socketconnectoptions-connectlistener\"><code>socket.connect(options)</code></a>.</p>\n<ul>\n<li><code>value</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> The new default value, which must be a positive number. If the number is less than <code>10</code>,\nthe value <code>10</code> is used instead. The initial default value is <code>250</code> or the value specified via the command line\noption <code>--network-family-autoselection-attempt-timeout</code>.</li>\n</ul>"
         },
         {
           "textRaw": "`net.isIP(input)`",

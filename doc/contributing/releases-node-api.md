@@ -38,10 +38,10 @@ Node-API Working Group can be contacted best by opening up an issue on the
 
 Checkout the staging branch locally.
 
-```console
-$ git remote update
-$ git checkout main
-$ git reset --hard upstream/main
+```bash
+git remote update
+git checkout main
+git reset --hard upstream/main
 ```
 
 If the staging branch is not up to date relative to `main`, bring the
@@ -51,8 +51,8 @@ appropriate PRs and commits into it.
 
 Create a new branch named `node-api-x-proposal`, off the main branch.
 
-```console
-$ git checkout -b node-api-10-proposal upstream/main
+```bash
+git checkout -b node-api-10-proposal upstream/main
 ```
 
 ### 3. Update `NODE_API_SUPPORTED_VERSION_MAX`
@@ -83,8 +83,12 @@ version, the relevant commits should already include the `NAPI_EXPERIMENTAL`
 define guards on the declaration of the new Node-API. Check for these guards
 with:
 
-```console
-grep NAPI_EXPERIMENTAL src/js_native_api{_types,}.h src/node_api{_types,}.h
+```bash
+grep                           \
+  -E                           \
+  'N(ODE_)?API_EXPERIMENTAL'   \
+  src/js_native_api{_types,}.h \
+  src/node_api{_types,}.h
 ```
 
 and update the define version guards with the release version:
@@ -99,6 +103,11 @@ and update the define version guards with the release version:
 - #endif  // NAPI_EXPERIMENTAL
 + #endif  // NAPI_VERSION >= 10
 ```
+
+Remove any feature flags of the form `NODE_API_EXPERIMENTAL_HAS_<FEATURE>`.
+
+Remove any additional `NODE_API_EXPERIMENTAL_*` guards along with
+`NAPI_EXPERIMENTAL`.
 
 Also, update the Node-API version value of the `napi_get_version` test in
 `test/js-native-api/test_general/test.js` with the release version `x`:
@@ -115,7 +124,7 @@ If this release includes runtime behavior version guards, the relevant commits
 should already include `NAPI_VERSION_EXPERIMENTAL` guard for the change. Check
 for these guards with:
 
-```console
+```bash
 grep NAPI_VERSION_EXPERIMENTAL src/js_native_api_v8* src/node_api.cc
 ```
 
@@ -127,8 +136,12 @@ If this release includes add-on tests for the new Node-APIs, the relevant
 commits should already include `NAPI_EXPERIMENTAL` definition for the tests.
 Check for these definitions with:
 
-```console
-grep NAPI_EXPERIMENTAL test/node-api/*/{*.{h,c},binding.gyp} test/js-native-api/*/{*.{h,c},binding.gyp}
+```bash
+grep                                    \
+  -E                                    \
+  'N(ODE_)?API_EXPERIMENTAL'            \
+  test/node-api/*/{*.{h,c},binding.gyp} \
+  test/js-native-api/*/{*.{h,c},binding.gyp}
 ```
 
 and substitute the `NAPI_EXPERIMENTAL` with the release version
@@ -138,6 +151,8 @@ and substitute the `NAPI_EXPERIMENTAL` with the release version
 - #define NAPI_EXPERIMENTAL
 + #define NAPI_VERSION 10
 ```
+
+Remove any `NODE_API_EXPERIMENTAL_*` flags.
 
 #### Step 4. Update document
 
@@ -170,7 +185,7 @@ should already have documented the new behavior in a "Change History" section.
 For all runtime version guards updated in Step 2, check for these definitions
 with:
 
-```console
+```bash
 grep NAPI_EXPERIMENTAL doc/api/n-api.md
 ```
 

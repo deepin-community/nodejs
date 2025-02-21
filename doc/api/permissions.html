@@ -3,18 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>Permissions | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.18.3">
+  <title>Permissions | Node.js v20.18.3 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/permissions.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
   
 </head>
 <body class="alt apidoc" id="api-section-permissions">
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +109,7 @@
     <div id="column1" data-id="permissions" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.18.3 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,11 +124,11 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.18.3</li>
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
@@ -124,7 +137,7 @@
 <ul>
 <li><a href="#module-based-permissions">Module-based permissions</a>
 <ul>
-<li><span class="stability_1"><a href="#policies">Policies</a></span>
+<li><span class="stability_0"><a href="#policies">Policies</a></span>
 <ul>
 <li><a href="#enabling">Enabling</a></li>
 <li><a href="#features">Features</a>
@@ -143,6 +156,23 @@
 <li><a href="#example-import-maps-emulation">Example: import maps emulation</a></li>
 </ul>
 </li>
+<li><a href="#guarantees">Guarantees</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#process-based-permissions">Process-based permissions</a>
+<ul>
+<li><span class="stability_1"><a href="#permission-model">Permission Model</a></span>
+<ul>
+<li><a href="#runtime-api">Runtime API</a>
+<ul>
+<li><a href="#permissionhasscope-reference"><code>permission.has(scope[, reference])</code></a></li>
+</ul>
+</li>
+<li><a href="#file-system-permissions">File System Permissions</a></li>
+<li><a href="#permission-model-constraints">Permission Model constraints</a></li>
+<li><a href="#limitations-and-known-issues">Limitations and Known Issues</a></li>
 </ul>
 </li>
 </ul>
@@ -155,7 +185,7 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Index
       </a>
 
@@ -240,25 +270,18 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/permissions.html">21.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v20.x/api/permissions.html">20.x <b>LTS</b></a></li>
-<li><a href="https://nodejs.org/docs/latest-v19.x/api/permissions.html">19.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v18.x/api/permissions.html">18.x <b>LTS</b></a></li>
-<li><a href="https://nodejs.org/docs/latest-v17.x/api/permissions.html">17.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v16.x/api/permissions.html">16.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v15.x/api/permissions.html">15.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v14.x/api/permissions.html">14.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v13.x/api/permissions.html">13.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v12.x/api/permissions.html">12.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v11.x/api/permissions.html">11.x</a></li></ol></div>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v23.x/api/permissions.html">23.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v22.x/api/permissions.html">22.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/permissions.html">21.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v20.x/api/permissions.html">20.x <b>LTS</b></a></li></ol></div>
     </li>
   
             <li class="picker-header">
               <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
@@ -279,12 +302,12 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
 <li><a href="#permissions">Permissions</a>
 <ul>
 <li><a href="#module-based-permissions">Module-based permissions</a>
 <ul>
-<li><span class="stability_1"><a href="#policies">Policies</a></span>
+<li><span class="stability_0"><a href="#policies">Policies</a></span>
 <ul>
 <li><a href="#enabling">Enabling</a></li>
 <li><a href="#features">Features</a>
@@ -303,6 +326,23 @@
 <li><a href="#example-import-maps-emulation">Example: import maps emulation</a></li>
 </ul>
 </li>
+<li><a href="#guarantees">Guarantees</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#process-based-permissions">Process-based permissions</a>
+<ul>
+<li><span class="stability_1"><a href="#permission-model">Permission Model</a></span>
+<ul>
+<li><a href="#runtime-api">Runtime API</a>
+<ul>
+<li><a href="#permissionhasscope-reference"><code>permission.has(scope[, reference])</code></a></li>
+</ul>
+</li>
+<li><a href="#file-system-permissions">File System Permissions</a></li>
+<li><a href="#permission-model-constraints">Permission Model constraints</a></li>
+<li><a href="#limitations-and-known-issues">Limitations and Known Issues</a></li>
 </ul>
 </li>
 </ul>
@@ -311,32 +351,56 @@
 </li>
 </ul></details>
 
-      <div id="apicontent">
+      <div role="main" id="apicontent">
         <h2>Permissions<span><a class="mark" href="#permissions" id="permissions">#</a></span><a aria-hidden="true" class="legacy" id="permissions_permissions"></a></h2>
+
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v20.18.3/src/permission.cc">src/permission.cc</a></p>
 <p>Permissions can be used to control what system resources the
 Node.js process has access to or what actions the process can take
 with those resources. Permissions can also control what modules can
 be accessed by other modules.</p>
 <ul>
-<li><a href="#module-based-permissions">Module-based permissions</a> control which files
+<li>
+<p><a href="#module-based-permissions">Module-based permissions</a> control which files
 or URLs are available to other modules during application execution.
 This can be used to control what modules can be accessed by third-party
-dependencies, for example.</li>
+dependencies, for example.</p>
+</li>
+<li>
+<p><a href="#process-based-permissions">Process-based permissions</a> control the Node.js
+process's access to resources.
+The resource can be entirely allowed or denied, or actions related to it can
+be controlled. For example, file system reads can be allowed while denying
+writes.
+This feature does not protect against malicious code. According to the Node.js
+<a href="https://github.com/nodejs/node/blob/main/SECURITY.md">Security Policy</a>, Node.js trusts any code it is asked to run.</p>
+</li>
 </ul>
+<p>The permission model implements a "seat belt" approach, which prevents trusted
+code from unintentionally changing files or using resources that access has
+not explicitly been granted to. It does not provide security guarantees in the
+presence of malicious code. Malicious code can bypass the permission model and
+execute arbitrary code without the restrictions imposed by the permission
+model.</p>
 <p>If you find a potential security vulnerability, please refer to our
 <a href="https://github.com/nodejs/node/blob/main/SECURITY.md">Security Policy</a>.</p>
 <section><h3>Module-based permissions<span><a class="mark" href="#module-based-permissions" id="module-based-permissions">#</a></span><a aria-hidden="true" class="legacy" id="permissions_module_based_permissions"></a></h3>
 <h4>Policies<span><a class="mark" href="#policies" id="policies">#</a></span><a aria-hidden="true" class="legacy" id="permissions_policies"></a></h4>
 
 
-<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
+<p></p><div class="api_stability api_stability_0"><a href="documentation.html#stability-index">Stability: 0</a> - Deprecated: Will be removed shortly</div><p></p>
 
 <p>Node.js contains experimental support for creating policies on loading code.</p>
-<p>Policies are a security feature intended to allow guarantees
-about what code Node.js is able to load. The use of policies assumes
-safe practices for the policy files such as ensuring that policy
-files cannot be overwritten by the Node.js application by using
-file permissions.</p>
+<p>Policies are a security feature intended to ensure the integrity
+of the loaded code.</p>
+<p>While it does not function as a provenance mechanism to trace the origin of
+code, it serves as a robust defense against the execution of malicious code.
+Unlike runtime-based models that may restrict capabilities once the code is
+loaded, Node.js policies focus on preventing malicious code from ever being
+fully loaded into the application in the first place.</p>
+<p>The use of policies assumes safe practices for the policy
+files such as ensuring that policy files cannot be overwritten by the Node.js
+application by using file permissions.</p>
 <p>A best practice would be to ensure that the policy manifest is read-only for
 the running Node.js application and that the file cannot be changed
 by the running Node.js application in any way. A typical setup would be to
@@ -434,7 +498,7 @@ Therefore, multiple specifiers may be needed in the policy if it uses multiple
 different strings to point to the same module (such as excluding the extension).</p>
 <p>Specifier strings are canonicalized but not resolved prior to be used for
 matching in order to have some compatibility with import maps, for example if a
-resource <code>file:///C:/app/server.js</code> was given the following redirection from a
+resource <code>file:///C:/app/utils.js</code> was given the following redirection from a
 policy located at <code>file:///C:/app/policy.json</code>:</p>
 <pre><code class="language-json"><span class="hljs-punctuation">{</span>
   <span class="hljs-attr">"resources"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
@@ -457,11 +521,6 @@ the policy file will be used. If that field at the top of the policy file is
 the manifest and then immediately used without searching.</p>
 <p>Any specifier string for which resolution is attempted and that is not listed in
 the dependencies results in an error according to the policy.</p>
-<p>Redirection does not prevent access to APIs through means such as direct access
-to <code>require.cache</code> or through <code>module.constructor</code> which allow access to
-loading modules. Policy redirection only affects specifiers to <code>require()</code> and
-<code>import</code>. Other means, such as to prevent undesired access to APIs through
-variables, are necessary to lock down that path of loading modules.</p>
 <p>A boolean value of <code>true</code> for the dependencies map can be specified to allow a
 module to load any specifier without redirection. This can be useful for local
 development and may have some valid usage in production, but should be used
@@ -474,6 +533,8 @@ part of loading it.</p>
 can be used to ensure some kinds of dynamic access are explicitly prevented.</p>
 <p>Unknown values for the resolved module location cause failures but are
 not guaranteed to be forward compatible.</p>
+<p>All the guarantees for policy redirection are specified in the
+<a href="#guarantees">Guarantees</a> section.</p>
 <h6>Example: Patched dependency<span><a class="mark" href="#example-patched-dependency" id="example-patched-dependency">#</a></span><a aria-hidden="true" class="legacy" id="permissions_example_patched_dependency"></a></h6>
 <p>Redirected dependencies can provide attenuated or modified functionality as fits
 the application. For example, log data about timing of function durations by
@@ -537,15 +598,15 @@ delegate to the next relevant scope for <code>file:///C:/app/bin/main.js</code>,
 </ol>
 <p>This determines the policy for all file based resources within <code>"file:///C:/"</code>.
 This is not in the <code>"scopes"</code> field of the policy and would be skipped. It would
-not be used for <code>file:///C:/app/bin/main.js</code> unless <code>"file:///"</code> is set to
-cascade or is not in the <code>"scopes"</code> of the policy.</p>
+not be used for <code>file:///C:/app/bin/main.js</code> unless <code>"file:///C:/app/"</code> is set
+to cascade or is not in the <code>"scopes"</code> of the policy.</p>
 <ol start="4">
 <li><code>"file:///"</code></li>
 </ol>
 <p>This determines the policy for all file based resources on the <code>localhost</code>. This
 is not in the <code>"scopes"</code> field of the policy and would be skipped. It would not
-be used for <code>file:///C:/app/bin/main.js</code> unless <code>"file:///"</code> is set to cascade
-or is not in the <code>"scopes"</code> of the policy.</p>
+be used for <code>file:///C:/app/bin/main.js</code> unless <code>"file:///C:/"</code> is set to
+cascade or is not in the <code>"scopes"</code> of the policy.</p>
 <ol start="5">
 <li><code>"file:"</code></li>
 </ol>
@@ -652,7 +713,137 @@ partially match a <code>data:</code> or <code>blob:</code> URL by partitioning t
 character, policies intentionally cannot. For <code>blob:</code> URLs import map scopes do
 not adopt the origin of the <code>blob:</code> URL.</p>
 <p>Additionally, import maps only work on <code>import</code> so it may be desirable to add a
-<code>"import"</code> condition to all dependency mappings.</p></section>
+<code>"import"</code> condition to all dependency mappings.</p>
+<h5>Guarantees<span><a class="mark" href="#guarantees" id="guarantees">#</a></span><a aria-hidden="true" class="legacy" id="permissions_guarantees"></a></h5>
+<ul>
+<li>The policies guarantee the file integrity when a module is loaded using
+<code>require()</code>, <code>import()</code> or <code>new Module()</code>.</li>
+<li>Redirection does not prevent access to APIs through means such as direct
+access to <code>require.cache</code> which allow access to loaded modules.
+Policy redirection only affects specifiers to <code>require()</code> and
+<code>import</code>.</li>
+<li>The approval of the module integrity in policies threat model implies
+they are allowed to muck with and even circumvent security features once
+loaded so environmental/runtime hardening is expected.</li>
+</ul>
+</section><section><h3>Process-based permissions<span><a class="mark" href="#process-based-permissions" id="process-based-permissions">#</a></span><a aria-hidden="true" class="legacy" id="permissions_process_based_permissions"></a></h3>
+<h4>Permission Model<span><a class="mark" href="#permission-model" id="permission-model">#</a></span><a aria-hidden="true" class="legacy" id="permissions_permission_model"></a></h4>
+<div class="api_metadata">
+<span>Added in: v20.0.0</span>
+</div>
+<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a>.1 - Active development</div><p></p>
+<p>The Node.js Permission Model is a mechanism for restricting access to specific
+resources during execution.
+The API exists behind a flag <a href="cli.html#--experimental-permission"><code>--experimental-permission</code></a> which when enabled,
+will restrict access to all available permissions.</p>
+<p>The available permissions are documented by the <a href="cli.html#--experimental-permission"><code>--experimental-permission</code></a>
+flag.</p>
+<p>When starting Node.js with <code>--experimental-permission</code>,
+the ability to access the file system through the <code>fs</code> module, spawn processes,
+use <code>node:worker_threads</code>, use native addons, use WASI, and enable the runtime inspector
+will be restricted.</p>
+<pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">node --experimental-permission index.js</span>
+node:internal/modules/cjs/loader:171
+  const result = internalModuleStat(filename);
+                 ^
+
+Error: Access to this API has been restricted
+    at stat (node:internal/modules/cjs/loader:171:18)
+    at Module._findPath (node:internal/modules/cjs/loader:627:16)
+    at resolveMainPath (node:internal/modules/run_main:19:25)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:76:24)
+    at node:internal/main/run_main_module:23:47 {
+  code: 'ERR_ACCESS_DENIED',
+  permission: 'FileSystemRead',
+  resource: '/home/user/index.js'
+}</code> <button class="copy-button">copy</button></pre>
+<p>Allowing access to spawning a process and creating worker threads can be done
+using the <a href="cli.html#--allow-child-process"><code>--allow-child-process</code></a> and <a href="cli.html#--allow-worker"><code>--allow-worker</code></a> respectively.</p>
+<p>To allow native addons when using permission model, use the <a href="cli.html#--allow-addons"><code>--allow-addons</code></a>
+flag. For WASI, use the <a href="cli.html#--allow-wasi"><code>--allow-wasi</code></a> flag.</p>
+<h5>Runtime API<span><a class="mark" href="#runtime-api" id="runtime-api">#</a></span><a aria-hidden="true" class="legacy" id="permissions_runtime_api"></a></h5>
+<p>When enabling the Permission Model through the <a href="cli.html#--experimental-permission"><code>--experimental-permission</code></a>
+flag a new property <code>permission</code> is added to the <code>process</code> object.
+This property contains one function:</p>
+<h6><code>permission.has(scope[, reference])</code><span><a class="mark" href="#permissionhasscope-reference" id="permissionhasscope-reference">#</a></span><a aria-hidden="true" class="legacy" id="permissions_permission_has_scope_reference"></a></h6>
+<p>API call to check permissions at runtime (<a href="process.html#processpermissionhasscope-reference"><code>permission.has()</code></a>)</p>
+<pre><code class="language-js">process.<span class="hljs-property">permission</span>.<span class="hljs-title function_">has</span>(<span class="hljs-string">'fs.write'</span>); <span class="hljs-comment">// true</span>
+process.<span class="hljs-property">permission</span>.<span class="hljs-title function_">has</span>(<span class="hljs-string">'fs.write'</span>, <span class="hljs-string">'/home/rafaelgss/protected-folder'</span>); <span class="hljs-comment">// true</span>
+
+process.<span class="hljs-property">permission</span>.<span class="hljs-title function_">has</span>(<span class="hljs-string">'fs.read'</span>); <span class="hljs-comment">// true</span>
+process.<span class="hljs-property">permission</span>.<span class="hljs-title function_">has</span>(<span class="hljs-string">'fs.read'</span>, <span class="hljs-string">'/home/rafaelgss/protected-folder'</span>); <span class="hljs-comment">// false</span></code> <button class="copy-button">copy</button></pre>
+<h5>File System Permissions<span><a class="mark" href="#file-system-permissions" id="file-system-permissions">#</a></span><a aria-hidden="true" class="legacy" id="permissions_file_system_permissions"></a></h5>
+<p>The Permission Model, by default, restricts access to the file system through the <code>node:fs</code> module.
+It does not guarantee that users will not be able to access the file system through other means,
+such as through the <code>node:sqlite</code> module.</p>
+<p>To allow access to the file system, use the <a href="cli.html#--allow-fs-read"><code>--allow-fs-read</code></a> and
+<a href="cli.html#--allow-fs-write"><code>--allow-fs-write</code></a> flags:</p>
+<pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">node --experimental-permission --allow-fs-read=* --allow-fs-write=* index.js</span>
+Hello world!
+(node:19836) ExperimentalWarning: Permission is an experimental feature
+(Use `node --trace-warnings ...` to show where the warning was created)</code> <button class="copy-button">copy</button></pre>
+<p>The valid arguments for both flags are:</p>
+<ul>
+<li><code>*</code> - To allow all <code>FileSystemRead</code> or <code>FileSystemWrite</code> operations,
+respectively.</li>
+<li>Paths delimited by comma (<code>,</code>) to allow only matching <code>FileSystemRead</code> or
+<code>FileSystemWrite</code> operations, respectively.</li>
+</ul>
+<p>Example:</p>
+<ul>
+<li><code>--allow-fs-read=*</code> - It will allow all <code>FileSystemRead</code> operations.</li>
+<li><code>--allow-fs-write=*</code> - It will allow all <code>FileSystemWrite</code> operations.</li>
+<li><code>--allow-fs-write=/tmp/</code> - It will allow <code>FileSystemWrite</code> access to the <code>/tmp/</code>
+folder.</li>
+<li><code>--allow-fs-read=/tmp/ --allow-fs-read=/home/.gitignore</code> - It allows <code>FileSystemRead</code> access
+to the <code>/tmp/</code> folder <strong>and</strong> the <code>/home/.gitignore</code> path.</li>
+</ul>
+<p>Wildcards are supported too:</p>
+<ul>
+<li><code>--allow-fs-read=/home/test*</code> will allow read access to everything
+that matches the wildcard. e.g: <code>/home/test/file1</code> or <code>/home/test2</code></li>
+</ul>
+<p>After passing a wildcard character (<code>*</code>) all subsequent characters will
+be ignored. For example: <code>/home/*.js</code> will work similar to <code>/home/*</code>.</p>
+<p>When the permission model is initialized, it will automatically add a wildcard
+(*) if the specified directory exists. For example, if <code>/home/test/files</code>
+exists, it will be treated as <code>/home/test/files/*</code>. However, if the directory
+does not exist, the wildcard will not be added, and access will be limited to
+<code>/home/test/files</code>. If you want to allow access to a folder that does not exist
+yet, make sure to explicitly include the wildcard:
+<code>/my-path/folder-do-not-exist/*</code>.</p>
+<h5>Permission Model constraints<span><a class="mark" href="#permission-model-constraints" id="permission-model-constraints">#</a></span><a aria-hidden="true" class="legacy" id="permissions_permission_model_constraints"></a></h5>
+<p>There are constraints you need to know before using this system:</p>
+<ul>
+<li>The model does not inherit to a child node process or a worker thread.</li>
+<li>When using the Permission Model the following features will be restricted:
+<ul>
+<li>Native modules</li>
+<li>Child process</li>
+<li>Worker Threads</li>
+<li>Inspector protocol</li>
+<li>File system access</li>
+<li>WASI</li>
+</ul>
+</li>
+<li>The Permission Model is initialized after the Node.js environment is set up.
+However, certain flags such as <code>--env-file</code> or <code>--openssl-config</code> are designed
+to read files before environment initialization. As a result, such flags are
+not subject to the rules of the Permission Model. The same applies for V8
+flags that can be set via runtime through <code>v8.setFlagsFromString</code>.</li>
+<li>OpenSSL engines cannot be requested at runtime when the Permission
+Model is enabled, affecting the built-in crypto, https, and tls modules.</li>
+<li>Using existing file descriptors via the <code>node:fs</code> module bypasses the
+Permission Model.</li>
+</ul>
+<h5>Limitations and Known Issues<span><a class="mark" href="#limitations-and-known-issues" id="limitations-and-known-issues">#</a></span><a aria-hidden="true" class="legacy" id="permissions_limitations_and_known_issues"></a></h5>
+<ul>
+<li>Symbolic links will be followed even to locations outside of the set of paths
+that access has been granted to. Relative symbolic links may allow access to
+arbitrary files and directories. When starting applications with the
+permission model enabled, you must ensure that no paths to which access has
+been granted contain relative symbolic links.</li>
+</ul></section>
         <!-- API END -->
       </div>
     </div>

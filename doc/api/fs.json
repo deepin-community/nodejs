@@ -8,7 +8,7 @@
       "introduced_in": "v0.10.0",
       "stability": 2,
       "stabilityText": "Stable",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.19.1/lib/fs.js\">lib/fs.js</a></p>\n<p>The <code>node:fs</code> module enables interacting with the file system in a\nway modeled on standard POSIX functions.</p>\n<p>To use the promise-based APIs:</p>\n<pre><code class=\"language-mjs\">import * as fs from 'node:fs/promises';\n</code></pre>\n<pre><code class=\"language-cjs\">const fs = require('node:fs/promises');\n</code></pre>\n<p>To use the callback and sync APIs:</p>\n<pre><code class=\"language-mjs\">import * as fs from 'node:fs';\n</code></pre>\n<pre><code class=\"language-cjs\">const fs = require('node:fs');\n</code></pre>\n<p>All file system operations have synchronous, callback, and promise-based\nforms, and are accessible using both CommonJS syntax and ES6 Modules (ESM).</p>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v20.18.3/lib/fs.js\">lib/fs.js</a></p>\n<p>The <code>node:fs</code> module enables interacting with the file system in a\nway modeled on standard POSIX functions.</p>\n<p>To use the promise-based APIs:</p>\n<pre><code class=\"language-mjs\">import * as fs from 'node:fs/promises';\n</code></pre>\n<pre><code class=\"language-cjs\">const fs = require('node:fs/promises');\n</code></pre>\n<p>To use the callback and sync APIs:</p>\n<pre><code class=\"language-mjs\">import * as fs from 'node:fs';\n</code></pre>\n<pre><code class=\"language-cjs\">const fs = require('node:fs');\n</code></pre>\n<p>All file system operations have synchronous, callback, and promise-based\nforms, and are accessible using both CommonJS syntax and ES6 Modules (ESM).</p>",
       "modules": [
         {
           "textRaw": "Promise example",
@@ -98,6 +98,11 @@
                     ],
                     "changes": [
                       {
+                        "version": "v20.10.0",
+                        "pr-url": "https://github.com/nodejs/node/pull/50095",
+                        "description": "The `flush` option is now supported."
+                      },
+                      {
                         "version": [
                           "v15.14.0",
                           "v14.18.0"
@@ -136,6 +141,13 @@
                               "name": "encoding",
                               "type": "string|null",
                               "default": "`'utf8'`"
+                            },
+                            {
+                              "textRaw": "`flush` {boolean} If `true`, the underlying file descriptor is flushed prior to closing it. **Default:** `false`.",
+                              "name": "flush",
+                              "type": "boolean",
+                              "default": "`false`",
+                              "desc": "If `true`, the underlying file descriptor is flushed prior to closing it."
                             }
                           ]
                         }
@@ -290,13 +302,19 @@
                               "name": "highWaterMark",
                               "type": "integer",
                               "default": "`64 * 1024`"
+                            },
+                            {
+                              "textRaw": "`signal` {AbortSignal|undefined} **Default:** `undefined`",
+                              "name": "signal",
+                              "type": "AbortSignal|undefined",
+                              "default": "`undefined`"
                             }
                           ]
                         }
                       ]
                     }
                   ],
-                  "desc": "<p>Unlike the 16 KiB default <code>highWaterMark</code> for a <a href=\"stream.html#class-streamreadable\" class=\"type\">&lt;stream.Readable&gt;</a>, the stream\nreturned by this method has a default <code>highWaterMark</code> of 64 KiB.</p>\n<p><code>options</code> can include <code>start</code> and <code>end</code> values to read a range of bytes from\nthe file instead of the entire file. Both <code>start</code> and <code>end</code> are inclusive and\nstart counting at 0, allowed values are in the\n[0, <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER\"><code>Number.MAX_SAFE_INTEGER</code></a>] range. If <code>start</code> is\nomitted or <code>undefined</code>, <code>filehandle.createReadStream()</code> reads sequentially from\nthe current file position. The <code>encoding</code> can be any one of those accepted by\n<a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a>.</p>\n<p>If the <code>FileHandle</code> points to a character device that only supports blocking\nreads (such as keyboard or sound card), read operations do not finish until data\nis available. This can prevent the process from exiting and the stream from\nclosing naturally.</p>\n<p>By default, the stream will emit a <code>'close'</code> event after it has been\ndestroyed.  Set the <code>emitClose</code> option to <code>false</code> to change this behavior.</p>\n<pre><code class=\"language-mjs\">import { open } from 'node:fs/promises';\n\nconst fd = await open('/dev/input/event0');\n// Create a stream from some character device.\nconst stream = fd.createReadStream();\nsetTimeout(() => {\n  stream.close(); // This may not close the stream.\n  // Artificially marking end-of-stream, as if the underlying resource had\n  // indicated end-of-file by itself, allows the stream to close.\n  // This does not cancel pending read operations, and if there is such an\n  // operation, the process may still not be able to exit successfully\n  // until it finishes.\n  stream.push(null);\n  stream.read(0);\n}, 100);\n</code></pre>\n<p>If <code>autoClose</code> is false, then the file descriptor won't be closed, even if\nthere's an error. It is the application's responsibility to close it and make\nsure there's no file descriptor leak. If <code>autoClose</code> is set to true (default\nbehavior), on <code>'error'</code> or <code>'end'</code> the file descriptor will be closed\nautomatically.</p>\n<p>An example to read the last 10 bytes of a file which is 100 bytes long:</p>\n<pre><code class=\"language-mjs\">import { open } from 'node:fs/promises';\n\nconst fd = await open('sample.txt');\nfd.createReadStream({ start: 90, end: 99 });\n</code></pre>"
+                  "desc": "<p><code>options</code> can include <code>start</code> and <code>end</code> values to read a range of bytes from\nthe file instead of the entire file. Both <code>start</code> and <code>end</code> are inclusive and\nstart counting at 0, allowed values are in the\n[0, <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER\"><code>Number.MAX_SAFE_INTEGER</code></a>] range. If <code>start</code> is\nomitted or <code>undefined</code>, <code>filehandle.createReadStream()</code> reads sequentially from\nthe current file position. The <code>encoding</code> can be any one of those accepted by\n<a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a>.</p>\n<p>If the <code>FileHandle</code> points to a character device that only supports blocking\nreads (such as keyboard or sound card), read operations do not finish until data\nis available. This can prevent the process from exiting and the stream from\nclosing naturally.</p>\n<p>By default, the stream will emit a <code>'close'</code> event after it has been\ndestroyed.  Set the <code>emitClose</code> option to <code>false</code> to change this behavior.</p>\n<pre><code class=\"language-mjs\">import { open } from 'node:fs/promises';\n\nconst fd = await open('/dev/input/event0');\n// Create a stream from some character device.\nconst stream = fd.createReadStream();\nsetTimeout(() => {\n  stream.close(); // This may not close the stream.\n  // Artificially marking end-of-stream, as if the underlying resource had\n  // indicated end-of-file by itself, allows the stream to close.\n  // This does not cancel pending read operations, and if there is such an\n  // operation, the process may still not be able to exit successfully\n  // until it finishes.\n  stream.push(null);\n  stream.read(0);\n}, 100);\n</code></pre>\n<p>If <code>autoClose</code> is false, then the file descriptor won't be closed, even if\nthere's an error. It is the application's responsibility to close it and make\nsure there's no file descriptor leak. If <code>autoClose</code> is set to true (default\nbehavior), on <code>'error'</code> or <code>'end'</code> the file descriptor will be closed\nautomatically.</p>\n<p>An example to read the last 10 bytes of a file which is 100 bytes long:</p>\n<pre><code class=\"language-mjs\">import { open } from 'node:fs/promises';\n\nconst fd = await open('sample.txt');\nfd.createReadStream({ start: 90, end: 99 });\n</code></pre>"
                 },
                 {
                   "textRaw": "`filehandle.createWriteStream([options])`",
@@ -306,7 +324,13 @@
                     "added": [
                       "v16.11.0"
                     ],
-                    "changes": []
+                    "changes": [
+                      {
+                        "version": "v20.10.0",
+                        "pr-url": "https://github.com/nodejs/node/pull/50093",
+                        "description": "The `flush` option is now supported."
+                      }
+                    ]
                   },
                   "signatures": [
                     {
@@ -343,6 +367,19 @@
                               "textRaw": "`start` {integer}",
                               "name": "start",
                               "type": "integer"
+                            },
+                            {
+                              "textRaw": "`highWaterMark` {number} **Default:** `16384`",
+                              "name": "highWaterMark",
+                              "type": "number",
+                              "default": "`16384`"
+                            },
+                            {
+                              "textRaw": "`flush` {boolean} If `true`, the underlying file descriptor is flushed prior to closing it. **Default:** `false`.",
+                              "name": "flush",
+                              "type": "boolean",
+                              "default": "`false`",
+                              "desc": "If `true`, the underlying file descriptor is flushed prior to closing it."
                             }
                           ]
                         }
@@ -414,22 +451,25 @@
                           "desc": "A buffer that will be filled with the file data read."
                         },
                         {
-                          "textRaw": "`offset` {integer} The location in the buffer at which to start filling.",
+                          "textRaw": "`offset` {integer} The location in the buffer at which to start filling. **Default:** `0`",
                           "name": "offset",
                           "type": "integer",
+                          "default": "`0`",
                           "desc": "The location in the buffer at which to start filling."
                         },
                         {
-                          "textRaw": "`length` {integer} The number of bytes to read.",
+                          "textRaw": "`length` {integer} The number of bytes to read. **Default:** `buffer.byteLength - offset`",
                           "name": "length",
                           "type": "integer",
+                          "default": "`buffer.byteLength - offset`",
                           "desc": "The number of bytes to read."
                         },
                         {
-                          "textRaw": "`position` {integer|null} The location where to begin reading data from the file. If `null`, data will be read from the current file position, and the position will be updated. If `position` is an integer, the current file position will remain unchanged.",
+                          "textRaw": "`position` {integer|bigint|null} The location where to begin reading data from the file. If `null` or `-1`, data will be read from the current file position, and the position will be updated. If `position` is a non-negative integer, the current file position will remain unchanged. **Default:**: `null`",
                           "name": "position",
-                          "type": "integer|null",
-                          "desc": "The location where to begin reading data from the file. If `null`, data will be read from the current file position, and the position will be updated. If `position` is an integer, the current file position will remain unchanged."
+                          "type": "integer|bigint|null",
+                          "default": ": `null`",
+                          "desc": "The location where to begin reading data from the file. If `null` or `-1`, data will be read from the current file position, and the position will be updated. If `position` is a non-negative integer, the current file position will remain unchanged."
                         }
                       ]
                     }
@@ -516,7 +556,8 @@
                   "name": "read",
                   "meta": {
                     "added": [
-                      "v18.2.0"
+                      "v18.2.0",
+                      "v16.17.0"
                     ],
                     "changes": []
                   },
@@ -592,7 +633,7 @@
                     ],
                     "changes": [
                       {
-                        "version": "v18.17.0",
+                        "version": "v20.0.0",
                         "pr-url": "https://github.com/nodejs/node/pull/46933",
                         "description": "Added option to create a 'bytes' stream."
                       }
@@ -913,7 +954,7 @@
                       ]
                     }
                   ],
-                  "desc": "<p>Change the file system timestamps of the object referenced by the <a href=\"fs.html#class-filehandle\" class=\"type\">&lt;FileHandle&gt;</a>\nthen resolves the promise with no arguments upon success.</p>"
+                  "desc": "<p>Change the file system timestamps of the object referenced by the <a href=\"fs.html#class-filehandle\" class=\"type\">&lt;FileHandle&gt;</a>\nthen fulfills the promise with no arguments upon success.</p>"
                 },
                 {
                   "textRaw": "`filehandle.write(buffer, offset[, length[, position]])`",
@@ -967,7 +1008,7 @@
                       ]
                     }
                   ],
-                  "desc": "<p>Write <code>buffer</code> to the file.</p>\n<p>The promise is resolved with an object containing two properties:</p>\n<ul>\n<li><code>bytesWritten</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;integer&gt;</a> the number of bytes written</li>\n<li><code>buffer</code> <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray\" class=\"type\">&lt;TypedArray&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView\" class=\"type\">&lt;DataView&gt;</a> a reference to the\n<code>buffer</code> written.</li>\n</ul>\n<p>It is unsafe to use <code>filehandle.write()</code> multiple times on the same file\nwithout waiting for the promise to be resolved (or rejected). For this\nscenario, use <a href=\"#filehandlecreatewritestreamoptions\"><code>filehandle.createWriteStream()</code></a>.</p>\n<p>On Linux, positional writes do not work when the file is opened in append mode.\nThe kernel ignores the position argument and always appends the data to\nthe end of the file.</p>"
+                  "desc": "<p>Write <code>buffer</code> to the file.</p>\n<p>The promise is fulfilled with an object containing two properties:</p>\n<ul>\n<li><code>bytesWritten</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;integer&gt;</a> the number of bytes written</li>\n<li><code>buffer</code> <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray\" class=\"type\">&lt;TypedArray&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView\" class=\"type\">&lt;DataView&gt;</a> a reference to the\n<code>buffer</code> written.</li>\n</ul>\n<p>It is unsafe to use <code>filehandle.write()</code> multiple times on the same file\nwithout waiting for the promise to be fulfilled (or rejected). For this\nscenario, use <a href=\"#filehandlecreatewritestreamoptions\"><code>filehandle.createWriteStream()</code></a>.</p>\n<p>On Linux, positional writes do not work when the file is opened in append mode.\nThe kernel ignores the position argument and always appends the data to\nthe end of the file.</p>"
                 },
                 {
                   "textRaw": "`filehandle.write(buffer[, options])`",
@@ -975,7 +1016,8 @@
                   "name": "write",
                   "meta": {
                     "added": [
-                      "v18.3.0"
+                      "v18.3.0",
+                      "v16.17.0"
                     ],
                     "changes": []
                   },
@@ -1068,7 +1110,7 @@
                       ]
                     }
                   ],
-                  "desc": "<p>Write <code>string</code> to the file. If <code>string</code> is not a string, the promise is\nrejected with an error.</p>\n<p>The promise is resolved with an object containing two properties:</p>\n<ul>\n<li><code>bytesWritten</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;integer&gt;</a> the number of bytes written</li>\n<li><code>buffer</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> a reference to the <code>string</code> written.</li>\n</ul>\n<p>It is unsafe to use <code>filehandle.write()</code> multiple times on the same file\nwithout waiting for the promise to be resolved (or rejected). For this\nscenario, use <a href=\"#filehandlecreatewritestreamoptions\"><code>filehandle.createWriteStream()</code></a>.</p>\n<p>On Linux, positional writes do not work when the file is opened in append mode.\nThe kernel ignores the position argument and always appends the data to\nthe end of the file.</p>"
+                  "desc": "<p>Write <code>string</code> to the file. If <code>string</code> is not a string, the promise is\nrejected with an error.</p>\n<p>The promise is fulfilled with an object containing two properties:</p>\n<ul>\n<li><code>bytesWritten</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;integer&gt;</a> the number of bytes written</li>\n<li><code>buffer</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> a reference to the <code>string</code> written.</li>\n</ul>\n<p>It is unsafe to use <code>filehandle.write()</code> multiple times on the same file\nwithout waiting for the promise to be fulfilled (or rejected). For this\nscenario, use <a href=\"#filehandlecreatewritestreamoptions\"><code>filehandle.createWriteStream()</code></a>.</p>\n<p>On Linux, positional writes do not work when the file is opened in append mode.\nThe kernel ignores the position argument and always appends the data to\nthe end of the file.</p>"
                 },
                 {
                   "textRaw": "`filehandle.writeFile(data, options)`",
@@ -1124,7 +1166,7 @@
                       ]
                     }
                   ],
-                  "desc": "<p>Asynchronously writes data to a file, replacing the file if it already exists.\n<code>data</code> can be a string, a buffer, an <a href=\"https://tc39.github.io/ecma262/#sec-asynciterable-interface\" class=\"type\">&lt;AsyncIterable&gt;</a>, or an <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#The_iterable_protocol\" class=\"type\">&lt;Iterable&gt;</a> object.\nThe promise is resolved with no arguments upon success.</p>\n<p>If <code>options</code> is a string, then it specifies the <code>encoding</code>.</p>\n<p>The <a href=\"fs.html#class-filehandle\" class=\"type\">&lt;FileHandle&gt;</a> has to support writing.</p>\n<p>It is unsafe to use <code>filehandle.writeFile()</code> multiple times on the same file\nwithout waiting for the promise to be resolved (or rejected).</p>\n<p>If one or more <code>filehandle.write()</code> calls are made on a file handle and then a\n<code>filehandle.writeFile()</code> call is made, the data will be written from the\ncurrent position till the end of the file. It doesn't always write from the\nbeginning of the file.</p>"
+                  "desc": "<p>Asynchronously writes data to a file, replacing the file if it already exists.\n<code>data</code> can be a string, a buffer, an <a href=\"https://tc39.github.io/ecma262/#sec-asynciterable-interface\" class=\"type\">&lt;AsyncIterable&gt;</a>, or an <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#The_iterable_protocol\" class=\"type\">&lt;Iterable&gt;</a> object.\nThe promise is fulfilled with no arguments upon success.</p>\n<p>If <code>options</code> is a string, then it specifies the <code>encoding</code>.</p>\n<p>The <a href=\"fs.html#class-filehandle\" class=\"type\">&lt;FileHandle&gt;</a> has to support writing.</p>\n<p>It is unsafe to use <code>filehandle.writeFile()</code> multiple times on the same file\nwithout waiting for the promise to be fulfilled (or rejected).</p>\n<p>If one or more <code>filehandle.write()</code> calls are made on a file handle and then a\n<code>filehandle.writeFile()</code> call is made, the data will be written from the\ncurrent position till the end of the file. It doesn't always write from the\nbeginning of the file.</p>"
                 },
                 {
                   "textRaw": "`filehandle.writev(buffers[, position])`",
@@ -1159,7 +1201,7 @@
                       ]
                     }
                   ],
-                  "desc": "<p>Write an array of <a href=\"https://developer.mozilla.org/en-US/docs/Web/API/ArrayBufferView\" class=\"type\">&lt;ArrayBufferView&gt;</a>s to the file.</p>\n<p>The promise is resolved with an object containing a two properties:</p>\n<ul>\n<li><code>bytesWritten</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;integer&gt;</a> the number of bytes written</li>\n<li><code>buffers</code> <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer[]&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray\" class=\"type\">&lt;TypedArray[]&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView\" class=\"type\">&lt;DataView[]&gt;</a> a reference to the <code>buffers</code>\ninput.</li>\n</ul>\n<p>It is unsafe to call <code>writev()</code> multiple times on the same file without waiting\nfor the promise to be resolved (or rejected).</p>\n<p>On Linux, positional writes don't work when the file is opened in append mode.\nThe kernel ignores the position argument and always appends the data to\nthe end of the file.</p>"
+                  "desc": "<p>Write an array of <a href=\"https://developer.mozilla.org/en-US/docs/Web/API/ArrayBufferView\" class=\"type\">&lt;ArrayBufferView&gt;</a>s to the file.</p>\n<p>The promise is fulfilled with an object containing a two properties:</p>\n<ul>\n<li><code>bytesWritten</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;integer&gt;</a> the number of bytes written</li>\n<li><code>buffers</code> <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer[]&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray\" class=\"type\">&lt;TypedArray[]&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView\" class=\"type\">&lt;DataView[]&gt;</a> a reference to the <code>buffers</code>\ninput.</li>\n</ul>\n<p>It is unsafe to call <code>writev()</code> multiple times on the same file without waiting\nfor the promise to be fulfilled (or rejected).</p>\n<p>On Linux, positional writes don't work when the file is opened in append mode.\nThe kernel ignores the position argument and always appends the data to\nthe end of the file.</p>"
                 },
                 {
                   "textRaw": "`filehandle[Symbol.asyncDispose]()`",
@@ -1167,7 +1209,7 @@
                   "name": "[Symbol.asyncDispose]",
                   "meta": {
                     "added": [
-                      "v18.18.0"
+                      "v20.4.0"
                     ],
                     "changes": []
                   },
@@ -1231,7 +1273,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Tests a user's permissions for the file or directory specified by <code>path</code>.\nThe <code>mode</code> argument is an optional integer that specifies the accessibility\nchecks to be performed. <code>mode</code> should be either the value <code>fs.constants.F_OK</code>\nor a mask consisting of the bitwise OR of any of <code>fs.constants.R_OK</code>,\n<code>fs.constants.W_OK</code>, and <code>fs.constants.X_OK</code> (e.g.\n<code>fs.constants.W_OK | fs.constants.R_OK</code>). Check <a href=\"#file-access-constants\">File access constants</a> for\npossible values of <code>mode</code>.</p>\n<p>If the accessibility check is successful, the promise is resolved with no\nvalue. If any of the accessibility checks fail, the promise is rejected\nwith an <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error\" class=\"type\">&lt;Error&gt;</a> object. The following example checks if the file\n<code>/etc/passwd</code> can be read and written by the current process.</p>\n<pre><code class=\"language-mjs\">import { access, constants } from 'node:fs/promises';\n\ntry {\n  await access('/etc/passwd', constants.R_OK | constants.W_OK);\n  console.log('can access');\n} catch {\n  console.error('cannot access');\n}\n</code></pre>\n<p>Using <code>fsPromises.access()</code> to check for the accessibility of a file before\ncalling <code>fsPromises.open()</code> is not recommended. Doing so introduces a race\ncondition, since other processes may change the file's state between the two\ncalls. Instead, user code should open/read/write the file directly and handle\nthe error raised if the file is not accessible.</p>"
+              "desc": "<p>Tests a user's permissions for the file or directory specified by <code>path</code>.\nThe <code>mode</code> argument is an optional integer that specifies the accessibility\nchecks to be performed. <code>mode</code> should be either the value <code>fs.constants.F_OK</code>\nor a mask consisting of the bitwise OR of any of <code>fs.constants.R_OK</code>,\n<code>fs.constants.W_OK</code>, and <code>fs.constants.X_OK</code> (e.g.\n<code>fs.constants.W_OK | fs.constants.R_OK</code>). Check <a href=\"#file-access-constants\">File access constants</a> for\npossible values of <code>mode</code>.</p>\n<p>If the accessibility check is successful, the promise is fulfilled with no\nvalue. If any of the accessibility checks fail, the promise is rejected\nwith an <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error\" class=\"type\">&lt;Error&gt;</a> object. The following example checks if the file\n<code>/etc/passwd</code> can be read and written by the current process.</p>\n<pre><code class=\"language-mjs\">import { access, constants } from 'node:fs/promises';\n\ntry {\n  await access('/etc/passwd', constants.R_OK | constants.W_OK);\n  console.log('can access');\n} catch {\n  console.error('cannot access');\n}\n</code></pre>\n<p>Using <code>fsPromises.access()</code> to check for the accessibility of a file before\ncalling <code>fsPromises.open()</code> is not recommended. Doing so introduces a race\ncondition, since other processes may change the file's state between the two\ncalls. Instead, user code should open/read/write the file directly and handle\nthe error raised if the file is not accessible.</p>"
             },
             {
               "textRaw": "`fsPromises.appendFile(path, data[, options])`",
@@ -1241,7 +1283,13 @@
                 "added": [
                   "v10.0.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v20.10.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/50095",
+                    "description": "The `flush` option is now supported."
+                  }
+                ]
               },
               "signatures": [
                 {
@@ -1286,6 +1334,13 @@
                           "type": "string",
                           "default": "`'a'`",
                           "desc": "See [support of file system `flags`][]."
+                        },
+                        {
+                          "textRaw": "`flush` {boolean} If `true`, the underlying file descriptor is flushed prior to closing it. **Default:** `false`.",
+                          "name": "flush",
+                          "type": "boolean",
+                          "default": "`false`",
+                          "desc": "If `true`, the underlying file descriptor is flushed prior to closing it."
                         }
                       ]
                     }
@@ -1443,12 +1498,15 @@
                 ],
                 "changes": [
                   {
-                    "version": "v18.17.0",
+                    "version": "v20.1.0",
                     "pr-url": "https://github.com/nodejs/node/pull/47084",
                     "description": "Accept an additional `mode` option to specify the copy behavior as the `mode` argument of `fs.copyFile()`."
                   },
                   {
-                    "version": "v17.6.0",
+                    "version": [
+                      "v17.6.0",
+                      "v16.15.0"
+                    ],
                     "pr-url": "https://github.com/nodejs/node/pull/41819",
                     "description": "Accepts an additional `verbatimSymlinks` option to specify whether to perform path resolution for symlinks."
                   }
@@ -1516,9 +1574,10 @@
                               "desc": "destination path to copy to."
                             },
                             {
-                              "textRaw": "Returns: {boolean|Promise}",
+                              "textRaw": "Returns: {boolean|Promise} A value that is coercible to `boolean` or a `Promise` that fulfils with such value.",
                               "name": "return",
-                              "type": "boolean|Promise"
+                              "type": "boolean|Promise",
+                              "desc": "A value that is coercible to `boolean` or a `Promise` that fulfils with such value."
                             }
                           ]
                         },
@@ -1825,7 +1884,7 @@
                 ],
                 "changes": [
                   {
-                    "version": "v18.19.0",
+                    "version": "v20.6.0",
                     "pr-url": "https://github.com/nodejs/node/pull/48828",
                     "description": "The `prefix` parameter now accepts buffers and URL."
                   },
@@ -1930,7 +1989,7 @@
                 ],
                 "changes": [
                   {
-                    "version": "v18.17.0",
+                    "version": "v20.1.0",
                     "pr-url": "https://github.com/nodejs/node/pull/41439",
                     "description": "Added `recursive` option."
                   },
@@ -2000,7 +2059,7 @@
                 ],
                 "changes": [
                   {
-                    "version": "v18.17.0",
+                    "version": "v20.1.0",
                     "pr-url": "https://github.com/nodejs/node/pull/41439",
                     "description": "Added `recursive` option."
                   },
@@ -2043,17 +2102,18 @@
                           "default": "`false`"
                         },
                         {
-                          "textRaw": "`recursive` {boolean} **Default:** `false`",
+                          "textRaw": "`recursive` {boolean} If `true`, reads the contents of a directory recursively. In recursive mode, it will list all files, sub files, and directories. **Default:** `false`.",
                           "name": "recursive",
                           "type": "boolean",
-                          "default": "`false`"
+                          "default": "`false`",
+                          "desc": "If `true`, reads the contents of a directory recursively. In recursive mode, it will list all files, sub files, and directories."
                         }
                       ]
                     }
                   ]
                 }
               ],
-              "desc": "<p>Reads the contents of a directory.</p>\n<p>The optional <code>options</code> argument can be a string specifying an encoding, or an\nobject with an <code>encoding</code> property specifying the character encoding to use for\nthe filenames. If the <code>encoding</code> is set to <code>'buffer'</code>, the filenames returned\nwill be passed as <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a> objects.</p>\n<p>If <code>options.withFileTypes</code> is set to <code>true</code>, the resolved array will contain\n<a href=\"fs.html#class-fsdirent\" class=\"type\">&lt;fs.Dirent&gt;</a> objects.</p>\n<pre><code class=\"language-mjs\">import { readdir } from 'node:fs/promises';\n\ntry {\n  const files = await readdir(path);\n  for (const file of files)\n    console.log(file);\n} catch (err) {\n  console.error(err);\n}\n</code></pre>"
+              "desc": "<p>Reads the contents of a directory.</p>\n<p>The optional <code>options</code> argument can be a string specifying an encoding, or an\nobject with an <code>encoding</code> property specifying the character encoding to use for\nthe filenames. If the <code>encoding</code> is set to <code>'buffer'</code>, the filenames returned\nwill be passed as <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a> objects.</p>\n<p>If <code>options.withFileTypes</code> is set to <code>true</code>, the returned array will contain\n<a href=\"fs.html#class-fsdirent\" class=\"type\">&lt;fs.Dirent&gt;</a> objects.</p>\n<pre><code class=\"language-mjs\">import { readdir } from 'node:fs/promises';\n\ntry {\n  const files = await readdir(path);\n  for (const file of files)\n    console.log(file);\n} catch (err) {\n  console.error(err);\n}\n</code></pre>"
             },
             {
               "textRaw": "`fsPromises.readFile(path[, options])`",
@@ -2160,7 +2220,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Reads the contents of the symbolic link referred to by <code>path</code>. See the POSIX\n<a href=\"http://man7.org/linux/man-pages/man2/readlink.2.html\"><code>readlink(2)</code></a> documentation for more detail. The promise is resolved with the\n<code>linkString</code> upon success.</p>\n<p>The optional <code>options</code> argument can be a string specifying an encoding, or an\nobject with an <code>encoding</code> property specifying the character encoding to use for\nthe link path returned. If the <code>encoding</code> is set to <code>'buffer'</code>, the link path\nreturned will be passed as a <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a> object.</p>"
+              "desc": "<p>Reads the contents of the symbolic link referred to by <code>path</code>. See the POSIX\n<a href=\"http://man7.org/linux/man-pages/man2/readlink.2.html\"><code>readlink(2)</code></a> documentation for more detail. The promise is fulfilled with the\n<code>linkString</code> upon success.</p>\n<p>The optional <code>options</code> argument can be a string specifying an encoding, or an\nobject with an <code>encoding</code> property specifying the character encoding to use for\nthe link path returned. If the <code>encoding</code> is set to <code>'buffer'</code>, the link path\nreturned will be passed as a <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a> object.</p>"
             },
             {
               "textRaw": "`fsPromises.realpath(path[, options])`",
@@ -2447,6 +2507,7 @@
               "name": "statfs",
               "meta": {
                 "added": [
+                  "v19.6.0",
                   "v18.15.0"
                 ],
                 "changes": []
@@ -2491,7 +2552,13 @@
                 "added": [
                   "v10.0.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v19.0.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/42894",
+                    "description": "If the `type` argument is `null` or omitted, Node.js will autodetect `target` type and automatically select `dir` or `file`."
+                  }
+                ]
               },
               "signatures": [
                 {
@@ -2513,15 +2580,15 @@
                       "type": "string|Buffer|URL"
                     },
                     {
-                      "textRaw": "`type` {string} **Default:** `'file'`",
+                      "textRaw": "`type` {string|null} **Default:** `null`",
                       "name": "type",
-                      "type": "string",
-                      "default": "`'file'`"
+                      "type": "string|null",
+                      "default": "`null`"
                     }
                   ]
                 }
               ],
-              "desc": "<p>Creates a symbolic link.</p>\n<p>The <code>type</code> argument is only used on Windows platforms and can be one of <code>'dir'</code>,\n<code>'file'</code>, or <code>'junction'</code>. Windows junction points require the destination path\nto be absolute. When using <code>'junction'</code>, the <code>target</code> argument will\nautomatically be normalized to absolute path. Junction points on NTFS volumes\ncan only point to directories.</p>"
+              "desc": "<p>Creates a symbolic link.</p>\n<p>The <code>type</code> argument is only used on Windows platforms and can be one of <code>'dir'</code>,\n<code>'file'</code>, or <code>'junction'</code>. If the <code>type</code> argument is not a string, Node.js will\nautodetect <code>target</code> type and use <code>'file'</code> or <code>'dir'</code>. If the <code>target</code> does not\nexist, <code>'file'</code> will be used. Windows junction points require the destination\npath to be absolute. When using <code>'junction'</code>, the <code>target</code> argument will\nautomatically be normalized to absolute path. Junction points on NTFS volumes\ncan only point to directories.</p>"
             },
             {
               "textRaw": "`fsPromises.truncate(path[, len])`",
@@ -2714,6 +2781,11 @@
                 ],
                 "changes": [
                   {
+                    "version": "v20.10.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/50009",
+                    "description": "The `flush` option is now supported."
+                  },
+                  {
                     "version": [
                       "v15.14.0",
                       "v14.18.0"
@@ -2781,6 +2853,13 @@
                           "desc": "See [support of file system `flags`][]."
                         },
                         {
+                          "textRaw": "`flush` {boolean} If all data is successfully written to the file, and `flush` is `true`, `filehandle.sync()` is used to flush the data. **Default:** `false`.",
+                          "name": "flush",
+                          "type": "boolean",
+                          "default": "`false`",
+                          "desc": "If all data is successfully written to the file, and `flush` is `true`, `filehandle.sync()` is used to flush the data."
+                        },
+                        {
                           "textRaw": "`signal` {AbortSignal} allows aborting an in-progress writeFile",
                           "name": "signal",
                           "type": "AbortSignal",
@@ -2826,6 +2905,11 @@
                   "v0.11.15"
                 ],
                 "changes": [
+                  {
+                    "version": "v20.8.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/49683",
+                    "description": "The constants `fs.F_OK`, `fs.R_OK`, `fs.W_OK` and `fs.X_OK` which were present directly on `fs` are deprecated."
+                  },
                   {
                     "version": "v18.0.0",
                     "pr-url": "https://github.com/nodejs/node/pull/41678",
@@ -2883,6 +2967,11 @@
                   "v0.6.7"
                 ],
                 "changes": [
+                  {
+                    "version": "v20.10.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/50095",
+                    "description": "The `flush` option is now supported."
+                  },
                   {
                     "version": "v18.0.0",
                     "pr-url": "https://github.com/nodejs/node/pull/41678",
@@ -2947,6 +3036,13 @@
                           "type": "string",
                           "default": "`'a'`",
                           "desc": "See [support of file system `flags`][]."
+                        },
+                        {
+                          "textRaw": "`flush` {boolean} If `true`, the underlying file descriptor is flushed prior to closing it. **Default:** `false`.",
+                          "name": "flush",
+                          "type": "boolean",
+                          "default": "`false`",
+                          "desc": "If `true`, the underlying file descriptor is flushed prior to closing it."
                         }
                       ]
                     },
@@ -3208,7 +3304,14 @@
                     {
                       "textRaw": "`callback` {Function}",
                       "name": "callback",
-                      "type": "Function"
+                      "type": "Function",
+                      "options": [
+                        {
+                          "textRaw": "`err` {Error}",
+                          "name": "err",
+                          "type": "Error"
+                        }
+                      ]
                     }
                   ]
                 }
@@ -3225,7 +3328,7 @@
                 ],
                 "changes": [
                   {
-                    "version": "v18.17.0",
+                    "version": "v20.1.0",
                     "pr-url": "https://github.com/nodejs/node/pull/47084",
                     "description": "Accept an additional `mode` option to specify the copy behavior as the `mode` argument of `fs.copyFile()`."
                   },
@@ -3235,7 +3338,10 @@
                     "description": "Passing an invalid callback to the `callback` argument now throws `ERR_INVALID_ARG_TYPE` instead of `ERR_INVALID_CALLBACK`."
                   },
                   {
-                    "version": "v17.6.0",
+                    "version": [
+                      "v17.6.0",
+                      "v16.15.0"
+                    ],
                     "pr-url": "https://github.com/nodejs/node/pull/41819",
                     "description": "Accepts an additional `verbatimSymlinks` option to specify whether to perform path resolution for symlinks."
                   }
@@ -3297,9 +3403,10 @@
                               "desc": "destination path to copy to."
                             },
                             {
-                              "textRaw": "Returns: {boolean|Promise}",
+                              "textRaw": "Returns: {boolean|Promise} A value that is coercible to `boolean` or a `Promise` that fulfils with such value.",
                               "name": "return",
-                              "type": "boolean|Promise"
+                              "type": "boolean|Promise",
+                              "desc": "A value that is coercible to `boolean` or a `Promise` that fulfils with such value."
                             }
                           ]
                         },
@@ -3343,7 +3450,14 @@
                     {
                       "textRaw": "`callback` {Function}",
                       "name": "callback",
-                      "type": "Function"
+                      "type": "Function",
+                      "options": [
+                        {
+                          "textRaw": "`err` {Error}",
+                          "name": "err",
+                          "type": "Error"
+                        }
+                      ]
                     }
                   ]
                 }
@@ -3510,7 +3624,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Unlike the 16 KiB default <code>highWaterMark</code> for a <a href=\"stream.html#class-streamreadable\" class=\"type\">&lt;stream.Readable&gt;</a>, the stream\nreturned by this method has a default <code>highWaterMark</code> of 64 KiB.</p>\n<p><code>options</code> can include <code>start</code> and <code>end</code> values to read a range of bytes from\nthe file instead of the entire file. Both <code>start</code> and <code>end</code> are inclusive and\nstart counting at 0, allowed values are in the\n[0, <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER\"><code>Number.MAX_SAFE_INTEGER</code></a>] range. If <code>fd</code> is specified and <code>start</code> is\nomitted or <code>undefined</code>, <code>fs.createReadStream()</code> reads sequentially from the\ncurrent file position. The <code>encoding</code> can be any one of those accepted by\n<a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a>.</p>\n<p>If <code>fd</code> is specified, <code>ReadStream</code> will ignore the <code>path</code> argument and will use\nthe specified file descriptor. This means that no <code>'open'</code> event will be\nemitted. <code>fd</code> should be blocking; non-blocking <code>fd</code>s should be passed to\n<a href=\"net.html#class-netsocket\" class=\"type\">&lt;net.Socket&gt;</a>.</p>\n<p>If <code>fd</code> points to a character device that only supports blocking reads\n(such as keyboard or sound card), read operations do not finish until data is\navailable. This can prevent the process from exiting and the stream from\nclosing naturally.</p>\n<p>By default, the stream will emit a <code>'close'</code> event after it has been\ndestroyed.  Set the <code>emitClose</code> option to <code>false</code> to change this behavior.</p>\n<p>By providing the <code>fs</code> option, it is possible to override the corresponding <code>fs</code>\nimplementations for <code>open</code>, <code>read</code>, and <code>close</code>. When providing the <code>fs</code> option,\nan override for <code>read</code> is required. If no <code>fd</code> is provided, an override for\n<code>open</code> is also required. If <code>autoClose</code> is <code>true</code>, an override for <code>close</code> is\nalso required.</p>\n<pre><code class=\"language-mjs\">import { createReadStream } from 'node:fs';\n\n// Create a stream from some character device.\nconst stream = createReadStream('/dev/input/event0');\nsetTimeout(() => {\n  stream.close(); // This may not close the stream.\n  // Artificially marking end-of-stream, as if the underlying resource had\n  // indicated end-of-file by itself, allows the stream to close.\n  // This does not cancel pending read operations, and if there is such an\n  // operation, the process may still not be able to exit successfully\n  // until it finishes.\n  stream.push(null);\n  stream.read(0);\n}, 100);\n</code></pre>\n<p>If <code>autoClose</code> is false, then the file descriptor won't be closed, even if\nthere's an error. It is the application's responsibility to close it and make\nsure there's no file descriptor leak. If <code>autoClose</code> is set to true (default\nbehavior), on <code>'error'</code> or <code>'end'</code> the file descriptor will be closed\nautomatically.</p>\n<p><code>mode</code> sets the file mode (permission and sticky bits), but only if the\nfile was created.</p>\n<p>An example to read the last 10 bytes of a file which is 100 bytes long:</p>\n<pre><code class=\"language-mjs\">import { createReadStream } from 'node:fs';\n\ncreateReadStream('sample.txt', { start: 90, end: 99 });\n</code></pre>\n<p>If <code>options</code> is a string, then it specifies the encoding.</p>"
+              "desc": "<p><code>options</code> can include <code>start</code> and <code>end</code> values to read a range of bytes from\nthe file instead of the entire file. Both <code>start</code> and <code>end</code> are inclusive and\nstart counting at 0, allowed values are in the\n[0, <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER\"><code>Number.MAX_SAFE_INTEGER</code></a>] range. If <code>fd</code> is specified and <code>start</code> is\nomitted or <code>undefined</code>, <code>fs.createReadStream()</code> reads sequentially from the\ncurrent file position. The <code>encoding</code> can be any one of those accepted by\n<a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a>.</p>\n<p>If <code>fd</code> is specified, <code>ReadStream</code> will ignore the <code>path</code> argument and will use\nthe specified file descriptor. This means that no <code>'open'</code> event will be\nemitted. <code>fd</code> should be blocking; non-blocking <code>fd</code>s should be passed to\n<a href=\"net.html#class-netsocket\" class=\"type\">&lt;net.Socket&gt;</a>.</p>\n<p>If <code>fd</code> points to a character device that only supports blocking reads\n(such as keyboard or sound card), read operations do not finish until data is\navailable. This can prevent the process from exiting and the stream from\nclosing naturally.</p>\n<p>By default, the stream will emit a <code>'close'</code> event after it has been\ndestroyed.  Set the <code>emitClose</code> option to <code>false</code> to change this behavior.</p>\n<p>By providing the <code>fs</code> option, it is possible to override the corresponding <code>fs</code>\nimplementations for <code>open</code>, <code>read</code>, and <code>close</code>. When providing the <code>fs</code> option,\nan override for <code>read</code> is required. If no <code>fd</code> is provided, an override for\n<code>open</code> is also required. If <code>autoClose</code> is <code>true</code>, an override for <code>close</code> is\nalso required.</p>\n<pre><code class=\"language-mjs\">import { createReadStream } from 'node:fs';\n\n// Create a stream from some character device.\nconst stream = createReadStream('/dev/input/event0');\nsetTimeout(() => {\n  stream.close(); // This may not close the stream.\n  // Artificially marking end-of-stream, as if the underlying resource had\n  // indicated end-of-file by itself, allows the stream to close.\n  // This does not cancel pending read operations, and if there is such an\n  // operation, the process may still not be able to exit successfully\n  // until it finishes.\n  stream.push(null);\n  stream.read(0);\n}, 100);\n</code></pre>\n<p>If <code>autoClose</code> is false, then the file descriptor won't be closed, even if\nthere's an error. It is the application's responsibility to close it and make\nsure there's no file descriptor leak. If <code>autoClose</code> is set to true (default\nbehavior), on <code>'error'</code> or <code>'end'</code> the file descriptor will be closed\nautomatically.</p>\n<p><code>mode</code> sets the file mode (permission and sticky bits), but only if the\nfile was created.</p>\n<p>An example to read the last 10 bytes of a file which is 100 bytes long:</p>\n<pre><code class=\"language-mjs\">import { createReadStream } from 'node:fs';\n\ncreateReadStream('sample.txt', { start: 90, end: 99 });\n</code></pre>\n<p>If <code>options</code> is a string, then it specifies the encoding.</p>"
             },
             {
               "textRaw": "`fs.createWriteStream(path[, options])`",
@@ -3521,6 +3635,11 @@
                   "v0.1.31"
                 ],
                 "changes": [
+                  {
+                    "version": "v20.10.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/50093",
+                    "description": "The `flush` option is now supported."
+                  },
                   {
                     "version": "v16.10.0",
                     "pr-url": "https://github.com/nodejs/node/pull/40013",
@@ -3654,6 +3773,19 @@
                           "name": "signal",
                           "type": "AbortSignal|null",
                           "default": "`null`"
+                        },
+                        {
+                          "textRaw": "`highWaterMark` {number} **Default:** `16384`",
+                          "name": "highWaterMark",
+                          "type": "number",
+                          "default": "`16384`"
+                        },
+                        {
+                          "textRaw": "`flush` {boolean} If `true`, the underlying file descriptor is flushed prior to closing it. **Default:** `false`.",
+                          "name": "flush",
+                          "type": "boolean",
+                          "default": "`false`",
+                          "desc": "If `true`, the underlying file descriptor is flushed prior to closing it."
                         }
                       ]
                     }
@@ -3711,7 +3843,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Test whether or not the given path exists by checking with the file system.\nThen call the <code>callback</code> argument with either true or false:</p>\n<pre><code class=\"language-mjs\">import { exists } from 'node:fs';\n\nexists('/etc/passwd', (e) => {\n  console.log(e ? 'it exists' : 'no passwd!');\n});\n</code></pre>\n<p><strong>The parameters for this callback are not consistent with other Node.js\ncallbacks.</strong> Normally, the first parameter to a Node.js callback is an <code>err</code>\nparameter, optionally followed by other parameters. The <code>fs.exists()</code> callback\nhas only one boolean parameter. This is one reason <code>fs.access()</code> is recommended\ninstead of <code>fs.exists()</code>.</p>\n<p>Using <code>fs.exists()</code> to check for the existence of a file before calling\n<code>fs.open()</code>, <code>fs.readFile()</code>, or <code>fs.writeFile()</code> is not recommended. Doing\nso introduces a race condition, since other processes may change the file's\nstate between the two calls. Instead, user code should open/read/write the\nfile directly and handle the error raised if the file does not exist.</p>\n<p><strong>write (NOT RECOMMENDED)</strong></p>\n<pre><code class=\"language-mjs\">import { exists, open, close } from 'node:fs';\n\nexists('myfile', (e) => {\n  if (e) {\n    console.error('myfile already exists');\n  } else {\n    open('myfile', 'wx', (err, fd) => {\n      if (err) throw err;\n\n      try {\n        writeMyData(fd);\n      } finally {\n        close(fd, (err) => {\n          if (err) throw err;\n        });\n      }\n    });\n  }\n});\n</code></pre>\n<p><strong>write (RECOMMENDED)</strong></p>\n<pre><code class=\"language-mjs\">import { open, close } from 'node:fs';\nopen('myfile', 'wx', (err, fd) => {\n  if (err) {\n    if (err.code === 'EEXIST') {\n      console.error('myfile already exists');\n      return;\n    }\n\n    throw err;\n  }\n\n  try {\n    writeMyData(fd);\n  } finally {\n    close(fd, (err) => {\n      if (err) throw err;\n    });\n  }\n});\n</code></pre>\n<p><strong>read (NOT RECOMMENDED)</strong></p>\n<pre><code class=\"language-mjs\">import { open, close, exists } from 'node:fs';\n\nexists('myfile', (e) => {\n  if (e) {\n    open('myfile', 'r', (err, fd) => {\n      if (err) throw err;\n\n      try {\n        readMyData(fd);\n      } finally {\n        close(fd, (err) => {\n          if (err) throw err;\n        });\n      }\n    });\n  } else {\n    console.error('myfile does not exist');\n  }\n});\n</code></pre>\n<p><strong>read (RECOMMENDED)</strong></p>\n<pre><code class=\"language-mjs\">import { open, close } from 'node:fs';\n\nopen('myfile', 'r', (err, fd) => {\n  if (err) {\n    if (err.code === 'ENOENT') {\n      console.error('myfile does not exist');\n      return;\n    }\n\n    throw err;\n  }\n\n  try {\n    readMyData(fd);\n  } finally {\n    close(fd, (err) => {\n      if (err) throw err;\n    });\n  }\n});\n</code></pre>\n<p>The \"not recommended\" examples above check for existence and then use the\nfile; the \"recommended\" examples are better because they use the file directly\nand handle the error, if any.</p>\n<p>In general, check for the existence of a file only if the file won't be\nused directly, for example when its existence is a signal from another\nprocess.</p>"
+              "desc": "<p>Test whether or not the element at the given <code>path</code> exists by checking with the file system.\nThen call the <code>callback</code> argument with either true or false:</p>\n<pre><code class=\"language-mjs\">import { exists } from 'node:fs';\n\nexists('/etc/passwd', (e) => {\n  console.log(e ? 'it exists' : 'no passwd!');\n});\n</code></pre>\n<p><strong>The parameters for this callback are not consistent with other Node.js\ncallbacks.</strong> Normally, the first parameter to a Node.js callback is an <code>err</code>\nparameter, optionally followed by other parameters. The <code>fs.exists()</code> callback\nhas only one boolean parameter. This is one reason <code>fs.access()</code> is recommended\ninstead of <code>fs.exists()</code>.</p>\n<p>If <code>path</code> is a symbolic link, it is followed. Thus, if <code>path</code> exists but points\nto a non-existent element, the callback will receive the value <code>false</code>.</p>\n<p>Using <code>fs.exists()</code> to check for the existence of a file before calling\n<code>fs.open()</code>, <code>fs.readFile()</code>, or <code>fs.writeFile()</code> is not recommended. Doing\nso introduces a race condition, since other processes may change the file's\nstate between the two calls. Instead, user code should open/read/write the\nfile directly and handle the error raised if the file does not exist.</p>\n<p><strong>write (NOT RECOMMENDED)</strong></p>\n<pre><code class=\"language-mjs\">import { exists, open, close } from 'node:fs';\n\nexists('myfile', (e) => {\n  if (e) {\n    console.error('myfile already exists');\n  } else {\n    open('myfile', 'wx', (err, fd) => {\n      if (err) throw err;\n\n      try {\n        writeMyData(fd);\n      } finally {\n        close(fd, (err) => {\n          if (err) throw err;\n        });\n      }\n    });\n  }\n});\n</code></pre>\n<p><strong>write (RECOMMENDED)</strong></p>\n<pre><code class=\"language-mjs\">import { open, close } from 'node:fs';\nopen('myfile', 'wx', (err, fd) => {\n  if (err) {\n    if (err.code === 'EEXIST') {\n      console.error('myfile already exists');\n      return;\n    }\n\n    throw err;\n  }\n\n  try {\n    writeMyData(fd);\n  } finally {\n    close(fd, (err) => {\n      if (err) throw err;\n    });\n  }\n});\n</code></pre>\n<p><strong>read (NOT RECOMMENDED)</strong></p>\n<pre><code class=\"language-mjs\">import { open, close, exists } from 'node:fs';\n\nexists('myfile', (e) => {\n  if (e) {\n    open('myfile', 'r', (err, fd) => {\n      if (err) throw err;\n\n      try {\n        readMyData(fd);\n      } finally {\n        close(fd, (err) => {\n          if (err) throw err;\n        });\n      }\n    });\n  } else {\n    console.error('myfile does not exist');\n  }\n});\n</code></pre>\n<p><strong>read (RECOMMENDED)</strong></p>\n<pre><code class=\"language-mjs\">import { open, close } from 'node:fs';\n\nopen('myfile', 'r', (err, fd) => {\n  if (err) {\n    if (err.code === 'ENOENT') {\n      console.error('myfile does not exist');\n      return;\n    }\n\n    throw err;\n  }\n\n  try {\n    readMyData(fd);\n  } finally {\n    close(fd, (err) => {\n      if (err) throw err;\n    });\n  }\n});\n</code></pre>\n<p>The \"not recommended\" examples above check for existence and then use the\nfile; the \"recommended\" examples are better because they use the file directly\nand handle the error, if any.</p>\n<p>In general, check for the existence of a file only if the file won't be\nused directly, for example when its existence is a signal from another\nprocess.</p>"
             },
             {
               "textRaw": "`fs.fchmod(fd, mode, callback)`",
@@ -4556,7 +4688,7 @@
                 ],
                 "changes": [
                   {
-                    "version": "v18.19.0",
+                    "version": "v20.6.0",
                     "pr-url": "https://github.com/nodejs/node/pull/48828",
                     "description": "The `prefix` parameter now accepts buffers and URL."
                   },
@@ -4708,6 +4840,50 @@
               "desc": "<p>Asynchronous file open. See the POSIX <a href=\"http://man7.org/linux/man-pages/man2/open.2.html\"><code>open(2)</code></a> documentation for more details.</p>\n<p><code>mode</code> sets the file mode (permission and sticky bits), but only if the file was\ncreated. On Windows, only the write permission can be manipulated; see\n<a href=\"#fschmodpath-mode-callback\"><code>fs.chmod()</code></a>.</p>\n<p>The callback gets two arguments <code>(err, fd)</code>.</p>\n<p>Some characters (<code>&#x3C; > : \" / \\ | ? *</code>) are reserved under Windows as documented\nby <a href=\"https://docs.microsoft.com/en-us/windows/desktop/FileIO/naming-a-file\">Naming Files, Paths, and Namespaces</a>. Under NTFS, if the filename contains\na colon, Node.js will open a file system stream, as described by\n<a href=\"https://docs.microsoft.com/en-us/windows/desktop/FileIO/using-streams\">this MSDN page</a>.</p>\n<p>Functions based on <code>fs.open()</code> exhibit this behavior as well:\n<code>fs.writeFile()</code>, <code>fs.readFile()</code>, etc.</p>"
             },
             {
+              "textRaw": "`fs.openAsBlob(path[, options])`",
+              "type": "method",
+              "name": "openAsBlob",
+              "meta": {
+                "added": [
+                  "v19.8.0"
+                ],
+                "changes": []
+              },
+              "stability": 1,
+              "stabilityText": "Experimental",
+              "signatures": [
+                {
+                  "return": {
+                    "textRaw": "Returns: {Promise} Fulfills with a {Blob} upon success.",
+                    "name": "return",
+                    "type": "Promise",
+                    "desc": "Fulfills with a {Blob} upon success."
+                  },
+                  "params": [
+                    {
+                      "textRaw": "`path` {string|Buffer|URL}",
+                      "name": "path",
+                      "type": "string|Buffer|URL"
+                    },
+                    {
+                      "textRaw": "`options` {Object}",
+                      "name": "options",
+                      "type": "Object",
+                      "options": [
+                        {
+                          "textRaw": "`type` {string} An optional mime type for the blob.",
+                          "name": "type",
+                          "type": "string",
+                          "desc": "An optional mime type for the blob."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "desc": "<p>Returns a <a href=\"buffer.html#class-blob\" class=\"type\">&lt;Blob&gt;</a> whose data is backed by the given file.</p>\n<p>The file must not be modified after the <a href=\"buffer.html#class-blob\" class=\"type\">&lt;Blob&gt;</a> is created. Any modifications\nwill cause reading the <a href=\"buffer.html#class-blob\" class=\"type\">&lt;Blob&gt;</a> data to fail with a <code>DOMException</code> error.\nSynchronous stat operations on the file when the <code>Blob</code> is created, and before\neach read in order to detect whether the file data has been modified on disk.</p>\n<pre><code class=\"language-mjs\">import { openAsBlob } from 'node:fs';\n\nconst blob = await openAsBlob('the.file.txt');\nconst ab = await blob.arrayBuffer();\nblob.stream();\n</code></pre>\n<pre><code class=\"language-cjs\">const { openAsBlob } = require('node:fs');\n\n(async () => {\n  const blob = await openAsBlob('the.file.txt');\n  const ab = await blob.arrayBuffer();\n  blob.stream();\n})();\n</code></pre>"
+            },
+            {
               "textRaw": "`fs.opendir(path[, options], callback)`",
               "type": "method",
               "name": "opendir",
@@ -4717,7 +4893,7 @@
                 ],
                 "changes": [
                   {
-                    "version": "v18.17.0",
+                    "version": "v20.1.0",
                     "pr-url": "https://github.com/nodejs/node/pull/41439",
                     "description": "Added `recursive` option."
                   },
@@ -4880,7 +5056,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Read data from the file specified by <code>fd</code>.</p>\n<p>The callback is given the three arguments, <code>(err, bytesRead, buffer)</code>.</p>\n<p>If the file is not modified concurrently, the end-of-file is reached when the\nnumber of bytes read is zero.</p>\n<p>If this method is invoked as its <a href=\"util.html#utilpromisifyoriginal\"><code>util.promisify()</code></a>ed version, it returns\na promise for an <code>Object</code> with <code>bytesRead</code> and <code>buffer</code> properties.</p>"
+              "desc": "<p>Read data from the file specified by <code>fd</code>.</p>\n<p>The callback is given the three arguments, <code>(err, bytesRead, buffer)</code>.</p>\n<p>If the file is not modified concurrently, the end-of-file is reached when the\nnumber of bytes read is zero.</p>\n<p>If this method is invoked as its <a href=\"util.html#utilpromisifyoriginal\"><code>util.promisify()</code></a>ed version, it returns\na promise for an <code>Object</code> with <code>bytesRead</code> and <code>buffer</code> properties.</p>\n<p>The <code>fs.read()</code> method reads data from the file specified\nby the file descriptor (<code>fd</code>).\nThe <code>length</code> argument indicates the maximum number\nof bytes that Node.js\nwill attempt to read from the kernel.\nHowever, the actual number of bytes read (<code>bytesRead</code>) can be lower\nthan the specified <code>length</code> for various reasons.</p>\n<p>For example:</p>\n<ul>\n<li>If the file is shorter than the specified <code>length</code>, <code>bytesRead</code>\nwill be set to the actual number of bytes read.</li>\n<li>If the file encounters EOF (End of File) before the buffer could\nbe filled, Node.js will read all available bytes until EOF is encountered,\nand the <code>bytesRead</code> parameter in the callback will indicate\nthe actual number of bytes read, which may be less than the specified <code>length</code>.</li>\n<li>If the file is on a slow network <code>filesystem</code>\nor encounters any other issue during reading,\n<code>bytesRead</code> can be lower than the specified <code>length</code>.</li>\n</ul>\n<p>Therefore, when using <code>fs.read()</code>, it's important to\ncheck the <code>bytesRead</code> value to\ndetermine how many bytes were actually read from the file.\nDepending on your application\nlogic, you may need to handle cases where <code>bytesRead</code>\nis lower than the specified <code>length</code>,\nsuch as by wrapping the read call in a loop if you require\na minimum amount of bytes.</p>\n<p>This behavior is similar to the POSIX <code>preadv2</code> function.</p>"
             },
             {
               "textRaw": "`fs.read(fd[, options], callback)`",
@@ -4974,7 +5150,8 @@
               "name": "read",
               "meta": {
                 "added": [
-                  "v18.2.0"
+                  "v18.2.0",
+                  "v16.17.0"
                 ],
                 "changes": []
               },
@@ -5054,7 +5231,7 @@
                 ],
                 "changes": [
                   {
-                    "version": "v18.17.0",
+                    "version": "v20.1.0",
                     "pr-url": "https://github.com/nodejs/node/pull/41439",
                     "description": "Added `recursive` option."
                   },
@@ -5116,10 +5293,11 @@
                           "default": "`false`"
                         },
                         {
-                          "textRaw": "`recursive` {boolean} **Default:** `false`",
+                          "textRaw": "`recursive` {boolean} If `true`, reads the contents of a directory recursively. In recursive mode, it will list all files, sub files and directories. **Default:** `false`.",
                           "name": "recursive",
                           "type": "boolean",
-                          "default": "`false`"
+                          "default": "`false`",
+                          "desc": "If `true`, reads the contents of a directory recursively. In recursive mode, it will list all files, sub files and directories."
                         }
                       ]
                     },
@@ -5259,7 +5437,7 @@
                 {
                   "textRaw": "File descriptors",
                   "name": "file_descriptors",
-                  "desc": "<ol>\n<li>Any specified file descriptor has to support reading.</li>\n<li>If a file descriptor is specified as the <code>path</code>, it will not be closed\nautomatically.</li>\n<li>The reading will begin at the current position. For example, if the file\nalready had <code>'Hello World</code>' and six bytes are read with the file descriptor,\nthe call to <code>fs.readFile()</code> with the same file descriptor, would give\n<code>'World'</code>, rather than <code>'Hello World'</code>.</li>\n</ol>",
+                  "desc": "<ol>\n<li>Any specified file descriptor has to support reading.</li>\n<li>If a file descriptor is specified as the <code>path</code>, it will not be closed\nautomatically.</li>\n<li>The reading will begin at the current position. For example, if the file\nalready had <code>'Hello World'</code> and six bytes are read with the file descriptor,\nthe call to <code>fs.readFile()</code> with the same file descriptor, would give\n<code>'World'</code>, rather than <code>'Hello World'</code>.</li>\n</ol>",
                   "type": "module",
                   "displayName": "File descriptors"
                 },
@@ -5496,7 +5674,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Asynchronously computes the canonical pathname by resolving <code>.</code>, <code>..</code>, and\nsymbolic links.</p>\n<p>A canonical pathname is not necessarily unique. Hard links and bind mounts can\nexpose a file system entity through many pathnames.</p>\n<p>This function behaves like <a href=\"http://man7.org/linux/man-pages/man3/realpath.3.html\"><code>realpath(3)</code></a>, with some exceptions:</p>\n<ol>\n<li>\n<p>No case conversion is performed on case-insensitive file systems.</p>\n</li>\n<li>\n<p>The maximum number of symbolic links is platform-independent and generally\n(much) higher than what the native <a href=\"http://man7.org/linux/man-pages/man3/realpath.3.html\"><code>realpath(3)</code></a> implementation supports.</p>\n</li>\n</ol>\n<p>The <code>callback</code> gets two arguments <code>(err, resolvedPath)</code>. May use <code>process.cwd</code>\nto resolve relative paths.</p>\n<p>Only paths that can be converted to UTF8 strings are supported.</p>\n<p>The optional <code>options</code> argument can be a string specifying an encoding, or an\nobject with an <code>encoding</code> property specifying the character encoding to use for\nthe path passed to the callback. If the <code>encoding</code> is set to <code>'buffer'</code>,\nthe path returned will be passed as a <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a> object.</p>\n<p>If <code>path</code> resolves to a socket or a pipe, the function will return a system\ndependent name for that object.</p>"
+              "desc": "<p>Asynchronously computes the canonical pathname by resolving <code>.</code>, <code>..</code>, and\nsymbolic links.</p>\n<p>A canonical pathname is not necessarily unique. Hard links and bind mounts can\nexpose a file system entity through many pathnames.</p>\n<p>This function behaves like <a href=\"http://man7.org/linux/man-pages/man3/realpath.3.html\"><code>realpath(3)</code></a>, with some exceptions:</p>\n<ol>\n<li>\n<p>No case conversion is performed on case-insensitive file systems.</p>\n</li>\n<li>\n<p>The maximum number of symbolic links is platform-independent and generally\n(much) higher than what the native <a href=\"http://man7.org/linux/man-pages/man3/realpath.3.html\"><code>realpath(3)</code></a> implementation supports.</p>\n</li>\n</ol>\n<p>The <code>callback</code> gets two arguments <code>(err, resolvedPath)</code>. May use <code>process.cwd</code>\nto resolve relative paths.</p>\n<p>Only paths that can be converted to UTF8 strings are supported.</p>\n<p>The optional <code>options</code> argument can be a string specifying an encoding, or an\nobject with an <code>encoding</code> property specifying the character encoding to use for\nthe path passed to the callback. If the <code>encoding</code> is set to <code>'buffer'</code>,\nthe path returned will be passed as a <a href=\"buffer.html#class-buffer\" class=\"type\">&lt;Buffer&gt;</a> object.</p>\n<p>If <code>path</code> resolves to a socket or a pipe, the function will return a system\ndependent name for that object.</p>\n<p>A path that does not exist results in an ENOENT error.\n<code>error.path</code> is the absolute file path.</p>"
             },
             {
               "textRaw": "`fs.realpath.native(path[, options], callback)`",
@@ -5900,6 +6078,7 @@
               "name": "statfs",
               "meta": {
                 "added": [
+                  "v19.6.0",
                   "v18.15.0"
                 ],
                 "changes": []
@@ -6243,6 +6422,11 @@
                 ],
                 "changes": [
                   {
+                    "version": "v19.1.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/45098",
+                    "description": "Added recursive support for Linux, AIX and IBMi."
+                  },
+                  {
                     "version": [
                       "v15.9.0",
                       "v14.17.0"
@@ -6336,7 +6520,7 @@
                   "textRaw": "Caveats",
                   "name": "Caveats",
                   "type": "misc",
-                  "desc": "<p>The <code>fs.watch</code> API is not 100% consistent across platforms, and is\nunavailable in some situations.</p>\n<p>The recursive option is only supported on macOS and Windows.\nAn <code>ERR_FEATURE_UNAVAILABLE_ON_PLATFORM</code> exception will be thrown\nwhen the option is used on a platform that does not support it.</p>\n<p>On Windows, no events will be emitted if the watched directory is moved or\nrenamed. An <code>EPERM</code> error is reported when the watched directory is deleted.</p>",
+                  "desc": "<p>The <code>fs.watch</code> API is not 100% consistent across platforms, and is\nunavailable in some situations.</p>\n<p>On Windows, no events will be emitted if the watched directory is moved or\nrenamed. An <code>EPERM</code> error is reported when the watched directory is deleted.</p>",
                   "miscs": [
                     {
                       "textRaw": "Availability",
@@ -6551,7 +6735,8 @@
               "name": "write",
               "meta": {
                 "added": [
-                  "v18.3.0"
+                  "v18.3.0",
+                  "v16.17.0"
                 ],
                 "changes": []
               },
@@ -6630,6 +6815,11 @@
                 ],
                 "changes": [
                   {
+                    "version": "v19.0.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/42796",
+                    "description": "Passing to the `string` parameter an object with an own `toString` function is no longer supported."
+                  },
+                  {
                     "version": "v17.8.0",
                     "pr-url": "https://github.com/nodejs/node/pull/42149",
                     "description": "Passing to the `string` parameter an object with an own `toString` function is deprecated."
@@ -6670,9 +6860,9 @@
                       "type": "integer"
                     },
                     {
-                      "textRaw": "`string` {string|Object}",
+                      "textRaw": "`string` {string}",
                       "name": "string",
-                      "type": "string|Object"
+                      "type": "string"
                     },
                     {
                       "textRaw": "`position` {integer|null} **Default:** `null`",
@@ -6711,7 +6901,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Write <code>string</code> to the file specified by <code>fd</code>. If <code>string</code> is not a string, or an\nobject with an own <code>toString</code> function property, then an exception is thrown.</p>\n<p><code>position</code> refers to the offset from the beginning of the file where this data\nshould be written. If <code>typeof position !== 'number'</code> the data will be written at\nthe current position. See <a href=\"http://man7.org/linux/man-pages/man2/pwrite.2.html\"><code>pwrite(2)</code></a>.</p>\n<p><code>encoding</code> is the expected string encoding.</p>\n<p>The callback will receive the arguments <code>(err, written, string)</code> where <code>written</code>\nspecifies how many <em>bytes</em> the passed string required to be written. Bytes\nwritten is not necessarily the same as string characters written. See\n<a href=\"buffer.html#static-method-bufferbytelengthstring-encoding\"><code>Buffer.byteLength</code></a>.</p>\n<p>It is unsafe to use <code>fs.write()</code> multiple times on the same file without waiting\nfor the callback. For this scenario, <a href=\"#fscreatewritestreampath-options\"><code>fs.createWriteStream()</code></a> is\nrecommended.</p>\n<p>On Linux, positional writes don't work when the file is opened in append mode.\nThe kernel ignores the position argument and always appends the data to\nthe end of the file.</p>\n<p>On Windows, if the file descriptor is connected to the console (e.g. <code>fd == 1</code>\nor <code>stdout</code>) a string containing non-ASCII characters will not be rendered\nproperly by default, regardless of the encoding used.\nIt is possible to configure the console to render UTF-8 properly by changing the\nactive codepage with the <code>chcp 65001</code> command. See the <a href=\"https://ss64.com/nt/chcp.html\">chcp</a> docs for more\ndetails.</p>"
+              "desc": "<p>Write <code>string</code> to the file specified by <code>fd</code>. If <code>string</code> is not a string,\nan exception is thrown.</p>\n<p><code>position</code> refers to the offset from the beginning of the file where this data\nshould be written. If <code>typeof position !== 'number'</code> the data will be written at\nthe current position. See <a href=\"http://man7.org/linux/man-pages/man2/pwrite.2.html\"><code>pwrite(2)</code></a>.</p>\n<p><code>encoding</code> is the expected string encoding.</p>\n<p>The callback will receive the arguments <code>(err, written, string)</code> where <code>written</code>\nspecifies how many <em>bytes</em> the passed string required to be written. Bytes\nwritten is not necessarily the same as string characters written. See\n<a href=\"buffer.html#static-method-bufferbytelengthstring-encoding\"><code>Buffer.byteLength</code></a>.</p>\n<p>It is unsafe to use <code>fs.write()</code> multiple times on the same file without waiting\nfor the callback. For this scenario, <a href=\"#fscreatewritestreampath-options\"><code>fs.createWriteStream()</code></a> is\nrecommended.</p>\n<p>On Linux, positional writes don't work when the file is opened in append mode.\nThe kernel ignores the position argument and always appends the data to\nthe end of the file.</p>\n<p>On Windows, if the file descriptor is connected to the console (e.g. <code>fd == 1</code>\nor <code>stdout</code>) a string containing non-ASCII characters will not be rendered\nproperly by default, regardless of the encoding used.\nIt is possible to configure the console to render UTF-8 properly by changing the\nactive codepage with the <code>chcp 65001</code> command. See the <a href=\"https://ss64.com/nt/chcp.html\">chcp</a> docs for more\ndetails.</p>"
             },
             {
               "textRaw": "`fs.writeFile(file, data[, options], callback)`",
@@ -6722,6 +6912,16 @@
                   "v0.1.29"
                 ],
                 "changes": [
+                  {
+                    "version": "v20.10.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/50009",
+                    "description": "The `flush` option is now supported."
+                  },
+                  {
+                    "version": "v19.0.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/42796",
+                    "description": "Passing to the `string` parameter an object with an own `toString` function is no longer supported."
+                  },
                   {
                     "version": "v18.0.0",
                     "pr-url": "https://github.com/nodejs/node/pull/41678",
@@ -6792,9 +6992,9 @@
                       "desc": "filename or file descriptor"
                     },
                     {
-                      "textRaw": "`data` {string|Buffer|TypedArray|DataView|Object}",
+                      "textRaw": "`data` {string|Buffer|TypedArray|DataView}",
                       "name": "data",
-                      "type": "string|Buffer|TypedArray|DataView|Object"
+                      "type": "string|Buffer|TypedArray|DataView"
                     },
                     {
                       "textRaw": "`options` {Object|string}",
@@ -6819,6 +7019,13 @@
                           "type": "string",
                           "default": "`'w'`",
                           "desc": "See [support of file system `flags`][]."
+                        },
+                        {
+                          "textRaw": "`flush` {boolean} If all data is successfully written to the file, and `flush` is `true`, `fs.fsync()` is used to flush the data. **Default:** `false`.",
+                          "name": "flush",
+                          "type": "boolean",
+                          "default": "`false`",
+                          "desc": "If all data is successfully written to the file, and `flush` is `true`, `fs.fsync()` is used to flush the data."
                         },
                         {
                           "textRaw": "`signal` {AbortSignal} allows aborting an in-progress writeFile",
@@ -6970,6 +7177,11 @@
                 ],
                 "changes": [
                   {
+                    "version": "v20.10.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/50095",
+                    "description": "The `flush` option is now supported."
+                  },
+                  {
                     "version": "v7.0.0",
                     "pr-url": "https://github.com/nodejs/node/pull/7831",
                     "description": "The passed `options` object will never be modified."
@@ -7018,6 +7230,13 @@
                           "type": "string",
                           "default": "`'a'`",
                           "desc": "See [support of file system `flags`][]."
+                        },
+                        {
+                          "textRaw": "`flush` {boolean} If `true`, the underlying file descriptor is flushed prior to closing it. **Default:** `false`.",
+                          "name": "flush",
+                          "type": "boolean",
+                          "default": "`false`",
+                          "desc": "If `true`, the underlying file descriptor is flushed prior to closing it."
                         }
                       ]
                     }
@@ -7175,12 +7394,15 @@
                 ],
                 "changes": [
                   {
-                    "version": "v18.17.0",
+                    "version": "v20.1.0",
                     "pr-url": "https://github.com/nodejs/node/pull/47084",
                     "description": "Accept an additional `mode` option to specify the copy behavior as the `mode` argument of `fs.copyFile()`."
                   },
                   {
-                    "version": "v17.6.0",
+                    "version": [
+                      "v17.6.0",
+                      "v16.15.0"
+                    ],
                     "pr-url": "https://github.com/nodejs/node/pull/41819",
                     "description": "Accepts an additional `verbatimSymlinks` option to specify whether to perform path resolution for symlinks."
                   }
@@ -7242,9 +7464,10 @@
                               "desc": "destination path to copy to."
                             },
                             {
-                              "textRaw": "Returns: {boolean}",
+                              "textRaw": "Returns: {boolean} Any non-`Promise` value that is coercible to `boolean`.",
                               "name": "return",
-                              "type": "boolean"
+                              "type": "boolean",
+                              "desc": "Any non-`Promise` value that is coercible to `boolean`."
                             }
                           ]
                         },
@@ -7832,7 +8055,7 @@
                 ],
                 "changes": [
                   {
-                    "version": "v18.19.0",
+                    "version": "v20.6.0",
                     "pr-url": "https://github.com/nodejs/node/pull/48828",
                     "description": "The `prefix` parameter now accepts buffers and URL."
                   },
@@ -7887,7 +8110,7 @@
                 ],
                 "changes": [
                   {
-                    "version": "v18.17.0",
+                    "version": "v20.1.0",
                     "pr-url": "https://github.com/nodejs/node/pull/41439",
                     "description": "Added `recursive` option."
                   },
@@ -8011,7 +8234,7 @@
                 ],
                 "changes": [
                   {
-                    "version": "v18.17.0",
+                    "version": "v20.1.0",
                     "pr-url": "https://github.com/nodejs/node/pull/41439",
                     "description": "Added `recursive` option."
                   },
@@ -8058,10 +8281,11 @@
                           "default": "`false`"
                         },
                         {
-                          "textRaw": "`recursive` {boolean} **Default:** `false`",
+                          "textRaw": "`recursive` {boolean} If `true`, reads the contents of a directory recursively. In recursive mode, it will list all files, sub files, and directories. **Default:** `false`.",
                           "name": "recursive",
                           "type": "boolean",
-                          "default": "`false`"
+                          "default": "`false`",
+                          "desc": "If `true`, reads the contents of a directory recursively. In recursive mode, it will list all files, sub files, and directories."
                         }
                       ]
                     }
@@ -8714,6 +8938,7 @@
               "name": "statfsSync",
               "meta": {
                 "added": [
+                  "v19.6.0",
                   "v18.15.0"
                 ],
                 "changes": []
@@ -8912,6 +9137,16 @@
                 ],
                 "changes": [
                   {
+                    "version": "v20.10.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/50009",
+                    "description": "The `flush` option is now supported."
+                  },
+                  {
+                    "version": "v19.0.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/42796",
+                    "description": "Passing to the `data` parameter an object with an own `toString` function is no longer supported."
+                  },
+                  {
                     "version": "v17.8.0",
                     "pr-url": "https://github.com/nodejs/node/pull/42149",
                     "description": "Passing to the `data` parameter an object with an own `toString` function is deprecated."
@@ -8953,9 +9188,9 @@
                       "desc": "filename or file descriptor"
                     },
                     {
-                      "textRaw": "`data` {string|Buffer|TypedArray|DataView|Object}",
+                      "textRaw": "`data` {string|Buffer|TypedArray|DataView}",
                       "name": "data",
-                      "type": "string|Buffer|TypedArray|DataView|Object"
+                      "type": "string|Buffer|TypedArray|DataView"
                     },
                     {
                       "textRaw": "`options` {Object|string}",
@@ -8980,6 +9215,12 @@
                           "type": "string",
                           "default": "`'w'`",
                           "desc": "See [support of file system `flags`][]."
+                        },
+                        {
+                          "textRaw": "`flush` {boolean} If all data is successfully written to the file, and `flush` is `true`, `fs.fsyncSync()` is used to flush the data.",
+                          "name": "flush",
+                          "type": "boolean",
+                          "desc": "If all data is successfully written to the file, and `flush` is `true`, `fs.fsyncSync()` is used to flush the data."
                         }
                       ]
                     }
@@ -9067,7 +9308,8 @@
               "name": "writeSync",
               "meta": {
                 "added": [
-                  "v18.3.0"
+                  "v18.3.0",
+                  "v16.17.0"
                 ],
                 "changes": []
               },
@@ -9258,7 +9500,7 @@
                       "params": []
                     }
                   ],
-                  "desc": "<p>Asynchronously close the directory's underlying resource handle.\nSubsequent reads will result in errors.</p>\n<p>A promise is returned that will be resolved after the resource has been\nclosed.</p>"
+                  "desc": "<p>Asynchronously close the directory's underlying resource handle.\nSubsequent reads will result in errors.</p>\n<p>A promise is returned that will be fulfilled after the resource has been\nclosed.</p>"
                 },
                 {
                   "textRaw": "`dir.close(callback)`",
@@ -9326,15 +9568,15 @@
                   "signatures": [
                     {
                       "return": {
-                        "textRaw": "Returns: {Promise} containing {fs.Dirent|null}",
+                        "textRaw": "Returns: {Promise} Fulfills with a {fs.Dirent|null}",
                         "name": "return",
                         "type": "Promise",
-                        "desc": "containing {fs.Dirent|null}"
+                        "desc": "Fulfills with a {fs.Dirent|null}"
                       },
                       "params": []
                     }
                   ],
-                  "desc": "<p>Asynchronously read the next directory entry via <a href=\"http://man7.org/linux/man-pages/man3/readdir.3.html\"><code>readdir(3)</code></a> as an\n<a href=\"fs.html#class-fsdirent\" class=\"type\">&lt;fs.Dirent&gt;</a>.</p>\n<p>A promise is returned that will be resolved with an <a href=\"fs.html#class-fsdirent\" class=\"type\">&lt;fs.Dirent&gt;</a>, or <code>null</code>\nif there are no more directory entries to read.</p>\n<p>Directory entries returned by this function are in no particular order as\nprovided by the operating system's underlying directory mechanisms.\nEntries added or removed while iterating over the directory might not be\nincluded in the iteration results.</p>"
+                  "desc": "<p>Asynchronously read the next directory entry via <a href=\"http://man7.org/linux/man-pages/man3/readdir.3.html\"><code>readdir(3)</code></a> as an\n<a href=\"fs.html#class-fsdirent\" class=\"type\">&lt;fs.Dirent&gt;</a>.</p>\n<p>A promise is returned that will be fulfilled with an <a href=\"fs.html#class-fsdirent\" class=\"type\">&lt;fs.Dirent&gt;</a>, or <code>null</code>\nif there are no more directory entries to read.</p>\n<p>Directory entries returned by this function are in no particular order as\nprovided by the operating system's underlying directory mechanisms.\nEntries added or removed while iterating over the directory might not be\nincluded in the iteration results.</p>"
                 },
                 {
                   "textRaw": "`dir.read(callback)`",
@@ -9406,10 +9648,10 @@
                   "signatures": [
                     {
                       "return": {
-                        "textRaw": "Returns: {AsyncIterator} of {fs.Dirent}",
+                        "textRaw": "Returns: {AsyncIterator} An AsyncIterator of {fs.Dirent}",
                         "name": "return",
                         "type": "AsyncIterator",
-                        "desc": "of {fs.Dirent}"
+                        "desc": "An AsyncIterator of {fs.Dirent}"
                       },
                       "params": []
                     }
@@ -9613,16 +9855,36 @@
                   "desc": "<p>The file name that this <a href=\"fs.html#class-fsdirent\" class=\"type\">&lt;fs.Dirent&gt;</a> object refers to. The type of this\nvalue is determined by the <code>options.encoding</code> passed to <a href=\"#fsreaddirpath-options-callback\"><code>fs.readdir()</code></a> or\n<a href=\"#fsreaddirsyncpath-options\"><code>fs.readdirSync()</code></a>.</p>"
                 },
                 {
+                  "textRaw": "`parentPath` {string}",
+                  "type": "string",
+                  "name": "parentPath",
+                  "meta": {
+                    "added": [
+                      "v20.12.0"
+                    ],
+                    "changes": []
+                  },
+                  "stability": 1,
+                  "stabilityText": "Experimental",
+                  "desc": "<p>The path to the parent directory of the file this <a href=\"fs.html#class-fsdirent\" class=\"type\">&lt;fs.Dirent&gt;</a> object refers to.</p>"
+                },
+                {
                   "textRaw": "`path` {string}",
                   "type": "string",
                   "name": "path",
                   "meta": {
                     "added": [
+                      "v20.1.0",
                       "v18.17.0"
+                    ],
+                    "deprecated": [
+                      "v20.12.0"
                     ],
                     "changes": []
                   },
-                  "desc": "<p>The base path that this <a href=\"fs.html#class-fsdirent\" class=\"type\">&lt;fs.Dirent&gt;</a> object refers to.</p>"
+                  "stability": 0,
+                  "stabilityText": "Deprecated: Use [`dirent.parentPath`][] instead.",
+                  "desc": "<p>Alias for <code>dirent.parentPath</code>.</p>"
                 }
               ]
             },
@@ -9933,13 +10195,18 @@
                 ],
                 "changes": [
                   {
+                    "version": "v20.13.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/51879",
+                    "description": "Public constructor is deprecated."
+                  },
+                  {
                     "version": "v8.1.0",
                     "pr-url": "https://github.com/nodejs/node/pull/13173",
                     "description": "Added times as numbers."
                   }
                 ]
               },
-              "desc": "<p>A <a href=\"fs.html#class-fsstats\" class=\"type\">&lt;fs.Stats&gt;</a> object provides information about a file.</p>\n<p>Objects returned from <a href=\"#fsstatpath-options-callback\"><code>fs.stat()</code></a>, <a href=\"#fslstatpath-options-callback\"><code>fs.lstat()</code></a>, <a href=\"#fsfstatfd-options-callback\"><code>fs.fstat()</code></a>, and\ntheir synchronous counterparts are of this type.\nIf <code>bigint</code> in the <code>options</code> passed to those methods is true, the numeric values\nwill be <code>bigint</code> instead of <code>number</code>, and the object will contain additional\nnanosecond-precision properties suffixed with <code>Ns</code>.</p>\n<pre><code class=\"language-console\">Stats {\n  dev: 2114,\n  ino: 48064969,\n  mode: 33188,\n  nlink: 1,\n  uid: 85,\n  gid: 100,\n  rdev: 0,\n  size: 527,\n  blksize: 4096,\n  blocks: 8,\n  atimeMs: 1318289051000.1,\n  mtimeMs: 1318289051000.1,\n  ctimeMs: 1318289051000.1,\n  birthtimeMs: 1318289051000.1,\n  atime: Mon, 10 Oct 2011 23:24:11 GMT,\n  mtime: Mon, 10 Oct 2011 23:24:11 GMT,\n  ctime: Mon, 10 Oct 2011 23:24:11 GMT,\n  birthtime: Mon, 10 Oct 2011 23:24:11 GMT }\n</code></pre>\n<p><code>bigint</code> version:</p>\n<pre><code class=\"language-console\">BigIntStats {\n  dev: 2114n,\n  ino: 48064969n,\n  mode: 33188n,\n  nlink: 1n,\n  uid: 85n,\n  gid: 100n,\n  rdev: 0n,\n  size: 527n,\n  blksize: 4096n,\n  blocks: 8n,\n  atimeMs: 1318289051000n,\n  mtimeMs: 1318289051000n,\n  ctimeMs: 1318289051000n,\n  birthtimeMs: 1318289051000n,\n  atimeNs: 1318289051000000000n,\n  mtimeNs: 1318289051000000000n,\n  ctimeNs: 1318289051000000000n,\n  birthtimeNs: 1318289051000000000n,\n  atime: Mon, 10 Oct 2011 23:24:11 GMT,\n  mtime: Mon, 10 Oct 2011 23:24:11 GMT,\n  ctime: Mon, 10 Oct 2011 23:24:11 GMT,\n  birthtime: Mon, 10 Oct 2011 23:24:11 GMT }\n</code></pre>",
+              "desc": "<p>A <a href=\"fs.html#class-fsstats\" class=\"type\">&lt;fs.Stats&gt;</a> object provides information about a file.</p>\n<p>Objects returned from <a href=\"#fsstatpath-options-callback\"><code>fs.stat()</code></a>, <a href=\"#fslstatpath-options-callback\"><code>fs.lstat()</code></a>, <a href=\"#fsfstatfd-options-callback\"><code>fs.fstat()</code></a>, and\ntheir synchronous counterparts are of this type.\nIf <code>bigint</code> in the <code>options</code> passed to those methods is true, the numeric values\nwill be <code>bigint</code> instead of <code>number</code>, and the object will contain additional\nnanosecond-precision properties suffixed with <code>Ns</code>.\n<code>Stat</code> objects are not to be created directly using the <code>new</code> keyword.</p>\n<pre><code class=\"language-console\">Stats {\n  dev: 2114,\n  ino: 48064969,\n  mode: 33188,\n  nlink: 1,\n  uid: 85,\n  gid: 100,\n  rdev: 0,\n  size: 527,\n  blksize: 4096,\n  blocks: 8,\n  atimeMs: 1318289051000.1,\n  mtimeMs: 1318289051000.1,\n  ctimeMs: 1318289051000.1,\n  birthtimeMs: 1318289051000.1,\n  atime: Mon, 10 Oct 2011 23:24:11 GMT,\n  mtime: Mon, 10 Oct 2011 23:24:11 GMT,\n  ctime: Mon, 10 Oct 2011 23:24:11 GMT,\n  birthtime: Mon, 10 Oct 2011 23:24:11 GMT }\n</code></pre>\n<p><code>bigint</code> version:</p>\n<pre><code class=\"language-console\">BigIntStats {\n  dev: 2114n,\n  ino: 48064969n,\n  mode: 33188n,\n  nlink: 1n,\n  uid: 85n,\n  gid: 100n,\n  rdev: 0n,\n  size: 527n,\n  blksize: 4096n,\n  blocks: 8n,\n  atimeMs: 1318289051000n,\n  mtimeMs: 1318289051000n,\n  ctimeMs: 1318289051000n,\n  birthtimeMs: 1318289051000n,\n  atimeNs: 1318289051000000000n,\n  mtimeNs: 1318289051000000000n,\n  ctimeNs: 1318289051000000000n,\n  birthtimeNs: 1318289051000000000n,\n  atime: Mon, 10 Oct 2011 23:24:11 GMT,\n  mtime: Mon, 10 Oct 2011 23:24:11 GMT,\n  ctime: Mon, 10 Oct 2011 23:24:11 GMT,\n  birthtime: Mon, 10 Oct 2011 23:24:11 GMT }\n</code></pre>",
               "methods": [
                 {
                   "textRaw": "`stats.isBlockDevice()`",
@@ -10005,7 +10272,7 @@
                       "params": []
                     }
                   ],
-                  "desc": "<p>Returns <code>true</code> if the <a href=\"fs.html#class-fsstats\" class=\"type\">&lt;fs.Stats&gt;</a> object describes a file system directory.</p>\n<p>If the <a href=\"fs.html#class-fsstats\" class=\"type\">&lt;fs.Stats&gt;</a> object was obtained from <a href=\"#fslstatpath-options-callback\"><code>fs.lstat()</code></a>, this method will\nalways return <code>false</code>. This is because <a href=\"#fslstatpath-options-callback\"><code>fs.lstat()</code></a> returns information\nabout a symbolic link itself and not the path it resolves to.</p>"
+                  "desc": "<p>Returns <code>true</code> if the <a href=\"fs.html#class-fsstats\" class=\"type\">&lt;fs.Stats&gt;</a> object describes a file system directory.</p>\n<p>If the <a href=\"fs.html#class-fsstats\" class=\"type\">&lt;fs.Stats&gt;</a> object was obtained from calling <a href=\"#fslstatpath-options-callback\"><code>fs.lstat()</code></a> on a\nsymbolic link which resolves to a directory, this method will return <code>false</code>.\nThis is because <a href=\"#fslstatpath-options-callback\"><code>fs.lstat()</code></a> returns information\nabout a symbolic link itself and not the path it resolves to.</p>"
                 },
                 {
                   "textRaw": "`stats.isFIFO()`",
@@ -10318,6 +10585,7 @@
               "name": "fs.StatFs",
               "meta": {
                 "added": [
+                  "v19.6.0",
                   "v18.15.0"
                 ],
                 "changes": []
@@ -10330,6 +10598,7 @@
                   "name": "bavail",
                   "meta": {
                     "added": [
+                      "v19.6.0",
                       "v18.15.0"
                     ],
                     "changes": []
@@ -10342,6 +10611,7 @@
                   "name": "bfree",
                   "meta": {
                     "added": [
+                      "v19.6.0",
                       "v18.15.0"
                     ],
                     "changes": []
@@ -10354,6 +10624,7 @@
                   "name": "blocks",
                   "meta": {
                     "added": [
+                      "v19.6.0",
                       "v18.15.0"
                     ],
                     "changes": []
@@ -10366,6 +10637,7 @@
                   "name": "bsize",
                   "meta": {
                     "added": [
+                      "v19.6.0",
                       "v18.15.0"
                     ],
                     "changes": []
@@ -10378,6 +10650,7 @@
                   "name": "ffree",
                   "meta": {
                     "added": [
+                      "v19.6.0",
                       "v18.15.0"
                     ],
                     "changes": []
@@ -10390,6 +10663,7 @@
                   "name": "files",
                   "meta": {
                     "added": [
+                      "v19.6.0",
                       "v18.15.0"
                     ],
                     "changes": []
@@ -10402,6 +10676,7 @@
                   "name": "type",
                   "meta": {
                     "added": [
+                      "v19.6.0",
                       "v18.15.0"
                     ],
                     "changes": []

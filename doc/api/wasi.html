@@ -3,18 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>WebAssembly System Interface (WASI) | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.18.3">
+  <title>WebAssembly System Interface (WASI) | Node.js v20.18.3 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/wasi.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
-  <style>@media(max-width:614px){.with-49-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}</style>
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
+  <style>@media(max-width:614px){.with-49-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}</style>
 </head>
 <body class="alt apidoc" id="api-section-wasi">
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +109,7 @@
     <div id="column1" data-id="wasi" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.18.3 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,20 +124,22 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.18.3</li>
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
       <div class="picker"><div class="toc"><ul>
 <li><span class="stability_1"><a href="#webassembly-system-interface-wasi">WebAssembly System Interface (WASI)</a></span>
 <ul>
+<li><a href="#security">Security</a></li>
 <li><a href="#class-wasi">Class: <code>WASI</code></a>
 <ul>
 <li><a href="#new-wasioptions"><code>new WASI([options])</code></a></li>
+<li><a href="#wasigetimportobject"><code>wasi.getImportObject()</code></a></li>
 <li><a href="#wasistartinstance"><code>wasi.start(instance)</code></a></li>
 <li><a href="#wasiinitializeinstance"><code>wasi.initialize(instance)</code></a></li>
 <li><a href="#wasiwasiimport"><code>wasi.wasiImport</code></a></li>
@@ -138,7 +153,7 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Index
       </a>
 
@@ -223,10 +238,12 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/wasi.html">21.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v23.x/api/wasi.html">23.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v22.x/api/wasi.html">22.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/wasi.html">21.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v20.x/api/wasi.html">20.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v19.x/api/wasi.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/wasi.html">18.x <b>LTS</b></a></li>
@@ -240,7 +257,7 @@
   
             <li class="picker-header">
               <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
@@ -261,12 +278,14 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
 <li><span class="stability_1"><a href="#webassembly-system-interface-wasi">WebAssembly System Interface (WASI)</a></span>
 <ul>
+<li><a href="#security">Security</a></li>
 <li><a href="#class-wasi">Class: <code>WASI</code></a>
 <ul>
 <li><a href="#new-wasioptions"><code>new WASI([options])</code></a></li>
+<li><a href="#wasigetimportobject"><code>wasi.getImportObject()</code></a></li>
 <li><a href="#wasistartinstance"><code>wasi.start(instance)</code></a></li>
 <li><a href="#wasiinitializeinstance"><code>wasi.initialize(instance)</code></a></li>
 <li><a href="#wasiwasiimport"><code>wasi.wasiImport</code></a></li>
@@ -276,59 +295,57 @@
 </li>
 </ul></details>
 
-      <div id="apicontent">
+      <div role="main" id="apicontent">
         <h2>WebAssembly System Interface (WASI)<span><a class="mark" href="#webassembly-system-interface-wasi" id="webassembly-system-interface-wasi">#</a></span><a aria-hidden="true" class="legacy" id="wasi_webassembly_system_interface_wasi"></a></h2>
 
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.19.1/lib/wasi.js">lib/wasi.js</a></p>
+<p><strong class="critical">The <code>node:wasi</code> module does not currently provide the
+comprehensive file system security properties provided by some WASI runtimes.
+Full support for secure file system sandboxing may or may not be implemented in
+future. In the mean time, do not rely on it to run untrusted code. </strong></p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v20.18.3/lib/wasi.js">lib/wasi.js</a></p>
 <p>The WASI API provides an implementation of the <a href="https://wasi.dev/">WebAssembly System Interface</a>
-specification. WASI gives sandboxed WebAssembly applications access to the
-underlying operating system via a collection of POSIX-like functions.</p>
+specification. WASI gives WebAssembly applications access to the underlying
+operating system via a collection of POSIX-like functions.</p>
 
-<pre class="with-49-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { readFile } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs/promises'</span>;
-<span class="hljs-keyword">import</span> { <span class="hljs-variable constant_">WASI</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'wasi'</span>;
+<pre class="with-49-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { readFile } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs/promises'</span>;
+<span class="hljs-keyword">import</span> { <span class="hljs-variable constant_">WASI</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:wasi'</span>;
 <span class="hljs-keyword">import</span> { argv, env } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:process'</span>;
 
 <span class="hljs-keyword">const</span> wasi = <span class="hljs-keyword">new</span> <span class="hljs-title function_">WASI</span>({
+  <span class="hljs-attr">version</span>: <span class="hljs-string">'preview1'</span>,
   <span class="hljs-attr">args</span>: argv,
   env,
   <span class="hljs-attr">preopens</span>: {
-    <span class="hljs-string">'/sandbox'</span>: <span class="hljs-string">'/some/real/path/that/wasm/can/access'</span>,
+    <span class="hljs-string">'/local'</span>: <span class="hljs-string">'/some/real/path/that/wasm/can/access'</span>,
   },
 });
-
-<span class="hljs-comment">// Some WASI binaries require:</span>
-<span class="hljs-comment">//   const importObject = { wasi_unstable: wasi.wasiImport };</span>
-<span class="hljs-keyword">const</span> importObject = { <span class="hljs-attr">wasi_snapshot_preview1</span>: wasi.<span class="hljs-property">wasiImport</span> };
 
 <span class="hljs-keyword">const</span> wasm = <span class="hljs-keyword">await</span> <span class="hljs-title class_">WebAssembly</span>.<span class="hljs-title function_">compile</span>(
   <span class="hljs-keyword">await</span> <span class="hljs-title function_">readFile</span>(<span class="hljs-keyword">new</span> <span class="hljs-title function_">URL</span>(<span class="hljs-string">'./demo.wasm'</span>, <span class="hljs-keyword">import</span>.<span class="hljs-property">meta</span>.<span class="hljs-property">url</span>)),
 );
-<span class="hljs-keyword">const</span> instance = <span class="hljs-keyword">await</span> <span class="hljs-title class_">WebAssembly</span>.<span class="hljs-title function_">instantiate</span>(wasm, importObject);
+<span class="hljs-keyword">const</span> instance = <span class="hljs-keyword">await</span> <span class="hljs-title class_">WebAssembly</span>.<span class="hljs-title function_">instantiate</span>(wasm, wasi.<span class="hljs-title function_">getImportObject</span>());
 
 wasi.<span class="hljs-title function_">start</span>(instance);</code><code class="language-js cjs"><span class="hljs-meta">'use strict'</span>;
 <span class="hljs-keyword">const</span> { readFile } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:fs/promises'</span>);
-<span class="hljs-keyword">const</span> { <span class="hljs-variable constant_">WASI</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'wasi'</span>);
+<span class="hljs-keyword">const</span> { <span class="hljs-variable constant_">WASI</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:wasi'</span>);
 <span class="hljs-keyword">const</span> { argv, env } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:process'</span>);
 <span class="hljs-keyword">const</span> { join } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:path'</span>);
 
 <span class="hljs-keyword">const</span> wasi = <span class="hljs-keyword">new</span> <span class="hljs-title function_">WASI</span>({
+  <span class="hljs-attr">version</span>: <span class="hljs-string">'preview1'</span>,
   <span class="hljs-attr">args</span>: argv,
   env,
   <span class="hljs-attr">preopens</span>: {
-    <span class="hljs-string">'/sandbox'</span>: <span class="hljs-string">'/some/real/path/that/wasm/can/access'</span>,
+    <span class="hljs-string">'/local'</span>: <span class="hljs-string">'/some/real/path/that/wasm/can/access'</span>,
   },
 });
-
-<span class="hljs-comment">// Some WASI binaries require:</span>
-<span class="hljs-comment">//   const importObject = { wasi_unstable: wasi.wasiImport };</span>
-<span class="hljs-keyword">const</span> importObject = { <span class="hljs-attr">wasi_snapshot_preview1</span>: wasi.<span class="hljs-property">wasiImport</span> };
 
 (<span class="hljs-keyword">async</span> () => {
   <span class="hljs-keyword">const</span> wasm = <span class="hljs-keyword">await</span> <span class="hljs-title class_">WebAssembly</span>.<span class="hljs-title function_">compile</span>(
     <span class="hljs-keyword">await</span> <span class="hljs-title function_">readFile</span>(<span class="hljs-title function_">join</span>(__dirname, <span class="hljs-string">'demo.wasm'</span>)),
   );
-  <span class="hljs-keyword">const</span> instance = <span class="hljs-keyword">await</span> <span class="hljs-title class_">WebAssembly</span>.<span class="hljs-title function_">instantiate</span>(wasm, importObject);
+  <span class="hljs-keyword">const</span> instance = <span class="hljs-keyword">await</span> <span class="hljs-title class_">WebAssembly</span>.<span class="hljs-title function_">instantiate</span>(wasm, wasi.<span class="hljs-title function_">getImportObject</span>());
 
   wasi.<span class="hljs-title function_">start</span>(instance);
 })();</code><button class="copy-button">copy</button></pre>
@@ -362,19 +379,50 @@ wasi.<span class="hljs-title function_">start</span>(instance);</code><code clas
     )
 )</code> <button class="copy-button">copy</button></pre>
 <p>Use <a href="https://github.com/WebAssembly/wabt">wabt</a> to compile <code>.wat</code> to <code>.wasm</code></p>
-<pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">wat2wasm demo.wat</span></code> <button class="copy-button">copy</button></pre>
-<section><h3>Class: <code>WASI</code><span><a class="mark" href="#class-wasi" id="class-wasi">#</a></span><a aria-hidden="true" class="legacy" id="wasi_class_wasi"></a></h3>
+<pre><code class="language-bash">wat2wasm demo.wat</code> <button class="copy-button">copy</button></pre>
+<section><h3>Security<span><a class="mark" href="#security" id="security">#</a></span><a aria-hidden="true" class="legacy" id="wasi_security"></a></h3>
+<div class="api_metadata">
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v20.11.0</td>
+<td><p>Clarify WASI security properties.</p></td></tr>
+<tr><td>v20.11.0</td>
+<td><p><span>Added in: v20.11.0</span></p></td></tr>
+</tbody></table>
+</details>
+</div>
+<p>WASI provides a capabilities-based model through which applications are provided
+their own custom <code>env</code>, <code>preopens</code>, <code>stdin</code>, <code>stdout</code>, <code>stderr</code>, and <code>exit</code>
+capabilities.</p>
+<p><strong>The current Node.js threat model does not provide secure sandboxing as is
+present in some WASI runtimes.</strong></p>
+<p>While the capability features are supported, they do not form a security model
+in Node.js. For example, the file system sandboxing can be escaped with various
+techniques. The project is exploring whether these security guarantees could be
+added in future.</p>
+</section><section><h3>Class: <code>WASI</code><span><a class="mark" href="#class-wasi" id="class-wasi">#</a></span><a aria-hidden="true" class="legacy" id="wasi_class_wasi"></a></h3>
 <div class="api_metadata">
 <span>Added in: v13.3.0, v12.16.0</span>
 </div>
 <p>The <code>WASI</code> class provides the WASI system call API and additional convenience
 methods for working with WASI-based applications. Each <code>WASI</code> instance
-represents a distinct sandbox environment. For security purposes, each <code>WASI</code>
-instance must have its command-line arguments, environment variables, and
-sandbox directory structure configured explicitly.</p>
+represents a distinct environment.</p>
 <h4><code>new WASI([options])</code><span><a class="mark" href="#new-wasioptions" id="new-wasioptions">#</a></span><a aria-hidden="true" class="legacy" id="wasi_new_wasi_options"></a></h4>
 <div class="api_metadata">
-<span>Added in: v13.3.0, v12.16.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v20.1.0</td>
+<td><p>default value of returnOnExit changed to true.</p></td></tr>
+<tr><td>v20.0.0</td>
+<td><p>The version option is now required and has no default value.</p></td></tr>
+<tr><td>v19.8.0</td>
+<td><p>version field added to options.</p></td></tr>
+<tr><td>v13.3.0, v12.16.0</td>
+<td><p><span>Added in: v13.3.0, v12.16.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
@@ -385,22 +433,37 @@ WASI command itself. <strong>Default:</strong> <code>[]</code>.</li>
 <li><code>env</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> An object similar to <code>process.env</code> that the WebAssembly
 application will see as its environment. <strong>Default:</strong> <code>{}</code>.</li>
 <li><code>preopens</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> This object represents the WebAssembly application's
-sandbox directory structure. The string keys of <code>preopens</code> are treated as
-directories within the sandbox. The corresponding values in <code>preopens</code> are
-the real paths to those directories on the host machine.</li>
-<li><code>returnOnExit</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> By default, WASI applications terminate the Node.js
-process via the <code>__wasi_proc_exit()</code> function. Setting this option to <code>true</code>
-causes <code>wasi.start()</code> to return the exit code rather than terminate the
-process. <strong>Default:</strong> <code>false</code>.</li>
+local directory structure. The string keys of <code>preopens</code> are treated as
+directories within the file system. The corresponding values in <code>preopens</code>
+are the real paths to those directories on the host machine.</li>
+<li><code>returnOnExit</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> By default, when WASI applications call
+<code>__wasi_proc_exit()</code>  <code>wasi.start()</code> will return with the exit code
+specified rather than terminating the process. Setting this option to
+<code>false</code> will cause the Node.js process to exit with the specified
+exit code instead.  <strong>Default:</strong> <code>true</code>.</li>
 <li><code>stdin</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a> The file descriptor used as standard input in the
 WebAssembly application. <strong>Default:</strong> <code>0</code>.</li>
 <li><code>stdout</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a> The file descriptor used as standard output in the
 WebAssembly application. <strong>Default:</strong> <code>1</code>.</li>
 <li><code>stderr</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a> The file descriptor used as standard error in the
 WebAssembly application. <strong>Default:</strong> <code>2</code>.</li>
+<li><code>version</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> The version of WASI requested. Currently the only
+supported versions are <code>unstable</code> and <code>preview1</code>. This option is
+mandatory.</li>
 </ul>
 </li>
 </ul>
+<h4><code>wasi.getImportObject()</code><span><a class="mark" href="#wasigetimportobject" id="wasigetimportobject">#</a></span><a aria-hidden="true" class="legacy" id="wasi_wasi_getimportobject"></a></h4>
+<div class="api_metadata">
+<span>Added in: v19.8.0</span>
+</div>
+<p>Return an import object that can be passed to <code>WebAssembly.instantiate()</code> if
+no other WASM imports are needed beyond those provided by WASI.</p>
+<p>If version <code>unstable</code> was passed into the constructor it will return:</p>
+<pre><code class="language-json"><span class="hljs-punctuation">{</span> wasi_unstable<span class="hljs-punctuation">:</span> wasi.wasiImport <span class="hljs-punctuation">}</span></code> <button class="copy-button">copy</button></pre>
+<p>If version <code>preview1</code> was passed into the constructor or no version was
+specified it will return:</p>
+<pre><code class="language-json"><span class="hljs-punctuation">{</span> wasi_snapshot_preview1<span class="hljs-punctuation">:</span> wasi.wasiImport <span class="hljs-punctuation">}</span></code> <button class="copy-button">copy</button></pre>
 <h4><code>wasi.start(instance)</code><span><a class="mark" href="#wasistartinstance" id="wasistartinstance">#</a></span><a aria-hidden="true" class="legacy" id="wasi_wasi_start_instance"></a></h4>
 <div class="api_metadata">
 <span>Added in: v13.3.0, v12.16.0</span>

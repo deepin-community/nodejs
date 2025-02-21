@@ -3,18 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>Net | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.18.3">
+  <title>Net | Node.js v20.18.3 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/net.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
-  
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
+  <style>@media(max-width:478px){.with-32-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:694px){.with-59-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:518px){.with-37-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:542px){.with-40-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}</style>
 </head>
 <body class="alt apidoc" id="api-section-net">
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +109,7 @@
     <div id="column1" data-id="net" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.18.3 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,11 +124,11 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.18.3</li>
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
@@ -176,6 +189,9 @@
 <li><a href="#new-netsocketoptions"><code>new net.Socket([options])</code></a></li>
 <li><a href="#event-close_1">Event: <code>'close'</code></a></li>
 <li><a href="#event-connect">Event: <code>'connect'</code></a></li>
+<li><a href="#event-connectionattempt">Event: <code>'connectionAttempt'</code></a></li>
+<li><a href="#event-connectionattemptfailed">Event: <code>'connectionAttemptFailed'</code></a></li>
+<li><a href="#event-connectionattempttimeout">Event: <code>'connectionAttemptTimeout'</code></a></li>
 <li><a href="#event-data">Event: <code>'data'</code></a></li>
 <li><a href="#event-drain">Event: <code>'drain'</code></a></li>
 <li><a href="#event-end">Event: <code>'end'</code></a></li>
@@ -251,7 +267,7 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Index
       </a>
 
@@ -336,10 +352,12 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/net.html">21.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v23.x/api/net.html">23.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v22.x/api/net.html">22.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/net.html">21.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v20.x/api/net.html">20.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v19.x/api/net.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/net.html">18.x <b>LTS</b></a></li>
@@ -363,7 +381,7 @@
   
             <li class="picker-header">
               <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
@@ -384,7 +402,7 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
 <li><span class="stability_2"><a href="#net">Net</a></span>
 <ul>
 <li><a href="#ipc-support">IPC support</a>
@@ -441,6 +459,9 @@
 <li><a href="#new-netsocketoptions"><code>new net.Socket([options])</code></a></li>
 <li><a href="#event-close_1">Event: <code>'close'</code></a></li>
 <li><a href="#event-connect">Event: <code>'connect'</code></a></li>
+<li><a href="#event-connectionattempt">Event: <code>'connectionAttempt'</code></a></li>
+<li><a href="#event-connectionattemptfailed">Event: <code>'connectionAttemptFailed'</code></a></li>
+<li><a href="#event-connectionattempttimeout">Event: <code>'connectionAttemptTimeout'</code></a></li>
 <li><a href="#event-data">Event: <code>'data'</code></a></li>
 <li><a href="#event-drain">Event: <code>'drain'</code></a></li>
 <li><a href="#event-end">Event: <code>'end'</code></a></li>
@@ -512,18 +533,28 @@
 </li>
 </ul></details>
 
-      <div id="apicontent">
+      <div role="main" id="apicontent">
         <h2>Net<span><a class="mark" href="#net" id="net">#</a></span><a aria-hidden="true" class="legacy" id="net_net"></a></h2>
 
 <!--lint disable maximum-line-length-->
 <p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.19.1/lib/net.js">lib/net.js</a></p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v20.18.3/lib/net.js">lib/net.js</a></p>
 <p>The <code>node:net</code> module provides an asynchronous network API for creating stream-based
 TCP or <a href="#ipc-support">IPC</a> servers (<a href="#netcreateserveroptions-connectionlistener"><code>net.createServer()</code></a>) and clients
 (<a href="#netcreateconnection"><code>net.createConnection()</code></a>).</p>
 <p>It can be accessed using:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> net = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:net'</span>);</code> <button class="copy-button">copy</button></pre>
+
+<pre class="with-32-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> net <span class="hljs-keyword">from</span> <span class="hljs-string">'node:net'</span>;</code><code class="language-js cjs"><span class="hljs-keyword">const</span> net = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:net'</span>);</code><button class="copy-button">copy</button></pre>
 <section><h3>IPC support<span><a class="mark" href="#ipc-support" id="ipc-support">#</a></span><a aria-hidden="true" class="legacy" id="net_ipc_support"></a></h3>
+<div class="api_metadata">
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v20.8.0</td>
+<td><p>Support binding to abstract Unix domain socket path like <code>\0abstract</code>. We can bind '\0' for Node.js <code>&#x3C; v20.4.0</code>.</p></td></tr>
+</tbody></table>
+</details>
+</div>
 <p>The <code>node:net</code> module supports IPC with named pipes on Windows, and Unix domain
 sockets on other operating systems.</p>
 <h4>Identifying paths for IPC connections<span><a class="mark" href="#identifying-paths-for-ipc-connections" id="identifying-paths-for-ipc-connections">#</a></span><a aria-hidden="true" class="legacy" id="net_identifying_paths_for_ipc_connections"></a></h4>
@@ -539,7 +570,10 @@ it will unlink the Unix domain socket as well. For example,
 socket outside of these abstractions, the user will need to remove it. The same
 applies when a Node.js API creates a Unix domain socket but the program then
 crashes. In short, a Unix domain socket will be visible in the file system and
-will persist until unlinked.</p>
+will persist until unlinked. On Linux, You can use Unix abstract socket by adding
+<code>\0</code> to the beginning of the path, such as <code>\0abstract</code>. The path to the Unix
+abstract socket is not visible in the file system and it will disappear automatically
+when all open references to the socket are closed.</p>
 <p>On Windows, the local domain is implemented using a named pipe. The path <em>must</em>
 refer to an entry in <code>\\?\pipe\</code> or <code>\\.\pipe\</code>. Any characters are permitted,
 but the latter may do some processing of pipe names, such as resolving <code>..</code>
@@ -721,7 +755,7 @@ event will <strong>not</strong> be emitted directly following this event unless
 <p>Emitted when the server has been bound after calling <a href="#serverlisten"><code>server.listen()</code></a>.</p>
 <h4>Event: <code>'drop'</code><span><a class="mark" href="#event-drop" id="event-drop">#</a></span><a aria-hidden="true" class="legacy" id="net_event_drop"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.6.0</span>
+<span>Added in: v18.6.0, v16.17.0</span>
 </div>
 <p>When the number of connections reaches the threshold of <code>server.maxConnections</code>,
 the server will drop new connections and emit <code>'drop'</code> event instead. If it is a
@@ -790,7 +824,7 @@ that event, it will be called with an <code>Error</code> as its only argument if
 was not open when it was closed.</p>
 <h4><code>server[Symbol.asyncDispose]()</code><span><a class="mark" href="#serversymbolasyncdispose" id="serversymbolasyncdispose">#</a></span><a aria-hidden="true" class="legacy" id="net_server_symbol_asyncdispose"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.18.0</span>
+<span>Added in: v20.5.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <p>Calls <a href="#serverclosecallback"><code>server.close()</code></a> and returns a promise that fulfills when the
@@ -876,21 +910,22 @@ valid file descriptor.</p>
 <ul>
 <li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> Required. Supports the following properties:
 <ul>
-<li><code>port</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
-<li><code>host</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
-<li><code>path</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Will be ignored if <code>port</code> is specified. See
-<a href="#identifying-paths-for-ipc-connections">Identifying paths for IPC connections</a>.</li>
 <li><code>backlog</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Common parameter of <a href="#serverlisten"><code>server.listen()</code></a>
 functions.</li>
 <li><code>exclusive</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> <strong>Default:</strong> <code>false</code></li>
-<li><code>readableAll</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> For IPC servers makes the pipe readable
-for all users. <strong>Default:</strong> <code>false</code>.</li>
-<li><code>writableAll</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> For IPC servers makes the pipe writable
-for all users. <strong>Default:</strong> <code>false</code>.</li>
+<li><code>host</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
 <li><code>ipv6Only</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> For TCP servers, setting <code>ipv6Only</code> to <code>true</code> will
 disable dual-stack support, i.e., binding to host <code>::</code> won't make
 <code>0.0.0.0</code> be bound. <strong>Default:</strong> <code>false</code>.</li>
-<li><code>signal</code> <a href="globals.html#class-abortsignal" class="type">&#x3C;AbortSignal></a> An AbortSignal that may be used to close a listening server.</li>
+<li><code>path</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Will be ignored if <code>port</code> is specified. See
+<a href="#identifying-paths-for-ipc-connections">Identifying paths for IPC connections</a>.</li>
+<li><code>port</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a></li>
+<li><code>readableAll</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> For IPC servers makes the pipe readable
+for all users. <strong>Default:</strong> <code>false</code>.</li>
+<li><code>signal</code> <a href="globals.html#class-abortsignal" class="type">&#x3C;AbortSignal></a> An AbortSignal that may be used to close a listening
+server.</li>
+<li><code>writableAll</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> For IPC servers makes the pipe writable
+for all users. <strong>Default:</strong> <code>false</code>.</li>
 </ul>
 </li>
 <li><code>callback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a>
@@ -1023,6 +1058,8 @@ it to interact with the client.</p>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
 <tr><td>v15.14.0</td>
 <td><p>AbortSignal support was added.</p></td></tr>
+<tr><td>v12.10.0</td>
+<td><p>Added <code>onread</code> option.</p></td></tr>
 <tr><td>v0.3.4</td>
 <td><p><span>Added in: v0.3.4</span></p></td></tr>
 </tbody></table>
@@ -1031,18 +1068,34 @@ it to interact with the client.</p>
 <ul>
 <li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> Available options are:
 <ul>
-<li><code>fd</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> If specified, wrap around an existing socket with
-the given file descriptor, otherwise a new socket will be created.</li>
 <li><code>allowHalfOpen</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If set to <code>false</code>, then the socket will
 automatically end the writable side when the readable side ends. See
 <a href="#netcreateserveroptions-connectionlistener"><code>net.createServer()</code></a> and the <a href="#event-end"><code>'end'</code></a> event for details. <strong>Default:</strong>
 <code>false</code>.</li>
+<li><code>fd</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> If specified, wrap around an existing socket with
+the given file descriptor, otherwise a new socket will be created.</li>
+<li><code>onread</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> If specified, incoming data is stored in a single <code>buffer</code>
+and passed to the supplied <code>callback</code> when data arrives on the socket.
+This will cause the streaming functionality to not provide any data.
+The socket will emit events like <code>'error'</code>, <code>'end'</code>, and <code>'close'</code>
+as usual. Methods like <code>pause()</code> and <code>resume()</code> will also behave as
+expected.
+<ul>
+<li><code>buffer</code> <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array" class="type">&#x3C;Uint8Array></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> Either a reusable chunk of memory to
+use for storing incoming data or a function that returns such.</li>
+<li><code>callback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> This function is called for every chunk of incoming
+data. Two arguments are passed to it: the number of bytes written to
+<code>buffer</code> and a reference to <code>buffer</code>. Return <code>false</code> from this function to
+implicitly <code>pause()</code> the socket. This function will be executed in the
+global context.</li>
+</ul>
+</li>
 <li><code>readable</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> Allow reads on the socket when an <code>fd</code> is passed,
-otherwise ignored. <strong>Default:</strong> <code>false</code>.</li>
-<li><code>writable</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> Allow writes on the socket when an <code>fd</code> is passed,
 otherwise ignored. <strong>Default:</strong> <code>false</code>.</li>
 <li><code>signal</code> <a href="globals.html#class-abortsignal" class="type">&#x3C;AbortSignal></a> An Abort signal that may be used to destroy the
 socket.</li>
+<li><code>writable</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> Allow writes on the socket when an <code>fd</code> is passed,
+otherwise ignored. <strong>Default:</strong> <code>false</code>.</li>
 </ul>
 </li>
 <li>Returns: <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket></a></li>
@@ -1065,6 +1118,41 @@ which says if the socket was closed due to a transmission error.</p>
 </div>
 <p>Emitted when a socket connection is successfully established.
 See <a href="#netcreateconnection"><code>net.createConnection()</code></a>.</p>
+<h4>Event: <code>'connectionAttempt'</code><span><a class="mark" href="#event-connectionattempt" id="event-connectionattempt">#</a></span><a aria-hidden="true" class="legacy" id="net_event_connectionattempt"></a></h4>
+<div class="api_metadata">
+<span>Added in: v20.12.0</span>
+</div>
+<ul>
+<li><code>ip</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> The IP which the socket is attempting to connect to.</li>
+<li><code>port</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The port which the socket is attempting to connect to.</li>
+<li><code>family</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The family of the IP. It can be <code>6</code> for IPv6 or <code>4</code> for IPv4.</li>
+</ul>
+<p>Emitted when a new connection attempt is started. This may be emitted multiple times
+if the family autoselection algorithm is enabled in <a href="#socketconnectoptions-connectlistener"><code>socket.connect(options)</code></a>.</p>
+<h4>Event: <code>'connectionAttemptFailed'</code><span><a class="mark" href="#event-connectionattemptfailed" id="event-connectionattemptfailed">#</a></span><a aria-hidden="true" class="legacy" id="net_event_connectionattemptfailed"></a></h4>
+<div class="api_metadata">
+<span>Added in: v20.12.0</span>
+</div>
+<ul>
+<li><code>ip</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> The IP which the socket attempted to connect to.</li>
+<li><code>port</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The port which the socket attempted to connect to.</li>
+<li><code>family</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The family of the IP. It can be <code>6</code> for IPv6 or <code>4</code> for IPv4.</li>
+<li><code>error</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error" class="type">&#x3C;Error></a> The error associated with the failure.</li>
+</ul>
+<p>Emitted when a connection attempt failed. This may be emitted multiple times
+if the family autoselection algorithm is enabled in <a href="#socketconnectoptions-connectlistener"><code>socket.connect(options)</code></a>.</p>
+<h4>Event: <code>'connectionAttemptTimeout'</code><span><a class="mark" href="#event-connectionattempttimeout" id="event-connectionattempttimeout">#</a></span><a aria-hidden="true" class="legacy" id="net_event_connectionattempttimeout"></a></h4>
+<div class="api_metadata">
+<span>Added in: v20.12.0</span>
+</div>
+<ul>
+<li><code>ip</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> The IP which the socket attempted to connect to.</li>
+<li><code>port</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The port which the socket attempted to connect to.</li>
+<li><code>family</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The family of the IP. It can be <code>6</code> for IPv6 or <code>4</code> for IPv4.</li>
+</ul>
+<p>Emitted when a connection attempt timed out. This is only emitted (and may be
+emitted multiple times) if the family autoselection algorithm is enabled
+in <a href="#socketconnectoptions-connectlistener"><code>socket.connect(options)</code></a>.</p>
 <h4>Event: <code>'data'</code><span><a class="mark" href="#event-data" id="event-data">#</a></span><a aria-hidden="true" class="legacy" id="net_event_data"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.1.90</span>
@@ -1159,7 +1247,7 @@ socket as reported by the operating system:
 <code>{ port: 12346, family: 'IPv4', address: '127.0.0.1' }</code></p>
 <h4><code>socket.autoSelectFamilyAttemptedAddresses</code><span><a class="mark" href="#socketautoselectfamilyattemptedaddresses" id="socketautoselectfamilyattemptedaddresses">#</a></span><a aria-hidden="true" class="legacy" id="net_socket_autoselectfamilyattemptedaddresses"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.18.0</span>
+<span>Added in: v19.4.0</span>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string[]></a></li>
@@ -1229,14 +1317,14 @@ behavior.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.18.0</td>
+<tr><td>v20.0.0</td>
+<td><p>The default value for the autoSelectFamily option is now true. The <code>--enable-network-family-autoselection</code> CLI flag has been renamed to <code>--network-family-autoselection</code>. The old name is now an alias but it is discouraged.</p></td></tr>
+<tr><td>v19.4.0</td>
 <td><p>The default value for autoSelectFamily option can be changed at runtime using <code>setDefaultAutoSelectFamily</code> or via the command line option <code>--enable-network-family-autoselection</code>.</p></td></tr>
-<tr><td>v18.13.0</td>
+<tr><td>v19.3.0, v18.13.0</td>
 <td><p>Added the <code>autoSelectFamily</code> option.</p></td></tr>
-<tr><td>v17.7.0</td>
+<tr><td>v17.7.0, v16.15.0</td>
 <td><p>The <code>noDelay</code>, <code>keepAlive</code>, and <code>keepAliveInitialDelay</code> options are supported now.</p></td></tr>
-<tr><td>v12.10.0</td>
-<td><p>Added <code>onread</code> option.</p></td></tr>
 <tr><td>v6.0.0</td>
 <td><p>The <code>hints</code> option defaults to <code>0</code> in all cases now. Previously, in the absence of the <code>family</code> option it would default to <code>dns.ADDRCONFIG | dns.V4MAPPED</code>.</p></td></tr>
 <tr><td>v5.11.0</td>
@@ -1257,38 +1345,40 @@ the socket should be created and opened with <a href="#netcreateconnection"><cod
 this only when implementing a custom Socket.</p>
 <p>For TCP connections, available <code>options</code> are:</p>
 <ul>
-<li><code>port</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Required. Port the socket should connect to.</li>
-<li><code>host</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Host the socket should connect to. <strong>Default:</strong> <code>'localhost'</code>.</li>
-<li><code>localAddress</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Local address the socket should connect from.</li>
-<li><code>localPort</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Local port the socket should connect from.</li>
+<li><code>autoSelectFamily</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a>: If set to <code>true</code>, it enables a family
+autodetection algorithm that loosely implements section 5 of <a href="https://www.rfc-editor.org/rfc/rfc8305.txt">RFC 8305</a>. The
+<code>all</code> option passed to lookup is set to <code>true</code> and the sockets attempts to
+connect to all obtained IPv6 and IPv4 addresses, in sequence, until a
+connection is established. The first returned AAAA address is tried first,
+then the first returned A address, then the second returned AAAA address and
+so on. Each connection attempt (but the last one) is given the amount of time
+specified by the <code>autoSelectFamilyAttemptTimeout</code> option before timing out and
+trying the next address. Ignored if the <code>family</code> option is not <code>0</code> or if
+<code>localAddress</code> is set. Connection errors are not emitted if at least one
+connection succeeds. If all connections attempts fails, a single
+<code>AggregateError</code> with all failed attempts is emitted. <strong>Default:</strong>
+<a href="#netgetdefaultautoselectfamily"><code>net.getDefaultAutoSelectFamily()</code></a>.</li>
+<li><code>autoSelectFamilyAttemptTimeout</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a>: The amount of time in milliseconds
+to wait for a connection attempt to finish before trying the next address when
+using the <code>autoSelectFamily</code> option. If set to a positive integer less than
+<code>10</code>, then the value <code>10</code> will be used instead. <strong>Default:</strong>
+<a href="#netgetdefaultautoselectfamilyattempttimeout"><code>net.getDefaultAutoSelectFamilyAttemptTimeout()</code></a>.</li>
 <li><code>family</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a>: Version of IP stack. Must be <code>4</code>, <code>6</code>, or <code>0</code>. The value
 <code>0</code> indicates that both IPv4 and IPv6 addresses are allowed. <strong>Default:</strong> <code>0</code>.</li>
 <li><code>hints</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Optional <a href="dns.html#supported-getaddrinfo-flags"><code>dns.lookup()</code> hints</a>.</li>
+<li><code>host</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Host the socket should connect to. <strong>Default:</strong> <code>'localhost'</code>.</li>
+<li><code>keepAlive</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If set to <code>true</code>, it enables keep-alive functionality on
+the socket immediately after the connection is established, similarly on what
+is done in <a href="#socketsetkeepaliveenable-initialdelay"><code>socket.setKeepAlive()</code></a>. <strong>Default:</strong> <code>false</code>.</li>
+<li><code>keepAliveInitialDelay</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> If set to a positive number, it sets the
+initial delay before the first keepalive probe is sent on an idle socket.
+<strong>Default:</strong> <code>0</code>.</li>
+<li><code>localAddress</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Local address the socket should connect from.</li>
+<li><code>localPort</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Local port the socket should connect from.</li>
 <li><code>lookup</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> Custom lookup function. <strong>Default:</strong> <a href="dns.html#dnslookuphostname-options-callback"><code>dns.lookup()</code></a>.</li>
-<li><code>noDelay</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If set to <code>true</code>, it disables the use of Nagle's algorithm immediately
-after the socket is established. <strong>Default:</strong> <code>false</code>.</li>
-<li><code>keepAlive</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If set to <code>true</code>, it enables keep-alive functionality on the socket
-immediately after the connection is established, similarly on what is done in
-<a href="#socketsetkeepaliveenable-initialdelay"><code>socket.setKeepAlive([enable][, initialDelay])</code></a>.
-<strong>Default:</strong> <code>false</code>.</li>
-<li><code>keepAliveInitialDelay</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> If set to a positive number, it sets the initial delay before
-the first keepalive probe is sent on an idle socket.<strong>Default:</strong> <code>0</code>.</li>
-<li><code>autoSelectFamily</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a>: If set to <code>true</code>, it enables a family autodetection algorithm
-that loosely implements section 5 of <a href="https://www.rfc-editor.org/rfc/rfc8305.txt">RFC 8305</a>.
-The <code>all</code> option passed to lookup is set to <code>true</code> and the sockets attempts to connect to all
-obtained IPv6 and IPv4 addresses, in sequence, until a connection is established.
-The first returned AAAA address is tried first, then the first returned A address,
-then the second returned AAAA address and so on.
-Each connection attempt is given the amount of time specified by the <code>autoSelectFamilyAttemptTimeout</code>
-option before timing out and trying the next address.
-Ignored if the <code>family</code> option is not <code>0</code> or if <code>localAddress</code> is set.
-Connection errors are not emitted if at least one connection succeeds.
-<strong>Default:</strong> initially <code>false</code>, but it can be changed at runtime using <a href="#netsetdefaultautoselectfamilyvalue"><code>net.setDefaultAutoSelectFamily(value)</code></a>
-or via the command line option <code>--enable-network-family-autoselection</code>.</li>
-<li><code>autoSelectFamilyAttemptTimeout</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a>: The amount of time in milliseconds to wait
-for a connection attempt to finish before trying the next address when using the <code>autoSelectFamily</code> option.
-If set to a positive integer less than <code>10</code>, then the value <code>10</code> will be used instead.
-<strong>Default:</strong> initially <code>250</code>, but it can be changed at runtime using <a href="#netsetdefaultautoselectfamilyattempttimeoutvalue"><code>net.setDefaultAutoSelectFamilyAttemptTimeout(value)</code></a></li>
+<li><code>noDelay</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If set to <code>true</code>, it disables the use of Nagle's algorithm
+immediately after the socket is established. <strong>Default:</strong> <code>false</code>.</li>
+<li><code>port</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Required. Port the socket should connect to.</li>
 </ul>
 <p>For <a href="#ipc-support">IPC</a> connections, available <code>options</code> are:</p>
 <ul>
@@ -1296,38 +1386,6 @@ If set to a positive integer less than <code>10</code>, then the value <code>10<
 See <a href="#identifying-paths-for-ipc-connections">Identifying paths for IPC connections</a>. If provided, the TCP-specific
 options above are ignored.</li>
 </ul>
-<p>For both types, available <code>options</code> include:</p>
-<ul>
-<li><code>onread</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> If specified, incoming data is stored in a single <code>buffer</code>
-and passed to the supplied <code>callback</code> when data arrives on the socket.
-This will cause the streaming functionality to not provide any data.
-The socket will emit events like <code>'error'</code>, <code>'end'</code>, and <code>'close'</code>
-as usual. Methods like <code>pause()</code> and <code>resume()</code> will also behave as
-expected.
-<ul>
-<li><code>buffer</code> <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array" class="type">&#x3C;Uint8Array></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> Either a reusable chunk of memory to
-use for storing incoming data or a function that returns such.</li>
-<li><code>callback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> This function is called for every chunk of incoming
-data. Two arguments are passed to it: the number of bytes written to
-<code>buffer</code> and a reference to <code>buffer</code>. Return <code>false</code> from this function to
-implicitly <code>pause()</code> the socket. This function will be executed in the
-global context.</li>
-</ul>
-</li>
-</ul>
-<p>Following is an example of a client using the <code>onread</code> option:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> net = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:net'</span>);
-net.<span class="hljs-title function_">connect</span>({
-  <span class="hljs-attr">port</span>: <span class="hljs-number">80</span>,
-  <span class="hljs-attr">onread</span>: {
-    <span class="hljs-comment">// Reuses a 4KiB Buffer for every read from the socket.</span>
-    <span class="hljs-attr">buffer</span>: <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">alloc</span>(<span class="hljs-number">4</span> * <span class="hljs-number">1024</span>),
-    <span class="hljs-attr">callback</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">nread, buf</span>) {
-      <span class="hljs-comment">// Received data is available in `buf` from 0 to `nread`.</span>
-      <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(buf.<span class="hljs-title function_">toString</span>(<span class="hljs-string">'utf8'</span>, <span class="hljs-number">0</span>, nread));
-    },
-  },
-});</code> <button class="copy-button">copy</button></pre>
 <h5><code>socket.connect(path[, connectListener])</code><span><a class="mark" href="#socketconnectpath-connectlistener" id="socketconnectpath-connectlistener">#</a></span><a aria-hidden="true" class="legacy" id="net_socket_connect_path_connectlistener"></a></h5>
 <ul>
 <li><code>path</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Path the client should connect to. See
@@ -1427,7 +1485,7 @@ connects on <code>'192.168.1.1'</code>, the value of <code>socket.localAddress</
 <p>The numeric representation of the local port. For example, <code>80</code> or <code>21</code>.</p>
 <h4><code>socket.localFamily</code><span><a class="mark" href="#socketlocalfamily" id="socketlocalfamily">#</a></span><a aria-hidden="true" class="legacy" id="net_socket_localfamily"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.8.0</span>
+<span>Added in: v18.8.0, v16.18.0</span>
 </div>
 <ul>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
@@ -1489,7 +1547,7 @@ the socket is destroyed (for example, if the client disconnected).</p>
 the socket is destroyed (for example, if the client disconnected).</p>
 <h4><code>socket.resetAndDestroy()</code><span><a class="mark" href="#socketresetanddestroy" id="socketresetanddestroy">#</a></span><a aria-hidden="true" class="legacy" id="net_socket_resetanddestroy"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.3.0</span>
+<span>Added in: v18.3.0, v16.17.0</span>
 </div>
 <ul>
 <li>Returns: <a href="net.html#class-netsocket" class="type">&#x3C;net.Socket></a></li>
@@ -1726,7 +1784,8 @@ it starts the connection.</li>
 </ul>
 <p>Following is an example of a client of the echo server described
 in the <a href="#netcreateserveroptions-connectionlistener"><code>net.createServer()</code></a> section:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> net = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:net'</span>);
+
+<pre class="with-59-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> net <span class="hljs-keyword">from</span> <span class="hljs-string">'node:net'</span>;
 <span class="hljs-keyword">const</span> client = net.<span class="hljs-title function_">createConnection</span>({ <span class="hljs-attr">port</span>: <span class="hljs-number">8124</span> }, <span class="hljs-function">() =></span> {
   <span class="hljs-comment">// 'connect' listener.</span>
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'connected to server!'</span>);
@@ -1738,9 +1797,50 @@ client.<span class="hljs-title function_">on</span>(<span class="hljs-string">'d
 });
 client.<span class="hljs-title function_">on</span>(<span class="hljs-string">'end'</span>, <span class="hljs-function">() =></span> {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'disconnected from server'</span>);
-});</code> <button class="copy-button">copy</button></pre>
+});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> net = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:net'</span>);
+<span class="hljs-keyword">const</span> client = net.<span class="hljs-title function_">createConnection</span>({ <span class="hljs-attr">port</span>: <span class="hljs-number">8124</span> }, <span class="hljs-function">() =></span> {
+  <span class="hljs-comment">// 'connect' listener.</span>
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'connected to server!'</span>);
+  client.<span class="hljs-title function_">write</span>(<span class="hljs-string">'world!\r\n'</span>);
+});
+client.<span class="hljs-title function_">on</span>(<span class="hljs-string">'data'</span>, <span class="hljs-function">(<span class="hljs-params">data</span>) =></span> {
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(data.<span class="hljs-title function_">toString</span>());
+  client.<span class="hljs-title function_">end</span>();
+});
+client.<span class="hljs-title function_">on</span>(<span class="hljs-string">'end'</span>, <span class="hljs-function">() =></span> {
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'disconnected from server'</span>);
+});</code><button class="copy-button">copy</button></pre>
 <p>To connect on the socket <code>/tmp/echo.sock</code>:</p>
 <pre><code class="language-js"><span class="hljs-keyword">const</span> client = net.<span class="hljs-title function_">createConnection</span>({ <span class="hljs-attr">path</span>: <span class="hljs-string">'/tmp/echo.sock'</span> });</code> <button class="copy-button">copy</button></pre>
+<p>Following is an example of a client using the <code>port</code> and <code>onread</code>
+option. In this case, the <code>onread</code> option will be only used to call
+<code>new net.Socket([options])</code> and the <code>port</code> option will be used to
+call <code>socket.connect(options[, connectListener])</code>.</p>
+
+<pre class="with-37-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> net <span class="hljs-keyword">from</span> <span class="hljs-string">'node:net'</span>;
+<span class="hljs-keyword">import</span> { <span class="hljs-title class_">Buffer</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:buffer'</span>;
+net.<span class="hljs-title function_">createConnection</span>({
+  <span class="hljs-attr">port</span>: <span class="hljs-number">8124</span>,
+  <span class="hljs-attr">onread</span>: {
+    <span class="hljs-comment">// Reuses a 4KiB Buffer for every read from the socket.</span>
+    <span class="hljs-attr">buffer</span>: <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">alloc</span>(<span class="hljs-number">4</span> * <span class="hljs-number">1024</span>),
+    <span class="hljs-attr">callback</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">nread, buf</span>) {
+      <span class="hljs-comment">// Received data is available in `buf` from 0 to `nread`.</span>
+      <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(buf.<span class="hljs-title function_">toString</span>(<span class="hljs-string">'utf8'</span>, <span class="hljs-number">0</span>, nread));
+    },
+  },
+});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> net = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:net'</span>);
+net.<span class="hljs-title function_">createConnection</span>({
+  <span class="hljs-attr">port</span>: <span class="hljs-number">8124</span>,
+  <span class="hljs-attr">onread</span>: {
+    <span class="hljs-comment">// Reuses a 4KiB Buffer for every read from the socket.</span>
+    <span class="hljs-attr">buffer</span>: <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">alloc</span>(<span class="hljs-number">4</span> * <span class="hljs-number">1024</span>),
+    <span class="hljs-attr">callback</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">nread, buf</span>) {
+      <span class="hljs-comment">// Received data is available in `buf` from 0 to `nread`.</span>
+      <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(buf.<span class="hljs-title function_">toString</span>(<span class="hljs-string">'utf8'</span>, <span class="hljs-number">0</span>, nread));
+    },
+  },
+});</code><button class="copy-button">copy</button></pre>
 <h4><code>net.createConnection(path[, connectListener])</code><span><a class="mark" href="#netcreateconnectionpath-connectlistener" id="netcreateconnectionpath-connectlistener">#</a></span><a aria-hidden="true" class="legacy" id="net_net_createconnection_path_connectlistener"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.1.90</span>
@@ -1786,7 +1886,7 @@ then returns the <code>net.Socket</code> that starts the connection.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.17.0</td>
+<tr><td>v20.1.0</td>
 <td><p>The <code>highWaterMark</code> option is supported now.</p></td></tr>
 <tr><td>v17.7.0, v16.15.0</td>
 <td><p>The <code>noDelay</code>, <code>keepAlive</code>, and <code>keepAliveInitialDelay</code> options are supported now.</p></td></tr>
@@ -1805,16 +1905,18 @@ automatically end the writable side when the readable side ends.
 <li><code>highWaterMark</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> Optionally overrides all <a href="#class-netsocket"><code>net.Socket</code></a>s'
 <code>readableHighWaterMark</code> and <code>writableHighWaterMark</code>.
 <strong>Default:</strong> See <a href="stream.html#streamgetdefaulthighwatermarkobjectmode"><code>stream.getDefaultHighWaterMark()</code></a>.</li>
+<li><code>keepAlive</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If set to <code>true</code>, it enables keep-alive functionality
+on the socket immediately after a new incoming connection is received,
+similarly on what is done in <a href="#socketsetkeepaliveenable-initialdelay"><code>socket.setKeepAlive()</code></a>. <strong>Default:</strong>
+<code>false</code>.</li>
+<li><code>keepAliveInitialDelay</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> If set to a positive number, it sets the
+initial delay before the first keepalive probe is sent on an idle socket.
+<strong>Default:</strong> <code>0</code>.</li>
+<li><code>noDelay</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If set to <code>true</code>, it disables the use of Nagle's
+algorithm immediately after a new incoming connection is received.
+<strong>Default:</strong> <code>false</code>.</li>
 <li><code>pauseOnConnect</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> Indicates whether the socket should be
 paused on incoming connections. <strong>Default:</strong> <code>false</code>.</li>
-<li><code>noDelay</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If set to <code>true</code>, it disables the use of Nagle's algorithm immediately
-after a new incoming connection is received. <strong>Default:</strong> <code>false</code>.</li>
-<li><code>keepAlive</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If set to <code>true</code>, it enables keep-alive functionality on the socket
-immediately after a new incoming connection is received, similarly on what is done in
-<a href="#socketsetkeepaliveenable-initialdelay"><code>socket.setKeepAlive([enable][, initialDelay])</code></a>.
-<strong>Default:</strong> <code>false</code>.</li>
-<li><code>keepAliveInitialDelay</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> If set to a positive number, it sets the initial delay before
-the first keepalive probe is sent on an idle socket.<strong>Default:</strong> <code>0</code>.</li>
 </ul>
 </li>
 <li>
@@ -1842,7 +1944,8 @@ read by the original process. To begin reading data from a paused socket, call
 <a href="#serverlisten"><code>listen()</code></a> to.</p>
 <p>Here is an example of a TCP echo server which listens for connections
 on port 8124:</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> net = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:net'</span>);
+
+<pre class="with-40-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> net <span class="hljs-keyword">from</span> <span class="hljs-string">'node:net'</span>;
 <span class="hljs-keyword">const</span> server = net.<span class="hljs-title function_">createServer</span>(<span class="hljs-function">(<span class="hljs-params">c</span>) =></span> {
   <span class="hljs-comment">// 'connection' listener.</span>
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'client connected'</span>);
@@ -1857,20 +1960,37 @@ server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'e
 });
 server.<span class="hljs-title function_">listen</span>(<span class="hljs-number">8124</span>, <span class="hljs-function">() =></span> {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'server bound'</span>);
-});</code> <button class="copy-button">copy</button></pre>
+});</code><code class="language-js cjs"><span class="hljs-keyword">const</span> net = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:net'</span>);
+<span class="hljs-keyword">const</span> server = net.<span class="hljs-title function_">createServer</span>(<span class="hljs-function">(<span class="hljs-params">c</span>) =></span> {
+  <span class="hljs-comment">// 'connection' listener.</span>
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'client connected'</span>);
+  c.<span class="hljs-title function_">on</span>(<span class="hljs-string">'end'</span>, <span class="hljs-function">() =></span> {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'client disconnected'</span>);
+  });
+  c.<span class="hljs-title function_">write</span>(<span class="hljs-string">'hello\r\n'</span>);
+  c.<span class="hljs-title function_">pipe</span>(c);
+});
+server.<span class="hljs-title function_">on</span>(<span class="hljs-string">'error'</span>, <span class="hljs-function">(<span class="hljs-params">err</span>) =></span> {
+  <span class="hljs-keyword">throw</span> err;
+});
+server.<span class="hljs-title function_">listen</span>(<span class="hljs-number">8124</span>, <span class="hljs-function">() =></span> {
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'server bound'</span>);
+});</code><button class="copy-button">copy</button></pre>
 <p>Test this by using <code>telnet</code>:</p>
-<pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">telnet localhost 8124</span></code> <button class="copy-button">copy</button></pre>
+<pre><code class="language-bash">telnet localhost 8124</code> <button class="copy-button">copy</button></pre>
 <p>To listen on the socket <code>/tmp/echo.sock</code>:</p>
 <pre><code class="language-js">server.<span class="hljs-title function_">listen</span>(<span class="hljs-string">'/tmp/echo.sock'</span>, <span class="hljs-function">() =></span> {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'server bound'</span>);
 });</code> <button class="copy-button">copy</button></pre>
 <p>Use <code>nc</code> to connect to a Unix domain socket server:</p>
-<pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">nc -U /tmp/echo.sock</span></code> <button class="copy-button">copy</button></pre>
+<pre><code class="language-bash">nc -U /tmp/echo.sock</code> <button class="copy-button">copy</button></pre>
 </section><section><h3><code>net.getDefaultAutoSelectFamily()</code><span><a class="mark" href="#netgetdefaultautoselectfamily" id="netgetdefaultautoselectfamily">#</a></span><a aria-hidden="true" class="legacy" id="net_net_getdefaultautoselectfamily"></a></h3>
 <div class="api_metadata">
 <span>Added in: v19.4.0</span>
 </div>
-<p>Gets the current default value of the <code>autoSelectFamily</code> option of <a href="#socketconnectoptions-connectlistener"><code>socket.connect(options)</code></a>.</p>
+<p>Gets the current default value of the <code>autoSelectFamily</code> option of <a href="#socketconnectoptions-connectlistener"><code>socket.connect(options)</code></a>.
+The initial default value is <code>true</code>, unless the command line option
+<code>--no-network-family-autoselection</code> is provided.</p>
 <ul>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> The current default value of the <code>autoSelectFamily</code> option.</li>
 </ul>
@@ -1878,26 +1998,31 @@ server.<span class="hljs-title function_">listen</span>(<span class="hljs-number
 <div class="api_metadata">
 <span>Added in: v19.4.0</span>
 </div>
-<p>Sets the default value of the <code>autoSelectFamily</code> option of <a href="#socketconnectoptions-connectlistener"><code>socket.connect(options)</code></a>.</p>
+<p>Sets the default value of the <code>autoSelectFamily</code> option of <a href="#socketconnectoptions-connectlistener"><code>socket.connect(options)</code></a>.</p>
 <ul>
-<li><code>value</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> The new default value. The initial default value is <code>false</code>.</li>
+<li><code>value</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> The new default value.
+The initial default value is <code>true</code>, unless the command line option
+<code>--no-network-family-autoselection</code> is provided.</li>
 </ul>
 </section><section><h3><code>net.getDefaultAutoSelectFamilyAttemptTimeout()</code><span><a class="mark" href="#netgetdefaultautoselectfamilyattempttimeout" id="netgetdefaultautoselectfamilyattempttimeout">#</a></span><a aria-hidden="true" class="legacy" id="net_net_getdefaultautoselectfamilyattempttimeout"></a></h3>
 <div class="api_metadata">
-<span>Added in: v18.18.0</span>
+<span>Added in: v19.8.0</span>
 </div>
-<p>Gets the current default value of the <code>autoSelectFamilyAttemptTimeout</code> option of <a href="#socketconnectoptions-connectlistener"><code>socket.connect(options)</code></a>.</p>
+<p>Gets the current default value of the <code>autoSelectFamilyAttemptTimeout</code> option of <a href="#socketconnectoptions-connectlistener"><code>socket.connect(options)</code></a>.
+The initial default value is <code>250</code> or the value specified via the command line
+option <code>--network-family-autoselection-attempt-timeout</code>.</p>
 <ul>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The current default value of the <code>autoSelectFamilyAttemptTimeout</code> option.</li>
 </ul>
 </section><section><h3><code>net.setDefaultAutoSelectFamilyAttemptTimeout(value)</code><span><a class="mark" href="#netsetdefaultautoselectfamilyattempttimeoutvalue" id="netsetdefaultautoselectfamilyattempttimeoutvalue">#</a></span><a aria-hidden="true" class="legacy" id="net_net_setdefaultautoselectfamilyattempttimeout_value"></a></h3>
 <div class="api_metadata">
-<span>Added in: v18.18.0</span>
+<span>Added in: v19.8.0</span>
 </div>
-<p>Sets the default value of the <code>autoSelectFamilyAttemptTimeout</code> option of <a href="#socketconnectoptions-connectlistener"><code>socket.connect(options)</code></a>.</p>
+<p>Sets the default value of the <code>autoSelectFamilyAttemptTimeout</code> option of <a href="#socketconnectoptions-connectlistener"><code>socket.connect(options)</code></a>.</p>
 <ul>
-<li><code>value</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The new default value, which must be a positive number. If the number is less than <code>10</code>,
-the value <code>10</code> is used instead. The initial default value is <code>250</code>.</li>
+<li><code>value</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The new default value, which must be a positive number. If the number is less than <code>10</code>,
+the value <code>10</code> is used instead. The initial default value is <code>250</code> or the value specified via the command line
+option <code>--network-family-autoselection-attempt-timeout</code>.</li>
 </ul>
 </section><section><h3><code>net.isIP(input)</code><span><a class="mark" href="#netisipinput" id="netisipinput">#</a></span><a aria-hidden="true" class="legacy" id="net_net_isip_input"></a></h3>
 <div class="api_metadata">
