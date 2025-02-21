@@ -7,6 +7,12 @@
 <!-- YAML
 added: v8.5.0
 changes:
+  - version: v18.20.5
+    pr-url: https://github.com/nodejs/node/pull/55333
+    description: Import attributes are no longer experimental.
+  - version: v18.20.0
+    pr-url: https://github.com/nodejs/node/pull/50140
+    description: Add experimental support for import attributes.
   - version: v18.19.0
     pr-url: https://github.com/nodejs/node/pull/44710
     description: Module customization hooks are executed off the main thread.
@@ -202,7 +208,7 @@ added: v12.10.0
 
 ```js
 import 'data:text/javascript,console.log("hello!");';
-import _ from 'data:application/json,"world!"' assert { type: 'json' };
+import _ from 'data:application/json,"world!"' with { type: 'json' };
 ```
 
 `data:` URLs only resolve [bare specifiers][Terminology] for builtin modules
@@ -243,34 +249,31 @@ added:
   - v17.1.0
   - v16.14.0
 changes:
-  - version: v18.19.0
+  - version: v18.20.0
     pr-url: https://github.com/nodejs/node/pull/50140
     description: Switch from Import Assertions to Import Attributes.
 -->
 
-> Stability: 1.1 - Active development
+> Stability: 2 - Stable
 
-> This feature was previously named "Import assertions", and using the `assert`
-> keyword instead of `with`. Because the version of V8 on this release line does
-> not support the `with` keyword, you need to keep using `assert` to support
-> this version of Node.js.
-
-The [Import Attributes proposal][] adds an inline syntax for module import
-statements to pass on more information alongside the module specifier.
+[Import attributes][Import Attributes MDN] are an inline syntax for module
+import statements to pass on more information alongside the module specifier.
 
 ```js
-import fooData from './foo.json' assert { type: 'json' };
+import fooData from './foo.json' with { type: 'json' };
 
 const { default: barData } =
-  await import('./bar.json', { assert: { type: 'json' } });
+  await import('./bar.json', { with: { type: 'json' } });
 ```
 
-Node.js supports the following `type` values, for which the attribute is
-mandatory:
+Node.js only supports the `type` attribute, for which it supports the following
+values:
 
 | Attribute `type` | Needed for       |
 | ---------------- | ---------------- |
 | `'json'`         | [JSON modules][] |
+
+The `type: 'json'` attribute is mandatory when importing JSON modules.
 
 ## Builtin modules
 
@@ -550,15 +553,22 @@ separate cache.
 
 ## JSON modules
 
-> Stability: 1 - Experimental
+<!-- YAML
+changes:
+  - version: v18.20.5
+    pr-url: https://github.com/nodejs/node/pull/55333
+    description: JSON modules are no longer experimental.
+-->
+
+> Stability: 2 - Stable
 
 JSON files can be referenced by `import`:
 
 ```js
-import packageConfig from './package.json' assert { type: 'json' };
+import packageConfig from './package.json' with { type: 'json' };
 ```
 
-The `assert { type: 'json' }` syntax is mandatory; see [Import Attributes][].
+The `with { type: 'json' }` syntax is mandatory; see [Import Attributes][].
 
 The imported JSON only exposes a `default` export. There is no support for named
 exports. A cache entry is created in the CommonJS cache to avoid duplication.
@@ -1088,7 +1098,7 @@ success!
 [Dynamic `import()`]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import
 [ES Module Integration Proposal for WebAssembly]: https://github.com/webassembly/esm-integration
 [Import Attributes]: #import-attributes
-[Import Attributes proposal]: https://github.com/tc39/proposal-import-attributes
+[Import Attributes MDN]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import/with
 [JSON modules]: #json-modules
 [Module customization hooks]: module.md#customization-hooks
 [Node.js Module Resolution And Loading Algorithm]: #resolution-algorithm-specification
