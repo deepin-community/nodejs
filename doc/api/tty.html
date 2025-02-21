@@ -3,18 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>TTY | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.18.3">
+  <title>TTY | Node.js v20.18.3 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/tty.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
   
 </head>
 <body class="alt apidoc" id="api-section-tty">
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +109,7 @@
     <div id="column1" data-id="tty" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.18.3 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,11 +124,11 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.18.3</li>
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
@@ -131,6 +144,8 @@
 </li>
 <li><a href="#class-ttywritestream">Class: <code>tty.WriteStream</code></a>
 <ul>
+<li><a href="#new-ttyreadstreamfd-options"><code>new tty.ReadStream(fd[, options])</code></a></li>
+<li><a href="#new-ttywritestreamfd"><code>new tty.WriteStream(fd)</code></a></li>
 <li><a href="#event-resize">Event: <code>'resize'</code></a></li>
 <li><a href="#writestreamclearlinedir-callback"><code>writeStream.clearLine(dir[, callback])</code></a></li>
 <li><a href="#writestreamclearscreendowncallback"><code>writeStream.clearScreenDown([callback])</code></a></li>
@@ -153,7 +168,7 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Index
       </a>
 
@@ -238,10 +253,12 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/tty.html">21.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v23.x/api/tty.html">23.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v22.x/api/tty.html">22.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/tty.html">21.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v20.x/api/tty.html">20.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v19.x/api/tty.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/tty.html">18.x <b>LTS</b></a></li>
@@ -265,7 +282,7 @@
   
             <li class="picker-header">
               <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
@@ -286,7 +303,7 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
 <li><span class="stability_2"><a href="#tty">TTY</a></span>
 <ul>
 <li><a href="#class-ttyreadstream">Class: <code>tty.ReadStream</code></a>
@@ -298,6 +315,8 @@
 </li>
 <li><a href="#class-ttywritestream">Class: <code>tty.WriteStream</code></a>
 <ul>
+<li><a href="#new-ttyreadstreamfd-options"><code>new tty.ReadStream(fd[, options])</code></a></li>
+<li><a href="#new-ttywritestreamfd"><code>new tty.WriteStream(fd)</code></a></li>
 <li><a href="#event-resize">Event: <code>'resize'</code></a></li>
 <li><a href="#writestreamclearlinedir-callback"><code>writeStream.clearLine(dir[, callback])</code></a></li>
 <li><a href="#writestreamclearscreendowncallback"><code>writeStream.clearScreenDown([callback])</code></a></li>
@@ -316,11 +335,11 @@
 </li>
 </ul></details>
 
-      <div id="apicontent">
+      <div role="main" id="apicontent">
         <h2>TTY<span><a class="mark" href="#tty" id="tty">#</a></span><a aria-hidden="true" class="legacy" id="tty_tty"></a></h2>
 
 <p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.19.1/lib/tty.js">lib/tty.js</a></p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v20.18.3/lib/tty.js">lib/tty.js</a></p>
 <p>The <code>node:tty</code> module provides the <code>tty.ReadStream</code> and <code>tty.WriteStream</code>
 classes. In most cases, it will not be necessary or possible to use this module
 directly. However, it can be accessed using:</p>
@@ -390,6 +409,34 @@ in this mode.</p>
 <a href="process.html#processstdout"><code>process.stdout</code></a> and <a href="process.html#processstderr"><code>process.stderr</code></a> will be the only
 <code>tty.WriteStream</code> instances created for a Node.js process and there
 should be no reason to create additional instances.</p>
+<h4><code>new tty.ReadStream(fd[, options])</code><span><a class="mark" href="#new-ttyreadstreamfd-options" id="new-ttyreadstreamfd-options">#</a></span><a aria-hidden="true" class="legacy" id="tty_new_tty_readstream_fd_options"></a></h4>
+<div class="api_metadata">
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v0.9.4</td>
+<td><p>The <code>options</code> argument is supported.</p></td></tr>
+<tr><td>v0.5.8</td>
+<td><p><span>Added in: v0.5.8</span></p></td></tr>
+</tbody></table>
+</details>
+</div>
+<ul>
+<li><code>fd</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> A file descriptor associated with a TTY.</li>
+<li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> Options passed to parent <code>net.Socket</code>,
+see <code>options</code> of <a href="net.html#new-netsocketoptions"><code>net.Socket</code> constructor</a>.</li>
+<li>Returns <a href="tty.html#class-ttyreadstream" class="type">&#x3C;tty.ReadStream></a></li>
+</ul>
+<p>Creates a <code>ReadStream</code> for <code>fd</code> associated with a TTY.</p>
+<h4><code>new tty.WriteStream(fd)</code><span><a class="mark" href="#new-ttywritestreamfd" id="new-ttywritestreamfd">#</a></span><a aria-hidden="true" class="legacy" id="tty_new_tty_writestream_fd"></a></h4>
+<div class="api_metadata">
+<span>Added in: v0.5.8</span>
+</div>
+<ul>
+<li><code>fd</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> A file descriptor associated with a TTY.</li>
+<li>Returns <a href="tty.html#class-ttywritestream" class="type">&#x3C;tty.WriteStream></a></li>
+</ul>
+<p>Creates a <code>WriteStream</code> for <code>fd</code> associated with a TTY.</p>
 <h4>Event: <code>'resize'</code><span><a class="mark" href="#event-resize" id="event-resize">#</a></span><a aria-hidden="true" class="legacy" id="tty_event_resize"></a></h4>
 <div class="api_metadata">
 <span>Added in: v0.7.7</span>

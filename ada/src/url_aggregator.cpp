@@ -1,6 +1,5 @@
 #include "ada.h"
 #include "ada/checkers-inl.h"
-#include "ada/checkers.h"
 #include "ada/helpers.h"
 #include "ada/implementation.h"
 #include "ada/scheme.h"
@@ -8,7 +7,6 @@
 #include "ada/url_components.h"
 #include "ada/url_aggregator.h"
 #include "ada/url_aggregator-inl.h"
-#include "ada/parser.h"
 
 #include <string>
 #include <string_view>
@@ -33,21 +31,21 @@ template <bool has_state_override>
       // If url's scheme is not a special scheme and buffer is a special scheme,
       // then return.
       if (is_special() != is_input_special) {
-        return true;
+        return false;
       }
 
       // If url includes credentials or has a non-null port, and buffer is
       // "file", then return.
       if ((has_credentials() || components.port != url_components::omitted) &&
           parsed_type == ada::scheme::type::FILE) {
-        return true;
+        return false;
       }
 
       // If url's scheme is "file" and its host is an empty host, then return.
       // An empty host is the empty string.
       if (type == ada::scheme::type::FILE &&
           components.host_start == components.host_end) {
-        return true;
+        return false;
       }
     }
 
@@ -65,7 +63,7 @@ template <bool has_state_override>
       }
     }
   } else {  // slow path
-    std::string _buffer = std::string(input);
+    std::string _buffer(input);
     // Next function is only valid if the input is ASCII and returns false
     // otherwise, but it seems that we always have ascii content so we do not
     // need to check the return value.
@@ -317,7 +315,7 @@ bool url_aggregator::set_pathname(const std::string_view input) {
   }
   clear_pathname();
   parse_path(input);
-  if (checkers::begins_with(input, "//") && !has_authority() &&
+  if (checkers::begins_with(get_pathname(), "//") && !has_authority() &&
       !has_dash_dot()) {
     buffer.insert(components.pathname_start, "/.");
     components.pathname_start += 2;
@@ -411,7 +409,7 @@ void url_aggregator::set_hash(const std::string_view input) {
 
 bool url_aggregator::set_href(const std::string_view input) {
   ADA_ASSERT_TRUE(!helpers::overlaps(input, buffer));
-  ada_log("url_aggregator::set_href ", input, "[", input.size(), " bytes]");
+  ada_log("url_aggregator::set_href ", input, " [", input.size(), " bytes]");
   ada::result<url_aggregator> out = ada::parse<url_aggregator>(input);
   ada_log("url_aggregator::set_href, success :", out.has_value());
 
@@ -425,7 +423,8 @@ bool url_aggregator::set_href(const std::string_view input) {
 }
 
 ada_really_inline bool url_aggregator::parse_host(std::string_view input) {
-  ada_log("url_aggregator:parse_host ", input, "[", input.size(), " bytes]");
+  ada_log("url_aggregator:parse_host \"", input, "\" [", input.size(),
+          " bytes]");
   ADA_ASSERT_TRUE(validate());
   ADA_ASSERT_TRUE(!helpers::overlaps(input, buffer));
   if (input.empty()) {
@@ -475,7 +474,7 @@ ada_really_inline bool url_aggregator::parse_host(std::string_view input) {
     update_base_hostname(input);
     if (checkers::is_ipv4(get_hostname())) {
       ada_log("parse_host fast path ipv4");
-      return parse_ipv4(get_hostname());
+      return parse_ipv4(get_hostname(), true);
     }
     ada_log("parse_host fast path ", get_hostname());
     return true;
@@ -491,6 +490,8 @@ ada_really_inline bool url_aggregator::parse_host(std::string_view input) {
     ada_log("parse_host to_ascii returns false");
     return is_valid = false;
   }
+  ada_log("parse_host to_ascii succeeded ", *host, " [", host->size(),
+          " bytes]");
 
   if (std::any_of(host.value().begin(), host.value().end(),
                   ada::unicode::is_forbidden_domain_code_point)) {
@@ -500,8 +501,8 @@ ada_really_inline bool url_aggregator::parse_host(std::string_view input) {
   // If asciiDomain ends in a number, then return the result of IPv4 parsing
   // asciiDomain.
   if (checkers::is_ipv4(host.value())) {
-    ada_log("parse_host got ipv4", *host);
-    return parse_ipv4(host.value());
+    ada_log("parse_host got ipv4 ", *host);
+    return parse_ipv4(host.value(), false);
   }
 
   update_base_hostname(host.value());
@@ -518,7 +519,7 @@ bool url_aggregator::set_host_or_hostname(const std::string_view input) {
     return false;
   }
 
-  std::string previous_host = std::string(get_hostname());
+  std::string previous_host(get_hostname());
   uint32_t previous_port = components.port;
 
   size_t host_end_pos = input.find('#');
@@ -645,7 +646,8 @@ bool url_aggregator::set_hostname(const std::string_view input) {
   return "null";
 }
 
-[[nodiscard]] std::string_view url_aggregator::get_username() const noexcept {
+[[nodiscard]] std::string_view url_aggregator::get_username() const noexcept
+    ada_lifetime_bound {
   ada_log("url_aggregator::get_username");
   if (has_non_empty_username()) {
     return helpers::substring(buffer, components.protocol_end + 2,
@@ -654,7 +656,8 @@ bool url_aggregator::set_hostname(const std::string_view input) {
   return "";
 }
 
-[[nodiscard]] std::string_view url_aggregator::get_password() const noexcept {
+[[nodiscard]] std::string_view url_aggregator::get_password() const noexcept
+    ada_lifetime_bound {
   ada_log("url_aggregator::get_password");
   if (has_non_empty_password()) {
     return helpers::substring(buffer, components.username_end + 1,
@@ -663,7 +666,8 @@ bool url_aggregator::set_hostname(const std::string_view input) {
   return "";
 }
 
-[[nodiscard]] std::string_view url_aggregator::get_port() const noexcept {
+[[nodiscard]] std::string_view url_aggregator::get_port() const noexcept
+    ada_lifetime_bound {
   ada_log("url_aggregator::get_port");
   if (components.port == url_components::omitted) {
     return "";
@@ -672,7 +676,8 @@ bool url_aggregator::set_hostname(const std::string_view input) {
                             components.pathname_start);
 }
 
-[[nodiscard]] std::string_view url_aggregator::get_hash() const noexcept {
+[[nodiscard]] std::string_view url_aggregator::get_hash() const noexcept
+    ada_lifetime_bound {
   ada_log("url_aggregator::get_hash");
   // If this's URL's fragment is either null or the empty string, then return
   // the empty string. Return U+0023 (#), followed by this's URL's fragment.
@@ -685,7 +690,8 @@ bool url_aggregator::set_hostname(const std::string_view input) {
   return helpers::substring(buffer, components.hash_start);
 }
 
-[[nodiscard]] std::string_view url_aggregator::get_host() const noexcept {
+[[nodiscard]] std::string_view url_aggregator::get_host() const noexcept
+    ada_lifetime_bound {
   ada_log("url_aggregator::get_host");
   // Technically, we should check if there is a hostname, but
   // the code below works even if there isn't.
@@ -698,12 +704,13 @@ bool url_aggregator::set_hostname(const std::string_view input) {
   // if we have an empty host, then the space between components.host_end and
   // components.pathname_start may be occupied by /.
   if (start == components.host_end) {
-    return std::string_view();
+    return {};
   }
   return helpers::substring(buffer, start, components.pathname_start);
 }
 
-[[nodiscard]] std::string_view url_aggregator::get_hostname() const noexcept {
+[[nodiscard]] std::string_view url_aggregator::get_hostname() const noexcept
+    ada_lifetime_bound {
   ada_log("url_aggregator::get_hostname");
   // Technically, we should check if there is a hostname, but
   // the code below works even if there isn't.
@@ -717,12 +724,13 @@ bool url_aggregator::set_hostname(const std::string_view input) {
   return helpers::substring(buffer, start, components.host_end);
 }
 
-[[nodiscard]] std::string_view url_aggregator::get_pathname() const noexcept {
+[[nodiscard]] std::string_view url_aggregator::get_pathname() const noexcept
+    ada_lifetime_bound {
   ada_log("url_aggregator::get_pathname pathname_start = ",
           components.pathname_start, " buffer.size() = ", buffer.size(),
           " components.search_start = ", components.search_start,
           " components.hash_start = ", components.hash_start);
-  uint32_t ending_index = uint32_t(buffer.size());
+  auto ending_index = uint32_t(buffer.size());
   if (components.search_start != url_components::omitted) {
     ending_index = components.search_start;
   } else if (components.hash_start != url_components::omitted) {
@@ -731,14 +739,15 @@ bool url_aggregator::set_hostname(const std::string_view input) {
   return helpers::substring(buffer, components.pathname_start, ending_index);
 }
 
-[[nodiscard]] std::string_view url_aggregator::get_search() const noexcept {
+[[nodiscard]] std::string_view url_aggregator::get_search() const noexcept
+    ada_lifetime_bound {
   ada_log("url_aggregator::get_search");
   // If this's URL's query is either null or the empty string, then return the
   // empty string. Return U+003F (?), followed by this's URL's query.
   if (components.search_start == url_components::omitted) {
     return "";
   }
-  uint32_t ending_index = uint32_t(buffer.size());
+  auto ending_index = uint32_t(buffer.size());
   if (components.hash_start != url_components::omitted) {
     ending_index = components.hash_start;
   }
@@ -748,13 +757,14 @@ bool url_aggregator::set_hostname(const std::string_view input) {
   return helpers::substring(buffer, components.search_start, ending_index);
 }
 
-[[nodiscard]] std::string_view url_aggregator::get_protocol() const noexcept {
+[[nodiscard]] std::string_view url_aggregator::get_protocol() const noexcept
+    ada_lifetime_bound {
   ada_log("url_aggregator::get_protocol");
   return helpers::substring(buffer, 0, components.protocol_end);
 }
 
 [[nodiscard]] std::string ada::url_aggregator::to_string() const {
-  ada_log("url_aggregator::to_string buffer:", buffer, "[", buffer.size(),
+  ada_log("url_aggregator::to_string buffer:", buffer, " [", buffer.size(),
           " bytes]");
   if (!is_valid) {
     return "null";
@@ -853,8 +863,8 @@ bool url_aggregator::set_hostname(const std::string_view input) {
   return checkers::verify_dns_length(get_hostname());
 }
 
-bool url_aggregator::parse_ipv4(std::string_view input) {
-  ada_log("parse_ipv4 ", input, "[", input.size(),
+bool url_aggregator::parse_ipv4(std::string_view input, bool in_place) {
+  ada_log("parse_ipv4 ", input, " [", input.size(),
           " bytes], overlaps with buffer: ",
           helpers::overlaps(input, buffer) ? "yes" : "no");
   ADA_ASSERT_TRUE(validate());
@@ -876,29 +886,34 @@ bool url_aggregator::parse_ipv4(std::string_view input) {
       segment_result = 0;
       input.remove_prefix(2);
     } else {
-      std::from_chars_result r;
+      std::from_chars_result r{};
       if (is_hex) {
+        ada_log("parse_ipv4 trying to parse hex number");
         r = std::from_chars(input.data() + 2, input.data() + input.size(),
                             segment_result, 16);
       } else if ((input.length() >= 2) && input[0] == '0' &&
                  checkers::is_digit(input[1])) {
+        ada_log("parse_ipv4 trying to parse octal number");
         r = std::from_chars(input.data() + 1, input.data() + input.size(),
                             segment_result, 8);
       } else {
+        ada_log("parse_ipv4 trying to parse decimal number");
         pure_decimal_count++;
         r = std::from_chars(input.data(), input.data() + input.size(),
                             segment_result, 10);
       }
       if (r.ec != std::errc()) {
+        ada_log("parse_ipv4 parsing failed");
         return is_valid = false;
       }
+      ada_log("parse_ipv4 parsed ", segment_result);
       input.remove_prefix(r.ptr - input.data());
     }
     if (input.empty()) {
       // We have the last value.
       // At this stage, ipv4 contains digit_count*8 bits.
       // So we have 32-digit_count*8 bits left.
-      if (segment_result > (uint64_t(1) << (32 - digit_count * 8))) {
+      if (segment_result >= (uint64_t(1) << (32 - digit_count * 8))) {
         return is_valid = false;
       }
       ipv4 <<= (32 - digit_count * 8);
@@ -916,6 +931,7 @@ bool url_aggregator::parse_ipv4(std::string_view input) {
     }
   }
   if ((digit_count != 4) || (!input.empty())) {
+    ada_log("parse_ipv4 found invalid (more than 4 numbers or empty) ");
     return is_valid = false;
   }
 final:
@@ -923,10 +939,14 @@ final:
           " host: ", get_host());
 
   // We could also check r.ptr to see where the parsing ended.
-  if (pure_decimal_count == 4 && !trailing_dot) {
+  if (in_place && pure_decimal_count == 4 && !trailing_dot) {
+    ada_log(
+        "url_aggregator::parse_ipv4 completed and was already correct in the "
+        "buffer");
     // The original input was already all decimal and we validated it. So we
     // don't need to do anything.
   } else {
+    ada_log("url_aggregator::parse_ipv4 completed and we need to update it");
     // Optimization opportunity: Get rid of unnecessary string return in ipv4
     // serializer.
     // TODO: This is likely a bug because it goes back update_base_hostname, not
@@ -940,8 +960,11 @@ final:
 }
 
 bool url_aggregator::parse_ipv6(std::string_view input) {
+  // TODO: Implement in_place optimization: we know that input points
+  // in the buffer, so we can just check whether the buffer is already
+  // well formatted.
   // TODO: Find a way to merge parse_ipv6 with url.cpp implementation.
-  ada_log("parse_ipv6 ", input, "[", input.size(), " bytes]");
+  ada_log("parse_ipv6 ", input, " [", input.size(), " bytes]");
   ADA_ASSERT_TRUE(validate());
   ADA_ASSERT_TRUE(!helpers::overlaps(input, buffer));
   if (input.empty()) {
@@ -1175,7 +1198,7 @@ bool url_aggregator::parse_ipv6(std::string_view input) {
 }
 
 bool url_aggregator::parse_opaque_host(std::string_view input) {
-  ada_log("parse_opaque_host ", input, "[", input.size(), " bytes]");
+  ada_log("parse_opaque_host ", input, " [", input.size(), " bytes]");
   ADA_ASSERT_TRUE(validate());
   ADA_ASSERT_TRUE(!helpers::overlaps(input, buffer));
   if (std::any_of(input.begin(), input.end(),

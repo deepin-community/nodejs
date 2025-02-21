@@ -3,18 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>Asynchronous context tracking | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.18.3">
+  <title>Asynchronous context tracking | Node.js v20.18.3 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/async_context.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
-  <style>@media(max-width:1080px){.with-73-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:686px){.with-58-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:1072px){.with-72-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:654px){.with-54-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:598px){.with-47-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}</style>
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
+  <style>@media(max-width:1080px){.with-73-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:686px){.with-58-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:1072px){.with-72-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:654px){.with-54-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:598px){.with-47-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}</style>
 </head>
 <body class="alt apidoc" id="api-section-async_context">
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +109,7 @@
     <div id="column1" data-id="async_context" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.18.3 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,11 +124,11 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.18.3</li>
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
@@ -158,7 +171,7 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Index
       </a>
 
@@ -243,10 +256,12 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/async_context.html">21.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v23.x/api/async_context.html">23.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v22.x/api/async_context.html">22.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/async_context.html">21.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v20.x/api/async_context.html">20.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v19.x/api/async_context.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/async_context.html">18.x <b>LTS</b></a></li>
@@ -256,7 +271,7 @@
   
             <li class="picker-header">
               <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
@@ -277,7 +292,7 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
 <li><span class="stability_2"><a href="#asynchronous-context-tracking">Asynchronous context tracking</a></span>
 <ul>
 <li><a href="#introduction">Introduction</a></li>
@@ -312,11 +327,11 @@
 </li>
 </ul></details>
 
-      <div id="apicontent">
+      <div role="main" id="apicontent">
         <h2>Asynchronous context tracking<span><a class="mark" href="#asynchronous-context-tracking" id="asynchronous-context-tracking">#</a></span><a aria-hidden="true" class="legacy" id="async_context_asynchronous_context_tracking"></a></h2>
 
 <p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.19.1/lib/async_hooks.js">lib/async_hooks.js</a></p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v20.18.3/lib/async_hooks.js">lib/async_hooks.js</a></p>
 <section><h3>Introduction<span><a class="mark" href="#introduction" id="introduction">#</a></span><a aria-hidden="true" class="legacy" id="async_context_introduction"></a></h3>
 <p>These classes are used to associate state and propagate it throughout
 callbacks and promise chains.
@@ -326,7 +341,7 @@ in other languages.</p>
 <p>The <code>AsyncLocalStorage</code> and <code>AsyncResource</code> classes are part of the
 <code>node:async_hooks</code> module:</p>
 
-<pre class="with-73-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">AsyncLocalStorage</span>, <span class="hljs-title class_">AsyncResource</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:async_hooks'</span>;</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { <span class="hljs-title class_">AsyncLocalStorage</span>, <span class="hljs-title class_">AsyncResource</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:async_hooks'</span>);</code><button class="copy-button">copy</button></pre>
+<pre class="with-73-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">AsyncLocalStorage</span>, <span class="hljs-title class_">AsyncResource</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:async_hooks'</span>;</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { <span class="hljs-title class_">AsyncLocalStorage</span>, <span class="hljs-title class_">AsyncResource</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:async_hooks'</span>);</code><button class="copy-button">copy</button></pre>
 </section><section><h3>Class: <code>AsyncLocalStorage</code><span><a class="mark" href="#class-asynclocalstorage" id="class-asynclocalstorage">#</a></span><a aria-hidden="true" class="legacy" id="async_context_class_asynclocalstorage"></a></h3>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
@@ -348,7 +363,7 @@ to implement.</p>
 that assigns IDs to incoming HTTP requests and includes them in messages
 logged within each request.</p>
 
-<pre class="with-58-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> http <span class="hljs-keyword">from</span> <span class="hljs-string">'node:http'</span>;
+<pre class="with-58-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> http <span class="hljs-keyword">from</span> <span class="hljs-string">'node:http'</span>;
 <span class="hljs-keyword">import</span> { <span class="hljs-title class_">AsyncLocalStorage</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:async_hooks'</span>;
 
 <span class="hljs-keyword">const</span> asyncLocalStorage = <span class="hljs-keyword">new</span> <span class="hljs-title class_">AsyncLocalStorage</span>();
@@ -413,9 +428,9 @@ with each other's data.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.16.0</td>
+<tr><td>v19.7.0</td>
 <td><p>Removed experimental onPropagate option.</p></td></tr>
-<tr><td>v18.13.0</td>
+<tr><td>v19.2.0, v18.13.0</td>
 <td><p>Add option onPropagate.</p></td></tr>
 <tr><td>v13.10.0, v12.17.0</td>
 <td><p><span>Added in: v13.10.0, v12.17.0</span></p></td></tr>
@@ -426,7 +441,7 @@ with each other's data.</p>
 <code>run()</code> call or after an <code>enterWith()</code> call.</p>
 <h4>Static method: <code>AsyncLocalStorage.bind(fn)</code><span><a class="mark" href="#static-method-asynclocalstoragebindfn" id="static-method-asynclocalstoragebindfn">#</a></span><a aria-hidden="true" class="legacy" id="async_context_static_method_asynclocalstorage_bind_fn"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.16.0</span>
+<span>Added in: v19.8.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <ul>
@@ -437,7 +452,7 @@ execution context.</li>
 <p>Binds the given function to the current execution context.</p>
 <h4>Static method: <code>AsyncLocalStorage.snapshot()</code><span><a class="mark" href="#static-method-asynclocalstoragesnapshot" id="static-method-asynclocalstoragesnapshot">#</a></span><a aria-hidden="true" class="legacy" id="async_context_static_method_asynclocalstorage_snapshot"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.16.0</span>
+<span>Added in: v19.8.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <ul>
@@ -623,7 +638,7 @@ own resources.</p>
 <p>The <code>init</code> hook will trigger when an <code>AsyncResource</code> is instantiated.</p>
 <p>The following is an overview of the <code>AsyncResource</code> API.</p>
 
-<pre class="with-72-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">AsyncResource</span>, executionAsyncId } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:async_hooks'</span>;
+<pre class="with-72-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">AsyncResource</span>, executionAsyncId } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:async_hooks'</span>;
 
 <span class="hljs-comment">// AsyncResource() is meant to be extended. Instantiating a</span>
 <span class="hljs-comment">// new AsyncResource() also triggers init. If triggerAsyncId is omitted then</span>
@@ -712,7 +727,9 @@ will only take place if there is at least one active <code>destroy</code> hook.
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v17.8.0</td>
+<tr><td>v20.0.0</td>
+<td><p>The <code>asyncResource</code> property added to the bound function has been deprecated and will be removed in a future version.</p></td></tr>
+<tr><td>v17.8.0, v16.15.0</td>
 <td><p>Changed the default when <code>thisArg</code> is undefined to use <code>this</code> from the caller.</p></td></tr>
 <tr><td>v16.0.0</td>
 <td><p>Added optional thisArg.</p></td></tr>
@@ -728,14 +745,14 @@ will only take place if there is at least one active <code>destroy</code> hook.
 <li><code>thisArg</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types" class="type">&#x3C;any></a></li>
 </ul>
 <p>Binds the given function to the current execution context.</p>
-<p>The returned function will have an <code>asyncResource</code> property referencing
-the <code>AsyncResource</code> to which the function is bound.</p>
 <h4><code>asyncResource.bind(fn[, thisArg])</code><span><a class="mark" href="#asyncresourcebindfn-thisarg" id="asyncresourcebindfn-thisarg">#</a></span><a aria-hidden="true" class="legacy" id="async_context_asyncresource_bind_fn_thisarg"></a></h4>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v17.8.0</td>
+<tr><td>v20.0.0</td>
+<td><p>The <code>asyncResource</code> property added to the bound function has been deprecated and will be removed in a future version.</p></td></tr>
+<tr><td>v17.8.0, v16.15.0</td>
 <td><p>Changed the default when <code>thisArg</code> is undefined to use <code>this</code> from the caller.</p></td></tr>
 <tr><td>v16.0.0</td>
 <td><p>Added optional thisArg.</p></td></tr>
@@ -749,8 +766,6 @@ the <code>AsyncResource</code> to which the function is bound.</p>
 <li><code>thisArg</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types" class="type">&#x3C;any></a></li>
 </ul>
 <p>Binds the given function to execute to this <code>AsyncResource</code>'s scope.</p>
-<p>The returned function will have an <code>asyncResource</code> property referencing
-the <code>AsyncResource</code> to which the function is bound.</p>
 <h4><code>asyncResource.runInAsyncScope(fn[, thisArg, ...args])</code><span><a class="mark" href="#asyncresourceruninasyncscopefn-thisarg-args" id="asyncresourceruninasyncscopefn-thisarg-args">#</a></span><a aria-hidden="true" class="legacy" id="async_context_asyncresource_runinasyncscope_fn_thisarg_args"></a></h4>
 <div class="api_metadata">
 <span>Added in: v9.6.0</span>
@@ -790,7 +805,7 @@ database connection pools, can follow a similar model.</p>
 <p>Assuming that the task is adding two numbers, using a file named
 <code>task_processor.js</code> with the following content:</p>
 
-<pre class="with-54-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { parentPort } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:worker_threads'</span>;
+<pre class="with-54-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { parentPort } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:worker_threads'</span>;
 parentPort.<span class="hljs-title function_">on</span>(<span class="hljs-string">'message'</span>, <span class="hljs-function">(<span class="hljs-params">task</span>) =></span> {
   parentPort.<span class="hljs-title function_">postMessage</span>(task.<span class="hljs-property">a</span> + task.<span class="hljs-property">b</span>);
 });</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { parentPort } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:worker_threads'</span>);
@@ -799,9 +814,8 @@ parentPort.<span class="hljs-title function_">on</span>(<span class="hljs-string
 });</code><button class="copy-button">copy</button></pre>
 <p>a Worker pool around it could use the following structure:</p>
 
-<pre class="with-54-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">AsyncResource</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:async_hooks'</span>;
+<pre class="with-54-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">AsyncResource</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:async_hooks'</span>;
 <span class="hljs-keyword">import</span> { <span class="hljs-title class_">EventEmitter</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:events'</span>;
-<span class="hljs-keyword">import</span> path <span class="hljs-keyword">from</span> <span class="hljs-string">'node:path'</span>;
 <span class="hljs-keyword">import</span> { <span class="hljs-title class_">Worker</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:worker_threads'</span>;
 
 <span class="hljs-keyword">const</span> kTaskInfo = <span class="hljs-title class_">Symbol</span>(<span class="hljs-string">'kTaskInfo'</span>);
@@ -977,7 +991,7 @@ creation of the tasks and does not provide information about when tasks
 were scheduled.</p>
 <p>This pool could be used as follows:</p>
 
-<pre class="with-47-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> <span class="hljs-title class_">WorkerPool</span> <span class="hljs-keyword">from</span> <span class="hljs-string">'./worker_pool.js'</span>;
+<pre class="with-47-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> <span class="hljs-title class_">WorkerPool</span> <span class="hljs-keyword">from</span> <span class="hljs-string">'./worker_pool.js'</span>;
 <span class="hljs-keyword">import</span> os <span class="hljs-keyword">from</span> <span class="hljs-string">'node:os'</span>;
 
 <span class="hljs-keyword">const</span> pool = <span class="hljs-keyword">new</span> <span class="hljs-title class_">WorkerPool</span>(os.<span class="hljs-title function_">availableParallelism</span>());
@@ -1010,7 +1024,7 @@ called.</p>
 associate an event listener with the correct execution context. The same
 approach can be applied to a <a href="stream.html#stream"><code>Stream</code></a> or a similar event-driven class.</p>
 
-<pre class="with-72-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { createServer } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:http'</span>;
+<pre class="with-72-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { createServer } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:http'</span>;
 <span class="hljs-keyword">import</span> { <span class="hljs-title class_">AsyncResource</span>, executionAsyncId } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:async_hooks'</span>;
 
 <span class="hljs-keyword">const</span> server = <span class="hljs-title function_">createServer</span>(<span class="hljs-function">(<span class="hljs-params">req, res</span>) =></span> {

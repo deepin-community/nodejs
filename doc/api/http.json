@@ -8,7 +8,7 @@
       "introduced_in": "v0.10.0",
       "stability": 2,
       "stabilityText": "Stable",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.19.1/lib/http.js\">lib/http.js</a></p>\n<p>To use the HTTP server and client one must <code>require('node:http')</code>.</p>\n<p>The HTTP interfaces in Node.js are designed to support many features\nof the protocol which have been traditionally difficult to use.\nIn particular, large, possibly chunk-encoded, messages. The interface is\ncareful to never buffer entire requests or responses, so the\nuser is able to stream data.</p>\n<p>HTTP message headers are represented by an object like this:</p>\n<!-- eslint-skip -->\n<pre><code class=\"language-js\">{ 'content-length': '123',\n  'content-type': 'text/plain',\n  'connection': 'keep-alive',\n  'host': 'example.com',\n  'accept': '*/*' }\n</code></pre>\n<p>Keys are lowercased. Values are not modified.</p>\n<p>In order to support the full spectrum of possible HTTP applications, the Node.js\nHTTP API is very low-level. It deals with stream handling and message\nparsing only. It parses a message into headers and body but it does not\nparse the actual headers or the body.</p>\n<p>See <a href=\"#messageheaders\"><code>message.headers</code></a> for details on how duplicate headers are handled.</p>\n<p>The raw headers as they were received are retained in the <code>rawHeaders</code>\nproperty, which is an array of <code>[key, value, key2, value2, ...]</code>. For\nexample, the previous message header object might have a <code>rawHeaders</code>\nlist like the following:</p>\n<!-- eslint-disable semi -->\n<pre><code class=\"language-js\">[ 'ConTent-Length', '123456',\n  'content-LENGTH', '123',\n  'content-type', 'text/plain',\n  'CONNECTION', 'keep-alive',\n  'Host', 'example.com',\n  'accepT', '*/*' ]\n</code></pre>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v20.18.3/lib/http.js\">lib/http.js</a></p>\n<p>This module, containing both a client and server, can be imported via\n<code>require('node:http')</code> (CommonJS) or <code>import * as http from 'node:http'</code> (ES module).</p>\n<p>The HTTP interfaces in Node.js are designed to support many features\nof the protocol which have been traditionally difficult to use.\nIn particular, large, possibly chunk-encoded, messages. The interface is\ncareful to never buffer entire requests or responses, so the\nuser is able to stream data.</p>\n<p>HTTP message headers are represented by an object like this:</p>\n<pre><code class=\"language-json\">{ \"content-length\": \"123\",\n  \"content-type\": \"text/plain\",\n  \"connection\": \"keep-alive\",\n  \"host\": \"example.com\",\n  \"accept\": \"*/*\" }\n</code></pre>\n<p>Keys are lowercased. Values are not modified.</p>\n<p>In order to support the full spectrum of possible HTTP applications, the Node.js\nHTTP API is very low-level. It deals with stream handling and message\nparsing only. It parses a message into headers and body but it does not\nparse the actual headers or the body.</p>\n<p>See <a href=\"#messageheaders\"><code>message.headers</code></a> for details on how duplicate headers are handled.</p>\n<p>The raw headers as they were received are retained in the <code>rawHeaders</code>\nproperty, which is an array of <code>[key, value, key2, value2, ...]</code>. For\nexample, the previous message header object might have a <code>rawHeaders</code>\nlist like the following:</p>\n<!-- eslint-disable @stylistic/js/semi -->\n<pre><code class=\"language-js\">[ 'ConTent-Length', '123456',\n  'content-LENGTH', '123',\n  'content-type', 'text/plain',\n  'CONNECTION', 'keep-alive',\n  'Host', 'example.com',\n  'accepT', '*/*' ]\n</code></pre>",
       "classes": [
         {
           "textRaw": "Class: `http.Agent`",
@@ -135,7 +135,10 @@
                 ],
                 "changes": [
                   {
-                    "version": "v17.7.0",
+                    "version": [
+                      "v17.7.0",
+                      "v16.15.0"
+                    ],
                     "pr-url": "https://github.com/nodejs/node/pull/41906",
                     "description": "The `options` parameter is now optional."
                   }
@@ -340,7 +343,7 @@
                   ]
                 }
               ],
-              "desc": "<p><code>options</code> in <a href=\"net.html#socketconnectoptions-connectlistener\"><code>socket.connect()</code></a> are also supported.</p>\n<p>The default <a href=\"#httpglobalagent\"><code>http.globalAgent</code></a> that is used by <a href=\"#httprequestoptions-callback\"><code>http.request()</code></a> has all\nof these values set to their respective defaults.</p>\n<p>To configure any of them, a custom <a href=\"#class-httpagent\"><code>http.Agent</code></a> instance must be created.</p>\n<pre><code class=\"language-mjs\">import { Agent, request } from 'node:http';\nconst keepAliveAgent = new Agent({ keepAlive: true });\noptions.agent = keepAliveAgent;\nrequest(options, onResponseCallback);\n</code></pre>\n<pre><code class=\"language-cjs\">const http = require('node:http');\nconst keepAliveAgent = new http.Agent({ keepAlive: true });\noptions.agent = keepAliveAgent;\nhttp.request(options, onResponseCallback);\n</code></pre>"
+              "desc": "<p><code>options</code> in <a href=\"net.html#socketconnectoptions-connectlistener\"><code>socket.connect()</code></a> are also supported.</p>\n<p>To configure any of them, a custom <a href=\"#class-httpagent\"><code>http.Agent</code></a> instance must be created.</p>\n<pre><code class=\"language-mjs\">import { Agent, request } from 'node:http';\nconst keepAliveAgent = new Agent({ keepAlive: true });\noptions.agent = keepAliveAgent;\nrequest(options, onResponseCallback);\n</code></pre>\n<pre><code class=\"language-cjs\">const http = require('node:http');\nconst keepAliveAgent = new http.Agent({ keepAlive: true });\noptions.agent = keepAliveAgent;\nhttp.request(options, onResponseCallback);\n</code></pre>"
             }
           ]
         },
@@ -1406,7 +1409,8 @@
               "name": "dropRequest",
               "meta": {
                 "added": [
-                  "v18.7.0"
+                  "v18.7.0",
+                  "v16.17.0"
                 ],
                 "changes": []
               },
@@ -1498,7 +1502,15 @@
                 "added": [
                   "v0.1.90"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": [
+                      "v19.0.0"
+                    ],
+                    "pr-url": "https://github.com/nodejs/node/pull/43522",
+                    "description": "The method closes idle connections before returning."
+                  }
+                ]
               },
               "signatures": [
                 {
@@ -1511,7 +1523,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Stops the server from accepting new connections. See <a href=\"net.html#serverclosecallback\"><code>net.Server.close()</code></a>.</p>"
+              "desc": "<p>Stops the server from accepting new connections and closes all connections\nconnected to this server which are not sending a request or waiting for\na response.\nSee <a href=\"net.html#serverclosecallback\"><code>net.Server.close()</code></a>.</p>\n<pre><code class=\"language-js\">const http = require('node:http');\n\nconst server = http.createServer({ keepAliveTimeout: 60000 }, (req, res) => {\n  res.writeHead(200, { 'Content-Type': 'application/json' });\n  res.end(JSON.stringify({\n    data: 'Hello World!',\n  }));\n});\n\nserver.listen(8000);\n// Close the server after 10 seconds\nsetTimeout(() => {\n  server.close(() => {\n    console.log('server on port 8000 closed successfully');\n  });\n}, 10000);\n</code></pre>"
             },
             {
               "textRaw": "`server.closeAllConnections()`",
@@ -1528,7 +1540,7 @@
                   "params": []
                 }
               ],
-              "desc": "<p>Closes all connections connected to this server.</p>"
+              "desc": "<p>Closes all established HTTP(S) connections connected to this server, including\nactive connections connected to this server which are sending a request or\nwaiting for a response. This does <em>not</em> destroy sockets upgraded to a different\nprotocol, such as WebSocket or HTTP/2.</p>\n<blockquote>\n<p>This is a forceful way of closing all connections and should be used with\ncaution. Whenever using this in conjunction with <code>server.close</code>, calling this\n<em>after</em> <code>server.close</code> is recommended as to avoid race conditions where new\nconnections are created between a call to this and a call to <code>server.close</code>.</p>\n</blockquote>\n<pre><code class=\"language-js\">const http = require('node:http');\n\nconst server = http.createServer({ keepAliveTimeout: 60000 }, (req, res) => {\n  res.writeHead(200, { 'Content-Type': 'application/json' });\n  res.end(JSON.stringify({\n    data: 'Hello World!',\n  }));\n});\n\nserver.listen(8000);\n// Close the server after 10 seconds\nsetTimeout(() => {\n  server.close(() => {\n    console.log('server on port 8000 closed successfully');\n  });\n  // Closes all connections, ensuring the server closes successfully\n  server.closeAllConnections();\n}, 10000);\n</code></pre>"
             },
             {
               "textRaw": "`server.closeIdleConnections()`",
@@ -1545,7 +1557,7 @@
                   "params": []
                 }
               ],
-              "desc": "<p>Closes all connections connected to this server which are not sending a request\nor waiting for a response.</p>"
+              "desc": "<p>Closes all connections connected to this server which are not sending a request\nor waiting for a response.</p>\n<blockquote>\n<p>Starting with Node.js 19.0.0, there's no need for calling this method in\nconjunction with <code>server.close</code> to reap <code>keep-alive</code> connections. Using it\nwon't cause any harm though, and it can be useful to ensure backwards\ncompatibility for libraries and applications that need to support versions\nolder than 19.0.0. Whenever using this in conjunction with <code>server.close</code>,\ncalling this <em>after</em> <code>server.close</code> is recommended as to avoid race\nconditions where new connections are created between a call to this and a\ncall to <code>server.close</code>.</p>\n</blockquote>\n<pre><code class=\"language-js\">const http = require('node:http');\n\nconst server = http.createServer({ keepAliveTimeout: 60000 }, (req, res) => {\n  res.writeHead(200, { 'Content-Type': 'application/json' });\n  res.end(JSON.stringify({\n    data: 'Hello World!',\n  }));\n});\n\nserver.listen(8000);\n// Close the server after 10 seconds\nsetTimeout(() => {\n  server.close(() => {\n    console.log('server on port 8000 closed successfully');\n  });\n  // Closes idle connections, such as keep-alive connections. Server will close\n  // once remaining active connections are terminated\n  server.closeIdleConnections();\n}, 10000);\n</code></pre>"
             },
             {
               "textRaw": "`server.listen()`",
@@ -1597,6 +1609,25 @@
                 }
               ],
               "desc": "<p>Sets the timeout value for sockets, and emits a <code>'timeout'</code> event on\nthe Server object, passing the socket as an argument, if a timeout\noccurs.</p>\n<p>If there is a <code>'timeout'</code> event listener on the Server object, then it\nwill be called with the timed-out socket as an argument.</p>\n<p>By default, the Server does not timeout sockets. However, if a callback\nis assigned to the Server's <code>'timeout'</code> event, timeouts must be handled\nexplicitly.</p>"
+            },
+            {
+              "textRaw": "`server[Symbol.asyncDispose]()`",
+              "type": "method",
+              "name": "[Symbol.asyncDispose]",
+              "meta": {
+                "added": [
+                  "v20.4.0"
+                ],
+                "changes": []
+              },
+              "stability": 1,
+              "stabilityText": "Experimental",
+              "signatures": [
+                {
+                  "params": []
+                }
+              ],
+              "desc": "<p>Calls <a href=\"#serverclosecallback\"><code>server.close()</code></a> and returns a promise that fulfills when the\nserver has closed.</p>"
             }
           ],
           "properties": [
@@ -1611,7 +1642,10 @@
                 ],
                 "changes": [
                   {
-                    "version": "v18.14.0",
+                    "version": [
+                      "v19.4.0",
+                      "v18.14.0"
+                    ],
                     "pr-url": "https://github.com/nodejs/node/pull/45778",
                     "description": "The default is now set to the minimum between 60000 (60 seconds) or `requestTimeout`."
                   }
@@ -2111,7 +2145,7 @@
                   ]
                 }
               ],
-              "desc": "<p>If this method is called and <a href=\"#responsewriteheadstatuscode-statusmessage-headers\"><code>response.writeHead()</code></a> has not been called,\nit will switch to implicit header mode and flush the implicit headers.</p>\n<p>This sends a chunk of the response body. This method may\nbe called multiple times to provide successive parts of the body.</p>\n<p>Writing to the body is not allowed when the request method or response status\ndo not support content. If an attempt is made to write to the body for a\nHEAD request or as part of a <code>204</code> or <code>304</code>response, a synchronous <code>Error</code>\nwith the code <code>ERR_HTTP_BODY_NOT_ALLOWED</code> is thrown.</p>\n<p><code>chunk</code> can be a string or a buffer. If <code>chunk</code> is a string,\nthe second parameter specifies how to encode it into a byte stream.\n<code>callback</code> will be called when this chunk of data is flushed.</p>\n<p>This is the raw HTTP body and has nothing to do with higher-level multi-part\nbody encodings that may be used.</p>\n<p>The first time <a href=\"#responsewritechunk-encoding-callback\"><code>response.write()</code></a> is called, it will send the buffered\nheader information and the first chunk of the body to the client. The second\ntime <a href=\"#responsewritechunk-encoding-callback\"><code>response.write()</code></a> is called, Node.js assumes data will be streamed,\nand sends the new data separately. That is, the response is buffered up to the\nfirst chunk of the body.</p>\n<p>Returns <code>true</code> if the entire data was flushed successfully to the kernel\nbuffer. Returns <code>false</code> if all or part of the data was queued in user memory.\n<code>'drain'</code> will be emitted when the buffer is free again.</p>"
+              "desc": "<p>If this method is called and <a href=\"#responsewriteheadstatuscode-statusmessage-headers\"><code>response.writeHead()</code></a> has not been called,\nit will switch to implicit header mode and flush the implicit headers.</p>\n<p>This sends a chunk of the response body. This method may\nbe called multiple times to provide successive parts of the body.</p>\n<p>If <code>rejectNonStandardBodyWrites</code> is set to true in <code>createServer</code>\nthen writing to the body is not allowed when the request method or response\nstatus do not support content. If an attempt is made to write to the body for a\nHEAD request or as part of a <code>204</code> or <code>304</code>response, a synchronous <code>Error</code>\nwith the code <code>ERR_HTTP_BODY_NOT_ALLOWED</code> is thrown.</p>\n<p><code>chunk</code> can be a string or a buffer. If <code>chunk</code> is a string,\nthe second parameter specifies how to encode it into a byte stream.\n<code>callback</code> will be called when this chunk of data is flushed.</p>\n<p>This is the raw HTTP body and has nothing to do with higher-level multi-part\nbody encodings that may be used.</p>\n<p>The first time <a href=\"#responsewritechunk-encoding-callback\"><code>response.write()</code></a> is called, it will send the buffered\nheader information and the first chunk of the body to the client. The second\ntime <a href=\"#responsewritechunk-encoding-callback\"><code>response.write()</code></a> is called, Node.js assumes data will be streamed,\nand sends the new data separately. That is, the response is buffered up to the\nfirst chunk of the body.</p>\n<p>Returns <code>true</code> if the entire data was flushed successfully to the kernel\nbuffer. Returns <code>false</code> if all or part of the data was queued in user memory.\n<code>'drain'</code> will be emitted when the buffer is free again.</p>"
             },
             {
               "textRaw": "`response.writeContinue()`",
@@ -2513,7 +2547,10 @@
                 ],
                 "changes": [
                   {
-                    "version": "v18.14.0",
+                    "version": [
+                      "v19.5.0",
+                      "v18.14.0"
+                    ],
                     "pr-url": "https://github.com/nodejs/node/pull/45982",
                     "description": "The `joinDuplicateHeaders` option in the `http.request()` and `http.createServer()` functions ensures that duplicate headers are not discarded, but rather combined using a comma separator, in accordance with RFC 9110 Section 5.3."
                   },
@@ -2532,7 +2569,8 @@
               "name": "headersDistinct",
               "meta": {
                 "added": [
-                  "v18.3.0"
+                  "v18.3.0",
+                  "v16.17.0"
                 ],
                 "changes": []
               },
@@ -2640,7 +2678,8 @@
               "name": "trailersDistinct",
               "meta": {
                 "added": [
-                  "v18.3.0"
+                  "v18.3.0",
+                  "v16.17.0"
                 ],
                 "changes": []
               },
@@ -2656,7 +2695,7 @@
                 ],
                 "changes": []
               },
-              "desc": "<p><strong>Only valid for request obtained from <a href=\"#class-httpserver\"><code>http.Server</code></a>.</strong></p>\n<p>Request URL string. This contains only the URL that is present in the actual\nHTTP request. Take the following request:</p>\n<pre><code class=\"language-http\">GET /status?name=ryan HTTP/1.1\nAccept: text/plain\n</code></pre>\n<p>To parse the URL into its parts:</p>\n<pre><code class=\"language-js\">new URL(request.url, `http://${request.headers.host}`);\n</code></pre>\n<p>When <code>request.url</code> is <code>'/status?name=ryan'</code> and <code>request.headers.host</code> is\n<code>'localhost:3000'</code>:</p>\n<pre><code class=\"language-console\">$ node\n> new URL(request.url, `http://${request.headers.host}`)\nURL {\n  href: 'http://localhost:3000/status?name=ryan',\n  origin: 'http://localhost:3000',\n  protocol: 'http:',\n  username: '',\n  password: '',\n  host: 'localhost:3000',\n  hostname: 'localhost',\n  port: '3000',\n  pathname: '/status',\n  search: '?name=ryan',\n  searchParams: URLSearchParams { 'name' => 'ryan' },\n  hash: ''\n}\n</code></pre>"
+              "desc": "<p><strong>Only valid for request obtained from <a href=\"#class-httpserver\"><code>http.Server</code></a>.</strong></p>\n<p>Request URL string. This contains only the URL that is present in the actual\nHTTP request. Take the following request:</p>\n<pre><code class=\"language-http\">GET /status?name=ryan HTTP/1.1\nAccept: text/plain\n</code></pre>\n<p>To parse the URL into its parts:</p>\n<pre><code class=\"language-js\">new URL(`http://${process.env.HOST ?? 'localhost'}${request.url}`);\n</code></pre>\n<p>When <code>request.url</code> is <code>'/status?name=ryan'</code> and <code>process.env.HOST</code> is undefined:</p>\n<pre><code class=\"language-console\">$ node\n> new URL(`http://${process.env.HOST ?? 'localhost'}${request.url}`);\nURL {\n  href: 'http://localhost/status?name=ryan',\n  origin: 'http://localhost',\n  protocol: 'http:',\n  username: '',\n  password: '',\n  host: 'localhost',\n  hostname: 'localhost',\n  port: '',\n  pathname: '/status',\n  search: '?name=ryan',\n  searchParams: URLSearchParams { 'name' => 'ryan' },\n  hash: ''\n}\n</code></pre>\n<p>Ensure that you set <code>process.env.HOST</code> to the server's host name, or consider\nreplacing this part entirely. If using <code>req.headers.host</code>, ensure proper\nvalidation is used, as clients may specify a custom <code>Host</code> header.</p>"
             }
           ],
           "methods": [
@@ -2814,7 +2853,8 @@
               "name": "appendHeader",
               "meta": {
                 "added": [
-                  "v18.3.0"
+                  "v18.3.0",
+                  "v16.17.0"
                 ],
                 "changes": []
               },
@@ -2841,7 +2881,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Append a single header value for the header object.</p>\n<p>If the value is an array, this is equivalent of calling this method multiple\ntimes.</p>\n<p>If there were no previous value for the header, this is equivalent of calling\n<a href=\"#outgoingmessagesetheadername-value\"><code>outgoingMessage.setHeader(name, value)</code></a>.</p>\n<p>Depending of the value of <code>options.uniqueHeaders</code> when the client request or the\nserver were created, this will end up in the header being sent multiple times or\na single time with values joined using <code>; </code>.</p>"
+              "desc": "<p>Append a single header value to the header object.</p>\n<p>If the value is an array, this is equivalent to calling this method multiple\ntimes.</p>\n<p>If there were no previous values for the header, this is equivalent to calling\n<a href=\"#outgoingmessagesetheadername-value\"><code>outgoingMessage.setHeader(name, value)</code></a>.</p>\n<p>Depending of the value of <code>options.uniqueHeaders</code> when the client request or the\nserver were created, this will end up in the header being sent multiple times or\na single time with values joined using <code>; </code>.</p>"
             },
             {
               "textRaw": "`outgoingMessage.cork()`",
@@ -2970,7 +3010,7 @@
               "signatures": [
                 {
                   "return": {
-                    "textRaw": "Returns {string | undefined}",
+                    "textRaw": "Returns: {string | undefined}",
                     "name": "return",
                     "type": "string | undefined"
                   },
@@ -2999,7 +3039,7 @@
               "signatures": [
                 {
                   "return": {
-                    "textRaw": "Returns {string\\[]}",
+                    "textRaw": "Returns: {string\\[]}",
                     "name": "return",
                     "type": "string\\[]"
                   },
@@ -3043,7 +3083,7 @@
               "signatures": [
                 {
                   "return": {
-                    "textRaw": "Returns {boolean}",
+                    "textRaw": "Returns: {boolean}",
                     "name": "return",
                     "type": "boolean"
                   },
@@ -3140,6 +3180,7 @@
               "name": "setHeaders",
               "meta": {
                 "added": [
+                  "v19.6.0",
                   "v18.15.0"
                 ],
                 "changes": []
@@ -3147,9 +3188,9 @@
               "signatures": [
                 {
                   "return": {
-                    "textRaw": "Returns: {http.ServerResponse}",
+                    "textRaw": "Returns: {this}",
                     "name": "return",
-                    "type": "http.ServerResponse"
+                    "type": "this"
                   },
                   "params": [
                     {
@@ -3160,7 +3201,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Returns the response object.</p>\n<p>Sets multiple header values for implicit headers.\n<code>headers</code> must be an instance of <a href=\"globals.html#class-headers\"><code>Headers</code></a> or <code>Map</code>,\nif a header already exists in the to-be-sent headers,\nits value will be replaced.</p>\n<pre><code class=\"language-js\">const headers = new Headers({ foo: 'bar' });\nresponse.setHeaders(headers);\n</code></pre>\n<p>or</p>\n<pre><code class=\"language-js\">const headers = new Map([['foo', 'bar']]);\nres.setHeaders(headers);\n</code></pre>\n<p>When headers have been set with <a href=\"#outgoingmessagesetheadersheaders\"><code>outgoingMessage.setHeaders()</code></a>,\nthey will be merged with any headers passed to <a href=\"#responsewriteheadstatuscode-statusmessage-headers\"><code>response.writeHead()</code></a>,\nwith the headers passed to <a href=\"#responsewriteheadstatuscode-statusmessage-headers\"><code>response.writeHead()</code></a> given precedence.</p>\n<pre><code class=\"language-js\">// Returns content-type = text/plain\nconst server = http.createServer((req, res) => {\n  const headers = new Headers({ 'Content-Type': 'text/html' });\n  res.setHeaders(headers);\n  res.writeHead(200, { 'Content-Type': 'text/plain' });\n  res.end('ok');\n});\n</code></pre>"
+              "desc": "<p>Sets multiple header values for implicit headers.\n<code>headers</code> must be an instance of <a href=\"globals.html#class-headers\"><code>Headers</code></a> or <code>Map</code>,\nif a header already exists in the to-be-sent headers,\nits value will be replaced.</p>\n<pre><code class=\"language-js\">const headers = new Headers({ foo: 'bar' });\noutgoingMessage.setHeaders(headers);\n</code></pre>\n<p>or</p>\n<pre><code class=\"language-js\">const headers = new Map([['foo', 'bar']]);\noutgoingMessage.setHeaders(headers);\n</code></pre>\n<p>When headers have been set with <a href=\"#outgoingmessagesetheadersheaders\"><code>outgoingMessage.setHeaders()</code></a>,\nthey will be merged with any headers passed to <a href=\"#responsewriteheadstatuscode-statusmessage-headers\"><code>response.writeHead()</code></a>,\nwith the headers passed to <a href=\"#responsewriteheadstatuscode-statusmessage-headers\"><code>response.writeHead()</code></a> given precedence.</p>\n<pre><code class=\"language-js\">// Returns content-type = text/plain\nconst server = http.createServer((req, res) => {\n  const headers = new Headers({ 'Content-Type': 'text/html' });\n  res.setHeaders(headers);\n  res.writeHead(200, { 'Content-Type': 'text/plain' });\n  res.end('ok');\n});\n</code></pre>"
             },
             {
               "textRaw": "`outgoingMessage.setTimeout(msesc[, callback])`",
@@ -3237,7 +3278,7 @@
               "signatures": [
                 {
                   "return": {
-                    "textRaw": "Returns {boolean}",
+                    "textRaw": "Returns: {boolean}",
                     "name": "return",
                     "type": "boolean"
                   },
@@ -3415,9 +3456,17 @@
             "added": [
               "v0.5.9"
             ],
-            "changes": []
+            "changes": [
+              {
+                "version": [
+                  "v19.0.0"
+                ],
+                "pr-url": "https://github.com/nodejs/node/pull/43522",
+                "description": "The agent now uses HTTP Keep-Alive and a 5 second timeout by default."
+              }
+            ]
           },
-          "desc": "<p>Global instance of <code>Agent</code> which is used as the default for all HTTP client\nrequests.</p>"
+          "desc": "<p>Global instance of <code>Agent</code> which is used as the default for all HTTP client\nrequests. Diverges from a default <code>Agent</code> configuration by having <code>keepAlive</code>\nenabled and a <code>timeout</code> of 5 seconds.</p>"
         },
         {
           "textRaw": "`maxHeaderSize` {number}",
@@ -3444,7 +3493,7 @@
             ],
             "changes": [
               {
-                "version": "v18.17.0",
+                "version": "v20.1.0",
                 "pr-url": "https://github.com/nodejs/node/pull/47405",
                 "description": "The `highWaterMark` option is supported now."
               },
@@ -3459,7 +3508,10 @@
                 "description": "The `noDelay` option now defaults to `true`."
               },
               {
-                "version": "v17.7.0",
+                "version": [
+                  "v17.7.0",
+                  "v16.15.0"
+                ],
                 "pr-url": "https://github.com/nodejs/node/pull/41310",
                 "description": "The `noDelay`, `keepAlive` and `keepAliveInitialDelay` options are supported now."
               },
@@ -3534,11 +3586,11 @@
                       "desc": "Specifies the `IncomingMessage` class to be used. Useful for extending the original `IncomingMessage`."
                     },
                     {
-                      "textRaw": "`joinDuplicateHeaders` {boolean} It joins the field line values of multiple headers in a request with `, ` instead of discarding the duplicates. See [`message.headers`][] for more information. **Default:** `false`.",
+                      "textRaw": "`joinDuplicateHeaders` {boolean} If set to `true`, this option allows joining the field line values of multiple headers in a request with a comma (`, `) instead of discarding the duplicates. For more information, refer to [`message.headers`][]. **Default:** `false`.",
                       "name": "joinDuplicateHeaders",
                       "type": "boolean",
                       "default": "`false`",
-                      "desc": "It joins the field line values of multiple headers in a request with `, ` instead of discarding the duplicates. See [`message.headers`][] for more information."
+                      "desc": "If set to `true`, this option allows joining the field line values of multiple headers in a request with a comma (`, `) instead of discarding the duplicates. For more information, refer to [`message.headers`][]."
                     },
                     {
                       "textRaw": "`keepAlive` {boolean} If set to `true`, it enables keep-alive functionality on the socket immediately after a new incoming connection is received, similarly on what is done in \\[`socket.setKeepAlive([enable][, initialDelay])`]\\[`socket.setKeepAlive(enable, initialDelay)`]. **Default:** `false`.",
@@ -3555,10 +3607,37 @@
                       "desc": "If set to a positive number, it sets the initial delay before the first keepalive probe is sent on an idle socket."
                     },
                     {
+                      "textRaw": "`keepAliveTimeout`: The number of milliseconds of inactivity a server needs to wait for additional incoming data, after it has finished writing the last response, before a socket will be destroyed. See [`server.keepAliveTimeout`][] for more information. **Default:** `5000`.",
+                      "name": "keepAliveTimeout",
+                      "default": "`5000`",
+                      "desc": "The number of milliseconds of inactivity a server needs to wait for additional incoming data, after it has finished writing the last response, before a socket will be destroyed. See [`server.keepAliveTimeout`][] for more information."
+                    },
+                    {
+                      "textRaw": "`maxHeaderSize` {number} Optionally overrides the value of [`--max-http-header-size`][] for requests received by this server, i.e. the maximum length of request headers in bytes. **Default:** 16384 (16 KiB).",
+                      "name": "maxHeaderSize",
+                      "type": "number",
+                      "default": "16384 (16 KiB)",
+                      "desc": "Optionally overrides the value of [`--max-http-header-size`][] for requests received by this server, i.e. the maximum length of request headers in bytes."
+                    },
+                    {
+                      "textRaw": "`noDelay` {boolean} If set to `true`, it disables the use of Nagle's algorithm immediately after a new incoming connection is received. **Default:** `true`.",
+                      "name": "noDelay",
+                      "type": "boolean",
+                      "default": "`true`",
+                      "desc": "If set to `true`, it disables the use of Nagle's algorithm immediately after a new incoming connection is received."
+                    },
+                    {
                       "textRaw": "`requestTimeout`: Sets the timeout value in milliseconds for receiving the entire request from the client. See [`server.requestTimeout`][] for more information. **Default:** `300000`.",
                       "name": "requestTimeout",
                       "default": "`300000`",
                       "desc": "Sets the timeout value in milliseconds for receiving the entire request from the client. See [`server.requestTimeout`][] for more information."
+                    },
+                    {
+                      "textRaw": "`requireHostHeader` {boolean} If set to `true`, it forces the server to respond with a 400 (Bad Request) status code to any HTTP/1.1 request message that lacks a Host header (as mandated by the specification). **Default:** `true`.",
+                      "name": "requireHostHeader",
+                      "type": "boolean",
+                      "default": "`true`",
+                      "desc": "If set to `true`, it forces the server to respond with a 400 (Bad Request) status code to any HTTP/1.1 request message that lacks a Host header (as mandated by the specification)."
                     },
                     {
                       "textRaw": "`ServerResponse` {http.ServerResponse} Specifies the `ServerResponse` class to be used. Useful for extending the original `ServerResponse`. **Default:** `ServerResponse`.",
@@ -3572,6 +3651,13 @@
                       "name": "uniqueHeaders",
                       "type": "Array",
                       "desc": "A list of response headers that should be sent only once. If the header's value is an array, the items will be joined using `; `."
+                    },
+                    {
+                      "textRaw": "`rejectNonStandardBodyWrites` {boolean} If set to `true`, an error is thrown when writing to an HTTP response which does not have a body. **Default:** `false`.",
+                      "name": "rejectNonStandardBodyWrites",
+                      "type": "boolean",
+                      "default": "`false`",
+                      "desc": "If set to `true`, an error is thrown when writing to an HTTP response which does not have a body."
                     }
                   ]
                 },
@@ -3935,7 +4021,7 @@
               ]
             }
           ],
-          "desc": "<p><code>options</code> in <a href=\"net.html#socketconnectoptions-connectlistener\"><code>socket.connect()</code></a> are also supported.</p>\n<p>Node.js maintains several connections per server to make HTTP requests.\nThis function allows one to transparently issue requests.</p>\n<p><code>url</code> can be a string or a <a href=\"url.html#the-whatwg-url-api\"><code>URL</code></a> object. If <code>url</code> is a\nstring, it is automatically parsed with <a href=\"url.html#new-urlinput-base\"><code>new URL()</code></a>. If it is a <a href=\"url.html#the-whatwg-url-api\"><code>URL</code></a>\nobject, it will be automatically converted to an ordinary <code>options</code> object.</p>\n<p>If both <code>url</code> and <code>options</code> are specified, the objects are merged, with the\n<code>options</code> properties taking precedence.</p>\n<p>The optional <code>callback</code> parameter will be added as a one-time listener for\nthe <a href=\"#event-response\"><code>'response'</code></a> event.</p>\n<p><code>http.request()</code> returns an instance of the <a href=\"#class-httpclientrequest\"><code>http.ClientRequest</code></a>\nclass. The <code>ClientRequest</code> instance is a writable stream. If one needs to\nupload a file with a POST request, then write to the <code>ClientRequest</code> object.</p>\n<pre><code class=\"language-mjs\">import http from 'node:http';\nimport { Buffer } from 'node:buffer';\n\nconst postData = JSON.stringify({\n  'msg': 'Hello World!',\n});\n\nconst options = {\n  hostname: 'www.google.com',\n  port: 80,\n  path: '/upload',\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n    'Content-Length': Buffer.byteLength(postData),\n  },\n};\n\nconst req = http.request(options, (res) => {\n  console.log(`STATUS: ${res.statusCode}`);\n  console.log(`HEADERS: ${JSON.stringify(res.headers)}`);\n  res.setEncoding('utf8');\n  res.on('data', (chunk) => {\n    console.log(`BODY: ${chunk}`);\n  });\n  res.on('end', () => {\n    console.log('No more data in response.');\n  });\n});\n\nreq.on('error', (e) => {\n  console.error(`problem with request: ${e.message}`);\n});\n\n// Write data to request body\nreq.write(postData);\nreq.end();\n</code></pre>\n<pre><code class=\"language-cjs\">const http = require('node:http');\n\nconst postData = JSON.stringify({\n  'msg': 'Hello World!',\n});\n\nconst options = {\n  hostname: 'www.google.com',\n  port: 80,\n  path: '/upload',\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n    'Content-Length': Buffer.byteLength(postData),\n  },\n};\n\nconst req = http.request(options, (res) => {\n  console.log(`STATUS: ${res.statusCode}`);\n  console.log(`HEADERS: ${JSON.stringify(res.headers)}`);\n  res.setEncoding('utf8');\n  res.on('data', (chunk) => {\n    console.log(`BODY: ${chunk}`);\n  });\n  res.on('end', () => {\n    console.log('No more data in response.');\n  });\n});\n\nreq.on('error', (e) => {\n  console.error(`problem with request: ${e.message}`);\n});\n\n// Write data to request body\nreq.write(postData);\nreq.end();\n</code></pre>\n<p>In the example <code>req.end()</code> was called. With <code>http.request()</code> one\nmust always call <code>req.end()</code> to signify the end of the request -\neven if there is no data being written to the request body.</p>\n<p>If any error is encountered during the request (be that with DNS resolution,\nTCP level errors, or actual HTTP parse errors) an <code>'error'</code> event is emitted\non the returned request object. As with all <code>'error'</code> events, if no listeners\nare registered the error will be thrown.</p>\n<p>There are a few special headers that should be noted.</p>\n<ul>\n<li>\n<p>Sending a 'Connection: keep-alive' will notify Node.js that the connection to\nthe server should be persisted until the next request.</p>\n</li>\n<li>\n<p>Sending a 'Content-Length' header will disable the default chunked encoding.</p>\n</li>\n<li>\n<p>Sending an 'Expect' header will immediately send the request headers.\nUsually, when sending 'Expect: 100-continue', both a timeout and a listener\nfor the <code>'continue'</code> event should be set. See RFC 2616 Section 8.2.3 for more\ninformation.</p>\n</li>\n<li>\n<p>Sending an Authorization header will override using the <code>auth</code> option\nto compute basic authentication.</p>\n</li>\n</ul>\n<p>Example using a <a href=\"url.html#the-whatwg-url-api\"><code>URL</code></a> as <code>options</code>:</p>\n<pre><code class=\"language-js\">const options = new URL('http://abc:xyz@example.com');\n\nconst req = http.request(options, (res) => {\n  // ...\n});\n</code></pre>\n<p>In a successful request, the following events will be emitted in the following\norder:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li><code>'response'</code>\n<ul>\n<li><code>'data'</code> any number of times, on the <code>res</code> object\n(<code>'data'</code> will not be emitted at all if the response body is empty, for\ninstance, in most redirects)</li>\n<li><code>'end'</code> on the <code>res</code> object</li>\n</ul>\n</li>\n<li><code>'close'</code></li>\n</ul>\n<p>In the case of a connection error, the following events will be emitted:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li><code>'error'</code></li>\n<li><code>'close'</code></li>\n</ul>\n<p>In the case of a premature connection close before the response is received,\nthe following events will be emitted in the following order:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li><code>'error'</code> with an error with message <code>'Error: socket hang up'</code> and code\n<code>'ECONNRESET'</code></li>\n<li><code>'close'</code></li>\n</ul>\n<p>In the case of a premature connection close after the response is received,\nthe following events will be emitted in the following order:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li><code>'response'</code>\n<ul>\n<li><code>'data'</code> any number of times, on the <code>res</code> object</li>\n</ul>\n</li>\n<li>(connection closed here)</li>\n<li><code>'aborted'</code> on the <code>res</code> object</li>\n<li><code>'error'</code> on the <code>res</code> object with an error with message\n<code>'Error: aborted'</code> and code <code>'ECONNRESET'</code></li>\n<li><code>'close'</code></li>\n<li><code>'close'</code> on the <code>res</code> object</li>\n</ul>\n<p>If <code>req.destroy()</code> is called before a socket is assigned, the following\nevents will be emitted in the following order:</p>\n<ul>\n<li>(<code>req.destroy()</code> called here)</li>\n<li><code>'error'</code> with an error with message <code>'Error: socket hang up'</code> and code\n<code>'ECONNRESET'</code>, or the error with which <code>req.destroy()</code> was called</li>\n<li><code>'close'</code></li>\n</ul>\n<p>If <code>req.destroy()</code> is called before the connection succeeds, the following\nevents will be emitted in the following order:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li>(<code>req.destroy()</code> called here)</li>\n<li><code>'error'</code> with an error with message <code>'Error: socket hang up'</code> and code\n<code>'ECONNRESET'</code>, or the error with which <code>req.destroy()</code> was called</li>\n<li><code>'close'</code></li>\n</ul>\n<p>If <code>req.destroy()</code> is called after the response is received, the following\nevents will be emitted in the following order:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li><code>'response'</code>\n<ul>\n<li><code>'data'</code> any number of times, on the <code>res</code> object</li>\n</ul>\n</li>\n<li>(<code>req.destroy()</code> called here)</li>\n<li><code>'aborted'</code> on the <code>res</code> object</li>\n<li><code>'error'</code> on the <code>res</code> object with an error with message <code>'Error: aborted'</code>\nand code <code>'ECONNRESET'</code>, or the error with which <code>req.destroy()</code> was called</li>\n<li><code>'close'</code></li>\n<li><code>'close'</code> on the <code>res</code> object</li>\n</ul>\n<p>If <code>req.abort()</code> is called before a socket is assigned, the following\nevents will be emitted in the following order:</p>\n<ul>\n<li>(<code>req.abort()</code> called here)</li>\n<li><code>'abort'</code></li>\n<li><code>'close'</code></li>\n</ul>\n<p>If <code>req.abort()</code> is called before the connection succeeds, the following\nevents will be emitted in the following order:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li>(<code>req.abort()</code> called here)</li>\n<li><code>'abort'</code></li>\n<li><code>'error'</code> with an error with message <code>'Error: socket hang up'</code> and code\n<code>'ECONNRESET'</code></li>\n<li><code>'close'</code></li>\n</ul>\n<p>If <code>req.abort()</code> is called after the response is received, the following\nevents will be emitted in the following order:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li><code>'response'</code>\n<ul>\n<li><code>'data'</code> any number of times, on the <code>res</code> object</li>\n</ul>\n</li>\n<li>(<code>req.abort()</code> called here)</li>\n<li><code>'abort'</code></li>\n<li><code>'aborted'</code> on the <code>res</code> object</li>\n<li><code>'error'</code> on the <code>res</code> object with an error with message\n<code>'Error: aborted'</code> and code <code>'ECONNRESET'</code>.</li>\n<li><code>'close'</code></li>\n<li><code>'close'</code> on the <code>res</code> object</li>\n</ul>\n<p>Setting the <code>timeout</code> option or using the <code>setTimeout()</code> function will\nnot abort the request or do anything besides add a <code>'timeout'</code> event.</p>\n<p>Passing an <code>AbortSignal</code> and then calling <code>abort()</code> on the corresponding\n<code>AbortController</code> will behave the same way as calling <code>.destroy()</code> on the\nrequest. Specifically, the <code>'error'</code> event will be emitted with an error with\nthe message <code>'AbortError: The operation was aborted'</code>, the code <code>'ABORT_ERR'</code>\nand the <code>cause</code>, if one was provided.</p>"
+          "desc": "<p><code>options</code> in <a href=\"net.html#socketconnectoptions-connectlistener\"><code>socket.connect()</code></a> are also supported.</p>\n<p>Node.js maintains several connections per server to make HTTP requests.\nThis function allows one to transparently issue requests.</p>\n<p><code>url</code> can be a string or a <a href=\"url.html#the-whatwg-url-api\"><code>URL</code></a> object. If <code>url</code> is a\nstring, it is automatically parsed with <a href=\"url.html#new-urlinput-base\"><code>new URL()</code></a>. If it is a <a href=\"url.html#the-whatwg-url-api\"><code>URL</code></a>\nobject, it will be automatically converted to an ordinary <code>options</code> object.</p>\n<p>If both <code>url</code> and <code>options</code> are specified, the objects are merged, with the\n<code>options</code> properties taking precedence.</p>\n<p>The optional <code>callback</code> parameter will be added as a one-time listener for\nthe <a href=\"#event-response\"><code>'response'</code></a> event.</p>\n<p><code>http.request()</code> returns an instance of the <a href=\"#class-httpclientrequest\"><code>http.ClientRequest</code></a>\nclass. The <code>ClientRequest</code> instance is a writable stream. If one needs to\nupload a file with a POST request, then write to the <code>ClientRequest</code> object.</p>\n<pre><code class=\"language-mjs\">import http from 'node:http';\nimport { Buffer } from 'node:buffer';\n\nconst postData = JSON.stringify({\n  'msg': 'Hello World!',\n});\n\nconst options = {\n  hostname: 'www.google.com',\n  port: 80,\n  path: '/upload',\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n    'Content-Length': Buffer.byteLength(postData),\n  },\n};\n\nconst req = http.request(options, (res) => {\n  console.log(`STATUS: ${res.statusCode}`);\n  console.log(`HEADERS: ${JSON.stringify(res.headers)}`);\n  res.setEncoding('utf8');\n  res.on('data', (chunk) => {\n    console.log(`BODY: ${chunk}`);\n  });\n  res.on('end', () => {\n    console.log('No more data in response.');\n  });\n});\n\nreq.on('error', (e) => {\n  console.error(`problem with request: ${e.message}`);\n});\n\n// Write data to request body\nreq.write(postData);\nreq.end();\n</code></pre>\n<pre><code class=\"language-cjs\">const http = require('node:http');\n\nconst postData = JSON.stringify({\n  'msg': 'Hello World!',\n});\n\nconst options = {\n  hostname: 'www.google.com',\n  port: 80,\n  path: '/upload',\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n    'Content-Length': Buffer.byteLength(postData),\n  },\n};\n\nconst req = http.request(options, (res) => {\n  console.log(`STATUS: ${res.statusCode}`);\n  console.log(`HEADERS: ${JSON.stringify(res.headers)}`);\n  res.setEncoding('utf8');\n  res.on('data', (chunk) => {\n    console.log(`BODY: ${chunk}`);\n  });\n  res.on('end', () => {\n    console.log('No more data in response.');\n  });\n});\n\nreq.on('error', (e) => {\n  console.error(`problem with request: ${e.message}`);\n});\n\n// Write data to request body\nreq.write(postData);\nreq.end();\n</code></pre>\n<p>In the example <code>req.end()</code> was called. With <code>http.request()</code> one\nmust always call <code>req.end()</code> to signify the end of the request -\neven if there is no data being written to the request body.</p>\n<p>If any error is encountered during the request (be that with DNS resolution,\nTCP level errors, or actual HTTP parse errors) an <code>'error'</code> event is emitted\non the returned request object. As with all <code>'error'</code> events, if no listeners\nare registered the error will be thrown.</p>\n<p>There are a few special headers that should be noted.</p>\n<ul>\n<li>\n<p>Sending a 'Connection: keep-alive' will notify Node.js that the connection to\nthe server should be persisted until the next request.</p>\n</li>\n<li>\n<p>Sending a 'Content-Length' header will disable the default chunked encoding.</p>\n</li>\n<li>\n<p>Sending an 'Expect' header will immediately send the request headers.\nUsually, when sending 'Expect: 100-continue', both a timeout and a listener\nfor the <code>'continue'</code> event should be set. See RFC 2616 Section 8.2.3 for more\ninformation.</p>\n</li>\n<li>\n<p>Sending an Authorization header will override using the <code>auth</code> option\nto compute basic authentication.</p>\n</li>\n</ul>\n<p>Example using a <a href=\"url.html#the-whatwg-url-api\"><code>URL</code></a> as <code>options</code>:</p>\n<pre><code class=\"language-js\">const options = new URL('http://abc:xyz@example.com');\n\nconst req = http.request(options, (res) => {\n  // ...\n});\n</code></pre>\n<p>In a successful request, the following events will be emitted in the following\norder:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li><code>'response'</code>\n<ul>\n<li><code>'data'</code> any number of times, on the <code>res</code> object\n(<code>'data'</code> will not be emitted at all if the response body is empty, for\ninstance, in most redirects)</li>\n<li><code>'end'</code> on the <code>res</code> object</li>\n</ul>\n</li>\n<li><code>'close'</code></li>\n</ul>\n<p>In the case of a connection error, the following events will be emitted:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li><code>'error'</code></li>\n<li><code>'close'</code></li>\n</ul>\n<p>In the case of a premature connection close before the response is received,\nthe following events will be emitted in the following order:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li><code>'error'</code> with an error with message <code>'Error: socket hang up'</code> and code\n<code>'ECONNRESET'</code></li>\n<li><code>'close'</code></li>\n</ul>\n<p>In the case of a premature connection close after the response is received,\nthe following events will be emitted in the following order:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li><code>'response'</code>\n<ul>\n<li><code>'data'</code> any number of times, on the <code>res</code> object</li>\n</ul>\n</li>\n<li>(connection closed here)</li>\n<li><code>'aborted'</code> on the <code>res</code> object</li>\n<li><code>'close'</code></li>\n<li><code>'error'</code> on the <code>res</code> object with an error with message\n<code>'Error: aborted'</code> and code <code>'ECONNRESET'</code></li>\n<li><code>'close'</code> on the <code>res</code> object</li>\n</ul>\n<p>If <code>req.destroy()</code> is called before a socket is assigned, the following\nevents will be emitted in the following order:</p>\n<ul>\n<li>(<code>req.destroy()</code> called here)</li>\n<li><code>'error'</code> with an error with message <code>'Error: socket hang up'</code> and code\n<code>'ECONNRESET'</code>, or the error with which <code>req.destroy()</code> was called</li>\n<li><code>'close'</code></li>\n</ul>\n<p>If <code>req.destroy()</code> is called before the connection succeeds, the following\nevents will be emitted in the following order:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li>(<code>req.destroy()</code> called here)</li>\n<li><code>'error'</code> with an error with message <code>'Error: socket hang up'</code> and code\n<code>'ECONNRESET'</code>, or the error with which <code>req.destroy()</code> was called</li>\n<li><code>'close'</code></li>\n</ul>\n<p>If <code>req.destroy()</code> is called after the response is received, the following\nevents will be emitted in the following order:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li><code>'response'</code>\n<ul>\n<li><code>'data'</code> any number of times, on the <code>res</code> object</li>\n</ul>\n</li>\n<li>(<code>req.destroy()</code> called here)</li>\n<li><code>'aborted'</code> on the <code>res</code> object</li>\n<li><code>'close'</code></li>\n<li><code>'error'</code> on the <code>res</code> object with an error with message <code>'Error: aborted'</code>\nand code <code>'ECONNRESET'</code>, or the error with which <code>req.destroy()</code> was called</li>\n<li><code>'close'</code> on the <code>res</code> object</li>\n</ul>\n<p>If <code>req.abort()</code> is called before a socket is assigned, the following\nevents will be emitted in the following order:</p>\n<ul>\n<li>(<code>req.abort()</code> called here)</li>\n<li><code>'abort'</code></li>\n<li><code>'close'</code></li>\n</ul>\n<p>If <code>req.abort()</code> is called before the connection succeeds, the following\nevents will be emitted in the following order:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li>(<code>req.abort()</code> called here)</li>\n<li><code>'abort'</code></li>\n<li><code>'error'</code> with an error with message <code>'Error: socket hang up'</code> and code\n<code>'ECONNRESET'</code></li>\n<li><code>'close'</code></li>\n</ul>\n<p>If <code>req.abort()</code> is called after the response is received, the following\nevents will be emitted in the following order:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li><code>'response'</code>\n<ul>\n<li><code>'data'</code> any number of times, on the <code>res</code> object</li>\n</ul>\n</li>\n<li>(<code>req.abort()</code> called here)</li>\n<li><code>'abort'</code></li>\n<li><code>'aborted'</code> on the <code>res</code> object</li>\n<li><code>'error'</code> on the <code>res</code> object with an error with message\n<code>'Error: aborted'</code> and code <code>'ECONNRESET'</code>.</li>\n<li><code>'close'</code></li>\n<li><code>'close'</code> on the <code>res</code> object</li>\n</ul>\n<p>Setting the <code>timeout</code> option or using the <code>setTimeout()</code> function will\nnot abort the request or do anything besides add a <code>'timeout'</code> event.</p>\n<p>Passing an <code>AbortSignal</code> and then calling <code>abort()</code> on the corresponding\n<code>AbortController</code> will behave the same way as calling <code>.destroy()</code> on the\nrequest. Specifically, the <code>'error'</code> event will be emitted with an error with\nthe message <code>'AbortError: The operation was aborted'</code>, the code <code>'ABORT_ERR'</code>\nand the <code>cause</code>, if one was provided.</p>"
         },
         {
           "textRaw": "`http.request(url[, options][, callback])`",
@@ -4187,7 +4273,7 @@
               ]
             }
           ],
-          "desc": "<p><code>options</code> in <a href=\"net.html#socketconnectoptions-connectlistener\"><code>socket.connect()</code></a> are also supported.</p>\n<p>Node.js maintains several connections per server to make HTTP requests.\nThis function allows one to transparently issue requests.</p>\n<p><code>url</code> can be a string or a <a href=\"url.html#the-whatwg-url-api\"><code>URL</code></a> object. If <code>url</code> is a\nstring, it is automatically parsed with <a href=\"url.html#new-urlinput-base\"><code>new URL()</code></a>. If it is a <a href=\"url.html#the-whatwg-url-api\"><code>URL</code></a>\nobject, it will be automatically converted to an ordinary <code>options</code> object.</p>\n<p>If both <code>url</code> and <code>options</code> are specified, the objects are merged, with the\n<code>options</code> properties taking precedence.</p>\n<p>The optional <code>callback</code> parameter will be added as a one-time listener for\nthe <a href=\"#event-response\"><code>'response'</code></a> event.</p>\n<p><code>http.request()</code> returns an instance of the <a href=\"#class-httpclientrequest\"><code>http.ClientRequest</code></a>\nclass. The <code>ClientRequest</code> instance is a writable stream. If one needs to\nupload a file with a POST request, then write to the <code>ClientRequest</code> object.</p>\n<pre><code class=\"language-mjs\">import http from 'node:http';\nimport { Buffer } from 'node:buffer';\n\nconst postData = JSON.stringify({\n  'msg': 'Hello World!',\n});\n\nconst options = {\n  hostname: 'www.google.com',\n  port: 80,\n  path: '/upload',\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n    'Content-Length': Buffer.byteLength(postData),\n  },\n};\n\nconst req = http.request(options, (res) => {\n  console.log(`STATUS: ${res.statusCode}`);\n  console.log(`HEADERS: ${JSON.stringify(res.headers)}`);\n  res.setEncoding('utf8');\n  res.on('data', (chunk) => {\n    console.log(`BODY: ${chunk}`);\n  });\n  res.on('end', () => {\n    console.log('No more data in response.');\n  });\n});\n\nreq.on('error', (e) => {\n  console.error(`problem with request: ${e.message}`);\n});\n\n// Write data to request body\nreq.write(postData);\nreq.end();\n</code></pre>\n<pre><code class=\"language-cjs\">const http = require('node:http');\n\nconst postData = JSON.stringify({\n  'msg': 'Hello World!',\n});\n\nconst options = {\n  hostname: 'www.google.com',\n  port: 80,\n  path: '/upload',\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n    'Content-Length': Buffer.byteLength(postData),\n  },\n};\n\nconst req = http.request(options, (res) => {\n  console.log(`STATUS: ${res.statusCode}`);\n  console.log(`HEADERS: ${JSON.stringify(res.headers)}`);\n  res.setEncoding('utf8');\n  res.on('data', (chunk) => {\n    console.log(`BODY: ${chunk}`);\n  });\n  res.on('end', () => {\n    console.log('No more data in response.');\n  });\n});\n\nreq.on('error', (e) => {\n  console.error(`problem with request: ${e.message}`);\n});\n\n// Write data to request body\nreq.write(postData);\nreq.end();\n</code></pre>\n<p>In the example <code>req.end()</code> was called. With <code>http.request()</code> one\nmust always call <code>req.end()</code> to signify the end of the request -\neven if there is no data being written to the request body.</p>\n<p>If any error is encountered during the request (be that with DNS resolution,\nTCP level errors, or actual HTTP parse errors) an <code>'error'</code> event is emitted\non the returned request object. As with all <code>'error'</code> events, if no listeners\nare registered the error will be thrown.</p>\n<p>There are a few special headers that should be noted.</p>\n<ul>\n<li>\n<p>Sending a 'Connection: keep-alive' will notify Node.js that the connection to\nthe server should be persisted until the next request.</p>\n</li>\n<li>\n<p>Sending a 'Content-Length' header will disable the default chunked encoding.</p>\n</li>\n<li>\n<p>Sending an 'Expect' header will immediately send the request headers.\nUsually, when sending 'Expect: 100-continue', both a timeout and a listener\nfor the <code>'continue'</code> event should be set. See RFC 2616 Section 8.2.3 for more\ninformation.</p>\n</li>\n<li>\n<p>Sending an Authorization header will override using the <code>auth</code> option\nto compute basic authentication.</p>\n</li>\n</ul>\n<p>Example using a <a href=\"url.html#the-whatwg-url-api\"><code>URL</code></a> as <code>options</code>:</p>\n<pre><code class=\"language-js\">const options = new URL('http://abc:xyz@example.com');\n\nconst req = http.request(options, (res) => {\n  // ...\n});\n</code></pre>\n<p>In a successful request, the following events will be emitted in the following\norder:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li><code>'response'</code>\n<ul>\n<li><code>'data'</code> any number of times, on the <code>res</code> object\n(<code>'data'</code> will not be emitted at all if the response body is empty, for\ninstance, in most redirects)</li>\n<li><code>'end'</code> on the <code>res</code> object</li>\n</ul>\n</li>\n<li><code>'close'</code></li>\n</ul>\n<p>In the case of a connection error, the following events will be emitted:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li><code>'error'</code></li>\n<li><code>'close'</code></li>\n</ul>\n<p>In the case of a premature connection close before the response is received,\nthe following events will be emitted in the following order:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li><code>'error'</code> with an error with message <code>'Error: socket hang up'</code> and code\n<code>'ECONNRESET'</code></li>\n<li><code>'close'</code></li>\n</ul>\n<p>In the case of a premature connection close after the response is received,\nthe following events will be emitted in the following order:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li><code>'response'</code>\n<ul>\n<li><code>'data'</code> any number of times, on the <code>res</code> object</li>\n</ul>\n</li>\n<li>(connection closed here)</li>\n<li><code>'aborted'</code> on the <code>res</code> object</li>\n<li><code>'error'</code> on the <code>res</code> object with an error with message\n<code>'Error: aborted'</code> and code <code>'ECONNRESET'</code></li>\n<li><code>'close'</code></li>\n<li><code>'close'</code> on the <code>res</code> object</li>\n</ul>\n<p>If <code>req.destroy()</code> is called before a socket is assigned, the following\nevents will be emitted in the following order:</p>\n<ul>\n<li>(<code>req.destroy()</code> called here)</li>\n<li><code>'error'</code> with an error with message <code>'Error: socket hang up'</code> and code\n<code>'ECONNRESET'</code>, or the error with which <code>req.destroy()</code> was called</li>\n<li><code>'close'</code></li>\n</ul>\n<p>If <code>req.destroy()</code> is called before the connection succeeds, the following\nevents will be emitted in the following order:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li>(<code>req.destroy()</code> called here)</li>\n<li><code>'error'</code> with an error with message <code>'Error: socket hang up'</code> and code\n<code>'ECONNRESET'</code>, or the error with which <code>req.destroy()</code> was called</li>\n<li><code>'close'</code></li>\n</ul>\n<p>If <code>req.destroy()</code> is called after the response is received, the following\nevents will be emitted in the following order:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li><code>'response'</code>\n<ul>\n<li><code>'data'</code> any number of times, on the <code>res</code> object</li>\n</ul>\n</li>\n<li>(<code>req.destroy()</code> called here)</li>\n<li><code>'aborted'</code> on the <code>res</code> object</li>\n<li><code>'error'</code> on the <code>res</code> object with an error with message <code>'Error: aborted'</code>\nand code <code>'ECONNRESET'</code>, or the error with which <code>req.destroy()</code> was called</li>\n<li><code>'close'</code></li>\n<li><code>'close'</code> on the <code>res</code> object</li>\n</ul>\n<p>If <code>req.abort()</code> is called before a socket is assigned, the following\nevents will be emitted in the following order:</p>\n<ul>\n<li>(<code>req.abort()</code> called here)</li>\n<li><code>'abort'</code></li>\n<li><code>'close'</code></li>\n</ul>\n<p>If <code>req.abort()</code> is called before the connection succeeds, the following\nevents will be emitted in the following order:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li>(<code>req.abort()</code> called here)</li>\n<li><code>'abort'</code></li>\n<li><code>'error'</code> with an error with message <code>'Error: socket hang up'</code> and code\n<code>'ECONNRESET'</code></li>\n<li><code>'close'</code></li>\n</ul>\n<p>If <code>req.abort()</code> is called after the response is received, the following\nevents will be emitted in the following order:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li><code>'response'</code>\n<ul>\n<li><code>'data'</code> any number of times, on the <code>res</code> object</li>\n</ul>\n</li>\n<li>(<code>req.abort()</code> called here)</li>\n<li><code>'abort'</code></li>\n<li><code>'aborted'</code> on the <code>res</code> object</li>\n<li><code>'error'</code> on the <code>res</code> object with an error with message\n<code>'Error: aborted'</code> and code <code>'ECONNRESET'</code>.</li>\n<li><code>'close'</code></li>\n<li><code>'close'</code> on the <code>res</code> object</li>\n</ul>\n<p>Setting the <code>timeout</code> option or using the <code>setTimeout()</code> function will\nnot abort the request or do anything besides add a <code>'timeout'</code> event.</p>\n<p>Passing an <code>AbortSignal</code> and then calling <code>abort()</code> on the corresponding\n<code>AbortController</code> will behave the same way as calling <code>.destroy()</code> on the\nrequest. Specifically, the <code>'error'</code> event will be emitted with an error with\nthe message <code>'AbortError: The operation was aborted'</code>, the code <code>'ABORT_ERR'</code>\nand the <code>cause</code>, if one was provided.</p>"
+          "desc": "<p><code>options</code> in <a href=\"net.html#socketconnectoptions-connectlistener\"><code>socket.connect()</code></a> are also supported.</p>\n<p>Node.js maintains several connections per server to make HTTP requests.\nThis function allows one to transparently issue requests.</p>\n<p><code>url</code> can be a string or a <a href=\"url.html#the-whatwg-url-api\"><code>URL</code></a> object. If <code>url</code> is a\nstring, it is automatically parsed with <a href=\"url.html#new-urlinput-base\"><code>new URL()</code></a>. If it is a <a href=\"url.html#the-whatwg-url-api\"><code>URL</code></a>\nobject, it will be automatically converted to an ordinary <code>options</code> object.</p>\n<p>If both <code>url</code> and <code>options</code> are specified, the objects are merged, with the\n<code>options</code> properties taking precedence.</p>\n<p>The optional <code>callback</code> parameter will be added as a one-time listener for\nthe <a href=\"#event-response\"><code>'response'</code></a> event.</p>\n<p><code>http.request()</code> returns an instance of the <a href=\"#class-httpclientrequest\"><code>http.ClientRequest</code></a>\nclass. The <code>ClientRequest</code> instance is a writable stream. If one needs to\nupload a file with a POST request, then write to the <code>ClientRequest</code> object.</p>\n<pre><code class=\"language-mjs\">import http from 'node:http';\nimport { Buffer } from 'node:buffer';\n\nconst postData = JSON.stringify({\n  'msg': 'Hello World!',\n});\n\nconst options = {\n  hostname: 'www.google.com',\n  port: 80,\n  path: '/upload',\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n    'Content-Length': Buffer.byteLength(postData),\n  },\n};\n\nconst req = http.request(options, (res) => {\n  console.log(`STATUS: ${res.statusCode}`);\n  console.log(`HEADERS: ${JSON.stringify(res.headers)}`);\n  res.setEncoding('utf8');\n  res.on('data', (chunk) => {\n    console.log(`BODY: ${chunk}`);\n  });\n  res.on('end', () => {\n    console.log('No more data in response.');\n  });\n});\n\nreq.on('error', (e) => {\n  console.error(`problem with request: ${e.message}`);\n});\n\n// Write data to request body\nreq.write(postData);\nreq.end();\n</code></pre>\n<pre><code class=\"language-cjs\">const http = require('node:http');\n\nconst postData = JSON.stringify({\n  'msg': 'Hello World!',\n});\n\nconst options = {\n  hostname: 'www.google.com',\n  port: 80,\n  path: '/upload',\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n    'Content-Length': Buffer.byteLength(postData),\n  },\n};\n\nconst req = http.request(options, (res) => {\n  console.log(`STATUS: ${res.statusCode}`);\n  console.log(`HEADERS: ${JSON.stringify(res.headers)}`);\n  res.setEncoding('utf8');\n  res.on('data', (chunk) => {\n    console.log(`BODY: ${chunk}`);\n  });\n  res.on('end', () => {\n    console.log('No more data in response.');\n  });\n});\n\nreq.on('error', (e) => {\n  console.error(`problem with request: ${e.message}`);\n});\n\n// Write data to request body\nreq.write(postData);\nreq.end();\n</code></pre>\n<p>In the example <code>req.end()</code> was called. With <code>http.request()</code> one\nmust always call <code>req.end()</code> to signify the end of the request -\neven if there is no data being written to the request body.</p>\n<p>If any error is encountered during the request (be that with DNS resolution,\nTCP level errors, or actual HTTP parse errors) an <code>'error'</code> event is emitted\non the returned request object. As with all <code>'error'</code> events, if no listeners\nare registered the error will be thrown.</p>\n<p>There are a few special headers that should be noted.</p>\n<ul>\n<li>\n<p>Sending a 'Connection: keep-alive' will notify Node.js that the connection to\nthe server should be persisted until the next request.</p>\n</li>\n<li>\n<p>Sending a 'Content-Length' header will disable the default chunked encoding.</p>\n</li>\n<li>\n<p>Sending an 'Expect' header will immediately send the request headers.\nUsually, when sending 'Expect: 100-continue', both a timeout and a listener\nfor the <code>'continue'</code> event should be set. See RFC 2616 Section 8.2.3 for more\ninformation.</p>\n</li>\n<li>\n<p>Sending an Authorization header will override using the <code>auth</code> option\nto compute basic authentication.</p>\n</li>\n</ul>\n<p>Example using a <a href=\"url.html#the-whatwg-url-api\"><code>URL</code></a> as <code>options</code>:</p>\n<pre><code class=\"language-js\">const options = new URL('http://abc:xyz@example.com');\n\nconst req = http.request(options, (res) => {\n  // ...\n});\n</code></pre>\n<p>In a successful request, the following events will be emitted in the following\norder:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li><code>'response'</code>\n<ul>\n<li><code>'data'</code> any number of times, on the <code>res</code> object\n(<code>'data'</code> will not be emitted at all if the response body is empty, for\ninstance, in most redirects)</li>\n<li><code>'end'</code> on the <code>res</code> object</li>\n</ul>\n</li>\n<li><code>'close'</code></li>\n</ul>\n<p>In the case of a connection error, the following events will be emitted:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li><code>'error'</code></li>\n<li><code>'close'</code></li>\n</ul>\n<p>In the case of a premature connection close before the response is received,\nthe following events will be emitted in the following order:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li><code>'error'</code> with an error with message <code>'Error: socket hang up'</code> and code\n<code>'ECONNRESET'</code></li>\n<li><code>'close'</code></li>\n</ul>\n<p>In the case of a premature connection close after the response is received,\nthe following events will be emitted in the following order:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li><code>'response'</code>\n<ul>\n<li><code>'data'</code> any number of times, on the <code>res</code> object</li>\n</ul>\n</li>\n<li>(connection closed here)</li>\n<li><code>'aborted'</code> on the <code>res</code> object</li>\n<li><code>'close'</code></li>\n<li><code>'error'</code> on the <code>res</code> object with an error with message\n<code>'Error: aborted'</code> and code <code>'ECONNRESET'</code></li>\n<li><code>'close'</code> on the <code>res</code> object</li>\n</ul>\n<p>If <code>req.destroy()</code> is called before a socket is assigned, the following\nevents will be emitted in the following order:</p>\n<ul>\n<li>(<code>req.destroy()</code> called here)</li>\n<li><code>'error'</code> with an error with message <code>'Error: socket hang up'</code> and code\n<code>'ECONNRESET'</code>, or the error with which <code>req.destroy()</code> was called</li>\n<li><code>'close'</code></li>\n</ul>\n<p>If <code>req.destroy()</code> is called before the connection succeeds, the following\nevents will be emitted in the following order:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li>(<code>req.destroy()</code> called here)</li>\n<li><code>'error'</code> with an error with message <code>'Error: socket hang up'</code> and code\n<code>'ECONNRESET'</code>, or the error with which <code>req.destroy()</code> was called</li>\n<li><code>'close'</code></li>\n</ul>\n<p>If <code>req.destroy()</code> is called after the response is received, the following\nevents will be emitted in the following order:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li><code>'response'</code>\n<ul>\n<li><code>'data'</code> any number of times, on the <code>res</code> object</li>\n</ul>\n</li>\n<li>(<code>req.destroy()</code> called here)</li>\n<li><code>'aborted'</code> on the <code>res</code> object</li>\n<li><code>'close'</code></li>\n<li><code>'error'</code> on the <code>res</code> object with an error with message <code>'Error: aborted'</code>\nand code <code>'ECONNRESET'</code>, or the error with which <code>req.destroy()</code> was called</li>\n<li><code>'close'</code> on the <code>res</code> object</li>\n</ul>\n<p>If <code>req.abort()</code> is called before a socket is assigned, the following\nevents will be emitted in the following order:</p>\n<ul>\n<li>(<code>req.abort()</code> called here)</li>\n<li><code>'abort'</code></li>\n<li><code>'close'</code></li>\n</ul>\n<p>If <code>req.abort()</code> is called before the connection succeeds, the following\nevents will be emitted in the following order:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li>(<code>req.abort()</code> called here)</li>\n<li><code>'abort'</code></li>\n<li><code>'error'</code> with an error with message <code>'Error: socket hang up'</code> and code\n<code>'ECONNRESET'</code></li>\n<li><code>'close'</code></li>\n</ul>\n<p>If <code>req.abort()</code> is called after the response is received, the following\nevents will be emitted in the following order:</p>\n<ul>\n<li><code>'socket'</code></li>\n<li><code>'response'</code>\n<ul>\n<li><code>'data'</code> any number of times, on the <code>res</code> object</li>\n</ul>\n</li>\n<li>(<code>req.abort()</code> called here)</li>\n<li><code>'abort'</code></li>\n<li><code>'aborted'</code> on the <code>res</code> object</li>\n<li><code>'error'</code> on the <code>res</code> object with an error with message\n<code>'Error: aborted'</code> and code <code>'ECONNRESET'</code>.</li>\n<li><code>'close'</code></li>\n<li><code>'close'</code> on the <code>res</code> object</li>\n</ul>\n<p>Setting the <code>timeout</code> option or using the <code>setTimeout()</code> function will\nnot abort the request or do anything besides add a <code>'timeout'</code> event.</p>\n<p>Passing an <code>AbortSignal</code> and then calling <code>abort()</code> on the corresponding\n<code>AbortController</code> will behave the same way as calling <code>.destroy()</code> on the\nrequest. Specifically, the <code>'error'</code> event will be emitted with an error with\nthe message <code>'AbortError: The operation was aborted'</code>, the code <code>'ABORT_ERR'</code>\nand the <code>cause</code>, if one was provided.</p>"
         },
         {
           "textRaw": "`http.validateHeaderName(name[, label])`",
@@ -4199,7 +4285,10 @@
             ],
             "changes": [
               {
-                "version": "v18.14.0",
+                "version": [
+                  "v19.5.0",
+                  "v18.14.0"
+                ],
                 "pr-url": "https://github.com/nodejs/node/pull/46143",
                 "description": "The `label` parameter is added."
               }
@@ -4223,7 +4312,7 @@
               ]
             }
           ],
-          "desc": "<p>Performs the low-level validations on the provided <code>name</code> that are done when\n<code>res.setHeader(name, value)</code> is called.</p>\n<p>Passing illegal value as <code>name</code> will result in a <a href=\"errors.html#class-typeerror\"><code>TypeError</code></a> being thrown,\nidentified by <code>code: 'ERR_INVALID_HTTP_TOKEN'</code>.</p>\n<p>It is not necessary to use this method before passing headers to an HTTP request\nor response. The HTTP module will automatically validate such headers.\nExamples:</p>\n<p>Example:</p>\n<pre><code class=\"language-mjs\">import { validateHeaderName } from 'node:http';\n\ntry {\n  validateHeaderName('');\n} catch (err) {\n  console.error(err instanceof TypeError); // --> true\n  console.error(err.code); // --> 'ERR_INVALID_HTTP_TOKEN'\n  console.error(err.message); // --> 'Header name must be a valid HTTP token [\"\"]'\n}\n</code></pre>\n<pre><code class=\"language-cjs\">const { validateHeaderName } = require('node:http');\n\ntry {\n  validateHeaderName('');\n} catch (err) {\n  console.error(err instanceof TypeError); // --> true\n  console.error(err.code); // --> 'ERR_INVALID_HTTP_TOKEN'\n  console.error(err.message); // --> 'Header name must be a valid HTTP token [\"\"]'\n}\n</code></pre>"
+          "desc": "<p>Performs the low-level validations on the provided <code>name</code> that are done when\n<code>res.setHeader(name, value)</code> is called.</p>\n<p>Passing illegal value as <code>name</code> will result in a <a href=\"errors.html#class-typeerror\"><code>TypeError</code></a> being thrown,\nidentified by <code>code: 'ERR_INVALID_HTTP_TOKEN'</code>.</p>\n<p>It is not necessary to use this method before passing headers to an HTTP request\nor response. The HTTP module will automatically validate such headers.</p>\n<p>Example:</p>\n<pre><code class=\"language-mjs\">import { validateHeaderName } from 'node:http';\n\ntry {\n  validateHeaderName('');\n} catch (err) {\n  console.error(err instanceof TypeError); // --> true\n  console.error(err.code); // --> 'ERR_INVALID_HTTP_TOKEN'\n  console.error(err.message); // --> 'Header name must be a valid HTTP token [\"\"]'\n}\n</code></pre>\n<pre><code class=\"language-cjs\">const { validateHeaderName } = require('node:http');\n\ntry {\n  validateHeaderName('');\n} catch (err) {\n  console.error(err instanceof TypeError); // --> true\n  console.error(err.code); // --> 'ERR_INVALID_HTTP_TOKEN'\n  console.error(err.message); // --> 'Header name must be a valid HTTP token [\"\"]'\n}\n</code></pre>"
         },
         {
           "textRaw": "`http.validateHeaderValue(name, value)`",
@@ -4259,7 +4348,8 @@
           "name": "setMaxIdleHTTPParsers",
           "meta": {
             "added": [
-              "v18.8.0"
+              "v18.8.0",
+              "v16.18.0"
             ],
             "changes": []
           },

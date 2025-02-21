@@ -8,7 +8,7 @@
       "introduced_in": "v0.10.0",
       "stability": 2,
       "stabilityText": "Stable",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.19.1/lib/url.js\">lib/url.js</a></p>\n<p>The <code>node:url</code> module provides utilities for URL resolution and parsing. It can\nbe accessed using:</p>\n<pre><code class=\"language-mjs\">import url from 'node:url';\n</code></pre>\n<pre><code class=\"language-cjs\">const url = require('node:url');\n</code></pre>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v20.18.3/lib/url.js\">lib/url.js</a></p>\n<p>The <code>node:url</code> module provides utilities for URL resolution and parsing. It can\nbe accessed using:</p>\n<pre><code class=\"language-mjs\">import url from 'node:url';\n</code></pre>\n<pre><code class=\"language-cjs\">const url = require('node:url');\n</code></pre>",
       "modules": [
         {
           "textRaw": "URL strings and URL objects",
@@ -179,6 +179,13 @@
                   "textRaw": "`url.toJSON()`",
                   "type": "method",
                   "name": "toJSON",
+                  "meta": {
+                    "added": [
+                      "v7.7.0",
+                      "v6.13.0"
+                    ],
+                    "changes": []
+                  },
                   "signatures": [
                     {
                       "return": {
@@ -253,7 +260,7 @@
                   "name": "canParse",
                   "meta": {
                     "added": [
-                      "v18.17.0"
+                      "v19.9.0"
                     ],
                     "changes": []
                   },
@@ -281,12 +288,60 @@
                     }
                   ],
                   "desc": "<p>Checks if an <code>input</code> relative to the <code>base</code> can be parsed to a <code>URL</code>.</p>\n<pre><code class=\"language-js\">const isValid = URL.canParse('/foo', 'https://example.org/'); // true\n\nconst isNotValid = URL.canParse('/foo'); // false\n</code></pre>"
+                },
+                {
+                  "textRaw": "`URL.parse(input[, base])`",
+                  "type": "method",
+                  "name": "parse",
+                  "meta": {
+                    "added": [
+                      "v22.1.0"
+                    ],
+                    "changes": []
+                  },
+                  "signatures": [
+                    {
+                      "return": {
+                        "textRaw": "Returns: {URL|null}",
+                        "name": "return",
+                        "type": "URL|null"
+                      },
+                      "params": [
+                        {
+                          "textRaw": "`input` {string} The absolute or relative input URL to parse. If `input` is relative, then `base` is required. If `input` is absolute, the `base` is ignored. If `input` is not a string, it is [converted to a string][] first.",
+                          "name": "input",
+                          "type": "string",
+                          "desc": "The absolute or relative input URL to parse. If `input` is relative, then `base` is required. If `input` is absolute, the `base` is ignored. If `input` is not a string, it is [converted to a string][] first."
+                        },
+                        {
+                          "textRaw": "`base` {string} The base URL to resolve against if the `input` is not absolute. If `base` is not a string, it is [converted to a string][] first.",
+                          "name": "base",
+                          "type": "string",
+                          "desc": "The base URL to resolve against if the `input` is not absolute. If `base` is not a string, it is [converted to a string][] first."
+                        }
+                      ]
+                    }
+                  ],
+                  "desc": "<p>Parses a string as a URL. If <code>base</code> is provided, it will be used as the base\nURL for the purpose of resolving non-absolute <code>input</code> URLs. Returns <code>null</code>\nif <code>input</code> is not a valid.</p>"
                 }
               ],
               "signatures": [
                 {
-                  "params": [],
-                  "desc": "<!--\nchanges:\n  - version: v18.17.0\n    pr-url: https://github.com/nodejs/node/pull/47339\n    description: ICU requirement is removed.\n-->\n<ul>\n<li><code>input</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> The absolute or relative input URL to parse. If <code>input</code>\nis relative, then <code>base</code> is required. If <code>input</code> is absolute, the <code>base</code>\nis ignored. If <code>input</code> is not a string, it is <a href=\"https://tc39.es/ecma262/#sec-tostring\">converted to a string</a> first.</li>\n<li><code>base</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> The base URL to resolve against if the <code>input</code> is not\nabsolute. If <code>base</code> is not a string, it is <a href=\"https://tc39.es/ecma262/#sec-tostring\">converted to a string</a> first.</li>\n</ul>\n<p>Creates a new <code>URL</code> object by parsing the <code>input</code> relative to the <code>base</code>. If\n<code>base</code> is passed as a string, it will be parsed equivalent to <code>new URL(base)</code>.</p>\n<pre><code class=\"language-js\">const myURL = new URL('/foo', 'https://example.org/');\n// https://example.org/foo\n</code></pre>\n<p>The URL constructor is accessible as a property on the global object.\nIt can also be imported from the built-in url module:</p>\n<pre><code class=\"language-mjs\">import { URL } from 'node:url';\nconsole.log(URL === globalThis.URL); // Prints 'true'.\n</code></pre>\n<pre><code class=\"language-cjs\">console.log(URL === require('node:url').URL); // Prints 'true'.\n</code></pre>\n<p>A <code>TypeError</code> will be thrown if the <code>input</code> or <code>base</code> are not valid URLs. Note\nthat an effort will be made to coerce the given values into strings. For\ninstance:</p>\n<pre><code class=\"language-js\">const myURL = new URL({ toString: () => 'https://example.org/' });\n// https://example.org/\n</code></pre>\n<p>Unicode characters appearing within the host name of <code>input</code> will be\nautomatically converted to ASCII using the <a href=\"https://tools.ietf.org/html/rfc5891#section-4.4\">Punycode</a> algorithm.</p>\n<pre><code class=\"language-js\">const myURL = new URL('https://測試');\n// https://xn--g6w251d/\n</code></pre>\n<p>In cases where it is not known in advance if <code>input</code> is an absolute URL\nand a <code>base</code> is provided, it is advised to validate that the <code>origin</code> of\nthe <code>URL</code> object is what is expected.</p>\n<pre><code class=\"language-js\">let myURL = new URL('http://Example.com/', 'https://example.org/');\n// http://example.com/\n\nmyURL = new URL('https://Example.com/', 'https://example.org/');\n// https://example.com/\n\nmyURL = new URL('foo://Example.com/', 'https://example.org/');\n// foo://Example.com/\n\nmyURL = new URL('http:Example.com/', 'https://example.org/');\n// http://example.com/\n\nmyURL = new URL('https:Example.com/', 'https://example.org/');\n// https://example.org/Example.com/\n\nmyURL = new URL('foo:Example.com/', 'https://example.org/');\n// foo:Example.com/\n</code></pre>"
+                  "params": [
+                    {
+                      "textRaw": "`input` {string} The absolute or relative input URL to parse. If `input` is relative, then `base` is required. If `input` is absolute, the `base` is ignored. If `input` is not a string, it is [converted to a string][] first.",
+                      "name": "input",
+                      "type": "string",
+                      "desc": "The absolute or relative input URL to parse. If `input` is relative, then `base` is required. If `input` is absolute, the `base` is ignored. If `input` is not a string, it is [converted to a string][] first."
+                    },
+                    {
+                      "textRaw": "`base` {string} The base URL to resolve against if the `input` is not absolute. If `base` is not a string, it is [converted to a string][] first.",
+                      "name": "base",
+                      "type": "string",
+                      "desc": "The base URL to resolve against if the `input` is not absolute. If `base` is not a string, it is [converted to a string][] first."
+                    }
+                  ],
+                  "desc": "<p>Creates a new <code>URL</code> object by parsing the <code>input</code> relative to the <code>base</code>. If\n<code>base</code> is passed as a string, it will be parsed equivalent to <code>new URL(base)</code>.</p>\n<pre><code class=\"language-js\">const myURL = new URL('/foo', 'https://example.org/');\n// https://example.org/foo\n</code></pre>\n<p>The URL constructor is accessible as a property on the global object.\nIt can also be imported from the built-in url module:</p>\n<pre><code class=\"language-mjs\">import { URL } from 'node:url';\nconsole.log(URL === globalThis.URL); // Prints 'true'.\n</code></pre>\n<pre><code class=\"language-cjs\">console.log(URL === require('node:url').URL); // Prints 'true'.\n</code></pre>\n<p>A <code>TypeError</code> will be thrown if the <code>input</code> or <code>base</code> are not valid URLs. Note\nthat an effort will be made to coerce the given values into strings. For\ninstance:</p>\n<pre><code class=\"language-js\">const myURL = new URL({ toString: () => 'https://example.org/' });\n// https://example.org/\n</code></pre>\n<p>Unicode characters appearing within the host name of <code>input</code> will be\nautomatically converted to ASCII using the <a href=\"https://tools.ietf.org/html/rfc5891#section-4.4\">Punycode</a> algorithm.</p>\n<pre><code class=\"language-js\">const myURL = new URL('https://測試');\n// https://xn--g6w251d/\n</code></pre>\n<p>In cases where it is not known in advance if <code>input</code> is an absolute URL\nand a <code>base</code> is provided, it is advised to validate that the <code>origin</code> of\nthe <code>URL</code> object is what is expected.</p>\n<pre><code class=\"language-js\">let myURL = new URL('http://Example.com/', 'https://example.org/');\n// http://example.com/\n\nmyURL = new URL('https://Example.com/', 'https://example.org/');\n// https://example.com/\n\nmyURL = new URL('foo://Example.com/', 'https://example.org/');\n// foo://Example.com/\n\nmyURL = new URL('http:Example.com/', 'https://example.org/');\n// http://example.com/\n\nmyURL = new URL('https:Example.com/', 'https://example.org/');\n// https://example.org/Example.com/\n\nmyURL = new URL('foo:Example.com/', 'https://example.org/');\n// foo:Example.com/\n</code></pre>"
                 }
               ]
             },
@@ -338,7 +393,7 @@
                   "meta": {
                     "changes": [
                       {
-                        "version": "v18.18.0",
+                        "version": "v20.2.0",
                         "pr-url": "https://github.com/nodejs/node/pull/47885",
                         "description": "Add support for optional `value` argument."
                       }
@@ -418,10 +473,10 @@
                   "signatures": [
                     {
                       "return": {
-                        "textRaw": "Returns: {string} or `null` if there is no name-value pair with the given `name`.",
+                        "textRaw": "Returns: {string | null} A string or `null` if there is no name-value pair with the given `name`.",
                         "name": "return",
-                        "type": "string",
-                        "desc": "or `null` if there is no name-value pair with the given `name`."
+                        "type": "string | null",
+                        "desc": "A string or `null` if there is no name-value pair with the given `name`."
                       },
                       "params": [
                         {
@@ -463,7 +518,7 @@
                   "meta": {
                     "changes": [
                       {
-                        "version": "v18.18.0",
+                        "version": "v20.2.0",
                         "pr-url": "https://github.com/nodejs/node/pull/47885",
                         "description": "Add support for optional `value` argument."
                       }
@@ -603,7 +658,7 @@
                   "name": "size",
                   "meta": {
                     "added": [
-                      "v18.16.0"
+                      "v19.8.0"
                     ],
                     "changes": []
                   },
@@ -663,7 +718,7 @@
                 ],
                 "changes": [
                   {
-                    "version": "v18.17.0",
+                    "version": "v20.0.0",
                     "pr-url": "https://github.com/nodejs/node/pull/47339",
                     "description": "ICU requirement is removed."
                   }
@@ -698,7 +753,7 @@
                 ],
                 "changes": [
                   {
-                    "version": "v18.17.0",
+                    "version": "v20.0.0",
                     "pr-url": "https://github.com/nodejs/node/pull/47339",
                     "description": "ICU requirement is removed."
                   }
@@ -723,14 +778,20 @@
               "desc": "<p>Returns the Unicode serialization of the <code>domain</code>. If <code>domain</code> is an invalid\ndomain, the empty string is returned.</p>\n<p>It performs the inverse operation to <a href=\"#urldomaintoasciidomain\"><code>url.domainToASCII()</code></a>.</p>\n<pre><code class=\"language-mjs\">import url from 'node:url';\n\nconsole.log(url.domainToUnicode('xn--espaol-zwa.com'));\n// Prints español.com\nconsole.log(url.domainToUnicode('xn--fiq228c.com'));\n// Prints 中文.com\nconsole.log(url.domainToUnicode('xn--iñvalid.com'));\n// Prints an empty string\n</code></pre>\n<pre><code class=\"language-cjs\">const url = require('node:url');\n\nconsole.log(url.domainToUnicode('xn--espaol-zwa.com'));\n// Prints español.com\nconsole.log(url.domainToUnicode('xn--fiq228c.com'));\n// Prints 中文.com\nconsole.log(url.domainToUnicode('xn--iñvalid.com'));\n// Prints an empty string\n</code></pre>"
             },
             {
-              "textRaw": "`url.fileURLToPath(url)`",
+              "textRaw": "`url.fileURLToPath(url[, options])`",
               "type": "method",
               "name": "fileURLToPath",
               "meta": {
                 "added": [
                   "v10.12.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v20.13.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/52509",
+                    "description": "The `options` argument can now be used to determine how to parse the `path` argument."
+                  }
+                ]
               },
               "signatures": [
                 {
@@ -746,6 +807,20 @@
                       "name": "url",
                       "type": "URL | string",
                       "desc": "The file URL string or URL object to convert to a path."
+                    },
+                    {
+                      "textRaw": "`options` {Object}",
+                      "name": "options",
+                      "type": "Object",
+                      "options": [
+                        {
+                          "textRaw": "`windows` {boolean|undefined} `true` if the `path` should be return as a windows filepath, `false` for posix, and `undefined` for the system default. **Default:** `undefined`.",
+                          "name": "windows",
+                          "type": "boolean|undefined",
+                          "default": "`undefined`",
+                          "desc": "`true` if the `path` should be return as a windows filepath, `false` for posix, and `undefined` for the system default."
+                        }
+                      ]
                     }
                   ]
                 }
@@ -817,14 +892,20 @@
               "desc": "<p>Returns a customizable serialization of a URL <code>String</code> representation of a\n<a href=\"#the-whatwg-url-api\">WHATWG URL</a> object.</p>\n<p>The URL object has both a <code>toString()</code> method and <code>href</code> property that return\nstring serializations of the URL. These are not, however, customizable in\nany way. The <code>url.format(URL[, options])</code> method allows for basic customization\nof the output.</p>\n<pre><code class=\"language-mjs\">import url from 'node:url';\nconst myURL = new URL('https://a:b@測試?abc#foo');\n\nconsole.log(myURL.href);\n// Prints https://a:b@xn--g6w251d/?abc#foo\n\nconsole.log(myURL.toString());\n// Prints https://a:b@xn--g6w251d/?abc#foo\n\nconsole.log(url.format(myURL, { fragment: false, unicode: true, auth: false }));\n// Prints 'https://測試/?abc'\n</code></pre>\n<pre><code class=\"language-cjs\">const url = require('node:url');\nconst myURL = new URL('https://a:b@測試?abc#foo');\n\nconsole.log(myURL.href);\n// Prints https://a:b@xn--g6w251d/?abc#foo\n\nconsole.log(myURL.toString());\n// Prints https://a:b@xn--g6w251d/?abc#foo\n\nconsole.log(url.format(myURL, { fragment: false, unicode: true, auth: false }));\n// Prints 'https://測試/?abc'\n</code></pre>"
             },
             {
-              "textRaw": "`url.pathToFileURL(path)`",
+              "textRaw": "`url.pathToFileURL(path[, options])`",
               "type": "method",
               "name": "pathToFileURL",
               "meta": {
                 "added": [
                   "v10.12.0"
                 ],
-                "changes": []
+                "changes": [
+                  {
+                    "version": "v20.13.0",
+                    "pr-url": "https://github.com/nodejs/node/pull/52509",
+                    "description": "The `options` argument can now be used to determine how to return the `path` value."
+                  }
+                ]
               },
               "signatures": [
                 {
@@ -840,6 +921,20 @@
                       "name": "path",
                       "type": "string",
                       "desc": "The path to convert to a File URL."
+                    },
+                    {
+                      "textRaw": "`options` {Object}",
+                      "name": "options",
+                      "type": "Object",
+                      "options": [
+                        {
+                          "textRaw": "`windows` {boolean|undefined} `true` if the `path` should be treated as a windows filepath, `false` for posix, and `undefined` for the system default. **Default:** `undefined`.",
+                          "name": "windows",
+                          "type": "boolean|undefined",
+                          "default": "`undefined`",
+                          "desc": "`true` if the `path` should be treated as a windows filepath, `false` for posix, and `undefined` for the system default."
+                        }
+                      ]
                     }
                   ]
                 }
@@ -857,7 +952,7 @@
                 ],
                 "changes": [
                   {
-                    "version": "v18.17.0",
+                    "version": "v19.9.0",
                     "pr-url": "https://github.com/nodejs/node/pull/46989",
                     "description": "The returned object will also contain all the own enumerable properties of the `url` argument."
                   }
@@ -1116,7 +1211,10 @@
                 ],
                 "changes": [
                   {
-                    "version": "v18.13.0",
+                    "version": [
+                      "v19.0.0",
+                      "v18.13.0"
+                    ],
                     "pr-url": "https://github.com/nodejs/node/pull/44919",
                     "description": "Documentation-only deprecation."
                   },

@@ -3,18 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>Modules: node:module API | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.18.3">
+  <title>Modules: node:module API | Node.js v20.18.3 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/module.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
-  <style>@media(max-width:430px){.with-26-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:574px){.with-44-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:590px){.with-46-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:646px){.with-53-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}</style>
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
+  <style>@media(max-width:430px){.with-26-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:574px){.with-44-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:590px){.with-46-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:646px){.with-53-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}</style>
 </head>
 <body class="alt apidoc" id="api-section-module">
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +109,7 @@
     <div id="column1" data-id="module" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.18.3 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,11 +124,11 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.18.3</li>
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
@@ -158,7 +171,7 @@
 <li><a href="#modulefindsourcemappath"><code>module.findSourceMap(path)</code></a></li>
 <li><a href="#class-modulesourcemap">Class: <code>module.SourceMap</code></a>
 <ul>
-<li><a href="#new-sourcemappayload"><code>new SourceMap(payload)</code></a></li>
+<li><a href="#new-sourcemappayload--linelengths-"><code>new SourceMap(payload[, { lineLengths }])</code></a></li>
 <li><a href="#sourcemappayload"><code>sourceMap.payload</code></a></li>
 <li><a href="#sourcemapfindentrylineoffset-columnoffset"><code>sourceMap.findEntry(lineOffset, columnOffset)</code></a></li>
 <li><a href="#sourcemapfindoriginlinenumber-columnnumber"><code>sourceMap.findOrigin(lineNumber, columnNumber)</code></a></li>
@@ -174,7 +187,7 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Index
       </a>
 
@@ -259,10 +272,12 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/module.html">21.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v23.x/api/module.html">23.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v22.x/api/module.html">22.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/module.html">21.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v20.x/api/module.html">20.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v19.x/api/module.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/module.html">18.x <b>LTS</b></a></li>
@@ -276,7 +291,7 @@
   
             <li class="picker-header">
               <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
@@ -297,7 +312,7 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
 <li><a href="#modules-nodemodule-api">Modules: <code>node:module</code> API</a>
 <ul>
 <li><a href="#the-module-object">The <code>Module</code> object</a>
@@ -336,7 +351,7 @@
 <li><a href="#modulefindsourcemappath"><code>module.findSourceMap(path)</code></a></li>
 <li><a href="#class-modulesourcemap">Class: <code>module.SourceMap</code></a>
 <ul>
-<li><a href="#new-sourcemappayload"><code>new SourceMap(payload)</code></a></li>
+<li><a href="#new-sourcemappayload--linelengths-"><code>new SourceMap(payload[, { lineLengths }])</code></a></li>
 <li><a href="#sourcemappayload"><code>sourceMap.payload</code></a></li>
 <li><a href="#sourcemapfindentrylineoffset-columnoffset"><code>sourceMap.findEntry(lineOffset, columnOffset)</code></a></li>
 <li><a href="#sourcemapfindoriginlinenumber-columnnumber"><code>sourceMap.findOrigin(lineNumber, columnNumber)</code></a></li>
@@ -348,7 +363,7 @@
 </li>
 </ul></details>
 
-      <div id="apicontent">
+      <div role="main" id="apicontent">
         <h2>Modules: <code>node:module</code> API<span><a class="mark" href="#modules-nodemodule-api" id="modules-nodemodule-api">#</a></span><a aria-hidden="true" class="legacy" id="module_modules_node_module_api"></a></h2>
 
 <div class="api_metadata">
@@ -370,10 +385,11 @@ via <code>import 'node:module'</code> or <code>require('node:module')</code>.</p
 </ul>
 <p>A list of the names of all modules provided by Node.js. Can be used to verify
 if a module is maintained by a third party or not.</p>
+<p>Note: the list doesn't contain <a href="modules.html#built-in-modules-with-mandatory-node-prefix">prefix-only modules</a> like <code>node:test</code>.</p>
 <p><code>module</code> in this context isn't the same object that's provided
 by the <a href="modules.html#the-module-wrapper">module wrapper</a>. To access it, require the <code>Module</code> module:</p>
 
-<pre class="with-26-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-comment">// module.mjs</span>
+<pre class="with-26-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-comment">// module.mjs</span>
 <span class="hljs-comment">// In an ECMAScript module</span>
 <span class="hljs-keyword">import</span> { builtinModules <span class="hljs-keyword">as</span> builtin } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:module'</span>;</code><code class="language-js cjs"><span class="hljs-comment">// module.cjs</span>
 <span class="hljs-comment">// In a CommonJS module</span>
@@ -395,7 +411,7 @@ string.</li>
 <span class="hljs-keyword">const</span> siblingModule = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./sibling-module'</span>);</code> <button class="copy-button">copy</button></pre>
 <h4><code>module.isBuiltin(moduleName)</code><span><a class="mark" href="#moduleisbuiltinmodulename" id="moduleisbuiltinmodulename">#</a></span><a aria-hidden="true" class="legacy" id="module_module_isbuiltin_modulename"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.6.0</span>
+<span>Added in: v18.6.0, v16.17.0</span>
 </div>
 <ul>
 <li><code>moduleName</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> name of the module</li>
@@ -410,14 +426,16 @@ string.</li>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.19.0</td>
+<tr><td>v20.18.2</td>
+<td><p>Using this feature with the permission model enabled requires passing <code>--allow-worker</code>.</p></td></tr>
+<tr><td>v20.8.0</td>
 <td><p>Add support for WHATWG URL instances.</p></td></tr>
-<tr><td>v18.19.0</td>
-<td><p><span>Added in: v18.19.0</span></p></td></tr>
+<tr><td>v20.6.0</td>
+<td><p><span>Added in: v20.6.0</span></p></td></tr>
 </tbody></table>
 </details>
 </div>
-<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a>.1 - Active development</div><p></p>
+<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a>.2 - Release candidate</div><p></p>
 <ul>
 <li><code>specifier</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="url.html#the-whatwg-url-api" class="type">&#x3C;URL></a> Customization hooks to be registered; this should be
 the same string that would be passed to <code>import()</code>, except that if it is
@@ -427,6 +445,10 @@ URL, such as <code>import.meta.url</code>, you can pass that URL here. <strong>D
 <code>'data:'</code></li>
 <li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
 <ul>
+<li><code>parentURL</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="url.html#the-whatwg-url-api" class="type">&#x3C;URL></a> If you want to resolve <code>specifier</code> relative to a
+base URL, such as <code>import.meta.url</code>, you can pass that URL here. This
+property is ignored if the <code>parentURL</code> is supplied as the second argument.
+<strong>Default:</strong> <code>'data:'</code></li>
 <li><code>data</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types" class="type">&#x3C;any></a> Any arbitrary, cloneable JavaScript value to pass into the
 <a href="#initialize"><code>initialize</code></a> hook.</li>
 <li><code>transferList</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object[]></a> <a href="worker_threads.html#portpostmessagevalue-transferlist">transferrable objects</a> to be passed into the
@@ -436,6 +458,7 @@ URL, such as <code>import.meta.url</code>, you can pass that URL here. <strong>D
 </ul>
 <p>Register a module that exports <a href="#customization-hooks">hooks</a> that customize Node.js module
 resolution and loading behavior. See <a href="#customization-hooks">Customization hooks</a>.</p>
+<p>This feature requires <code>--allow-worker</code> if used with the <a href="permissions.html#permission-model">Permission Model</a>.</p>
 <h4><code>module.syncBuiltinESMExports()</code><span><a class="mark" href="#modulesyncbuiltinesmexports" id="modulesyncbuiltinesmexports">#</a></span><a aria-hidden="true" class="legacy" id="module_module_syncbuiltinesmexports"></a></h4>
 <div class="api_metadata">
 <span>Added in: v12.12.0</span>
@@ -475,7 +498,7 @@ fs.<span class="hljs-property">newAPI</span> = newAPI;
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.19.0</td>
+<tr><td>v20.6.0</td>
 <td><p>Added <code>initialize</code> hook to replace <code>globalPreload</code>.</p></td></tr>
 <tr><td>v18.6.0, v16.17.0</td>
 <td><p>Add support for chaining loaders.</p></td></tr>
@@ -486,7 +509,7 @@ fs.<span class="hljs-property">newAPI</span> = newAPI;
 </tbody></table>
 </details>
 </div>
-<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a>.1 - Active development</div><p></p>
+<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a>.2 - Release candidate</div><p></p>
 
 <p><i id="enabling_module_customization_hooks"></i></p>
 <h4>Enabling<span><a class="mark" href="#enabling" id="enabling">#</a></span><a aria-hidden="true" class="legacy" id="module_enabling"></a></h4>
@@ -496,7 +519,7 @@ from <code>node:module</code>, which you can run before your application code by
 using the <code>--import</code> flag:</p>
 <pre><code class="language-bash">node --import ./register-hooks.js ./my-app.js</code> <button class="copy-button">copy</button></pre>
 
-<pre class="with-44-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-comment">// register-hooks.js</span>
+<pre class="with-44-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-comment">// register-hooks.js</span>
 <span class="hljs-keyword">import</span> { register } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:module'</span>;
 
 <span class="hljs-title function_">register</span>(<span class="hljs-string">'./hooks.mjs'</span>, <span class="hljs-keyword">import</span>.<span class="hljs-property">meta</span>.<span class="hljs-property">url</span>);</code><code class="language-js cjs"><span class="hljs-comment">// register-hooks.js</span>
@@ -514,7 +537,7 @@ files are imported, including the entry point of the application. Alternatively,
 <code>register</code> can be called from the entry point, but dynamic <code>import()</code> must be
 used for any code that should be run after the hooks are registered:</p>
 
-<pre class="with-46-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { register } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:module'</span>;
+<pre class="with-46-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { register } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:module'</span>;
 
 <span class="hljs-title function_">register</span>(<span class="hljs-string">'http-to-https'</span>, <span class="hljs-keyword">import</span>.<span class="hljs-property">meta</span>.<span class="hljs-property">url</span>);
 
@@ -546,27 +569,30 @@ URL to <code>--import</code>:</p>
 <h4>Chaining<span><a class="mark" href="#chaining" id="chaining">#</a></span><a aria-hidden="true" class="legacy" id="module_chaining"></a></h4>
 <p>It's possible to call <code>register</code> more than once:</p>
 
-<pre class="with-44-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-comment">// entrypoint.mjs</span>
+<pre class="with-44-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-comment">// entrypoint.mjs</span>
 <span class="hljs-keyword">import</span> { register } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:module'</span>;
 
-<span class="hljs-title function_">register</span>(<span class="hljs-string">'./first.mjs'</span>, <span class="hljs-keyword">import</span>.<span class="hljs-property">meta</span>.<span class="hljs-property">url</span>);
-<span class="hljs-title function_">register</span>(<span class="hljs-string">'./second.mjs'</span>, <span class="hljs-keyword">import</span>.<span class="hljs-property">meta</span>.<span class="hljs-property">url</span>);
+<span class="hljs-title function_">register</span>(<span class="hljs-string">'./foo.mjs'</span>, <span class="hljs-keyword">import</span>.<span class="hljs-property">meta</span>.<span class="hljs-property">url</span>);
+<span class="hljs-title function_">register</span>(<span class="hljs-string">'./bar.mjs'</span>, <span class="hljs-keyword">import</span>.<span class="hljs-property">meta</span>.<span class="hljs-property">url</span>);
 <span class="hljs-keyword">await</span> <span class="hljs-keyword">import</span>(<span class="hljs-string">'./my-app.mjs'</span>);</code><code class="language-js cjs"><span class="hljs-comment">// entrypoint.cjs</span>
 <span class="hljs-keyword">const</span> { register } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:module'</span>);
 <span class="hljs-keyword">const</span> { pathToFileURL } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:url'</span>);
 
 <span class="hljs-keyword">const</span> parentURL = <span class="hljs-title function_">pathToFileURL</span>(__filename);
-<span class="hljs-title function_">register</span>(<span class="hljs-string">'./first.mjs'</span>, parentURL);
-<span class="hljs-title function_">register</span>(<span class="hljs-string">'./second.mjs'</span>, parentURL);
+<span class="hljs-title function_">register</span>(<span class="hljs-string">'./foo.mjs'</span>, parentURL);
+<span class="hljs-title function_">register</span>(<span class="hljs-string">'./bar.mjs'</span>, parentURL);
 <span class="hljs-keyword">import</span>(<span class="hljs-string">'./my-app.mjs'</span>);</code><button class="copy-button">copy</button></pre>
-<p>In this example, the registered hooks will form chains. If both <code>first.mjs</code> and
-<code>second.mjs</code> define a <code>resolve</code> hook, both will be called, in the order they
-were registered. The same applies to all the other hooks.</p>
+<p>In this example, the registered hooks will form chains. These chains run
+last-in, first out (LIFO). If both <code>foo.mjs</code> and <code>bar.mjs</code> define a <code>resolve</code>
+hook, they will be called like so (note the right-to-left):
+node's default ← <code>./foo.mjs</code> ← <code>./bar.mjs</code>
+(starting with <code>./bar.mjs</code>, then <code>./foo.mjs</code>, then the Node.js default).
+The same applies to all the other hooks.</p>
 <p>The registered hooks also affect <code>register</code> itself. In this example,
-<code>second.mjs</code> will be resolved and loaded per the hooks registered by
-<code>first.mjs</code>. This allows for things like writing hooks in non-JavaScript
-languages, so long as an earlier registered loader is one that transpiles into
-JavaScript.</p>
+<code>bar.mjs</code> will be resolved and loaded via the hooks registered by <code>foo.mjs</code>
+(because <code>foo</code>'s hooks will have already been added to the chain). This allows
+for things like writing hooks in non-JavaScript languages, so long as
+earlier registered hooks transpile into JavaScript.</p>
 <p>The <code>register</code> method cannot be called from within the module that defines the
 hooks.</p>
 <h4>Communication with module customization hooks<span><a class="mark" href="#communication-with-module-customization-hooks" id="communication-with-module-customization-hooks">#</a></span><a aria-hidden="true" class="legacy" id="module_communication_with_module_customization_hooks"></a></h4>
@@ -577,7 +603,7 @@ between the threads.</p>
 <p>The <code>register</code> method can be used to pass data to an <a href="#initialize"><code>initialize</code></a> hook. The
 data passed to the hook may include transferrable objects like ports.</p>
 
-<pre class="with-53-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { register } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:module'</span>;
+<pre class="with-53-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { register } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:module'</span>;
 <span class="hljs-keyword">import</span> { <span class="hljs-title class_">MessageChannel</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:worker_threads'</span>;
 
 <span class="hljs-comment">// This example demonstrates how a message channel can be used to</span>
@@ -587,6 +613,7 @@ data passed to the hook may include transferrable objects like ports.</p>
 port1.<span class="hljs-title function_">on</span>(<span class="hljs-string">'message'</span>, <span class="hljs-function">(<span class="hljs-params">msg</span>) =></span> {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(msg);
 });
+port1.<span class="hljs-title function_">unref</span>();
 
 <span class="hljs-title function_">register</span>(<span class="hljs-string">'./my-hooks.mjs'</span>, {
   <span class="hljs-attr">parentURL</span>: <span class="hljs-keyword">import</span>.<span class="hljs-property">meta</span>.<span class="hljs-property">url</span>,
@@ -603,6 +630,7 @@ port1.<span class="hljs-title function_">on</span>(<span class="hljs-string">'me
 port1.<span class="hljs-title function_">on</span>(<span class="hljs-string">'message'</span>, <span class="hljs-function">(<span class="hljs-params">msg</span>) =></span> {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(msg);
 });
+port1.<span class="hljs-title function_">unref</span>();
 
 <span class="hljs-title function_">register</span>(<span class="hljs-string">'./my-hooks.mjs'</span>, {
   <span class="hljs-attr">parentURL</span>: <span class="hljs-title function_">pathToFileURL</span>(__filename),
@@ -625,11 +653,11 @@ names and signatures, and they must be exported as named exports.</p>
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">load</span>(<span class="hljs-params">url, context, nextLoad</span>) {
   <span class="hljs-comment">// Take a resolved URL and return the source code to be evaluated.</span>
 }</code> <button class="copy-button">copy</button></pre>
-<p>Hooks are part of a chain, even if that chain consists of only one custom
-(user-provided) hook and the default hook, which is always present. Hook
+<p>Hooks are part of a <a href="#chaining">chain</a>, even if that chain consists of only one
+custom (user-provided) hook and the default hook, which is always present. Hook
 functions nest: each one must always return a plain object, and chaining happens
 as a result of each function calling <code>next&#x3C;hookName>()</code>, which is a reference to
-the subsequent loader's hook.</p>
+the subsequent loader's hook (in LIFO order).</p>
 <p>A hook that returns a value lacking a required property triggers an exception. A
 hook that returns without calling <code>next&#x3C;hookName>()</code> <em>and</em> without returning
 <code>shortCircuit: true</code> also triggers an exception. These errors are to help
@@ -641,9 +669,9 @@ may be terminated by the main thread at any time, so do not depend on
 asynchronous operations (like <code>console.log</code>) to complete.</p>
 <h5><code>initialize()</code><span><a class="mark" href="#initialize" id="initialize">#</a></span><a aria-hidden="true" class="legacy" id="module_initialize"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.19.0</span>
+<span>Added in: v20.6.0</span>
 </div>
-<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a>.1 - Active development</div><p></p>
+<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a>.2 - Release candidate</div><p></p>
 <ul>
 <li><code>data</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types" class="type">&#x3C;any></a> The data from <code>register(loader, import.meta.url, { data })</code>.</li>
 </ul>
@@ -662,7 +690,7 @@ execution resumes.</p>
 }</code> <button class="copy-button">copy</button></pre>
 <p>Caller code:</p>
 
-<pre class="with-44-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'node:assert'</span>;
+<pre class="with-44-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'node:assert'</span>;
 <span class="hljs-keyword">import</span> { register } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:module'</span>;
 <span class="hljs-keyword">import</span> { <span class="hljs-title class_">MessageChannel</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:worker_threads'</span>;
 
@@ -674,6 +702,7 @@ execution resumes.</p>
 port1.<span class="hljs-title function_">on</span>(<span class="hljs-string">'message'</span>, <span class="hljs-function">(<span class="hljs-params">msg</span>) =></span> {
   assert.<span class="hljs-title function_">strictEqual</span>(msg, <span class="hljs-string">'increment: 2'</span>);
 });
+port1.<span class="hljs-title function_">unref</span>();
 
 <span class="hljs-title function_">register</span>(<span class="hljs-string">'./path-to-my-hooks.js'</span>, {
   <span class="hljs-attr">parentURL</span>: <span class="hljs-keyword">import</span>.<span class="hljs-property">meta</span>.<span class="hljs-property">url</span>,
@@ -692,6 +721,7 @@ port1.<span class="hljs-title function_">on</span>(<span class="hljs-string">'me
 port1.<span class="hljs-title function_">on</span>(<span class="hljs-string">'message'</span>, <span class="hljs-function">(<span class="hljs-params">msg</span>) =></span> {
   assert.<span class="hljs-title function_">strictEqual</span>(msg, <span class="hljs-string">'increment: 2'</span>);
 });
+port1.<span class="hljs-title function_">unref</span>();
 
 <span class="hljs-title function_">register</span>(<span class="hljs-string">'./path-to-my-hooks.js'</span>, {
   <span class="hljs-attr">parentURL</span>: <span class="hljs-title function_">pathToFileURL</span>(__filename),
@@ -703,7 +733,7 @@ port1.<span class="hljs-title function_">on</span>(<span class="hljs-string">'me
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.19.0</td>
+<tr><td>v20.10.0</td>
 <td><p>The property <code>context.importAssertions</code> is replaced with <code>context.importAttributes</code>. Using the old name is still supported and will emit an experimental warning.</p></td></tr>
 <tr><td>v18.6.0, v16.17.0</td>
 <td><p>Add support for chaining resolve hooks. Each hook must either call <code>nextResolve()</code> or include a <code>shortCircuit</code> property set to <code>true</code> in its return.</p></td></tr>
@@ -800,6 +830,8 @@ Node.js module specifier resolution behavior</em> when calling <code>defaultReso
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v20.6.0</td>
+<td><p>Add support for <code>source</code> with format <code>commonjs</code>.</p></td></tr>
 <tr><td>v18.6.0, v16.17.0</td>
 <td><p>Add support for chaining load hooks. Each hook must either call <code>nextLoad()</code> or include a <code>shortCircuit</code> property set to <code>true</code> in its return.</p></td></tr>
 </tbody></table>
@@ -819,7 +851,7 @@ Node.js module specifier resolution behavior</em> when calling <code>defaultReso
 <li><code>nextLoad</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> The subsequent <code>load</code> hook in the chain, or the
 Node.js default <code>load</code> hook after the last user-supplied <code>load</code> hook
 <ul>
-<li><code>specifier</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
+<li><code>url</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
 <li><code>context</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a></li>
 </ul>
 </li>
@@ -827,7 +859,7 @@ Node.js default <code>load</code> hook after the last user-supplied <code>load</
 <ul>
 <li><code>format</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
 <li><code>shortCircuit</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type" class="type">&#x3C;undefined></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> A signal that this hook intends to
-terminate the chain of <code>resolve</code> hooks. <strong>Default:</strong> <code>false</code></li>
+terminate the chain of <code>load</code> hooks. <strong>Default:</strong> <code>false</code></li>
 <li><code>source</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer" class="type">&#x3C;ArrayBuffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> The source for Node.js to evaluate</li>
 </ul>
 </li>
@@ -871,13 +903,37 @@ validating the import assertion.</p>
 
 
 
-<table><thead><tr><th><code>format</code></th><th>Description</th><th>Acceptable types for <code>source</code> returned by <code>load</code></th></tr></thead><tbody><tr><td><code>'builtin'</code></td><td>Load a Node.js builtin module</td><td>Not applicable</td></tr><tr><td><code>'commonjs'</code></td><td>Load a Node.js CommonJS module</td><td>Not applicable</td></tr><tr><td><code>'json'</code></td><td>Load a JSON file</td><td>{ <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String"><code>string</code></a>, <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code>ArrayBuffer</code></a>, <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code>TypedArray</code></a> }</td></tr><tr><td><code>'module'</code></td><td>Load an ES module</td><td>{ <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String"><code>string</code></a>, <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code>ArrayBuffer</code></a>, <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code>TypedArray</code></a> }</td></tr><tr><td><code>'wasm'</code></td><td>Load a WebAssembly module</td><td>{ <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code>ArrayBuffer</code></a>, <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code>TypedArray</code></a> }</td></tr></tbody></table>
+<table><thead><tr><th><code>format</code></th><th>Description</th><th>Acceptable types for <code>source</code> returned by <code>load</code></th></tr></thead><tbody><tr><td><code>'builtin'</code></td><td>Load a Node.js builtin module</td><td>Not applicable</td></tr><tr><td><code>'commonjs'</code></td><td>Load a Node.js CommonJS module</td><td>{ <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String"><code>string</code></a>, <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code>ArrayBuffer</code></a>, <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code>TypedArray</code></a>, <code>null</code>, <code>undefined</code> }</td></tr><tr><td><code>'json'</code></td><td>Load a JSON file</td><td>{ <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String"><code>string</code></a>, <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code>ArrayBuffer</code></a>, <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code>TypedArray</code></a> }</td></tr><tr><td><code>'module'</code></td><td>Load an ES module</td><td>{ <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String"><code>string</code></a>, <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code>ArrayBuffer</code></a>, <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code>TypedArray</code></a> }</td></tr><tr><td><code>'wasm'</code></td><td>Load a WebAssembly module</td><td>{ <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"><code>ArrayBuffer</code></a>, <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code>TypedArray</code></a> }</td></tr></tbody></table>
 <p>The value of <code>source</code> is ignored for type <code>'builtin'</code> because currently it is
-not possible to replace the value of a Node.js builtin (core) module. The value
-of <code>source</code> is ignored for type <code>'commonjs'</code> because the CommonJS module loader
-does not provide a mechanism for the ES module loader to override the
-<a href="esm.html#commonjs-namespaces">CommonJS module return value</a>. This limitation
-might be overcome in the future.</p>
+not possible to replace the value of a Node.js builtin (core) module.</p>
+<p>Omitting vs providing a <code>source</code> for <code>'commonjs'</code> has very different effects:</p>
+<ul>
+<li>When a <code>source</code> is provided, all <code>require</code> calls from this module will be
+processed by the ESM loader with registered <code>resolve</code> and <code>load</code> hooks; all
+<code>require.resolve</code> calls from this module will be processed by the ESM loader
+with registered <code>resolve</code> hooks; only a subset of the CommonJS API will be
+available (e.g. no <code>require.extensions</code>, no <code>require.cache</code>, no
+<code>require.resolve.paths</code>) and monkey-patching on the CommonJS module loader
+will not apply.</li>
+<li>If <code>source</code> is undefined or <code>null</code>, it will be handled by the CommonJS module
+loader and <code>require</code>/<code>require.resolve</code> calls will not go through the
+registered hooks. This behavior for nullish <code>source</code> is temporary — in the
+future, nullish <code>source</code> will not be supported.</li>
+</ul>
+<p>When <code>node</code> is run with <code>--experimental-default-type=commonjs</code>, the Node.js
+internal <code>load</code> implementation, which is the value of <code>next</code> for the
+last hook in the <code>load</code> chain, returns <code>null</code> for <code>source</code> when <code>format</code> is
+<code>'commonjs'</code> for backward compatibility. Here is an example hook that would
+opt-in to using the non-default behavior:</p>
+<pre><code class="language-js mjs"><span class="hljs-keyword">import</span> { readFile } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs/promises'</span>;
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">load</span>(<span class="hljs-params">url, context, nextLoad</span>) {
+  <span class="hljs-keyword">const</span> result = <span class="hljs-keyword">await</span> <span class="hljs-title function_">nextLoad</span>(url, context);
+  <span class="hljs-keyword">if</span> (result.<span class="hljs-property">format</span> === <span class="hljs-string">'commonjs'</span>) {
+    result.<span class="hljs-property">source</span> ??= <span class="hljs-keyword">await</span> <span class="hljs-title function_">readFile</span>(<span class="hljs-keyword">new</span> <span class="hljs-title function_">URL</span>(result.<span class="hljs-property">responseURL</span> ?? url));
+  }
+  <span class="hljs-keyword">return</span> result;
+}</code> <button class="copy-button">copy</button></pre>
 <blockquote>
 <p><strong>Warning</strong>: The ESM <code>load</code> hook and namespaced exports from CommonJS modules
 are incompatible. Attempting to use them together will result in an empty
@@ -974,14 +1030,14 @@ close normally.</p>
  * and sends the message back to the application context
  */</span>
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">globalPreload</span>(<span class="hljs-params">{ port }</span>) {
-  port.<span class="hljs-title function_">on</span>(<span class="hljs-string">'message'</span>, <span class="hljs-function">(<span class="hljs-params">msg</span>) =></span> {
-    port.<span class="hljs-title function_">postMessage</span>(msg);
-  });
+  port.<span class="hljs-property">onmessage</span> = <span class="hljs-function">(<span class="hljs-params">evt</span>) =></span> {
+    port.<span class="hljs-title function_">postMessage</span>(evt.<span class="hljs-property">data</span>);
+  };
   <span class="hljs-keyword">return</span> <span class="hljs-string">`\
     port.postMessage('console.log("I went to the hook and back");');
-    port.on('message', (msg) => {
-      eval(msg);
-    });
+    port.onmessage = (evt) => {
+      eval(evt.data);
+    };
   `</span>;
 }</code> <button class="copy-button">copy</button></pre>
 <h4>Examples<span><a class="mark" href="#examples" id="examples">#</a></span><a aria-hidden="true" class="legacy" id="module_examples"></a></h4>
@@ -1091,7 +1147,7 @@ transpiler hooks should only be used for development and testing purposes.</p>
     .<span class="hljs-title function_">catch</span>(<span class="hljs-function">(<span class="hljs-params">err</span>) =></span> {
       <span class="hljs-keyword">if</span> (err?.<span class="hljs-property">code</span> !== <span class="hljs-string">'ENOENT'</span>) <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(err);
     });
-  <span class="hljs-comment">// Ff package.json existed and contained a `type` field with a value, voila</span>
+  <span class="hljs-comment">// If package.json existed and contained a `type` field with a value, voilà</span>
   <span class="hljs-keyword">if</span> (type) <span class="hljs-keyword">return</span> type;
   <span class="hljs-comment">// Otherwise, (if not at the root) continue checking the next directory up</span>
   <span class="hljs-comment">// If at the root, stop and return false</span>
@@ -1153,7 +1209,7 @@ populated when source map parsing is enabled and
 <a href="cli.html#--enable-source-maps"><code>--enable-source-maps</code></a>, or with code coverage enabled by setting
 <a href="cli.html#node_v8_coveragedir"><code>NODE_V8_COVERAGE=dir</code></a>.</p>
 
-<pre class="with-26-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-comment">// module.mjs</span>
+<pre class="with-26-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-comment">// module.mjs</span>
 <span class="hljs-comment">// In an ECMAScript module</span>
 <span class="hljs-keyword">import</span> { findSourceMap, <span class="hljs-title class_">SourceMap</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:module'</span>;</code><code class="language-js cjs"><span class="hljs-comment">// module.cjs</span>
 <span class="hljs-comment">// In a CommonJS module</span>
@@ -1175,9 +1231,10 @@ should be fetched.</p>
 <div class="api_metadata">
 <span>Added in: v13.7.0, v12.17.0</span>
 </div>
-<h5><code>new SourceMap(payload)</code><span><a class="mark" href="#new-sourcemappayload" id="new-sourcemappayload">#</a></span><a aria-hidden="true" class="legacy" id="module_new_sourcemap_payload"></a></h5>
+<h5><code>new SourceMap(payload[, { lineLengths }])</code><span><a class="mark" href="#new-sourcemappayload--linelengths-" id="new-sourcemappayload--linelengths-">#</a></span><a aria-hidden="true" class="legacy" id="module_new_sourcemap_payload_linelengths"></a></h5>
 <ul>
 <li><code>payload</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a></li>
+<li><code>lineLengths</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number[]></a></li>
 </ul>
 <p>Creates a new <code>sourceMap</code> instance.</p>
 <p><code>payload</code> is an object with keys matching the <a href="https://sourcemaps.info/spec.html#h.mofvlxcwqzej">Source map v3 format</a>:</p>
@@ -1190,6 +1247,8 @@ should be fetched.</p>
 <li><code>mappings</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
 <li><code>sourceRoot</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
 </ul>
+<p><code>lineLengths</code> is an optional array of the length of each line in the
+generated code.</p>
 <h5><code>sourceMap.payload</code><span><a class="mark" href="#sourcemappayload" id="sourcemappayload">#</a></span><a aria-hidden="true" class="legacy" id="module_sourcemap_payload"></a></h5>
 <ul>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a></li>
@@ -1231,15 +1290,15 @@ and CallSite objects, use <code>sourceMap.findOrigin(lineNumber, columnNumber)</
 <ul>
 <li><code>lineNumber</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The 1-indexed line number of the call
 site in the generated source</li>
-<li><code>columnOffset</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The 1-indexed column number
+<li><code>columnNumber</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;number></a> The 1-indexed column number
 of the call site in the generated source</li>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a></li>
 </ul>
-<p>Given a 1-indexed lineNumber and columnNumber from a call site in
+<p>Given a 1-indexed <code>lineNumber</code> and <code>columnNumber</code> from a call site in
 the generated source, find the corresponding call site location
 in the original source.</p>
-<p>If the lineNumber and columnNumber provided are not found in any
-source map, then an empty object is returned.  Otherwise, the
+<p>If the <code>lineNumber</code> and <code>columnNumber</code> provided are not found in any
+source map, then an empty object is returned. Otherwise, the
 returned object contains the following keys:</p>
 <ul>
 <li>name: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type" class="type">&#x3C;undefined></a> The name of the range in the

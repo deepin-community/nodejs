@@ -156,7 +156,7 @@ function linkManPages(text) {
     });
 }
 
-const TYPE_SIGNATURE = /[_$]?\{[a-zA-Z\[\]^}]+\}/g;
+const TYPE_SIGNATURE = /\{[^}]+\}/g;
 function linkJsTypeDocs(text) {
   if (text.startsWith('<pre>')) return text;
   const parts = text.split('`');
@@ -241,27 +241,27 @@ function parseYAML(text) {
   const removed = { description: '' };
 
   if (meta.added) {
-    added.version = meta.added.join(', ');
-    added.description = `<span>Added in: ${added.version}</span>`;
+    added.version = meta.added;
+    added.description = `<span>Added in: ${added.version.join(', ')}</span>`;
   }
 
   if (meta.deprecated) {
-    deprecated.version = meta.deprecated.join(', ');
+    deprecated.version = meta.deprecated;
     deprecated.description =
-        `<span>Deprecated since: ${deprecated.version}</span>`;
+        `<span>Deprecated since: ${deprecated.version.join(', ')}</span>`;
   }
 
   if (meta.removed) {
-    removed.version = meta.removed.join(', ');
-    removed.description = `<span>Removed in: ${removed.version}</span>`;
+    removed.version = meta.removed;
+    removed.description = `<span>Removed in: ${removed.version.join(', ')}</span>`;
   }
 
   if (meta.changes.length > 0) {
-    if (added.description) meta.changes.push(added);
     if (deprecated.description) meta.changes.push(deprecated);
     if (removed.description) meta.changes.push(removed);
 
     meta.changes.sort((a, b) => versionSort(a.version, b.version));
+    if (added.description) meta.changes.push(added);
 
     result += '<details class="changelog"><summary>History</summary>\n' +
             '<table>\n<tr><th>Version</th><th>Changes</th></tr>\n';
@@ -359,7 +359,7 @@ export function buildToc(lexed, { filename, apilinks }) {
   let tocPicker;
   if (toc !== '') {
     const inner = marked.parse(toc, marked.defaults);
-    toc = `<details id="toc" open><summary>Table of contents</summary>${inner}</details>`;
+    toc = `<details role="navigation" id="toc" open><summary>Table of contents</summary>${inner}</details>`;
     tocPicker = `<div class="toc">${inner}</div>`;
   } else {
     toc = tocPicker = '<!-- TOC -->';
@@ -429,7 +429,7 @@ function altDocs(filename, docCreated, versions) {
 }
 
 function editOnGitHub(filename) {
-  return `<li class="edit_on_github"><a href="https://github.com/nodejs/node/edit/master/doc/api/${filename}.md">Edit on GitHub</a></li>`;
+  return `<li class="edit_on_github"><a href="https://github.com/nodejs/node/edit/main/doc/api/${filename}.md">Edit on GitHub</a></li>`;
 }
 
 function gtocPicker(id) {
@@ -439,7 +439,7 @@ function gtocPicker(id) {
 
   // Highlight the current module and add a link to the index
   const gtoc = gtocHTML.replace(
-    `class="nav-${id}"`, `class="nav-${id} active"`
+    `class="nav-${id}"`, `class="nav-${id} active"`,
   ).replace('</ul>', `
       <li>
         <a href="index.html">Index</a>

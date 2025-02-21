@@ -92,7 +92,7 @@ struct url_search_params {
   /**
    * @see https://url.spec.whatwg.org/#urlsearchparams-stringification-behavior
    */
-  inline std::string to_string();
+  inline std::string to_string() const;
 
   /**
    * Returns a simple JS-style iterator over all of the keys in this
@@ -129,6 +129,14 @@ struct url_search_params {
   inline auto front() const { return params.front(); }
   inline auto back() const { return params.back(); }
   inline auto operator[](size_t index) const { return params[index]; }
+
+  /**
+   * @private
+   * Used to reset the search params to a new input.
+   * Used primarily for C API.
+   * @param input
+   */
+  void reset(std::string_view input);
 
  private:
   typedef std::pair<std::string, std::string> key_value_pair;

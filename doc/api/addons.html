@@ -3,18 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>C++ addons | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.18.3">
+  <title>C++ addons | Node.js v20.18.3 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/addons.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
   
 </head>
 <body class="alt apidoc" id="api-section-addons">
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +109,7 @@
     <div id="column1" data-id="addons" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.18.3 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,11 +124,11 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.18.3</li>
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
@@ -155,7 +168,7 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Index
       </a>
 
@@ -240,10 +253,12 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/addons.html">21.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v23.x/api/addons.html">23.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v22.x/api/addons.html">22.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/addons.html">21.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v20.x/api/addons.html">20.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v19.x/api/addons.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/addons.html">18.x <b>LTS</b></a></li>
@@ -267,7 +282,7 @@
   
             <li class="picker-header">
               <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
@@ -288,7 +303,7 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
 <li><a href="#c-addons">C++ addons</a>
 <ul>
 <li><a href="#hello-world">Hello world</a>
@@ -320,27 +335,32 @@
 </li>
 </ul></details>
 
-      <div id="apicontent">
+      <div role="main" id="apicontent">
         <h2>C++ addons<span><a class="mark" href="#c-addons" id="c-addons">#</a></span><a aria-hidden="true" class="legacy" id="addons_c_addons"></a></h2>
 
 
 <p><em>Addons</em> are dynamically-linked shared objects written in C++. The
 <a href="modules.html#requireid"><code>require()</code></a> function can load addons as ordinary Node.js modules.
 Addons provide an interface between JavaScript and C/C++ libraries.</p>
-<p>There are three options for implementing addons: Node-API, nan, or direct
-use of internal V8, libuv, and Node.js libraries. Unless there is a need for
-direct access to functionality which is not exposed by Node-API, use Node-API.
+<p>There are three options for implementing addons:</p>
+<ul>
+<li>Node-API</li>
+<li><code>nan</code> (<a href="https://github.com/nodejs/nan">Native Abstractions for Node.js</a>)</li>
+<li>direct use of internal V8, libuv, and Node.js libraries</li>
+</ul>
+<p>Unless there is a need for direct access to functionality which is not<br>
+exposed by Node-API, use Node-API.
 Refer to <a href="n-api.html">C/C++ addons with Node-API</a> for more information on
 Node-API.</p>
-<p>When not using Node-API, implementing addons is complicated,
-involving knowledge of several components and APIs:</p>
+<p>When not using Node-API, implementing addons becomes more complex, requiring<br>
+knowledge of multiple components and APIs:</p>
 <ul>
 <li>
 <p><a href="https://v8.dev/">V8</a>: the C++ library Node.js uses to provide the
-JavaScript implementation. V8 provides the mechanisms for creating objects,
-calling functions, etc. V8's API is documented mostly in the
+JavaScript implementation. It provides the mechanisms for creating objects,
+calling functions, etc. The V8's API is documented mostly in the
 <code>v8.h</code> header file (<code>deps/v8/include/v8.h</code> in the Node.js source
-tree), which is also available <a href="https://v8docs.nodesource.com/">online</a>.</p>
+tree), and is also available <a href="https://v8docs.nodesource.com/">online</a>.</p>
 </li>
 <li>
 <p><a href="https://github.com/libuv/libuv">libuv</a>: The C library that implements the Node.js event loop, its worker
@@ -356,11 +376,11 @@ offloading work via libuv to non-blocking system operations, worker threads,
 or a custom use of libuv threads.</p>
 </li>
 <li>
-<p>Internal Node.js libraries. Node.js itself exports C++ APIs that addons can
+<p>Internal Node.js libraries: Node.js itself exports C++ APIs that addons can
 use, the most important of which is the <code>node::ObjectWrap</code> class.</p>
 </li>
 <li>
-<p>Node.js includes other statically linked libraries including OpenSSL. These
+<p>Other statically linked libraries (including OpenSSL): These
 other libraries are located in the <code>deps/</code> directory in the Node.js source
 tree. Only the libuv, OpenSSL, V8, and zlib symbols are purposefully
 re-exported by Node.js and may be used to various extents by addons. See
@@ -382,6 +402,7 @@ equivalent of the following JavaScript code:</p>
 <span class="hljs-keyword">using</span> v8::FunctionCallbackInfo;
 <span class="hljs-keyword">using</span> v8::Isolate;
 <span class="hljs-keyword">using</span> v8::Local;
+<span class="hljs-keyword">using</span> v8::NewStringType;
 <span class="hljs-keyword">using</span> v8::Object;
 <span class="hljs-keyword">using</span> v8::String;
 <span class="hljs-keyword">using</span> v8::Value;
@@ -389,7 +410,7 @@ equivalent of the following JavaScript code:</p>
 <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Method</span><span class="hljs-params">(<span class="hljs-type">const</span> FunctionCallbackInfo&#x3C;Value>&#x26; args)</span> </span>{
   Isolate* isolate = args.<span class="hljs-built_in">GetIsolate</span>();
   args.<span class="hljs-built_in">GetReturnValue</span>().<span class="hljs-built_in">Set</span>(String::<span class="hljs-built_in">NewFromUtf8</span>(
-      isolate, <span class="hljs-string">"world"</span>).<span class="hljs-built_in">ToLocalChecked</span>());
+      isolate, <span class="hljs-string">"world"</span>, NewStringType::kNormal).<span class="hljs-built_in">ToLocalChecked</span>());
 }
 
 <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Initialize</span><span class="hljs-params">(Local&#x3C;Object> exports)</span> </span>{
@@ -445,8 +466,8 @@ invocation of <code>NODE_MODULE_INIT()</code>:</p>
 <li><code>Local&#x3C;Value> module</code>, and</li>
 <li><code>Local&#x3C;Context> context</code></li>
 </ul>
-<p>The choice to build a context-aware addon carries with it the responsibility of
-carefully managing global static data. Since the addon may be loaded multiple
+<p>Building a context-aware addon requires careful management of global static data
+to ensure stability and correctness. Since the addon may be loaded multiple
 times, potentially even from different threads, any global static data stored
 in the addon must be properly protected, and must not contain any persistent
 references to JavaScript objects. The reason for this is that JavaScript
@@ -544,7 +565,7 @@ such as a main thread and a Worker thread, an add-on needs to either:</p>
 <li>Be declared as context-aware using <code>NODE_MODULE_INIT()</code> as described above</li>
 </ul>
 <p>In order to support <a href="worker_threads.html#class-worker"><code>Worker</code></a> threads, addons need to clean up any resources
-they may have allocated when such a thread exists. This can be achieved through
+they may have allocated when such a thread exits. This can be achieved through
 the usage of the <code>AddEnvironmentCleanupHook()</code> function:</p>
 <pre><code class="language-cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">AddEnvironmentCleanupHook</span><span class="hljs-params">(v8::Isolate* isolate,
                                <span class="hljs-type">void</span> (*fun)(<span class="hljs-type">void</span>* arg),
@@ -765,7 +786,7 @@ filename to the <code>sources</code> array:</p>
 <pre><code class="language-json"><span class="hljs-attr">"sources"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">"addon.cc"</span><span class="hljs-punctuation">,</span> <span class="hljs-string">"myexample.cc"</span><span class="hljs-punctuation">]</span></code> <button class="copy-button">copy</button></pre>
 <p>Once the <code>binding.gyp</code> file is ready, the example addons can be configured and
 built using <code>node-gyp</code>:</p>
-<pre><code class="language-console"><span class="hljs-meta prompt_">$ </span><span class="language-bash">node-gyp configure build</span></code> <button class="copy-button">copy</button></pre>
+<pre><code class="language-bash">node-gyp configure build</code> <button class="copy-button">copy</button></pre>
 <h4>Function arguments<span><a class="mark" href="#function-arguments" id="function-arguments">#</a></span><a aria-hidden="true" class="legacy" id="addons_function_arguments"></a></h4>
 <p>Addons will typically expose objects and functions that can be accessed from
 JavaScript running within Node.js. When functions are invoked from JavaScript,
@@ -1027,8 +1048,8 @@ instances to be created using the JavaScript <code>new</code> operator:</p>
 
 <span class="hljs-meta">#<span class="hljs-keyword">endif</span></span></code> <button class="copy-button">copy</button></pre>
 <p>In <code>myobject.cc</code>, implement the various methods that are to be exposed.
-Below, the method <code>plusOne()</code> is exposed by adding it to the constructor's
-prototype:</p>
+In the following code, the method <code>plusOne()</code> is exposed by adding it to the
+constructor's prototype:</p>
 <pre><code class="language-cpp"><span class="hljs-comment">// myobject.cc</span>
 <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"myobject.h"</span></span>
 
@@ -1092,7 +1113,8 @@ MyObject::~<span class="hljs-built_in">MyObject</span>() {
     <span class="hljs-type">const</span> <span class="hljs-type">int</span> argc = <span class="hljs-number">1</span>;
     Local&#x3C;Value> argv[argc] = { args[<span class="hljs-number">0</span>] };
     Local&#x3C;Function> cons =
-        args.<span class="hljs-built_in">Data</span>().<span class="hljs-built_in">As</span>&#x3C;Object>()-><span class="hljs-built_in">GetInternalField</span>(<span class="hljs-number">0</span>).<span class="hljs-built_in">As</span>&#x3C;Function>();
+        args.<span class="hljs-built_in">Data</span>().<span class="hljs-built_in">As</span>&#x3C;Object>()-><span class="hljs-built_in">GetInternalField</span>(<span class="hljs-number">0</span>)
+            .<span class="hljs-built_in">As</span>&#x3C;Value>().<span class="hljs-built_in">As</span>&#x3C;Function>();
     Local&#x3C;Object> result =
         cons-><span class="hljs-built_in">NewInstance</span>(context, argc, argv).<span class="hljs-built_in">ToLocalChecked</span>();
     args.<span class="hljs-built_in">GetReturnValue</span>().<span class="hljs-built_in">Set</span>(result);
@@ -1102,7 +1124,7 @@ MyObject::~<span class="hljs-built_in">MyObject</span>() {
 <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">MyObject::PlusOne</span><span class="hljs-params">(<span class="hljs-type">const</span> FunctionCallbackInfo&#x3C;Value>&#x26; args)</span> </span>{
   Isolate* isolate = args.<span class="hljs-built_in">GetIsolate</span>();
 
-  MyObject* obj = ObjectWrap::<span class="hljs-built_in">Unwrap</span>&#x3C;MyObject>(args.<span class="hljs-built_in">Holder</span>());
+  MyObject* obj = ObjectWrap::<span class="hljs-built_in">Unwrap</span>&#x3C;MyObject>(args.<span class="hljs-built_in">This</span>());
   obj->value_ += <span class="hljs-number">1</span>;
 
   args.<span class="hljs-built_in">GetReturnValue</span>().<span class="hljs-built_in">Set</span>(Number::<span class="hljs-built_in">New</span>(isolate, obj->value_));
@@ -1290,7 +1312,7 @@ MyObject::~<span class="hljs-built_in">MyObject</span>() {
 <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">MyObject::PlusOne</span><span class="hljs-params">(<span class="hljs-type">const</span> FunctionCallbackInfo&#x3C;Value>&#x26; args)</span> </span>{
   Isolate* isolate = args.<span class="hljs-built_in">GetIsolate</span>();
 
-  MyObject* obj = ObjectWrap::<span class="hljs-built_in">Unwrap</span>&#x3C;MyObject>(args.<span class="hljs-built_in">Holder</span>());
+  MyObject* obj = ObjectWrap::<span class="hljs-built_in">Unwrap</span>&#x3C;MyObject>(args.<span class="hljs-built_in">This</span>());
   obj->value_ += <span class="hljs-number">1</span>;
 
   args.<span class="hljs-built_in">GetReturnValue</span>().<span class="hljs-built_in">Set</span>(Number::<span class="hljs-built_in">New</span>(isolate, obj->value_));
@@ -1406,7 +1428,7 @@ after unwrapping the object.</p>
 }  <span class="hljs-comment">// namespace demo</span>
 
 <span class="hljs-meta">#<span class="hljs-keyword">endif</span></span></code> <button class="copy-button">copy</button></pre>
-<p>The implementation of <code>myobject.cc</code> is similar to before:</p>
+<p>The implementation of <code>myobject.cc</code> remains similar to the previous version:</p>
 <pre><code class="language-cpp"><span class="hljs-comment">// myobject.cc</span>
 <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&#x3C;node.h></span></span>
 <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"myobject.h"</span></span>
