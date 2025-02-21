@@ -3,18 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>Util | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.18.3">
+  <title>Util | Node.js v20.18.3 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/util.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
-  <style>@media(max-width:558px){.with-42-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:718px){.with-62-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:574px){.with-44-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:566px){.with-43-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:550px){.with-41-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}</style>
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
+  <style>@media(max-width:558px){.with-42-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:718px){.with-62-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:574px){.with-44-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:566px){.with-43-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:550px){.with-41-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}</style>
 </head>
 <body class="alt apidoc" id="api-section-util">
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +109,7 @@
     <div id="column1" data-id="util" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.18.3 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,11 +124,11 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.18.3</li>
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
@@ -175,11 +188,12 @@
 <li><a href="#mimeparamsiterator"><code>mimeParams[@@iterator]()</code></a></li>
 </ul>
 </li>
-<li><span class="stability_1"><a href="#utilparseargsconfig"><code>util.parseArgs([config])</code></a></span>
+<li><a href="#utilparseargsconfig"><code>util.parseArgs([config])</code></a>
 <ul>
 <li><a href="#parseargs-tokens"><code>parseArgs</code> <code>tokens</code></a></li>
 </ul>
 </li>
+<li><span class="stability_1"><a href="#utilparseenvcontent"><code>util.parseEnv(content)</code></a></span></li>
 <li><a href="#utilpromisifyoriginal"><code>util.promisify(original)</code></a>
 <ul>
 <li><a href="#custom-promisified-functions">Custom promisified functions</a></li>
@@ -187,6 +201,7 @@
 </ul>
 </li>
 <li><a href="#utilstripvtcontrolcharactersstr"><code>util.stripVTControlCharacters(str)</code></a></li>
+<li><span class="stability_1"><a href="#utilstyletextformat-text-options"><code>util.styleText(format, text[, options])</code></a></span></li>
 <li><a href="#class-utiltextdecoder">Class: <code>util.TextDecoder</code></a>
 <ul>
 <li><a href="#whatwg-supported-encodings">WHATWG supported encodings</a>
@@ -222,6 +237,7 @@
 <li><a href="#utiltypesisarraybuffervalue"><code>util.types.isArrayBuffer(value)</code></a></li>
 <li><a href="#utiltypesisasyncfunctionvalue"><code>util.types.isAsyncFunction(value)</code></a></li>
 <li><a href="#utiltypesisbigint64arrayvalue"><code>util.types.isBigInt64Array(value)</code></a></li>
+<li><a href="#utiltypesisbigintobjectvalue"><code>util.types.isBigIntObject(value)</code></a></li>
 <li><a href="#utiltypesisbiguint64arrayvalue"><code>util.types.isBigUint64Array(value)</code></a></li>
 <li><a href="#utiltypesisbooleanobjectvalue"><code>util.types.isBooleanObject(value)</code></a></li>
 <li><a href="#utiltypesisboxedprimitivevalue"><code>util.types.isBoxedPrimitive(value)</code></a></li>
@@ -257,7 +273,6 @@
 <li><a href="#utiltypesisuint32arrayvalue"><code>util.types.isUint32Array(value)</code></a></li>
 <li><a href="#utiltypesisweakmapvalue"><code>util.types.isWeakMap(value)</code></a></li>
 <li><a href="#utiltypesisweaksetvalue"><code>util.types.isWeakSet(value)</code></a></li>
-<li><span class="stability_0"><a href="#utiltypesiswebassemblycompiledmodulevalue"><code>util.types.isWebAssemblyCompiledModule(value)</code></a></span></li>
 </ul>
 </li>
 <li><a href="#deprecated-apis">Deprecated APIs</a>
@@ -289,7 +304,7 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Index
       </a>
 
@@ -374,10 +389,12 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/util.html">21.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v23.x/api/util.html">23.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v22.x/api/util.html">22.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/util.html">21.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v20.x/api/util.html">20.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v19.x/api/util.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/util.html">18.x <b>LTS</b></a></li>
@@ -401,7 +418,7 @@
   
             <li class="picker-header">
               <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
@@ -422,7 +439,7 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
 <li><span class="stability_2"><a href="#util">Util</a></span>
 <ul>
 <li><a href="#utilcallbackifyoriginal"><code>util.callbackify(original)</code></a></li>
@@ -478,11 +495,12 @@
 <li><a href="#mimeparamsiterator"><code>mimeParams[@@iterator]()</code></a></li>
 </ul>
 </li>
-<li><span class="stability_1"><a href="#utilparseargsconfig"><code>util.parseArgs([config])</code></a></span>
+<li><a href="#utilparseargsconfig"><code>util.parseArgs([config])</code></a>
 <ul>
 <li><a href="#parseargs-tokens"><code>parseArgs</code> <code>tokens</code></a></li>
 </ul>
 </li>
+<li><span class="stability_1"><a href="#utilparseenvcontent"><code>util.parseEnv(content)</code></a></span></li>
 <li><a href="#utilpromisifyoriginal"><code>util.promisify(original)</code></a>
 <ul>
 <li><a href="#custom-promisified-functions">Custom promisified functions</a></li>
@@ -490,6 +508,7 @@
 </ul>
 </li>
 <li><a href="#utilstripvtcontrolcharactersstr"><code>util.stripVTControlCharacters(str)</code></a></li>
+<li><span class="stability_1"><a href="#utilstyletextformat-text-options"><code>util.styleText(format, text[, options])</code></a></span></li>
 <li><a href="#class-utiltextdecoder">Class: <code>util.TextDecoder</code></a>
 <ul>
 <li><a href="#whatwg-supported-encodings">WHATWG supported encodings</a>
@@ -525,6 +544,7 @@
 <li><a href="#utiltypesisarraybuffervalue"><code>util.types.isArrayBuffer(value)</code></a></li>
 <li><a href="#utiltypesisasyncfunctionvalue"><code>util.types.isAsyncFunction(value)</code></a></li>
 <li><a href="#utiltypesisbigint64arrayvalue"><code>util.types.isBigInt64Array(value)</code></a></li>
+<li><a href="#utiltypesisbigintobjectvalue"><code>util.types.isBigIntObject(value)</code></a></li>
 <li><a href="#utiltypesisbiguint64arrayvalue"><code>util.types.isBigUint64Array(value)</code></a></li>
 <li><a href="#utiltypesisbooleanobjectvalue"><code>util.types.isBooleanObject(value)</code></a></li>
 <li><a href="#utiltypesisboxedprimitivevalue"><code>util.types.isBoxedPrimitive(value)</code></a></li>
@@ -560,7 +580,6 @@
 <li><a href="#utiltypesisuint32arrayvalue"><code>util.types.isUint32Array(value)</code></a></li>
 <li><a href="#utiltypesisweakmapvalue"><code>util.types.isWeakMap(value)</code></a></li>
 <li><a href="#utiltypesisweaksetvalue"><code>util.types.isWeakSet(value)</code></a></li>
-<li><span class="stability_0"><a href="#utiltypesiswebassemblycompiledmodulevalue"><code>util.types.isWebAssemblyCompiledModule(value)</code></a></span></li>
 </ul>
 </li>
 <li><a href="#deprecated-apis">Deprecated APIs</a>
@@ -588,11 +607,11 @@
 </li>
 </ul></details>
 
-      <div id="apicontent">
+      <div role="main" id="apicontent">
         <h2>Util<span><a class="mark" href="#util" id="util">#</a></span><a aria-hidden="true" class="legacy" id="util_util"></a></h2>
 
 <p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.19.1/lib/util.js">lib/util.js</a></p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v20.18.3/lib/util.js">lib/util.js</a></p>
 <p>The <code>node:util</code> module supports the needs of Node.js internal APIs. Many of the
 utilities are useful for application and module developers as well. To access
 it:</p>
@@ -954,6 +973,8 @@ stream.<span class="hljs-title function_">write</span>(<span class="hljs-string"
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v16.18.0</td>
+<td><p>add support for <code>maxArrayLength</code> when inspecting <code>Set</code> and <code>Map</code>.</p></td></tr>
 <tr><td>v17.3.0, v16.14.0</td>
 <td><p>The <code>numericSeparator</code> option is supported now.</p></td></tr>
 <tr><td>v13.0.0</td>
@@ -1022,8 +1043,9 @@ codes. Colors are customizable. See <a href="#customizing-utilinspect-colors">Cu
 <li><code>showProxy</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If <code>true</code>, <code>Proxy</code> inspection includes
 the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy#Terminology"><code>target</code> and <code>handler</code></a> objects. <strong>Default:</strong> <code>false</code>.</li>
 <li><code>maxArrayLength</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a> Specifies the maximum number of <code>Array</code>,
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code>TypedArray</code></a>, <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap"><code>WeakMap</code></a>, and <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet"><code>WeakSet</code></a> elements to include when
-formatting. Set to <code>null</code> or <code>Infinity</code> to show all elements. Set to <code>0</code> or
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray"><code>TypedArray</code></a>, <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map"><code>Map</code></a>, <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set"><code>Set</code></a>, <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap"><code>WeakMap</code></a>,
+and <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet"><code>WeakSet</code></a> elements to include when formatting.
+Set to <code>null</code> or <code>Infinity</code> to show all elements. Set to <code>0</code> or
 negative to show no elements. <strong>Default:</strong> <code>100</code>.</li>
 <li><code>maxStringLength</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a> Specifies the maximum number of characters to
 include when formatting. Set to <code>null</code> or <code>Infinity</code> to show all elements.
@@ -1185,8 +1207,14 @@ numbers.</p>
 <span class="hljs-keyword">const</span> bigNumber = <span class="hljs-number">123_456_789n</span>;
 <span class="hljs-keyword">const</span> bigDecimal = <span class="hljs-number">1_234.123_45</span>;
 
-<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(thousand, million, bigNumber, bigDecimal);
-<span class="hljs-comment">// 1_000 1_000_000 123_456_789n 1_234.123_45</span></code> <button class="copy-button">copy</button></pre>
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-title function_">inspect</span>(thousand, { <span class="hljs-attr">numericSeparator</span>: <span class="hljs-literal">true</span> }));
+<span class="hljs-comment">// 1_000</span>
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-title function_">inspect</span>(million, { <span class="hljs-attr">numericSeparator</span>: <span class="hljs-literal">true</span> }));
+<span class="hljs-comment">// 1_000_000</span>
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-title function_">inspect</span>(bigNumber, { <span class="hljs-attr">numericSeparator</span>: <span class="hljs-literal">true</span> }));
+<span class="hljs-comment">// 123_456_789n</span>
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-title function_">inspect</span>(bigDecimal, { <span class="hljs-attr">numericSeparator</span>: <span class="hljs-literal">true</span> }));
+<span class="hljs-comment">// 1_234.123_45</span></code> <button class="copy-button">copy</button></pre>
 <p><code>util.inspect()</code> is a synchronous method intended for debugging. Its maximum
 output length is approximately 128 MiB. Inputs that result in longer output will
 be truncated.</p>
@@ -1403,7 +1431,7 @@ Otherwise, returns <code>false</code>.</p>
 equality.</p>
 </section><section><h3>Class: <code>util.MIMEType</code><span><a class="mark" href="#class-utilmimetype" id="class-utilmimetype">#</a></span><a aria-hidden="true" class="legacy" id="util_class_util_mimetype"></a></h3>
 <div class="api_metadata">
-<span>Added in: v18.13.0</span>
+<span>Added in: v19.1.0, v18.13.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <p>An implementation of <a href="https://bmeck.github.io/node-proposal-mime-api/">the MIMEType class</a>.</p>
@@ -1419,7 +1447,7 @@ properties for each of these components.</p>
 </ul>
 <p>Creates a new <code>MIMEType</code> object by parsing the <code>input</code>.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">MIMEType</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:util'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">MIMEType</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:util'</span>;
 
 <span class="hljs-keyword">const</span> myMIME = <span class="hljs-keyword">new</span> <span class="hljs-title class_">MIMEType</span>(<span class="hljs-string">'text/plain'</span>);</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { <span class="hljs-title class_">MIMEType</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:util'</span>);
 
@@ -1428,7 +1456,7 @@ properties for each of these components.</p>
 that an effort will be made to coerce the given values into strings. For
 instance:</p>
 
-<pre class="with-62-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">MIMEType</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:util'</span>;
+<pre class="with-62-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">MIMEType</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:util'</span>;
 <span class="hljs-keyword">const</span> myMIME = <span class="hljs-keyword">new</span> <span class="hljs-title class_">MIMEType</span>({ <span class="hljs-attr">toString</span>: <span class="hljs-function">() =></span> <span class="hljs-string">'text/plain'</span> });
 <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-title class_">String</span>(myMIME));
 <span class="hljs-comment">// Prints: text/plain</span></code><code class="language-js cjs"><span class="hljs-keyword">const</span> { <span class="hljs-title class_">MIMEType</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:util'</span>);
@@ -1441,7 +1469,7 @@ instance:</p>
 </ul>
 <p>Gets and sets the type portion of the MIME.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">MIMEType</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:util'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">MIMEType</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:util'</span>;
 
 <span class="hljs-keyword">const</span> myMIME = <span class="hljs-keyword">new</span> <span class="hljs-title class_">MIMEType</span>(<span class="hljs-string">'text/javascript'</span>);
 <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(myMIME.<span class="hljs-property">type</span>);
@@ -1466,7 +1494,7 @@ myMIME.<span class="hljs-property">type</span> = <span class="hljs-string">'appl
 </ul>
 <p>Gets and sets the subtype portion of the MIME.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">MIMEType</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:util'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">MIMEType</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:util'</span>;
 
 <span class="hljs-keyword">const</span> myMIME = <span class="hljs-keyword">new</span> <span class="hljs-title class_">MIMEType</span>(<span class="hljs-string">'text/ecmascript'</span>);
 <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(myMIME.<span class="hljs-property">subtype</span>);
@@ -1492,7 +1520,7 @@ myMIME.<span class="hljs-property">subtype</span> = <span class="hljs-string">'j
 <p>Gets the essence of the MIME. This property is read only.
 Use <code>mime.type</code> or <code>mime.subtype</code> to alter the MIME.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">MIMEType</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:util'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">MIMEType</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:util'</span>;
 
 <span class="hljs-keyword">const</span> myMIME = <span class="hljs-keyword">new</span> <span class="hljs-title class_">MIMEType</span>(<span class="hljs-string">'text/javascript;key=value'</span>);
 <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(myMIME.<span class="hljs-property">essence</span>);
@@ -1533,7 +1561,7 @@ to customize the serialization process of the MIME.</p>
 <p>This method is automatically called when an <code>MIMEType</code> object is serialized
 with <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify"><code>JSON.stringify()</code></a>.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">MIMEType</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:util'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">MIMEType</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:util'</span>;
 
 <span class="hljs-keyword">const</span> myMIMES = [
   <span class="hljs-keyword">new</span> <span class="hljs-title class_">MIMEType</span>(<span class="hljs-string">'image/png'</span>),
@@ -1550,14 +1578,14 @@ with <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/
 <span class="hljs-comment">// Prints: ["image/png", "image/gif"]</span></code><button class="copy-button">copy</button></pre>
 </section><section><h3>Class: <code>util.MIMEParams</code><span><a class="mark" href="#class-utilmimeparams" id="class-utilmimeparams">#</a></span><a aria-hidden="true" class="legacy" id="util_class_util_mimeparams"></a></h3>
 <div class="api_metadata">
-<span>Added in: v18.13.0</span>
+<span>Added in: v19.1.0, v18.13.0</span>
 </div>
 <p>The <code>MIMEParams</code> API provides read and write access to the parameters of a
 <code>MIMEType</code>.</p>
 <h4>Constructor: <code>new MIMEParams()</code><span><a class="mark" href="#constructor-new-mimeparams" id="constructor-new-mimeparams">#</a></span><a aria-hidden="true" class="legacy" id="util_constructor_new_mimeparams"></a></h4>
 <p>Creates a new <code>MIMEParams</code> object by with empty parameters</p>
 
-<pre class="with-44-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">MIMEParams</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:util'</span>;
+<pre class="with-44-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">MIMEParams</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:util'</span>;
 
 <span class="hljs-keyword">const</span> myParams = <span class="hljs-keyword">new</span> <span class="hljs-title class_">MIMEParams</span>();</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { <span class="hljs-title class_">MIMEParams</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:util'</span>);
 
@@ -1577,8 +1605,8 @@ is the <code>name</code>, the second item of the array is the <code>value</code>
 <h4><code>mimeParams.get(name)</code><span><a class="mark" href="#mimeparamsgetname" id="mimeparamsgetname">#</a></span><a aria-hidden="true" class="legacy" id="util_mimeparams_get_name"></a></h4>
 <ul>
 <li><code>name</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
-<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> or <code>null</code> if there is no name-value pair with the given
-<code>name</code>.</li>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a> A string or <code>null</code> if there is no name-value pair
+with the given <code>name</code>.</li>
 </ul>
 <p>Returns the value of the first name-value pair whose name is <code>name</code>. If there
 are no such pairs, <code>null</code> is returned.</p>
@@ -1594,7 +1622,7 @@ are no such pairs, <code>null</code> is returned.</p>
 </ul>
 <p>Returns an iterator over the names of each name-value pair.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">MIMEType</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:util'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">MIMEType</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:util'</span>;
 
 <span class="hljs-keyword">const</span> { params } = <span class="hljs-keyword">new</span> <span class="hljs-title class_">MIMEType</span>(<span class="hljs-string">'text/plain;foo=0;bar=1'</span>);
 <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> name <span class="hljs-keyword">of</span> params.<span class="hljs-title function_">keys</span>()) {
@@ -1620,19 +1648,19 @@ are no such pairs, <code>null</code> is returned.</p>
 <code>value</code>. If there are any pre-existing name-value pairs whose names are <code>name</code>,
 set the first such pair's value to <code>value</code>.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">MIMEType</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:util'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">MIMEType</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:util'</span>;
 
 <span class="hljs-keyword">const</span> { params } = <span class="hljs-keyword">new</span> <span class="hljs-title class_">MIMEType</span>(<span class="hljs-string">'text/plain;foo=0;bar=1'</span>);
 params.<span class="hljs-title function_">set</span>(<span class="hljs-string">'foo'</span>, <span class="hljs-string">'def'</span>);
 params.<span class="hljs-title function_">set</span>(<span class="hljs-string">'baz'</span>, <span class="hljs-string">'xyz'</span>);
 <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(params.<span class="hljs-title function_">toString</span>());
-<span class="hljs-comment">// Prints: foo=def&#x26;bar=1&#x26;baz=xyz</span></code><code class="language-js cjs"><span class="hljs-keyword">const</span> { <span class="hljs-title class_">MIMEType</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:util'</span>);
+<span class="hljs-comment">// Prints: foo=def;bar=1;baz=xyz</span></code><code class="language-js cjs"><span class="hljs-keyword">const</span> { <span class="hljs-title class_">MIMEType</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:util'</span>);
 
 <span class="hljs-keyword">const</span> { params } = <span class="hljs-keyword">new</span> <span class="hljs-title class_">MIMEType</span>(<span class="hljs-string">'text/plain;foo=0;bar=1'</span>);
 params.<span class="hljs-title function_">set</span>(<span class="hljs-string">'foo'</span>, <span class="hljs-string">'def'</span>);
 params.<span class="hljs-title function_">set</span>(<span class="hljs-string">'baz'</span>, <span class="hljs-string">'xyz'</span>);
 <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(params.<span class="hljs-title function_">toString</span>());
-<span class="hljs-comment">// Prints: foo=def&#x26;bar=1&#x26;baz=xyz</span></code><button class="copy-button">copy</button></pre>
+<span class="hljs-comment">// Prints: foo=def;bar=1;baz=xyz</span></code><button class="copy-button">copy</button></pre>
 <h4><code>mimeParams.values()</code><span><a class="mark" href="#mimeparamsvalues" id="mimeparamsvalues">#</a></span><a aria-hidden="true" class="legacy" id="util_mimeparams_values"></a></h4>
 <ul>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#The_iterator_protocol" class="type">&#x3C;Iterator></a></li>
@@ -1644,7 +1672,7 @@ params.<span class="hljs-title function_">set</span>(<span class="hljs-string">'
 </ul>
 <p>Alias for <a href="#mimeparamsentries"><code>mimeParams.entries()</code></a>.</p>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">MIMEType</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:util'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">MIMEType</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:util'</span>;
 
 <span class="hljs-keyword">const</span> { params } = <span class="hljs-keyword">new</span> <span class="hljs-title class_">MIMEType</span>(<span class="hljs-string">'text/plain;foo=bar;xyz=baz'</span>);
 <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> [name, value] <span class="hljs-keyword">of</span> params) {
@@ -1666,16 +1694,19 @@ params.<span class="hljs-title function_">set</span>(<span class="hljs-string">'
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.11.0</td>
+<tr><td>v20.16.0</td>
+<td><p>add support for allowing negative options in input <code>config</code>.</p></td></tr>
+<tr><td>v20.0.0</td>
+<td><p>The API is no longer experimental.</p></td></tr>
+<tr><td>v18.11.0, v16.19.0</td>
 <td><p>Add support for default values in input <code>config</code>.</p></td></tr>
 <tr><td>v18.7.0, v16.17.0</td>
 <td><p>add support for returning detailed parse information using <code>tokens</code> in input <code>config</code> and returned properties.</p></td></tr>
-<tr><td>v18.3.0</td>
-<td><p><span>Added in: v18.3.0</span></p></td></tr>
+<tr><td>v18.3.0, v16.17.0</td>
+<td><p><span>Added in: v18.3.0, v16.17.0</span></p></td></tr>
 </tbody></table>
 </details>
 </div>
-<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <ul>
 <li>
 <p><code>config</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> Used to provide arguments for parsing and to configure
@@ -1704,6 +1735,9 @@ are encountered, or when arguments are passed that do not match the
 <li><code>allowPositionals</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> Whether this command accepts positional
 arguments.
 <strong>Default:</strong> <code>false</code> if <code>strict</code> is <code>true</code>, otherwise <code>true</code>.</li>
+<li><code>allowNegative</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If <code>true</code>, allows explicitly setting boolean
+options to <code>false</code> by prefixing the option name with <code>--no-</code>.
+<strong>Default:</strong> <code>false</code>.</li>
 <li><code>tokens</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> Return the parsed tokens. This is useful for extending
 the built-in behavior, from adding additional checks through to reprocessing
 the tokens in different ways.
@@ -1725,7 +1759,7 @@ section. Only returned if <code>config</code> includes <code>tokens: true</code>
 with <code>process.argv</code> directly. Takes a specification for the expected arguments
 and returns a structured object with the parsed options and positionals.</p>
 
-<pre class="with-43-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { parseArgs } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:util'</span>;
+<pre class="with-43-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { parseArgs } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:util'</span>;
 <span class="hljs-keyword">const</span> args = [<span class="hljs-string">'-f'</span>, <span class="hljs-string">'--bar'</span>, <span class="hljs-string">'b'</span>];
 <span class="hljs-keyword">const</span> options = {
   <span class="hljs-attr">foo</span>: {
@@ -1758,8 +1792,6 @@ and returns a structured object with the parsed options and positionals.</p>
 } = <span class="hljs-title function_">parseArgs</span>({ args, options });
 <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(values, positionals);
 <span class="hljs-comment">// Prints: [Object: null prototype] { foo: true, bar: 'b' } []</span></code><button class="copy-button">copy</button></pre>
-<p><code>util.parseArgs</code> is experimental and behavior may change. Join the
-conversation in <a href="https://github.com/pkgjs/parseargs">pkgjs/parseargs</a> to contribute to the design.</p>
 <h4><code>parseArgs</code> <code>tokens</code><span><a class="mark" href="#parseargs-tokens" id="parseargs-tokens">#</a></span><a aria-hidden="true" class="legacy" id="util_parseargs_tokens"></a></h4>
 <p>Detailed parse information is available for adding custom behaviors by
 specifying <code>tokens: true</code> in the configuration.
@@ -1793,11 +1825,11 @@ like <code>--foo=bar</code>.</li>
 that appear more than once in args produce a token for each use. Short option
 groups like <code>-xy</code> expand to a token for each option. So <code>-xxx</code> produces
 three tokens.</p>
-<p>For example to use the returned tokens to add support for a negated option
-like <code>--no-color</code>, the tokens can be reprocessed to change the value stored
-for the negated option.</p>
+<p>For example, to add support for a negated option like <code>--no-color</code> (which
+<code>allowNegative</code> supports when the option is of <code>boolean</code> type), the returned
+tokens can be reprocessed to change the value stored for the negated option.</p>
 
-<pre class="with-43-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { parseArgs } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:util'</span>;
+<pre class="with-43-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { parseArgs } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:util'</span>;
 
 <span class="hljs-keyword">const</span> options = {
   <span class="hljs-string">'color'</span>: { <span class="hljs-attr">type</span>: <span class="hljs-string">'boolean'</span> },
@@ -1864,9 +1896,38 @@ multiple ways then last one wins.</p>
 { logfile: 'test.log', color: true }
 <span class="hljs-meta prompt_">$ </span><span class="language-bash">node negate.js --no-logfile --logfile=test.log --color --no-color</span>
 { logfile: 'test.log', color: false }</code> <button class="copy-button">copy</button></pre>
+</section><section><h3><code>util.parseEnv(content)</code><span><a class="mark" href="#utilparseenvcontent" id="utilparseenvcontent">#</a></span><a aria-hidden="true" class="legacy" id="util_util_parseenv_content"></a></h3>
+<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a>.1 - Active development</div><p></p>
+<div class="api_metadata">
+<span>Added in: v20.12.0</span>
+</div>
+<ul>
+<li><code>content</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
+</ul>
+<p>The raw contents of a <code>.env</code> file.</p>
+<ul>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a></li>
+</ul>
+<p>Given an example <code>.env</code> file:</p>
+
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" aria-label="Show modern ES modules syntax"><code class="language-js cjs"><span class="hljs-keyword">const</span> { parseEnv } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:util'</span>);
+
+<span class="hljs-title function_">parseEnv</span>(<span class="hljs-string">'HELLO=world\nHELLO=oh my\n'</span>);
+<span class="hljs-comment">// Returns: { HELLO: 'oh my' }</span></code><code class="language-js mjs"><span class="hljs-keyword">import</span> { parseEnv } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:util'</span>;
+
+<span class="hljs-title function_">parseEnv</span>(<span class="hljs-string">'HELLO=world\nHELLO=oh my\n'</span>);
+<span class="hljs-comment">// Returns: { HELLO: 'oh my' }</span></code><button class="copy-button">copy</button></pre>
 </section><section><h3><code>util.promisify(original)</code><span><a class="mark" href="#utilpromisifyoriginal" id="utilpromisifyoriginal">#</a></span><a aria-hidden="true" class="legacy" id="util_util_promisify_original"></a></h3>
 <div class="api_metadata">
-<span>Added in: v8.0.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v20.8.0</td>
+<td><p>Calling <code>promisify</code> on a function that returns a <code>Promise</code> is deprecated.</p></td></tr>
+<tr><td>v8.0.0</td>
+<td><p><span>Added in: v8.0.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><code>original</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a></li>
@@ -1893,7 +1954,9 @@ that returns promises.</p>
 <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">callStat</span>(<span class="hljs-params"></span>) {
   <span class="hljs-keyword">const</span> stats = <span class="hljs-keyword">await</span> <span class="hljs-title function_">stat</span>(<span class="hljs-string">'.'</span>);
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`This directory is owned by <span class="hljs-subst">${stats.uid}</span>`</span>);
-}</code> <button class="copy-button">copy</button></pre>
+}
+
+<span class="hljs-title function_">callStat</span>();</code> <button class="copy-button">copy</button></pre>
 <p>If there is an <code>original[util.promisify.custom]</code> property present, <code>promisify</code>
 will return its value, see <a href="#custom-promisified-functions">Custom promisified functions</a>.</p>
 <p><code>promisify()</code> assumes that <code>original</code> is a function taking a callback as its
@@ -1991,9 +2054,82 @@ doSomething[kCustomPromisifiedSymbol] = <span class="hljs-function">(<span class
 <p>Returns <code>str</code> with any ANSI escape codes removed.</p>
 <pre><code class="language-js"><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(util.<span class="hljs-title function_">stripVTControlCharacters</span>(<span class="hljs-string">'\u001B[4mvalue\u001B[0m'</span>));
 <span class="hljs-comment">// Prints "value"</span></code> <button class="copy-button">copy</button></pre>
+</section><section><h3><code>util.styleText(format, text[, options])</code><span><a class="mark" href="#utilstyletextformat-text-options" id="utilstyletextformat-text-options">#</a></span><a aria-hidden="true" class="legacy" id="util_util_styletext_format_text_options"></a></h3>
+<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a>.1 - Active development</div><p></p>
+<div class="api_metadata">
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v20.18.0</td>
+<td><p>Respect isTTY and environment variables such as NO_COLORS, NODE_DISABLE_COLORS, and FORCE_COLOR.</p></td></tr>
+<tr><td>v20.12.0</td>
+<td><p><span>Added in: v20.12.0</span></p></td></tr>
+</tbody></table>
+</details>
+</div>
+<ul>
+<li><code>format</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="type">&#x3C;Array></a> A text format or an Array
+of text formats defined in <code>util.inspect.colors</code>.</li>
+<li><code>text</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> The text to to be formatted.</li>
+<li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
+<ul>
+<li><code>validateStream</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> When true, <code>stream</code> is checked to see if it can handle colors. <strong>Default:</strong> <code>true</code>.</li>
+<li><code>stream</code> <a href="stream.html#stream" class="type">&#x3C;Stream></a> A stream that will be validated if it can be colored. <strong>Default:</strong> <code>process.stdout</code>.</li>
+</ul>
+</li>
+</ul>
+<p>This function returns a formatted text considering the <code>format</code> passed
+for printing in a terminal. It is aware of the terminal's capabilities
+and acts according to the configuration set via <code>NO_COLORS</code>,
+<code>NODE_DISABLE_COLORS</code> and <code>FORCE_COLOR</code> environment variables.</p>
+
+<pre class="with-43-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { styleText } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:util'</span>;
+<span class="hljs-keyword">import</span> { stderr } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:process'</span>;
+
+<span class="hljs-keyword">const</span> successMessage = <span class="hljs-title function_">styleText</span>(<span class="hljs-string">'green'</span>, <span class="hljs-string">'Success!'</span>);
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(successMessage);
+
+<span class="hljs-keyword">const</span> errorMessage = <span class="hljs-title function_">styleText</span>(
+  <span class="hljs-string">'red'</span>,
+  <span class="hljs-string">'Error! Error!'</span>,
+  <span class="hljs-comment">// Validate if process.stderr has TTY</span>
+  { <span class="hljs-attr">stream</span>: stderr },
+);
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(successMessage);</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { styleText } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:util'</span>);
+<span class="hljs-keyword">const</span> { stderr } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:process'</span>);
+
+<span class="hljs-keyword">const</span> successMessage = <span class="hljs-title function_">styleText</span>(<span class="hljs-string">'green'</span>, <span class="hljs-string">'Success!'</span>);
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(successMessage);
+
+<span class="hljs-keyword">const</span> errorMessage = <span class="hljs-title function_">styleText</span>(
+  <span class="hljs-string">'red'</span>,
+  <span class="hljs-string">'Error! Error!'</span>,
+  <span class="hljs-comment">// Validate if process.stderr has TTY</span>
+  { <span class="hljs-attr">stream</span>: stderr },
+);
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(successMessage);</code><button class="copy-button">copy</button></pre>
+<p><code>util.inspect.colors</code> also provides text formats such as <code>italic</code>, and
+<code>underline</code> and you can combine both:</p>
+<pre><code class="language-js cjs"><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(
+  util.<span class="hljs-title function_">styleText</span>([<span class="hljs-string">'underline'</span>, <span class="hljs-string">'italic'</span>], <span class="hljs-string">'My italic underlined message'</span>),
+);</code> <button class="copy-button">copy</button></pre>
+<p>When passing an array of formats, the order of the format applied
+is left to right so the following style might overwrite the previous one.</p>
+<pre><code class="language-js cjs"><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(
+  util.<span class="hljs-title function_">styleText</span>([<span class="hljs-string">'red'</span>, <span class="hljs-string">'green'</span>], <span class="hljs-string">'text'</span>), <span class="hljs-comment">// green</span>
+);</code> <button class="copy-button">copy</button></pre>
+<p>The full list of formats can be found in <a href="#modifiers">modifiers</a>.</p>
 </section><section><h3>Class: <code>util.TextDecoder</code><span><a class="mark" href="#class-utiltextdecoder" id="class-utiltextdecoder">#</a></span><a aria-hidden="true" class="legacy" id="util_class_util_textdecoder"></a></h3>
 <div class="api_metadata">
-<span>Added in: v8.3.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v11.0.0</td>
+<td><p>The class is now available on the global object.</p></td></tr>
+<tr><td>v8.3.0</td>
+<td><p><span>Added in: v8.3.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <p>An implementation of the <a href="https://encoding.spec.whatwg.org/">WHATWG Encoding Standard</a> <code>TextDecoder</code> API.</p>
 <pre><code class="language-js"><span class="hljs-keyword">const</span> decoder = <span class="hljs-keyword">new</span> <span class="hljs-title class_">TextDecoder</span>();
@@ -2197,17 +2333,6 @@ one or more aliases may be used.</p>
 <p>The <code>'iso-8859-16'</code> encoding listed in the <a href="https://encoding.spec.whatwg.org/">WHATWG Encoding Standard</a>
 is not supported.</p>
 <h4><code>new TextDecoder([encoding[, options]])</code><span><a class="mark" href="#new-textdecoderencoding-options" id="new-textdecoderencoding-options">#</a></span><a aria-hidden="true" class="legacy" id="util_new_textdecoder_encoding_options"></a></h4>
-<div class="api_metadata">
-<details class="changelog"><summary>History</summary>
-<table>
-<tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v11.0.0</td>
-<td><p>The class is now available on the global object.</p></td></tr>
-<tr><td>v8.3.0</td>
-<td><p><span>Added in: v8.3.0</span></p></td></tr>
-</tbody></table>
-</details>
-</div>
 <ul>
 <li><code>encoding</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Identifies the <code>encoding</code> that this <code>TextDecoder</code> instance
 supports. <strong>Default:</strong> <code>'utf-8'</code>.</li>
@@ -2285,6 +2410,9 @@ instances of <code>TextEncoder</code> only support UTF-8 encoding.</p>
 <p>UTF-8 encodes the <code>input</code> string and returns a <code>Uint8Array</code> containing the
 encoded bytes.</p>
 <h4><code>textEncoder.encodeInto(src, dest)</code><span><a class="mark" href="#textencoderencodeintosrc-dest" id="textencoderencodeintosrc-dest">#</a></span><a aria-hidden="true" class="legacy" id="util_textencoder_encodeinto_src_dest"></a></h4>
+<div class="api_metadata">
+<span>Added in: v12.11.0</span>
+</div>
 <ul>
 <li><code>src</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> The text to encode.</li>
 <li><code>dest</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array" class="type">&#x3C;Uint8Array></a> The array to hold the encode result.</li>
@@ -2339,39 +2467,55 @@ as transferable and can be used with <code>structuredClone()</code> or <code>pos
 channel.<span class="hljs-property">port2</span>.<span class="hljs-title function_">postMessage</span>(signal, [signal]);</code> <button class="copy-button">copy</button></pre>
 </section><section><h3><code>util.aborted(signal, resource)</code><span><a class="mark" href="#utilabortedsignal-resource" id="utilabortedsignal-resource">#</a></span><a aria-hidden="true" class="legacy" id="util_util_aborted_signal_resource"></a></h3>
 <div class="api_metadata">
-<span>Added in: v18.16.0</span>
+<span>Added in: v19.7.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <ul>
 <li><code>signal</code> <a href="globals.html#class-abortsignal" class="type">&#x3C;AbortSignal></a></li>
-<li><code>resource</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> Any non-null entity, reference to which is held weakly.</li>
+<li><code>resource</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> Any non-null object tied to the abortable operation and held weakly.
+If <code>resource</code> is garbage collected before the <code>signal</code> aborts, the promise remains pending,
+allowing Node.js to stop tracking it.
+This helps prevent memory leaks in long-running or non-cancelable operations.</li>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a></li>
 </ul>
-<p>Listens to abort event on the provided <code>signal</code> and
-returns a promise that is fulfilled when the <code>signal</code> is
-aborted. If the passed <code>resource</code> is garbage collected before the <code>signal</code> is
-aborted, the returned promise shall remain pending indefinitely.</p>
+<p>Listens to abort event on the provided <code>signal</code> and returns a promise that resolves when the <code>signal</code> is aborted.
+If <code>resource</code> is provided, it weakly references the operation's associated object,
+so if <code>resource</code> is garbage collected before the <code>signal</code> aborts,
+then returned promise shall remain pending.
+This prevents memory leaks in long-running or non-cancelable operations.</p>
 
-<pre class="with-41-chars"><input class="js-flavor-selector" type="checkbox" aria-label="Show modern ES modules syntax"><code class="language-js cjs"><span class="hljs-keyword">const</span> { aborted } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:util'</span>);
+<pre class="with-41-chars"><input class="js-flavor-toggle" type="checkbox" aria-label="Show modern ES modules syntax"><code class="language-js cjs"><span class="hljs-keyword">const</span> { aborted } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:util'</span>);
 
+<span class="hljs-comment">// Obtain an object with an abortable signal, like a custom resource or operation.</span>
 <span class="hljs-keyword">const</span> dependent = <span class="hljs-title function_">obtainSomethingAbortable</span>();
 
+<span class="hljs-comment">// Pass `dependent` as the resource, indicating the promise should only resolve</span>
+<span class="hljs-comment">// if `dependent` is still in memory when the signal is aborted.</span>
 <span class="hljs-title function_">aborted</span>(dependent.<span class="hljs-property">signal</span>, dependent).<span class="hljs-title function_">then</span>(<span class="hljs-function">() =></span> {
-  <span class="hljs-comment">// Do something when dependent is aborted.</span>
+
+  <span class="hljs-comment">// This code runs when `dependent` is aborted.</span>
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'Dependent resource was aborted.'</span>);
 });
 
+<span class="hljs-comment">// Simulate an event that triggers the abort.</span>
 dependent.<span class="hljs-title function_">on</span>(<span class="hljs-string">'event'</span>, <span class="hljs-function">() =></span> {
-  dependent.<span class="hljs-title function_">abort</span>();
+  dependent.<span class="hljs-title function_">abort</span>(); <span class="hljs-comment">// This will cause the `aborted` promise to resolve.</span>
 });</code><code class="language-js mjs"><span class="hljs-keyword">import</span> { aborted } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:util'</span>;
 
+<span class="hljs-comment">// Obtain an object with an abortable signal, like a custom resource or operation.</span>
 <span class="hljs-keyword">const</span> dependent = <span class="hljs-title function_">obtainSomethingAbortable</span>();
 
+<span class="hljs-comment">// Pass `dependent` as the resource, indicating the promise should only resolve</span>
+<span class="hljs-comment">// if `dependent` is still in memory when the signal is aborted.</span>
 <span class="hljs-title function_">aborted</span>(dependent.<span class="hljs-property">signal</span>, dependent).<span class="hljs-title function_">then</span>(<span class="hljs-function">() =></span> {
-  <span class="hljs-comment">// Do something when dependent is aborted.</span>
+
+  <span class="hljs-comment">// This code runs when `dependent` is aborted.</span>
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'Dependent resource was aborted.'</span>);
 });
 
+<span class="hljs-comment">// Simulate an event that triggers the abort.</span>
 dependent.<span class="hljs-title function_">on</span>(<span class="hljs-string">'event'</span>, <span class="hljs-function">() =></span> {
-  dependent.<span class="hljs-title function_">abort</span>();
+  dependent.<span class="hljs-title function_">abort</span>(); <span class="hljs-comment">// This will cause the `aborted` promise to resolve.</span>
 });</code><button class="copy-button">copy</button></pre>
 </section><section><h3><code>util.types</code><span><a class="mark" href="#utiltypes" id="utiltypes">#</a></span><a aria-hidden="true" class="legacy" id="util_util_types"></a></h3>
 <div class="api_metadata">
@@ -2473,6 +2617,19 @@ util.<span class="hljs-property">types</span>.<span class="hljs-title function_"
 <p>Returns <code>true</code> if the value is a <code>BigInt64Array</code> instance.</p>
 <pre><code class="language-js">util.<span class="hljs-property">types</span>.<span class="hljs-title function_">isBigInt64Array</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">BigInt64Array</span>());   <span class="hljs-comment">// Returns true</span>
 util.<span class="hljs-property">types</span>.<span class="hljs-title function_">isBigInt64Array</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">BigUint64Array</span>());  <span class="hljs-comment">// Returns false</span></code> <button class="copy-button">copy</button></pre>
+<h4><code>util.types.isBigIntObject(value)</code><span><a class="mark" href="#utiltypesisbigintobjectvalue" id="utiltypesisbigintobjectvalue">#</a></span><a aria-hidden="true" class="legacy" id="util_util_types_isbigintobject_value"></a></h4>
+<div class="api_metadata">
+<span>Added in: v10.4.0</span>
+</div>
+<ul>
+<li><code>value</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types" class="type">&#x3C;any></a></li>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a></li>
+</ul>
+<p>Returns <code>true</code> if the value is a BigInt object, e.g. created
+by <code>Object(BigInt(123))</code>.</p>
+<pre><code class="language-js">util.<span class="hljs-property">types</span>.<span class="hljs-title function_">isBigIntObject</span>(<span class="hljs-title class_">Object</span>(<span class="hljs-title class_">BigInt</span>(<span class="hljs-number">123</span>)));   <span class="hljs-comment">// Returns true</span>
+util.<span class="hljs-property">types</span>.<span class="hljs-title function_">isBigIntObject</span>(<span class="hljs-title class_">BigInt</span>(<span class="hljs-number">123</span>));   <span class="hljs-comment">// Returns false</span>
+util.<span class="hljs-property">types</span>.<span class="hljs-title function_">isBigIntObject</span>(<span class="hljs-number">123</span>);  <span class="hljs-comment">// Returns false</span></code> <button class="copy-button">copy</button></pre>
 <h4><code>util.types.isBigUint64Array(value)</code><span><a class="mark" href="#utiltypesisbiguint64arrayvalue" id="utiltypesisbiguint64arrayvalue">#</a></span><a aria-hidden="true" class="legacy" id="util_util_types_isbiguint64array_value"></a></h4>
 <div class="api_metadata">
 <span>Added in: v10.0.0</span>
@@ -2717,8 +2874,7 @@ util.<span class="hljs-property">types</span>.<span class="hljs-title function_"
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a></li>
 </ul>
 <p>Returns <code>true</code> if the value is an instance of a <a href="https://tc39.github.io/ecma262/#sec-module-namespace-exotic-objects">Module Namespace Object</a>.</p>
-<!-- eslint-skip -->
-<pre><code class="language-js"><span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> ns <span class="hljs-keyword">from</span> <span class="hljs-string">'./a.js'</span>;
+<pre><code class="language-js mjs"><span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> ns <span class="hljs-keyword">from</span> <span class="hljs-string">'./a.js'</span>;
 
 util.<span class="hljs-property">types</span>.<span class="hljs-title function_">isModuleNamespaceObject</span>(ns);  <span class="hljs-comment">// Returns true</span></code> <button class="copy-button">copy</button></pre>
 <h4><code>util.types.isNativeError(value)</code><span><a class="mark" href="#utiltypesisnativeerrorvalue" id="utiltypesisnativeerrorvalue">#</a></span><a aria-hidden="true" class="legacy" id="util_util_types_isnativeerror_value"></a></h4>
@@ -2942,18 +3098,6 @@ util.<span class="hljs-property">types</span>.<span class="hljs-title function_"
 </ul>
 <p>Returns <code>true</code> if the value is a built-in <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet"><code>WeakSet</code></a> instance.</p>
 <pre><code class="language-js">util.<span class="hljs-property">types</span>.<span class="hljs-title function_">isWeakSet</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">WeakSet</span>());  <span class="hljs-comment">// Returns true</span></code> <button class="copy-button">copy</button></pre>
-<h4><code>util.types.isWebAssemblyCompiledModule(value)</code><span><a class="mark" href="#utiltypesiswebassemblycompiledmodulevalue" id="utiltypesiswebassemblycompiledmodulevalue">#</a></span><a aria-hidden="true" class="legacy" id="util_util_types_iswebassemblycompiledmodule_value"></a></h4>
-<div class="api_metadata">
-<span>Added in: v10.0.0</span><span>Deprecated since: v14.0.0</span>
-</div>
-<p></p><div class="api_stability api_stability_0"><a href="documentation.html#stability-index">Stability: 0</a> - Deprecated: Use <code>value instanceof WebAssembly.Module</code> instead.</div><p></p>
-<ul>
-<li><code>value</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types" class="type">&#x3C;any></a></li>
-<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a></li>
-</ul>
-<p>Returns <code>true</code> if the value is a built-in <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/Module"><code>WebAssembly.Module</code></a> instance.</p>
-<pre><code class="language-js"><span class="hljs-keyword">const</span> <span class="hljs-variable language_">module</span> = <span class="hljs-keyword">new</span> <span class="hljs-title class_">WebAssembly</span>.<span class="hljs-title class_">Module</span>(wasmBuffer);
-util.<span class="hljs-property">types</span>.<span class="hljs-title function_">isWebAssemblyCompiledModule</span>(<span class="hljs-variable language_">module</span>);  <span class="hljs-comment">// Returns true</span></code> <button class="copy-button">copy</button></pre>
 </section><section><h3>Deprecated APIs<span><a class="mark" href="#deprecated-apis" id="deprecated-apis">#</a></span><a aria-hidden="true" class="legacy" id="util_deprecated_apis"></a></h3>
 <p>The following APIs are deprecated and should no longer be used. Existing
 applications and modules should be updated to find alternative approaches.</p>

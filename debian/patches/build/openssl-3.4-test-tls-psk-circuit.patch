@@ -1,0 +1,28 @@
+From 2cbcd876e05864d6c81227cc22171e6f6b97a1d2 Mon Sep 17 00:00:00 2001
+From: Sebastian Andrzej Siewior <sebastian@breakpoint.cc>
+Date: Tue, 31 Dec 2024 16:44:17 +0100
+Subject: [PATCH 1/2] test: update error code in tls-psk-circuit for for
+ OpenSSL 3.4
+
+Update parallel/test-tls-psk-circuit.js to account for error code
+changes in OpenSSL 3.4 and probably later.
+
+https://github.com/nodejs/node/pull/56420
+
+Signed-off-by: Sebastian Andrzej Siewior <sebastian@breakpoint.cc>
+---
+ test/common/index.js                  | 4 ++++
+ test/parallel/test-tls-psk-circuit.js | 5 +++--
+ 2 files changed, 7 insertions(+), 2 deletions(-)
+
+--- a/test/parallel/test-tls-psk-circuit.js
++++ b/test/parallel/test-tls-psk-circuit.js
+@@ -66,7 +66,7 @@
+   'ERR_SSL_SSL/TLS_ALERT_HANDSHAKE_FAILURE' : 'ERR_SSL_SSLV3_ALERT_HANDSHAKE_FAILURE';
+ test({ psk: USERS.UserB, identity: 'UserC' }, {}, expectedHandshakeErr);
+ // Recognized user but incorrect secret should fail handshake
+-const expectedIllegalParameterErr = common.hasOpenSSL(3, 2) ?
++const expectedIllegalParameterErr = common.hasOpenSSL(3, 4) ? 'ERR_SSL_TLSV1_ALERT_DECRYPT_ERROR' : common.hasOpenSSL(3, 2) ?
+   'ERR_SSL_SSL/TLS_ALERT_ILLEGAL_PARAMETER' : 'ERR_SSL_SSLV3_ALERT_ILLEGAL_PARAMETER';
+ test({ psk: USERS.UserA, identity: 'UserB' }, {}, expectedIllegalParameterErr);
+ test({ psk: USERS.UserB, identity: 'UserB' });

@@ -10,10 +10,10 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 builtins := /usr/share/nodejs/node
 
 # source equivalent of nodejs -e 'console.log(process.versions.modules)'
-ABI = $(shell awk '/^#define NODE_MODULE_VERSION/ {print $$3}' src/node_version.h)
+ABI = $(shell awk '/^#define NODE_MODULE_VERSION [0-9]+/ {print $$3}' src/node_version.h)
 
 # archs
-ARCHS := amd64 arm64 armel armhf i386 kfreebsd-i386 kfreebsd-amd64 mips mips64el mips64r6el mipsel loong64 ppc64 ppc64el riscv64 s390x
+ARCHS := amd64 arm64 armel armhf i386 mips64el mips64r6el loong64 ppc64 ppc64el riscv64 s390x
 
 # branch
 BRANCH := $(word 1, $(subst .,$(space), $(DEB_UPSTREAM_VERSION)))
@@ -28,20 +28,25 @@ DEB_CONFIGURE_EXTRA_FLAGS = \
 --shared \
 --shared-zlib \
 --shared-cares \
+--shared-ngtcp2 \
+--shared-nghttp3 \
 --shared-nghttp2 \
 --shared-brotli \
+--shared-libuv \
+--shared-simdjson \
 --shared-builtin-undici/undici-path=/usr/share/nodejs/undici/undici-fetch.js \
 --shared-builtin-acorn-path=/usr/share/nodejs/acorn/dist/acorn.js \
 --shared-builtin-acorn_walk-path=/usr/share/nodejs/acorn-walk/dist/walk.js \
 --shared-builtin-cjs_module_lexer/lexer-path=/usr/share/nodejs/cjs-module-lexer/lexer.js \
 --shared-builtin-cjs_module_lexer/dist/lexer-path=/usr/share/nodejs/cjs-module-lexer/dist/lexer.js \
---with-intl=system-icu \
---prefix=/usr \
+--shared-builtin-minimatch-path=/usr/share/nodejs/minimatch/dist/cjs/index.bundle.js \
 --shared-openssl \
 --openssl-use-def-ca-store \
+--with-intl=system-icu \
+--prefix=/usr \
 --arch-triplet=$(DEB_HOST_MULTIARCH) \
 --node-relative-path="lib/$(DEB_HOST_MULTIARCH)/nodejs:share/nodejs" \
---shared-libuv
+--dest-os=linux
 
 ifneq ($(filter pkg.nodejs.nobuiltin,$(DEB_BUILD_PROFILES)),)
 	DEB_CONFIGURE_EXTRA_FLAGS += --node-builtin-modules-path=$(builtins)
@@ -52,60 +57,21 @@ endif
 destCpu =
 destCpu := $(or $(destCpu),$(if $(filter i386,$(DEB_HOST_ARCH)),ia32))
 destCpu := $(or $(destCpu),$(if $(filter x32,$(DEB_HOST_ARCH)),x32))
-destCpu := $(or $(destCpu),$(if $(filter kfreebsd-i386,$(DEB_HOST_ARCH)),ia32))
 destCpu := $(or $(destCpu),$(if $(filter hurd-i386,$(DEB_HOST_ARCH)),ia32))
 destCpu := $(or $(destCpu),$(if $(filter amd64,$(DEB_HOST_ARCH)),x64))
-destCpu := $(or $(destCpu),$(if $(filter kfreebsd-amd64,$(DEB_HOST_ARCH)),x64))
 destCpu := $(or $(destCpu),$(if $(filter armel,$(DEB_HOST_ARCH)),arm))
 destCpu := $(or $(destCpu),$(if $(filter armhf,$(DEB_HOST_ARCH)),arm))
 destCpu := $(or $(destCpu),$(if $(filter aarch64,$(DEB_HOST_ARCH)),arm64))
-destCpu := $(or $(destCpu),$(if $(filter mipsel,$(DEB_HOST_ARCH)),mipsel))
 destCpu := $(or $(destCpu),$(if $(filter mips64el,$(DEB_HOST_ARCH)),mips64el))
 destCpu := $(or $(destCpu),$(if $(filter mips64r6el,$(DEB_HOST_ARCH)),mips64el))
-destCpu := $(or $(destCpu),$(if $(filter mips,$(DEB_HOST_ARCH)),mips))
 destCpu := $(or $(destCpu),$(if $(filter loong64,$(DEB_HOST_ARCH)),loong64))
 destCpu := $(or $(destCpu),$(if $(filter powerpc,$(DEB_HOST_ARCH)),ppc))
 destCpu := $(or $(destCpu),$(if $(filter ppc64,$(DEB_HOST_ARCH)),ppc64))
 destCpu := $(or $(destCpu),$(if $(filter riscv64,$(DEB_HOST_ARCH)),riscv64))
 destCpu := $(or $(destCpu),$(if $(filter s390x,$(DEB_HOST_ARCH)),s390x))
 
-# solaris freebsd openbsd linux
-destOs =
-destOs := $(or $(destOs),$(if $(filter linux,$(DEB_HOST_ARCH_OS)),linux))
-destOs := $(or $(destOs),$(if $(filter kfreebsd,$(DEB_HOST_ARCH_OS)),freebsd))
-
-ifneq (, $(destOs))
-DEB_CONFIGURE_EXTRA_FLAGS += --dest-os=$(destOs)
-endif
-ifeq (unsupported, $(destCpu))
-$(error "nodejs cannot run on $(DEB_HOST_ARCH), please consult maintainers")
-endif
 ifneq (, $(destCpu))
 DEB_CONFIGURE_EXTRA_FLAGS += --dest-cpu=$(destCpu)
-endif
-
-ifeq (freebsd, $(destOs))
-LDFLAGS += -lbsd
-endif
-
-# mips and fpu
-# https://github.com/paul99/v8m-rb/issues/192
-# https://bugs.debian.org/800410
-# mips and big binaries
-# http://gcc.gnu.org/wiki/DebugFission
-# https://bugs.debian.org/829139
-
-# use r2, which is the supported variant for these architectures
-# https://lists.debian.org/debian-mips/2016/07/msg00000.html
-ifeq (mipsel, $(DEB_HOST_ARCH))
-DEB_CONFIGURE_EXTRA_FLAGS += --with-mips-arch-variant=r2 --with-mips-fpu-mode=fpxx
-CFLAGS += -gsplit-dwarf
-CPPFLAGS += -gsplit-dwarf
-endif
-ifeq (mips, $(DEB_HOST_ARCH))
-DEB_CONFIGURE_EXTRA_FLAGS += --with-mips-arch-variant=r2 --with-mips-fpu-mode=fpxx
-CFLAGS += -gsplit-dwarf
-CPPFLAGS += -gsplit-dwarf
 endif
 
 # mips32r1 or greater, detected at runtime
@@ -150,18 +116,93 @@ DEB_DESTDIR = $(CURDIR)/debian/tmp
 DEB_MAKE_CLEAN_TARGET = clean
 DEB_MAKE_BUILD_TARGET = build
 
-#  relax regression tests when targeted experimental suite
+skipTests =
+# tests require undici >= 6.5.0
+skipTests := $(skipTests),parallel/test-eventsource
+# tests using npm
+skipTests := $(skipTests),parallel/test-npm-install
+skipTests := $(skipTests),parallel/test-npm-version
+skipTests := $(skipTests),parallel/test-release-npm
+# tests using network
+skipTests := $(skipTests),parallel/test-dns
+skipTests := $(skipTests),parallel/test-net-connect-immediate-finish
+skipTests := $(skipTests),parallel/test-net-better-error-messages-port-hostname
+skipTests := $(skipTests),parallel/test-https-connect-address-family
+skipTests := $(skipTests),parallel/test-tls-connect-address-family
+skipTests := $(skipTests),parallel/test-dns-cancel-reverse-lookup
+skipTests := $(skipTests),parallel/test-dns-resolveany-bad-ancount
+# bad test
+skipTests := $(skipTests),parallel/test-child-process-stdio-overlapped
+# requires corepack
+skipTests := $(skipTests),parallel/test-corepack-yarn-install
+skipTests := $(skipTests),parallel/test-corepack-version
+# fail on buildd
+skipTests := $(skipTests),sequential/test-force-repl
+skipTests := $(skipTests),sequential/test-performance
+# hangs https://github.com/nodejs/node/issues/44898
+skipTests := $(skipTests),sequential/test-watch-mode
+skipTests := $(skipTests),sequential/test-watch-mode-inspect
+# CVE-2024-22017 shared libuv cannot guarantee io_uring is disabled
+skipTests := $(skipTests),parallel/test-process-uid-gid
+skipTests := $(skipTests),parallel/test-process-initgroups
+skipTests := $(skipTests),parallel/test-process-setgroups
+skipTests := $(skipTests),parallel/test-process-euid-egid
+# sea requires postject
+skipTests := $(skipTests),parallel/test-single-executable-application
+# loading of openssl for tests make this test fail
+skipTests := $(skipTests),parallel/test-strace-openat-openssl
+# Might fail on slow architectures
+skipTests := $(skipTests),parallel/test-runner-output
+skipTests := $(skipTests),sequential/test-tls-session-timeout
+# https://bugs.debian.org/919588
+# flaky on some user environments
+skipTests := $(skipTests),parallel/test-net-listen-after-destroying-stdin
+# fails when running with eatmydata
+skipTests := $(skipTests),parallel/test-fs-error-messages
+# need privileges
+skipTests := $(skipTests),parallel/test-cluster-bind-privileged-port
+skipTests := $(skipTests),parallel/test-cluster-shared-handle-bind-privileged-port
+skipTests := $(skipTests),parallel/test-debugger-preserve-breaks
+# issues on 32-bit archs
+skipTests := $(skipTests),parallel/test-debugger-heap-profiler
+skipTests := $(skipTests),parallel/test-fs-utimes
+skipTests := $(skipTests),parallel/test-fs-utimes-y2K38
+skipTests := $(skipTests),parallel/test-debug-args
+# https://github.com/nodejs/node/issues/27611#issuecomment-613100468
+skipTests := $(skipTests),sequential/test-cpu-prof-dir-absolute
+# Flaky in build servers
+skipTests := $(skipTests),parallel/test-process-config
+skipTests := $(skipTests),parallel/test-regress-GH-746
+skipTests := $(skipTests),parallel/test-stdout-close-unref
+skipTests := $(skipTests),sequential/test-fs-watch
+skipTests := $(skipTests),sequential/test-http2-session-timeout
+skipTests := $(skipTests),sequential/test-debugger-preserve-breaks
+skipTests := $(skipTests),sequential/test-debugger-exec-scope
+skipTests := $(skipTests),sequential/test-worker-heapsnapshot-options
+# flaky on buildd https://github.com/nodejs/node/issues/39655
+skipTests := $(skipTests),parallel/test-cluster-primary-error
+skipTests := $(skipTests),parallel/test-cluster-primary-kill
+
 export HOME = $(CURDIR)/tmp
-export FLAKY_TESTS = dontcare
-export TEST_CI_ARGS = --arch=$(destCpu) --timeout=3000
 export CI_JS_SUITES = message parallel sequential
 export NODE_TEST_DIR = $(CURDIR)/tmp
 export NODE_TEST_NO_INTERNET = 1
 # needed for tests to avoid "ee key too small" errors
-export OPENSSL_CONF = $(CURDIR)/deps/openssl/openssl/apps/openssl.cnf
-# keep in mind ./debian/rules check is also invoked by adt-run, see debian/tests/
+export OPENSSL_CONF = $(CURDIR)/debian/openssl.cnf
+# relax regression tests when targeted experimental suite
 exp-relax-check := $(if $(shell dpkg-parsechangelog | grep -x 'Distribution: \(experimental\|UNRELEASED\)'),-i)
 DEB_MAKE_CHECK_TARGET = $(exp-relax-check) test-ci-js
+export CI_SKIP_TESTS = $(skipTests)
+export FLAKY_TESTS = dontcare
+TEST_CI_ARGS = --arch=$(destCpu) --timeout=3000
+
+# override Node.js path when running under adt-run (no build directory present)
+ifeq (,$(wildcard $(CURDIR)/out))
+TEST_CI_ARGS += --shell=/usr/bin/node
+else
+TEST_CI_ARGS += --shell=out/Release/node
+endif
+export TEST_CI_ARGS
 
 # build -fPIC
 CFLAGS += -fPIC
@@ -189,7 +230,7 @@ export LDFLAGS
 export PYTHON = python3
 
 %:
-	dh $@ --with bash-completion $(DH_FLAGS)
+	dh $@ $(DH_FLAGS)
 
 # properly clean files from build, test, python
 execute_after_dh_auto_clean:
@@ -211,6 +252,7 @@ execute_after_dh_auto_clean:
 	rm -f debian/libnode-dev.links
 	rm -f debian/nodejs.install
 	rm -f debian/nodejs.bash-completion
+	rm -rf deps/openssl/
 
 # remove *.json files from documentation
 execute_after_dh_installdocs:
@@ -229,6 +271,7 @@ else
 endif
 
 execute_before_dh_auto_build-arch:
+	mkdir -p deps/openssl/ && touch deps/openssl/nodejs-openssl.cnf
 	pkver=`dpkg-query --showformat='$${source:Upstream-Version}' --show node-acorn | sed -E 's/^([0-9]+\.[0-9]+\.[0-9]+).*/\1/g'`; \
 	sed -i -e "s/[0-9]\+\.[0-9]\+\.[0-9]\+/$${pkver}/" src/acorn_version.h
 	pkver=`dpkg-query --showformat='$${source:Upstream-Version}' --show node-cjs-module-lexer | sed -E 's/^([0-9]+\.[0-9]+\.[0-9]+).*/\1/g'`; \
@@ -237,7 +280,7 @@ execute_before_dh_auto_build-arch:
 	sed -i -e "s/[0-9]\+\.[0-9]\+\.[0-9]\+/$${pkver}/" src/undici_version.h
 
 execute_after_dh_auto_build-arch:
-ifneq ($(filter nodoc,$(DEB_BUILD_PROFILES)),)
+ifeq ($(filter nodoc,$(DEB_BUILD_PROFILES)),)
 	./out/Release/node --completion-bash > ./debian/nodejs.bash-completion
 endif
 
@@ -247,17 +290,17 @@ override_dh_auto_build-indep:
 	ln -sf /usr/share/nodejs/acorn node_modules/
 	ln -sf /usr/share/nodejs/js-yaml node_modules/
 	ln -sf /usr/share/nodejs/cjs-module-lexer node_modules/
+	ln -sf /usr/share/nodejs/minimatch node_modules/
 	$(MAKE) doc-only
 
 override_dh_auto_test-indep:
 	# skip tests
 
+# called by dpkg-buildpackage and by autopkgtest
 override_dh_auto_test-arch:
 ifeq ($(filter nocheck,$(DEB_BUILD_PROFILES)),)
-	-ln -s /usr/bin/node node
 	mkdir -p $(NODE_TEST_DIR)
 	$(MAKE) $(DEB_MAKE_CHECK_TARGET)
-	rm -f node
 	rm -rf $(NODE_TEST_DIR)
 endif
 
@@ -268,7 +311,7 @@ override_dh_auto_install-arch:
 	dh_auto_install
 
 override_dh_install-arch:
-	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' debian/libnode.install > debian/libnode$(ABI).install
+	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' debian/libnode.install.in > debian/libnode$(ABI).install
 	sed -e 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' -e 's/@ABI@/$(ABI)/g' debian/libnode-dev.links.in > debian/libnode-dev.links
 	cp debian/nodejs.install.in debian/nodejs.install
 ifneq ($(filter pkg.nodejs.nobuiltin,$(DEB_BUILD_PROFILES)),)

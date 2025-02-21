@@ -418,12 +418,9 @@ void StartProfilers(Environment* env) {
     EndStartedProfilers(static_cast<Environment*>(env));
   }, env);
 
-  Isolate* isolate = env->isolate();
-  Local<String> coverage_str = env->env_vars()->Get(
-      isolate, FIXED_ONE_BYTE_STRING(isolate, "NODE_V8_COVERAGE"))
-      .FromMaybe(Local<String>());
-  if ((!coverage_str.IsEmpty() && coverage_str->Length() > 0) ||
-      env->options()->test_runner_coverage) {
+  std::string coverage_str =
+      env->env_vars()->Get("NODE_V8_COVERAGE").FromMaybe(std::string());
+  if (!coverage_str.empty() || env->options()->test_runner_coverage) {
     CHECK_NULL(env->coverage_connection());
     env->set_coverage_connection(std::make_unique<V8CoverageConnection>(env));
     env->coverage_connection()->Start();
@@ -431,7 +428,8 @@ void StartProfilers(Environment* env) {
   if (env->options()->cpu_prof) {
     const std::string& dir = env->options()->cpu_prof_dir;
     env->set_cpu_prof_interval(env->options()->cpu_prof_interval);
-    env->set_cpu_prof_dir(dir.empty() ? env->GetCwd() : dir);
+    env->set_cpu_prof_dir(dir.empty() ? Environment::GetCwd(env->exec_path())
+                                      : dir);
     if (env->options()->cpu_prof_name.empty()) {
       DiagnosticFilename filename(env, "CPU", "cpuprofile");
       env->set_cpu_prof_name(*filename);
@@ -446,7 +444,8 @@ void StartProfilers(Environment* env) {
   if (env->options()->heap_prof) {
     const std::string& dir = env->options()->heap_prof_dir;
     env->set_heap_prof_interval(env->options()->heap_prof_interval);
-    env->set_heap_prof_dir(dir.empty() ? env->GetCwd() : dir);
+    env->set_heap_prof_dir(dir.empty() ? Environment::GetCwd(env->exec_path())
+                                       : dir);
     if (env->options()->heap_prof_name.empty()) {
       DiagnosticFilename filename(env, "Heap", "heapprofile");
       env->set_heap_prof_name(*filename);
@@ -504,6 +503,21 @@ static void StopCoverage(const FunctionCallbackInfo<Value>& args) {
   }
 }
 
+static void EndCoverage(const FunctionCallbackInfo<Value>& args) {
+  Environment* env = Environment::GetCurrent(args);
+  V8CoverageConnection* connection = env->coverage_connection();
+
+  Debug(env,
+        DebugCategory::INSPECTOR_PROFILER,
+        "EndCoverage, connection %s nullptr\n",
+        connection == nullptr ? "==" : "!=");
+
+  if (connection != nullptr) {
+    Debug(env, DebugCategory::INSPECTOR_PROFILER, "Ending coverage\n");
+    connection->End();
+  }
+}
+
 static void Initialize(Local<Object> target,
                        Local<Value> unused,
                        Local<Context> context,
@@ -513,6 +527,7 @@ static void Initialize(Local<Object> target,
       context, target, "setSourceMapCacheGetter", SetSourceMapCacheGetter);
   SetMethod(context, target, "takeCoverage", TakeCoverage);
   SetMethod(context, target, "stopCoverage", StopCoverage);
+  SetMethod(context, target, "endCoverage", EndCoverage);
 }
 
 void RegisterExternalReferences(ExternalReferenceRegistry* registry) {
@@ -520,6 +535,7 @@ void RegisterExternalReferences(ExternalReferenceRegistry* registry) {
   registry->Register(SetSourceMapCacheGetter);
   registry->Register(TakeCoverage);
   registry->Register(StopCoverage);
+  registry->Register(EndCoverage);
 }
 
 }  // namespace profiler

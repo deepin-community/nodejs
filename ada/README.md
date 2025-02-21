@@ -48,6 +48,12 @@ Ada has improved the performance of the popular JavaScript environment Node.js:
 
 > Since Node.js 18, a new URL parser dependency was added to Node.js — Ada. This addition bumped the Node.js performance when parsing URLs to a new level. Some results could reach up to an improvement of **400%**. ([State of Node.js Performance 2023](https://blog.rafaelgss.dev/state-of-nodejs-performance-2023))
 
+The Ada library is used by important systems besides Node.js such as Redpanda and Cloudflare Workers.
+
+
+
+[![the ada library](http://img.youtube.com/vi/tQ-6OWRDsZg/0.jpg)](https://www.youtube.com/watch?v=tQ-6OWRDsZg)<br />
+
 ## Quick Start
 
 
@@ -109,7 +115,7 @@ components (path, host, and so forth).
 
 ### Parsing & Validation
 
-- Parse and validate a URL from an ASCII or UTF-8 string
+- Parse and validate a URL from an ASCII or a valid UTF-8 string.
 
 ```cpp
 ada::result<ada::url_aggregator> url = ada::parse<ada::url_aggregator>("https://www.google.com");
@@ -138,7 +144,8 @@ if(url) {
 ```
 
 For simplicity, in the examples below, we skip the check because
-we know that parsing succeeds.
+we know that parsing succeeds. All strings are assumed to be valid
+UTF-8 strings.
 
 ### Examples
 
@@ -225,26 +232,29 @@ See the file `include/ada_c.h` for our C interface. We expect ASCII or UTF-8 str
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 static void ada_print(ada_string string) {
   printf("%.*s\n", (int)string.length, string.data);
 }
 
 int main(int c, char *arg[] ) {
-  ada_url url = ada_parse("https://username:password@www.google.com:8080/"
-      "pathname?query=true#hash-exists");
+  const char* input =
+      "https://username:password@www.google.com:8080/"
+      "pathname?query=true#hash-exists";
+  ada_url url = ada_parse(input, strlen(input));
   if(!ada_is_valid(url)) { puts("failure"); return EXIT_FAILURE; }
   ada_print(ada_get_href(url)); // prints https://username:password@host:8080/pathname?query=true#hash-exists
   ada_print(ada_get_protocol(url)); // prints https:
   ada_print(ada_get_username(url)); // prints username
-  ada_set_href(url, "https://www.yagiz.co");
+  ada_set_href(url, "https://www.yagiz.co", strlen("https://www.yagiz.co"));  
   if(!ada_is_valid(url)) { puts("failure"); return EXIT_FAILURE; }
-  ada_set_hash(url, "new-hash");
-  ada_set_hostname(url, "new-host");
-  ada_set_host(url, "changed-host:9090");
-  ada_set_pathname(url, "new-pathname");
-  ada_set_search(url, "new-search");
-  ada_set_protocol(url, "wss");
+  ada_set_hash(url, "new-hash", strlen("new-hash"));
+  ada_set_hostname(url, "new-host", strlen("new-host"));
+  ada_set_host(url, "changed-host:9090", strlen("changed-host:9090"));
+  ada_set_pathname(url, "new-pathname", strlen("new-pathname"));
+  ada_set_search(url, "new-search", strlen("new-search"));
+  ada_set_protocol(url, "wss", 3);  
   ada_print(ada_get_href(url)); // will print wss://changed-host:9090/new-pathname?new-search#new-hash
 
   // Manipulating search params
@@ -312,3 +322,8 @@ You may amalgamate all source files into only two files (`ada.h` and `ada.cpp`) 
 This code is made available under the Apache License 2.0 as well as the MIT license.
 
 Our tests include third-party code and data. The benchmarking code includes third-party code: it is provided for research purposes only and not part of the library.
+
+### Further reading
+
+
+* Yagiz Nizipli, Daniel Lemire, [Parsing Millions of URLs per Second](https://doi.org/10.1002/spe.3296), Software: Practice and Experience 54(5) May 2024.

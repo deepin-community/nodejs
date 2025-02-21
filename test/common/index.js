@@ -26,11 +26,13 @@ const process = global.process;  // Some tests tamper with the process global.
 const assert = require('assert');
 const { exec, execSync, spawn, spawnSync } = require('child_process');
 const fs = require('fs');
+const net = require('net');
 // Do not require 'os' until needed so that test-os-checked-function can
 // monkey patch it. If 'os' is required here, that test will fail.
 const path = require('path');
 const { inspect } = require('util');
 const { isMainThread } = require('worker_threads');
+const { isModuleNamespaceObject } = require('util/types');
 
 const tmpdir = require('./tmpdir');
 const bits = ['arm64', 'loong64', 'mips', 'mipsel', 'ppc64', 'riscv64', 's390x', 'x64']
@@ -55,11 +57,24 @@ const noop = () => {};
 const hasCrypto = Boolean(process.versions.openssl) &&
                   !process.env.NODE_SKIP_CRYPTO;
 
-const hasOpenSSL3 = hasCrypto &&
-    require('crypto').constants.OPENSSL_VERSION_NUMBER >= 0x30000000;
+// Synthesize OPENSSL_VERSION_NUMBER format with the layout 0xMNN00PPSL
+const opensslVersionNumber = (major = 0, minor = 0, patch = 0) => {
+  assert(major >= 0 && major <= 0xf);
+  assert(minor >= 0 && minor <= 0xff);
+  assert(patch >= 0 && patch <= 0xff);
+  return (major << 28) | (minor << 20) | (patch << 4);
+};
 
-const hasOpenSSL31 = hasCrypto &&
-    require('crypto').constants.OPENSSL_VERSION_NUMBER >= 0x30100000;
+let OPENSSL_VERSION_NUMBER;
+const hasOpenSSL = (major = 0, minor = 0, patch = 0) => {
+  if (!hasCrypto) return false;
+  if (OPENSSL_VERSION_NUMBER === undefined) {
+    const regexp = /(?<m>\d+)\.(?<n>\d+)\.(?<p>\d+)/;
+    const { m, n, p } = process.versions.openssl.match(regexp).groups;
+    OPENSSL_VERSION_NUMBER = opensslVersionNumber(m, n, p);
+  }
+  return OPENSSL_VERSION_NUMBER >= opensslVersionNumber(major, minor, patch);
+};
 
 const hasQuic = hasCrypto && !!process.config.variables.openssl_quic;
 
@@ -126,8 +141,8 @@ const isSunOS = process.platform === 'sunos';
 const isFreeBSD = process.platform === 'freebsd';
 const isOpenBSD = process.platform === 'openbsd';
 const isLinux = process.platform === 'linux';
-const isOSX = process.platform === 'darwin';
-const isAsan = process.env.ASAN !== undefined;
+const isMacOS = process.platform === 'darwin';
+const isASan = process.config.variables.asan === 1;
 const isPi = (() => {
   try {
     // Normal Raspberry Pi detection is to find the `Raspberry Pi` string in
@@ -143,6 +158,10 @@ const isPi = (() => {
 })();
 
 const isDumbTerminal = process.env.TERM === 'dumb';
+
+// When using high concurrency or in the CI we need much more time for each connection attempt
+net.setDefaultAutoSelectFamilyAttemptTimeout(platformTimeout(net.getDefaultAutoSelectFamilyAttemptTimeout() * 10));
+const defaultAutoSelectFamilyAttemptTimeout = net.getDefaultAutoSelectFamilyAttemptTimeout();
 
 const buildType = process.config.target_defaults ?
   process.config.target_defaults.default_configuration :
@@ -274,6 +293,7 @@ function platformTimeout(ms) {
 }
 
 let knownGlobals = [
+  AbortController,
   atob,
   btoa,
   clearImmediate,
@@ -285,15 +305,6 @@ let knownGlobals = [
   setTimeout,
   queueMicrotask,
 ];
-
-// TODO(@jasnell): This check can be temporary. AbortController is
-// not currently supported in either Node.js 12 or 10, making it
-// difficult to run tests comparatively on those versions. Once
-// all supported versions have AbortController as a global, this
-// check can be removed and AbortController can be added to the
-// knownGlobals list above.
-if (global.AbortController)
-  knownGlobals.push(global.AbortController);
 
 if (global.gc) {
   knownGlobals.push(global.gc);
@@ -317,6 +328,10 @@ if (global.PerformanceMeasure) {
 // can add this to the list above instead.
 if (global.structuredClone) {
   knownGlobals.push(global.structuredClone);
+}
+
+if (global.EventSource) {
+  knownGlobals.push(EventSource);
 }
 
 if (global.fetch) {
@@ -352,6 +367,9 @@ if (global.ReadableStream) {
     global.DecompressionStream,
   );
 }
+if (global.WebSocket) {
+  knownGlobals.push(WebSocket);
+}
 
 function allowGlobals(...allowlist) {
   knownGlobals = knownGlobals.concat(allowlist);
@@ -367,7 +385,9 @@ if (process.env.NODE_TEST_KNOWN_GLOBALS !== '0') {
     const leaked = [];
 
     for (const val in global) {
-      if (!knownGlobals.includes(global[val])) {
+      // globalThis.crypto is a getter that throws if Node.js was compiled
+      // without OpenSSL.
+      if (val !== 'crypto' && !knownGlobals.includes(global[val])) {
         leaked.push(val);
       }
     }
@@ -587,7 +607,8 @@ function printSkipMessage(msg) {
 
 function skip(msg) {
   printSkipMessage(msg);
-  process.exit(0);
+  // In known_issues test, skipping should produce a non-zero exit code.
+  process.exit(require.main?.filename.startsWith(path.resolve(__dirname, '../known_issues/')) ? 1 : 0);
 }
 
 // Returns true if the exit code "exitCode" and/or signal name "signal"
@@ -640,12 +661,12 @@ function _expectWarning(name, expected, code) {
     expected = [[expected, code]];
   } else if (!Array.isArray(expected)) {
     expected = Object.entries(expected).map(([a, b]) => [b, a]);
-  } else if (!(Array.isArray(expected[0]))) {
+  } else if (expected.length !== 0 && !Array.isArray(expected[0])) {
     expected = [[expected[0], expected[1]]];
   }
   // Deprecation codes are mandatory, everything else is not.
   if (name === 'DeprecationWarning') {
-    expected.forEach(([_, code]) => assert(code, expected));
+    expected.forEach(([_, code]) => assert(code, `Missing deprecation code: ${expected}`));
   }
   return mustCall((warning) => {
     const expectedProperties = expected.shift();
@@ -700,9 +721,8 @@ function expectsError(validator, exact) {
       assert.fail(`Expected one argument, got ${inspect(args)}`);
     }
     const error = args.pop();
-    const descriptor = Object.getOwnPropertyDescriptor(error, 'message');
     // The error message should be non-enumerable
-    assert.strictEqual(descriptor.enumerable, false);
+    assert.strictEqual(Object.prototype.propertyIsEnumerable.call(error, 'message'), false);
 
     assert.throws(() => { throw error; }, validator);
     return true;
@@ -795,7 +815,7 @@ function invalidArgTypeHelper(input) {
   if (input == null) {
     return ` Received ${input}`;
   }
-  if (typeof input === 'function' && input.name) {
+  if (typeof input === 'function') {
     return ` Received function ${input.name}`;
   }
   if (typeof input === 'object') {
@@ -815,30 +835,6 @@ function skipIfDumbTerminal() {
   if (isDumbTerminal) {
     skip('skipping - dumb terminal');
   }
-}
-
-function gcUntil(name, condition) {
-  if (typeof name === 'function') {
-    condition = name;
-    name = undefined;
-  }
-  return new Promise((resolve, reject) => {
-    let count = 0;
-    function gcAndCheck() {
-      setImmediate(() => {
-        count++;
-        global.gc();
-        if (condition()) {
-          resolve();
-        } else if (count < 10) {
-          gcAndCheck();
-        } else {
-          reject(name === undefined ? undefined : 'Test ' + name + ' failed');
-        }
-      });
-    }
-    gcAndCheck();
-  });
 }
 
 function requireNoPackageJSONAbove(dir = __dirname) {
@@ -885,34 +881,86 @@ function spawnPromisified(...args) {
   });
 }
 
+function getPrintedStackTrace(stderr) {
+  const lines = stderr.split('\n');
+
+  let state = 'initial';
+  const result = {
+    message: [],
+    nativeStack: [],
+    jsStack: [],
+  };
+  for (let i = 0; i < lines.length; ++i) {
+    const line = lines[i].trim();
+    if (line.length === 0) {
+      continue;  // Skip empty lines.
+    }
+
+    switch (state) {
+      case 'initial':
+        result.message.push(line);
+        if (line.includes('Native stack trace')) {
+          state = 'native-stack';
+        } else {
+          result.message.push(line);
+        }
+        break;
+      case 'native-stack':
+        if (line.includes('JavaScript stack trace')) {
+          state = 'js-stack';
+        } else {
+          result.nativeStack.push(line);
+        }
+        break;
+      case 'js-stack':
+        result.jsStack.push(line);
+        break;
+    }
+  }
+  return result;
+}
+
+/**
+ * Check the exports of require(esm).
+ * TODO(joyeecheung): use it in all the test-require-module-* tests to minimize changes
+ * if/when we change the layout of the result returned by require(esm).
+ * @param {object} mod result returned by require()
+ * @param {object} expectation shape of expected namespace.
+ */
+function expectRequiredModule(mod, expectation) {
+  assert(isModuleNamespaceObject(mod));
+  assert.deepStrictEqual({ ...mod }, { ...expectation });
+}
+
 const common = {
   allowGlobals,
   buildType,
   canCreateSymLink,
   childShouldThrowAndAbort,
   createZeroFilledFile,
+  defaultAutoSelectFamilyAttemptTimeout,
   expectsError,
+  expectRequiredModule,
   expectWarning,
-  gcUntil,
   getArrayBufferViews,
   getBufferSources,
   getCallSite,
+  getPrintedStackTrace,
   getTTYfd,
   hasIntl,
   hasCrypto,
-  hasOpenSSL3,
-  hasOpenSSL31,
+  hasOpenSSL,
   hasQuic,
   hasMultiLocalhost,
   invalidArgTypeHelper,
   isAlive,
-  isAsan,
+  isASan,
   isDumbTerminal,
   isFreeBSD,
   isLinux,
   isMainThread,
   isOpenBSD,
-  isOSX,
+  isMacOS,
   isPi,
   isSunOS,
   isWindows,
@@ -960,6 +1008,10 @@ const common = {
       return re.test(name) &&
              iFaces[name].some(({ family }) => family === 'IPv6');
     });
+  },
+
+  get hasOpenSSL3() {
+    return hasOpenSSL(3);
   },
 
   get inFreeBSDJail() {

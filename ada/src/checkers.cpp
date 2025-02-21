@@ -1,65 +1,82 @@
 #include "ada/checkers.h"
+
 #include <algorithm>
 
 namespace ada::checkers {
 
 ada_really_inline ada_constexpr bool is_ipv4(std::string_view view) noexcept {
-  size_t last_dot = view.rfind('.');
-  if (last_dot == view.size() - 1) {
+  // The string is not empty and does not contain upper case ASCII characters.
+  //
+  // Optimization. To be considered as a possible ipv4, the string must end
+  // with 'x' or a lowercase hex character.
+  // Most of the time, this will be false so this simple check will save a lot
+  // of effort.
+  char last_char = view.back();
+  // If the address ends with a dot, we need to prune it (special case).
+  if (last_char == '.') {
     view.remove_suffix(1);
-    last_dot = view.rfind('.');
+    if (view.empty()) {
+      return false;
+    }
+    last_char = view.back();
   }
-  std::string_view number =
-      (last_dot == std::string_view::npos) ? view : view.substr(last_dot + 1);
-  if (number.empty()) {
+  bool possible_ipv4 = (last_char >= '0' && last_char <= '9') ||
+                       (last_char >= 'a' && last_char <= 'f') ||
+                       last_char == 'x';
+  if (!possible_ipv4) {
     return false;
+  }
+  // From the last character, find the last dot.
+  size_t last_dot = view.rfind('.');
+  if (last_dot != std::string_view::npos) {
+    // We have at least one dot.
+    view = view.substr(last_dot + 1);
   }
   /** Optimization opportunity: we have basically identified the last number of
      the ipv4 if we return true here. We might as well parse it and have at
      least one number parsed when we get to parse_ipv4. */
-  if (std::all_of(number.begin(), number.end(), ada::checkers::is_digit)) {
+  if (std::all_of(view.begin(), view.end(), ada::checkers::is_digit)) {
     return true;
   }
-  return (checkers::has_hex_prefix(number) &&
-          std::all_of(number.begin() + 2, number.end(),
-                      ada::unicode::is_lowercase_hex));
+  // It could be hex (0x), but not if there is a single character.
+  if (view.size() == 1) {
+    return false;
+  }
+  // It must start with 0x.
+  if (!std::equal(view.begin(), view.begin() + 2, "0x")) {
+    return false;
+  }
+  // We must allow "0x".
+  if (view.size() == 2) {
+    return true;
+  }
+  // We have 0x followed by some characters, we need to check that they are
+  // hexadecimals.
+  return std::all_of(view.begin() + 2, view.end(),
+                     ada::unicode::is_lowercase_hex);
 }
 
 // for use with path_signature, we include all characters that need percent
 // encoding.
-static constexpr uint8_t path_signature_table[256] = {
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0,
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-static_assert(path_signature_table[uint8_t('?')] == 1);
-static_assert(path_signature_table[uint8_t('`')] == 1);
-static_assert(path_signature_table[uint8_t('{')] == 1);
-static_assert(path_signature_table[uint8_t('}')] == 1);
-//
-static_assert(path_signature_table[uint8_t(' ')] == 1);
-static_assert(path_signature_table[uint8_t('?')] == 1);
-static_assert(path_signature_table[uint8_t('"')] == 1);
-static_assert(path_signature_table[uint8_t('#')] == 1);
-static_assert(path_signature_table[uint8_t('<')] == 1);
-static_assert(path_signature_table[uint8_t('>')] == 1);
-static_assert(path_signature_table[uint8_t('\\')] == 2);
-static_assert(path_signature_table[uint8_t('.')] == 4);
-static_assert(path_signature_table[uint8_t('%')] == 8);
-
-//
-static_assert(path_signature_table[0] == 1);
-static_assert(path_signature_table[31] == 1);
-static_assert(path_signature_table[127] == 1);
-static_assert(path_signature_table[128] == 1);
-static_assert(path_signature_table[255] == 1);
+static constexpr std::array<uint8_t, 256> path_signature_table =
+    []() constexpr {
+      std::array<uint8_t, 256> result{};
+      for (size_t i = 0; i < 256; i++) {
+        if (i <= 0x20 || i == 0x22 || i == 0x23 || i == 0x3c || i == 0x3e ||
+            i == 0x3f || i == 0x60 || i == 0x7b || i == 0x7d || i > 0x7e) {
+          result[i] = 1;
+        } else if (i == 0x25) {
+          result[i] = 8;
+        } else if (i == 0x2e) {
+          result[i] = 4;
+        } else if (i == 0x5c) {
+          result[i] = 2;
+        } else {
+          result[i] = 0;
+        }
+      }
+      return result;
+    }();
 
 ada_really_inline constexpr uint8_t path_signature(
     std::string_view input) noexcept {

@@ -8,7 +8,7 @@
       "introduced_in": "v0.10.0",
       "stability": 2,
       "stabilityText": "Stable",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.19.1/lib/timers.js\">lib/timers.js</a></p>\n<p>The <code>timer</code> module exposes a global API for scheduling functions to\nbe called at some future period of time. Because the timer functions are\nglobals, there is no need to call <code>require('node:timers')</code> to use the API.</p>\n<p>The timer functions within Node.js implement a similar API as the timers API\nprovided by Web Browsers but use a different internal implementation that is\nbuilt around the Node.js <a href=\"https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/#setimmediate-vs-settimeout\">Event Loop</a>.</p>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v20.18.3/lib/timers.js\">lib/timers.js</a></p>\n<p>The <code>timer</code> module exposes a global API for scheduling functions to\nbe called at some future period of time. Because the timer functions are\nglobals, there is no need to call <code>require('node:timers')</code> to use the API.</p>\n<p>The timer functions within Node.js implement a similar API as the timers API\nprovided by Web Browsers but use a different internal implementation that is\nbuilt around the Node.js <a href=\"https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/#setimmediate-vs-settimeout\">Event Loop</a>.</p>",
       "classes": [
         {
           "textRaw": "Class: `Immediate`",
@@ -90,7 +90,7 @@
               "name": "[Symbol.dispose]",
               "meta": {
                 "added": [
-                  "v18.18.0"
+                  "v20.5.0"
                 ],
                 "changes": []
               },
@@ -257,7 +257,7 @@
               "name": "[Symbol.dispose]",
               "meta": {
                 "added": [
-                  "v18.18.0"
+                  "v20.5.0"
                 ],
                 "changes": []
               },
@@ -426,7 +426,7 @@
         {
           "textRaw": "Cancelling timers",
           "name": "cancelling_timers",
-          "desc": "<p>The <a href=\"#setimmediatecallback-args\"><code>setImmediate()</code></a>, <a href=\"#setintervalcallback-delay-args\"><code>setInterval()</code></a>, and <a href=\"#settimeoutcallback-delay-args\"><code>setTimeout()</code></a> methods\neach return objects that represent the scheduled timers. These can be used to\ncancel the timer and prevent it from triggering.</p>\n<p>For the promisified variants of <a href=\"#setimmediatecallback-args\"><code>setImmediate()</code></a> and <a href=\"#settimeoutcallback-delay-args\"><code>setTimeout()</code></a>,\nan <a href=\"globals.html#class-abortcontroller\"><code>AbortController</code></a> may be used to cancel the timer. When canceled, the\nreturned Promises will be rejected with an <code>'AbortError'</code>.</p>\n<p>For <code>setImmediate()</code>:</p>\n<pre><code class=\"language-js\">const { setImmediate: setImmediatePromise } = require('node:timers/promises');\n\nconst ac = new AbortController();\nconst signal = ac.signal;\n\nsetImmediatePromise('foobar', { signal })\n  .then(console.log)\n  .catch((err) => {\n    if (err.name === 'AbortError')\n      console.error('The immediate was aborted');\n  });\n\nac.abort();\n</code></pre>\n<p>For <code>setTimeout()</code>:</p>\n<pre><code class=\"language-js\">const { setTimeout: setTimeoutPromise } = require('node:timers/promises');\n\nconst ac = new AbortController();\nconst signal = ac.signal;\n\nsetTimeoutPromise(1000, 'foobar', { signal })\n  .then(console.log)\n  .catch((err) => {\n    if (err.name === 'AbortError')\n      console.error('The timeout was aborted');\n  });\n\nac.abort();\n</code></pre>",
+          "desc": "<p>The <a href=\"#setimmediatecallback-args\"><code>setImmediate()</code></a>, <a href=\"#setintervalcallback-delay-args\"><code>setInterval()</code></a>, and <a href=\"#settimeoutcallback-delay-args\"><code>setTimeout()</code></a> methods\neach return objects that represent the scheduled timers. These can be used to\ncancel the timer and prevent it from triggering.</p>\n<p>For the promisified variants of <a href=\"#setimmediatecallback-args\"><code>setImmediate()</code></a> and <a href=\"#settimeoutcallback-delay-args\"><code>setTimeout()</code></a>,\nan <a href=\"globals.html#class-abortcontroller\"><code>AbortController</code></a> may be used to cancel the timer. When canceled, the\nreturned Promises will be rejected with an <code>'AbortError'</code>.</p>\n<p>For <code>setImmediate()</code>:</p>\n<pre><code class=\"language-mjs\">import { setImmediate as setImmediatePromise } from 'node:timers/promises';\n\nconst ac = new AbortController();\nconst signal = ac.signal;\n\n// We do not `await` the promise so `ac.abort()` is called concurrently.\nsetImmediatePromise('foobar', { signal })\n  .then(console.log)\n  .catch((err) => {\n    if (err.name === 'AbortError')\n      console.error('The immediate was aborted');\n  });\n\nac.abort();\n</code></pre>\n<pre><code class=\"language-cjs\">const { setImmediate: setImmediatePromise } = require('node:timers/promises');\n\nconst ac = new AbortController();\nconst signal = ac.signal;\n\nsetImmediatePromise('foobar', { signal })\n  .then(console.log)\n  .catch((err) => {\n    if (err.name === 'AbortError')\n      console.error('The immediate was aborted');\n  });\n\nac.abort();\n</code></pre>\n<p>For <code>setTimeout()</code>:</p>\n<pre><code class=\"language-mjs\">import { setTimeout as setTimeoutPromise } from 'node:timers/promises';\n\nconst ac = new AbortController();\nconst signal = ac.signal;\n\n// We do not `await` the promise so `ac.abort()` is called concurrently.\nsetTimeoutPromise(1000, 'foobar', { signal })\n  .then(console.log)\n  .catch((err) => {\n    if (err.name === 'AbortError')\n      console.error('The timeout was aborted');\n  });\n\nac.abort();\n</code></pre>\n<pre><code class=\"language-cjs\">const { setTimeout: setTimeoutPromise } = require('node:timers/promises');\n\nconst ac = new AbortController();\nconst signal = ac.signal;\n\nsetTimeoutPromise(1000, 'foobar', { signal })\n  .then(console.log)\n  .catch((err) => {\n    if (err.name === 'AbortError')\n      console.error('The timeout was aborted');\n  });\n\nac.abort();\n</code></pre>",
           "methods": [
             {
               "textRaw": "`clearImmediate(immediate)`",
@@ -519,7 +519,7 @@
               }
             ]
           },
-          "desc": "<p>The <code>timers/promises</code> API provides an alternative set of timer functions\nthat return <code>Promise</code> objects. The API is accessible via\n<code>require('node:timers/promises')</code>.</p>\n<pre><code class=\"language-mjs\">import {\n  setTimeout,\n  setImmediate,\n  setInterval,\n} from 'timers/promises';\n</code></pre>\n<pre><code class=\"language-cjs\">const {\n  setTimeout,\n  setImmediate,\n  setInterval,\n} = require('node:timers/promises');\n</code></pre>",
+          "desc": "<p>The <code>timers/promises</code> API provides an alternative set of timer functions\nthat return <code>Promise</code> objects. The API is accessible via\n<code>require('node:timers/promises')</code>.</p>\n<pre><code class=\"language-mjs\">import {\n  setTimeout,\n  setImmediate,\n  setInterval,\n} from 'node:timers/promises';\n</code></pre>\n<pre><code class=\"language-cjs\">const {\n  setTimeout,\n  setImmediate,\n  setInterval,\n} = require('node:timers/promises');\n</code></pre>",
           "methods": [
             {
               "textRaw": "`timersPromises.setTimeout([delay[, value[, options]]])`",
@@ -570,7 +570,7 @@
                   ]
                 }
               ],
-              "desc": "<pre><code class=\"language-mjs\">import {\n  setTimeout,\n} from 'timers/promises';\n\nconst res = await setTimeout(100, 'result');\n\nconsole.log(res);  // Prints 'result'\n</code></pre>\n<pre><code class=\"language-cjs\">const {\n  setTimeout,\n} = require('node:timers/promises');\n\nsetTimeout(100, 'result').then((res) => {\n  console.log(res);  // Prints 'result'\n});\n</code></pre>"
+              "desc": "<pre><code class=\"language-mjs\">import {\n  setTimeout,\n} from 'node:timers/promises';\n\nconst res = await setTimeout(100, 'result');\n\nconsole.log(res);  // Prints 'result'\n</code></pre>\n<pre><code class=\"language-cjs\">const {\n  setTimeout,\n} = require('node:timers/promises');\n\nsetTimeout(100, 'result').then((res) => {\n  console.log(res);  // Prints 'result'\n});\n</code></pre>"
             },
             {
               "textRaw": "`timersPromises.setImmediate([value[, options]])`",
@@ -614,7 +614,7 @@
                   ]
                 }
               ],
-              "desc": "<pre><code class=\"language-mjs\">import {\n  setImmediate,\n} from 'timers/promises';\n\nconst res = await setImmediate('result');\n\nconsole.log(res);  // Prints 'result'\n</code></pre>\n<pre><code class=\"language-cjs\">const {\n  setImmediate,\n} = require('node:timers/promises');\n\nsetImmediate('result').then((res) => {\n  console.log(res);  // Prints 'result'\n});\n</code></pre>"
+              "desc": "<pre><code class=\"language-mjs\">import {\n  setImmediate,\n} from 'node:timers/promises';\n\nconst res = await setImmediate('result');\n\nconsole.log(res);  // Prints 'result'\n</code></pre>\n<pre><code class=\"language-cjs\">const {\n  setImmediate,\n} = require('node:timers/promises');\n\nsetImmediate('result').then((res) => {\n  console.log(res);  // Prints 'result'\n});\n</code></pre>"
             },
             {
               "textRaw": "`timersPromises.setInterval([delay[, value[, options]]])`",
@@ -631,7 +631,7 @@
                   "params": []
                 }
               ],
-              "desc": "<p>Returns an async iterator that generates values in an interval of <code>delay</code> ms.\nIf <code>ref</code> is <code>true</code>, you need to call <code>next()</code> of async iterator explicitly\nor implicitly to keep the event loop alive.</p>\n<ul>\n<li><code>delay</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> The number of milliseconds to wait between iterations.\n<strong>Default:</strong> <code>1</code>.</li>\n<li><code>value</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types\" class=\"type\">&lt;any&gt;</a> A value with which the iterator returns.</li>\n<li><code>options</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object\" class=\"type\">&lt;Object&gt;</a>\n<ul>\n<li><code>ref</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> Set to <code>false</code> to indicate that the scheduled <code>Timeout</code>\nbetween iterations should not require the Node.js event loop to\nremain active.\n<strong>Default:</strong> <code>true</code>.</li>\n<li><code>signal</code> <a href=\"globals.html#class-abortsignal\" class=\"type\">&lt;AbortSignal&gt;</a> An optional <code>AbortSignal</code> that can be used to\ncancel the scheduled <code>Timeout</code> between operations.</li>\n</ul>\n</li>\n</ul>\n<pre><code class=\"language-mjs\">import {\n  setInterval,\n} from 'timers/promises';\n\nconst interval = 100;\nfor await (const startTime of setInterval(interval, Date.now())) {\n  const now = Date.now();\n  console.log(now);\n  if ((now - startTime) > 1000)\n    break;\n}\nconsole.log(Date.now());\n</code></pre>\n<pre><code class=\"language-cjs\">const {\n  setInterval,\n} = require('node:timers/promises');\nconst interval = 100;\n\n(async function() {\n  for await (const startTime of setInterval(interval, Date.now())) {\n    const now = Date.now();\n    console.log(now);\n    if ((now - startTime) > 1000)\n      break;\n  }\n  console.log(Date.now());\n})();\n</code></pre>"
+              "desc": "<p>Returns an async iterator that generates values in an interval of <code>delay</code> ms.\nIf <code>ref</code> is <code>true</code>, you need to call <code>next()</code> of async iterator explicitly\nor implicitly to keep the event loop alive.</p>\n<ul>\n<li><code>delay</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> The number of milliseconds to wait between iterations.\n<strong>Default:</strong> <code>1</code>.</li>\n<li><code>value</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types\" class=\"type\">&lt;any&gt;</a> A value with which the iterator returns.</li>\n<li><code>options</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object\" class=\"type\">&lt;Object&gt;</a>\n<ul>\n<li><code>ref</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> Set to <code>false</code> to indicate that the scheduled <code>Timeout</code>\nbetween iterations should not require the Node.js event loop to\nremain active.\n<strong>Default:</strong> <code>true</code>.</li>\n<li><code>signal</code> <a href=\"globals.html#class-abortsignal\" class=\"type\">&lt;AbortSignal&gt;</a> An optional <code>AbortSignal</code> that can be used to\ncancel the scheduled <code>Timeout</code> between operations.</li>\n</ul>\n</li>\n</ul>\n<pre><code class=\"language-mjs\">import {\n  setInterval,\n} from 'node:timers/promises';\n\nconst interval = 100;\nfor await (const startTime of setInterval(interval, Date.now())) {\n  const now = Date.now();\n  console.log(now);\n  if ((now - startTime) > 1000)\n    break;\n}\nconsole.log(Date.now());\n</code></pre>\n<pre><code class=\"language-cjs\">const {\n  setInterval,\n} = require('node:timers/promises');\nconst interval = 100;\n\n(async function() {\n  for await (const startTime of setInterval(interval, Date.now())) {\n    const now = Date.now();\n    console.log(now);\n    if ((now - startTime) > 1000)\n      break;\n  }\n  console.log(Date.now());\n})();\n</code></pre>"
             },
             {
               "textRaw": "`timersPromises.scheduler.wait(delay[, options])`",
@@ -666,6 +666,13 @@
                       "type": "Object",
                       "options": [
                         {
+                          "textRaw": "`ref` {boolean} Set to `false` to indicate that the scheduled `Timeout` should not require the Node.js event loop to remain active. **Default:** `true`.",
+                          "name": "ref",
+                          "type": "boolean",
+                          "default": "`true`",
+                          "desc": "Set to `false` to indicate that the scheduled `Timeout` should not require the Node.js event loop to remain active."
+                        },
+                        {
                           "textRaw": "`signal` {AbortSignal} An optional `AbortSignal` that can be used to cancel waiting.",
                           "name": "signal",
                           "type": "AbortSignal",
@@ -676,7 +683,7 @@
                   ]
                 }
               ],
-              "desc": "<p>An experimental API defined by the <a href=\"https://github.com/WICG/scheduling-apis\">Scheduling APIs</a> draft specification\nbeing developed as a standard Web Platform API.</p>\n<p>Calling <code>timersPromises.scheduler.wait(delay, options)</code> is roughly equivalent\nto calling <code>timersPromises.setTimeout(delay, undefined, options)</code> except that\nthe <code>ref</code> option is not supported.</p>\n<pre><code class=\"language-mjs\">import { scheduler } from 'node:timers/promises';\n\nawait scheduler.wait(1000); // Wait one second before continuing\n</code></pre>"
+              "desc": "<p>An experimental API defined by the <a href=\"https://github.com/WICG/scheduling-apis\">Scheduling APIs</a> draft specification\nbeing developed as a standard Web Platform API.</p>\n<p>Calling <code>timersPromises.scheduler.wait(delay, options)</code> is equivalent\nto calling <code>timersPromises.setTimeout(delay, undefined, options)</code>.</p>\n<pre><code class=\"language-mjs\">import { scheduler } from 'node:timers/promises';\n\nawait scheduler.wait(1000); // Wait one second before continuing\n</code></pre>"
             },
             {
               "textRaw": "`timersPromises.scheduler.yield()`",

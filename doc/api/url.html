@@ -3,18 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>URL | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.18.3">
+  <title>URL | Node.js v20.18.3 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/url.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
-  <style>@media(max-width:478px){.with-32-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:726px){.with-63-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:750px){.with-66-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:606px){.with-48-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:614px){.with-49-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}</style>
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
+  <style>@media(max-width:478px){.with-32-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:726px){.with-63-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:750px){.with-66-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:606px){.with-48-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:614px){.with-49-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}</style>
 </head>
 <body class="alt apidoc" id="api-section-url">
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +109,7 @@
     <div id="column1" data-id="url" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.18.3 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,11 +124,11 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.18.3</li>
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
@@ -153,6 +166,7 @@
 <li><span class="stability_1"><a href="#urlcreateobjecturlblob"><code>URL.createObjectURL(blob)</code></a></span></li>
 <li><span class="stability_1"><a href="#urlrevokeobjecturlid"><code>URL.revokeObjectURL(id)</code></a></span></li>
 <li><a href="#urlcanparseinput-base"><code>URL.canParse(input[, base])</code></a></li>
+<li><a href="#urlparseinput-base"><code>URL.parse(input[, base])</code></a></li>
 </ul>
 </li>
 <li><a href="#class-urlsearchparams">Class: <code>URLSearchParams</code></a>
@@ -179,9 +193,9 @@
 </li>
 <li><a href="#urldomaintoasciidomain"><code>url.domainToASCII(domain)</code></a></li>
 <li><a href="#urldomaintounicodedomain"><code>url.domainToUnicode(domain)</code></a></li>
-<li><a href="#urlfileurltopathurl"><code>url.fileURLToPath(url)</code></a></li>
+<li><a href="#urlfileurltopathurl-options"><code>url.fileURLToPath(url[, options])</code></a></li>
 <li><a href="#urlformaturl-options"><code>url.format(URL[, options])</code></a></li>
-<li><a href="#urlpathtofileurlpath"><code>url.pathToFileURL(path)</code></a></li>
+<li><a href="#urlpathtofileurlpath-options"><code>url.pathToFileURL(path[, options])</code></a></li>
 <li><a href="#urlurltohttpoptionsurl"><code>url.urlToHttpOptions(url)</code></a></li>
 </ul>
 </li>
@@ -222,7 +236,7 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Index
       </a>
 
@@ -307,10 +321,12 @@
             
     <li class="picker-header">
       <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/url.html">21.x</a></li>
+      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v23.x/api/url.html">23.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v22.x/api/url.html">22.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/url.html">21.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v20.x/api/url.html">20.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v19.x/api/url.html">19.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v18.x/api/url.html">18.x <b>LTS</b></a></li>
@@ -334,7 +350,7 @@
   
             <li class="picker-header">
               <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
@@ -355,7 +371,7 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
 <li><span class="stability_2"><a href="#url">URL</a></span>
 <ul>
 <li><a href="#url-strings-and-url-objects">URL strings and URL objects</a>
@@ -389,6 +405,7 @@
 <li><span class="stability_1"><a href="#urlcreateobjecturlblob"><code>URL.createObjectURL(blob)</code></a></span></li>
 <li><span class="stability_1"><a href="#urlrevokeobjecturlid"><code>URL.revokeObjectURL(id)</code></a></span></li>
 <li><a href="#urlcanparseinput-base"><code>URL.canParse(input[, base])</code></a></li>
+<li><a href="#urlparseinput-base"><code>URL.parse(input[, base])</code></a></li>
 </ul>
 </li>
 <li><a href="#class-urlsearchparams">Class: <code>URLSearchParams</code></a>
@@ -415,9 +432,9 @@
 </li>
 <li><a href="#urldomaintoasciidomain"><code>url.domainToASCII(domain)</code></a></li>
 <li><a href="#urldomaintounicodedomain"><code>url.domainToUnicode(domain)</code></a></li>
-<li><a href="#urlfileurltopathurl"><code>url.fileURLToPath(url)</code></a></li>
+<li><a href="#urlfileurltopathurl-options"><code>url.fileURLToPath(url[, options])</code></a></li>
 <li><a href="#urlformaturl-options"><code>url.format(URL[, options])</code></a></li>
-<li><a href="#urlpathtofileurlpath"><code>url.pathToFileURL(path)</code></a></li>
+<li><a href="#urlpathtofileurlpath-options"><code>url.pathToFileURL(path[, options])</code></a></li>
 <li><a href="#urlurltohttpoptionsurl"><code>url.urlToHttpOptions(url)</code></a></li>
 </ul>
 </li>
@@ -454,15 +471,15 @@
 </li>
 </ul></details>
 
-      <div id="apicontent">
+      <div role="main" id="apicontent">
         <h2>URL<span><a class="mark" href="#url" id="url">#</a></span><a aria-hidden="true" class="legacy" id="url_url"></a></h2>
 
 <p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.19.1/lib/url.js">lib/url.js</a></p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v20.18.3/lib/url.js">lib/url.js</a></p>
 <p>The <code>node:url</code> module provides utilities for URL resolution and parsing. It can
 be accessed using:</p>
 
-<pre class="with-32-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> url <span class="hljs-keyword">from</span> <span class="hljs-string">'node:url'</span>;</code><code class="language-js cjs"><span class="hljs-keyword">const</span> url = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:url'</span>);</code><button class="copy-button">copy</button></pre>
+<pre class="with-32-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> url <span class="hljs-keyword">from</span> <span class="hljs-string">'node:url'</span>;</code><code class="language-js cjs"><span class="hljs-keyword">const</span> url = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:url'</span>);</code><button class="copy-button">copy</button></pre>
 <section><h3>URL strings and URL objects<span><a class="mark" href="#url-strings-and-url-objects" id="url-strings-and-url-objects">#</a></span><a aria-hidden="true" class="legacy" id="url_url_strings_and_url_objects"></a></h3>
 <p>A URL string is a structured string containing multiple meaningful components.
 When parsed, a URL object is returned containing properties for each of these
@@ -499,7 +516,7 @@ properties of a WHATWG <code>URL</code> object.</p>
   <span class="hljs-keyword">new</span> <span class="hljs-title function_">URL</span>(<span class="hljs-string">'https://user:pass@sub.example.com:8080/p/a/t/h?query=string#hash'</span>);</code> <button class="copy-button">copy</button></pre>
 <p>Parsing the URL string using the legacy API:</p>
 
-<pre class="with-32-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> url <span class="hljs-keyword">from</span> <span class="hljs-string">'node:url'</span>;
+<pre class="with-32-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> url <span class="hljs-keyword">from</span> <span class="hljs-string">'node:url'</span>;
 <span class="hljs-keyword">const</span> myURL =
   url.<span class="hljs-title function_">parse</span>(<span class="hljs-string">'https://user:pass@sub.example.com:8080/p/a/t/h?query=string#hash'</span>);</code><code class="language-js cjs"><span class="hljs-keyword">const</span> url = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:url'</span>);
 <span class="hljs-keyword">const</span> myURL =
@@ -539,12 +556,15 @@ data properties on the object itself. Thus, unlike <a href="#legacy-urlobject">l
 using the <code>delete</code> keyword on any properties of <code>URL</code> objects (e.g. <code>delete myURL.protocol</code>, <code>delete myURL.pathname</code>, etc) has no effect but will still
 return <code>true</code>.</p>
 <h5><code>new URL(input[, base])</code><span><a class="mark" href="#new-urlinput-base" id="new-urlinput-base">#</a></span><a aria-hidden="true" class="legacy" id="url_new_url_input_base"></a></h5>
-<!--
-changes:
-  - version: v18.17.0
-    pr-url: https://github.com/nodejs/node/pull/47339
-    description: ICU requirement is removed.
--->
+<div class="api_metadata">
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v20.0.0</td>
+<td><p>ICU requirement is removed.</p></td></tr>
+</tbody></table>
+</details>
+</div>
 <ul>
 <li><code>input</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> The absolute or relative input URL to parse. If <code>input</code>
 is relative, then <code>base</code> is required. If <code>input</code> is absolute, the <code>base</code>
@@ -559,7 +579,7 @@ absolute. If <code>base</code> is not a string, it is <a href="https://tc39.es/e
 <p>The URL constructor is accessible as a property on the global object.
 It can also be imported from the built-in url module:</p>
 
-<pre class="with-63-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-variable constant_">URL</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:url'</span>;
+<pre class="with-63-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-variable constant_">URL</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:url'</span>;
 <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-variable constant_">URL</span> === globalThis.<span class="hljs-property">URL</span>); <span class="hljs-comment">// Prints 'true'.</span></code><code class="language-js cjs"><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-variable constant_">URL</span> === <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:url'</span>).<span class="hljs-property">URL</span>); <span class="hljs-comment">// Prints 'true'.</span></code><button class="copy-button">copy</button></pre>
 <p>A <code>TypeError</code> will be thrown if the <code>input</code> or <code>base</code> are not valid URLs. Note
 that an effort will be made to coerce the given values into strings. For
@@ -927,6 +947,9 @@ and <a href="#urlformaturlobject"><code>url.format()</code></a> methods would pr
 <p>The <code>toString()</code> method on the <code>URL</code> object returns the serialized URL. The
 value returned is equivalent to that of <a href="#urlhref"><code>url.href</code></a> and <a href="#urltojson"><code>url.toJSON()</code></a>.</p>
 <h5><code>url.toJSON()</code><span><a class="mark" href="#urltojson" id="urltojson">#</a></span><a aria-hidden="true" class="legacy" id="url_url_tojson"></a></h5>
+<div class="api_metadata">
+<span>Added in: v7.7.0, v6.13.0</span>
+</div>
 <ul>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
 </ul>
@@ -982,7 +1005,7 @@ to other workers or the main thread.</p>
 ID that isn't registered will silently fail.</p>
 <h5><code>URL.canParse(input[, base])</code><span><a class="mark" href="#urlcanparseinput-base" id="urlcanparseinput-base">#</a></span><a aria-hidden="true" class="legacy" id="url_url_canparse_input_base"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.17.0</span>
+<span>Added in: v19.9.0</span>
 </div>
 <ul>
 <li><code>input</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> The absolute or relative input URL to parse. If <code>input</code>
@@ -996,6 +1019,21 @@ absolute. If <code>base</code> is not a string, it is <a href="https://tc39.es/e
 <pre><code class="language-js"><span class="hljs-keyword">const</span> isValid = <span class="hljs-variable constant_">URL</span>.<span class="hljs-title function_">canParse</span>(<span class="hljs-string">'/foo'</span>, <span class="hljs-string">'https://example.org/'</span>); <span class="hljs-comment">// true</span>
 
 <span class="hljs-keyword">const</span> isNotValid = <span class="hljs-variable constant_">URL</span>.<span class="hljs-title function_">canParse</span>(<span class="hljs-string">'/foo'</span>); <span class="hljs-comment">// false</span></code> <button class="copy-button">copy</button></pre>
+<h5><code>URL.parse(input[, base])</code><span><a class="mark" href="#urlparseinput-base" id="urlparseinput-base">#</a></span><a aria-hidden="true" class="legacy" id="url_url_parse_input_base"></a></h5>
+<div class="api_metadata">
+<span>Added in: v22.1.0</span>
+</div>
+<ul>
+<li><code>input</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> The absolute or relative input URL to parse. If <code>input</code>
+is relative, then <code>base</code> is required. If <code>input</code> is absolute, the <code>base</code>
+is ignored. If <code>input</code> is not a string, it is <a href="https://tc39.es/ecma262/#sec-tostring">converted to a string</a> first.</li>
+<li><code>base</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> The base URL to resolve against if the <code>input</code> is not
+absolute. If <code>base</code> is not a string, it is <a href="https://tc39.es/ecma262/#sec-tostring">converted to a string</a> first.</li>
+<li>Returns: <a href="url.html#the-whatwg-url-api" class="type">&#x3C;URL></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a></li>
+</ul>
+<p>Parses a string as a URL. If <code>base</code> is provided, it will be used as the base
+URL for the purpose of resolving non-absolute <code>input</code> URLs. Returns <code>null</code>
+if <code>input</code> is not a valid.</p>
 <h4>Class: <code>URLSearchParams</code><span><a class="mark" href="#class-urlsearchparams" id="class-urlsearchparams">#</a></span><a aria-hidden="true" class="legacy" id="url_class_urlsearchparams"></a></h4>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
@@ -1145,7 +1183,7 @@ params = <span class="hljs-keyword">new</span> <span class="hljs-title class_">U
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.18.0</td>
+<tr><td>v20.2.0</td>
 <td><p>Add support for optional <code>value</code> argument.</p></td></tr>
 </tbody></table>
 </details>
@@ -1190,8 +1228,8 @@ myURL.<span class="hljs-property">searchParams</span>.<span class="hljs-title fu
 <h5><code>urlSearchParams.get(name)</code><span><a class="mark" href="#urlsearchparamsgetname" id="urlsearchparamsgetname">#</a></span><a aria-hidden="true" class="legacy" id="url_urlsearchparams_get_name"></a></h5>
 <ul>
 <li><code>name</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a></li>
-<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> or <code>null</code> if there is no name-value pair with the given
-<code>name</code>.</li>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a> A string or <code>null</code> if there is no name-value pair
+with the given <code>name</code>.</li>
 </ul>
 <p>Returns the value of the first name-value pair whose name is <code>name</code>. If there
 are no such pairs, <code>null</code> is returned.</p>
@@ -1207,7 +1245,7 @@ no such pairs, an empty array is returned.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.18.0</td>
+<tr><td>v20.2.0</td>
 <td><p>Add support for optional <code>value</code> argument.</p></td></tr>
 </tbody></table>
 </details>
@@ -1257,7 +1295,7 @@ params.<span class="hljs-title function_">set</span>(<span class="hljs-string">'
 <span class="hljs-comment">// Prints foo=def&#x26;abc=def&#x26;xyz=opq</span></code> <button class="copy-button">copy</button></pre>
 <h5><code>urlSearchParams.size</code><span><a class="mark" href="#urlsearchparamssize" id="urlsearchparamssize">#</a></span><a aria-hidden="true" class="legacy" id="url_urlsearchparams_size"></a></h5>
 <div class="api_metadata">
-<span>Added in: v18.16.0</span>
+<span>Added in: v19.8.0</span>
 </div>
 <p>The total number of parameter entries.</p>
 <h5><code>urlSearchParams.sort()</code><span><a class="mark" href="#urlsearchparamssort" id="urlsearchparamssort">#</a></span><a aria-hidden="true" class="legacy" id="url_urlsearchparams_sort"></a></h5>
@@ -1303,7 +1341,7 @@ is the <code>name</code>, the second item of the <code>Array</code> is the <code
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.17.0</td>
+<tr><td>v20.0.0</td>
 <td><p>ICU requirement is removed.</p></td></tr>
 <tr><td>v7.4.0, v6.13.0</td>
 <td><p><span>Added in: v7.4.0, v6.13.0</span></p></td></tr>
@@ -1318,7 +1356,7 @@ is the <code>name</code>, the second item of the <code>Array</code> is the <code
 invalid domain, the empty string is returned.</p>
 <p>It performs the inverse operation to <a href="#urldomaintounicodedomain"><code>url.domainToUnicode()</code></a>.</p>
 
-<pre class="with-32-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> url <span class="hljs-keyword">from</span> <span class="hljs-string">'node:url'</span>;
+<pre class="with-32-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> url <span class="hljs-keyword">from</span> <span class="hljs-string">'node:url'</span>;
 
 <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(url.<span class="hljs-title function_">domainToASCII</span>(<span class="hljs-string">'español.com'</span>));
 <span class="hljs-comment">// Prints xn--espaol-zwa.com</span>
@@ -1338,7 +1376,7 @@ invalid domain, the empty string is returned.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.17.0</td>
+<tr><td>v20.0.0</td>
 <td><p>ICU requirement is removed.</p></td></tr>
 <tr><td>v7.4.0, v6.13.0</td>
 <td><p><span>Added in: v7.4.0, v6.13.0</span></p></td></tr>
@@ -1353,7 +1391,7 @@ invalid domain, the empty string is returned.</p>
 domain, the empty string is returned.</p>
 <p>It performs the inverse operation to <a href="#urldomaintoasciidomain"><code>url.domainToASCII()</code></a>.</p>
 
-<pre class="with-32-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> url <span class="hljs-keyword">from</span> <span class="hljs-string">'node:url'</span>;
+<pre class="with-32-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> url <span class="hljs-keyword">from</span> <span class="hljs-string">'node:url'</span>;
 
 <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(url.<span class="hljs-title function_">domainToUnicode</span>(<span class="hljs-string">'xn--espaol-zwa.com'</span>));
 <span class="hljs-comment">// Prints español.com</span>
@@ -1368,18 +1406,34 @@ domain, the empty string is returned.</p>
 <span class="hljs-comment">// Prints 中文.com</span>
 <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(url.<span class="hljs-title function_">domainToUnicode</span>(<span class="hljs-string">'xn--iñvalid.com'</span>));
 <span class="hljs-comment">// Prints an empty string</span></code><button class="copy-button">copy</button></pre>
-<h4><code>url.fileURLToPath(url)</code><span><a class="mark" href="#urlfileurltopathurl" id="urlfileurltopathurl">#</a></span><a aria-hidden="true" class="legacy" id="url_url_fileurltopath_url"></a></h4>
+<h4><code>url.fileURLToPath(url[, options])</code><span><a class="mark" href="#urlfileurltopathurl-options" id="urlfileurltopathurl-options">#</a></span><a aria-hidden="true" class="legacy" id="url_url_fileurltopath_url_options"></a></h4>
 <div class="api_metadata">
-<span>Added in: v10.12.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v20.13.0</td>
+<td><p>The <code>options</code> argument can now be used to determine how to parse the <code>path</code> argument.</p></td></tr>
+<tr><td>v10.12.0</td>
+<td><p><span>Added in: v10.12.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><code>url</code> <a href="url.html#the-whatwg-url-api" class="type">&#x3C;URL></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> The file URL string or URL object to convert to a path.</li>
+<li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
+<ul>
+<li><code>windows</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type" class="type">&#x3C;undefined></a> <code>true</code> if the <code>path</code> should be
+return as a windows filepath, <code>false</code> for posix, and
+<code>undefined</code> for the system default.
+<strong>Default:</strong> <code>undefined</code>.</li>
+</ul>
+</li>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> The fully-resolved platform-specific Node.js file path.</li>
 </ul>
 <p>This function ensures the correct decodings of percent-encoded characters as
 well as ensuring a cross-platform valid absolute path string.</p>
 
-<pre class="with-66-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { fileURLToPath } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:url'</span>;
+<pre class="with-66-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { fileURLToPath } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:url'</span>;
 
 <span class="hljs-keyword">const</span> __filename = <span class="hljs-title function_">fileURLToPath</span>(<span class="hljs-keyword">import</span>.<span class="hljs-property">meta</span>.<span class="hljs-property">url</span>);
 
@@ -1433,7 +1487,7 @@ string serializations of the URL. These are not, however, customizable in
 any way. The <code>url.format(URL[, options])</code> method allows for basic customization
 of the output.</p>
 
-<pre class="with-48-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> url <span class="hljs-keyword">from</span> <span class="hljs-string">'node:url'</span>;
+<pre class="with-48-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> url <span class="hljs-keyword">from</span> <span class="hljs-string">'node:url'</span>;
 <span class="hljs-keyword">const</span> myURL = <span class="hljs-keyword">new</span> <span class="hljs-title function_">URL</span>(<span class="hljs-string">'https://a:b@測試?abc#foo'</span>);
 
 <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(myURL.<span class="hljs-property">href</span>);
@@ -1454,18 +1508,34 @@ of the output.</p>
 
 <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(url.<span class="hljs-title function_">format</span>(myURL, { <span class="hljs-attr">fragment</span>: <span class="hljs-literal">false</span>, <span class="hljs-attr">unicode</span>: <span class="hljs-literal">true</span>, <span class="hljs-attr">auth</span>: <span class="hljs-literal">false</span> }));
 <span class="hljs-comment">// Prints 'https://測試/?abc'</span></code><button class="copy-button">copy</button></pre>
-<h4><code>url.pathToFileURL(path)</code><span><a class="mark" href="#urlpathtofileurlpath" id="urlpathtofileurlpath">#</a></span><a aria-hidden="true" class="legacy" id="url_url_pathtofileurl_path"></a></h4>
+<h4><code>url.pathToFileURL(path[, options])</code><span><a class="mark" href="#urlpathtofileurlpath-options" id="urlpathtofileurlpath-options">#</a></span><a aria-hidden="true" class="legacy" id="url_url_pathtofileurl_path_options"></a></h4>
 <div class="api_metadata">
-<span>Added in: v10.12.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v20.13.0</td>
+<td><p>The <code>options</code> argument can now be used to determine how to return the <code>path</code> value.</p></td></tr>
+<tr><td>v10.12.0</td>
+<td><p><span>Added in: v10.12.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><code>path</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> The path to convert to a File URL.</li>
+<li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
+<ul>
+<li><code>windows</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type" class="type">&#x3C;undefined></a> <code>true</code> if the <code>path</code> should be
+treated as a windows filepath, <code>false</code> for posix, and
+<code>undefined</code> for the system default.
+<strong>Default:</strong> <code>undefined</code>.</li>
+</ul>
+</li>
 <li>Returns: <a href="url.html#the-whatwg-url-api" class="type">&#x3C;URL></a> The file URL object.</li>
 </ul>
 <p>This function ensures that <code>path</code> is resolved absolutely, and that the URL
 control characters are correctly encoded when converting into a File URL.</p>
 
-<pre class="with-66-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { pathToFileURL } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:url'</span>;
+<pre class="with-66-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { pathToFileURL } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:url'</span>;
 
 <span class="hljs-keyword">new</span> <span class="hljs-title function_">URL</span>(<span class="hljs-string">'/foo#1'</span>, <span class="hljs-string">'file:'</span>);           <span class="hljs-comment">// Incorrect: file:///foo#1</span>
 <span class="hljs-title function_">pathToFileURL</span>(<span class="hljs-string">'/foo#1'</span>);              <span class="hljs-comment">// Correct:   file:///foo%231 (POSIX)</span>
@@ -1487,7 +1557,7 @@ control characters are correctly encoded when converting into a File URL.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.17.0</td>
+<tr><td>v19.9.0</td>
 <td><p>The returned object will also contain all the own enumerable properties of the <code>url</code> argument.</p></td></tr>
 <tr><td>v15.7.0, v14.18.0</td>
 <td><p><span>Added in: v15.7.0, v14.18.0</span></p></td></tr>
@@ -1518,7 +1588,7 @@ Authorization header.</li>
 <p>This utility function converts a URL object into an ordinary options object as
 expected by the <a href="http.html#httprequestoptions-callback"><code>http.request()</code></a> and <a href="https.html#httpsrequestoptions-callback"><code>https.request()</code></a> APIs.</p>
 
-<pre class="with-49-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { urlToHttpOptions } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:url'</span>;
+<pre class="with-49-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { urlToHttpOptions } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:url'</span>;
 <span class="hljs-keyword">const</span> myURL = <span class="hljs-keyword">new</span> <span class="hljs-title function_">URL</span>(<span class="hljs-string">'https://a:b@測試?abc#foo'</span>);
 
 <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-title function_">urlToHttpOptions</span>(myURL));
@@ -1751,7 +1821,7 @@ string, an <a href="errors.html#class-error"><code>Error</code></a> is thrown.</
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.13.0</td>
+<tr><td>v19.0.0, v18.13.0</td>
 <td><p>Documentation-only deprecation.</p></td></tr>
 <tr><td>v15.13.0, v14.17.0</td>
 <td><p>Deprecation revoked. Status changed to "Legacy".</p></td></tr>

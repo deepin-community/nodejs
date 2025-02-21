@@ -1,48 +1,213 @@
-nodejs (18.19.1+dfsg-3) unstable; urgency=medium
+nodejs (20.18.3+dfsg-1) unstable; urgency=medium
 
-  * mips64el: skip failing test
-    Some unusual v8 options make mips64el crash
+  * New upstream version 20.18.3+dfsg
+  * Really SKIP test-watch-mode - can hang
 
- -- Jérémy Lal <kapouer@melix.org>  Thu, 22 Feb 2024 11:36:42 +0100
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 10 Feb 2025 15:45:36 +0100
 
-nodejs (18.19.1+dfsg-2) unstable; urgency=medium
+nodejs (20.18.2+dfsg-4) unstable; urgency=medium
 
-  [ Bo YU ]
-  * Allow more risc64 tests to fail. Closes: #1064331
+  * Fix tests invocation
 
-  [ Jérémy Lal ]
-  * Allow more mips64el tests to fail. Closes: #1064306
-    Upstream still supports those architectures but they
-    take more time to fix corner cases.
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 02 Feb 2025 01:03:59 +0100
 
- -- Jérémy Lal <kapouer@melix.org>  Tue, 20 Feb 2024 11:56:31 +0100
+nodejs (20.18.2+dfsg-3) unstable; urgency=medium
 
-nodejs (18.19.1+dfsg-1) unstable; urgency=medium
+  * Mark skipped cli tests as flaky instead.
 
-  * New upstream version 18.19.1. Closes: 1064055.
-    + CVE-2024-21892 (High)
-      Code injection and privilege escalation through Linux capabilities
-    + CVE-2024-22019 (High)
-      Reading unprocessed HTTP request with unbounded chunk
-      extension allows DoS attacks
-    + CVE-2023-46809 (Medium)
-      Marvin Attack vulnerability against PKCS#1 v1.5 padding
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 01 Feb 2025 21:54:45 +0100
+
+nodejs (20.18.2+dfsg-2) unstable; urgency=medium
+
+  * Move common flakyTests to debian/rules
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 01 Feb 2025 14:59:38 +0100
+
+nodejs (20.18.2+dfsg-1) unstable; urgency=medium
+
+  * New upstream version 20.18.2+dfsg
+    + CVE-2025-23083: Worker permission bypass via InternalWorker
+      leak in diagnostics (High).
+    + CVE-2025-23085: GOAWAY HTTP/2 frames cause memory leak outside heap
+      (Medium).
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 26 Jan 2025 16:31:48 +0100
+
+nodejs (20.18.1+dfsg-2) unstable; urgency=medium
+
+  * Depends node-corepack
+  * Two patches to make some tests pass with openssl 3.4
+    Closes: #1091807.
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 01 Jan 2025 14:34:52 +0100
+
+nodejs (20.18.1+dfsg-1) unstable; urgency=medium
+
+  * New upstream version 20.18.1+dfsg
+  * d/watch: types-node 20
+  * d/copyright: remove stanzas matching unused deps/*
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 20 Nov 2024 20:02:53 +0100
+
+nodejs (20.18.0+dfsg-2) unstable; urgency=medium
+
+  * Fix remove of deps/* dirs that breaks Makefile.
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 08 Nov 2024 20:05:21 +0100
+
+nodejs (20.18.0+dfsg-1) unstable; urgency=medium
+
+  * New upstream version 20.18.0+dfsg
+  * Update types-node to 20.17.6
+  * Exclude unused deps/* to simplify maintenance
+  * Use shared ngtcp2, nghttp3, simdjson
+  * Use debian/openssl.cnf for tests
+  * tests: pass --skip-tests in d/rules instead of patches
+  * Refresh tests fixes for openssl 3.2.2 compatibility
+  * Use dh-sequence-bash-completion
+  * Fix test to build completion. Closes: #1085098
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 08 Nov 2024 14:59:03 +0100
+
+nodejs (20.17.0+dfsg-2) unstable; urgency=medium
+
+  * Depend node-minimatch
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 29 Aug 2024 10:25:23 +0200
+
+nodejs (20.17.0+dfsg-1) unstable; urgency=medium
+
+  * New upstream version 20.17.0+dfsg
+  * B-D node-minimatch, added to builtins.
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 28 Aug 2024 20:25:41 +0200
+
+nodejs (20.16.0+dfsg-1) unstable; urgency=medium
+
+  * New upstream version 20.16.0+dfsg
+  * patches:
+    + improve openssl 3.2.2 tests fixes
+    + upstream fix for failing permissions tests in /tmp
+      Closes: #1076542.
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 18 Aug 2024 14:48:08 +0200
+
+nodejs (20.15.1+dfsg-1) unstable; urgency=medium
+
+  * New upstream version 20.15.1+dfsg
+  * Fix watch file to ensure ada 2.7.8
+  * CVE-2024-36138: Bypass incomplete fix of CVE-2024-27980 (High)
+  * CVE-2024-22020: Bypass network import restriction via data URL (Medium)
+  * CVE-2024-22018: fs.lstat bypasses permission model (Low)
+  * CVE-2024-36137: fs.fchown/fchmod bypasses permission model (Low)
+  * CVE-2024-37372: Permission model improperly processes UNC paths (Low)
+  * Add another failing test to loong64/mips64el
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 09 Jul 2024 10:02:04 +0200
+
+nodejs (20.15.0+dfsg-1) unstable; urgency=medium
+
+  * New upstream version 20.15.0+dfsg
+  * Mark test-worker-prof as flaky on mips64el/loong64
+  * VCS is on master-20.x branch now
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 25 Jun 2024 12:57:00 +0200
+
+nodejs (20.14.0+dfsg-3) unstable; urgency=medium
+
+  * test-cpu-prof-dir-absolute is flaky
+  * Fix: skip failing test in the right suite
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 19 Jun 2024 12:03:27 +0200
+
+nodejs (20.14.0+dfsg-2) unstable; urgency=medium
+
+  * Patch: fix tests for openssl 3.2.2. Closes: #1073013
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 12 Jun 2024 11:41:24 +0200
+
+nodejs (20.14.0+dfsg-1) unstable; urgency=medium
+
+  * New upstream version 20.14.0+dfsg
+
+  [ Gianfranco Costamagna ]
+  * Drop double newline in changelog
+
+  [ Zixing Liu ]
+  * Use proper method to specify Node.js path when running tests
+  * test_ci.patch: revert Makefile changes to use upstream selection logic
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 03 Jun 2024 13:36:41 +0200
+
+nodejs (20.13.1+dfsg-2) unstable; urgency=medium
+
+  * Flaky sequential/test-worker-heapsnapshot-options.
+    Closes: #1071382
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 18 May 2024 14:26:22 +0200
+
+nodejs (20.13.1+dfsg-1) unstable; urgency=medium
+
+  * New upstream version 20.13.1+dfsg
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 15 May 2024 13:52:04 +0200
+
+nodejs (20.13.0+dfsg-1) experimental; urgency=medium
+
+  * New upstream version 20.13.0+dfsg
+  * test-fs-utimes* fail because of libuv1 bug
+  * mark some more tests as flaky
+  * watch: ada 2.7.8
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 08 May 2024 19:48:54 +0200
+
+nodejs (20.12.2+dfsg-1) experimental; urgency=medium
+
+  * New upstream version 20.12.2+dfsg
+  * copyright:
+    + exclude tools/gyp
+    + simplifications
+    + fix license ~holders
+  * patch: add link to upstream bug
+  * Suggests node-corepack
+  * Include permission headers
+  * Override lintian warning about brotli test
+  * Deps:
+    + pkg-config becomes pkgconf
+    + python3-packaging
+    + gyp >= 0.16
+  * Breaks/Replace libnode108, libnode109
+  * Drop python3-distutils from deps/test deps. Closes: #1065909
+  * Let some riscv64, mips64el tests fail.
+  * openssl 3.2 compatibility patch
+  * mark setuid tests as failing, because this nodejs version
+    does not support setuid with shared libuv. See: CVE-2024-22017
+  * multilib patch: process.config not in shadow realm
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 23 Apr 2024 11:53:20 +0200
+
+nodejs (20.10.0+dfsg-1) experimental; urgency=medium
+
+  * New upstream version 20.10.0+dfsg
+  * Drop kfreebsd-*, mips(el) architectures
   * new architecture: loong64, thanks to Shi Pujin  
   * patch:
+    + remove mips-related, refresh
     + let loong64 have some failing tests
     + more doc for localhost-no-addrconfig
-    + allow test-debugger-heap-profiler to fail. Closes: #1059168
-    + disable zlib embedding in v8, disable snapshot compression
-  * override lintian source warning for zlib brotli test string
+    + disable zlib embedding in v8
   * fix boostrapping of nodejs package:
     + update README.source
     + nodoc: disable bash completion output
     + patch: disable shared builtins when flag
       node-builtin-modules-path is used
-  * include permission headers in libnode-dev
-  * B-D pkg-config becomes pkgconf
+  * copyright:
+    + deps/v8/third_party/glibc/ with some LGPL-2.1+ code
+    + exclude tools/github_reporter/index.js
+    + disappeared file patterns
+    + deps/v8/third_party/ittapi/include/fortran/
 
- -- Jérémy Lal <kapouer@melix.org>  Sun, 18 Feb 2024 18:12:23 +0100
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 16 Dec 2023 13:56:50 +0100
 
 nodejs (18.19.0+dfsg-6) unstable; urgency=medium
 
@@ -2642,7 +2807,6 @@ nodejs (0.4.12-3) unstable; urgency=low
     This breaks test/simple/test-sys.js, fixed by an upstream patch.
 
  -- Jérémy Lal <kapouer@melix.org>  Sun, 08 Jan 2012 12:00:02 +0100
-
 
 nodejs (0.4.12-2) unstable; urgency=low
 
