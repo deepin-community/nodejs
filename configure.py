@@ -14,8 +14,6 @@ import bz2
 import io
 from pathlib import Path
 
-from distutils.version import StrictVersion
-
 # If not run from node/, cd to node/.
 os.chdir(Path(__file__).parent)
 
@@ -30,6 +28,7 @@ tools_path = Path('tools')
 
 sys.path.insert(0, str(tools_path / 'gyp' / 'pylib'))
 from gyp.common import GetFlavor
+from packaging.version import Version
 
 # imports in tools/configure.d
 sys.path.insert(0, str(tools_path / 'configure.d'))
@@ -1057,7 +1056,7 @@ def check_compiler(o):
   if not ok:
     warn(f'failed to autodetect C++ compiler version (CXX={CXX})')
   elif clang_version < (8, 0, 0) if is_clang else gcc_version < (8, 3, 0):
-    warn(f'C++ compiler (CXX={CXX}, {version_str}) too old, need g++ 10.1.0 or clang++ 8.0.0')
+    warn(f'C++ compiler (CXX={CXX}, {version_str}) too old, need g++ 8.3.0 or clang++ 8.0.0')
 
   ok, is_clang, clang_version, gcc_version = try_check_compiler(CC, 'c')
   version_str = ".".join(map(str, clang_version if is_clang else gcc_version))
@@ -1605,10 +1604,10 @@ def configure_openssl(o):
     # supported asm compiler for AVX2. See https://github.com/openssl/openssl/
     # blob/OpenSSL_1_1_0-stable/crypto/modes/asm/aesni-gcm-x86_64.pl#L52-L69
     openssl110_asm_supported = \
-      ('gas_version' in variables and StrictVersion(variables['gas_version']) >= StrictVersion('2.23')) or \
-      ('xcode_version' in variables and StrictVersion(variables['xcode_version']) >= StrictVersion('5.0')) or \
-      ('llvm_version' in variables and StrictVersion(variables['llvm_version']) >= StrictVersion('3.3')) or \
-      ('nasm_version' in variables and StrictVersion(variables['nasm_version']) >= StrictVersion('2.10'))
+      ('gas_version' in variables and Version(variables['gas_version']) >= Version('2.23')) or \
+      ('xcode_version' in variables and Version(variables['xcode_version']) >= Version('5.0')) or \
+      ('llvm_version' in variables and Version(variables['llvm_version']) >= Version('3.3')) or \
+      ('nasm_version' in variables and Version(variables['nasm_version']) >= Version('2.10'))
 
     if is_x86 and not openssl110_asm_supported:
       error('''Did not find a new enough assembler, install one or build with

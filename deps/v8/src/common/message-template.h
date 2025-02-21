@@ -100,6 +100,9 @@ namespace internal {
   T(IllegalInvocation, "Illegal invocation")                                   \
   T(ImmutablePrototypeSet,                                                     \
     "Immutable prototype object '%' cannot have their prototype set")          \
+  T(ImportAssertDeprecated,                                                    \
+    "'assert' is deprecated in import statements and support will be removed " \
+    "in %; use 'with' instead")                                                \
   T(ImportAssertionDuplicateKey, "Import assertion has duplicate key '%'")     \
   T(ImportCallNotNewExpression, "Cannot use new with import")                  \
   T(ImportOutsideModule, "Cannot use import statement outside a module")       \
@@ -633,17 +636,15 @@ namespace internal {
   T(TraceEventPhaseError, "Trace event phase must be a number.")               \
   T(TraceEventIDError, "Trace event id must be a number.")                     \
   /* Weak refs */                                                              \
-  T(WeakRefsUnregisterTokenMustBeObject,                                       \
-    "unregisterToken ('%') must be an object")                                 \
+  T(InvalidWeakRefsUnregisterToken, "Invalid unregisterToken ('%')")           \
   T(WeakRefsCleanupMustBeCallable,                                             \
     "FinalizationRegistry: cleanup must be callable")                          \
-  T(WeakRefsRegisterTargetMustBeObject,                                        \
-    "FinalizationRegistry.prototype.register: target must be an object")       \
+  T(InvalidWeakRefsRegisterTarget,                                             \
+    "FinalizationRegistry.prototype.register: invalid target")                 \
   T(WeakRefsRegisterTargetAndHoldingsMustNotBeSame,                            \
     "FinalizationRegistry.prototype.register: target and holdings must not "   \
     "be same")                                                                 \
-  T(WeakRefsWeakRefConstructorTargetMustBeObject,                              \
-    "WeakRef: target must be an object")                                       \
+  T(InvalidWeakRefsWeakRefConstructorTarget, "WeakRef: invalid target")        \
   T(OptionalChainingNoNew, "Invalid optional chain from new expression")       \
   T(OptionalChainingNoSuper, "Invalid optional chain from super property")     \
   T(OptionalChainingNoTemplate, "Invalid tagged template on optional chain")   \
