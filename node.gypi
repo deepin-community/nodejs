@@ -141,6 +141,7 @@
     } ],
     [ 'node_shared_zlib=="false"', {
       'dependencies': [ 'deps/zlib/zlib.gyp:zlib' ],
+      'defines': [ 'NODE_BUNDLED_ZLIB' ],
       'conditions': [
         [ 'force_load=="true"', {
           'xcode_settings': {
@@ -207,6 +208,10 @@
       ],
     }],
 
+    [ 'node_shared_uvwasi=="false"', {
+      'dependencies': [ 'deps/uvwasi/uvwasi.gyp:uvwasi' ],
+    }],
+
     [ 'node_shared_nghttp2=="false"', {
       'dependencies': [ 'deps/nghttp2/nghttp2.gyp:nghttp2' ],
     }],
@@ -216,7 +221,7 @@
     }],
 
     [ 'OS=="mac"', {
-      # linking Corefoundation is needed since certain OSX debugging tools
+      # linking Corefoundation is needed since certain macOS debugging tools
       # like Instruments require it for some features
       'libraries': [ '-framework CoreFoundation' ],
       'defines!': [

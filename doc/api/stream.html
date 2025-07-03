@@ -3,18 +3,32 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>Stream | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.19.2">
+  <title>Stream | Node.js v20.19.2 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/stream.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
-  <style>@media(max-width:718px){.with-62-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:646px){.with-53-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}@media(max-width:558px){.with-42-chars>.js-flavor-selector{float:none;margin:0 0 1em auto;}}</style>
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
+  <style>@media(max-width:718px){.with-62-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:646px){.with-53-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}@media(max-width:558px){.with-42-chars>.js-flavor-toggle{float:none;margin:0 0 1em auto;}}</style>
 </head>
 <body class="alt apidoc" id="api-section-stream">
+  <a href="#apicontent" class="skip-to-content">Skip to content</a>
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +110,7 @@
     <div id="column1" data-id="stream" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.19.2 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,15 +125,15 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.19.2</li>
             
     <li class="picker-header">
-      <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+      <a href="#toc-picker" aria-controls="toc-picker">
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
-      <div class="picker"><div class="toc"><ul>
+      <div class="picker" tabindex="-1"><div class="toc"><ul id="toc-picker">
 <li><span class="stability_2"><a href="#stream">Stream</a></span>
 <ul>
 <li><a href="#organization-of-this-document">Organization of this document</a></li>
@@ -162,6 +176,7 @@
 <li><a href="#writablewritablelength"><code>writable.writableLength</code></a></li>
 <li><a href="#writablewritableneeddrain"><code>writable.writableNeedDrain</code></a></li>
 <li><a href="#writablewritableobjectmode"><code>writable.writableObjectMode</code></a></li>
+<li><span class="stability_1"><a href="#writablesymbolasyncdispose"><code>writable[Symbol.asyncDispose]()</code></a></span></li>
 <li><a href="#writablewritechunk-encoding-callback"><code>writable.write(chunk[, encoding][, callback])</code></a></li>
 </ul>
 </li>
@@ -235,6 +250,7 @@
 <li><a href="#transformdestroyerror"><code>transform.destroy([error])</code></a></li>
 </ul>
 </li>
+<li><a href="#streamduplexpairoptions"><code>stream.duplexPair([options])</code></a></li>
 </ul>
 </li>
 <li><a href="#streamfinishedstream-options-callback"><code>stream.finished(stream[, options], callback)</code></a></li>
@@ -325,12 +341,12 @@
   
             
     <li class="picker-header">
-      <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+      <a href="#gtoc-picker" aria-controls="gtoc-picker">
+        <span class="picker-arrow"></span>
         Index
       </a>
 
-      <div class="picker"><ul>
+      <div class="picker" tabindex="-1" id="gtoc-picker"><ul>
 <li><a href="documentation.html" class="nav-documentation">About this documentation</a></li>
 <li><a href="synopsis.html" class="nav-synopsis">Usage and example</a></li>
 
@@ -410,14 +426,17 @@
   
             
     <li class="picker-header">
-      <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+      <a href="#alt-docs" aria-controls="alt-docs">
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/stream.html">21.x</a></li>
+      <div class="picker" tabindex="-1"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v24.x/api/stream.html">24.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v23.x/api/stream.html">23.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v22.x/api/stream.html">22.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/stream.html">21.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v20.x/api/stream.html">20.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v19.x/api/stream.html">19.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v18.x/api/stream.html">18.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v18.x/api/stream.html">18.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v17.x/api/stream.html">17.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v16.x/api/stream.html">16.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v15.x/api/stream.html">15.x</a></li>
@@ -437,13 +456,13 @@
     </li>
   
             <li class="picker-header">
-              <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+              <a href="#options-picker" aria-controls="options-picker">
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
-              <div class="picker">
-                <ul>
+              <div class="picker" tabindex="-1">
+                <ul id="options-picker">
                   <li>
                     <a href="all.html">View on single page</a>
                   </li>
@@ -459,7 +478,7 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
 <li><span class="stability_2"><a href="#stream">Stream</a></span>
 <ul>
 <li><a href="#organization-of-this-document">Organization of this document</a></li>
@@ -502,6 +521,7 @@
 <li><a href="#writablewritablelength"><code>writable.writableLength</code></a></li>
 <li><a href="#writablewritableneeddrain"><code>writable.writableNeedDrain</code></a></li>
 <li><a href="#writablewritableobjectmode"><code>writable.writableObjectMode</code></a></li>
+<li><span class="stability_1"><a href="#writablesymbolasyncdispose"><code>writable[Symbol.asyncDispose]()</code></a></span></li>
 <li><a href="#writablewritechunk-encoding-callback"><code>writable.write(chunk[, encoding][, callback])</code></a></li>
 </ul>
 </li>
@@ -575,6 +595,7 @@
 <li><a href="#transformdestroyerror"><code>transform.destroy([error])</code></a></li>
 </ul>
 </li>
+<li><a href="#streamduplexpairoptions"><code>stream.duplexPair([options])</code></a></li>
 </ul>
 </li>
 <li><a href="#streamfinishedstream-options-callback"><code>stream.finished(stream[, options], callback)</code></a></li>
@@ -662,11 +683,11 @@
 </li>
 </ul></details>
 
-      <div id="apicontent">
-        <h2>Stream<a class="srclink" href="https://github.com/nodejs/node/blob/6610cc42ff50209248dd46d1ef947d1702fdf108/lib/stream.js#L54">[src]</a><span><a class="mark" href="#stream" id="stream">#</a></span><a aria-hidden="true" class="legacy" id="stream_stream"></a></h2>
+      <div role="main" id="apicontent">
+        <h2>Stream<a class="srclink" href="https://github.com/nodejs/node/blob/10eb2fb02ca31ee6ba14961921aae404ca57a1b5/lib/stream.js#L55">[src]</a><span><a class="mark" href="#stream" id="stream">#</a></span><a aria-hidden="true" class="legacy" id="stream_stream"></a></h2>
 
 <p></p><div class="api_stability api_stability_2"><a href="documentation.html#stability-index">Stability: 2</a> - Stable</div><p></p>
-<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v18.19.1/lib/stream.js">lib/stream.js</a></p>
+<p><strong>Source Code:</strong> <a href="https://github.com/nodejs/node/blob/v20.19.2/lib/stream.js">lib/stream.js</a></p>
 <p>A stream is an abstract interface for working with streaming data in Node.js.
 The <code>node:stream</code> module provides an API for implementing the stream interface.</p>
 <p>There are many stream objects provided by Node.js. For instance, a
@@ -695,8 +716,11 @@ second section explains how to create new types of streams.</p>
 is written and read (for example, <a href="zlib.html#zlibcreatedeflateoptions"><code>zlib.createDeflate()</code></a>).</li>
 </ul>
 <p>Additionally, this module includes the utility functions
-<a href="#streampipelinesource-transforms-destination-callback"><code>stream.pipeline()</code></a>, <a href="#streamfinishedstream-options-callback"><code>stream.finished()</code></a>, <a href="#streamreadablefromiterable-options"><code>stream.Readable.from()</code></a>
-and <a href="#streamaddabortsignalsignal-stream"><code>stream.addAbortSignal()</code></a>.</p>
+<a href="#streamduplexpairoptions"><code>stream.duplexPair()</code></a>,
+<a href="#streampipelinesource-transforms-destination-callback"><code>stream.pipeline()</code></a>,
+<a href="#streamfinishedstream-options-callback"><code>stream.finished()</code></a>
+<a href="#streamreadablefromiterable-options"><code>stream.Readable.from()</code></a>, and
+<a href="#streamaddabortsignalsignal-stream"><code>stream.addAbortSignal()</code></a>.</p>
 <h4>Streams Promises API<span><a class="mark" href="#streams-promises-api" id="streams-promises-api">#</a></span><a aria-hidden="true" class="legacy" id="stream_streams_promises_api"></a></h4>
 <div class="api_metadata">
 <span>Added in: v15.0.0</span>
@@ -708,7 +732,15 @@ or <code>require('node:stream').promises</code>.</p>
 <h4><code>stream.pipeline(source[, ...transforms], destination[, options])</code><span><a class="mark" href="#streampipelinesource-transforms-destination-options" id="streampipelinesource-transforms-destination-options">#</a></span><a aria-hidden="true" class="legacy" id="stream_stream_pipeline_source_transforms_destination_options"></a></h4>
 <h4><code>stream.pipeline(streams[, options])</code><span><a class="mark" href="#streampipelinestreams-options" id="streampipelinestreams-options">#</a></span><a aria-hidden="true" class="legacy" id="stream_stream_pipeline_streams_options"></a></h4>
 <div class="api_metadata">
-<span>Added in: v15.0.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v18.0.0, v17.2.0, v16.14.0</td>
+<td><p>Add the <code>end</code> option, which can be set to <code>false</code> to prevent automatically closing the destination stream when the source ends.</p></td></tr>
+<tr><td>v15.0.0</td>
+<td><p><span>Added in: v15.0.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
 <li><code>streams</code> <a href="stream.html#stream" class="type">&#x3C;Stream[]></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#The_iterable_protocol" class="type">&#x3C;Iterable[]></a> | <a href="https://tc39.github.io/ecma262/#sec-asynciterable-interface" class="type">&#x3C;AsyncIterable[]></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function[]></a></li>
@@ -729,16 +761,18 @@ or <code>require('node:stream').promises</code>.</p>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> | <a href="https://tc39.github.io/ecma262/#sec-asynciterable-interface" class="type">&#x3C;AsyncIterable></a></li>
 </ul>
 </li>
-<li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
+<li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> Pipeline options
 <ul>
 <li><code>signal</code> <a href="globals.html#class-abortsignal" class="type">&#x3C;AbortSignal></a></li>
-<li><code>end</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a></li>
+<li><code>end</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> End the destination stream when the source stream ends.
+Transform streams are always ended, even if this value is <code>false</code>.
+<strong>Default:</strong> <code>true</code>.</li>
 </ul>
 </li>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="type">&#x3C;Promise></a> Fulfills when the pipeline is complete.</li>
 </ul>
 
-<pre class="with-62-chars"><input class="js-flavor-selector" type="checkbox" aria-label="Show modern ES modules syntax"><code class="language-js cjs"><span class="hljs-keyword">const</span> { pipeline } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:stream/promises'</span>);
+<pre class="with-62-chars"><input class="js-flavor-toggle" type="checkbox" aria-label="Show modern ES modules syntax"><code class="language-js cjs"><span class="hljs-keyword">const</span> { pipeline } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:stream/promises'</span>);
 <span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:fs'</span>);
 <span class="hljs-keyword">const</span> zlib = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:zlib'</span>);
 
@@ -765,7 +799,7 @@ or <code>require('node:stream').promises</code>.</p>
 When the signal is aborted, <code>destroy</code> will be called on the underlying pipeline,
 with an <code>AbortError</code>.</p>
 
-<pre class="with-62-chars"><input class="js-flavor-selector" type="checkbox" aria-label="Show modern ES modules syntax"><code class="language-js cjs"><span class="hljs-keyword">const</span> { pipeline } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:stream/promises'</span>);
+<pre class="with-62-chars"><input class="js-flavor-toggle" type="checkbox" aria-label="Show modern ES modules syntax"><code class="language-js cjs"><span class="hljs-keyword">const</span> { pipeline } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:stream/promises'</span>);
 <span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:fs'</span>);
 <span class="hljs-keyword">const</span> zlib = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:zlib'</span>);
 
@@ -801,7 +835,7 @@ with an <code>AbortError</code>.</p>
 }</code><button class="copy-button">copy</button></pre>
 <p>The <code>pipeline</code> API also supports async generators:</p>
 
-<pre class="with-62-chars"><input class="js-flavor-selector" type="checkbox" aria-label="Show modern ES modules syntax"><code class="language-js cjs"><span class="hljs-keyword">const</span> { pipeline } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:stream/promises'</span>);
+<pre class="with-62-chars"><input class="js-flavor-toggle" type="checkbox" aria-label="Show modern ES modules syntax"><code class="language-js cjs"><span class="hljs-keyword">const</span> { pipeline } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:stream/promises'</span>);
 <span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:fs'</span>);
 
 <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">run</span>(<span class="hljs-params"></span>) {
@@ -809,7 +843,7 @@ with an <code>AbortError</code>.</p>
     fs.<span class="hljs-title function_">createReadStream</span>(<span class="hljs-string">'lowercase.txt'</span>),
     <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span>* (source, { signal }) {
       source.<span class="hljs-title function_">setEncoding</span>(<span class="hljs-string">'utf8'</span>);  <span class="hljs-comment">// Work with strings rather than `Buffer`s.</span>
-      <span class="hljs-keyword">for</span> <span class="hljs-keyword">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> source) {
+      <span class="hljs-keyword">for</span> <span class="hljs-title function_">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> source) {
         <span class="hljs-keyword">yield</span> <span class="hljs-keyword">await</span> <span class="hljs-title function_">processChunk</span>(chunk, { signal });
       }
     },
@@ -825,7 +859,7 @@ with an <code>AbortError</code>.</p>
   <span class="hljs-title function_">createReadStream</span>(<span class="hljs-string">'lowercase.txt'</span>),
   <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span>* (source, { signal }) {
     source.<span class="hljs-title function_">setEncoding</span>(<span class="hljs-string">'utf8'</span>);  <span class="hljs-comment">// Work with strings rather than `Buffer`s.</span>
-    <span class="hljs-keyword">for</span> <span class="hljs-keyword">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> source) {
+    <span class="hljs-keyword">for</span> <span class="hljs-title function_">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> source) {
       <span class="hljs-keyword">yield</span> <span class="hljs-keyword">await</span> <span class="hljs-title function_">processChunk</span>(chunk, { signal });
     }
   },
@@ -836,7 +870,7 @@ with an <code>AbortError</code>.</p>
 Especially in the case where the async generator is the source for the
 pipeline (i.e. first argument) or the pipeline will never complete.</p>
 
-<pre class="with-53-chars"><input class="js-flavor-selector" type="checkbox" aria-label="Show modern ES modules syntax"><code class="language-js cjs"><span class="hljs-keyword">const</span> { pipeline } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:stream/promises'</span>);
+<pre class="with-53-chars"><input class="js-flavor-toggle" type="checkbox" aria-label="Show modern ES modules syntax"><code class="language-js cjs"><span class="hljs-keyword">const</span> { pipeline } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:stream/promises'</span>);
 <span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:fs'</span>);
 
 <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">run</span>(<span class="hljs-params"></span>) {
@@ -863,10 +897,19 @@ pipeline (i.e. first argument) or the pipeline will never complete.</p>
 <p>The <code>pipeline</code> API provides <a href="#streampipelinesource-transforms-destination-callback">callback version</a>:</p>
 <h4><code>stream.finished(stream[, options])</code><span><a class="mark" href="#streamfinishedstream-options" id="streamfinishedstream-options">#</a></span><a aria-hidden="true" class="legacy" id="stream_stream_finished_stream_options"></a></h4>
 <div class="api_metadata">
-<span>Added in: v15.0.0</span>
+<details class="changelog"><summary>History</summary>
+<table>
+<tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v19.5.0, v18.14.0</td>
+<td><p>Added support for <code>ReadableStream</code> and <code>WritableStream</code>.</p></td></tr>
+<tr><td>v15.0.0</td>
+<td><p><span>Added in: v15.0.0</span></p></td></tr>
+</tbody></table>
+</details>
 </div>
 <ul>
-<li><code>stream</code> <a href="stream.html#stream" class="type">&#x3C;Stream></a></li>
+<li><code>stream</code> <a href="stream.html#stream" class="type">&#x3C;Stream></a> | <a href="webstreams.html#class-readablestream" class="type">&#x3C;ReadableStream></a> | <a href="webstreams.html#class-writablestream" class="type">&#x3C;WritableStream></a> A readable and/or writable
+stream/webstream.</li>
 <li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
 <ul>
 <li><code>error</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type" class="type">&#x3C;undefined></a></li>
@@ -879,7 +922,7 @@ pipeline (i.e. first argument) or the pipeline will never complete.</p>
 longer readable or writable.</li>
 </ul>
 
-<pre class="with-53-chars"><input class="js-flavor-selector" type="checkbox" aria-label="Show modern ES modules syntax"><code class="language-js cjs"><span class="hljs-keyword">const</span> { finished } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:stream/promises'</span>);
+<pre class="with-53-chars"><input class="js-flavor-toggle" type="checkbox" aria-label="Show modern ES modules syntax"><code class="language-js cjs"><span class="hljs-keyword">const</span> { finished } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:stream/promises'</span>);
 <span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:fs'</span>);
 
 <span class="hljs-keyword">const</span> rs = fs.<span class="hljs-title function_">createReadStream</span>(<span class="hljs-string">'archive.tar'</span>);
@@ -904,11 +947,19 @@ rs.<span class="hljs-title function_">resume</span>(); <span class="hljs-comment
 rs.<span class="hljs-title function_">resume</span>(); <span class="hljs-comment">// Drain the stream.</span></code><button class="copy-button">copy</button></pre>
 <p>The <code>finished</code> API also provides a <a href="#streamfinishedstream-options-callback">callback version</a>.</p>
 <h4>Object mode<span><a class="mark" href="#object-mode" id="object-mode">#</a></span><a aria-hidden="true" class="legacy" id="stream_object_mode"></a></h4>
-<p>All streams created by Node.js APIs operate exclusively on strings and <code>Buffer</code>
-(or <code>Uint8Array</code>) objects. It is possible, however, for stream implementations
-to work with other types of JavaScript values (with the exception of <code>null</code>,
-which serves a special purpose within streams). Such streams are considered to
-operate in "object mode".</p>
+<p>All streams created by Node.js APIs operate exclusively on strings, <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a>,
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> and <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a> objects:</p>
+<ul>
+<li><code>Strings</code> and <code>Buffers</code> are the most common types used with streams.</li>
+<li><code>TypedArray</code> and <code>DataView</code> lets you handle binary data with types like
+<code>Int32Array</code> or <code>Uint8Array</code>. When you write a TypedArray or DataView to a
+stream, Node.js processes
+the raw bytes.</li>
+</ul>
+<p>It is possible, however, for stream
+implementations to work with other types of JavaScript values (with the
+exception of <code>null</code>, which serves a special purpose within streams).
+Such streams are considered to operate in "object mode".</p>
 <p>Stream instances are switched into object mode using the <code>objectMode</code> option
 when the stream is created. Attempting to switch an existing stream into
 object mode is not safe.</p>
@@ -919,7 +970,9 @@ buffer.</p>
 <p>The amount of data potentially buffered depends on the <code>highWaterMark</code> option
 passed into the stream's constructor. For normal streams, the <code>highWaterMark</code>
 option specifies a <a href="#highwatermark-discrepancy-after-calling-readablesetencoding">total number of bytes</a>. For streams operating
-in object mode, the <code>highWaterMark</code> specifies a total number of objects.</p>
+in object mode, the <code>highWaterMark</code> specifies a total number of objects. For
+streams operating on (but not decoding) strings, the <code>highWaterMark</code> specifies
+a total number of UTF-16 code units.</p>
 <p>Data is buffered in <code>Readable</code> streams when the implementation calls
 <a href="#readablepushchunk-encoding"><code>stream.push(chunk)</code></a>. If the consumer of the Stream does not
 call <a href="#readablereadsize"><code>stream.read()</code></a>, the data will sit in the internal
@@ -1249,6 +1302,8 @@ myStream.<span class="hljs-title function_">destroy</span>();
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v20.13.0</td>
+<td><p>The <code>chunk</code> argument can now be a <code>TypedArray</code> or <code>DataView</code> instance.</p></td></tr>
 <tr><td>v15.0.0</td>
 <td><p>The <code>callback</code> is invoked before 'finish' or on error.</p></td></tr>
 <tr><td>v14.0.0</td>
@@ -1263,10 +1318,10 @@ myStream.<span class="hljs-title function_">destroy</span>();
 </details>
 </div>
 <ul>
-<li><code>chunk</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array" class="type">&#x3C;Uint8Array></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types" class="type">&#x3C;any></a> Optional data to write. For streams
-not operating in object mode, <code>chunk</code> must be a string, <code>Buffer</code> or
-<code>Uint8Array</code>. For object mode streams, <code>chunk</code> may be any JavaScript value
-other than <code>null</code>.</li>
+<li><code>chunk</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types" class="type">&#x3C;any></a> Optional data to write. For
+streams not operating in object mode, <code>chunk</code> must be a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a>, <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a>,
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> or <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a>. For object mode streams, <code>chunk</code> may be any
+JavaScript value other than <code>null</code>.</li>
 <li><code>encoding</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> The encoding if <code>chunk</code> is a string</li>
 <li><code>callback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> Callback for when the stream is finished.</li>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this" class="type">&#x3C;this></a></li>
@@ -1339,7 +1394,7 @@ process.<span class="hljs-title function_">nextTick</span>(<span class="hljs-fun
 the stream has not been destroyed, errored, or ended.</p>
 <h6><code>writable.writableAborted</code><span><a class="mark" href="#writablewritableaborted" id="writablewritableaborted">#</a></span><a aria-hidden="true" class="legacy" id="stream_writable_writableaborted"></a></h6>
 <div class="api_metadata">
-<span>Added in: v18.0.0</span>
+<span>Added in: v18.0.0, v16.17.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <ul>
@@ -1415,11 +1470,20 @@ the status of the <code>highWaterMark</code>.</p>
 <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a></li>
 </ul>
 <p>Getter for the property <code>objectMode</code> of a given <code>Writable</code> stream.</p>
+<h6><code>writable[Symbol.asyncDispose]()</code><span><a class="mark" href="#writablesymbolasyncdispose" id="writablesymbolasyncdispose">#</a></span><a aria-hidden="true" class="legacy" id="stream_writable_symbol_asyncdispose"></a></h6>
+<div class="api_metadata">
+<span>Added in: v20.16.0</span>
+</div>
+<p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
+<p>Calls <a href="#writabledestroyerror"><code>writable.destroy()</code></a> with an <code>AbortError</code> and returns
+a promise that fulfills when the stream is finished.</p>
 <h6><code>writable.write(chunk[, encoding][, callback])</code><span><a class="mark" href="#writablewritechunk-encoding-callback" id="writablewritechunk-encoding-callback">#</a></span><a aria-hidden="true" class="legacy" id="stream_writable_write_chunk_encoding_callback"></a></h6>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v20.13.0</td>
+<td><p>The <code>chunk</code> argument can now be a <code>TypedArray</code> or <code>DataView</code> instance.</p></td></tr>
 <tr><td>v8.0.0</td>
 <td><p>The <code>chunk</code> argument can now be a <code>Uint8Array</code> instance.</p></td></tr>
 <tr><td>v6.0.0</td>
@@ -1430,10 +1494,10 @@ the status of the <code>highWaterMark</code>.</p>
 </details>
 </div>
 <ul>
-<li><code>chunk</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array" class="type">&#x3C;Uint8Array></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types" class="type">&#x3C;any></a> Optional data to write. For streams
-not operating in object mode, <code>chunk</code> must be a string, <code>Buffer</code> or
-<code>Uint8Array</code>. For object mode streams, <code>chunk</code> may be any JavaScript value
-other than <code>null</code>.</li>
+<li><code>chunk</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types" class="type">&#x3C;any></a> Optional data to write. For
+streams not operating in object mode, <code>chunk</code> must be a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a>, <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a>,
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> or <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a>. For object mode streams, <code>chunk</code> may be any
+JavaScript value other than <code>null</code>.</li>
 <li><code>encoding</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a> The encoding, if <code>chunk</code> is a string. <strong>Default:</strong> <code>'utf8'</code></li>
 <li><code>callback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> Callback for when this chunk of data is flushed.</li>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> <code>false</code> if the stream wishes for the calling code to
@@ -1691,9 +1755,11 @@ and <code>readableFlowing</code> is not <code>false</code>.</p>
 </details>
 </div>
 <p>The <code>'readable'</code> event is emitted when there is data available to be read from
-the stream or when the end of the stream has been reached. Effectively, the
-<code>'readable'</code> event indicates that the stream has new information. If data is
-available, <a href="#readablereadsize"><code>stream.read()</code></a> will return that data.</p>
+the stream, up to the configured high water mark (<code>state.highWaterMark</code>). Effectively,
+it indicates that the stream has new information within the buffer. If data is available
+within this buffer, <a href="#readablereadsize"><code>stream.read()</code></a> can be called to retrieve that data.
+Additionally, the <code>'readable'</code> event may also be emitted when the end of the stream has been
+reached.</p>
 <pre><code class="language-js"><span class="hljs-keyword">const</span> readable = <span class="hljs-title function_">getReadableStreamSomehow</span>();
 readable.<span class="hljs-title function_">on</span>(<span class="hljs-string">'readable'</span>, <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
   <span class="hljs-comment">// There is some data to read now.</span>
@@ -1906,13 +1972,14 @@ readable.<span class="hljs-title function_">on</span>(<span class="hljs-string">
 readable.<span class="hljs-title function_">on</span>(<span class="hljs-string">'end'</span>, <span class="hljs-function">() =></span> {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'Reached end of stream.'</span>);
 });</code> <button class="copy-button">copy</button></pre>
-<p>Each call to <code>readable.read()</code> returns a chunk of data, or <code>null</code>. The chunks
-are not concatenated. A <code>while</code> loop is necessary to consume all data
-currently in the buffer. When reading a large file <code>.read()</code> may return <code>null</code>,
-having consumed all buffered content so far, but there is still more data to
-come not yet buffered. In this case a new <code>'readable'</code> event will be emitted
-when there is more data in the buffer. Finally the <code>'end'</code> event will be
-emitted when there is no more data to come.</p>
+<p>Each call to <code>readable.read()</code> returns a chunk of data or <code>null</code>, signifying
+that there's no more data to read at that moment. These chunks aren't automatically
+concatenated. Because a single <code>read()</code> call does not return all the data, using
+a while loop may be necessary to continuously read chunks until all data is retrieved.
+When reading a large file, <code>.read()</code> might return <code>null</code> temporarily, indicating
+that it has consumed all buffered content but there may be more data yet to be
+buffered. In such cases, a new <code>'readable'</code> event is emitted once there's more
+data in the buffer, and the <code>'end'</code> event signifies the end of data transmission.</p>
 <p>Therefore to read a file's whole contents from a <code>readable</code>, it is necessary
 to collect chunks across multiple <code>'readable'</code> events:</p>
 <pre><code class="language-js"><span class="hljs-keyword">const</span> chunks = [];
@@ -2103,6 +2170,8 @@ readable.<span class="hljs-title function_">pipe</span>(writable);
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v20.13.0</td>
+<td><p>The <code>chunk</code> argument can now be a <code>TypedArray</code> or <code>DataView</code> instance.</p></td></tr>
 <tr><td>v8.0.0</td>
 <td><p>The <code>chunk</code> argument can now be a <code>Uint8Array</code> instance.</p></td></tr>
 <tr><td>v0.9.11</td>
@@ -2111,10 +2180,10 @@ readable.<span class="hljs-title function_">pipe</span>(writable);
 </details>
 </div>
 <ul>
-<li><code>chunk</code> <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array" class="type">&#x3C;Uint8Array></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types" class="type">&#x3C;any></a> Chunk of data to unshift onto the
-read queue. For streams not operating in object mode, <code>chunk</code> must be a
-string, <code>Buffer</code>, <code>Uint8Array</code>, or <code>null</code>. For object mode streams, <code>chunk</code>
-may be any JavaScript value.</li>
+<li><code>chunk</code> <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types" class="type">&#x3C;any></a> Chunk of data to unshift
+onto the read queue. For streams not operating in object mode, <code>chunk</code> must
+be a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a>, <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a>, <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a>, <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a> or <code>null</code>.
+For object mode streams, <code>chunk</code> may be any JavaScript value.</li>
 <li><code>encoding</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Encoding of string chunks. Must be a valid
 <code>Buffer</code> encoding, such as <code>'utf8'</code> or <code>'ascii'</code>.</li>
 </ul>
@@ -2218,7 +2287,7 @@ myReader.<span class="hljs-title function_">on</span>(<span class="hljs-string">
 <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">print</span>(<span class="hljs-params">readable</span>) {
   readable.<span class="hljs-title function_">setEncoding</span>(<span class="hljs-string">'utf8'</span>);
   <span class="hljs-keyword">let</span> data = <span class="hljs-string">''</span>;
-  <span class="hljs-keyword">for</span> <span class="hljs-keyword">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> readable) {
+  <span class="hljs-keyword">for</span> <span class="hljs-title function_">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> readable) {
     data += chunk;
   }
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(data);
@@ -2233,14 +2302,14 @@ has less then 64 KiB of data because no <code>highWaterMark</code> option is pro
 <a href="fs.html#fscreatereadstreampath-options"><code>fs.createReadStream()</code></a>.</p>
 <h6><code>readable[Symbol.asyncDispose]()</code><span><a class="mark" href="#readablesymbolasyncdispose" id="readablesymbolasyncdispose">#</a></span><a aria-hidden="true" class="legacy" id="stream_readable_symbol_asyncdispose"></a></h6>
 <div class="api_metadata">
-<span>Added in: v18.18.0</span>
+<span>Added in: v20.4.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <p>Calls <a href="#readabledestroyerror"><code>readable.destroy()</code></a> with an <code>AbortError</code> and returns
 a promise that fulfills when the stream is finished.</p>
 <h6><code>readable.compose(stream[, options])</code><span><a class="mark" href="#readablecomposestream-options" id="readablecomposestream-options">#</a></span><a aria-hidden="true" class="legacy" id="stream_readable_compose_stream_options"></a></h6>
 <div class="api_metadata">
-<span>Added in: v18.13.0</span>
+<span>Added in: v19.1.0, v18.13.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <ul>
@@ -2256,7 +2325,7 @@ aborted.</li>
 <pre><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Readable</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:stream'</span>;
 
 <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span>* <span class="hljs-title function_">splitToWords</span>(<span class="hljs-params">source</span>) {
-  <span class="hljs-keyword">for</span> <span class="hljs-keyword">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> source) {
+  <span class="hljs-keyword">for</span> <span class="hljs-title function_">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> source) {
     <span class="hljs-keyword">const</span> words = <span class="hljs-title class_">String</span>(chunk).<span class="hljs-title function_">split</span>(<span class="hljs-string">' '</span>);
 
     <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> word <span class="hljs-keyword">of</span> words) {
@@ -2292,14 +2361,14 @@ emitted an error during iteration.</p>
 <pre><code class="language-js"><span class="hljs-keyword">const</span> { <span class="hljs-title class_">Readable</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:stream'</span>);
 
 <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">printIterator</span>(<span class="hljs-params">readable</span>) {
-  <span class="hljs-keyword">for</span> <span class="hljs-keyword">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> readable.<span class="hljs-title function_">iterator</span>({ <span class="hljs-attr">destroyOnReturn</span>: <span class="hljs-literal">false</span> })) {
+  <span class="hljs-keyword">for</span> <span class="hljs-title function_">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> readable.<span class="hljs-title function_">iterator</span>({ <span class="hljs-attr">destroyOnReturn</span>: <span class="hljs-literal">false</span> })) {
     <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(chunk); <span class="hljs-comment">// 1</span>
     <span class="hljs-keyword">break</span>;
   }
 
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(readable.<span class="hljs-property">destroyed</span>); <span class="hljs-comment">// false</span>
 
-  <span class="hljs-keyword">for</span> <span class="hljs-keyword">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> readable.<span class="hljs-title function_">iterator</span>({ <span class="hljs-attr">destroyOnReturn</span>: <span class="hljs-literal">false</span> })) {
+  <span class="hljs-keyword">for</span> <span class="hljs-title function_">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> readable.<span class="hljs-title function_">iterator</span>({ <span class="hljs-attr">destroyOnReturn</span>: <span class="hljs-literal">false</span> })) {
     <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(chunk); <span class="hljs-comment">// Will print 2 and then 3</span>
   }
 
@@ -2307,7 +2376,7 @@ emitted an error during iteration.</p>
 }
 
 <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">printSymbolAsyncIterator</span>(<span class="hljs-params">readable</span>) {
-  <span class="hljs-keyword">for</span> <span class="hljs-keyword">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> readable) {
+  <span class="hljs-keyword">for</span> <span class="hljs-title function_">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> readable) {
     <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(chunk); <span class="hljs-comment">// 1</span>
     <span class="hljs-keyword">break</span>;
   }
@@ -2326,7 +2395,7 @@ emitted an error during iteration.</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.19.0</td>
+<tr><td>v20.7.0</td>
 <td><p>added <code>highWaterMark</code> in options.</p></td></tr>
 <tr><td>v17.4.0, v16.14.0</td>
 <td><p><span>Added in: v17.4.0, v16.14.0</span></p></td></tr>
@@ -2366,7 +2435,7 @@ promise will be <code>await</code>ed before being passed to the result stream.</
 <span class="hljs-keyword">import</span> { <span class="hljs-title class_">Resolver</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:dns/promises'</span>;
 
 <span class="hljs-comment">// With a synchronous mapper.</span>
-<span class="hljs-keyword">for</span> <span class="hljs-keyword">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> <span class="hljs-title class_">Readable</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>]).<span class="hljs-title function_">map</span>(<span class="hljs-function">(<span class="hljs-params">x</span>) =></span> x * <span class="hljs-number">2</span>)) {
+<span class="hljs-keyword">for</span> <span class="hljs-title function_">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> <span class="hljs-title class_">Readable</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>]).<span class="hljs-title function_">map</span>(<span class="hljs-function">(<span class="hljs-params">x</span>) =></span> x * <span class="hljs-number">2</span>)) {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(chunk); <span class="hljs-comment">// 2, 4, 6, 8</span>
 }
 <span class="hljs-comment">// With an asynchronous mapper, making at most 2 queries at a time.</span>
@@ -2376,7 +2445,7 @@ promise will be <code>await</code>ed before being passed to the result stream.</
   <span class="hljs-string">'openjsf.org'</span>,
   <span class="hljs-string">'www.linuxfoundation.org'</span>,
 ]).<span class="hljs-title function_">map</span>(<span class="hljs-function">(<span class="hljs-params">domain</span>) =></span> resolver.<span class="hljs-title function_">resolve4</span>(domain), { <span class="hljs-attr">concurrency</span>: <span class="hljs-number">2</span> });
-<span class="hljs-keyword">for</span> <span class="hljs-keyword">await</span> (<span class="hljs-keyword">const</span> result <span class="hljs-keyword">of</span> dnsResults) {
+<span class="hljs-keyword">for</span> <span class="hljs-title function_">await</span> (<span class="hljs-keyword">const</span> result <span class="hljs-keyword">of</span> dnsResults) {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(result); <span class="hljs-comment">// Logs the DNS result of resolver.resolve4.</span>
 }</code> <button class="copy-button">copy</button></pre>
 <h6><code>readable.filter(fn[, options])</code><span><a class="mark" href="#readablefilterfn-options" id="readablefilterfn-options">#</a></span><a aria-hidden="true" class="legacy" id="stream_readable_filter_fn_options"></a></h6>
@@ -2384,7 +2453,7 @@ promise will be <code>await</code>ed before being passed to the result stream.</
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.19.0</td>
+<tr><td>v20.7.0</td>
 <td><p>added <code>highWaterMark</code> in options.</p></td></tr>
 <tr><td>v17.4.0, v16.14.0</td>
 <td><p><span>Added in: v17.4.0, v16.14.0</span></p></td></tr>
@@ -2424,7 +2493,7 @@ promise will be <code>await</code>ed.</p>
 <span class="hljs-keyword">import</span> { <span class="hljs-title class_">Resolver</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:dns/promises'</span>;
 
 <span class="hljs-comment">// With a synchronous predicate.</span>
-<span class="hljs-keyword">for</span> <span class="hljs-keyword">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> <span class="hljs-title class_">Readable</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>]).<span class="hljs-title function_">filter</span>(<span class="hljs-function">(<span class="hljs-params">x</span>) =></span> x > <span class="hljs-number">2</span>)) {
+<span class="hljs-keyword">for</span> <span class="hljs-title function_">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> <span class="hljs-title class_">Readable</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>]).<span class="hljs-title function_">filter</span>(<span class="hljs-function">(<span class="hljs-params">x</span>) =></span> x > <span class="hljs-number">2</span>)) {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(chunk); <span class="hljs-comment">// 3, 4</span>
 }
 <span class="hljs-comment">// With an asynchronous predicate, making at most 2 queries at a time.</span>
@@ -2433,17 +2502,17 @@ promise will be <code>await</code>ed.</p>
   <span class="hljs-string">'nodejs.org'</span>,
   <span class="hljs-string">'openjsf.org'</span>,
   <span class="hljs-string">'www.linuxfoundation.org'</span>,
-]).<span class="hljs-title function_">filter</span>(<span class="hljs-keyword">async</span> (domain) => {
+]).<span class="hljs-title function_">filter</span>(<span class="hljs-title function_">async</span> (domain) => {
   <span class="hljs-keyword">const</span> { address } = <span class="hljs-keyword">await</span> resolver.<span class="hljs-title function_">resolve4</span>(domain, { <span class="hljs-attr">ttl</span>: <span class="hljs-literal">true</span> });
   <span class="hljs-keyword">return</span> address.<span class="hljs-property">ttl</span> > <span class="hljs-number">60</span>;
 }, { <span class="hljs-attr">concurrency</span>: <span class="hljs-number">2</span> });
-<span class="hljs-keyword">for</span> <span class="hljs-keyword">await</span> (<span class="hljs-keyword">const</span> result <span class="hljs-keyword">of</span> dnsResults) {
+<span class="hljs-keyword">for</span> <span class="hljs-title function_">await</span> (<span class="hljs-keyword">const</span> result <span class="hljs-keyword">of</span> dnsResults) {
   <span class="hljs-comment">// Logs domains with more than 60 seconds on the resolved dns record.</span>
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(result);
 }</code> <button class="copy-button">copy</button></pre>
 <h6><code>readable.forEach(fn[, options])</code><span><a class="mark" href="#readableforeachfn-options" id="readableforeachfn-options">#</a></span><a aria-hidden="true" class="legacy" id="stream_readable_foreach_fn_options"></a></h6>
 <div class="api_metadata">
-<span>Added in: v17.5.0</span>
+<span>Added in: v17.5.0, v16.15.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <ul>
@@ -2483,7 +2552,7 @@ number of concurrent <code>fn</code> calls.</p>
 <span class="hljs-keyword">import</span> { <span class="hljs-title class_">Resolver</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:dns/promises'</span>;
 
 <span class="hljs-comment">// With a synchronous predicate.</span>
-<span class="hljs-keyword">for</span> <span class="hljs-keyword">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> <span class="hljs-title class_">Readable</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>]).<span class="hljs-title function_">filter</span>(<span class="hljs-function">(<span class="hljs-params">x</span>) =></span> x > <span class="hljs-number">2</span>)) {
+<span class="hljs-keyword">for</span> <span class="hljs-title function_">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> <span class="hljs-title class_">Readable</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>]).<span class="hljs-title function_">filter</span>(<span class="hljs-function">(<span class="hljs-params">x</span>) =></span> x > <span class="hljs-number">2</span>)) {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(chunk); <span class="hljs-comment">// 3, 4</span>
 }
 <span class="hljs-comment">// With an asynchronous predicate, making at most 2 queries at a time.</span>
@@ -2492,7 +2561,7 @@ number of concurrent <code>fn</code> calls.</p>
   <span class="hljs-string">'nodejs.org'</span>,
   <span class="hljs-string">'openjsf.org'</span>,
   <span class="hljs-string">'www.linuxfoundation.org'</span>,
-]).<span class="hljs-title function_">map</span>(<span class="hljs-keyword">async</span> (domain) => {
+]).<span class="hljs-title function_">map</span>(<span class="hljs-title function_">async</span> (domain) => {
   <span class="hljs-keyword">const</span> { address } = <span class="hljs-keyword">await</span> resolver.<span class="hljs-title function_">resolve4</span>(domain, { <span class="hljs-attr">ttl</span>: <span class="hljs-literal">true</span> });
   <span class="hljs-keyword">return</span> address;
 }, { <span class="hljs-attr">concurrency</span>: <span class="hljs-number">2</span> });
@@ -2503,7 +2572,7 @@ number of concurrent <code>fn</code> calls.</p>
 <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'done'</span>); <span class="hljs-comment">// Stream has finished</span></code> <button class="copy-button">copy</button></pre>
 <h6><code>readable.toArray([options])</code><span><a class="mark" href="#readabletoarrayoptions" id="readabletoarrayoptions">#</a></span><a aria-hidden="true" class="legacy" id="stream_readable_toarray_options"></a></h6>
 <div class="api_metadata">
-<span>Added in: v17.5.0</span>
+<span>Added in: v17.5.0, v16.15.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <ul>
@@ -2531,13 +2600,13 @@ way to consume streams.</p>
   <span class="hljs-string">'nodejs.org'</span>,
   <span class="hljs-string">'openjsf.org'</span>,
   <span class="hljs-string">'www.linuxfoundation.org'</span>,
-]).<span class="hljs-title function_">map</span>(<span class="hljs-keyword">async</span> (domain) => {
+]).<span class="hljs-title function_">map</span>(<span class="hljs-title function_">async</span> (domain) => {
   <span class="hljs-keyword">const</span> { address } = <span class="hljs-keyword">await</span> resolver.<span class="hljs-title function_">resolve4</span>(domain, { <span class="hljs-attr">ttl</span>: <span class="hljs-literal">true</span> });
   <span class="hljs-keyword">return</span> address;
 }, { <span class="hljs-attr">concurrency</span>: <span class="hljs-number">2</span> }).<span class="hljs-title function_">toArray</span>();</code> <button class="copy-button">copy</button></pre>
 <h6><code>readable.some(fn[, options])</code><span><a class="mark" href="#readablesomefn-options" id="readablesomefn-options">#</a></span><a aria-hidden="true" class="legacy" id="stream_readable_some_fn_options"></a></h6>
 <div class="api_metadata">
-<span>Added in: v17.5.0</span>
+<span>Added in: v17.5.0, v16.15.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <ul>
@@ -2581,7 +2650,7 @@ calls on the chunks return a truthy value, the promise is fulfilled with
   <span class="hljs-string">'file1'</span>,
   <span class="hljs-string">'file2'</span>,
   <span class="hljs-string">'file3'</span>,
-]).<span class="hljs-title function_">some</span>(<span class="hljs-keyword">async</span> (fileName) => {
+]).<span class="hljs-title function_">some</span>(<span class="hljs-title function_">async</span> (fileName) => {
   <span class="hljs-keyword">const</span> stats = <span class="hljs-keyword">await</span> <span class="hljs-title function_">stat</span>(fileName);
   <span class="hljs-keyword">return</span> stats.<span class="hljs-property">size</span> > <span class="hljs-number">1024</span> * <span class="hljs-number">1024</span>;
 }, { <span class="hljs-attr">concurrency</span>: <span class="hljs-number">2</span> });
@@ -2589,7 +2658,7 @@ calls on the chunks return a truthy value, the promise is fulfilled with
 <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'done'</span>); <span class="hljs-comment">// Stream has finished</span></code> <button class="copy-button">copy</button></pre>
 <h6><code>readable.find(fn[, options])</code><span><a class="mark" href="#readablefindfn-options" id="readablefindfn-options">#</a></span><a aria-hidden="true" class="legacy" id="stream_readable_find_fn_options"></a></h6>
 <div class="api_metadata">
-<span>Added in: v17.5.0</span>
+<span>Added in: v17.5.0, v16.17.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <ul>
@@ -2634,7 +2703,7 @@ fulfilled with value for which <code>fn</code> returned a truthy value. If all o
   <span class="hljs-string">'file1'</span>,
   <span class="hljs-string">'file2'</span>,
   <span class="hljs-string">'file3'</span>,
-]).<span class="hljs-title function_">find</span>(<span class="hljs-keyword">async</span> (fileName) => {
+]).<span class="hljs-title function_">find</span>(<span class="hljs-title function_">async</span> (fileName) => {
   <span class="hljs-keyword">const</span> stats = <span class="hljs-keyword">await</span> <span class="hljs-title function_">stat</span>(fileName);
   <span class="hljs-keyword">return</span> stats.<span class="hljs-property">size</span> > <span class="hljs-number">1024</span> * <span class="hljs-number">1024</span>;
 }, { <span class="hljs-attr">concurrency</span>: <span class="hljs-number">2</span> });
@@ -2642,7 +2711,7 @@ fulfilled with value for which <code>fn</code> returned a truthy value. If all o
 <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'done'</span>); <span class="hljs-comment">// Stream has finished</span></code> <button class="copy-button">copy</button></pre>
 <h6><code>readable.every(fn[, options])</code><span><a class="mark" href="#readableeveryfn-options" id="readableeveryfn-options">#</a></span><a aria-hidden="true" class="legacy" id="stream_readable_every_fn_options"></a></h6>
 <div class="api_metadata">
-<span>Added in: v17.5.0</span>
+<span>Added in: v17.5.0, v16.15.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <ul>
@@ -2685,7 +2754,7 @@ on the chunks return a truthy value, the promise is fulfilled with <code>true</c
   <span class="hljs-string">'file1'</span>,
   <span class="hljs-string">'file2'</span>,
   <span class="hljs-string">'file3'</span>,
-]).<span class="hljs-title function_">every</span>(<span class="hljs-keyword">async</span> (fileName) => {
+]).<span class="hljs-title function_">every</span>(<span class="hljs-title function_">async</span> (fileName) => {
   <span class="hljs-keyword">const</span> stats = <span class="hljs-keyword">await</span> <span class="hljs-title function_">stat</span>(fileName);
   <span class="hljs-keyword">return</span> stats.<span class="hljs-property">size</span> > <span class="hljs-number">1024</span> * <span class="hljs-number">1024</span>;
 }, { <span class="hljs-attr">concurrency</span>: <span class="hljs-number">2</span> });
@@ -2694,7 +2763,7 @@ on the chunks return a truthy value, the promise is fulfilled with <code>true</c
 <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'done'</span>); <span class="hljs-comment">// Stream has finished</span></code> <button class="copy-button">copy</button></pre>
 <h6><code>readable.flatMap(fn[, options])</code><span><a class="mark" href="#readableflatmapfn-options" id="readableflatmapfn-options">#</a></span><a aria-hidden="true" class="legacy" id="stream_readable_flatmap_fn_options"></a></h6>
 <div class="api_metadata">
-<span>Added in: v17.5.0</span>
+<span>Added in: v17.5.0, v16.15.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <ul>
@@ -2729,7 +2798,7 @@ stream.</p>
 <span class="hljs-keyword">import</span> { createReadStream } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:fs'</span>;
 
 <span class="hljs-comment">// With a synchronous mapper.</span>
-<span class="hljs-keyword">for</span> <span class="hljs-keyword">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> <span class="hljs-title class_">Readable</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>]).<span class="hljs-title function_">flatMap</span>(<span class="hljs-function">(<span class="hljs-params">x</span>) =></span> [x, x])) {
+<span class="hljs-keyword">for</span> <span class="hljs-title function_">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> <span class="hljs-title class_">Readable</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>]).<span class="hljs-title function_">flatMap</span>(<span class="hljs-function">(<span class="hljs-params">x</span>) =></span> [x, x])) {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(chunk); <span class="hljs-comment">// 1, 1, 2, 2, 3, 3, 4, 4</span>
 }
 <span class="hljs-comment">// With an asynchronous mapper, combine the contents of 4 files</span>
@@ -2739,13 +2808,13 @@ stream.</p>
   <span class="hljs-string">'./3.mjs'</span>,
   <span class="hljs-string">'./4.mjs'</span>,
 ]).<span class="hljs-title function_">flatMap</span>(<span class="hljs-function">(<span class="hljs-params">fileName</span>) =></span> <span class="hljs-title function_">createReadStream</span>(fileName));
-<span class="hljs-keyword">for</span> <span class="hljs-keyword">await</span> (<span class="hljs-keyword">const</span> result <span class="hljs-keyword">of</span> concatResult) {
+<span class="hljs-keyword">for</span> <span class="hljs-title function_">await</span> (<span class="hljs-keyword">const</span> result <span class="hljs-keyword">of</span> concatResult) {
   <span class="hljs-comment">// This will contain the contents (all chunks) of all 4 files</span>
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(result);
 }</code> <button class="copy-button">copy</button></pre>
 <h6><code>readable.drop(limit[, options])</code><span><a class="mark" href="#readabledroplimit-options" id="readabledroplimit-options">#</a></span><a aria-hidden="true" class="legacy" id="stream_readable_drop_limit_options"></a></h6>
 <div class="api_metadata">
-<span>Added in: v17.5.0</span>
+<span>Added in: v17.5.0, v16.15.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <ul>
@@ -2764,7 +2833,7 @@ aborted.</li>
 <span class="hljs-keyword">await</span> <span class="hljs-title class_">Readable</span>.<span class="hljs-title function_">from</span>([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>]).<span class="hljs-title function_">drop</span>(<span class="hljs-number">2</span>).<span class="hljs-title function_">toArray</span>(); <span class="hljs-comment">// [3, 4]</span></code> <button class="copy-button">copy</button></pre>
 <h6><code>readable.take(limit[, options])</code><span><a class="mark" href="#readabletakelimit-options" id="readabletakelimit-options">#</a></span><a aria-hidden="true" class="legacy" id="stream_readable_take_limit_options"></a></h6>
 <div class="api_metadata">
-<span>Added in: v17.5.0</span>
+<span>Added in: v17.5.0, v16.15.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <ul>
@@ -2786,10 +2855,10 @@ aborted.</li>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.17.0</td>
+<tr><td>v20.3.0</td>
 <td><p>Using the <code>asIndexedPairs</code> method emits a runtime warning that it will be removed in a future version.</p></td></tr>
-<tr><td>v17.5.0</td>
-<td><p><span>Added in: v17.5.0</span></p></td></tr>
+<tr><td>v17.5.0, v16.15.0</td>
+<td><p><span>Added in: v17.5.0, v16.15.0</span></p></td></tr>
 </tbody></table>
 </details>
 </div>
@@ -2812,7 +2881,7 @@ increases by 1 for each chunk produced.</p>
 <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(pairs); <span class="hljs-comment">// [[0, 'a'], [1, 'b'], [2, 'c']]</span></code> <button class="copy-button">copy</button></pre>
 <h6><code>readable.reduce(fn[, initial[, options]])</code><span><a class="mark" href="#readablereducefn-initial-options" id="readablereducefn-initial-options">#</a></span><a aria-hidden="true" class="legacy" id="stream_readable_reduce_fn_initial_options"></a></h6>
 <div class="api_metadata">
-<span>Added in: v17.5.0</span>
+<span>Added in: v17.5.0, v16.15.0</span>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - Experimental</div><p></p>
 <ul>
@@ -2853,7 +2922,7 @@ initial value. If the stream is empty, the promise is rejected with a
 <span class="hljs-keyword">const</span> filesInDir = <span class="hljs-keyword">await</span> <span class="hljs-title function_">readdir</span>(directoryPath);
 
 <span class="hljs-keyword">const</span> folderSize = <span class="hljs-keyword">await</span> <span class="hljs-title class_">Readable</span>.<span class="hljs-title function_">from</span>(filesInDir)
-  .<span class="hljs-title function_">reduce</span>(<span class="hljs-keyword">async</span> (totalSize, file) => {
+  .<span class="hljs-title function_">reduce</span>(<span class="hljs-title function_">async</span> (totalSize, file) => {
     <span class="hljs-keyword">const</span> { size } = <span class="hljs-keyword">await</span> <span class="hljs-title function_">stat</span>(<span class="hljs-title function_">join</span>(directoryPath, file));
     <span class="hljs-keyword">return</span> totalSize + size;
   }, <span class="hljs-number">0</span>);
@@ -2946,12 +3015,29 @@ The default implementation of <code>_destroy()</code> for <code>Transform</code>
 unless <code>emitClose</code> is set in false.</p>
 <p>Once <code>destroy()</code> has been called, any further calls will be a no-op and no
 further errors except from <code>_destroy()</code> may be emitted as <code>'error'</code>.</p>
+<h5><code>stream.duplexPair([options])</code><span><a class="mark" href="#streamduplexpairoptions" id="streamduplexpairoptions">#</a></span><a aria-hidden="true" class="legacy" id="stream_stream_duplexpair_options"></a></h5>
+<div class="api_metadata">
+<span>Added in: v20.17.0</span>
+</div>
+<ul>
+<li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a> A value to pass to both <a href="#class-streamduplex"><code>Duplex</code></a> constructors,
+to set options such as buffering.</li>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" class="type">&#x3C;Array></a> of two <a href="#class-streamduplex"><code>Duplex</code></a> instances.</li>
+</ul>
+<p>The utility function <code>duplexPair</code> returns an Array with two items,
+each being a <code>Duplex</code> stream connected to the other side:</p>
+<pre><code class="language-js"><span class="hljs-keyword">const</span> [ sideA, sideB ] = <span class="hljs-title function_">duplexPair</span>();</code> <button class="copy-button">copy</button></pre>
+<p>Whatever is written to one stream is made readable on the other. It provides
+behavior analogous to a network connection, where the data written by the client
+becomes readable by the server, and vice-versa.</p>
+<p>The Duplex streams are symmetrical; one or the other may be used without any
+difference in behavior.</p>
 <h4><code>stream.finished(stream[, options], callback)</code><span><a class="mark" href="#streamfinishedstream-options-callback" id="streamfinishedstream-options-callback">#</a></span><a aria-hidden="true" class="legacy" id="stream_stream_finished_stream_options_callback"></a></h4>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.14.0</td>
+<tr><td>v19.5.0</td>
 <td><p>Added support for <code>ReadableStream</code> and <code>WritableStream</code>.</p></td></tr>
 <tr><td>v15.11.0</td>
 <td><p>The <code>signal</code> option was added.</p></td></tr>
@@ -2967,12 +3053,9 @@ further errors except from <code>_destroy()</code> may be emitted as <code>'erro
 </details>
 </div>
 <ul>
-<li><code>stream</code> <a href="stream.html#stream" class="type">&#x3C;Stream></a> | <a href="webstreams.html#class-readablestream" class="type">&#x3C;ReadableStream></a> | <a href="webstreams.html#class-writablestream" class="type">&#x3C;WritableStream></a></li>
-</ul>
-<p>A readable and/or writable stream/webstream.</p>
-<ul>
-<li>
-<p><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a></p>
+<li><code>stream</code> <a href="stream.html#stream" class="type">&#x3C;Stream></a> | <a href="webstreams.html#class-readablestream" class="type">&#x3C;ReadableStream></a> | <a href="webstreams.html#class-writablestream" class="type">&#x3C;WritableStream></a> A readable and/or writable
+stream/webstream.</li>
+<li><code>options</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="type">&#x3C;Object></a>
 <ul>
 <li><code>error</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> If set to <code>false</code>, then a call to <code>emit('error', err)</code> is
 not treated as finished. <strong>Default:</strong> <code>true</code>.</li>
@@ -2990,14 +3073,10 @@ listeners added by this function will also be removed.</li>
 <strong>Default:</strong> <code>false</code>.</li>
 </ul>
 </li>
-<li>
-<p><code>callback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> A callback function that takes an optional error
-argument.</p>
-</li>
-<li>
-<p>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> A cleanup function which removes all registered
-listeners.</p>
-</li>
+<li><code>callback</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> A callback function that takes an optional error
+argument.</li>
+<li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a> A cleanup function which removes all registered
+listeners.</li>
 </ul>
 <p>A function to get notified when a stream is no longer readable, writable
 or has experienced an error or a premature close event.</p>
@@ -3035,7 +3114,7 @@ invoked in the callback:</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.16.0</td>
+<tr><td>v19.7.0</td>
 <td><p>Added support for webstreams.</p></td></tr>
 <tr><td>v18.0.0</td>
 <td><p>Passing an invalid callback to the <code>callback</code> argument now throws <code>ERR_INVALID_ARG_TYPE</code> instead of <code>ERR_INVALID_CALLBACK</code>.</p></td></tr>
@@ -3132,7 +3211,9 @@ See the example below:</p>
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.16.0</td>
+<tr><td>v20.10.0</td>
+<td><p>Added support for stream class.</p></td></tr>
+<tr><td>v19.8.0, v18.16.0</td>
 <td><p>Added support for webstreams.</p></td></tr>
 <tr><td>v16.9.0</td>
 <td><p><span>Added in: v16.9.0</span></p></td></tr>
@@ -3141,7 +3222,7 @@ See the example below:</p>
 </div>
 <p></p><div class="api_stability api_stability_1"><a href="documentation.html#stability-index">Stability: 1</a> - <code>stream.compose</code> is experimental.</div><p></p>
 <ul>
-<li><code>streams</code> <a href="stream.html#stream" class="type">&#x3C;Stream[]></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#The_iterable_protocol" class="type">&#x3C;Iterable[]></a> | <a href="https://tc39.github.io/ecma262/#sec-asynciterable-interface" class="type">&#x3C;AsyncIterable[]></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function[]></a> | <a href="webstreams.html#class-readablestream" class="type">&#x3C;ReadableStream[]></a> | <a href="webstreams.html#class-writablestream" class="type">&#x3C;WritableStream[]></a> | <a href="webstreams.html#class-transformstream" class="type">&#x3C;TransformStream[]></a></li>
+<li><code>streams</code> <a href="stream.html#stream" class="type">&#x3C;Stream[]></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#The_iterable_protocol" class="type">&#x3C;Iterable[]></a> | <a href="https://tc39.github.io/ecma262/#sec-asynciterable-interface" class="type">&#x3C;AsyncIterable[]></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function[]></a> | <a href="webstreams.html#class-readablestream" class="type">&#x3C;ReadableStream[]></a> | <a href="webstreams.html#class-writablestream" class="type">&#x3C;WritableStream[]></a> | <a href="webstreams.html#class-transformstream" class="type">&#x3C;TransformStream[]></a> | <a href="stream.html#class-streamduplex" class="type">&#x3C;Duplex[]></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function" class="type">&#x3C;Function></a></li>
 <li>Returns: <a href="stream.html#class-streamduplex" class="type">&#x3C;stream.Duplex></a></li>
 </ul>
 <p>Combines two or more streams into a <code>Duplex</code> stream that writes to the
@@ -3164,13 +3245,13 @@ circuit.</p>
 });
 
 <span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span>* <span class="hljs-title function_">toUpper</span>(<span class="hljs-params">source</span>) {
-  <span class="hljs-keyword">for</span> <span class="hljs-keyword">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> source) {
+  <span class="hljs-keyword">for</span> <span class="hljs-title function_">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> source) {
     <span class="hljs-keyword">yield</span> <span class="hljs-title class_">String</span>(chunk).<span class="hljs-title function_">toUpperCase</span>();
   }
 }
 
 <span class="hljs-keyword">let</span> res = <span class="hljs-string">''</span>;
-<span class="hljs-keyword">for</span> <span class="hljs-keyword">await</span> (<span class="hljs-keyword">const</span> buf <span class="hljs-keyword">of</span> <span class="hljs-title function_">compose</span>(removeSpaces, toUpper).<span class="hljs-title function_">end</span>(<span class="hljs-string">'hello world'</span>)) {
+<span class="hljs-keyword">for</span> <span class="hljs-title function_">await</span> (<span class="hljs-keyword">const</span> buf <span class="hljs-keyword">of</span> <span class="hljs-title function_">compose</span>(removeSpaces, toUpper).<span class="hljs-title function_">end</span>(<span class="hljs-string">'hello world'</span>)) {
   res += buf;
 }
 
@@ -3197,7 +3278,7 @@ either <code>null</code> or <code>undefined</code>.</li>
 
 <span class="hljs-comment">// Convert AsyncGenerator into transform Duplex.</span>
 <span class="hljs-keyword">const</span> s2 = <span class="hljs-title function_">compose</span>(<span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span>*(source) {
-  <span class="hljs-keyword">for</span> <span class="hljs-keyword">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> source) {
+  <span class="hljs-keyword">for</span> <span class="hljs-title function_">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> source) {
     <span class="hljs-keyword">yield</span> <span class="hljs-title class_">String</span>(chunk).<span class="hljs-title function_">toUpperCase</span>();
   }
 });
@@ -3206,7 +3287,7 @@ either <code>null</code> or <code>undefined</code>.</li>
 
 <span class="hljs-comment">// Convert AsyncFunction into writable Duplex.</span>
 <span class="hljs-keyword">const</span> s3 = <span class="hljs-title function_">compose</span>(<span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span>(<span class="hljs-params">source</span>) {
-  <span class="hljs-keyword">for</span> <span class="hljs-keyword">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> source) {
+  <span class="hljs-keyword">for</span> <span class="hljs-title function_">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> source) {
     res += chunk;
   }
 });
@@ -3358,7 +3439,7 @@ If no value is provided, the size will be <code>1</code> for all the chunks.
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.17.0</td>
+<tr><td>v19.5.0</td>
 <td><p>The <code>src</code> argument can now be a <code>ReadableStream</code> or <code>WritableStream</code>.</p></td></tr>
 <tr><td>v16.8.0</td>
 <td><p><span>Added in: v16.8.0</span></p></td></tr>
@@ -3423,7 +3504,7 @@ it might result in unhandled rejection.</p>
 <li>Returns: <a href="stream.html#class-streamduplex" class="type">&#x3C;stream.Duplex></a></li>
 </ul>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Duplex</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:stream'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Duplex</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:stream'</span>;
 <span class="hljs-keyword">import</span> {
   <span class="hljs-title class_">ReadableStream</span>,
   <span class="hljs-title class_">WritableStream</span>,
@@ -3449,7 +3530,7 @@ it might result in unhandled rejection.</p>
 
 duplex.<span class="hljs-title function_">write</span>(<span class="hljs-string">'hello'</span>);
 
-<span class="hljs-keyword">for</span> <span class="hljs-keyword">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> duplex) {
+<span class="hljs-keyword">for</span> <span class="hljs-title function_">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> duplex) {
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'readable'</span>, chunk);
 }</code><code class="language-js cjs"><span class="hljs-keyword">const</span> { <span class="hljs-title class_">Duplex</span> } = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node:stream'</span>);
 <span class="hljs-keyword">const</span> {
@@ -3492,7 +3573,7 @@ duplex.<span class="hljs-title function_">once</span>(<span class="hljs-string">
 </li>
 </ul>
 
-<pre class="with-42-chars"><input class="js-flavor-selector" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Duplex</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:stream'</span>;
+<pre class="with-42-chars"><input class="js-flavor-toggle" type="checkbox" checked aria-label="Show modern ES modules syntax"><code class="language-js mjs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Duplex</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">'node:stream'</span>;
 
 <span class="hljs-keyword">const</span> duplex = <span class="hljs-title class_">Duplex</span>({
   <span class="hljs-attr">objectMode</span>: <span class="hljs-literal">true</span>,
@@ -3535,7 +3616,7 @@ readable.<span class="hljs-title function_">getReader</span>().<span class="hljs
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
-<tr><td>v18.16.0</td>
+<tr><td>v19.7.0</td>
 <td><p>Added support for <code>ReadableStream</code> and <code>WritableStream</code>.</p></td></tr>
 <tr><td>v15.4.0</td>
 <td><p><span>Added in: v15.4.0</span></p></td></tr>
@@ -3544,9 +3625,9 @@ readable.<span class="hljs-title function_">getReader</span>().<span class="hljs
 </div>
 <ul>
 <li><code>signal</code> <a href="globals.html#class-abortsignal" class="type">&#x3C;AbortSignal></a> A signal representing possible cancellation</li>
-<li><code>stream</code> <a href="stream.html#stream" class="type">&#x3C;Stream></a> | <a href="webstreams.html#class-readablestream" class="type">&#x3C;ReadableStream></a> | <a href="webstreams.html#class-writablestream" class="type">&#x3C;WritableStream></a></li>
+<li><code>stream</code> <a href="stream.html#stream" class="type">&#x3C;Stream></a> | <a href="webstreams.html#class-readablestream" class="type">&#x3C;ReadableStream></a> | <a href="webstreams.html#class-writablestream" class="type">&#x3C;WritableStream></a> A stream to attach a signal
+to.</li>
 </ul>
-<p>A stream to attach a signal to.</p>
 <p>Attaches an AbortSignal to a readable or writeable stream. This lets code
 control stream destruction using an <code>AbortController</code>.</p>
 <p>Calling <code>abort</code> on the <code>AbortController</code> corresponding to the passed
@@ -3568,9 +3649,9 @@ controller.<span class="hljs-title function_">abort</span>();</code> <button cla
   controller.<span class="hljs-property">signal</span>,
   fs.<span class="hljs-title function_">createReadStream</span>((<span class="hljs-string">'object.json'</span>)),
 );
-(<span class="hljs-keyword">async</span> () => {
+(<span class="hljs-title function_">async</span> () => {
   <span class="hljs-keyword">try</span> {
-    <span class="hljs-keyword">for</span> <span class="hljs-keyword">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> stream) {
+    <span class="hljs-keyword">for</span> <span class="hljs-title function_">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> stream) {
       <span class="hljs-keyword">await</span> <span class="hljs-title function_">process</span>(chunk);
     }
   } <span class="hljs-keyword">catch</span> (e) {
@@ -3610,17 +3691,17 @@ reader.<span class="hljs-title function_">read</span>().<span class="hljs-title 
 });</code> <button class="copy-button">copy</button></pre>
 <h4><code>stream.getDefaultHighWaterMark(objectMode)</code><span><a class="mark" href="#streamgetdefaulthighwatermarkobjectmode" id="streamgetdefaulthighwatermarkobjectmode">#</a></span><a aria-hidden="true" class="legacy" id="stream_stream_getdefaulthighwatermark_objectmode"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.17.0</span>
+<span>Added in: v19.9.0</span>
 </div>
 <ul>
 <li><code>objectMode</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a></li>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type" class="type">&#x3C;integer></a></li>
 </ul>
 <p>Returns the default highWaterMark used by streams.
-Defaults to <code>16384</code> (16 KiB), or <code>16</code> for <code>objectMode</code>.</p>
+Defaults to <code>65536</code> (64 KiB), or <code>16</code> for <code>objectMode</code>.</p>
 <h4><code>stream.setDefaultHighWaterMark(objectMode, value)</code><span><a class="mark" href="#streamsetdefaulthighwatermarkobjectmode-value" id="streamsetdefaulthighwatermarkobjectmode-value">#</a></span><a aria-hidden="true" class="legacy" id="stream_stream_setdefaulthighwatermark_objectmode_value"></a></h4>
 <div class="api_metadata">
-<span>Added in: v18.17.0</span>
+<span>Added in: v19.9.0</span>
 </div>
 <ul>
 <li><code>objectMode</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a></li>
@@ -3752,8 +3833,8 @@ encoding is specified as an argument to <a href="#writablewritechunk-encoding-ca
 <strong>Default:</strong> <code>'utf8'</code>.</li>
 <li><code>objectMode</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> Whether or not the
 <a href="#writablewritechunk-encoding-callback"><code>stream.write(anyObj)</code></a> is a valid operation. When set,
-it becomes possible to write JavaScript values other than string,
-<code>Buffer</code> or <code>Uint8Array</code> if supported by the stream implementation.
+it becomes possible to write JavaScript values other than string, <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a>,
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> or <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a> if supported by the stream implementation.
 <strong>Default:</strong> <code>false</code>.</li>
 <li><code>emitClose</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> Whether or not the stream should emit <code>'close'</code>
 after it has been destroyed. <strong>Default:</strong> <code>true</code>.</li>
@@ -3846,7 +3927,7 @@ initialize resources before the stream can be used.</p>
     <span class="hljs-variable language_">this</span>.<span class="hljs-property">fd</span> = <span class="hljs-literal">null</span>;
   }
   <span class="hljs-title function_">_construct</span>(<span class="hljs-params">callback</span>) {
-    fs.<span class="hljs-title function_">open</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">filename</span>, <span class="hljs-function">(<span class="hljs-params">err, fd</span>) =></span> {
+    fs.<span class="hljs-title function_">open</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">filename</span>, <span class="hljs-string">'w'</span>, <span class="hljs-function">(<span class="hljs-params">err, fd</span>) =></span> {
       <span class="hljs-keyword">if</span> (err) {
         <span class="hljs-title function_">callback</span>(err);
       } <span class="hljs-keyword">else</span> {
@@ -3952,9 +4033,7 @@ user programs.</p>
 argument.</li>
 </ul>
 <p>The <code>_destroy()</code> method is called by <a href="#writabledestroyerror"><code>writable.destroy()</code></a>.
-It can be overridden by child classes but it <strong>must not</strong> be called directly.
-Furthermore, the <code>callback</code> should not be mixed with async/await
-once it is executed when a promise is resolved.</p>
+It can be overridden by child classes but it <strong>must not</strong> be called directly.</p>
 <h5><code>writable._final(callback)</code><span><a class="mark" href="#writable_finalcallback" id="writable_finalcallback">#</a></span><a aria-hidden="true" class="legacy" id="stream_writable_final_callback"></a></h5>
 <div class="api_metadata">
 <span>Added in: v8.0.0</span>
@@ -4223,23 +4302,25 @@ It can be overridden by child classes but it <strong>must not</strong> be called
 <details class="changelog"><summary>History</summary>
 <table>
 <tbody><tr><th>Version</th><th>Changes</th></tr>
+<tr><td>v20.13.0</td>
+<td><p>The <code>chunk</code> argument can now be a <code>TypedArray</code> or <code>DataView</code> instance.</p></td></tr>
 <tr><td>v8.0.0</td>
 <td><p>The <code>chunk</code> argument can now be a <code>Uint8Array</code> instance.</p></td></tr>
 </tbody></table>
 </details>
 </div>
 <ul>
-<li><code>chunk</code> <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array" class="type">&#x3C;Uint8Array></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types" class="type">&#x3C;any></a> Chunk of data to push into the
-read queue. For streams not operating in object mode, <code>chunk</code> must be a
-string, <code>Buffer</code> or <code>Uint8Array</code>. For object mode streams, <code>chunk</code> may be
-any JavaScript value.</li>
+<li><code>chunk</code> <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Null_type" class="type">&#x3C;null></a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Data_types" class="type">&#x3C;any></a> Chunk of data to push
+into the read queue. For streams not operating in object mode, <code>chunk</code> must
+be a <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a>, <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a>, <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> or <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a>. For object mode streams,
+<code>chunk</code> may be any JavaScript value.</li>
 <li><code>encoding</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a> Encoding of string chunks. Must be a valid
 <code>Buffer</code> encoding, such as <code>'utf8'</code> or <code>'ascii'</code>.</li>
 <li>Returns: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type" class="type">&#x3C;boolean></a> <code>true</code> if additional chunks of data may continue to be
 pushed; <code>false</code> otherwise.</li>
 </ul>
-<p>When <code>chunk</code> is a <code>Buffer</code>, <code>Uint8Array</code>, or <code>string</code>, the <code>chunk</code> of data will
-be added to the internal queue for users of the stream to consume.
+<p>When <code>chunk</code> is a <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a>, <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a>, <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a> or <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a>, the <code>chunk</code>
+of data will be added to the internal queue for users of the stream to consume.
 Passing <code>chunk</code> as <code>null</code> signals the end of the stream (EOF), after which no
 more data can be written.</p>
 <p>When the <code>Readable</code> is operating in paused mode, the data added with
@@ -4657,7 +4738,7 @@ this point.</p>
 and async iterators are provided below.</p>
 <h5>Consuming readable streams with async iterators<span><a class="mark" href="#consuming-readable-streams-with-async-iterators" id="consuming-readable-streams-with-async-iterators">#</a></span><a aria-hidden="true" class="legacy" id="stream_consuming_readable_streams_with_async_iterators"></a></h5>
 <pre><code class="language-js">(<span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
-  <span class="hljs-keyword">for</span> <span class="hljs-keyword">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> readable) {
+  <span class="hljs-keyword">for</span> <span class="hljs-title function_">await</span> (<span class="hljs-keyword">const</span> chunk <span class="hljs-keyword">of</span> readable) {
     <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(chunk);
   }
 })();</code> <button class="copy-button">copy</button></pre>
@@ -4789,8 +4870,9 @@ situations within Node.js where this is done, particularly in the
 <code>Readable</code> stream class internals.</p>
 <h4><code>readable.push('')</code><span><a class="mark" href="#readablepush" id="readablepush">#</a></span><a aria-hidden="true" class="legacy" id="stream_readable_push"></a></h4>
 <p>Use of <code>readable.push('')</code> is not recommended.</p>
-<p>Pushing a zero-byte string, <code>Buffer</code>, or <code>Uint8Array</code> to a stream that is not in
-object mode has an interesting side effect. Because it <em>is</em> a call to
+<p>Pushing a zero-byte <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type" class="type">&#x3C;string></a>, <a href="buffer.html#class-buffer" class="type">&#x3C;Buffer></a>, <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray" class="type">&#x3C;TypedArray></a> or <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView" class="type">&#x3C;DataView></a> to a stream
+that is not in object mode has an interesting side effect.
+Because it <em>is</em> a call to
 <a href="#readablepushchunk-encoding"><code>readable.push()</code></a>, the call will end the reading process.
 However, because the argument is an empty string, no data is added to the
 readable buffer so there is nothing for a user to consume.</p>

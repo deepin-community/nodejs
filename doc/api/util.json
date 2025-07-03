@@ -8,7 +8,7 @@
       "introduced_in": "v0.10.0",
       "stability": 2,
       "stabilityText": "Stable",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.19.1/lib/util.js\">lib/util.js</a></p>\n<p>The <code>node:util</code> module supports the needs of Node.js internal APIs. Many of the\nutilities are useful for application and module developers as well. To access\nit:</p>\n<pre><code class=\"language-js\">const util = require('node:util');\n</code></pre>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v20.19.2/lib/util.js\">lib/util.js</a></p>\n<p>The <code>node:util</code> module supports the needs of Node.js internal APIs. Many of the\nutilities are useful for application and module developers as well. To access\nit:</p>\n<pre><code class=\"language-js\">const util = require('node:util');\n</code></pre>",
       "methods": [
         {
           "textRaw": "`util.callbackify(original)`",
@@ -354,6 +354,11 @@
                 "description": "The `numericSeparator` option is supported now."
               },
               {
+                "version": "v16.18.0",
+                "pr-url": "https://github.com/nodejs/node/pull/43576",
+                "description": "add support for `maxArrayLength` when inspecting `Set` and `Map`."
+              },
+              {
                 "version": [
                   "v14.6.0",
                   "v12.19.0"
@@ -520,11 +525,11 @@
                       "desc": "If `true`, `Proxy` inspection includes the [`target` and `handler`][] objects."
                     },
                     {
-                      "textRaw": "`maxArrayLength` {integer} Specifies the maximum number of `Array`, [`TypedArray`][], [`WeakMap`][], and [`WeakSet`][] elements to include when formatting. Set to `null` or `Infinity` to show all elements. Set to `0` or negative to show no elements. **Default:** `100`.",
+                      "textRaw": "`maxArrayLength` {integer} Specifies the maximum number of `Array`, [`TypedArray`][], [`Map`][], [`Set`][], [`WeakMap`][], and [`WeakSet`][] elements to include when formatting. Set to `null` or `Infinity` to show all elements. Set to `0` or negative to show no elements. **Default:** `100`.",
                       "name": "maxArrayLength",
                       "type": "integer",
                       "default": "`100`",
-                      "desc": "Specifies the maximum number of `Array`, [`TypedArray`][], [`WeakMap`][], and [`WeakSet`][] elements to include when formatting. Set to `null` or `Infinity` to show all elements. Set to `0` or negative to show no elements."
+                      "desc": "Specifies the maximum number of `Array`, [`TypedArray`][], [`Map`][], [`Set`][], [`WeakMap`][], and [`WeakSet`][] elements to include when formatting. Set to `null` or `Infinity` to show all elements. Set to `0` or negative to show no elements."
                     },
                     {
                       "textRaw": "`maxStringLength` {integer} Specifies the maximum number of characters to include when formatting. Set to `null` or `Infinity` to show all elements. Set to `0` or negative to show no characters. **Default:** `10000`.",
@@ -572,7 +577,7 @@
               ]
             }
           ],
-          "desc": "<p>The <code>util.inspect()</code> method returns a string representation of <code>object</code> that is\nintended for debugging. The output of <code>util.inspect</code> may change at any time\nand should not be depended upon programmatically. Additional <code>options</code> may be\npassed that alter the result.\n<code>util.inspect()</code> will use the constructor's name and/or <code>@@toStringTag</code> to make\nan identifiable tag for an inspected value.</p>\n<pre><code class=\"language-js\">class Foo {\n  get [Symbol.toStringTag]() {\n    return 'bar';\n  }\n}\n\nclass Bar {}\n\nconst baz = Object.create(null, { [Symbol.toStringTag]: { value: 'foo' } });\n\nutil.inspect(new Foo()); // 'Foo [bar] {}'\nutil.inspect(new Bar()); // 'Bar {}'\nutil.inspect(baz);       // '[foo] {}'\n</code></pre>\n<p>Circular references point to their anchor by using a reference index:</p>\n<pre><code class=\"language-js\">const { inspect } = require('node:util');\n\nconst obj = {};\nobj.a = [obj];\nobj.b = {};\nobj.b.inner = obj.b;\nobj.b.obj = obj;\n\nconsole.log(inspect(obj));\n// &#x3C;ref *1> {\n//   a: [ [Circular *1] ],\n//   b: &#x3C;ref *2> { inner: [Circular *2], obj: [Circular *1] }\n// }\n</code></pre>\n<p>The following example inspects all properties of the <code>util</code> object:</p>\n<pre><code class=\"language-js\">const util = require('node:util');\n\nconsole.log(util.inspect(util, { showHidden: true, depth: null }));\n</code></pre>\n<p>The following example highlights the effect of the <code>compact</code> option:</p>\n<pre><code class=\"language-js\">const util = require('node:util');\n\nconst o = {\n  a: [1, 2, [[\n    'Lorem ipsum dolor sit amet,\\nconsectetur adipiscing elit, sed do ' +\n      'eiusmod \\ntempor incididunt ut labore et dolore magna aliqua.',\n    'test',\n    'foo']], 4],\n  b: new Map([['za', 1], ['zb', 'test']]),\n};\nconsole.log(util.inspect(o, { compact: true, depth: 5, breakLength: 80 }));\n\n// { a:\n//   [ 1,\n//     2,\n//     [ [ 'Lorem ipsum dolor sit amet,\\nconsectetur [...]', // A long line\n//           'test',\n//           'foo' ] ],\n//     4 ],\n//   b: Map(2) { 'za' => 1, 'zb' => 'test' } }\n\n// Setting `compact` to false or an integer creates more reader friendly output.\nconsole.log(util.inspect(o, { compact: false, depth: 5, breakLength: 80 }));\n\n// {\n//   a: [\n//     1,\n//     2,\n//     [\n//       [\n//         'Lorem ipsum dolor sit amet,\\n' +\n//           'consectetur adipiscing elit, sed do eiusmod \\n' +\n//           'tempor incididunt ut labore et dolore magna aliqua.',\n//         'test',\n//         'foo'\n//       ]\n//     ],\n//     4\n//   ],\n//   b: Map(2) {\n//     'za' => 1,\n//     'zb' => 'test'\n//   }\n// }\n\n// Setting `breakLength` to e.g. 150 will print the \"Lorem ipsum\" text in a\n// single line.\n</code></pre>\n<p>The <code>showHidden</code> option allows <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap\"><code>WeakMap</code></a> and <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet\"><code>WeakSet</code></a> entries to be\ninspected. If there are more entries than <code>maxArrayLength</code>, there is no\nguarantee which entries are displayed. That means retrieving the same\n<a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet\"><code>WeakSet</code></a> entries twice may result in different output. Furthermore, entries\nwith no remaining strong references may be garbage collected at any time.</p>\n<pre><code class=\"language-js\">const { inspect } = require('node:util');\n\nconst obj = { a: 1 };\nconst obj2 = { b: 2 };\nconst weakSet = new WeakSet([obj, obj2]);\n\nconsole.log(inspect(weakSet, { showHidden: true }));\n// WeakSet { { a: 1 }, { b: 2 } }\n</code></pre>\n<p>The <code>sorted</code> option ensures that an object's property insertion order does not\nimpact the result of <code>util.inspect()</code>.</p>\n<pre><code class=\"language-js\">const { inspect } = require('node:util');\nconst assert = require('node:assert');\n\nconst o1 = {\n  b: [2, 3, 1],\n  a: '`a` comes before `b`',\n  c: new Set([2, 3, 1]),\n};\nconsole.log(inspect(o1, { sorted: true }));\n// { a: '`a` comes before `b`', b: [ 2, 3, 1 ], c: Set(3) { 1, 2, 3 } }\nconsole.log(inspect(o1, { sorted: (a, b) => b.localeCompare(a) }));\n// { c: Set(3) { 3, 2, 1 }, b: [ 2, 3, 1 ], a: '`a` comes before `b`' }\n\nconst o2 = {\n  c: new Set([2, 1, 3]),\n  a: '`a` comes before `b`',\n  b: [2, 3, 1],\n};\nassert.strict.equal(\n  inspect(o1, { sorted: true }),\n  inspect(o2, { sorted: true }),\n);\n</code></pre>\n<p>The <code>numericSeparator</code> option adds an underscore every three digits to all\nnumbers.</p>\n<pre><code class=\"language-js\">const { inspect } = require('node:util');\n\nconst thousand = 1_000;\nconst million = 1_000_000;\nconst bigNumber = 123_456_789n;\nconst bigDecimal = 1_234.123_45;\n\nconsole.log(thousand, million, bigNumber, bigDecimal);\n// 1_000 1_000_000 123_456_789n 1_234.123_45\n</code></pre>\n<p><code>util.inspect()</code> is a synchronous method intended for debugging. Its maximum\noutput length is approximately 128 MiB. Inputs that result in longer output will\nbe truncated.</p>"
+          "desc": "<p>The <code>util.inspect()</code> method returns a string representation of <code>object</code> that is\nintended for debugging. The output of <code>util.inspect</code> may change at any time\nand should not be depended upon programmatically. Additional <code>options</code> may be\npassed that alter the result.\n<code>util.inspect()</code> will use the constructor's name and/or <code>@@toStringTag</code> to make\nan identifiable tag for an inspected value.</p>\n<pre><code class=\"language-js\">class Foo {\n  get [Symbol.toStringTag]() {\n    return 'bar';\n  }\n}\n\nclass Bar {}\n\nconst baz = Object.create(null, { [Symbol.toStringTag]: { value: 'foo' } });\n\nutil.inspect(new Foo()); // 'Foo [bar] {}'\nutil.inspect(new Bar()); // 'Bar {}'\nutil.inspect(baz);       // '[foo] {}'\n</code></pre>\n<p>Circular references point to their anchor by using a reference index:</p>\n<pre><code class=\"language-js\">const { inspect } = require('node:util');\n\nconst obj = {};\nobj.a = [obj];\nobj.b = {};\nobj.b.inner = obj.b;\nobj.b.obj = obj;\n\nconsole.log(inspect(obj));\n// &#x3C;ref *1> {\n//   a: [ [Circular *1] ],\n//   b: &#x3C;ref *2> { inner: [Circular *2], obj: [Circular *1] }\n// }\n</code></pre>\n<p>The following example inspects all properties of the <code>util</code> object:</p>\n<pre><code class=\"language-js\">const util = require('node:util');\n\nconsole.log(util.inspect(util, { showHidden: true, depth: null }));\n</code></pre>\n<p>The following example highlights the effect of the <code>compact</code> option:</p>\n<pre><code class=\"language-js\">const util = require('node:util');\n\nconst o = {\n  a: [1, 2, [[\n    'Lorem ipsum dolor sit amet,\\nconsectetur adipiscing elit, sed do ' +\n      'eiusmod \\ntempor incididunt ut labore et dolore magna aliqua.',\n    'test',\n    'foo']], 4],\n  b: new Map([['za', 1], ['zb', 'test']]),\n};\nconsole.log(util.inspect(o, { compact: true, depth: 5, breakLength: 80 }));\n\n// { a:\n//   [ 1,\n//     2,\n//     [ [ 'Lorem ipsum dolor sit amet,\\nconsectetur [...]', // A long line\n//           'test',\n//           'foo' ] ],\n//     4 ],\n//   b: Map(2) { 'za' => 1, 'zb' => 'test' } }\n\n// Setting `compact` to false or an integer creates more reader friendly output.\nconsole.log(util.inspect(o, { compact: false, depth: 5, breakLength: 80 }));\n\n// {\n//   a: [\n//     1,\n//     2,\n//     [\n//       [\n//         'Lorem ipsum dolor sit amet,\\n' +\n//           'consectetur adipiscing elit, sed do eiusmod \\n' +\n//           'tempor incididunt ut labore et dolore magna aliqua.',\n//         'test',\n//         'foo'\n//       ]\n//     ],\n//     4\n//   ],\n//   b: Map(2) {\n//     'za' => 1,\n//     'zb' => 'test'\n//   }\n// }\n\n// Setting `breakLength` to e.g. 150 will print the \"Lorem ipsum\" text in a\n// single line.\n</code></pre>\n<p>The <code>showHidden</code> option allows <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap\"><code>WeakMap</code></a> and <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet\"><code>WeakSet</code></a> entries to be\ninspected. If there are more entries than <code>maxArrayLength</code>, there is no\nguarantee which entries are displayed. That means retrieving the same\n<a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet\"><code>WeakSet</code></a> entries twice may result in different output. Furthermore, entries\nwith no remaining strong references may be garbage collected at any time.</p>\n<pre><code class=\"language-js\">const { inspect } = require('node:util');\n\nconst obj = { a: 1 };\nconst obj2 = { b: 2 };\nconst weakSet = new WeakSet([obj, obj2]);\n\nconsole.log(inspect(weakSet, { showHidden: true }));\n// WeakSet { { a: 1 }, { b: 2 } }\n</code></pre>\n<p>The <code>sorted</code> option ensures that an object's property insertion order does not\nimpact the result of <code>util.inspect()</code>.</p>\n<pre><code class=\"language-js\">const { inspect } = require('node:util');\nconst assert = require('node:assert');\n\nconst o1 = {\n  b: [2, 3, 1],\n  a: '`a` comes before `b`',\n  c: new Set([2, 3, 1]),\n};\nconsole.log(inspect(o1, { sorted: true }));\n// { a: '`a` comes before `b`', b: [ 2, 3, 1 ], c: Set(3) { 1, 2, 3 } }\nconsole.log(inspect(o1, { sorted: (a, b) => b.localeCompare(a) }));\n// { c: Set(3) { 3, 2, 1 }, b: [ 2, 3, 1 ], a: '`a` comes before `b`' }\n\nconst o2 = {\n  c: new Set([2, 1, 3]),\n  a: '`a` comes before `b`',\n  b: [2, 3, 1],\n};\nassert.strict.equal(\n  inspect(o1, { sorted: true }),\n  inspect(o2, { sorted: true }),\n);\n</code></pre>\n<p>The <code>numericSeparator</code> option adds an underscore every three digits to all\nnumbers.</p>\n<pre><code class=\"language-js\">const { inspect } = require('node:util');\n\nconst thousand = 1_000;\nconst million = 1_000_000;\nconst bigNumber = 123_456_789n;\nconst bigDecimal = 1_234.123_45;\n\nconsole.log(inspect(thousand, { numericSeparator: true }));\n// 1_000\nconsole.log(inspect(million, { numericSeparator: true }));\n// 1_000_000\nconsole.log(inspect(bigNumber, { numericSeparator: true }));\n// 123_456_789n\nconsole.log(inspect(bigDecimal, { numericSeparator: true }));\n// 1_234.123_45\n</code></pre>\n<p><code>util.inspect()</code> is a synchronous method intended for debugging. Its maximum\noutput length is approximately 128 MiB. Inputs that result in longer output will\nbe truncated.</p>"
         },
         {
           "textRaw": "`util.inspect(object[, showHidden[, depth[, colors]]])`",
@@ -592,6 +597,11 @@
                 "description": "The `numericSeparator` option is supported now."
               },
               {
+                "version": "v16.18.0",
+                "pr-url": "https://github.com/nodejs/node/pull/43576",
+                "description": "add support for `maxArrayLength` when inspecting `Set` and `Map`."
+              },
+              {
                 "version": [
                   "v14.6.0",
                   "v12.19.0"
@@ -758,11 +768,11 @@
                       "desc": "If `true`, `Proxy` inspection includes the [`target` and `handler`][] objects."
                     },
                     {
-                      "textRaw": "`maxArrayLength` {integer} Specifies the maximum number of `Array`, [`TypedArray`][], [`WeakMap`][], and [`WeakSet`][] elements to include when formatting. Set to `null` or `Infinity` to show all elements. Set to `0` or negative to show no elements. **Default:** `100`.",
+                      "textRaw": "`maxArrayLength` {integer} Specifies the maximum number of `Array`, [`TypedArray`][], [`Map`][], [`Set`][], [`WeakMap`][], and [`WeakSet`][] elements to include when formatting. Set to `null` or `Infinity` to show all elements. Set to `0` or negative to show no elements. **Default:** `100`.",
                       "name": "maxArrayLength",
                       "type": "integer",
                       "default": "`100`",
-                      "desc": "Specifies the maximum number of `Array`, [`TypedArray`][], [`WeakMap`][], and [`WeakSet`][] elements to include when formatting. Set to `null` or `Infinity` to show all elements. Set to `0` or negative to show no elements."
+                      "desc": "Specifies the maximum number of `Array`, [`TypedArray`][], [`Map`][], [`Set`][], [`WeakMap`][], and [`WeakSet`][] elements to include when formatting. Set to `null` or `Infinity` to show all elements. Set to `0` or negative to show no elements."
                     },
                     {
                       "textRaw": "`maxStringLength` {integer} Specifies the maximum number of characters to include when formatting. Set to `null` or `Infinity` to show all elements. Set to `0` or negative to show no characters. **Default:** `10000`.",
@@ -810,7 +820,7 @@
               ]
             }
           ],
-          "desc": "<p>The <code>util.inspect()</code> method returns a string representation of <code>object</code> that is\nintended for debugging. The output of <code>util.inspect</code> may change at any time\nand should not be depended upon programmatically. Additional <code>options</code> may be\npassed that alter the result.\n<code>util.inspect()</code> will use the constructor's name and/or <code>@@toStringTag</code> to make\nan identifiable tag for an inspected value.</p>\n<pre><code class=\"language-js\">class Foo {\n  get [Symbol.toStringTag]() {\n    return 'bar';\n  }\n}\n\nclass Bar {}\n\nconst baz = Object.create(null, { [Symbol.toStringTag]: { value: 'foo' } });\n\nutil.inspect(new Foo()); // 'Foo [bar] {}'\nutil.inspect(new Bar()); // 'Bar {}'\nutil.inspect(baz);       // '[foo] {}'\n</code></pre>\n<p>Circular references point to their anchor by using a reference index:</p>\n<pre><code class=\"language-js\">const { inspect } = require('node:util');\n\nconst obj = {};\nobj.a = [obj];\nobj.b = {};\nobj.b.inner = obj.b;\nobj.b.obj = obj;\n\nconsole.log(inspect(obj));\n// &#x3C;ref *1> {\n//   a: [ [Circular *1] ],\n//   b: &#x3C;ref *2> { inner: [Circular *2], obj: [Circular *1] }\n// }\n</code></pre>\n<p>The following example inspects all properties of the <code>util</code> object:</p>\n<pre><code class=\"language-js\">const util = require('node:util');\n\nconsole.log(util.inspect(util, { showHidden: true, depth: null }));\n</code></pre>\n<p>The following example highlights the effect of the <code>compact</code> option:</p>\n<pre><code class=\"language-js\">const util = require('node:util');\n\nconst o = {\n  a: [1, 2, [[\n    'Lorem ipsum dolor sit amet,\\nconsectetur adipiscing elit, sed do ' +\n      'eiusmod \\ntempor incididunt ut labore et dolore magna aliqua.',\n    'test',\n    'foo']], 4],\n  b: new Map([['za', 1], ['zb', 'test']]),\n};\nconsole.log(util.inspect(o, { compact: true, depth: 5, breakLength: 80 }));\n\n// { a:\n//   [ 1,\n//     2,\n//     [ [ 'Lorem ipsum dolor sit amet,\\nconsectetur [...]', // A long line\n//           'test',\n//           'foo' ] ],\n//     4 ],\n//   b: Map(2) { 'za' => 1, 'zb' => 'test' } }\n\n// Setting `compact` to false or an integer creates more reader friendly output.\nconsole.log(util.inspect(o, { compact: false, depth: 5, breakLength: 80 }));\n\n// {\n//   a: [\n//     1,\n//     2,\n//     [\n//       [\n//         'Lorem ipsum dolor sit amet,\\n' +\n//           'consectetur adipiscing elit, sed do eiusmod \\n' +\n//           'tempor incididunt ut labore et dolore magna aliqua.',\n//         'test',\n//         'foo'\n//       ]\n//     ],\n//     4\n//   ],\n//   b: Map(2) {\n//     'za' => 1,\n//     'zb' => 'test'\n//   }\n// }\n\n// Setting `breakLength` to e.g. 150 will print the \"Lorem ipsum\" text in a\n// single line.\n</code></pre>\n<p>The <code>showHidden</code> option allows <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap\"><code>WeakMap</code></a> and <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet\"><code>WeakSet</code></a> entries to be\ninspected. If there are more entries than <code>maxArrayLength</code>, there is no\nguarantee which entries are displayed. That means retrieving the same\n<a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet\"><code>WeakSet</code></a> entries twice may result in different output. Furthermore, entries\nwith no remaining strong references may be garbage collected at any time.</p>\n<pre><code class=\"language-js\">const { inspect } = require('node:util');\n\nconst obj = { a: 1 };\nconst obj2 = { b: 2 };\nconst weakSet = new WeakSet([obj, obj2]);\n\nconsole.log(inspect(weakSet, { showHidden: true }));\n// WeakSet { { a: 1 }, { b: 2 } }\n</code></pre>\n<p>The <code>sorted</code> option ensures that an object's property insertion order does not\nimpact the result of <code>util.inspect()</code>.</p>\n<pre><code class=\"language-js\">const { inspect } = require('node:util');\nconst assert = require('node:assert');\n\nconst o1 = {\n  b: [2, 3, 1],\n  a: '`a` comes before `b`',\n  c: new Set([2, 3, 1]),\n};\nconsole.log(inspect(o1, { sorted: true }));\n// { a: '`a` comes before `b`', b: [ 2, 3, 1 ], c: Set(3) { 1, 2, 3 } }\nconsole.log(inspect(o1, { sorted: (a, b) => b.localeCompare(a) }));\n// { c: Set(3) { 3, 2, 1 }, b: [ 2, 3, 1 ], a: '`a` comes before `b`' }\n\nconst o2 = {\n  c: new Set([2, 1, 3]),\n  a: '`a` comes before `b`',\n  b: [2, 3, 1],\n};\nassert.strict.equal(\n  inspect(o1, { sorted: true }),\n  inspect(o2, { sorted: true }),\n);\n</code></pre>\n<p>The <code>numericSeparator</code> option adds an underscore every three digits to all\nnumbers.</p>\n<pre><code class=\"language-js\">const { inspect } = require('node:util');\n\nconst thousand = 1_000;\nconst million = 1_000_000;\nconst bigNumber = 123_456_789n;\nconst bigDecimal = 1_234.123_45;\n\nconsole.log(thousand, million, bigNumber, bigDecimal);\n// 1_000 1_000_000 123_456_789n 1_234.123_45\n</code></pre>\n<p><code>util.inspect()</code> is a synchronous method intended for debugging. Its maximum\noutput length is approximately 128 MiB. Inputs that result in longer output will\nbe truncated.</p>",
+          "desc": "<p>The <code>util.inspect()</code> method returns a string representation of <code>object</code> that is\nintended for debugging. The output of <code>util.inspect</code> may change at any time\nand should not be depended upon programmatically. Additional <code>options</code> may be\npassed that alter the result.\n<code>util.inspect()</code> will use the constructor's name and/or <code>@@toStringTag</code> to make\nan identifiable tag for an inspected value.</p>\n<pre><code class=\"language-js\">class Foo {\n  get [Symbol.toStringTag]() {\n    return 'bar';\n  }\n}\n\nclass Bar {}\n\nconst baz = Object.create(null, { [Symbol.toStringTag]: { value: 'foo' } });\n\nutil.inspect(new Foo()); // 'Foo [bar] {}'\nutil.inspect(new Bar()); // 'Bar {}'\nutil.inspect(baz);       // '[foo] {}'\n</code></pre>\n<p>Circular references point to their anchor by using a reference index:</p>\n<pre><code class=\"language-js\">const { inspect } = require('node:util');\n\nconst obj = {};\nobj.a = [obj];\nobj.b = {};\nobj.b.inner = obj.b;\nobj.b.obj = obj;\n\nconsole.log(inspect(obj));\n// &#x3C;ref *1> {\n//   a: [ [Circular *1] ],\n//   b: &#x3C;ref *2> { inner: [Circular *2], obj: [Circular *1] }\n// }\n</code></pre>\n<p>The following example inspects all properties of the <code>util</code> object:</p>\n<pre><code class=\"language-js\">const util = require('node:util');\n\nconsole.log(util.inspect(util, { showHidden: true, depth: null }));\n</code></pre>\n<p>The following example highlights the effect of the <code>compact</code> option:</p>\n<pre><code class=\"language-js\">const util = require('node:util');\n\nconst o = {\n  a: [1, 2, [[\n    'Lorem ipsum dolor sit amet,\\nconsectetur adipiscing elit, sed do ' +\n      'eiusmod \\ntempor incididunt ut labore et dolore magna aliqua.',\n    'test',\n    'foo']], 4],\n  b: new Map([['za', 1], ['zb', 'test']]),\n};\nconsole.log(util.inspect(o, { compact: true, depth: 5, breakLength: 80 }));\n\n// { a:\n//   [ 1,\n//     2,\n//     [ [ 'Lorem ipsum dolor sit amet,\\nconsectetur [...]', // A long line\n//           'test',\n//           'foo' ] ],\n//     4 ],\n//   b: Map(2) { 'za' => 1, 'zb' => 'test' } }\n\n// Setting `compact` to false or an integer creates more reader friendly output.\nconsole.log(util.inspect(o, { compact: false, depth: 5, breakLength: 80 }));\n\n// {\n//   a: [\n//     1,\n//     2,\n//     [\n//       [\n//         'Lorem ipsum dolor sit amet,\\n' +\n//           'consectetur adipiscing elit, sed do eiusmod \\n' +\n//           'tempor incididunt ut labore et dolore magna aliqua.',\n//         'test',\n//         'foo'\n//       ]\n//     ],\n//     4\n//   ],\n//   b: Map(2) {\n//     'za' => 1,\n//     'zb' => 'test'\n//   }\n// }\n\n// Setting `breakLength` to e.g. 150 will print the \"Lorem ipsum\" text in a\n// single line.\n</code></pre>\n<p>The <code>showHidden</code> option allows <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap\"><code>WeakMap</code></a> and <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet\"><code>WeakSet</code></a> entries to be\ninspected. If there are more entries than <code>maxArrayLength</code>, there is no\nguarantee which entries are displayed. That means retrieving the same\n<a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet\"><code>WeakSet</code></a> entries twice may result in different output. Furthermore, entries\nwith no remaining strong references may be garbage collected at any time.</p>\n<pre><code class=\"language-js\">const { inspect } = require('node:util');\n\nconst obj = { a: 1 };\nconst obj2 = { b: 2 };\nconst weakSet = new WeakSet([obj, obj2]);\n\nconsole.log(inspect(weakSet, { showHidden: true }));\n// WeakSet { { a: 1 }, { b: 2 } }\n</code></pre>\n<p>The <code>sorted</code> option ensures that an object's property insertion order does not\nimpact the result of <code>util.inspect()</code>.</p>\n<pre><code class=\"language-js\">const { inspect } = require('node:util');\nconst assert = require('node:assert');\n\nconst o1 = {\n  b: [2, 3, 1],\n  a: '`a` comes before `b`',\n  c: new Set([2, 3, 1]),\n};\nconsole.log(inspect(o1, { sorted: true }));\n// { a: '`a` comes before `b`', b: [ 2, 3, 1 ], c: Set(3) { 1, 2, 3 } }\nconsole.log(inspect(o1, { sorted: (a, b) => b.localeCompare(a) }));\n// { c: Set(3) { 3, 2, 1 }, b: [ 2, 3, 1 ], a: '`a` comes before `b`' }\n\nconst o2 = {\n  c: new Set([2, 1, 3]),\n  a: '`a` comes before `b`',\n  b: [2, 3, 1],\n};\nassert.strict.equal(\n  inspect(o1, { sorted: true }),\n  inspect(o2, { sorted: true }),\n);\n</code></pre>\n<p>The <code>numericSeparator</code> option adds an underscore every three digits to all\nnumbers.</p>\n<pre><code class=\"language-js\">const { inspect } = require('node:util');\n\nconst thousand = 1_000;\nconst million = 1_000_000;\nconst bigNumber = 123_456_789n;\nconst bigDecimal = 1_234.123_45;\n\nconsole.log(inspect(thousand, { numericSeparator: true }));\n// 1_000\nconsole.log(inspect(million, { numericSeparator: true }));\n// 1_000_000\nconsole.log(inspect(bigNumber, { numericSeparator: true }));\n// 123_456_789n\nconsole.log(inspect(bigDecimal, { numericSeparator: true }));\n// 1_234.123_45\n</code></pre>\n<p><code>util.inspect()</code> is a synchronous method intended for debugging. Its maximum\noutput length is approximately 128 MiB. Inputs that result in longer output will\nbe truncated.</p>",
           "miscs": [
             {
               "textRaw": "Customizing `util.inspect` colors",
@@ -935,11 +945,27 @@
           "name": "parseArgs",
           "meta": {
             "added": [
-              "v18.3.0"
+              "v18.3.0",
+              "v16.17.0"
             ],
             "changes": [
               {
-                "version": "v18.11.0",
+                "version": "v20.16.0",
+                "pr-url": "https://github.com/nodejs/node/pull/53107",
+                "description": "add support for allowing negative options in input `config`."
+              },
+              {
+                "version": [
+                  "v20.0.0"
+                ],
+                "pr-url": "https://github.com/nodejs/node/pull/46718",
+                "description": "The API is no longer experimental."
+              },
+              {
+                "version": [
+                  "v18.11.0",
+                  "v16.19.0"
+                ],
                 "pr-url": "https://github.com/nodejs/node/pull/44631",
                 "description": "Add support for default values in input `config`."
               },
@@ -953,8 +979,6 @@
               }
             ]
           },
-          "stability": 1,
-          "stabilityText": "Experimental",
           "signatures": [
             {
               "return": {
@@ -1023,10 +1047,10 @@
                           "desc": "A single character alias for the option."
                         },
                         {
-                          "textRaw": "`default` {string | boolean | string\\[] | boolean\\[]} The default option value when it is not set by args. It must be of the same type as the `type` property. When `multiple` is `true`, it must be an array.",
+                          "textRaw": "`default` {string | boolean | string\\[] | boolean\\[]} The default value to be used if (and only if) the option does not appear in the arguments to be parsed. It must be of the same type as the `type` property. When `multiple` is `true`, it must be an array.",
                           "name": "default",
                           "type": "string | boolean | string\\[] | boolean\\[]",
-                          "desc": "The default option value when it is not set by args. It must be of the same type as the `type` property. When `multiple` is `true`, it must be an array."
+                          "desc": "The default value to be used if (and only if) the option does not appear in the arguments to be parsed. It must be of the same type as the `type` property. When `multiple` is `true`, it must be an array."
                         }
                       ]
                     },
@@ -1045,6 +1069,13 @@
                       "desc": "Whether this command accepts positional arguments."
                     },
                     {
+                      "textRaw": "`allowNegative` {boolean} If `true`, allows explicitly setting boolean options to `false` by prefixing the option name with `--no-`. **Default:** `false`.",
+                      "name": "allowNegative",
+                      "type": "boolean",
+                      "default": "`false`",
+                      "desc": "If `true`, allows explicitly setting boolean options to `false` by prefixing the option name with `--no-`."
+                    },
+                    {
                       "textRaw": "`tokens` {boolean} Return the parsed tokens. This is useful for extending the built-in behavior, from adding additional checks through to reprocessing the tokens in different ways. **Default:** `false`.",
                       "name": "tokens",
                       "type": "boolean",
@@ -1056,16 +1087,41 @@
               ]
             }
           ],
-          "desc": "<p>Provides a higher level API for command-line argument parsing than interacting\nwith <code>process.argv</code> directly. Takes a specification for the expected arguments\nand returns a structured object with the parsed options and positionals.</p>\n<pre><code class=\"language-mjs\">import { parseArgs } from 'node:util';\nconst args = ['-f', '--bar', 'b'];\nconst options = {\n  foo: {\n    type: 'boolean',\n    short: 'f',\n  },\n  bar: {\n    type: 'string',\n  },\n};\nconst {\n  values,\n  positionals,\n} = parseArgs({ args, options });\nconsole.log(values, positionals);\n// Prints: [Object: null prototype] { foo: true, bar: 'b' } []\n</code></pre>\n<pre><code class=\"language-cjs\">const { parseArgs } = require('node:util');\nconst args = ['-f', '--bar', 'b'];\nconst options = {\n  foo: {\n    type: 'boolean',\n    short: 'f',\n  },\n  bar: {\n    type: 'string',\n  },\n};\nconst {\n  values,\n  positionals,\n} = parseArgs({ args, options });\nconsole.log(values, positionals);\n// Prints: [Object: null prototype] { foo: true, bar: 'b' } []\n</code></pre>\n<p><code>util.parseArgs</code> is experimental and behavior may change. Join the\nconversation in <a href=\"https://github.com/pkgjs/parseargs\">pkgjs/parseargs</a> to contribute to the design.</p>",
+          "desc": "<p>Provides a higher level API for command-line argument parsing than interacting\nwith <code>process.argv</code> directly. Takes a specification for the expected arguments\nand returns a structured object with the parsed options and positionals.</p>\n<pre><code class=\"language-mjs\">import { parseArgs } from 'node:util';\nconst args = ['-f', '--bar', 'b'];\nconst options = {\n  foo: {\n    type: 'boolean',\n    short: 'f',\n  },\n  bar: {\n    type: 'string',\n  },\n};\nconst {\n  values,\n  positionals,\n} = parseArgs({ args, options });\nconsole.log(values, positionals);\n// Prints: [Object: null prototype] { foo: true, bar: 'b' } []\n</code></pre>\n<pre><code class=\"language-cjs\">const { parseArgs } = require('node:util');\nconst args = ['-f', '--bar', 'b'];\nconst options = {\n  foo: {\n    type: 'boolean',\n    short: 'f',\n  },\n  bar: {\n    type: 'string',\n  },\n};\nconst {\n  values,\n  positionals,\n} = parseArgs({ args, options });\nconsole.log(values, positionals);\n// Prints: [Object: null prototype] { foo: true, bar: 'b' } []\n</code></pre>",
           "modules": [
             {
               "textRaw": "`parseArgs` `tokens`",
               "name": "`parseargs`_`tokens`",
-              "desc": "<p>Detailed parse information is available for adding custom behaviors by\nspecifying <code>tokens: true</code> in the configuration.\nThe returned tokens have properties describing:</p>\n<ul>\n<li>all tokens\n<ul>\n<li><code>kind</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> One of 'option', 'positional', or 'option-terminator'.</li>\n<li><code>index</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> Index of element in <code>args</code> containing token. So the\nsource argument for a token is <code>args[token.index]</code>.</li>\n</ul>\n</li>\n<li>option tokens\n<ul>\n<li><code>name</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> Long name of option.</li>\n<li><code>rawName</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> How option used in args, like <code>-f</code> of <code>--foo</code>.</li>\n<li><code>value</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type\" class=\"type\">&lt;undefined&gt;</a> Option value specified in args.\nUndefined for boolean options.</li>\n<li><code>inlineValue</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type\" class=\"type\">&lt;undefined&gt;</a> Whether option value specified inline,\nlike <code>--foo=bar</code>.</li>\n</ul>\n</li>\n<li>positional tokens\n<ul>\n<li><code>value</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> The value of the positional argument in args (i.e. <code>args[index]</code>).</li>\n</ul>\n</li>\n<li>option-terminator token</li>\n</ul>\n<p>The returned tokens are in the order encountered in the input args. Options\nthat appear more than once in args produce a token for each use. Short option\ngroups like <code>-xy</code> expand to a token for each option. So <code>-xxx</code> produces\nthree tokens.</p>\n<p>For example to use the returned tokens to add support for a negated option\nlike <code>--no-color</code>, the tokens can be reprocessed to change the value stored\nfor the negated option.</p>\n<pre><code class=\"language-mjs\">import { parseArgs } from 'node:util';\n\nconst options = {\n  'color': { type: 'boolean' },\n  'no-color': { type: 'boolean' },\n  'logfile': { type: 'string' },\n  'no-logfile': { type: 'boolean' },\n};\nconst { values, tokens } = parseArgs({ options, tokens: true });\n\n// Reprocess the option tokens and overwrite the returned values.\ntokens\n  .filter((token) => token.kind === 'option')\n  .forEach((token) => {\n    if (token.name.startsWith('no-')) {\n      // Store foo:false for --no-foo\n      const positiveName = token.name.slice(3);\n      values[positiveName] = false;\n      delete values[token.name];\n    } else {\n      // Resave value so last one wins if both --foo and --no-foo.\n      values[token.name] = token.value ?? true;\n    }\n  });\n\nconst color = values.color;\nconst logfile = values.logfile ?? 'default.log';\n\nconsole.log({ logfile, color });\n</code></pre>\n<pre><code class=\"language-cjs\">const { parseArgs } = require('node:util');\n\nconst options = {\n  'color': { type: 'boolean' },\n  'no-color': { type: 'boolean' },\n  'logfile': { type: 'string' },\n  'no-logfile': { type: 'boolean' },\n};\nconst { values, tokens } = parseArgs({ options, tokens: true });\n\n// Reprocess the option tokens and overwrite the returned values.\ntokens\n  .filter((token) => token.kind === 'option')\n  .forEach((token) => {\n    if (token.name.startsWith('no-')) {\n      // Store foo:false for --no-foo\n      const positiveName = token.name.slice(3);\n      values[positiveName] = false;\n      delete values[token.name];\n    } else {\n      // Resave value so last one wins if both --foo and --no-foo.\n      values[token.name] = token.value ?? true;\n    }\n  });\n\nconst color = values.color;\nconst logfile = values.logfile ?? 'default.log';\n\nconsole.log({ logfile, color });\n</code></pre>\n<p>Example usage showing negated options, and when an option is used\nmultiple ways then last one wins.</p>\n<pre><code class=\"language-console\">$ node negate.js\n{ logfile: 'default.log', color: undefined }\n$ node negate.js --no-logfile --no-color\n{ logfile: false, color: false }\n$ node negate.js --logfile=test.log --color\n{ logfile: 'test.log', color: true }\n$ node negate.js --no-logfile --logfile=test.log --color --no-color\n{ logfile: 'test.log', color: false }\n</code></pre>",
+              "desc": "<p>Detailed parse information is available for adding custom behaviors by\nspecifying <code>tokens: true</code> in the configuration.\nThe returned tokens have properties describing:</p>\n<ul>\n<li>all tokens\n<ul>\n<li><code>kind</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> One of 'option', 'positional', or 'option-terminator'.</li>\n<li><code>index</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> Index of element in <code>args</code> containing token. So the\nsource argument for a token is <code>args[token.index]</code>.</li>\n</ul>\n</li>\n<li>option tokens\n<ul>\n<li><code>name</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> Long name of option.</li>\n<li><code>rawName</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> How option used in args, like <code>-f</code> of <code>--foo</code>.</li>\n<li><code>value</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type\" class=\"type\">&lt;undefined&gt;</a> Option value specified in args.\nUndefined for boolean options.</li>\n<li><code>inlineValue</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type\" class=\"type\">&lt;undefined&gt;</a> Whether option value specified inline,\nlike <code>--foo=bar</code>.</li>\n</ul>\n</li>\n<li>positional tokens\n<ul>\n<li><code>value</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> The value of the positional argument in args (i.e. <code>args[index]</code>).</li>\n</ul>\n</li>\n<li>option-terminator token</li>\n</ul>\n<p>The returned tokens are in the order encountered in the input args. Options\nthat appear more than once in args produce a token for each use. Short option\ngroups like <code>-xy</code> expand to a token for each option. So <code>-xxx</code> produces\nthree tokens.</p>\n<p>For example, to add support for a negated option like <code>--no-color</code> (which\n<code>allowNegative</code> supports when the option is of <code>boolean</code> type), the returned\ntokens can be reprocessed to change the value stored for the negated option.</p>\n<pre><code class=\"language-mjs\">import { parseArgs } from 'node:util';\n\nconst options = {\n  'color': { type: 'boolean' },\n  'no-color': { type: 'boolean' },\n  'logfile': { type: 'string' },\n  'no-logfile': { type: 'boolean' },\n};\nconst { values, tokens } = parseArgs({ options, tokens: true });\n\n// Reprocess the option tokens and overwrite the returned values.\ntokens\n  .filter((token) => token.kind === 'option')\n  .forEach((token) => {\n    if (token.name.startsWith('no-')) {\n      // Store foo:false for --no-foo\n      const positiveName = token.name.slice(3);\n      values[positiveName] = false;\n      delete values[token.name];\n    } else {\n      // Resave value so last one wins if both --foo and --no-foo.\n      values[token.name] = token.value ?? true;\n    }\n  });\n\nconst color = values.color;\nconst logfile = values.logfile ?? 'default.log';\n\nconsole.log({ logfile, color });\n</code></pre>\n<pre><code class=\"language-cjs\">const { parseArgs } = require('node:util');\n\nconst options = {\n  'color': { type: 'boolean' },\n  'no-color': { type: 'boolean' },\n  'logfile': { type: 'string' },\n  'no-logfile': { type: 'boolean' },\n};\nconst { values, tokens } = parseArgs({ options, tokens: true });\n\n// Reprocess the option tokens and overwrite the returned values.\ntokens\n  .filter((token) => token.kind === 'option')\n  .forEach((token) => {\n    if (token.name.startsWith('no-')) {\n      // Store foo:false for --no-foo\n      const positiveName = token.name.slice(3);\n      values[positiveName] = false;\n      delete values[token.name];\n    } else {\n      // Resave value so last one wins if both --foo and --no-foo.\n      values[token.name] = token.value ?? true;\n    }\n  });\n\nconst color = values.color;\nconst logfile = values.logfile ?? 'default.log';\n\nconsole.log({ logfile, color });\n</code></pre>\n<p>Example usage showing negated options, and when an option is used\nmultiple ways then last one wins.</p>\n<pre><code class=\"language-console\">$ node negate.js\n{ logfile: 'default.log', color: undefined }\n$ node negate.js --no-logfile --no-color\n{ logfile: false, color: false }\n$ node negate.js --logfile=test.log --color\n{ logfile: 'test.log', color: true }\n$ node negate.js --no-logfile --logfile=test.log --color --no-color\n{ logfile: 'test.log', color: false }\n</code></pre>",
               "type": "module",
               "displayName": "`parseArgs` `tokens`"
             }
           ]
+        },
+        {
+          "textRaw": "`util.parseEnv(content)`",
+          "type": "method",
+          "name": "parseEnv",
+          "stability": 1,
+          "stabilityText": ".1 - Active development",
+          "meta": {
+            "added": [
+              "v20.12.0"
+            ],
+            "changes": []
+          },
+          "signatures": [
+            {
+              "params": [
+                {
+                  "textRaw": "`content` {string}",
+                  "name": "content",
+                  "type": "string"
+                }
+              ]
+            }
+          ],
+          "desc": "<p>The raw contents of a <code>.env</code> file.</p>\n<ul>\n<li>Returns: <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object\" class=\"type\">&lt;Object&gt;</a></li>\n</ul>\n<p>Given an example <code>.env</code> file:</p>\n<pre><code class=\"language-cjs\">const { parseEnv } = require('node:util');\n\nparseEnv('HELLO=world\\nHELLO=oh my\\n');\n// Returns: { HELLO: 'oh my' }\n</code></pre>\n<pre><code class=\"language-mjs\">import { parseEnv } from 'node:util';\n\nparseEnv('HELLO=world\\nHELLO=oh my\\n');\n// Returns: { HELLO: 'oh my' }\n</code></pre>"
         },
         {
           "textRaw": "`util.promisify(original)`",
@@ -1075,7 +1131,13 @@
             "added": [
               "v8.0.0"
             ],
-            "changes": []
+            "changes": [
+              {
+                "version": "v20.8.0",
+                "pr-url": "https://github.com/nodejs/node/pull/49647",
+                "description": "Calling `promisify` on a function that returns a `Promise` is deprecated."
+              }
+            ]
           },
           "signatures": [
             {
@@ -1093,7 +1155,7 @@
               ]
             }
           ],
-          "desc": "<p>Takes a function following the common error-first callback style, i.e. taking\nan <code>(err, value) => ...</code> callback as the last argument, and returns a version\nthat returns promises.</p>\n<pre><code class=\"language-js\">const util = require('node:util');\nconst fs = require('node:fs');\n\nconst stat = util.promisify(fs.stat);\nstat('.').then((stats) => {\n  // Do something with `stats`\n}).catch((error) => {\n  // Handle the error.\n});\n</code></pre>\n<p>Or, equivalently using <code>async function</code>s:</p>\n<pre><code class=\"language-js\">const util = require('node:util');\nconst fs = require('node:fs');\n\nconst stat = util.promisify(fs.stat);\n\nasync function callStat() {\n  const stats = await stat('.');\n  console.log(`This directory is owned by ${stats.uid}`);\n}\n</code></pre>\n<p>If there is an <code>original[util.promisify.custom]</code> property present, <code>promisify</code>\nwill return its value, see <a href=\"#custom-promisified-functions\">Custom promisified functions</a>.</p>\n<p><code>promisify()</code> assumes that <code>original</code> is a function taking a callback as its\nfinal argument in all cases. If <code>original</code> is not a function, <code>promisify()</code>\nwill throw an error. If <code>original</code> is a function but its last argument is not\nan error-first callback, it will still be passed an error-first\ncallback as its last argument.</p>\n<p>Using <code>promisify()</code> on class methods or other methods that use <code>this</code> may not\nwork as expected unless handled specially:</p>\n<pre><code class=\"language-js\">const util = require('node:util');\n\nclass Foo {\n  constructor() {\n    this.a = 42;\n  }\n\n  bar(callback) {\n    callback(null, this.a);\n  }\n}\n\nconst foo = new Foo();\n\nconst naiveBar = util.promisify(foo.bar);\n// TypeError: Cannot read property 'a' of undefined\n// naiveBar().then(a => console.log(a));\n\nnaiveBar.call(foo).then((a) => console.log(a)); // '42'\n\nconst bindBar = naiveBar.bind(foo);\nbindBar().then((a) => console.log(a)); // '42'\n</code></pre>",
+          "desc": "<p>Takes a function following the common error-first callback style, i.e. taking\nan <code>(err, value) => ...</code> callback as the last argument, and returns a version\nthat returns promises.</p>\n<pre><code class=\"language-js\">const util = require('node:util');\nconst fs = require('node:fs');\n\nconst stat = util.promisify(fs.stat);\nstat('.').then((stats) => {\n  // Do something with `stats`\n}).catch((error) => {\n  // Handle the error.\n});\n</code></pre>\n<p>Or, equivalently using <code>async function</code>s:</p>\n<pre><code class=\"language-js\">const util = require('node:util');\nconst fs = require('node:fs');\n\nconst stat = util.promisify(fs.stat);\n\nasync function callStat() {\n  const stats = await stat('.');\n  console.log(`This directory is owned by ${stats.uid}`);\n}\n\ncallStat();\n</code></pre>\n<p>If there is an <code>original[util.promisify.custom]</code> property present, <code>promisify</code>\nwill return its value, see <a href=\"#custom-promisified-functions\">Custom promisified functions</a>.</p>\n<p><code>promisify()</code> assumes that <code>original</code> is a function taking a callback as its\nfinal argument in all cases. If <code>original</code> is not a function, <code>promisify()</code>\nwill throw an error. If <code>original</code> is a function but its last argument is not\nan error-first callback, it will still be passed an error-first\ncallback as its last argument.</p>\n<p>Using <code>promisify()</code> on class methods or other methods that use <code>this</code> may not\nwork as expected unless handled specially:</p>\n<pre><code class=\"language-js\">const util = require('node:util');\n\nclass Foo {\n  constructor() {\n    this.a = 42;\n  }\n\n  bar(callback) {\n    callback(null, this.a);\n  }\n}\n\nconst foo = new Foo();\n\nconst naiveBar = util.promisify(foo.bar);\n// TypeError: Cannot read property 'a' of undefined\n// naiveBar().then(a => console.log(a));\n\nnaiveBar.call(foo).then((a) => console.log(a)); // '42'\n\nconst bindBar = naiveBar.bind(foo);\nbindBar().then((a) => console.log(a)); // '42'\n</code></pre>",
           "modules": [
             {
               "textRaw": "Custom promisified functions",
@@ -1155,6 +1217,65 @@
             }
           ],
           "desc": "<p>Returns <code>str</code> with any ANSI escape codes removed.</p>\n<pre><code class=\"language-js\">console.log(util.stripVTControlCharacters('\\u001B[4mvalue\\u001B[0m'));\n// Prints \"value\"\n</code></pre>"
+        },
+        {
+          "textRaw": "`util.styleText(format, text[, options])`",
+          "type": "method",
+          "name": "styleText",
+          "stability": 1,
+          "stabilityText": ".1 - Active development",
+          "meta": {
+            "added": [
+              "v20.12.0"
+            ],
+            "changes": [
+              {
+                "version": "v20.18.0",
+                "pr-url": "https://github.com/nodejs/node/pull/54389",
+                "description": "Respect isTTY and environment variables such as NO_COLORS, NODE_DISABLE_COLORS, and FORCE_COLOR."
+              }
+            ]
+          },
+          "signatures": [
+            {
+              "params": [
+                {
+                  "textRaw": "`format` {string | Array} A text format or an Array of text formats defined in `util.inspect.colors`.",
+                  "name": "format",
+                  "type": "string | Array",
+                  "desc": "A text format or an Array of text formats defined in `util.inspect.colors`."
+                },
+                {
+                  "textRaw": "`text` {string} The text to to be formatted.",
+                  "name": "text",
+                  "type": "string",
+                  "desc": "The text to to be formatted."
+                },
+                {
+                  "textRaw": "`options` {Object}",
+                  "name": "options",
+                  "type": "Object",
+                  "options": [
+                    {
+                      "textRaw": "`validateStream` {boolean} When true, `stream` is checked to see if it can handle colors. **Default:** `true`.",
+                      "name": "validateStream",
+                      "type": "boolean",
+                      "default": "`true`",
+                      "desc": "When true, `stream` is checked to see if it can handle colors."
+                    },
+                    {
+                      "textRaw": "`stream` {Stream} A stream that will be validated if it can be colored. **Default:** `process.stdout`.",
+                      "name": "stream",
+                      "type": "Stream",
+                      "default": "`process.stdout`",
+                      "desc": "A stream that will be validated if it can be colored."
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "desc": "<p>This function returns a formatted text considering the <code>format</code> passed\nfor printing in a terminal. It is aware of the terminal's capabilities\nand acts according to the configuration set via <code>NO_COLORS</code>,\n<code>NODE_DISABLE_COLORS</code> and <code>FORCE_COLOR</code> environment variables.</p>\n<pre><code class=\"language-mjs\">import { styleText } from 'node:util';\nimport { stderr } from 'node:process';\n\nconst successMessage = styleText('green', 'Success!');\nconsole.log(successMessage);\n\nconst errorMessage = styleText(\n  'red',\n  'Error! Error!',\n  // Validate if process.stderr has TTY\n  { stream: stderr },\n);\nconsole.error(errorMessage);\n</code></pre>\n<pre><code class=\"language-cjs\">const { styleText } = require('node:util');\nconst { stderr } = require('node:process');\n\nconst successMessage = styleText('green', 'Success!');\nconsole.log(successMessage);\n\nconst errorMessage = styleText(\n  'red',\n  'Error! Error!',\n  // Validate if process.stderr has TTY\n  { stream: stderr },\n);\nconsole.error(successMessage);\n</code></pre>\n<p><code>util.inspect.colors</code> also provides text formats such as <code>italic</code>, and\n<code>underline</code> and you can combine both:</p>\n<pre><code class=\"language-cjs\">console.log(\n  util.styleText(['underline', 'italic'], 'My italic underlined message'),\n);\n</code></pre>\n<p>When passing an array of formats, the order of the format applied\nis left to right so the following style might overwrite the previous one.</p>\n<pre><code class=\"language-cjs\">console.log(\n  util.styleText(['red', 'green'], 'text'), // green\n);\n</code></pre>\n<p>The full list of formats can be found in <a href=\"#modifiers\">modifiers</a>.</p>"
         },
         {
           "textRaw": "`util.toUSVString(string)`",
@@ -1235,7 +1356,7 @@
           "name": "aborted",
           "meta": {
             "added": [
-              "v18.16.0"
+              "v19.7.0"
             ],
             "changes": []
           },
@@ -1255,15 +1376,15 @@
                   "type": "AbortSignal"
                 },
                 {
-                  "textRaw": "`resource` {Object} Any non-null entity, reference to which is held weakly.",
+                  "textRaw": "`resource` {Object} Any non-null object tied to the abortable operation and held weakly. If `resource` is garbage collected before the `signal` aborts, the promise remains pending, allowing Node.js to stop tracking it. This helps prevent memory leaks in long-running or non-cancelable operations.",
                   "name": "resource",
                   "type": "Object",
-                  "desc": "Any non-null entity, reference to which is held weakly."
+                  "desc": "Any non-null object tied to the abortable operation and held weakly. If `resource` is garbage collected before the `signal` aborts, the promise remains pending, allowing Node.js to stop tracking it. This helps prevent memory leaks in long-running or non-cancelable operations."
                 }
               ]
             }
           ],
-          "desc": "<p>Listens to abort event on the provided <code>signal</code> and\nreturns a promise that is fulfilled when the <code>signal</code> is\naborted. If the passed <code>resource</code> is garbage collected before the <code>signal</code> is\naborted, the returned promise shall remain pending indefinitely.</p>\n<pre><code class=\"language-cjs\">const { aborted } = require('node:util');\n\nconst dependent = obtainSomethingAbortable();\n\naborted(dependent.signal, dependent).then(() => {\n  // Do something when dependent is aborted.\n});\n\ndependent.on('event', () => {\n  dependent.abort();\n});\n</code></pre>\n<pre><code class=\"language-mjs\">import { aborted } from 'node:util';\n\nconst dependent = obtainSomethingAbortable();\n\naborted(dependent.signal, dependent).then(() => {\n  // Do something when dependent is aborted.\n});\n\ndependent.on('event', () => {\n  dependent.abort();\n});\n</code></pre>"
+          "desc": "<p>Listens to abort event on the provided <code>signal</code> and returns a promise that resolves when the <code>signal</code> is aborted.\nIf <code>resource</code> is provided, it weakly references the operation's associated object,\nso if <code>resource</code> is garbage collected before the <code>signal</code> aborts,\nthen returned promise shall remain pending.\nThis prevents memory leaks in long-running or non-cancelable operations.</p>\n<pre><code class=\"language-cjs\">const { aborted } = require('node:util');\n\n// Obtain an object with an abortable signal, like a custom resource or operation.\nconst dependent = obtainSomethingAbortable();\n\n// Pass `dependent` as the resource, indicating the promise should only resolve\n// if `dependent` is still in memory when the signal is aborted.\naborted(dependent.signal, dependent).then(() => {\n\n  // This code runs when `dependent` is aborted.\n  console.log('Dependent resource was aborted.');\n});\n\n// Simulate an event that triggers the abort.\ndependent.on('event', () => {\n  dependent.abort(); // This will cause the `aborted` promise to resolve.\n});\n</code></pre>\n<pre><code class=\"language-mjs\">import { aborted } from 'node:util';\n\n// Obtain an object with an abortable signal, like a custom resource or operation.\nconst dependent = obtainSomethingAbortable();\n\n// Pass `dependent` as the resource, indicating the promise should only resolve\n// if `dependent` is still in memory when the signal is aborted.\naborted(dependent.signal, dependent).then(() => {\n\n  // This code runs when `dependent` is aborted.\n  console.log('Dependent resource was aborted.');\n});\n\n// Simulate an event that triggers the abort.\ndependent.on('event', () => {\n  dependent.abort(); // This will cause the `aborted` promise to resolve.\n});\n</code></pre>"
         }
       ],
       "classes": [
@@ -1273,6 +1394,7 @@
           "name": "util.MIMEType",
           "meta": {
             "added": [
+              "v19.1.0",
               "v18.13.0"
             ],
             "changes": []
@@ -1360,6 +1482,7 @@
           "name": "util.MIMEParams",
           "meta": {
             "added": [
+              "v19.1.0",
               "v18.13.0"
             ],
             "changes": []
@@ -1406,10 +1529,10 @@
               "signatures": [
                 {
                   "return": {
-                    "textRaw": "Returns: {string} or `null` if there is no name-value pair with the given `name`.",
+                    "textRaw": "Returns: {string | null} A string or `null` if there is no name-value pair with the given `name`.",
                     "name": "return",
-                    "type": "string",
-                    "desc": "or `null` if there is no name-value pair with the given `name`."
+                    "type": "string | null",
+                    "desc": "A string or `null` if there is no name-value pair with the given `name`."
                   },
                   "params": [
                     {
@@ -1480,7 +1603,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Sets the value in the <code>MIMEParams</code> object associated with <code>name</code> to\n<code>value</code>. If there are any pre-existing name-value pairs whose names are <code>name</code>,\nset the first such pair's value to <code>value</code>.</p>\n<pre><code class=\"language-mjs\">import { MIMEType } from 'node:util';\n\nconst { params } = new MIMEType('text/plain;foo=0;bar=1');\nparams.set('foo', 'def');\nparams.set('baz', 'xyz');\nconsole.log(params.toString());\n// Prints: foo=def&#x26;bar=1&#x26;baz=xyz\n</code></pre>\n<pre><code class=\"language-cjs\">const { MIMEType } = require('node:util');\n\nconst { params } = new MIMEType('text/plain;foo=0;bar=1');\nparams.set('foo', 'def');\nparams.set('baz', 'xyz');\nconsole.log(params.toString());\n// Prints: foo=def&#x26;bar=1&#x26;baz=xyz\n</code></pre>"
+              "desc": "<p>Sets the value in the <code>MIMEParams</code> object associated with <code>name</code> to\n<code>value</code>. If there are any pre-existing name-value pairs whose names are <code>name</code>,\nset the first such pair's value to <code>value</code>.</p>\n<pre><code class=\"language-mjs\">import { MIMEType } from 'node:util';\n\nconst { params } = new MIMEType('text/plain;foo=0;bar=1');\nparams.set('foo', 'def');\nparams.set('baz', 'xyz');\nconsole.log(params.toString());\n// Prints: foo=def;bar=1;baz=xyz\n</code></pre>\n<pre><code class=\"language-cjs\">const { MIMEType } = require('node:util');\n\nconst { params } = new MIMEType('text/plain;foo=0;bar=1');\nparams.set('foo', 'def');\nparams.set('baz', 'xyz');\nconsole.log(params.toString());\n// Prints: foo=def;bar=1;baz=xyz\n</code></pre>"
             },
             {
               "textRaw": "`mimeParams.values()`",
@@ -1523,7 +1646,13 @@
             "added": [
               "v8.3.0"
             ],
-            "changes": []
+            "changes": [
+              {
+                "version": "v11.0.0",
+                "pr-url": "https://github.com/nodejs/node/pull/22281",
+                "description": "The class is now available on the global object."
+              }
+            ]
           },
           "desc": "<p>An implementation of the <a href=\"https://encoding.spec.whatwg.org/\">WHATWG Encoding Standard</a> <code>TextDecoder</code> API.</p>\n<pre><code class=\"language-js\">const decoder = new TextDecoder();\nconst u8arr = new Uint8Array([72, 101, 108, 108, 111]);\nconsole.log(decoder.decode(u8arr)); // Hello\n</code></pre>",
           "modules": [
@@ -1699,6 +1828,12 @@
               "textRaw": "`textEncoder.encodeInto(src, dest)`",
               "type": "method",
               "name": "encodeInto",
+              "meta": {
+                "added": [
+                  "v12.11.0"
+                ],
+                "changes": []
+              },
               "signatures": [
                 {
                   "return": {
@@ -1934,6 +2069,34 @@
                 }
               ],
               "desc": "<p>Returns <code>true</code> if the value is a <code>BigInt64Array</code> instance.</p>\n<pre><code class=\"language-js\">util.types.isBigInt64Array(new BigInt64Array());   // Returns true\nutil.types.isBigInt64Array(new BigUint64Array());  // Returns false\n</code></pre>"
+            },
+            {
+              "textRaw": "`util.types.isBigIntObject(value)`",
+              "type": "method",
+              "name": "isBigIntObject",
+              "meta": {
+                "added": [
+                  "v10.4.0"
+                ],
+                "changes": []
+              },
+              "signatures": [
+                {
+                  "return": {
+                    "textRaw": "Returns: {boolean}",
+                    "name": "return",
+                    "type": "boolean"
+                  },
+                  "params": [
+                    {
+                      "textRaw": "`value` {any}",
+                      "name": "value",
+                      "type": "any"
+                    }
+                  ]
+                }
+              ],
+              "desc": "<p>Returns <code>true</code> if the value is a BigInt object, e.g. created\nby <code>Object(BigInt(123))</code>.</p>\n<pre><code class=\"language-js\">util.types.isBigIntObject(Object(BigInt(123)));   // Returns true\nutil.types.isBigIntObject(BigInt(123));   // Returns false\nutil.types.isBigIntObject(123);  // Returns false\n</code></pre>"
             },
             {
               "textRaw": "`util.types.isBigUint64Array(value)`",
@@ -2437,7 +2600,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Returns <code>true</code> if the value is an instance of a <a href=\"https://tc39.github.io/ecma262/#sec-module-namespace-exotic-objects\">Module Namespace Object</a>.</p>\n<!-- eslint-skip -->\n<pre><code class=\"language-js\">import * as ns from './a.js';\n\nutil.types.isModuleNamespaceObject(ns);  // Returns true\n</code></pre>"
+              "desc": "<p>Returns <code>true</code> if the value is an instance of a <a href=\"https://tc39.github.io/ecma262/#sec-module-namespace-exotic-objects\">Module Namespace Object</a>.</p>\n<pre><code class=\"language-mjs\">import * as ns from './a.js';\n\nutil.types.isModuleNamespaceObject(ns);  // Returns true\n</code></pre>"
             },
             {
               "textRaw": "`util.types.isNativeError(value)`",
@@ -2914,39 +3077,6 @@
                 }
               ],
               "desc": "<p>Returns <code>true</code> if the value is a built-in <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet\"><code>WeakSet</code></a> instance.</p>\n<pre><code class=\"language-js\">util.types.isWeakSet(new WeakSet());  // Returns true\n</code></pre>"
-            },
-            {
-              "textRaw": "`util.types.isWebAssemblyCompiledModule(value)`",
-              "type": "method",
-              "name": "isWebAssemblyCompiledModule",
-              "meta": {
-                "added": [
-                  "v10.0.0"
-                ],
-                "deprecated": [
-                  "v14.0.0"
-                ],
-                "changes": []
-              },
-              "stability": 0,
-              "stabilityText": "Deprecated: Use `value instanceof WebAssembly.Module` instead.",
-              "signatures": [
-                {
-                  "return": {
-                    "textRaw": "Returns: {boolean}",
-                    "name": "return",
-                    "type": "boolean"
-                  },
-                  "params": [
-                    {
-                      "textRaw": "`value` {any}",
-                      "name": "value",
-                      "type": "any"
-                    }
-                  ]
-                }
-              ],
-              "desc": "<p>Returns <code>true</code> if the value is a built-in <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/Module\"><code>WebAssembly.Module</code></a> instance.</p>\n<pre><code class=\"language-js\">const module = new WebAssembly.Module(wasmBuffer);\nutil.types.isWebAssemblyCompiledModule(module);  // Returns true\n</code></pre>"
             }
           ]
         }

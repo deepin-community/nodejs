@@ -9,7 +9,7 @@
 namespace ada {
 
 bool url::parse_opaque_host(std::string_view input) {
-  ada_log("parse_opaque_host ", input, "[", input.size(), " bytes]");
+  ada_log("parse_opaque_host ", input, " [", input.size(), " bytes]");
   if (std::any_of(input.begin(), input.end(),
                   ada::unicode::is_forbidden_host_code_point)) {
     return is_valid = false;
@@ -23,7 +23,7 @@ bool url::parse_opaque_host(std::string_view input) {
 }
 
 bool url::parse_ipv4(std::string_view input) {
-  ada_log("parse_ipv4 ", input, "[", input.size(), " bytes]");
+  ada_log("parse_ipv4 ", input, " [", input.size(), " bytes]");
   if (input.back() == '.') {
     input.remove_suffix(1);
   }
@@ -43,7 +43,7 @@ bool url::parse_ipv4(std::string_view input) {
       segment_result = 0;
       input.remove_prefix(2);
     } else {
-      std::from_chars_result r;
+      std::from_chars_result r{};
       if (is_hex) {
         r = std::from_chars(input.data() + 2, input.data() + input.size(),
                             segment_result, 16);
@@ -65,7 +65,7 @@ bool url::parse_ipv4(std::string_view input) {
       // We have the last value.
       // At this stage, ipv4 contains digit_count*8 bits.
       // So we have 32-digit_count*8 bits left.
-      if (segment_result > (uint64_t(1) << (32 - digit_count * 8))) {
+      if (segment_result >= (uint64_t(1) << (32 - digit_count * 8))) {
         return is_valid = false;
       }
       ipv4 <<= (32 - digit_count * 8);
@@ -98,7 +98,7 @@ final:
 }
 
 bool url::parse_ipv6(std::string_view input) {
-  ada_log("parse_ipv6 ", input, "[", input.size(), " bytes]");
+  ada_log("parse_ipv6 ", input, " [", input.size(), " bytes]");
 
   if (input.empty()) {
     return is_valid = false;
@@ -340,21 +340,21 @@ ada_really_inline bool url::parse_scheme(const std::string_view input) {
       // If url's scheme is not a special scheme and buffer is a special scheme,
       // then return.
       if (is_special() != is_input_special) {
-        return true;
+        return false;
       }
 
       // If url includes credentials or has a non-null port, and buffer is
       // "file", then return.
       if ((has_credentials() || port.has_value()) &&
           parsed_type == ada::scheme::type::FILE) {
-        return true;
+        return false;
       }
 
       // If url's scheme is "file" and its host is an empty host, then return.
       // An empty host is the empty string.
       if (type == ada::scheme::type::FILE && host.has_value() &&
           host.value().empty()) {
-        return true;
+        return false;
       }
     }
 
@@ -373,7 +373,7 @@ ada_really_inline bool url::parse_scheme(const std::string_view input) {
       }
     }
   } else {  // slow path
-    std::string _buffer = std::string(input);
+    std::string _buffer(input);
     // Next function is only valid if the input is ASCII and returns false
     // otherwise, but it seems that we always have ascii content so we do not
     // need to check the return value.
@@ -422,7 +422,7 @@ ada_really_inline bool url::parse_scheme(const std::string_view input) {
 }
 
 ada_really_inline bool url::parse_host(std::string_view input) {
-  ada_log("parse_host ", input, "[", input.size(), " bytes]");
+  ada_log("parse_host ", input, " [", input.size(), " bytes]");
   if (input.empty()) {
     return is_valid = false;
   }  // technically unnecessary.
@@ -474,6 +474,8 @@ ada_really_inline bool url::parse_host(std::string_view input) {
     ada_log("parse_host to_ascii returns false");
     return is_valid = false;
   }
+  ada_log("parse_host to_ascii succeeded ", *host, " [", host->size(),
+          " bytes]");
 
   if (std::any_of(host.value().begin(), host.value().end(),
                   ada::unicode::is_forbidden_domain_code_point)) {
@@ -484,7 +486,7 @@ ada_really_inline bool url::parse_host(std::string_view input) {
   // If asciiDomain ends in a number, then return the result of IPv4 parsing
   // asciiDomain.
   if (checkers::is_ipv4(host.value())) {
-    ada_log("parse_host got ipv4", *host);
+    ada_log("parse_host got ipv4 ", *host);
     return parse_ipv4(host.value());
   }
 

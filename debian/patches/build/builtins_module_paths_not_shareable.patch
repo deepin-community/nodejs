@@ -2,10 +2,10 @@ Description: disable shared builtins when loading deps on demand
  This is to avoid preloading potentially missing files.
 Author: Jérémy Lal <kapouer@melix.org>
 Last-Update: 2023-12-10
-Forwarded: no
+Forwarded: no, todo
 --- a/src/node_builtins.cc
 +++ b/src/node_builtins.cc
-@@ -36,6 +36,7 @@
+@@ -35,6 +35,7 @@
  BuiltinLoader::BuiltinLoader()
      : config_(GetConfig()), code_cache_(std::make_shared<BuiltinCodeCache>()) {
    LoadJavaScriptSource();
@@ -13,11 +13,12 @@ Forwarded: no
  #ifdef NODE_SHARED_BUILTIN_CJS_MODULE_LEXER_LEXER_PATH
    AddExternalizedBuiltin(
        "internal/deps/cjs-module-lexer/lexer",
-@@ -64,6 +65,7 @@
-     "internal/deps/acorn/acorn-walk/dist/walk",
-     STRINGIFY(NODE_SHARED_BUILTIN_ACORN_WALK_PATH));
- #endif  // NODE_SHARED_BUILTIN_ACORN_WALK_PATH
+@@ -69,7 +70,7 @@
+     "internal/deps/minimatch/index",
+     STRINGIFY(NODE_SHARED_BUILTIN_MINIMATCH_PATH));
+ #endif  // NODE_SHARED_BUILTIN_MINIMATCH_PATH
+-
 +#endif
- 
  }
  
+ bool BuiltinLoader::Exists(const char* id) {

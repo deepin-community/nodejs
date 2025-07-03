@@ -5,12 +5,12 @@
 #ifndef ADA_URL_AGGREGATOR_H
 #define ADA_URL_AGGREGATOR_H
 
+#include <string>
+#include <string_view>
+
 #include "ada/common_defs.h"
 #include "ada/url_base.h"
 #include "ada/url_components.h"
-
-#include <string>
-#include <string_view>
 
 namespace ada {
 
@@ -57,35 +57,38 @@ struct url_aggregator : url_base {
    * @see https://url.spec.whatwg.org/#dom-url-href
    * @see https://url.spec.whatwg.org/#concept-url-serializer
    */
-  [[nodiscard]] inline std::string_view get_href() const noexcept;
+  [[nodiscard]] inline std::string_view get_href() const noexcept
+      ada_lifetime_bound;
   /**
    * The username getter steps are to return this's URL's username.
    * This function does not allocate memory.
    * @return a lightweight std::string_view.
    * @see https://url.spec.whatwg.org/#dom-url-username
    */
-  [[nodiscard]] std::string_view get_username() const noexcept;
+  [[nodiscard]] std::string_view get_username() const noexcept
+      ada_lifetime_bound;
   /**
    * The password getter steps are to return this's URL's password.
    * This function does not allocate memory.
    * @return a lightweight std::string_view.
    * @see https://url.spec.whatwg.org/#dom-url-password
    */
-  [[nodiscard]] std::string_view get_password() const noexcept;
+  [[nodiscard]] std::string_view get_password() const noexcept
+      ada_lifetime_bound;
   /**
    * Return this's URL's port, serialized.
    * This function does not allocate memory.
    * @return a lightweight std::string_view.
    * @see https://url.spec.whatwg.org/#dom-url-port
    */
-  [[nodiscard]] std::string_view get_port() const noexcept;
+  [[nodiscard]] std::string_view get_port() const noexcept ada_lifetime_bound;
   /**
    * Return U+0023 (#), followed by this's URL's fragment.
    * This function does not allocate memory.
    * @return a lightweight std::string_view..
    * @see https://url.spec.whatwg.org/#dom-url-hash
    */
-  [[nodiscard]] std::string_view get_hash() const noexcept;
+  [[nodiscard]] std::string_view get_hash() const noexcept ada_lifetime_bound;
   /**
    * Return url's host, serialized, followed by U+003A (:) and url's port,
    * serialized.
@@ -94,7 +97,7 @@ struct url_aggregator : url_base {
    * @return a lightweight std::string_view.
    * @see https://url.spec.whatwg.org/#dom-url-host
    */
-  [[nodiscard]] std::string_view get_host() const noexcept;
+  [[nodiscard]] std::string_view get_host() const noexcept ada_lifetime_bound;
   /**
    * Return this's URL's host, serialized.
    * This function does not allocate memory.
@@ -102,7 +105,8 @@ struct url_aggregator : url_base {
    * @return a lightweight std::string_view.
    * @see https://url.spec.whatwg.org/#dom-url-hostname
    */
-  [[nodiscard]] std::string_view get_hostname() const noexcept;
+  [[nodiscard]] std::string_view get_hostname() const noexcept
+      ada_lifetime_bound;
   /**
    * The pathname getter steps are to return the result of URL path serializing
    * this's URL.
@@ -110,7 +114,8 @@ struct url_aggregator : url_base {
    * @return a lightweight std::string_view.
    * @see https://url.spec.whatwg.org/#dom-url-pathname
    */
-  [[nodiscard]] std::string_view get_pathname() const noexcept;
+  [[nodiscard]] std::string_view get_pathname() const noexcept
+      ada_lifetime_bound;
   /**
    * Compute the pathname length in bytes without instantiating a view or a
    * string.
@@ -124,7 +129,7 @@ struct url_aggregator : url_base {
    * @return a lightweight std::string_view.
    * @see https://url.spec.whatwg.org/#dom-url-search
    */
-  [[nodiscard]] std::string_view get_search() const noexcept;
+  [[nodiscard]] std::string_view get_search() const noexcept ada_lifetime_bound;
   /**
    * The protocol getter steps are to return this's URL's scheme, followed by
    * U+003A (:).
@@ -132,7 +137,8 @@ struct url_aggregator : url_base {
    * @return a lightweight std::string_view.
    * @see https://url.spec.whatwg.org/#dom-url-protocol
    */
-  [[nodiscard]] std::string_view get_protocol() const noexcept;
+  [[nodiscard]] std::string_view get_protocol() const noexcept
+      ada_lifetime_bound;
 
   /**
    * A URL includes credentials if its username or password is not the empty
@@ -205,6 +211,11 @@ struct url_aggregator : url_base {
       std::string_view, const ada::url_aggregator *);
   friend void ada::helpers::strip_trailing_spaces_from_opaque_path<
       ada::url_aggregator>(ada::url_aggregator &url) noexcept;
+  friend ada::url_aggregator ada::parser::parse_url_impl<
+      ada::url_aggregator, true>(std::string_view, const ada::url_aggregator *);
+  friend ada::url_aggregator
+  ada::parser::parse_url_impl<ada::url_aggregator, false>(
+      std::string_view, const ada::url_aggregator *);
 
   std::string buffer{};
   url_components components{};
@@ -232,10 +243,12 @@ struct url_aggregator : url_base {
   }
 
   /**
-   * Return true on success.
+   * Return true on success. The 'in_place' parameter indicates whether the
+   * the string_view input is pointing in the buffer. When in_place is false,
+   * we must nearly always update the buffer.
    * @see https://url.spec.whatwg.org/#concept-ipv4-parser
    */
-  [[nodiscard]] bool parse_ipv4(std::string_view input);
+  [[nodiscard]] bool parse_ipv4(std::string_view input, bool in_place);
 
   /**
    * Return true on success.

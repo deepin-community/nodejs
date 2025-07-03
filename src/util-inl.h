@@ -27,6 +27,8 @@
 #include <cmath>
 #include <cstring>
 #include <locale>
+#include <regex>  // NOLINT(build/c++11)
+#include "node_revert.h"
 #include "util.h"
 
 // These are defined by <sys/byteorder.h> or <netinet/in.h> on some systems.
@@ -401,6 +403,22 @@ inline char* UncheckedCalloc(size_t n) { return UncheckedCalloc<char>(n); }
 // headers than we really need to.
 void ThrowErrStringTooLong(v8::Isolate* isolate);
 
+v8::Maybe<void> FromV8Array(v8::Local<v8::Context> context,
+                            v8::Local<v8::Array> js_array,
+                            std::vector<v8::Global<v8::Value>>* out) {
+  uint32_t count = js_array->Length();
+  out->reserve(count);
+  v8::Isolate* isolate = context->GetIsolate();
+  for (size_t i = 0; i < count; ++i) {
+    v8::Local<v8::Value> element;
+    if (!js_array->Get(context, i).ToLocal(&element)) {
+      return v8::Nothing<void>();
+    }
+    out->push_back(v8::Global<v8::Value>(isolate, element));
+  }
+  return v8::JustVoid();
+}
+
 v8::MaybeLocal<v8::Value> ToV8Value(v8::Local<v8::Context> context,
                                     std::string_view str,
                                     v8::Isolate* isolate) {
@@ -580,7 +598,7 @@ void ArrayBufferViewContents<T, S>::ReadValue(v8::Local<v8::Value> buf) {
   }
 }
 
-// ECMA262 20.1.2.5
+// ECMA-262, 15th edition, 21.1.2.5. Number.isSafeInteger
 inline bool IsSafeJsInt(v8::Local<v8::Value> v) {
   if (!v->IsNumber()) return false;
   double v_d = v.As<v8::Number>()->Value();
@@ -614,6 +632,30 @@ constexpr FastStringKey::FastStringKey(std::string_view name)
 
 constexpr std::string_view FastStringKey::as_string_view() const {
   return name_;
+}
+
+// Inline so the compiler can fully optimize it away on Unix platforms.
+bool IsWindowsBatchFile(const char* filename) {
+#ifdef _WIN32
+  static constexpr bool kIsWindows = true;
+#else
+  static constexpr bool kIsWindows = false;
+#endif  // _WIN32
+  if (kIsWindows && !IsReverted(SECURITY_REVERT_CVE_2024_27980)) {
+    std::string file_with_extension = filename;
+    // Regex to match the last extension part after the last dot, ignoring
+    // trailing spaces and dots
+    std::regex extension_regex(R"(\.([a-zA-Z0-9]+)\s*[\.\s]*$)");
+    std::smatch match;
+    std::string extension;
+
+    if (std::regex_search(file_with_extension, match, extension_regex)) {
+      extension = ToLower(match[1].str());
+    }
+
+    return !extension.empty() && (extension == "cmd" || extension == "bat");
+  }
+  return false;
 }
 
 }  // namespace node

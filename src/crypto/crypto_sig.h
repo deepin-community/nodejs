@@ -42,7 +42,7 @@ class SignBase : public BaseObject {
   SET_SELF_SIZE(SignBase)
 
  protected:
-  EVPMDPointer mdctx_;
+  EVPMDCtxPointer mdctx_;
 };
 
 class Sign : public SignBase {
@@ -147,10 +147,10 @@ struct SignTraits final {
       unsigned int offset,
       SignConfiguration* params);
 
-  static bool DeriveBits(
-      Environment* env,
-      const SignConfiguration& params,
-      ByteSource* out);
+  static bool DeriveBits(Environment* env,
+                         const SignConfiguration& params,
+                         ByteSource* out,
+                         CryptoJobMode mode);
 
   static v8::Maybe<bool> EncodeOutput(
       Environment* env,

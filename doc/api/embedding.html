@@ -3,18 +3,32 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <meta name="nodejs.org:node-version" content="v18.19.1">
-  <title>C++ embedder API | Node.js v18.19.1 Documentation</title>
+  <meta name="nodejs.org:node-version" content="v20.19.2">
+  <title>C++ embedder API | Node.js v20.19.2 Documentation</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic&display=fallback">
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet" href="assets/hljs.css">
   <link rel="canonical" href="https://nodejs.org/api/embedding.html">
   <script async defer src="assets/api.js" type="text/javascript"></script>
+  <script>
+      const storedTheme = localStorage.getItem('theme');
+
+      // Follow operating system theme preference
+      if (storedTheme === null && window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.matches) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } else if (storedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+      }
+  </script>
   
 </head>
 <body class="alt apidoc" id="api-section-embedding">
+  <a href="#apicontent" class="skip-to-content">Skip to content</a>
   <div id="content" class="clearfix">
-    <div id="column2" class="interior">
+    <div role="navigation" id="column2" class="interior">
       <div id="intro" class="interior">
         <a href="/" title="Go back to the home page">
           Node.js
@@ -96,7 +110,7 @@
     <div id="column1" data-id="embedding" class="interior">
       <header class="header">
         <div class="header-container">
-          <h1>Node.js v18.19.1 documentation</h1>
+          <h1>Node.js v20.19.2 documentation</h1>
           <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle dark mode/light mode" aria-label="Toggle dark mode/light mode" hidden>
             <svg xmlns="http://www.w3.org/2000/svg" class="icon dark-icon" height="24" width="24">
               <path fill="none" d="M0 0h24v24H0z" />
@@ -111,21 +125,21 @@
         </div>
         <div id="gtoc">
           <ul>
-            <li class="pinned-header">Node.js v18.19.1</li>
+            <li class="pinned-header">Node.js v20.19.2</li>
             
     <li class="picker-header">
-      <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+      <a href="#toc-picker" aria-controls="toc-picker">
+        <span class="picker-arrow"></span>
         Table of contents
       </a>
 
-      <div class="picker"><div class="toc"><ul>
+      <div class="picker" tabindex="-1"><div class="toc"><ul id="toc-picker">
 <li><a href="#c-embedder-api">C++ embedder API</a>
 <ul>
 <li><a href="#example-embedding-application">Example embedding application</a>
 <ul>
-<li><a href="#setting-up-per-process-state">Setting up per-process state</a></li>
-<li><a href="#per-instance-state">Per-instance state</a></li>
+<li><a href="#setting-up-a-per-process-state">Setting up a per-process state</a></li>
+<li><a href="#setting-up-a-per-instance-state">Setting up a per-instance state</a></li>
 </ul>
 </li>
 </ul>
@@ -135,12 +149,12 @@
   
             
     <li class="picker-header">
-      <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+      <a href="#gtoc-picker" aria-controls="gtoc-picker">
+        <span class="picker-arrow"></span>
         Index
       </a>
 
-      <div class="picker"><ul>
+      <div class="picker" tabindex="-1" id="gtoc-picker"><ul>
 <li><a href="documentation.html" class="nav-documentation">About this documentation</a></li>
 <li><a href="synopsis.html" class="nav-synopsis">Usage and example</a></li>
 
@@ -220,14 +234,17 @@
   
             
     <li class="picker-header">
-      <a href="#">
-        <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+      <a href="#alt-docs" aria-controls="alt-docs">
+        <span class="picker-arrow"></span>
         Other versions
       </a>
-      <div class="picker"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v21.x/api/embedding.html">21.x</a></li>
+      <div class="picker" tabindex="-1"><ol id="alt-docs"><li><a href="https://nodejs.org/docs/latest-v24.x/api/embedding.html">24.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v23.x/api/embedding.html">23.x</a></li>
+<li><a href="https://nodejs.org/docs/latest-v22.x/api/embedding.html">22.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v21.x/api/embedding.html">21.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v20.x/api/embedding.html">20.x <b>LTS</b></a></li>
 <li><a href="https://nodejs.org/docs/latest-v19.x/api/embedding.html">19.x</a></li>
-<li><a href="https://nodejs.org/docs/latest-v18.x/api/embedding.html">18.x <b>LTS</b></a></li>
+<li><a href="https://nodejs.org/docs/latest-v18.x/api/embedding.html">18.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v17.x/api/embedding.html">17.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v16.x/api/embedding.html">16.x</a></li>
 <li><a href="https://nodejs.org/docs/latest-v15.x/api/embedding.html">15.x</a></li>
@@ -237,13 +254,13 @@
     </li>
   
             <li class="picker-header">
-              <a href="#">
-                <span class="collapsed-arrow">&#x25ba;</span><span class="expanded-arrow">&#x25bc;</span>
+              <a href="#options-picker" aria-controls="options-picker">
+                <span class="picker-arrow"></span>
                 Options
               </a>
         
-              <div class="picker">
-                <ul>
+              <div class="picker" tabindex="-1">
+                <ul id="options-picker">
                   <li>
                     <a href="all.html">View on single page</a>
                   </li>
@@ -259,20 +276,20 @@
         <hr>
       </header>
 
-      <details id="toc" open><summary>Table of contents</summary><ul>
+      <details role="navigation" id="toc" open><summary>Table of contents</summary><ul>
 <li><a href="#c-embedder-api">C++ embedder API</a>
 <ul>
 <li><a href="#example-embedding-application">Example embedding application</a>
 <ul>
-<li><a href="#setting-up-per-process-state">Setting up per-process state</a></li>
-<li><a href="#per-instance-state">Per-instance state</a></li>
+<li><a href="#setting-up-a-per-process-state">Setting up a per-process state</a></li>
+<li><a href="#setting-up-a-per-instance-state">Setting up a per-instance state</a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul></details>
 
-      <div id="apicontent">
+      <div role="main" id="apicontent">
         <h2>C++ embedder API<span><a class="mark" href="#c-embedder-api" id="c-embedder-api">#</a></span><a aria-hidden="true" class="legacy" id="embedding_c_embedder_api"></a></h2>
 
 <p>Node.js provides a number of C++ APIs that can be used to execute JavaScript
@@ -290,7 +307,7 @@ to create an application from scratch that will perform the equivalent of
 <code>node -e &#x3C;code></code>, i.e. that will take a piece of JavaScript and run it in
 a Node.js-specific environment.</p>
 <p>The full code can be found <a href="https://github.com/nodejs/node/blob/HEAD/test/embedding/embedtest.cc">in the Node.js source tree</a>.</p>
-<h4>Setting up per-process state<span><a class="mark" href="#setting-up-per-process-state" id="setting-up-per-process-state">#</a></span><a aria-hidden="true" class="legacy" id="embedding_setting_up_per_process_state"></a></h4>
+<h4>Setting up a per-process state<span><a class="mark" href="#setting-up-a-per-process-state" id="setting-up-a-per-process-state">#</a></span><a aria-hidden="true" class="legacy" id="embedding_setting_up_a_per_process_state"></a></h4>
 <p>Node.js requires some per-process state management in order to run:</p>
 <ul>
 <li>Arguments parsing for Node.js <a href="cli.html">CLI options</a>,</li>
@@ -334,7 +351,7 @@ the <code>node</code> and <code>v8</code> C++ namespaces, respectively.</p>
   node::<span class="hljs-built_in">TearDownOncePerProcess</span>();
   <span class="hljs-keyword">return</span> ret;
 }</code> <button class="copy-button">copy</button></pre>
-<h4>Per-instance state<span><a class="mark" href="#per-instance-state" id="per-instance-state">#</a></span><a aria-hidden="true" class="legacy" id="embedding_per_instance_state"></a></h4>
+<h4>Setting up a per-instance state<span><a class="mark" href="#setting-up-a-per-instance-state" id="setting-up-a-per-instance-state">#</a></span><a aria-hidden="true" class="legacy" id="embedding_setting_up_a_per_instance_state"></a></h4>
 <div class="api_metadata">
 <details class="changelog"><summary>History</summary>
 <table>
@@ -348,11 +365,12 @@ the <code>node</code> and <code>v8</code> C++ namespaces, respectively.</p>
 to as <code>node::Environment</code>. Each <code>node::Environment</code> is associated with:</p>
 <ul>
 <li>Exactly one <code>v8::Isolate</code>, i.e. one JS Engine instance,</li>
-<li>Exactly one <code>uv_loop_t</code>, i.e. one event loop, and</li>
-<li>A number of <code>v8::Context</code>s, but exactly one main <code>v8::Context</code>.</li>
+<li>Exactly one <code>uv_loop_t</code>, i.e. one event loop,</li>
+<li>A number of <code>v8::Context</code>s, but exactly one main <code>v8::Context</code>, and</li>
 <li>One <code>node::IsolateData</code> instance that contains information that could be
-shared by multiple <code>node::Environment</code>s that use the same <code>v8::Isolate</code>.
-Currently, no testing if performed for this scenario.</li>
+shared by multiple <code>node::Environment</code>s. The embedder should make sure
+that <code>node::IsolateData</code> is shared only among <code>node::Environment</code>s that
+use the same <code>v8::Isolate</code>, Node.js does not perform this check.</li>
 </ul>
 <p>In order to set up a <code>v8::Isolate</code>, an <code>v8::ArrayBuffer::Allocator</code> needs
 to be provided. One possible choice is the default Node.js allocator, which

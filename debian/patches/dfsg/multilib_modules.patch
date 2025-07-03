@@ -7,15 +7,15 @@ Last-Update: 2020-03-04
 
 --- a/lib/internal/modules/cjs/loader.js
 +++ b/lib/internal/modules/cjs/loader.js
-@@ -1509,6 +1509,7 @@
+@@ -1723,6 +1723,7 @@
  Module._initPaths = function() {
    const homeDir = isWindows ? process.env.USERPROFILE : safeGetenv('HOME');
    const nodePath = isWindows ? process.env.NODE_PATH : safeGetenv('NODE_PATH');
-+  const relativePaths = process.config.variables.node_relative_path;
++  const relativePaths = process.config?.variables?.node_relative_path;
  
    // process.execPath is $PREFIX/bin/node except on Windows where it is
    // $PREFIX\node.exe where $PREFIX is the root of the Node.js installation.
-@@ -1516,7 +1517,18 @@
+@@ -1730,7 +1731,18 @@
      path.resolve(process.execPath, '..') :
      path.resolve(process.execPath, '..', '..');
  
@@ -50,7 +50,7 @@ Last-Update: 2020-03-04
  parser.add_argument('--debug',
      action='store_true',
      dest='debug',
-@@ -143,6 +149,13 @@
+@@ -155,6 +161,13 @@
      default=None,
      help='add gdb support')
  
@@ -64,7 +64,7 @@ Last-Update: 2020-03-04
  parser.add_argument('--no-ifaddrs',
      action='store_true',
      dest='no_ifaddrs',
-@@ -1490,6 +1503,17 @@
+@@ -1562,6 +1575,17 @@
    version = getnapibuildversion.get_napi_version()
    output['variables']['napi_build_version'] = version
  
@@ -82,7 +82,7 @@ Last-Update: 2020-03-04
  def configure_library(lib, output, pkgname=None):
    shared_lib = 'shared_' + lib
    output['variables']['node_' + shared_lib] = b(getattr(options, shared_lib))
-@@ -2069,6 +2093,7 @@
+@@ -2145,6 +2169,7 @@
  configure_node(output)
  configure_node_lib_files(output)
  configure_napi(output)

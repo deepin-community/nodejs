@@ -221,11 +221,18 @@ try {
 added:
   - v14.2.0
   - v12.19.0
+changes:
+  - version: v20.1.0
+    pr-url: https://github.com/nodejs/node/pull/47740
+    description: the `assert.CallTracker` class has been deprecated and will be
+                  removed in a future version.
 -->
 
-> Stability: 1 - Experimental
+> Stability: 0 - Deprecated
 
-This feature is currently experimental and behavior might still change.
+This feature is deprecated and will be removed in a future version.
+Please consider using alternatives such as the
+[`mock`][] helper function.
 
 ### `new assert.CallTracker()`
 
@@ -262,6 +269,7 @@ process.on('exit', () => {
 
 ```cjs
 const assert = require('node:assert');
+const process = require('node:process');
 
 const tracker = new assert.CallTracker();
 
@@ -289,7 +297,7 @@ added:
 
 * `fn` {Function} **Default:** A no-op function.
 * `exact` {number} **Default:** `1`.
-* Returns: {Function} that wraps `fn`.
+* Returns: {Function} A function that wraps `fn`.
 
 The wrapper function is expected to be called exactly `exact` times. If the
 function has not been called exactly `exact` times when
@@ -325,12 +333,14 @@ const callsfunc = tracker.calls(func);
 ### `tracker.getCalls(fn)`
 
 <!-- YAML
-added: v18.8.0
+added:
+  - v18.8.0
+  - v16.18.0
 -->
 
-* `fn` {Function}.
+* `fn` {Function}
 
-* Returns: {Array} with all the calls to a tracked function.
+* Returns: {Array} An array with all the calls to a tracked function.
 
 * Object {Object}
   * `thisArg` {Object}
@@ -371,8 +381,8 @@ added:
   - v12.19.0
 -->
 
-* Returns: {Array} of objects containing information about the wrapper functions
-  returned by [`tracker.calls()`][].
+* Returns: {Array} An array of objects containing information about the wrapper
+  functions returned by [`tracker.calls()`][].
 * Object {Object}
   * `message` {string}
   * `actual` {number} The actual number of times the function was called.
@@ -439,14 +449,16 @@ console.log(tracker.report());
 ### `tracker.reset([fn])`
 
 <!-- YAML
-added: v18.8.0
+added:
+  - v18.8.0
+  - v16.18.0
 -->
 
 * `fn` {Function} a tracked function to reset.
 
 Reset calls of the call tracker.
 If a tracked function is passed as an argument, the calls will be reset for it.
-If no arguments are passed, all tracked functions will be reset
+If no arguments are passed, all tracked functions will be reset.
 
 ```mjs
 import assert from 'node:assert';
@@ -544,6 +556,9 @@ An alias of [`assert.ok()`][].
 <!-- YAML
 added: v0.1.21
 changes:
+  - version: v20.15.0
+    pr-url: https://github.com/nodejs/node/pull/51805
+    description: Error cause and errors properties are now compared as well.
   - version: v18.0.0
     pr-url: https://github.com/nodejs/node/pull/41020
     description: Regular expressions lastIndex property is now compared as well.
@@ -610,8 +625,8 @@ are also recursively evaluated by the following rules.
   both sides are `NaN`.
 * [Type tags][Object.prototype.toString()] of objects should be the same.
 * Only [enumerable "own" properties][] are considered.
-* [`Error`][] names and messages are always compared, even if these are not
-  enumerable properties.
+* [`Error`][] names, messages, causes, and errors are always compared,
+  even if these are not enumerable properties.
 * [Object wrappers][] are compared both as objects and unwrapped values.
 * `Object` properties are compared unordered.
 * [`Map`][] keys and [`Set`][] items are compared unordered.
@@ -662,7 +677,7 @@ const obj3 = {
     b: 1,
   },
 };
-const obj4 = Object.create(obj1);
+const obj4 = { __proto__: obj1 };
 
 assert.deepEqual(obj1, obj1);
 // OK
@@ -697,7 +712,7 @@ const obj3 = {
     b: 1,
   },
 };
-const obj4 = Object.create(obj1);
+const obj4 = { __proto__: obj1 };
 
 assert.deepEqual(obj1, obj1);
 // OK
@@ -725,6 +740,9 @@ parameter is an instance of an [`Error`][] then it will be thrown instead of the
 <!-- YAML
 added: v1.2.0
 changes:
+  - version: v20.15.0
+    pr-url: https://github.com/nodejs/node/pull/51805
+    description: Error cause and errors properties are now compared as well.
   - version: v18.0.0
     pr-url: https://github.com/nodejs/node/pull/41020
     description: Regular expressions lastIndex property is now compared as well.
@@ -772,16 +790,19 @@ are recursively evaluated also by the following rules.
 * [`[[Prototype]]`][prototype-spec] of objects are compared using
   the [`===` operator][].
 * Only [enumerable "own" properties][] are considered.
-* [`Error`][] names and messages are always compared, even if these are not
-  enumerable properties.
+* [`Error`][] names, messages, causes, and errors are always compared,
+  even if these are not enumerable properties.
+  `errors` is also compared.
 * Enumerable own [`Symbol`][] properties are compared as well.
 * [Object wrappers][] are compared both as objects and unwrapped values.
 * `Object` properties are compared unordered.
 * [`Map`][] keys and [`Set`][] items are compared unordered.
 * Recursion stops when both sides differ or both sides encounter a circular
   reference.
-* [`WeakMap`][] and [`WeakSet`][] comparison does not rely on their values. See
-  below for further details.
+* [`WeakMap`][] and [`WeakSet`][] instances are **not** compared structurally.
+  They are only equal if they reference the same object. Any comparison between
+  different `WeakMap` or `WeakSet` instances will result in inequality,
+  even if they contain the same entries.
 * [`RegExp`][] lastIndex, flags, and source are always compared, even if these
   are not enumerable properties.
 
@@ -858,23 +879,41 @@ assert.deepStrictEqual({ [symbol1]: 1 }, { [symbol2]: 1 });
 // }
 
 const weakMap1 = new WeakMap();
-const weakMap2 = new WeakMap([[{}, {}]]);
-const weakMap3 = new WeakMap();
-weakMap3.unequal = true;
+const weakMap2 = new WeakMap();
+const obj = {};
 
+weakMap1.set(obj, 'value');
+weakMap2.set(obj, 'value');
+
+// Comparing different instances fails, even with same contents
 assert.deepStrictEqual(weakMap1, weakMap2);
-// OK, because it is impossible to compare the entries
+// AssertionError: Values have same structure but are not reference-equal:
+//
+// WeakMap {
+//   <items unknown>
+// }
 
-// Fails because weakMap3 has a property that weakMap1 does not contain:
-assert.deepStrictEqual(weakMap1, weakMap3);
-// AssertionError: Expected inputs to be strictly deep-equal:
+// Comparing the same instance to itself succeeds
+assert.deepStrictEqual(weakMap1, weakMap1);
+// OK
+
+const weakSet1 = new WeakSet();
+const weakSet2 = new WeakSet();
+weakSet1.add(obj);
+weakSet2.add(obj);
+
+// Comparing different instances fails, even with same contents
+assert.deepStrictEqual(weakSet1, weakSet2);
+// AssertionError: Values have same structure but are not reference-equal:
 // + actual - expected
 //
-//   WeakMap {
-// +   [items unknown]
-// -   [items unknown],
-// -   unequal: true
-//   }
+// WeakSet {
+//   <items unknown>
+// }
+
+// Comparing the same instance to itself succeeds
+assert.deepStrictEqual(weakSet1, weakSet1);
+// OK
 ```
 
 ```cjs
@@ -950,23 +989,41 @@ assert.deepStrictEqual({ [symbol1]: 1 }, { [symbol2]: 1 });
 // }
 
 const weakMap1 = new WeakMap();
-const weakMap2 = new WeakMap([[{}, {}]]);
-const weakMap3 = new WeakMap();
-weakMap3.unequal = true;
+const weakMap2 = new WeakMap();
+const obj = {};
 
+weakMap1.set(obj, 'value');
+weakMap2.set(obj, 'value');
+
+// Comparing different instances fails, even with same contents
 assert.deepStrictEqual(weakMap1, weakMap2);
-// OK, because it is impossible to compare the entries
+// AssertionError: Values have same structure but are not reference-equal:
+//
+// WeakMap {
+//   <items unknown>
+// }
 
-// Fails because weakMap3 has a property that weakMap1 does not contain:
-assert.deepStrictEqual(weakMap1, weakMap3);
-// AssertionError: Expected inputs to be strictly deep-equal:
+// Comparing the same instance to itself succeeds
+assert.deepStrictEqual(weakMap1, weakMap1);
+// OK
+
+const weakSet1 = new WeakSet();
+const weakSet2 = new WeakSet();
+weakSet1.add(obj);
+weakSet2.add(obj);
+
+// Comparing different instances fails, even with same contents
+assert.deepStrictEqual(weakSet1, weakSet2);
+// AssertionError: Values have same structure but are not reference-equal:
 // + actual - expected
 //
-//   WeakMap {
-// +   [items unknown]
-// -   [items unknown],
-// -   unequal: true
-//   }
+// WeakSet {
+//   <items unknown>
+// }
+
+// Comparing the same instance to itself succeeds
+assert.deepStrictEqual(weakSet1, weakSet1);
+// OK
 ```
 
 If the values are not equal, an [`AssertionError`][] is thrown with a `message`
@@ -1621,7 +1678,7 @@ const obj3 = {
     b: 1,
   },
 };
-const obj4 = Object.create(obj1);
+const obj4 = { __proto__: obj1 };
 
 assert.notDeepEqual(obj1, obj1);
 // AssertionError: { a: { b: 1 } } notDeepEqual { a: { b: 1 } }
@@ -1654,7 +1711,7 @@ const obj3 = {
     b: 1,
   },
 };
-const obj4 = Object.create(obj1);
+const obj4 = { __proto__: obj1 };
 
 assert.notDeepEqual(obj1, obj1);
 // AssertionError: { a: { b: 1 } } notDeepEqual { a: { b: 1 } }
@@ -2555,6 +2612,7 @@ argument.
 [`assert.strictEqual()`]: #assertstrictequalactual-expected-message
 [`assert.throws()`]: #assertthrowsfn-error-message
 [`getColorDepth()`]: tty.md#writestreamgetcolordepthenv
+[`mock`]: test.md#mocking
 [`process.on('exit')`]: process.md#event-exit
 [`tracker.calls()`]: #trackercallsfn-exact
 [`tracker.verify()`]: #trackerverify

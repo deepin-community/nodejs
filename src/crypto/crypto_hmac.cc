@@ -42,9 +42,7 @@ void Hmac::Initialize(Environment* env, Local<Object> target) {
   Isolate* isolate = env->isolate();
   Local<FunctionTemplate> t = NewFunctionTemplate(isolate, New);
 
-  t->InstanceTemplate()->SetInternalFieldCount(
-      Hmac::kInternalFieldCount);
-  t->Inherit(BaseObject::GetConstructorTemplate(env));
+  t->InstanceTemplate()->SetInternalFieldCount(Hmac::kInternalFieldCount);
 
   SetProtoMethod(isolate, t, "init", HmacInit);
   SetProtoMethod(isolate, t, "update", HmacUpdate);
@@ -87,7 +85,7 @@ void Hmac::HmacInit(const char* hash_type, const char* key, int key_len) {
 
 void Hmac::HmacInit(const FunctionCallbackInfo<Value>& args) {
   Hmac* hmac;
-  ASSIGN_OR_RETURN_UNWRAP(&hmac, args.Holder());
+  ASSIGN_OR_RETURN_UNWRAP(&hmac, args.This());
   Environment* env = hmac->env();
 
   const node::Utf8Value hash_type(env->isolate(), args[0]);
@@ -116,7 +114,7 @@ void Hmac::HmacDigest(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
 
   Hmac* hmac;
-  ASSIGN_OR_RETURN_UNWRAP(&hmac, args.Holder());
+  ASSIGN_OR_RETURN_UNWRAP(&hmac, args.This());
 
   enum encoding encoding = BUFFER;
   if (args.Length() >= 1) {
@@ -222,10 +220,10 @@ Maybe<bool> HmacTraits::AdditionalConfig(
   return Just(true);
 }
 
-bool HmacTraits::DeriveBits(
-    Environment* env,
-    const HmacConfig& params,
-    ByteSource* out) {
+bool HmacTraits::DeriveBits(Environment* env,
+                            const HmacConfig& params,
+                            ByteSource* out,
+                            CryptoJobMode mode) {
   HMACCtxPointer ctx(HMAC_CTX_new());
 
   if (!ctx ||

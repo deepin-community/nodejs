@@ -2,7 +2,6 @@
 #include "acorn_version.h"
 #include "ada.h"
 #include "ares.h"
-#include "base64_version.h"
 #include "brotli/encode.h"
 #include "cjs_module_lexer_version.h"
 #include "llhttp.h"
@@ -14,10 +13,15 @@
 #include "uv.h"
 #include "uvwasi.h"
 #include "v8.h"
-#include "zlib.h"
+
+#ifdef NODE_BUNDLED_ZLIB
+#include "zlib_version.h"
+#else
+#include <zlib.h>
+#endif  // NODE_BUNDLED_ZLIB
 
 #if HAVE_OPENSSL
-#include <openssl/opensslv.h>
+#include <openssl/crypto.h>
 #if NODE_OPENSSL_HAS_QUIC
 #include <openssl/quic.h>
 #endif
@@ -43,15 +47,25 @@ Metadata metadata;
 
 #if HAVE_OPENSSL
 static constexpr size_t search(const char* s, char c, size_t n = 0) {
-  return *s == c ? n : search(s + 1, c, n + 1);
+  return *s == '\0' ? n : (*s == c ? n : search(s + 1, c, n + 1));
 }
 
 static inline std::string GetOpenSSLVersion() {
   // sample openssl version string format
   // for reference: "OpenSSL 1.1.0i 14 Aug 2018"
-  constexpr size_t start = search(OPENSSL_VERSION_TEXT, ' ') + 1;
-  constexpr size_t len = search(&OPENSSL_VERSION_TEXT[start], ' ');
-  return std::string(OPENSSL_VERSION_TEXT, start, len);
+  const char* version = OpenSSL_version(OPENSSL_VERSION);
+  const size_t first_space = search(version, ' ');
+
+  // When Node.js is linked to an alternative library implementing the
+  // OpenSSL API e.g. BoringSSL, the version string may not match the
+  //  expected pattern. In this case just return “0.0.0” as placeholder.
+  if (version[first_space] == '\0') {
+    return "0.0.0";
+  }
+
+  const size_t start = first_space + 1;
+  const size_t len = search(&version[start], ' ');
+  return std::string(version, start, len);
 }
 #endif  // HAVE_OPENSSL
 
@@ -78,7 +92,11 @@ Metadata::Versions::Versions() {
   node = NODE_VERSION_STRING;
   v8 = v8::V8::GetVersion();
   uv = uv_version_string();
+#ifdef NODE_BUNDLED_ZLIB
   zlib = ZLIB_VERSION;
+#else
+  zlib = zlibVersion();
+#endif  // NODE_BUNDLED_ZLIB
   ares = ARES_VERSION_STR;
   modules = NODE_STRINGIFY(NODE_MODULE_VERSION);
   nghttp2 = NGHTTP2_VERSION;
@@ -102,7 +120,6 @@ Metadata::Versions::Versions() {
 
   acorn = ACORN_VERSION;
   cjs_module_lexer = CJS_MODULE_LEXER_VERSION;
-  base64 = BASE64_VERSION;
   uvwasi = UVWASI_VERSION_STRING;
 
 #if HAVE_OPENSSL
