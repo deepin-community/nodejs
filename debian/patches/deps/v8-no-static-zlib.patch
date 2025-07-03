@@ -1,206 +1,26 @@
 Description: compile v8 without zlib static lib
- Backported from nodejs 20 + patch
- it should have a minor performance impact.
+ it should have a minor performance impact
 Author: Jérémy Lal <kapouer@melix.org>
 Last-Update: 2023-12-16
-Forwarded: no
---- a/deps/v8/src/deoptimizer/translation-array.cc
-+++ b/deps/v8/src/deoptimizer/translation-array.cc
-@@ -7,13 +7,17 @@
- #include "src/base/vlq.h"
- #include "src/deoptimizer/translated-state.h"
- #include "src/objects/fixed-array-inl.h"
-+
-+#ifdef V8_USE_ZLIB
- #include "third_party/zlib/google/compression_utils_portable.h"
-+#endif  // V8_USE_ZLIB
- 
- namespace v8 {
- namespace internal {
- 
- namespace {
- 
-+#ifdef V8_USE_ZLIB
- // Constants describing compressed TranslationArray layout. Only relevant if
- // --turbo-compress-translation-arrays is enabled.
- constexpr int kUncompressedSizeOffset = 0;
-@@ -21,12 +25,14 @@
- constexpr int kCompressedDataOffset =
-     kUncompressedSizeOffset + kUncompressedSizeSize;
- constexpr int kTranslationArrayElementSize = kInt32Size;
-+#endif  // V8_USE_ZLIB
- 
- }  // namespace
- 
- TranslationArrayIterator::TranslationArrayIterator(TranslationArray buffer,
-                                                    int index)
-     : buffer_(buffer), index_(index) {
-+#ifdef V8_USE_ZLIB
-   if (V8_UNLIKELY(FLAG_turbo_compress_translation_arrays)) {
-     const int size = buffer_.get_int(kUncompressedSizeOffset);
-     uncompressed_contents_.insert(uncompressed_contents_.begin(), size, 0);
-@@ -41,9 +47,10 @@
-             buffer_.DataSize()),
-         Z_OK);
-     DCHECK(index >= 0 && index < size);
--  } else {
--    DCHECK(index >= 0 && index < buffer.length());
-+	return;
-   }
-+#endif  // V8_USE_ZLIB
-+  DCHECK(index >= 0 && index < buffer.length());
- }
- 
- int32_t TranslationArrayIterator::Next() {
-@@ -74,6 +81,7 @@
- 
- Handle<TranslationArray> TranslationArrayBuilder::ToTranslationArray(
-     Factory* factory) {
-+#ifdef V8_USE_ZLIB
-   if (V8_UNLIKELY(FLAG_turbo_compress_translation_arrays)) {
-     const int input_size = SizeInBytes();
-     uLongf compressed_data_size = compressBound(input_size);
-@@ -97,13 +105,13 @@
-                 compressed_data.data(), compressed_data_size);
- 
-     return result;
--  } else {
--    Handle<TranslationArray> result =
--        factory->NewByteArray(SizeInBytes(), AllocationType::kOld);
--    memcpy(result->GetDataStartAddress(), contents_.data(),
--           contents_.size() * sizeof(uint8_t));
--    return result;
-   }
-+#endif
-+  Handle<TranslationArray> result =
-+      factory->NewByteArray(SizeInBytes(), AllocationType::kOld);
-+  memcpy(result->GetDataStartAddress(), contents_.data(),
-+         contents_.size() * sizeof(uint8_t));
-+  return result;
- }
- 
- void TranslationArrayBuilder::BeginBuiltinContinuationFrame(
+Forwarded: https://github.com/nodejs/node/issues/33848
 --- a/tools/v8_gypfiles/features.gypi
 +++ b/tools/v8_gypfiles/features.gypi
-@@ -285,6 +285,10 @@
-     # (incomplete and experimental).
-     'v8_enable_cet_shadow_stack%': 0,
+@@ -288,7 +288,7 @@
  
-+    # Compile V8 using zlib as dependency.
-+    # Sets -DV8_USE_ZLIB
+     # Compile V8 using zlib as dependency.
+     # Sets -DV8_USE_ZLIB
+-    'v8_use_zlib%': 1,
 +    'v8_use_zlib%': 0,
-+
+ 
      # Variables from v8.gni
  
-     # Enable ECMAScript Internationalization API. Enabling this feature will
-@@ -455,6 +459,9 @@
-       ['v8_enable_cet_shadow_stack==1', {
-         'defines': ['V8_ENABLE_CET_SHADOW_STACK',],
-       }],
-+      ['v8_use_zlib==1', {
-+        'defines': ['V8_USE_ZLIB',],
-+      }],
-       ['v8_enable_precise_zone_stats==1', {
-         'defines': ['V8_ENABLE_PRECISE_ZONE_STATS',],
-       }],
---- a/deps/v8/src/flags/flag-definitions.h
-+++ b/deps/v8/src/flags/flag-definitions.h
-@@ -923,8 +923,13 @@
-     stress_gc_during_compilation, false,
-     "simulate GC/compiler thread race related to https://crbug.com/v8/8520")
- DEFINE_BOOL(turbo_fast_api_calls, false, "enable fast API calls from TurboFan")
-+#ifdef V8_USE_ZLIB
- DEFINE_BOOL(turbo_compress_translation_arrays, false,
--            "compress translation arrays (experimental)")
-+		            "compress translation arrays (experimental)")
-+#else
-+DEFINE_BOOL_READONLY(turbo_compress_translation_arrays, false,
-+		                     "compress translation arrays (experimental)")
-+#endif  // V8_USE_ZLIB
- DEFINE_WEAK_IMPLICATION(future, turbo_inline_js_wasm_calls)
- DEFINE_BOOL(turbo_inline_js_wasm_calls, false, "inline JS->Wasm calls")
- DEFINE_BOOL(turbo_use_mid_tier_regalloc_for_huge_functions, true,
---- a/deps/v8/src/snapshot/snapshot-utils.cc
-+++ b/deps/v8/src/snapshot/snapshot-utils.cc
-@@ -5,7 +5,10 @@
- #include "src/snapshot/snapshot-utils.h"
- 
- #include "src/base/sanitizer/msan.h"
-+
-+#ifdef V8_USE_ZLIB
- #include "third_party/zlib/zlib.h"
-+#endif
- 
- namespace v8 {
- namespace internal {
-@@ -16,9 +19,20 @@
-   // Mark every object as initialized in the code serializer.
-   MSAN_MEMORY_IS_INITIALIZED(payload.begin(), payload.length());
- #endif  // MEMORY_SANITIZER
-+
-+#ifdef V8_USE_ZLIB
-   // Priming the adler32 call so it can see what CPU features are available.
-   adler32(0, nullptr, 0);
-   return static_cast<uint32_t>(adler32(0, payload.begin(), payload.length()));
-+#else
-+  // Simple Fletcher-32.
-+  uint32_t sum1 = 0, sum2 = 0;
-+  for (auto data : payload) {
-+    sum1 = (sum1 + data) % 65535;
-+    sum2 = (sum2 + sum1) % 65535;
-+  }
-+  return (sum2 << 16 | sum1);
-+#endif
- }
- 
- }  // namespace internal
---- a/deps/v8/BUILD.gn
-+++ b/deps/v8/BUILD.gn
-@@ -3422,7 +3422,6 @@
-     "src/snapshot/serializer.h",
-     "src/snapshot/shared-heap-deserializer.h",
-     "src/snapshot/shared-heap-serializer.h",
--    "src/snapshot/snapshot-compression.h",
-     "src/snapshot/snapshot-data.h",
-     "src/snapshot/snapshot-source-sink.h",
-     "src/snapshot/snapshot-utils.h",
-@@ -3482,6 +3481,10 @@
-     "src/zone/zone.h",
-   ]
- 
-+  if (v8_enable_snapshot_compression) {
-+    sources += [ "src/snapshot/snapshot-compression.h" ]
-+  }
-+
-   if (v8_use_perfetto) {
-     sources -= [ "//base/trace_event/common/trace_event_common.h" ]
-   }
-@@ -4492,7 +4495,6 @@
-     "src/snapshot/serializer.cc",
-     "src/snapshot/shared-heap-deserializer.cc",
-     "src/snapshot/shared-heap-serializer.cc",
--    "src/snapshot/snapshot-compression.cc",
-     "src/snapshot/snapshot-data.cc",
-     "src/snapshot/snapshot-source-sink.cc",
-     "src/snapshot/snapshot-utils.cc",
-@@ -4531,6 +4533,10 @@
-     "src/zone/zone.cc",
-   ]
- 
-+  if (v8_enable_snapshot_compression) {
-+    sources += [ "src/snapshot/snapshot-compression.cc" ]
-+  }
-+
-   if (v8_enable_maglev) {
-     sources += [
-       "src/maglev/maglev-code-generator.cc",
 --- a/tools/v8_gypfiles/v8.gyp
 +++ b/tools/v8_gypfiles/v8.gyp
-@@ -765,7 +765,6 @@
+@@ -874,7 +874,6 @@
          'run_torque',
          'v8_internal_headers',
          'v8_maybe_icu',
 -        'v8_zlib',
+         'v8_pch',
        ],
        'includes': ['inspector.gypi'],
-       'direct_dependent_settings': {

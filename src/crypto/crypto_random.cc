@@ -39,7 +39,7 @@ Maybe<bool> RandomBytesTraits::AdditionalConfig(
     const FunctionCallbackInfo<Value>& args,
     unsigned int offset,
     RandomBytesConfig* params) {
-  CHECK(IsAnyByteSource(args[offset]));  // Buffer to fill
+  CHECK(IsAnyBufferSource(args[offset]));  // Buffer to fill
   CHECK(args[offset + 1]->IsUint32());  // Offset
   CHECK(args[offset + 2]->IsUint32());  // Size
 
@@ -56,10 +56,10 @@ Maybe<bool> RandomBytesTraits::AdditionalConfig(
   return Just(true);
 }
 
-bool RandomBytesTraits::DeriveBits(
-    Environment* env,
-    const RandomBytesConfig& params,
-    ByteSource* unused) {
+bool RandomBytesTraits::DeriveBits(Environment* env,
+                                   const RandomBytesConfig& params,
+                                   ByteSource* unused,
+                                   CryptoJobMode mode) {
   return CSPRNG(params.buffer, params.size).is_ok();
 }
 
@@ -75,10 +75,10 @@ Maybe<bool> RandomPrimeTraits::EncodeOutput(
   size_t size = BN_num_bytes(params.prime.get());
   std::shared_ptr<BackingStore> store =
       ArrayBuffer::NewBackingStore(env->isolate(), size);
-  BN_bn2binpad(
-      params.prime.get(),
-      reinterpret_cast<unsigned char*>(store->Data()),
-      size);
+  CHECK_EQ(static_cast<int>(size),
+           BN_bn2binpad(params.prime.get(),
+                        reinterpret_cast<unsigned char*>(store->Data()),
+                        size));
   *result = ArrayBuffer::New(env->isolate(), store);
   return Just(true);
 }
@@ -151,7 +151,8 @@ Maybe<bool> RandomPrimeTraits::AdditionalConfig(
 
 bool RandomPrimeTraits::DeriveBits(Environment* env,
                                    const RandomPrimeConfig& params,
-                                   ByteSource* unused) {
+                                   ByteSource* unused,
+                                   CryptoJobMode mode) {
   // BN_generate_prime_ex() calls RAND_bytes_ex() internally.
   // Make sure the CSPRNG is properly seeded.
   CHECK(CSPRNG(nullptr, 0).is_ok());
@@ -194,11 +195,10 @@ Maybe<bool> CheckPrimeTraits::AdditionalConfig(
   return Just(true);
 }
 
-bool CheckPrimeTraits::DeriveBits(
-    Environment* env,
-    const CheckPrimeConfig& params,
-    ByteSource* out) {
-
+bool CheckPrimeTraits::DeriveBits(Environment* env,
+                                  const CheckPrimeConfig& params,
+                                  ByteSource* out,
+                                  CryptoJobMode mode) {
   BignumCtxPointer ctx(BN_CTX_new());
 
   int ret = BN_is_prime_ex(

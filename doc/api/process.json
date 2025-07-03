@@ -7,7 +7,7 @@
       "name": "Process",
       "introduced_in": "v0.10.0",
       "type": "global",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v18.19.1/lib/process.js\">lib/process.js</a></p>\n<p>The <code>process</code> object provides information about, and control over, the current\nNode.js process.</p>\n<pre><code class=\"language-mjs\">import process from 'node:process';\n</code></pre>\n<pre><code class=\"language-cjs\">const process = require('node:process');\n</code></pre>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v20.19.2/lib/process.js\">lib/process.js</a></p>\n<p>The <code>process</code> object provides information about, and control over, the current\nNode.js process.</p>\n<pre><code class=\"language-mjs\">import process from 'node:process';\n</code></pre>\n<pre><code class=\"language-cjs\">const process = require('node:process');\n</code></pre>",
       "modules": [
         {
           "textRaw": "Process events",
@@ -94,7 +94,8 @@
                   "v10.12.0"
                 ],
                 "deprecated": [
-                  "v17.6.0"
+                  "v17.6.0",
+                  "v16.15.0"
                 ],
                 "changes": []
               },
@@ -143,6 +144,32 @@
               "desc": "<p>The <code>'rejectionHandled'</code> event is emitted whenever a <code>Promise</code> has been rejected\nand an error handler was attached to it (using <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/catch\"><code>promise.catch()</code></a>, for\nexample) later than one turn of the Node.js event loop.</p>\n<p>The <code>Promise</code> object would have previously been emitted in an\n<code>'unhandledRejection'</code> event, but during the course of processing gained a\nrejection handler.</p>\n<p>There is no notion of a top level for a <code>Promise</code> chain at which rejections can\nalways be handled. Being inherently asynchronous in nature, a <code>Promise</code>\nrejection can be handled at a future point in time, possibly much later than\nthe event loop turn it takes for the <code>'unhandledRejection'</code> event to be emitted.</p>\n<p>Another way of stating this is that, unlike in synchronous code where there is\nan ever-growing list of unhandled exceptions, with Promises there can be a\ngrowing-and-shrinking list of unhandled rejections.</p>\n<p>In synchronous code, the <code>'uncaughtException'</code> event is emitted when the list of\nunhandled exceptions grows.</p>\n<p>In asynchronous code, the <code>'unhandledRejection'</code> event is emitted when the list\nof unhandled rejections grows, and the <code>'rejectionHandled'</code> event is emitted\nwhen the list of unhandled rejections shrinks.</p>\n<pre><code class=\"language-mjs\">import process from 'node:process';\n\nconst unhandledRejections = new Map();\nprocess.on('unhandledRejection', (reason, promise) => {\n  unhandledRejections.set(promise, reason);\n});\nprocess.on('rejectionHandled', (promise) => {\n  unhandledRejections.delete(promise);\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const process = require('node:process');\n\nconst unhandledRejections = new Map();\nprocess.on('unhandledRejection', (reason, promise) => {\n  unhandledRejections.set(promise, reason);\n});\nprocess.on('rejectionHandled', (promise) => {\n  unhandledRejections.delete(promise);\n});\n</code></pre>\n<p>In this example, the <code>unhandledRejections</code> <code>Map</code> will grow and shrink over time,\nreflecting rejections that start unhandled and then become handled. It is\npossible to record such errors in an error log, either periodically (which is\nlikely best for long-running application) or upon process exit (which is likely\nmost convenient for scripts).</p>"
             },
             {
+              "textRaw": "Event: `'workerMessage'`",
+              "type": "event",
+              "name": "workerMessage",
+              "meta": {
+                "added": [
+                  "v20.19.0"
+                ],
+                "changes": []
+              },
+              "params": [
+                {
+                  "textRaw": "`value` {any} A value transmitted using [`postMessageToThread()`][].",
+                  "name": "value",
+                  "type": "any",
+                  "desc": "A value transmitted using [`postMessageToThread()`][]."
+                },
+                {
+                  "textRaw": "`source` {number} The transmitting worker thread ID or `0` for the main thread.",
+                  "name": "source",
+                  "type": "number",
+                  "desc": "The transmitting worker thread ID or `0` for the main thread."
+                }
+              ],
+              "desc": "<p>The <code>'workerMessage'</code> event is emitted for any incoming message send by the other\nparty by using <a href=\"worker_threads.html#workerpostmessagetothreadthreadid-value-transferlist-timeout\"><code>postMessageToThread()</code></a>.</p>"
+            },
+            {
               "textRaw": "Event: `'uncaughtException'`",
               "type": "event",
               "name": "uncaughtException",
@@ -175,7 +202,7 @@
                   "desc": "Indicates if the exception originates from an unhandled rejection or from a synchronous error. Can either be `'uncaughtException'` or `'unhandledRejection'`. The latter is used when an exception happens in a `Promise` based async context (or if a `Promise` is rejected) and [`--unhandled-rejections`][] flag set to `strict` or `throw` (which is the default) and the rejection is not handled, or when a rejection happens during the command line entry point's ES module static loading phase."
                 }
               ],
-              "desc": "<p>The <code>'uncaughtException'</code> event is emitted when an uncaught JavaScript\nexception bubbles all the way back to the event loop. By default, Node.js\nhandles such exceptions by printing the stack trace to <code>stderr</code> and exiting\nwith code 1, overriding any previously set <a href=\"#processexitcode_1\"><code>process.exitCode</code></a>.\nAdding a handler for the <code>'uncaughtException'</code> event overrides this default\nbehavior. Alternatively, change the <a href=\"#processexitcode_1\"><code>process.exitCode</code></a> in the\n<code>'uncaughtException'</code> handler which will result in the process exiting with the\nprovided exit code. Otherwise, in the presence of such handler the process will\nexit with 0.</p>\n<pre><code class=\"language-mjs\">import process from 'node:process';\n\nprocess.on('uncaughtException', (err, origin) => {\n  fs.writeSync(\n    process.stderr.fd,\n    `Caught exception: ${err}\\n` +\n    `Exception origin: ${origin}`,\n  );\n});\n\nsetTimeout(() => {\n  console.log('This will still run.');\n}, 500);\n\n// Intentionally cause an exception, but don't catch it.\nnonexistentFunc();\nconsole.log('This will not run.');\n</code></pre>\n<pre><code class=\"language-cjs\">const process = require('node:process');\n\nprocess.on('uncaughtException', (err, origin) => {\n  fs.writeSync(\n    process.stderr.fd,\n    `Caught exception: ${err}\\n` +\n    `Exception origin: ${origin}`,\n  );\n});\n\nsetTimeout(() => {\n  console.log('This will still run.');\n}, 500);\n\n// Intentionally cause an exception, but don't catch it.\nnonexistentFunc();\nconsole.log('This will not run.');\n</code></pre>\n<p>It is possible to monitor <code>'uncaughtException'</code> events without overriding the\ndefault behavior to exit the process by installing a\n<code>'uncaughtExceptionMonitor'</code> listener.</p>",
+              "desc": "<p>The <code>'uncaughtException'</code> event is emitted when an uncaught JavaScript\nexception bubbles all the way back to the event loop. By default, Node.js\nhandles such exceptions by printing the stack trace to <code>stderr</code> and exiting\nwith code 1, overriding any previously set <a href=\"#processexitcode_1\"><code>process.exitCode</code></a>.\nAdding a handler for the <code>'uncaughtException'</code> event overrides this default\nbehavior. Alternatively, change the <a href=\"#processexitcode_1\"><code>process.exitCode</code></a> in the\n<code>'uncaughtException'</code> handler which will result in the process exiting with the\nprovided exit code. Otherwise, in the presence of such handler the process will\nexit with 0.</p>\n<pre><code class=\"language-mjs\">import process from 'node:process';\nimport fs from 'node:fs';\n\nprocess.on('uncaughtException', (err, origin) => {\n  fs.writeSync(\n    process.stderr.fd,\n    `Caught exception: ${err}\\n` +\n    `Exception origin: ${origin}\\n`,\n  );\n});\n\nsetTimeout(() => {\n  console.log('This will still run.');\n}, 500);\n\n// Intentionally cause an exception, but don't catch it.\nnonexistentFunc();\nconsole.log('This will not run.');\n</code></pre>\n<pre><code class=\"language-cjs\">const process = require('node:process');\nconst fs = require('node:fs');\n\nprocess.on('uncaughtException', (err, origin) => {\n  fs.writeSync(\n    process.stderr.fd,\n    `Caught exception: ${err}\\n` +\n    `Exception origin: ${origin}\\n`,\n  );\n});\n\nsetTimeout(() => {\n  console.log('This will still run.');\n}, 500);\n\n// Intentionally cause an exception, but don't catch it.\nnonexistentFunc();\nconsole.log('This will not run.');\n</code></pre>\n<p>It is possible to monitor <code>'uncaughtException'</code> events without overriding the\ndefault behavior to exit the process by installing a\n<code>'uncaughtExceptionMonitor'</code> listener.</p>",
               "modules": [
                 {
                   "textRaw": "Warning: Using `'uncaughtException'` correctly",
@@ -289,7 +316,23 @@
                   ]
                 }
               ],
-              "desc": "<p>The <code>'warning'</code> event is emitted whenever Node.js emits a process warning.</p>\n<p>A process warning is similar to an error in that it describes exceptional\nconditions that are being brought to the user's attention. However, warnings\nare not part of the normal Node.js and JavaScript error handling flow.\nNode.js can emit warnings whenever it detects bad coding practices that could\nlead to sub-optimal application performance, bugs, or security vulnerabilities.</p>\n<pre><code class=\"language-mjs\">import process from 'node:process';\n\nprocess.on('warning', (warning) => {\n  console.warn(warning.name);    // Print the warning name\n  console.warn(warning.message); // Print the warning message\n  console.warn(warning.stack);   // Print the stack trace\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const process = require('node:process');\n\nprocess.on('warning', (warning) => {\n  console.warn(warning.name);    // Print the warning name\n  console.warn(warning.message); // Print the warning message\n  console.warn(warning.stack);   // Print the stack trace\n});\n</code></pre>\n<p>By default, Node.js will print process warnings to <code>stderr</code>. The <code>--no-warnings</code>\ncommand-line option can be used to suppress the default console output but the\n<code>'warning'</code> event will still be emitted by the <code>process</code> object.</p>\n<p>The following example illustrates the warning that is printed to <code>stderr</code> when\ntoo many listeners have been added to an event:</p>\n<pre><code class=\"language-console\">$ node\n> events.defaultMaxListeners = 1;\n> process.on('foo', () => {});\n> process.on('foo', () => {});\n> (node:38638) MaxListenersExceededWarning: Possible EventEmitter memory leak\ndetected. 2 foo listeners added. Use emitter.setMaxListeners() to increase limit\n</code></pre>\n<p>In contrast, the following example turns off the default warning output and\nadds a custom handler to the <code>'warning'</code> event:</p>\n<pre><code class=\"language-console\">$ node --no-warnings\n> const p = process.on('warning', (warning) => console.warn('Do not do that!'));\n> events.defaultMaxListeners = 1;\n> process.on('foo', () => {});\n> process.on('foo', () => {});\n> Do not do that!\n</code></pre>\n<p>The <code>--trace-warnings</code> command-line option can be used to have the default\nconsole output for warnings include the full stack trace of the warning.</p>\n<p>Launching Node.js using the <code>--throw-deprecation</code> command-line flag will\ncause custom deprecation warnings to be thrown as exceptions.</p>\n<p>Using the <code>--trace-deprecation</code> command-line flag will cause the custom\ndeprecation to be printed to <code>stderr</code> along with the stack trace.</p>\n<p>Using the <code>--no-deprecation</code> command-line flag will suppress all reporting\nof the custom deprecation.</p>\n<p>The <code>*-deprecation</code> command-line flags only affect warnings that use the name\n<code>'DeprecationWarning'</code>.</p>"
+              "desc": "<p>The <code>'warning'</code> event is emitted whenever Node.js emits a process warning.</p>\n<p>A process warning is similar to an error in that it describes exceptional\nconditions that are being brought to the user's attention. However, warnings\nare not part of the normal Node.js and JavaScript error handling flow.\nNode.js can emit warnings whenever it detects bad coding practices that could\nlead to sub-optimal application performance, bugs, or security vulnerabilities.</p>\n<pre><code class=\"language-mjs\">import process from 'node:process';\n\nprocess.on('warning', (warning) => {\n  console.warn(warning.name);    // Print the warning name\n  console.warn(warning.message); // Print the warning message\n  console.warn(warning.stack);   // Print the stack trace\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const process = require('node:process');\n\nprocess.on('warning', (warning) => {\n  console.warn(warning.name);    // Print the warning name\n  console.warn(warning.message); // Print the warning message\n  console.warn(warning.stack);   // Print the stack trace\n});\n</code></pre>\n<p>By default, Node.js will print process warnings to <code>stderr</code>. The <code>--no-warnings</code>\ncommand-line option can be used to suppress the default console output but the\n<code>'warning'</code> event will still be emitted by the <code>process</code> object. Currently, it\nis not possible to suppress specific warning types other than deprecation\nwarnings. To suppress deprecation warnings, check out the <a href=\"cli.html#--no-deprecation\"><code>--no-deprecation</code></a>\nflag.</p>\n<p>The following example illustrates the warning that is printed to <code>stderr</code> when\ntoo many listeners have been added to an event:</p>\n<pre><code class=\"language-console\">$ node\n> events.defaultMaxListeners = 1;\n> process.on('foo', () => {});\n> process.on('foo', () => {});\n> (node:38638) MaxListenersExceededWarning: Possible EventEmitter memory leak\ndetected. 2 foo listeners added. Use emitter.setMaxListeners() to increase limit\n</code></pre>\n<p>In contrast, the following example turns off the default warning output and\nadds a custom handler to the <code>'warning'</code> event:</p>\n<pre><code class=\"language-console\">$ node --no-warnings\n> const p = process.on('warning', (warning) => console.warn('Do not do that!'));\n> events.defaultMaxListeners = 1;\n> process.on('foo', () => {});\n> process.on('foo', () => {});\n> Do not do that!\n</code></pre>\n<p>The <code>--trace-warnings</code> command-line option can be used to have the default\nconsole output for warnings include the full stack trace of the warning.</p>\n<p>Launching Node.js using the <code>--throw-deprecation</code> command-line flag will\ncause custom deprecation warnings to be thrown as exceptions.</p>\n<p>Using the <code>--trace-deprecation</code> command-line flag will cause the custom\ndeprecation to be printed to <code>stderr</code> along with the stack trace.</p>\n<p>Using the <code>--no-deprecation</code> command-line flag will suppress all reporting\nof the custom deprecation.</p>\n<p>The <code>*-deprecation</code> command-line flags only affect warnings that use the name\n<code>'DeprecationWarning'</code>.</p>",
+              "modules": [
+                {
+                  "textRaw": "Emitting custom warnings",
+                  "name": "emitting_custom_warnings",
+                  "desc": "<p>See the <a href=\"#processemitwarningwarning-type-code-ctor\"><code>process.emitWarning()</code></a> method for issuing\ncustom or application-specific warnings.</p>",
+                  "type": "module",
+                  "displayName": "Emitting custom warnings"
+                },
+                {
+                  "textRaw": "Node.js warning names",
+                  "name": "node.js_warning_names",
+                  "desc": "<p>There are no strict guidelines for warning types (as identified by the <code>name</code>\nproperty) emitted by Node.js. New types of warnings can be added at any time.\nA few of the warning types that are most common include:</p>\n<ul>\n<li><code>'DeprecationWarning'</code> - Indicates use of a deprecated Node.js API or feature.\nSuch warnings must include a <code>'code'</code> property identifying the\n<a href=\"deprecations.html\">deprecation code</a>.</li>\n<li><code>'ExperimentalWarning'</code> - Indicates use of an experimental Node.js API or\nfeature. Such features must be used with caution as they may change at any\ntime and are not subject to the same strict semantic-versioning and long-term\nsupport policies as supported features.</li>\n<li><code>'MaxListenersExceededWarning'</code> - Indicates that too many listeners for a\ngiven event have been registered on either an <code>EventEmitter</code> or <code>EventTarget</code>.\nThis is often an indication of a memory leak.</li>\n<li><code>'TimeoutOverflowWarning'</code> - Indicates that a numeric value that cannot fit\nwithin a 32-bit signed integer has been provided to either the <code>setTimeout()</code>\nor <code>setInterval()</code> functions.</li>\n<li><code>'UnsupportedWarning'</code> - Indicates use of an unsupported option or feature\nthat will be ignored rather than treated as an error. One example is use of\nthe HTTP response status message when using the HTTP/2 compatibility API.</li>\n</ul>",
+                  "type": "module",
+                  "displayName": "Node.js warning names"
+                }
+              ]
             },
             {
               "textRaw": "Event: `'worker'`",
@@ -310,23 +353,7 @@
                   "desc": "The {Worker} that was created."
                 }
               ],
-              "desc": "<p>The <code>'worker'</code> event is emitted after a new <a href=\"worker_threads.html#class-worker\" class=\"type\">&lt;Worker&gt;</a> thread has been created.</p>",
-              "modules": [
-                {
-                  "textRaw": "Emitting custom warnings",
-                  "name": "emitting_custom_warnings",
-                  "desc": "<p>See the <a href=\"#processemitwarningwarning-type-code-ctor\"><code>process.emitWarning()</code></a> method for issuing\ncustom or application-specific warnings.</p>",
-                  "type": "module",
-                  "displayName": "Emitting custom warnings"
-                },
-                {
-                  "textRaw": "Node.js warning names",
-                  "name": "node.js_warning_names",
-                  "desc": "<p>There are no strict guidelines for warning types (as identified by the <code>name</code>\nproperty) emitted by Node.js. New types of warnings can be added at any time.\nA few of the warning types that are most common include:</p>\n<ul>\n<li><code>'DeprecationWarning'</code> - Indicates use of a deprecated Node.js API or feature.\nSuch warnings must include a <code>'code'</code> property identifying the\n<a href=\"deprecations.html\">deprecation code</a>.</li>\n<li><code>'ExperimentalWarning'</code> - Indicates use of an experimental Node.js API or\nfeature. Such features must be used with caution as they may change at any\ntime and are not subject to the same strict semantic-versioning and long-term\nsupport policies as supported features.</li>\n<li><code>'MaxListenersExceededWarning'</code> - Indicates that too many listeners for a\ngiven event have been registered on either an <code>EventEmitter</code> or <code>EventTarget</code>.\nThis is often an indication of a memory leak.</li>\n<li><code>'TimeoutOverflowWarning'</code> - Indicates that a numeric value that cannot fit\nwithin a 32-bit signed integer has been provided to either the <code>setTimeout()</code>\nor <code>setInterval()</code> functions.</li>\n<li><code>'UnsupportedWarning'</code> - Indicates use of an unsupported option or feature\nthat will be ignored rather than treated as an error. One example is use of\nthe HTTP response status message when using the HTTP/2 compatibility API.</li>\n</ul>",
-                  "type": "module",
-                  "displayName": "Node.js warning names"
-                }
-              ]
+              "desc": "<p>The <code>'worker'</code> event is emitted after a new <a href=\"worker_threads.html#class-worker\" class=\"type\">&lt;Worker&gt;</a> thread has been created.</p>"
             },
             {
               "textRaw": "Signal events",
@@ -394,7 +421,38 @@
           "name": "constrainedMemory",
           "meta": {
             "added": [
+              "v19.6.0",
               "v18.15.0"
+            ],
+            "changes": [
+              {
+                "version": "v20.13.0",
+                "pr-url": "https://github.com/nodejs/node/pull/52039",
+                "description": "Aligned return value with `uv_get_constrained_memory`."
+              }
+            ]
+          },
+          "stability": 1,
+          "stabilityText": "Experimental",
+          "signatures": [
+            {
+              "params": [
+                {
+                  "textRaw": "{number}",
+                  "type": "number"
+                }
+              ]
+            }
+          ],
+          "desc": "<p>Gets the amount of memory available to the process (in bytes) based on\nlimits imposed by the OS. If there is no such constraint, or the constraint\nis unknown, <code>0</code> is returned.</p>\n<p>See <a href=\"https://docs.libuv.org/en/v1.x/misc.html#c.uv_get_constrained_memory\"><code>uv_get_constrained_memory</code></a> for more\ninformation.</p>"
+        },
+        {
+          "textRaw": "`process.availableMemory()`",
+          "type": "method",
+          "name": "availableMemory",
+          "meta": {
+            "added": [
+              "v20.13.0"
             ],
             "changes": []
           },
@@ -404,13 +462,13 @@
             {
               "params": [
                 {
-                  "textRaw": "{number|undefined}",
-                  "type": "number|undefined"
+                  "textRaw": "{number}",
+                  "type": "number"
                 }
               ]
             }
           ],
-          "desc": "<p>Gets the amount of memory available to the process (in bytes) based on\nlimits imposed by the OS. If there is no such constraint, or the constraint\nis unknown, <code>undefined</code> is returned.</p>\n<p>See <a href=\"https://docs.libuv.org/en/v1.x/misc.html#c.uv_get_constrained_memory\"><code>uv_get_constrained_memory</code></a> for more\ninformation.</p>"
+          "desc": "<p>Gets the amount of free memory that is still available to the process\n(in bytes).</p>\n<p>See <a href=\"https://docs.libuv.org/en/v1.x/misc.html#c.uv_get_available_memory\"><code>uv_get_available_memory</code></a> for more\ninformation.</p>"
         },
         {
           "textRaw": "`process.cpuUsage([previousValue])`",
@@ -650,17 +708,23 @@
             "added": [
               "v0.1.13"
             ],
-            "changes": []
+            "changes": [
+              {
+                "version": "v20.0.0",
+                "pr-url": "https://github.com/nodejs/node/pull/43716",
+                "description": "Only accepts a code of type number, or of type string if it represents an integer."
+              }
+            ]
           },
           "signatures": [
             {
               "params": [
                 {
-                  "textRaw": "`code` {integer} The exit code. **Default:** `0`.",
+                  "textRaw": "`code` {integer|string|null|undefined} The exit code. For string type, only integer strings (e.g.,'1') are allowed. **Default:** `0`.",
                   "name": "code",
-                  "type": "integer",
+                  "type": "integer|string|null|undefined",
                   "default": "`0`",
-                  "desc": "The exit code."
+                  "desc": "The exit code. For string type, only integer strings (e.g.,'1') are allowed."
                 }
               ]
             }
@@ -691,6 +755,35 @@
             }
           ],
           "desc": "<p>The <code>process.getActiveResourcesInfo()</code> method returns an array of strings\ncontaining the types of the active resources that are currently keeping the\nevent loop alive.</p>\n<pre><code class=\"language-mjs\">import { getActiveResourcesInfo } from 'node:process';\nimport { setTimeout } from 'node:timers';\n\nconsole.log('Before:', getActiveResourcesInfo());\nsetTimeout(() => {}, 1000);\nconsole.log('After:', getActiveResourcesInfo());\n// Prints:\n//   Before: [ 'CloseReq', 'TTYWrap', 'TTYWrap', 'TTYWrap' ]\n//   After: [ 'CloseReq', 'TTYWrap', 'TTYWrap', 'TTYWrap', 'Timeout' ]\n</code></pre>\n<pre><code class=\"language-cjs\">const { getActiveResourcesInfo } = require('node:process');\nconst { setTimeout } = require('node:timers');\n\nconsole.log('Before:', getActiveResourcesInfo());\nsetTimeout(() => {}, 1000);\nconsole.log('After:', getActiveResourcesInfo());\n// Prints:\n//   Before: [ 'TTYWrap', 'TTYWrap', 'TTYWrap' ]\n//   After: [ 'TTYWrap', 'TTYWrap', 'TTYWrap', 'Timeout' ]\n</code></pre>"
+        },
+        {
+          "textRaw": "`process.getBuiltinModule(id)`",
+          "type": "method",
+          "name": "getBuiltinModule",
+          "meta": {
+            "added": [
+              "v20.16.0"
+            ],
+            "changes": []
+          },
+          "signatures": [
+            {
+              "return": {
+                "textRaw": "Returns: {Object|undefined}",
+                "name": "return",
+                "type": "Object|undefined"
+              },
+              "params": [
+                {
+                  "textRaw": "`id` {string} ID of the built-in module being requested.",
+                  "name": "id",
+                  "type": "string",
+                  "desc": "ID of the built-in module being requested."
+                }
+              ]
+            }
+          ],
+          "desc": "<p><code>process.getBuiltinModule(id)</code> provides a way to load built-in modules\nin a globally available function. ES Modules that need to support\nother environments can use it to conditionally load a Node.js built-in\nwhen it is run in Node.js, without having to deal with the resolution\nerror that can be thrown by <code>import</code> in a non-Node.js environment or\nhaving to use dynamic <code>import()</code> which either turns the module into\nan asynchronous module, or turns a synchronous API into an asynchronous one.</p>\n<pre><code class=\"language-mjs\">if (globalThis.process?.getBuiltinModule) {\n  // Run in Node.js, use the Node.js fs module.\n  const fs = globalThis.process.getBuiltinModule('fs');\n  // If `require()` is needed to load user-modules, use createRequire()\n  const module = globalThis.process.getBuiltinModule('module');\n  const require = module.createRequire(import.meta.url);\n  const foo = require('foo');\n}\n</code></pre>\n<p>If <code>id</code> specifies a built-in module available in the current Node.js process,\n<code>process.getBuiltinModule(id)</code> method returns the corresponding built-in\nmodule. If <code>id</code> does not correspond to any built-in module, <code>undefined</code>\nis returned.</p>\n<p><code>process.getBuiltinModule(id)</code> accepts built-in module IDs that are recognized\nby <a href=\"module.html#moduleisbuiltinmodulename\"><code>module.isBuiltin(id)</code></a>. Some built-in modules must be loaded with the\n<code>node:</code> prefix, see <a href=\"modules.html#built-in-modules-with-mandatory-node-prefix\">built-in modules with mandatory <code>node:</code> prefix</a>.\nThe references returned by <code>process.getBuiltinModule(id)</code> always point to\nthe built-in module corresponding to <code>id</code> even if users modify\n<a href=\"modules.html#requirecache\"><code>require.cache</code></a> so that <code>require(id)</code> returns something else.</p>"
         },
         {
           "textRaw": "`process.getegid()`",
@@ -934,6 +1027,33 @@
           "desc": "<p>The <code>process.kill()</code> method sends the <code>signal</code> to the process identified by\n<code>pid</code>.</p>\n<p>Signal names are strings such as <code>'SIGINT'</code> or <code>'SIGHUP'</code>. See <a href=\"#signal-events\">Signal Events</a>\nand <a href=\"http://man7.org/linux/man-pages/man2/kill.2.html\"><code>kill(2)</code></a> for more information.</p>\n<p>This method will throw an error if the target <code>pid</code> does not exist. As a special\ncase, a signal of <code>0</code> can be used to test for the existence of a process.\nWindows platforms will throw an error if the <code>pid</code> is used to kill a process\ngroup.</p>\n<p>Even though the name of this function is <code>process.kill()</code>, it is really just a\nsignal sender, like the <code>kill</code> system call. The signal sent may do something\nother than kill the target process.</p>\n<pre><code class=\"language-mjs\">import process, { kill } from 'node:process';\n\nprocess.on('SIGHUP', () => {\n  console.log('Got SIGHUP signal.');\n});\n\nsetTimeout(() => {\n  console.log('Exiting.');\n  process.exit(0);\n}, 100);\n\nkill(process.pid, 'SIGHUP');\n</code></pre>\n<pre><code class=\"language-cjs\">const process = require('node:process');\n\nprocess.on('SIGHUP', () => {\n  console.log('Got SIGHUP signal.');\n});\n\nsetTimeout(() => {\n  console.log('Exiting.');\n  process.exit(0);\n}, 100);\n\nprocess.kill(process.pid, 'SIGHUP');\n</code></pre>\n<p>When <code>SIGUSR1</code> is received by a Node.js process, Node.js will start the\ndebugger. See <a href=\"#signal-events\">Signal Events</a>.</p>"
         },
         {
+          "textRaw": "`process.loadEnvFile(path)`",
+          "type": "method",
+          "name": "loadEnvFile",
+          "meta": {
+            "added": [
+              "v20.12.0"
+            ],
+            "changes": []
+          },
+          "stability": 1,
+          "stabilityText": ".1 - Active development",
+          "signatures": [
+            {
+              "params": [
+                {
+                  "textRaw": "`path` {string | URL | Buffer | undefined}. **Default:** `'./.env'`",
+                  "name": "path",
+                  "type": "string | URL | Buffer | undefined",
+                  "default": "`'./.env'`",
+                  "desc": "."
+                }
+              ]
+            }
+          ],
+          "desc": "<p>Loads the <code>.env</code> file into <code>process.env</code>. Usage of <code>NODE_OPTIONS</code>\nin the <code>.env</code> file will not have any effect on Node.js.</p>\n<pre><code class=\"language-cjs\">const { loadEnvFile } = require('node:process');\nloadEnvFile();\n</code></pre>\n<pre><code class=\"language-mjs\">import { loadEnvFile } from 'node:process';\nloadEnvFile();\n</code></pre>"
+        },
+        {
           "textRaw": "`process.memoryUsage()`",
           "type": "method",
           "name": "memoryUsage",
@@ -1029,6 +1149,11 @@
             ],
             "changes": [
               {
+                "version": "v20.18.0",
+                "pr-url": "https://github.com/nodejs/node/pull/51280",
+                "description": "Changed stability to Legacy."
+              },
+              {
                 "version": "v18.0.0",
                 "pr-url": "https://github.com/nodejs/node/pull/41678",
                 "description": "Passing an invalid callback to the `callback` argument now throws `ERR_INVALID_ARG_TYPE` instead of `ERR_INVALID_CALLBACK`."
@@ -1040,6 +1165,8 @@
               }
             ]
           },
+          "stability": 3,
+          "stabilityText": "Legacy: Use [`queueMicrotask()`][] instead.",
           "signatures": [
             {
               "params": [
@@ -1057,12 +1184,12 @@
               ]
             }
           ],
-          "desc": "<p><code>process.nextTick()</code> adds <code>callback</code> to the \"next tick queue\". This queue is\nfully drained after the current operation on the JavaScript stack runs to\ncompletion and before the event loop is allowed to continue. It's possible to\ncreate an infinite loop if one were to recursively call <code>process.nextTick()</code>.\nSee the <a href=\"https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick/#process-nexttick\">Event Loop</a> guide for more background.</p>\n<pre><code class=\"language-mjs\">import { nextTick } from 'node:process';\n\nconsole.log('start');\nnextTick(() => {\n  console.log('nextTick callback');\n});\nconsole.log('scheduled');\n// Output:\n// start\n// scheduled\n// nextTick callback\n</code></pre>\n<pre><code class=\"language-cjs\">const { nextTick } = require('node:process');\n\nconsole.log('start');\nnextTick(() => {\n  console.log('nextTick callback');\n});\nconsole.log('scheduled');\n// Output:\n// start\n// scheduled\n// nextTick callback\n</code></pre>\n<p>This is important when developing APIs in order to give users the opportunity\nto assign event handlers <em>after</em> an object has been constructed but before any\nI/O has occurred:</p>\n<pre><code class=\"language-mjs\">import { nextTick } from 'node:process';\n\nfunction MyThing(options) {\n  this.setupOptions(options);\n\n  nextTick(() => {\n    this.startDoingStuff();\n  });\n}\n\nconst thing = new MyThing();\nthing.getReadyForStuff();\n\n// thing.startDoingStuff() gets called now, not before.\n</code></pre>\n<pre><code class=\"language-cjs\">const { nextTick } = require('node:process');\n\nfunction MyThing(options) {\n  this.setupOptions(options);\n\n  nextTick(() => {\n    this.startDoingStuff();\n  });\n}\n\nconst thing = new MyThing();\nthing.getReadyForStuff();\n\n// thing.startDoingStuff() gets called now, not before.\n</code></pre>\n<p>It is very important for APIs to be either 100% synchronous or 100%\nasynchronous. Consider this example:</p>\n<pre><code class=\"language-js\">// WARNING!  DO NOT USE!  BAD UNSAFE HAZARD!\nfunction maybeSync(arg, cb) {\n  if (arg) {\n    cb();\n    return;\n  }\n\n  fs.stat('file', cb);\n}\n</code></pre>\n<p>This API is hazardous because in the following case:</p>\n<pre><code class=\"language-js\">const maybeTrue = Math.random() > 0.5;\n\nmaybeSync(maybeTrue, () => {\n  foo();\n});\n\nbar();\n</code></pre>\n<p>It is not clear whether <code>foo()</code> or <code>bar()</code> will be called first.</p>\n<p>The following approach is much better:</p>\n<pre><code class=\"language-mjs\">import { nextTick } from 'node:process';\n\nfunction definitelyAsync(arg, cb) {\n  if (arg) {\n    nextTick(cb);\n    return;\n  }\n\n  fs.stat('file', cb);\n}\n</code></pre>\n<pre><code class=\"language-cjs\">const { nextTick } = require('node:process');\n\nfunction definitelyAsync(arg, cb) {\n  if (arg) {\n    nextTick(cb);\n    return;\n  }\n\n  fs.stat('file', cb);\n}\n</code></pre>",
+          "desc": "<p><code>process.nextTick()</code> adds <code>callback</code> to the \"next tick queue\". This queue is\nfully drained after the current operation on the JavaScript stack runs to\ncompletion and before the event loop is allowed to continue. It's possible to\ncreate an infinite loop if one were to recursively call <code>process.nextTick()</code>.\nSee the <a href=\"https://nodejs.org/en/learn/asynchronous-work/event-loop-timers-and-nexttick#understanding-processnexttick\">Event Loop</a> guide for more background.</p>\n<pre><code class=\"language-mjs\">import { nextTick } from 'node:process';\n\nconsole.log('start');\nnextTick(() => {\n  console.log('nextTick callback');\n});\nconsole.log('scheduled');\n// Output:\n// start\n// scheduled\n// nextTick callback\n</code></pre>\n<pre><code class=\"language-cjs\">const { nextTick } = require('node:process');\n\nconsole.log('start');\nnextTick(() => {\n  console.log('nextTick callback');\n});\nconsole.log('scheduled');\n// Output:\n// start\n// scheduled\n// nextTick callback\n</code></pre>\n<p>This is important when developing APIs in order to give users the opportunity\nto assign event handlers <em>after</em> an object has been constructed but before any\nI/O has occurred:</p>\n<pre><code class=\"language-mjs\">import { nextTick } from 'node:process';\n\nfunction MyThing(options) {\n  this.setupOptions(options);\n\n  nextTick(() => {\n    this.startDoingStuff();\n  });\n}\n\nconst thing = new MyThing();\nthing.getReadyForStuff();\n\n// thing.startDoingStuff() gets called now, not before.\n</code></pre>\n<pre><code class=\"language-cjs\">const { nextTick } = require('node:process');\n\nfunction MyThing(options) {\n  this.setupOptions(options);\n\n  nextTick(() => {\n    this.startDoingStuff();\n  });\n}\n\nconst thing = new MyThing();\nthing.getReadyForStuff();\n\n// thing.startDoingStuff() gets called now, not before.\n</code></pre>\n<p>It is very important for APIs to be either 100% synchronous or 100%\nasynchronous. Consider this example:</p>\n<pre><code class=\"language-js\">// WARNING!  DO NOT USE!  BAD UNSAFE HAZARD!\nfunction maybeSync(arg, cb) {\n  if (arg) {\n    cb();\n    return;\n  }\n\n  fs.stat('file', cb);\n}\n</code></pre>\n<p>This API is hazardous because in the following case:</p>\n<pre><code class=\"language-js\">const maybeTrue = Math.random() > 0.5;\n\nmaybeSync(maybeTrue, () => {\n  foo();\n});\n\nbar();\n</code></pre>\n<p>It is not clear whether <code>foo()</code> or <code>bar()</code> will be called first.</p>\n<p>The following approach is much better:</p>\n<pre><code class=\"language-mjs\">import { nextTick } from 'node:process';\n\nfunction definitelyAsync(arg, cb) {\n  if (arg) {\n    nextTick(cb);\n    return;\n  }\n\n  fs.stat('file', cb);\n}\n</code></pre>\n<pre><code class=\"language-cjs\">const { nextTick } = require('node:process');\n\nfunction definitelyAsync(arg, cb) {\n  if (arg) {\n    nextTick(cb);\n    return;\n  }\n\n  fs.stat('file', cb);\n}\n</code></pre>",
           "modules": [
             {
               "textRaw": "When to use `queueMicrotask()` vs. `process.nextTick()`",
               "name": "when_to_use_`queuemicrotask()`_vs._`process.nexttick()`",
-              "desc": "<p>The <a href=\"globals.html#queuemicrotaskcallback\"><code>queueMicrotask()</code></a> API is an alternative to <code>process.nextTick()</code> that\nalso defers execution of a function using the same microtask queue used to\nexecute the then, catch, and finally handlers of resolved promises. Within\nNode.js, every time the \"next tick queue\" is drained, the microtask queue\nis drained immediately after.</p>\n<pre><code class=\"language-mjs\">import { nextTick } from 'node:process';\n\nPromise.resolve().then(() => console.log(2));\nqueueMicrotask(() => console.log(3));\nnextTick(() => console.log(1));\n// Output:\n// 1\n// 2\n// 3\n</code></pre>\n<pre><code class=\"language-cjs\">const { nextTick } = require('node:process');\n\nPromise.resolve().then(() => console.log(2));\nqueueMicrotask(() => console.log(3));\nnextTick(() => console.log(1));\n// Output:\n// 1\n// 2\n// 3\n</code></pre>\n<p>For <em>most</em> userland use cases, the <code>queueMicrotask()</code> API provides a portable\nand reliable mechanism for deferring execution that works across multiple\nJavaScript platform environments and should be favored over <code>process.nextTick()</code>.\nIn simple scenarios, <code>queueMicrotask()</code> can be a drop-in replacement for\n<code>process.nextTick()</code>.</p>\n<pre><code class=\"language-js\">console.log('start');\nqueueMicrotask(() => {\n  console.log('microtask callback');\n});\nconsole.log('scheduled');\n// Output:\n// start\n// scheduled\n// microtask callback\n</code></pre>\n<p>One note-worthy difference between the two APIs is that <code>process.nextTick()</code>\nallows specifying additional values that will be passed as arguments to the\ndeferred function when it is called. Achieving the same result with\n<code>queueMicrotask()</code> requires using either a closure or a bound function:</p>\n<pre><code class=\"language-js\">function deferred(a, b) {\n  console.log('microtask', a + b);\n}\n\nconsole.log('start');\nqueueMicrotask(deferred.bind(undefined, 1, 2));\nconsole.log('scheduled');\n// Output:\n// start\n// scheduled\n// microtask 3\n</code></pre>\n<p>There are minor differences in the way errors raised from within the next tick\nqueue and microtask queue are handled. Errors thrown within a queued microtask\ncallback should be handled within the queued callback when possible. If they are\nnot, the <code>process.on('uncaughtException')</code> event handler can be used to capture\nand handle the errors.</p>\n<p>When in doubt, unless the specific capabilities of <code>process.nextTick()</code> are\nneeded, use <code>queueMicrotask()</code>.</p>",
+              "desc": "<p>The <a href=\"globals.html#queuemicrotaskcallback\"><code>queueMicrotask()</code></a> API is an alternative to <code>process.nextTick()</code> that instead of using the\n\"next tick queue\" defers execution of a function using the same microtask queue used to execute the\nthen, catch, and finally handlers of resolved promises.</p>\n<p>Within Node.js, every time the \"next tick queue\" is drained, the microtask queue\nis drained immediately after.</p>\n<p>So in CJS modules <code>process.nextTick()</code> callbacks are always run before <code>queueMicrotask()</code> ones.\nHowever since ESM modules are processed already as part of the microtask queue, there\n<code>queueMicrotask()</code> callbacks are always exectued before <code>process.nextTick()</code> ones since Node.js\nis already in the process of draining the microtask queue.</p>\n<pre><code class=\"language-mjs\">import { nextTick } from 'node:process';\n\nPromise.resolve().then(() => console.log('resolve'));\nqueueMicrotask(() => console.log('microtask'));\nnextTick(() => console.log('nextTick'));\n// Output:\n// resolve\n// microtask\n// nextTick\n</code></pre>\n<pre><code class=\"language-cjs\">const { nextTick } = require('node:process');\n\nPromise.resolve().then(() => console.log('resolve'));\nqueueMicrotask(() => console.log('microtask'));\nnextTick(() => console.log('nextTick'));\n// Output:\n// nextTick\n// resolve\n// microtask\n</code></pre>\n<p>For <em>most</em> userland use cases, the <code>queueMicrotask()</code> API provides a portable\nand reliable mechanism for deferring execution that works across multiple\nJavaScript platform environments and should be favored over <code>process.nextTick()</code>.\nIn simple scenarios, <code>queueMicrotask()</code> can be a drop-in replacement for\n<code>process.nextTick()</code>.</p>\n<pre><code class=\"language-js\">console.log('start');\nqueueMicrotask(() => {\n  console.log('microtask callback');\n});\nconsole.log('scheduled');\n// Output:\n// start\n// scheduled\n// microtask callback\n</code></pre>\n<p>One note-worthy difference between the two APIs is that <code>process.nextTick()</code>\nallows specifying additional values that will be passed as arguments to the\ndeferred function when it is called. Achieving the same result with\n<code>queueMicrotask()</code> requires using either a closure or a bound function:</p>\n<pre><code class=\"language-js\">function deferred(a, b) {\n  console.log('microtask', a + b);\n}\n\nconsole.log('start');\nqueueMicrotask(deferred.bind(undefined, 1, 2));\nconsole.log('scheduled');\n// Output:\n// start\n// scheduled\n// microtask 3\n</code></pre>\n<p>There are minor differences in the way errors raised from within the next tick\nqueue and microtask queue are handled. Errors thrown within a queued microtask\ncallback should be handled within the queued callback when possible. If they are\nnot, the <code>process.on('uncaughtException')</code> event handler can be used to capture\nand handle the errors.</p>\n<p>When in doubt, unless the specific capabilities of <code>process.nextTick()</code> are\nneeded, use <code>queueMicrotask()</code>.</p>",
               "type": "module",
               "displayName": "When to use `queueMicrotask()` vs. `process.nextTick()`"
             }
@@ -1506,7 +1633,7 @@
             ],
             "changes": []
           },
-          "desc": "<p>The operating system CPU architecture for which the Node.js binary was compiled.\nPossible values are: <code>'arm'</code>, <code>'arm64'</code>, <code>'ia32'</code>, <code>'mips'</code>,<code>'mipsel'</code>, <code>'ppc'</code>,\n<code>'ppc64'</code>, <code>'s390'</code>, <code>'s390x'</code>, and <code>'x64'</code>.</p>\n<pre><code class=\"language-mjs\">import { arch } from 'node:process';\n\nconsole.log(`This processor architecture is ${arch}`);\n</code></pre>\n<pre><code class=\"language-cjs\">const { arch } = require('node:process');\n\nconsole.log(`This processor architecture is ${arch}`);\n</code></pre>"
+          "desc": "<p>The operating system CPU architecture for which the Node.js binary was compiled.\nPossible values are: <code>'arm'</code>, <code>'arm64'</code>, <code>'ia32'</code>, <code>'loong64'</code>, <code>'mips'</code>,\n<code>'mipsel'</code>, <code>'ppc'</code>, <code>'ppc64'</code>, <code>'riscv64'</code>, <code>'s390'</code>, <code>'s390x'</code>, and <code>'x64'</code>.</p>\n<pre><code class=\"language-mjs\">import { arch } from 'node:process';\n\nconsole.log(`This processor architecture is ${arch}`);\n</code></pre>\n<pre><code class=\"language-cjs\">const { arch } = require('node:process');\n\nconsole.log(`This processor architecture is ${arch}`);\n</code></pre>"
         },
         {
           "textRaw": "`argv` {string\\[]}",
@@ -1518,7 +1645,7 @@
             ],
             "changes": []
           },
-          "desc": "<p>The <code>process.argv</code> property returns an array containing the command-line\narguments passed when the Node.js process was launched. The first element will\nbe <a href=\"#processexecpath\"><code>process.execPath</code></a>. See <code>process.argv0</code> if access to the original value\nof <code>argv[0]</code> is needed. The second element will be the path to the JavaScript\nfile being executed. The remaining elements will be any additional command-line\narguments.</p>\n<p>For example, assuming the following script for <code>process-args.js</code>:</p>\n<pre><code class=\"language-mjs\">import { argv } from 'node:process';\n\n// print process.argv\nargv.forEach((val, index) => {\n  console.log(`${index}: ${val}`);\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const { argv } = require('node:process');\n\n// print process.argv\nargv.forEach((val, index) => {\n  console.log(`${index}: ${val}`);\n});\n</code></pre>\n<p>Launching the Node.js process as:</p>\n<pre><code class=\"language-console\">$ node process-args.js one two=three four\n</code></pre>\n<p>Would generate the output:</p>\n<pre><code class=\"language-text\">0: /usr/local/bin/node\n1: /Users/mjr/work/node/process-args.js\n2: one\n3: two=three\n4: four\n</code></pre>"
+          "desc": "<p>The <code>process.argv</code> property returns an array containing the command-line\narguments passed when the Node.js process was launched. The first element will\nbe <a href=\"#processexecpath\"><code>process.execPath</code></a>. See <code>process.argv0</code> if access to the original value\nof <code>argv[0]</code> is needed. The second element will be the path to the JavaScript\nfile being executed. The remaining elements will be any additional command-line\narguments.</p>\n<p>For example, assuming the following script for <code>process-args.js</code>:</p>\n<pre><code class=\"language-mjs\">import { argv } from 'node:process';\n\n// print process.argv\nargv.forEach((val, index) => {\n  console.log(`${index}: ${val}`);\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const { argv } = require('node:process');\n\n// print process.argv\nargv.forEach((val, index) => {\n  console.log(`${index}: ${val}`);\n});\n</code></pre>\n<p>Launching the Node.js process as:</p>\n<pre><code class=\"language-bash\">node process-args.js one two=three four\n</code></pre>\n<p>Would generate the output:</p>\n<pre><code class=\"language-text\">0: /usr/local/bin/node\n1: /Users/mjr/work/node/process-args.js\n2: one\n3: two=three\n4: four\n</code></pre>"
         },
         {
           "textRaw": "`argv0` {string}",
@@ -1596,13 +1723,18 @@
             ],
             "changes": [
               {
+                "version": "v19.0.0",
+                "pr-url": "https://github.com/nodejs/node/pull/43627",
+                "description": "The `process.config` object is now frozen."
+              },
+              {
                 "version": "v16.0.0",
                 "pr-url": "https://github.com/nodejs/node/pull/36902",
                 "description": "Modifying process.config has been deprecated."
               }
             ]
           },
-          "desc": "<p>The <code>process.config</code> property returns an <code>Object</code> containing the JavaScript\nrepresentation of the configure options used to compile the current Node.js\nexecutable. This is the same as the <code>config.gypi</code> file that was produced when\nrunning the <code>./configure</code> script.</p>\n<p>An example of the possible output looks like:</p>\n<!-- eslint-skip -->\n<pre><code class=\"language-js\">{\n  target_defaults:\n   { cflags: [],\n     default_configuration: 'Release',\n     defines: [],\n     include_dirs: [],\n     libraries: [] },\n  variables:\n   {\n     host_arch: 'x64',\n     napi_build_version: 5,\n     node_install_npm: 'true',\n     node_prefix: '',\n     node_shared_cares: 'false',\n     node_shared_http_parser: 'false',\n     node_shared_libuv: 'false',\n     node_shared_zlib: 'false',\n     node_use_dtrace: 'false',\n     node_use_openssl: 'true',\n     node_shared_openssl: 'false',\n     strict_aliasing: 'true',\n     target_arch: 'x64',\n     v8_use_snapshot: 1\n   }\n}\n</code></pre>\n<p>The <code>process.config</code> property is <strong>not</strong> read-only and there are existing\nmodules in the ecosystem that are known to extend, modify, or entirely replace\nthe value of <code>process.config</code>.</p>\n<p>Modifying the <code>process.config</code> property, or any child-property of the\n<code>process.config</code> object has been deprecated. The <code>process.config</code> will be made\nread-only in a future release.</p>"
+          "desc": "<p>The <code>process.config</code> property returns a frozen <code>Object</code> containing the\nJavaScript representation of the configure options used to compile the current\nNode.js executable. This is the same as the <code>config.gypi</code> file that was produced\nwhen running the <code>./configure</code> script.</p>\n<p>An example of the possible output looks like:</p>\n<!-- eslint-skip -->\n<pre><code class=\"language-js\">{\n  target_defaults:\n   { cflags: [],\n     default_configuration: 'Release',\n     defines: [],\n     include_dirs: [],\n     libraries: [] },\n  variables:\n   {\n     host_arch: 'x64',\n     napi_build_version: 5,\n     node_install_npm: 'true',\n     node_prefix: '',\n     node_shared_cares: 'false',\n     node_shared_http_parser: 'false',\n     node_shared_libuv: 'false',\n     node_shared_zlib: 'false',\n     node_use_openssl: 'true',\n     node_shared_openssl: 'false',\n     strict_aliasing: 'true',\n     target_arch: 'x64',\n     v8_use_snapshot: 1\n   }\n}\n</code></pre>"
         },
         {
           "textRaw": "`connected` {boolean}",
@@ -1649,7 +1781,7 @@
               }
             ]
           },
-          "desc": "<p>The <code>process.env</code> property returns an object containing the user environment.\nSee <a href=\"http://man7.org/linux/man-pages/man7/environ.7.html\"><code>environ(7)</code></a>.</p>\n<p>An example of this object looks like:</p>\n<!-- eslint-skip -->\n<pre><code class=\"language-js\">{\n  TERM: 'xterm-256color',\n  SHELL: '/usr/local/bin/bash',\n  USER: 'maciej',\n  PATH: '~/.bin/:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin',\n  PWD: '/Users/maciej',\n  EDITOR: 'vim',\n  SHLVL: '1',\n  HOME: '/Users/maciej',\n  LOGNAME: 'maciej',\n  _: '/usr/local/bin/node'\n}\n</code></pre>\n<p>It is possible to modify this object, but such modifications will not be\nreflected outside the Node.js process, or (unless explicitly requested)\nto other <a href=\"worker_threads.html#class-worker\"><code>Worker</code></a> threads.\nIn other words, the following example would not work:</p>\n<pre><code class=\"language-console\">$ node -e 'process.env.foo = \"bar\"' &#x26;&#x26; echo $foo\n</code></pre>\n<p>While the following will:</p>\n<pre><code class=\"language-mjs\">import { env } from 'node:process';\n\nenv.foo = 'bar';\nconsole.log(env.foo);\n</code></pre>\n<pre><code class=\"language-cjs\">const { env } = require('node:process');\n\nenv.foo = 'bar';\nconsole.log(env.foo);\n</code></pre>\n<p>Assigning a property on <code>process.env</code> will implicitly convert the value\nto a string. <strong>This behavior is deprecated.</strong> Future versions of Node.js may\nthrow an error when the value is not a string, number, or boolean.</p>\n<pre><code class=\"language-mjs\">import { env } from 'node:process';\n\nenv.test = null;\nconsole.log(env.test);\n// => 'null'\nenv.test = undefined;\nconsole.log(env.test);\n// => 'undefined'\n</code></pre>\n<pre><code class=\"language-cjs\">const { env } = require('node:process');\n\nenv.test = null;\nconsole.log(env.test);\n// => 'null'\nenv.test = undefined;\nconsole.log(env.test);\n// => 'undefined'\n</code></pre>\n<p>Use <code>delete</code> to delete a property from <code>process.env</code>.</p>\n<pre><code class=\"language-mjs\">import { env } from 'node:process';\n\nenv.TEST = 1;\ndelete env.TEST;\nconsole.log(env.TEST);\n// => undefined\n</code></pre>\n<pre><code class=\"language-cjs\">const { env } = require('node:process');\n\nenv.TEST = 1;\ndelete env.TEST;\nconsole.log(env.TEST);\n// => undefined\n</code></pre>\n<p>On Windows operating systems, environment variables are case-insensitive.</p>\n<pre><code class=\"language-mjs\">import { env } from 'node:process';\n\nenv.TEST = 1;\nconsole.log(env.test);\n// => 1\n</code></pre>\n<pre><code class=\"language-cjs\">const { env } = require('node:process');\n\nenv.TEST = 1;\nconsole.log(env.test);\n// => 1\n</code></pre>\n<p>Unless explicitly specified when creating a <a href=\"worker_threads.html#class-worker\"><code>Worker</code></a> instance,\neach <a href=\"worker_threads.html#class-worker\"><code>Worker</code></a> thread has its own copy of <code>process.env</code>, based on its\nparent thread's <code>process.env</code>, or whatever was specified as the <code>env</code> option\nto the <a href=\"worker_threads.html#class-worker\"><code>Worker</code></a> constructor. Changes to <code>process.env</code> will not be visible\nacross <a href=\"worker_threads.html#class-worker\"><code>Worker</code></a> threads, and only the main thread can make changes that\nare visible to the operating system or to native add-ons. On Windows, a copy of\n<code>process.env</code> on a <a href=\"worker_threads.html#class-worker\"><code>Worker</code></a> instance operates in a case-sensitive manner\nunlike the main thread.</p>"
+          "desc": "<p>The <code>process.env</code> property returns an object containing the user environment.\nSee <a href=\"http://man7.org/linux/man-pages/man7/environ.7.html\"><code>environ(7)</code></a>.</p>\n<p>An example of this object looks like:</p>\n<!-- eslint-skip -->\n<pre><code class=\"language-js\">{\n  TERM: 'xterm-256color',\n  SHELL: '/usr/local/bin/bash',\n  USER: 'maciej',\n  PATH: '~/.bin/:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin',\n  PWD: '/Users/maciej',\n  EDITOR: 'vim',\n  SHLVL: '1',\n  HOME: '/Users/maciej',\n  LOGNAME: 'maciej',\n  _: '/usr/local/bin/node'\n}\n</code></pre>\n<p>It is possible to modify this object, but such modifications will not be\nreflected outside the Node.js process, or (unless explicitly requested)\nto other <a href=\"worker_threads.html#class-worker\"><code>Worker</code></a> threads.\nIn other words, the following example would not work:</p>\n<pre><code class=\"language-bash\">node -e 'process.env.foo = \"bar\"' &#x26;&#x26; echo $foo\n</code></pre>\n<p>While the following will:</p>\n<pre><code class=\"language-mjs\">import { env } from 'node:process';\n\nenv.foo = 'bar';\nconsole.log(env.foo);\n</code></pre>\n<pre><code class=\"language-cjs\">const { env } = require('node:process');\n\nenv.foo = 'bar';\nconsole.log(env.foo);\n</code></pre>\n<p>Assigning a property on <code>process.env</code> will implicitly convert the value\nto a string. <strong>This behavior is deprecated.</strong> Future versions of Node.js may\nthrow an error when the value is not a string, number, or boolean.</p>\n<pre><code class=\"language-mjs\">import { env } from 'node:process';\n\nenv.test = null;\nconsole.log(env.test);\n// => 'null'\nenv.test = undefined;\nconsole.log(env.test);\n// => 'undefined'\n</code></pre>\n<pre><code class=\"language-cjs\">const { env } = require('node:process');\n\nenv.test = null;\nconsole.log(env.test);\n// => 'null'\nenv.test = undefined;\nconsole.log(env.test);\n// => 'undefined'\n</code></pre>\n<p>Use <code>delete</code> to delete a property from <code>process.env</code>.</p>\n<pre><code class=\"language-mjs\">import { env } from 'node:process';\n\nenv.TEST = 1;\ndelete env.TEST;\nconsole.log(env.TEST);\n// => undefined\n</code></pre>\n<pre><code class=\"language-cjs\">const { env } = require('node:process');\n\nenv.TEST = 1;\ndelete env.TEST;\nconsole.log(env.TEST);\n// => undefined\n</code></pre>\n<p>On Windows operating systems, environment variables are case-insensitive.</p>\n<pre><code class=\"language-mjs\">import { env } from 'node:process';\n\nenv.TEST = 1;\nconsole.log(env.test);\n// => 1\n</code></pre>\n<pre><code class=\"language-cjs\">const { env } = require('node:process');\n\nenv.TEST = 1;\nconsole.log(env.test);\n// => 1\n</code></pre>\n<p>Unless explicitly specified when creating a <a href=\"worker_threads.html#class-worker\"><code>Worker</code></a> instance,\neach <a href=\"worker_threads.html#class-worker\"><code>Worker</code></a> thread has its own copy of <code>process.env</code>, based on its\nparent thread's <code>process.env</code>, or whatever was specified as the <code>env</code> option\nto the <a href=\"worker_threads.html#class-worker\"><code>Worker</code></a> constructor. Changes to <code>process.env</code> will not be visible\nacross <a href=\"worker_threads.html#class-worker\"><code>Worker</code></a> threads, and only the main thread can make changes that\nare visible to the operating system or to native add-ons. On Windows, a copy of\n<code>process.env</code> on a <a href=\"worker_threads.html#class-worker\"><code>Worker</code></a> instance operates in a case-sensitive manner\nunlike the main thread.</p>"
         },
         {
           "textRaw": "`execArgv` {string\\[]}",
@@ -1661,7 +1793,7 @@
             ],
             "changes": []
           },
-          "desc": "<p>The <code>process.execArgv</code> property returns the set of Node.js-specific command-line\noptions passed when the Node.js process was launched. These options do not\nappear in the array returned by the <a href=\"#processargv\"><code>process.argv</code></a> property, and do not\ninclude the Node.js executable, the name of the script, or any options following\nthe script name. These options are useful in order to spawn child processes with\nthe same execution environment as the parent.</p>\n<pre><code class=\"language-console\">$ node --harmony script.js --version\n</code></pre>\n<p>Results in <code>process.execArgv</code>:</p>\n<!-- eslint-disable semi -->\n<pre><code class=\"language-js\">['--harmony']\n</code></pre>\n<p>And <code>process.argv</code>:</p>\n<!-- eslint-disable semi -->\n<pre><code class=\"language-js\">['/usr/local/bin/node', 'script.js', '--version']\n</code></pre>\n<p>Refer to <a href=\"worker_threads.html#new-workerfilename-options\"><code>Worker</code> constructor</a> for the detailed behavior of worker\nthreads with this property.</p>"
+          "desc": "<p>The <code>process.execArgv</code> property returns the set of Node.js-specific command-line\noptions passed when the Node.js process was launched. These options do not\nappear in the array returned by the <a href=\"#processargv\"><code>process.argv</code></a> property, and do not\ninclude the Node.js executable, the name of the script, or any options following\nthe script name. These options are useful in order to spawn child processes with\nthe same execution environment as the parent.</p>\n<pre><code class=\"language-bash\">node --icu-data-dir=./foo --require ./bar.js script.js --version\n</code></pre>\n<p>Results in <code>process.execArgv</code>:</p>\n<pre><code class=\"language-json\">[\"--icu-data-dir=./foo\", \"--require\", \"./bar.js\"]\n</code></pre>\n<p>And <code>process.argv</code>:</p>\n<!-- eslint-disable @stylistic/js/semi -->\n<pre><code class=\"language-js\">['/usr/local/bin/node', 'script.js', '--version']\n</code></pre>\n<p>Refer to <a href=\"worker_threads.html#new-workerfilename-options\"><code>Worker</code> constructor</a> for the detailed behavior of worker\nthreads with this property.</p>"
         },
         {
           "textRaw": "`execPath` {string}",
@@ -1673,19 +1805,147 @@
             ],
             "changes": []
           },
-          "desc": "<p>The <code>process.execPath</code> property returns the absolute pathname of the executable\nthat started the Node.js process. Symbolic links, if any, are resolved.</p>\n<!-- eslint-disable semi -->\n<pre><code class=\"language-js\">'/usr/local/bin/node'\n</code></pre>"
+          "desc": "<p>The <code>process.execPath</code> property returns the absolute pathname of the executable\nthat started the Node.js process. Symbolic links, if any, are resolved.</p>\n<!-- eslint-disable @stylistic/js/semi -->\n<pre><code class=\"language-js\">'/usr/local/bin/node'\n</code></pre>"
         },
         {
-          "textRaw": "`exitCode` {integer}",
-          "type": "integer",
+          "textRaw": "`exitCode` {integer|string|null|undefined} The exit code. For string type, only integer strings (e.g.,'1') are allowed. **Default:** `undefined`.",
+          "type": "integer|string|null|undefined",
           "name": "exitCode",
           "meta": {
             "added": [
               "v0.11.8"
             ],
+            "changes": [
+              {
+                "version": "v20.0.0",
+                "pr-url": "https://github.com/nodejs/node/pull/43716",
+                "description": "Only accepts a code of type number, or of type string if it represents an integer."
+              }
+            ]
+          },
+          "default": "`undefined`",
+          "desc": "<p>A number which will be the process exit code, when the process either\nexits gracefully, or is exited via <a href=\"#processexitcode\"><code>process.exit()</code></a> without specifying\na code.</p>\n<p>Specifying a code to <a href=\"#processexitcode\"><code>process.exit(code)</code></a> will override any\nprevious setting of <code>process.exitCode</code>.</p>",
+          "shortDesc": "The exit code. For string type, only integer strings (e.g.,'1') are allowed."
+        },
+        {
+          "textRaw": "`cached_builtins` {boolean}",
+          "type": "boolean",
+          "name": "cached_builtins",
+          "meta": {
+            "added": [
+              "v12.0.0"
+            ],
             "changes": []
           },
-          "desc": "<p>A number which will be the process exit code, when the process either\nexits gracefully, or is exited via <a href=\"#processexitcode\"><code>process.exit()</code></a> without specifying\na code.</p>\n<p>Specifying a code to <a href=\"#processexitcode\"><code>process.exit(code)</code></a> will override any\nprevious setting of <code>process.exitCode</code>.</p>"
+          "desc": "<p>A boolean value that is <code>true</code> if the current Node.js build is caching builtin modules.</p>"
+        },
+        {
+          "textRaw": "`debug` {boolean}",
+          "type": "boolean",
+          "name": "debug",
+          "meta": {
+            "added": [
+              "v0.5.5"
+            ],
+            "changes": []
+          },
+          "desc": "<p>A boolean value that is <code>true</code> if the current Node.js build is a debug build.</p>"
+        },
+        {
+          "textRaw": "`inspector` {boolean}",
+          "type": "boolean",
+          "name": "inspector",
+          "meta": {
+            "added": [
+              "v11.10.0"
+            ],
+            "changes": []
+          },
+          "desc": "<p>A boolean value that is <code>true</code> if the current Node.js build includes the inspector.</p>"
+        },
+        {
+          "textRaw": "`ipv6` {boolean}",
+          "type": "boolean",
+          "name": "ipv6",
+          "meta": {
+            "added": [
+              "v0.5.3"
+            ],
+            "changes": []
+          },
+          "desc": "<p>A boolean value that is <code>true</code> if the current Node.js build includes support for IPv6.</p>"
+        },
+        {
+          "textRaw": "`require_module` {boolean}",
+          "type": "boolean",
+          "name": "require_module",
+          "meta": {
+            "added": [
+              "v20.19.0"
+            ],
+            "changes": []
+          },
+          "desc": "<p>A boolean value that is <code>true</code> if the current Node.js build supports\n<a href=\"modules.html#loading-ecmascript-modules-using-require\">loading ECMAScript modules using <code>require()</code></a>.</p>"
+        },
+        {
+          "textRaw": "`tls` {boolean}",
+          "type": "boolean",
+          "name": "tls",
+          "meta": {
+            "added": [
+              "v0.5.3"
+            ],
+            "changes": []
+          },
+          "desc": "<p>A boolean value that is <code>true</code> if the current Node.js build includes support for TLS.</p>"
+        },
+        {
+          "textRaw": "`tls_alpn` {boolean}",
+          "type": "boolean",
+          "name": "tls_alpn",
+          "meta": {
+            "added": [
+              "v4.8.0"
+            ],
+            "changes": []
+          },
+          "desc": "<p>A boolean value that is <code>true</code> if the current Node.js build includes support for ALPN in TLS.</p>\n<hr>"
+        },
+        {
+          "textRaw": "`tls_ocsp` {boolean}",
+          "type": "boolean",
+          "name": "tls_ocsp",
+          "meta": {
+            "added": [
+              "v0.11.13"
+            ],
+            "changes": []
+          },
+          "desc": "<p>A boolean value that is <code>true</code> if the current Node.js build includes support for OCSP in TLS.</p>\n<hr>"
+        },
+        {
+          "textRaw": "`tls_sni` {boolean}",
+          "type": "boolean",
+          "name": "tls_sni",
+          "meta": {
+            "added": [
+              "v0.5.3"
+            ],
+            "changes": []
+          },
+          "desc": "<p>A boolean value that is <code>true</code> if the current Node.js build includes support for SNI in TLS.</p>\n<hr>"
+        },
+        {
+          "textRaw": "`uv` {boolean}",
+          "type": "boolean",
+          "name": "uv",
+          "meta": {
+            "added": [
+              "v0.5.3"
+            ],
+            "changes": []
+          },
+          "desc": "<p>A boolean value that is <code>true</code> if the current Node.js build includes support for libuv.\nSince it's currently not possible to build Node.js without libuv, this value is always <code>true</code>.</p>"
         },
         {
           "textRaw": "`mainModule` {Object}",
@@ -1717,6 +1977,53 @@
           "desc": "<p>The <code>process.noDeprecation</code> property indicates whether the <code>--no-deprecation</code>\nflag is set on the current Node.js process. See the documentation for\nthe <a href=\"#event-warning\"><code>'warning'</code> event</a> and the\n<a href=\"#processemitwarningwarning-type-code-ctor\"><code>emitWarning()</code> method</a> for more information about this\nflag's behavior.</p>"
         },
         {
+          "textRaw": "`permission` {Object}",
+          "type": "Object",
+          "name": "permission",
+          "meta": {
+            "added": [
+              "v20.0.0"
+            ],
+            "changes": []
+          },
+          "desc": "<p>This API is available through the <a href=\"cli.html#--experimental-permission\"><code>--experimental-permission</code></a> flag.</p>\n<p><code>process.permission</code> is an object whose methods are used to manage permissions\nfor the current process. Additional documentation is available in the\n<a href=\"permissions.html#permission-model\">Permission Model</a>.</p>",
+          "methods": [
+            {
+              "textRaw": "`process.permission.has(scope[, reference])`",
+              "type": "method",
+              "name": "has",
+              "meta": {
+                "added": [
+                  "v20.0.0"
+                ],
+                "changes": []
+              },
+              "signatures": [
+                {
+                  "return": {
+                    "textRaw": "Returns: {boolean}",
+                    "name": "return",
+                    "type": "boolean"
+                  },
+                  "params": [
+                    {
+                      "textRaw": "`scope` {string}",
+                      "name": "scope",
+                      "type": "string"
+                    },
+                    {
+                      "textRaw": "`reference` {string}",
+                      "name": "reference",
+                      "type": "string"
+                    }
+                  ]
+                }
+              ],
+              "desc": "<p>Verifies that the process is able to access the given scope and reference.\nIf no reference is provided, a global scope is assumed, for instance,\n<code>process.permission.has('fs.read')</code> will check if the process has ALL\nfile system read permissions.</p>\n<p>The reference has a meaning based on the provided scope. For example,\nthe reference when the scope is File System means files and folders.</p>\n<p>The available scopes are:</p>\n<ul>\n<li><code>fs</code> - All File System</li>\n<li><code>fs.read</code> - File System read operations</li>\n<li><code>fs.write</code> - File System write operations</li>\n<li><code>child</code> - Child process spawning operations</li>\n<li><code>worker</code> - Worker thread spawning operation</li>\n</ul>\n<pre><code class=\"language-js\">// Check if the process has permission to read the README file\nprocess.permission.has('fs.read', './README.md');\n// Check if the process has read permission operations\nprocess.permission.has('fs.read');\n</code></pre>"
+            }
+          ]
+        },
+        {
           "textRaw": "`pid` {integer}",
           "type": "integer",
           "name": "pid",
@@ -1738,7 +2045,7 @@
             ],
             "changes": []
           },
-          "desc": "<p>The <code>process.platform</code> property returns a string identifying the operating\nsystem platform for which the Node.js binary was compiled.</p>\n<p>Currently possible values are:</p>\n<ul>\n<li><code>'aix'</code></li>\n<li><code>'darwin'</code></li>\n<li><code>'freebsd'</code></li>\n<li><code>'linux'</code></li>\n<li><code>'openbsd'</code></li>\n<li><code>'sunos'</code></li>\n<li><code>'win32'</code></li>\n</ul>\n<pre><code class=\"language-mjs\">import { platform } from 'node:process';\n\nconsole.log(`This platform is ${platform}`);\n</code></pre>\n<pre><code class=\"language-cjs\">const { platform } = require('node:process');\n\nconsole.log(`This platform is ${platform}`);\n</code></pre>\n<p>The value <code>'android'</code> may also be returned if the Node.js is built on the\nAndroid operating system. However, Android support in Node.js\n<a href=\"https://github.com/nodejs/node/blob/HEAD/BUILDING.md#androidandroid-based-devices-eg-firefox-os\">is experimental</a>.</p>"
+          "desc": "<p>The <code>process.platform</code> property returns a string identifying the operating\nsystem platform for which the Node.js binary was compiled.</p>\n<p>Currently possible values are:</p>\n<ul>\n<li><code>'aix'</code></li>\n<li><code>'darwin'</code></li>\n<li><code>'freebsd'</code></li>\n<li><code>'linux'</code></li>\n<li><code>'openbsd'</code></li>\n<li><code>'sunos'</code></li>\n<li><code>'win32'</code></li>\n</ul>\n<pre><code class=\"language-mjs\">import { platform } from 'node:process';\n\nconsole.log(`This platform is ${platform}`);\n</code></pre>\n<pre><code class=\"language-cjs\">const { platform } = require('node:process');\n\nconsole.log(`This platform is ${platform}`);\n</code></pre>\n<p>The value <code>'android'</code> may also be returned if the Node.js is built on the\nAndroid operating system. However, Android support in Node.js\n<a href=\"https://github.com/nodejs/node/blob/HEAD/BUILDING.md#android\">is experimental</a>.</p>"
         },
         {
           "textRaw": "`ppid` {integer}",
@@ -2025,7 +2332,7 @@
           "name": "sourceMapsEnabled",
           "meta": {
             "added": [
-              "v18.19.0"
+              "v20.7.0"
             ],
             "changes": []
           },
@@ -2153,7 +2460,7 @@
               }
             ]
           },
-          "desc": "<p>The <code>process.versions</code> property returns an object listing the version strings of\nNode.js and its dependencies. <code>process.versions.modules</code> indicates the current\nABI version, which is increased whenever a C++ API changes. Node.js will refuse\nto load modules that were compiled against a different module ABI version.</p>\n<pre><code class=\"language-mjs\">import { versions } from 'node:process';\n\nconsole.log(versions);\n</code></pre>\n<pre><code class=\"language-cjs\">const { versions } = require('node:process');\n\nconsole.log(versions);\n</code></pre>\n<p>Will generate an object similar to:</p>\n<pre><code class=\"language-console\">{ node: '11.13.0',\n  v8: '7.0.276.38-node.18',\n  uv: '1.27.0',\n  zlib: '1.2.11',\n  brotli: '1.0.7',\n  ares: '1.15.0',\n  modules: '67',\n  nghttp2: '1.34.0',\n  napi: '4',\n  llhttp: '1.1.1',\n  openssl: '1.1.1b',\n  cldr: '34.0',\n  icu: '63.1',\n  tz: '2018e',\n  unicode: '11.0' }\n</code></pre>"
+          "desc": "<p>The <code>process.versions</code> property returns an object listing the version strings of\nNode.js and its dependencies. <code>process.versions.modules</code> indicates the current\nABI version, which is increased whenever a C++ API changes. Node.js will refuse\nto load modules that were compiled against a different module ABI version.</p>\n<pre><code class=\"language-mjs\">import { versions } from 'node:process';\n\nconsole.log(versions);\n</code></pre>\n<pre><code class=\"language-cjs\">const { versions } = require('node:process');\n\nconsole.log(versions);\n</code></pre>\n<p>Will generate an object similar to:</p>\n<pre><code class=\"language-console\">{ node: '23.0.0',\n  acorn: '8.11.3',\n  ada: '2.7.8',\n  ares: '1.28.1',\n  base64: '0.5.2',\n  brotli: '1.1.0',\n  cjs_module_lexer: '1.2.2',\n  cldr: '45.0',\n  icu: '75.1',\n  llhttp: '9.2.1',\n  modules: '127',\n  napi: '9',\n  nghttp2: '1.61.0',\n  nghttp3: '0.7.0',\n  ngtcp2: '1.3.0',\n  openssl: '3.0.13+quic',\n  simdjson: '3.8.0',\n  simdutf: '5.2.4',\n  tz: '2024a',\n  undici: '6.13.0',\n  unicode: '15.1',\n  uv: '1.48.0',\n  uvwasi: '0.0.20',\n  v8: '12.4.254.14-node.11',\n  zlib: '1.3.0.1-motley-7d77fb7' }\n</code></pre>"
         }
       ]
     }

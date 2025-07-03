@@ -418,8 +418,6 @@ Node.js source code.)
 
 `args[n]` is a `Local<Value>` that represents the n-th argument passed to the
 function. `args.This()` is the `this` value inside this function call.
-`args.Holder()` is equivalent to `args.This()` in all use cases inside of
-Node.js.
 
 `args.GetReturnValue()` is a placeholder for the return value of the function,
 and provides a `.Set()` method that can be called with a boolean, integer,
@@ -469,10 +467,16 @@ void Initialize(Local<Object> target,
 NODE_BINDING_CONTEXT_AWARE_INTERNAL(cares_wrap, Initialize)
 ```
 
-If the C++ binding is loaded during bootstrap, it needs to be registered
-with the utilities in `node_external_reference.h`, like this:
+#### Registering binding functions used in bootstrap
+
+If the C++ binding is loaded during bootstrap, in addition to registering it
+using `NODE_BINDING_CONTEXT_AWARE_INTERNAL` for `internalBinding()` lookup,
+it also needs to be registered with `NODE_BINDING_EXTERNAL_REFERENCE` so that
+the external references can be resolved from the built-in snapshot, like this:
 
 ```cpp
+#include "node_external_reference.h"
+
 namespace node {
 namespace util {
 void RegisterExternalReferences(ExternalReferenceRegistry* registry) {
@@ -500,7 +504,8 @@ Unknown external reference 0x107769200.
 /bin/sh: line 1:  6963 Illegal instruction: 4  out/Release/node_mksnapshot out/Release/gen/node_snapshot.cc
 ```
 
-You can try using a debugger to symbolicate the external reference. For example,
+You can try using a debugger to symbolicate the external reference in order to find
+out the binding functions that you forget to register. For example,
 with lldb's `image lookup --address` command (with gdb it's `info symbol`):
 
 ```console
@@ -516,7 +521,9 @@ Process 7012 stopped
 ```
 
 Which explains that the unregistered external reference is
-`node::util::GetHiddenValue` defined in `node_util.cc`.
+`node::util::GetHiddenValue` defined in `node_util.cc`, and should be registered
+using `registry->Register()` in a registration function marked by
+`NODE_BINDING_EXTERNAL_REFERENCE`.
 
 <a id="per-binding-state"></a>
 
@@ -574,8 +581,7 @@ void InitializeHttpParser(Local<Object> target,
                           Local<Context> context,
                           void* priv) {
   Realm* realm = Realm::GetCurrent(context);
-  BindingData* const binding_data =
-      realm->AddBindingData<BindingData>(context, target);
+  BindingData* const binding_data = realm->AddBindingData<BindingData>(target);
   if (binding_data == nullptr) return;
 
   Local<FunctionTemplate> t = NewFunctionTemplate(realm->isolate(), Parser::New);
@@ -830,7 +836,7 @@ The JavaScript object can be accessed as a `v8::Local<v8::Object>` by using
 `self->object()`, given a `BaseObject` named `self`.
 
 Accessing a `BaseObject` from a `v8::Local<v8::Object>` (frequently that is
-`args.This()` or `args.Holder()` in a [binding function][]) can be done using
+`args.This()` in a [binding function][]) can be done using
 the `Unwrap<T>(obj)` function, where `T` is a subclass of `BaseObject`.
 A helper for this is the `ASSIGN_OR_RETURN_UNWRAP` macro that returns from the
 current function if unwrapping fails (typically that means that the `BaseObject`
@@ -839,7 +845,7 @@ has been deleted earlier).
 ```cpp
 void Http2Session::Request(const FunctionCallbackInfo<Value>& args) {
   Http2Session* session;
-  ASSIGN_OR_RETURN_UNWRAP(&session, args.Holder());
+  ASSIGN_OR_RETURN_UNWRAP(&session, args.This());
   Environment* env = session->env();
   Local<Context> context = env->context();
   Isolate* isolate = env->isolate();

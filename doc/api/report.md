@@ -8,6 +8,13 @@
 
 <!-- name=report -->
 
+<!-- YAML
+changes:
+  - version: v20.13.0
+    pr-url: https://github.com/nodejs/node/pull/51645
+    description: Added `--report-exclude-network` option for excluding networking operations that can slow down report generation in some cases.
+-->
+
 Delivers a JSON-formatted diagnostic summary, written to a file.
 
 The report is intended for development, test, and production use, to capture
@@ -23,7 +30,7 @@ is provided below for reference.
 ```json
 {
   "header": {
-    "reportVersion": 3,
+    "reportVersion": 4,
     "event": "exception",
     "trigger": "Exception",
     "filename": "report.20181221.005011.8974.0.001.json",
@@ -313,6 +320,50 @@ is provided below for reference.
       "is_active": true,
       "address": "0x000055fc7b2cb180",
       "loopIdleTimeSeconds": 22644.8
+    },
+    {
+      "type": "tcp",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000055e70fcb85d8",
+      "localEndpoint": {
+        "host": "localhost",
+        "ip4": "127.0.0.1",
+        "port": 48986
+      },
+      "remoteEndpoint": {
+        "host": "localhost",
+        "ip4": "127.0.0.1",
+        "port": 38573
+      },
+      "sendBufferSize": 2626560,
+      "recvBufferSize": 131072,
+      "fd": 24,
+      "writeQueueSize": 0,
+      "readable": true,
+      "writable": true
+    },
+    {
+      "type": "tcp",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000055e70fcd68c8",
+      "localEndpoint": {
+        "host": "ip6-localhost",
+        "ip6": "::1",
+        "port": 52266
+      },
+      "remoteEndpoint": {
+        "host": "ip6-localhost",
+        "ip6": "::1",
+        "port": 38573
+      },
+      "sendBufferSize": 2626560,
+      "recvBufferSize": 131072,
+      "fd": 25,
+      "writeQueueSize": 0,
+      "readable": false,
+      "writable": false
     }
   ],
   "workers": [],
@@ -452,6 +503,10 @@ meaning of `SIGUSR2` for the said purposes.
 * `--report-signal` Sets or resets the signal for report generation
   (not supported on Windows). Default signal is `SIGUSR2`.
 
+* `--report-exclude-network` Exclude `header.networkInterfaces` and disable the reverse DNS queries
+  in `libuv.*.(remote|local)Endpoint.host` from the diagnostic report.
+  By default this is not set and the network interfaces are included.
+
 A report can also be triggered via an API call from a JavaScript application:
 
 ```js
@@ -571,6 +626,8 @@ timestamp, PID, and sequence number.
 written. URLs are not supported. Defaults to the current working directory of
 the Node.js process.
 
+`excludeNetwork` excludes `header.networkInterfaces` from the diagnostic report.
+
 ```js
 // Trigger report only on uncaught exceptions.
 process.report.reportOnFatalError = false;
@@ -587,6 +644,9 @@ process.report.reportOnFatalError = false;
 process.report.reportOnUncaughtException = false;
 process.report.reportOnSignal = true;
 process.report.signal = 'SIGQUIT';
+
+// Disable network interfaces reporting
+process.report.excludeNetwork = true;
 ```
 
 Configuration on module initialization is also available via

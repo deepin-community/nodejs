@@ -86,8 +86,18 @@ const uint32_t kLenientNone = 0;
 const uint32_t kLenientHeaders = 1 << 0;
 const uint32_t kLenientChunkedLength = 1 << 1;
 const uint32_t kLenientKeepAlive = 1 << 2;
-const uint32_t kLenientAll = kLenientHeaders | kLenientChunkedLength |
-  kLenientKeepAlive;
+const uint32_t kLenientTransferEncoding = 1 << 3;
+const uint32_t kLenientVersion = 1 << 4;
+const uint32_t kLenientDataAfterClose = 1 << 5;
+const uint32_t kLenientOptionalLFAfterCR = 1 << 6;
+const uint32_t kLenientOptionalCRLFAfterChunk = 1 << 7;
+const uint32_t kLenientOptionalCRBeforeLF = 1 << 8;
+const uint32_t kLenientSpacesAfterChunkSize = 1 << 9;
+const uint32_t kLenientAll =
+    kLenientHeaders | kLenientChunkedLength | kLenientKeepAlive |
+    kLenientTransferEncoding | kLenientVersion | kLenientDataAfterClose |
+    kLenientOptionalLFAfterCR | kLenientOptionalCRLFAfterChunk |
+    kLenientOptionalCRBeforeLF | kLenientSpacesAfterChunkSize;
 
 inline bool IsOWS(char c) {
   return c == ' ' || c == '\t';
@@ -524,7 +534,7 @@ class Parser : public AsyncWrap, public StreamListener {
 
     if (chunk_extensions_nread_ > kMaxChunkExtensionsSize) {
       llhttp_set_error_reason(&parser_,
-        "HPE_CHUNK_EXTENSIONS_OVERFLOW:Chunk extensions overflow");
+      "HPE_CHUNK_EXTENSIONS_OVERFLOW:Chunk extensions overflow");
       return HPE_USER;
     }
 
@@ -553,7 +563,7 @@ class Parser : public AsyncWrap, public StreamListener {
 
   static void Close(const FunctionCallbackInfo<Value>& args) {
     Parser* parser;
-    ASSIGN_OR_RETURN_UNWRAP(&parser, args.Holder());
+    ASSIGN_OR_RETURN_UNWRAP(&parser, args.This());
 
     delete parser;
   }
@@ -561,7 +571,7 @@ class Parser : public AsyncWrap, public StreamListener {
 
   static void Free(const FunctionCallbackInfo<Value>& args) {
     Parser* parser;
-    ASSIGN_OR_RETURN_UNWRAP(&parser, args.Holder());
+    ASSIGN_OR_RETURN_UNWRAP(&parser, args.This());
 
     // Since the Parser destructor isn't going to run the destroy() callbacks
     // it needs to be triggered manually.
@@ -571,7 +581,7 @@ class Parser : public AsyncWrap, public StreamListener {
 
   static void Remove(const FunctionCallbackInfo<Value>& args) {
     Parser* parser;
-    ASSIGN_OR_RETURN_UNWRAP(&parser, args.Holder());
+    ASSIGN_OR_RETURN_UNWRAP(&parser, args.This());
 
     if (parser->connectionsList_ != nullptr) {
       parser->connectionsList_->Pop(parser);
@@ -595,7 +605,7 @@ class Parser : public AsyncWrap, public StreamListener {
   // var bytesParsed = parser->execute(buffer);
   static void Execute(const FunctionCallbackInfo<Value>& args) {
     Parser* parser;
-    ASSIGN_OR_RETURN_UNWRAP(&parser, args.Holder());
+    ASSIGN_OR_RETURN_UNWRAP(&parser, args.This());
 
     ArrayBufferViewContents<char> buffer(args[0]);
 
@@ -608,7 +618,7 @@ class Parser : public AsyncWrap, public StreamListener {
 
   static void Finish(const FunctionCallbackInfo<Value>& args) {
     Parser* parser;
-    ASSIGN_OR_RETURN_UNWRAP(&parser, args.Holder());
+    ASSIGN_OR_RETURN_UNWRAP(&parser, args.This());
 
     Local<Value> ret = parser->Execute(nullptr, 0);
 
@@ -651,7 +661,7 @@ class Parser : public AsyncWrap, public StreamListener {
 
     CHECK(type == HTTP_REQUEST || type == HTTP_RESPONSE);
     Parser* parser;
-    ASSIGN_OR_RETURN_UNWRAP(&parser, args.Holder());
+    ASSIGN_OR_RETURN_UNWRAP(&parser, args.This());
     // Should always be called from the same context.
     CHECK_EQ(env, parser->env());
 
@@ -685,7 +695,7 @@ class Parser : public AsyncWrap, public StreamListener {
   static void Pause(const FunctionCallbackInfo<Value>& args) {
     Environment* env = Environment::GetCurrent(args);
     Parser* parser;
-    ASSIGN_OR_RETURN_UNWRAP(&parser, args.Holder());
+    ASSIGN_OR_RETURN_UNWRAP(&parser, args.This());
     // Should always be called from the same context.
     CHECK_EQ(env, parser->env());
 
@@ -699,7 +709,7 @@ class Parser : public AsyncWrap, public StreamListener {
 
   static void Consume(const FunctionCallbackInfo<Value>& args) {
     Parser* parser;
-    ASSIGN_OR_RETURN_UNWRAP(&parser, args.Holder());
+    ASSIGN_OR_RETURN_UNWRAP(&parser, args.This());
     CHECK(args[0]->IsObject());
     StreamBase* stream = StreamBase::FromObject(args[0].As<Object>());
     CHECK_NOT_NULL(stream);
@@ -709,7 +719,7 @@ class Parser : public AsyncWrap, public StreamListener {
 
   static void Unconsume(const FunctionCallbackInfo<Value>& args) {
     Parser* parser;
-    ASSIGN_OR_RETURN_UNWRAP(&parser, args.Holder());
+    ASSIGN_OR_RETURN_UNWRAP(&parser, args.This());
 
     // Already unconsumed
     if (parser->stream_ == nullptr)
@@ -721,7 +731,7 @@ class Parser : public AsyncWrap, public StreamListener {
 
   static void GetCurrentBuffer(const FunctionCallbackInfo<Value>& args) {
     Parser* parser;
-    ASSIGN_OR_RETURN_UNWRAP(&parser, args.Holder());
+    ASSIGN_OR_RETURN_UNWRAP(&parser, args.This());
 
     Local<Object> ret = Buffer::Copy(
         parser->env(),
@@ -733,7 +743,7 @@ class Parser : public AsyncWrap, public StreamListener {
 
   static void Duration(const FunctionCallbackInfo<Value>& args) {
     Parser* parser;
-    ASSIGN_OR_RETURN_UNWRAP(&parser, args.Holder());
+    ASSIGN_OR_RETURN_UNWRAP(&parser, args.This());
 
     if (parser->last_message_start_ == 0) {
       args.GetReturnValue().Set(0);
@@ -746,7 +756,7 @@ class Parser : public AsyncWrap, public StreamListener {
 
   static void HeadersCompleted(const FunctionCallbackInfo<Value>& args) {
     Parser* parser;
-    ASSIGN_OR_RETURN_UNWRAP(&parser, args.Holder());
+    ASSIGN_OR_RETURN_UNWRAP(&parser, args.This());
 
     args.GetReturnValue().Set(parser->headers_completed_);
   }
@@ -946,6 +956,27 @@ class Parser : public AsyncWrap, public StreamListener {
     if (lenient_flags & kLenientKeepAlive) {
       llhttp_set_lenient_keep_alive(&parser_, 1);
     }
+    if (lenient_flags & kLenientTransferEncoding) {
+      llhttp_set_lenient_transfer_encoding(&parser_, 1);
+    }
+    if (lenient_flags & kLenientVersion) {
+      llhttp_set_lenient_version(&parser_, 1);
+    }
+    if (lenient_flags & kLenientDataAfterClose) {
+      llhttp_set_lenient_data_after_close(&parser_, 1);
+    }
+    if (lenient_flags & kLenientOptionalLFAfterCR) {
+      llhttp_set_lenient_optional_lf_after_cr(&parser_, 1);
+    }
+    if (lenient_flags & kLenientOptionalCRLFAfterChunk) {
+      llhttp_set_lenient_optional_crlf_after_chunk(&parser_, 1);
+    }
+    if (lenient_flags & kLenientOptionalCRBeforeLF) {
+      llhttp_set_lenient_optional_cr_before_lf(&parser_, 1);
+    }
+    if (lenient_flags & kLenientSpacesAfterChunkSize) {
+      llhttp_set_lenient_spaces_after_chunk_size(&parser_, 1);
+    }
 
     header_nread_ = 0;
     url_.Reset();
@@ -1056,7 +1087,7 @@ void ConnectionsList::All(const FunctionCallbackInfo<Value>& args) {
 
   ConnectionsList* list;
 
-  ASSIGN_OR_RETURN_UNWRAP(&list, args.Holder());
+  ASSIGN_OR_RETURN_UNWRAP(&list, args.This());
 
   std::vector<Local<Value>> result;
   result.reserve(list->all_connections_.size());
@@ -1073,7 +1104,7 @@ void ConnectionsList::Idle(const FunctionCallbackInfo<Value>& args) {
 
   ConnectionsList* list;
 
-  ASSIGN_OR_RETURN_UNWRAP(&list, args.Holder());
+  ASSIGN_OR_RETURN_UNWRAP(&list, args.This());
 
   std::vector<Local<Value>> result;
   result.reserve(list->all_connections_.size());
@@ -1092,7 +1123,7 @@ void ConnectionsList::Active(const FunctionCallbackInfo<Value>& args) {
 
   ConnectionsList* list;
 
-  ASSIGN_OR_RETURN_UNWRAP(&list, args.Holder());
+  ASSIGN_OR_RETURN_UNWRAP(&list, args.This());
 
   std::vector<Local<Value>> result;
   result.reserve(list->active_connections_.size());
@@ -1109,7 +1140,7 @@ void ConnectionsList::Expired(const FunctionCallbackInfo<Value>& args) {
 
   ConnectionsList* list;
 
-  ASSIGN_OR_RETURN_UNWRAP(&list, args.Holder());
+  ASSIGN_OR_RETURN_UNWRAP(&list, args.This());
   CHECK(args[0]->IsNumber());
   CHECK(args[1]->IsNumber());
   uint64_t headers_timeout =
@@ -1168,28 +1199,50 @@ void ConnectionsList::Expired(const FunctionCallbackInfo<Value>& args) {
 }
 
 const llhttp_settings_t Parser::settings = {
-  Proxy<Call, &Parser::on_message_begin>::Raw,
-  Proxy<DataCall, &Parser::on_url>::Raw,
-  Proxy<DataCall, &Parser::on_status>::Raw,
-  Proxy<DataCall, &Parser::on_header_field>::Raw,
-  Proxy<DataCall, &Parser::on_header_value>::Raw,
-  Proxy<Call, &Parser::on_headers_complete>::Raw,
-  Proxy<DataCall, &Parser::on_chunk_extension>::Raw,
-  Proxy<DataCall, &Parser::on_body>::Raw,
-  Proxy<Call, &Parser::on_message_complete>::Raw,
-  Proxy<Call, &Parser::on_chunk_header>::Raw,
-  Proxy<Call, &Parser::on_chunk_complete>::Raw,
+    Proxy<Call, &Parser::on_message_begin>::Raw,
+    Proxy<DataCall, &Parser::on_url>::Raw,
+    Proxy<DataCall, &Parser::on_status>::Raw,
 
-  // on_url_complete
-  nullptr,
-  // on_status_complete
-  nullptr,
-  // on_header_field_complete
-  nullptr,
-  // on_header_value_complete
-  nullptr,
+    // on_method
+    nullptr,
+    // on_version
+    nullptr,
+
+    Proxy<DataCall, &Parser::on_header_field>::Raw,
+    Proxy<DataCall, &Parser::on_header_value>::Raw,
+
+    // on_chunk_extension_name
+    Proxy<DataCall, &Parser::on_chunk_extension>::Raw,
+    // on_chunk_extension_value
+    Proxy<DataCall, &Parser::on_chunk_extension>::Raw,
+
+    Proxy<Call, &Parser::on_headers_complete>::Raw,
+    Proxy<DataCall, &Parser::on_body>::Raw,
+    Proxy<Call, &Parser::on_message_complete>::Raw,
+
+    // on_url_complete
+    nullptr,
+    // on_status_complete
+    nullptr,
+    // on_method_complete
+    nullptr,
+    // on_version_complete
+    nullptr,
+    // on_header_field_complete
+    nullptr,
+    // on_header_value_complete
+    nullptr,
+    // on_chunk_extension_name_complete
+    nullptr,
+    // on_chunk_extension_value_complete
+    nullptr,
+
+    Proxy<Call, &Parser::on_chunk_header>::Raw,
+    Proxy<Call, &Parser::on_chunk_complete>::Raw,
+
+    // on_reset,
+    nullptr,
 };
-
 
 void InitializeHttpParser(Local<Object> target,
                           Local<Value> unused,
@@ -1198,8 +1251,7 @@ void InitializeHttpParser(Local<Object> target,
   Realm* realm = Realm::GetCurrent(context);
   Environment* env = realm->env();
   Isolate* isolate = env->isolate();
-  BindingData* const binding_data =
-      realm->AddBindingData<BindingData>(context, target);
+  BindingData* const binding_data = realm->AddBindingData<BindingData>(target);
   if (binding_data == nullptr) return;
 
   Local<FunctionTemplate> t = NewFunctionTemplate(isolate, Parser::New);
@@ -1232,13 +1284,34 @@ void InitializeHttpParser(Local<Object> target,
          Integer::NewFromUnsigned(env->isolate(), kLenientChunkedLength));
   t->Set(FIXED_ONE_BYTE_STRING(env->isolate(), "kLenientKeepAlive"),
          Integer::NewFromUnsigned(env->isolate(), kLenientKeepAlive));
+  t->Set(FIXED_ONE_BYTE_STRING(env->isolate(), "kLenientTransferEncoding"),
+         Integer::NewFromUnsigned(env->isolate(), kLenientTransferEncoding));
+  t->Set(FIXED_ONE_BYTE_STRING(env->isolate(), "kLenientVersion"),
+         Integer::NewFromUnsigned(env->isolate(), kLenientVersion));
+  t->Set(FIXED_ONE_BYTE_STRING(env->isolate(), "kLenientDataAfterClose"),
+         Integer::NewFromUnsigned(env->isolate(), kLenientDataAfterClose));
+  t->Set(FIXED_ONE_BYTE_STRING(env->isolate(), "kLenientOptionalLFAfterCR"),
+         Integer::NewFromUnsigned(env->isolate(), kLenientOptionalLFAfterCR));
+  t->Set(
+      FIXED_ONE_BYTE_STRING(env->isolate(), "kLenientOptionalCRLFAfterChunk"),
+      Integer::NewFromUnsigned(env->isolate(), kLenientOptionalCRLFAfterChunk));
+  t->Set(FIXED_ONE_BYTE_STRING(env->isolate(), "kLenientOptionalCRBeforeLF"),
+         Integer::NewFromUnsigned(env->isolate(), kLenientOptionalCRBeforeLF));
+  t->Set(
+      FIXED_ONE_BYTE_STRING(env->isolate(), "kLenientSpacesAfterChunkSize"),
+      Integer::NewFromUnsigned(env->isolate(), kLenientSpacesAfterChunkSize));
+
   t->Set(FIXED_ONE_BYTE_STRING(env->isolate(), "kLenientAll"),
          Integer::NewFromUnsigned(env->isolate(), kLenientAll));
 
   Local<Array> methods = Array::New(env->isolate());
-#define V(num, name, string)                                                  \
-    methods->Set(env->context(),                                              \
-        num, FIXED_ONE_BYTE_STRING(env->isolate(), #string)).Check();
+  size_t method_index = -1;
+#define V(num, name, string)                                                   \
+  methods                                                                      \
+      ->Set(env->context(),                                                    \
+            ++method_index,                                                    \
+            FIXED_ONE_BYTE_STRING(env->isolate(), #string))                    \
+      .Check();
   HTTP_METHOD_MAP(V)
 #undef V
   target->Set(env->context(),

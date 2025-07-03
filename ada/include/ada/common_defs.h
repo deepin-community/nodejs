@@ -280,9 +280,11 @@ namespace ada {
 #ifdef ADA_VISUAL_STUDIO
 #define ADA_ASSUME(COND) __assume(COND)
 #else
-#define ADA_ASSUME(COND)                  \
-  do {                                    \
-    if (!(COND)) __builtin_unreachable(); \
+#define ADA_ASSUME(COND)       \
+  do {                         \
+    if (!(COND)) {             \
+      __builtin_unreachable(); \
+    }                          \
   } while (0)
 #endif
 
@@ -294,6 +296,18 @@ namespace ada {
 
 #if defined(__aarch64__) || defined(_M_ARM64)
 #define ADA_NEON 1
+#endif
+
+#ifndef __has_cpp_attribute
+#define ada_lifetime_bound
+#elif __has_cpp_attribute(msvc::lifetimebound)
+#define ada_lifetime_bound [[msvc::lifetimebound]]
+#elif __has_cpp_attribute(clang::lifetimebound)
+#define ada_lifetime_bound [[clang::lifetimebound]]
+#elif __has_cpp_attribute(lifetimebound)
+#define ada_lifetime_bound [[lifetimebound]]
+#else
+#define ada_lifetime_bound
 #endif
 
 #endif  // ADA_COMMON_DEFS_H
