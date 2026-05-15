@@ -7,7 +7,7 @@
       "name": "Process",
       "introduced_in": "v0.10.0",
       "type": "global",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v20.15.1/lib/process.js\">lib/process.js</a></p>\n<p>The <code>process</code> object provides information about, and control over, the current\nNode.js process.</p>\n<pre><code class=\"language-mjs\">import process from 'node:process';\n</code></pre>\n<pre><code class=\"language-cjs\">const process = require('node:process');\n</code></pre>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v20.19.2/lib/process.js\">lib/process.js</a></p>\n<p>The <code>process</code> object provides information about, and control over, the current\nNode.js process.</p>\n<pre><code class=\"language-mjs\">import process from 'node:process';\n</code></pre>\n<pre><code class=\"language-cjs\">const process = require('node:process');\n</code></pre>",
       "modules": [
         {
           "textRaw": "Process events",
@@ -142,6 +142,32 @@
                 }
               ],
               "desc": "<p>The <code>'rejectionHandled'</code> event is emitted whenever a <code>Promise</code> has been rejected\nand an error handler was attached to it (using <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/catch\"><code>promise.catch()</code></a>, for\nexample) later than one turn of the Node.js event loop.</p>\n<p>The <code>Promise</code> object would have previously been emitted in an\n<code>'unhandledRejection'</code> event, but during the course of processing gained a\nrejection handler.</p>\n<p>There is no notion of a top level for a <code>Promise</code> chain at which rejections can\nalways be handled. Being inherently asynchronous in nature, a <code>Promise</code>\nrejection can be handled at a future point in time, possibly much later than\nthe event loop turn it takes for the <code>'unhandledRejection'</code> event to be emitted.</p>\n<p>Another way of stating this is that, unlike in synchronous code where there is\nan ever-growing list of unhandled exceptions, with Promises there can be a\ngrowing-and-shrinking list of unhandled rejections.</p>\n<p>In synchronous code, the <code>'uncaughtException'</code> event is emitted when the list of\nunhandled exceptions grows.</p>\n<p>In asynchronous code, the <code>'unhandledRejection'</code> event is emitted when the list\nof unhandled rejections grows, and the <code>'rejectionHandled'</code> event is emitted\nwhen the list of unhandled rejections shrinks.</p>\n<pre><code class=\"language-mjs\">import process from 'node:process';\n\nconst unhandledRejections = new Map();\nprocess.on('unhandledRejection', (reason, promise) => {\n  unhandledRejections.set(promise, reason);\n});\nprocess.on('rejectionHandled', (promise) => {\n  unhandledRejections.delete(promise);\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const process = require('node:process');\n\nconst unhandledRejections = new Map();\nprocess.on('unhandledRejection', (reason, promise) => {\n  unhandledRejections.set(promise, reason);\n});\nprocess.on('rejectionHandled', (promise) => {\n  unhandledRejections.delete(promise);\n});\n</code></pre>\n<p>In this example, the <code>unhandledRejections</code> <code>Map</code> will grow and shrink over time,\nreflecting rejections that start unhandled and then become handled. It is\npossible to record such errors in an error log, either periodically (which is\nlikely best for long-running application) or upon process exit (which is likely\nmost convenient for scripts).</p>"
+            },
+            {
+              "textRaw": "Event: `'workerMessage'`",
+              "type": "event",
+              "name": "workerMessage",
+              "meta": {
+                "added": [
+                  "v20.19.0"
+                ],
+                "changes": []
+              },
+              "params": [
+                {
+                  "textRaw": "`value` {any} A value transmitted using [`postMessageToThread()`][].",
+                  "name": "value",
+                  "type": "any",
+                  "desc": "A value transmitted using [`postMessageToThread()`][]."
+                },
+                {
+                  "textRaw": "`source` {number} The transmitting worker thread ID or `0` for the main thread.",
+                  "name": "source",
+                  "type": "number",
+                  "desc": "The transmitting worker thread ID or `0` for the main thread."
+                }
+              ],
+              "desc": "<p>The <code>'workerMessage'</code> event is emitted for any incoming message send by the other\nparty by using <a href=\"worker_threads.html#workerpostmessagetothreadthreadid-value-transferlist-timeout\"><code>postMessageToThread()</code></a>.</p>"
             },
             {
               "textRaw": "Event: `'uncaughtException'`",
@@ -731,6 +757,35 @@
           "desc": "<p>The <code>process.getActiveResourcesInfo()</code> method returns an array of strings\ncontaining the types of the active resources that are currently keeping the\nevent loop alive.</p>\n<pre><code class=\"language-mjs\">import { getActiveResourcesInfo } from 'node:process';\nimport { setTimeout } from 'node:timers';\n\nconsole.log('Before:', getActiveResourcesInfo());\nsetTimeout(() => {}, 1000);\nconsole.log('After:', getActiveResourcesInfo());\n// Prints:\n//   Before: [ 'CloseReq', 'TTYWrap', 'TTYWrap', 'TTYWrap' ]\n//   After: [ 'CloseReq', 'TTYWrap', 'TTYWrap', 'TTYWrap', 'Timeout' ]\n</code></pre>\n<pre><code class=\"language-cjs\">const { getActiveResourcesInfo } = require('node:process');\nconst { setTimeout } = require('node:timers');\n\nconsole.log('Before:', getActiveResourcesInfo());\nsetTimeout(() => {}, 1000);\nconsole.log('After:', getActiveResourcesInfo());\n// Prints:\n//   Before: [ 'TTYWrap', 'TTYWrap', 'TTYWrap' ]\n//   After: [ 'TTYWrap', 'TTYWrap', 'TTYWrap', 'Timeout' ]\n</code></pre>"
         },
         {
+          "textRaw": "`process.getBuiltinModule(id)`",
+          "type": "method",
+          "name": "getBuiltinModule",
+          "meta": {
+            "added": [
+              "v20.16.0"
+            ],
+            "changes": []
+          },
+          "signatures": [
+            {
+              "return": {
+                "textRaw": "Returns: {Object|undefined}",
+                "name": "return",
+                "type": "Object|undefined"
+              },
+              "params": [
+                {
+                  "textRaw": "`id` {string} ID of the built-in module being requested.",
+                  "name": "id",
+                  "type": "string",
+                  "desc": "ID of the built-in module being requested."
+                }
+              ]
+            }
+          ],
+          "desc": "<p><code>process.getBuiltinModule(id)</code> provides a way to load built-in modules\nin a globally available function. ES Modules that need to support\nother environments can use it to conditionally load a Node.js built-in\nwhen it is run in Node.js, without having to deal with the resolution\nerror that can be thrown by <code>import</code> in a non-Node.js environment or\nhaving to use dynamic <code>import()</code> which either turns the module into\nan asynchronous module, or turns a synchronous API into an asynchronous one.</p>\n<pre><code class=\"language-mjs\">if (globalThis.process?.getBuiltinModule) {\n  // Run in Node.js, use the Node.js fs module.\n  const fs = globalThis.process.getBuiltinModule('fs');\n  // If `require()` is needed to load user-modules, use createRequire()\n  const module = globalThis.process.getBuiltinModule('module');\n  const require = module.createRequire(import.meta.url);\n  const foo = require('foo');\n}\n</code></pre>\n<p>If <code>id</code> specifies a built-in module available in the current Node.js process,\n<code>process.getBuiltinModule(id)</code> method returns the corresponding built-in\nmodule. If <code>id</code> does not correspond to any built-in module, <code>undefined</code>\nis returned.</p>\n<p><code>process.getBuiltinModule(id)</code> accepts built-in module IDs that are recognized\nby <a href=\"module.html#moduleisbuiltinmodulename\"><code>module.isBuiltin(id)</code></a>. Some built-in modules must be loaded with the\n<code>node:</code> prefix, see <a href=\"modules.html#built-in-modules-with-mandatory-node-prefix\">built-in modules with mandatory <code>node:</code> prefix</a>.\nThe references returned by <code>process.getBuiltinModule(id)</code> always point to\nthe built-in module corresponding to <code>id</code> even if users modify\n<a href=\"modules.html#requirecache\"><code>require.cache</code></a> so that <code>require(id)</code> returns something else.</p>"
+        },
+        {
           "textRaw": "`process.getegid()`",
           "type": "method",
           "name": "getegid",
@@ -1094,6 +1149,11 @@
             ],
             "changes": [
               {
+                "version": "v20.18.0",
+                "pr-url": "https://github.com/nodejs/node/pull/51280",
+                "description": "Changed stability to Legacy."
+              },
+              {
                 "version": "v18.0.0",
                 "pr-url": "https://github.com/nodejs/node/pull/41678",
                 "description": "Passing an invalid callback to the `callback` argument now throws `ERR_INVALID_ARG_TYPE` instead of `ERR_INVALID_CALLBACK`."
@@ -1105,6 +1165,8 @@
               }
             ]
           },
+          "stability": 3,
+          "stabilityText": "Legacy: Use [`queueMicrotask()`][] instead.",
           "signatures": [
             {
               "params": [
@@ -1127,7 +1189,7 @@
             {
               "textRaw": "When to use `queueMicrotask()` vs. `process.nextTick()`",
               "name": "when_to_use_`queuemicrotask()`_vs._`process.nexttick()`",
-              "desc": "<p>The <a href=\"globals.html#queuemicrotaskcallback\"><code>queueMicrotask()</code></a> API is an alternative to <code>process.nextTick()</code> that\nalso defers execution of a function using the same microtask queue used to\nexecute the then, catch, and finally handlers of resolved promises. Within\nNode.js, every time the \"next tick queue\" is drained, the microtask queue\nis drained immediately after.</p>\n<pre><code class=\"language-mjs\">import { nextTick } from 'node:process';\n\nPromise.resolve().then(() => console.log(2));\nqueueMicrotask(() => console.log(3));\nnextTick(() => console.log(1));\n// Output:\n// 1\n// 2\n// 3\n</code></pre>\n<pre><code class=\"language-cjs\">const { nextTick } = require('node:process');\n\nPromise.resolve().then(() => console.log(2));\nqueueMicrotask(() => console.log(3));\nnextTick(() => console.log(1));\n// Output:\n// 1\n// 2\n// 3\n</code></pre>\n<p>For <em>most</em> userland use cases, the <code>queueMicrotask()</code> API provides a portable\nand reliable mechanism for deferring execution that works across multiple\nJavaScript platform environments and should be favored over <code>process.nextTick()</code>.\nIn simple scenarios, <code>queueMicrotask()</code> can be a drop-in replacement for\n<code>process.nextTick()</code>.</p>\n<pre><code class=\"language-js\">console.log('start');\nqueueMicrotask(() => {\n  console.log('microtask callback');\n});\nconsole.log('scheduled');\n// Output:\n// start\n// scheduled\n// microtask callback\n</code></pre>\n<p>One note-worthy difference between the two APIs is that <code>process.nextTick()</code>\nallows specifying additional values that will be passed as arguments to the\ndeferred function when it is called. Achieving the same result with\n<code>queueMicrotask()</code> requires using either a closure or a bound function:</p>\n<pre><code class=\"language-js\">function deferred(a, b) {\n  console.log('microtask', a + b);\n}\n\nconsole.log('start');\nqueueMicrotask(deferred.bind(undefined, 1, 2));\nconsole.log('scheduled');\n// Output:\n// start\n// scheduled\n// microtask 3\n</code></pre>\n<p>There are minor differences in the way errors raised from within the next tick\nqueue and microtask queue are handled. Errors thrown within a queued microtask\ncallback should be handled within the queued callback when possible. If they are\nnot, the <code>process.on('uncaughtException')</code> event handler can be used to capture\nand handle the errors.</p>\n<p>When in doubt, unless the specific capabilities of <code>process.nextTick()</code> are\nneeded, use <code>queueMicrotask()</code>.</p>",
+              "desc": "<p>The <a href=\"globals.html#queuemicrotaskcallback\"><code>queueMicrotask()</code></a> API is an alternative to <code>process.nextTick()</code> that instead of using the\n\"next tick queue\" defers execution of a function using the same microtask queue used to execute the\nthen, catch, and finally handlers of resolved promises.</p>\n<p>Within Node.js, every time the \"next tick queue\" is drained, the microtask queue\nis drained immediately after.</p>\n<p>So in CJS modules <code>process.nextTick()</code> callbacks are always run before <code>queueMicrotask()</code> ones.\nHowever since ESM modules are processed already as part of the microtask queue, there\n<code>queueMicrotask()</code> callbacks are always exectued before <code>process.nextTick()</code> ones since Node.js\nis already in the process of draining the microtask queue.</p>\n<pre><code class=\"language-mjs\">import { nextTick } from 'node:process';\n\nPromise.resolve().then(() => console.log('resolve'));\nqueueMicrotask(() => console.log('microtask'));\nnextTick(() => console.log('nextTick'));\n// Output:\n// resolve\n// microtask\n// nextTick\n</code></pre>\n<pre><code class=\"language-cjs\">const { nextTick } = require('node:process');\n\nPromise.resolve().then(() => console.log('resolve'));\nqueueMicrotask(() => console.log('microtask'));\nnextTick(() => console.log('nextTick'));\n// Output:\n// nextTick\n// resolve\n// microtask\n</code></pre>\n<p>For <em>most</em> userland use cases, the <code>queueMicrotask()</code> API provides a portable\nand reliable mechanism for deferring execution that works across multiple\nJavaScript platform environments and should be favored over <code>process.nextTick()</code>.\nIn simple scenarios, <code>queueMicrotask()</code> can be a drop-in replacement for\n<code>process.nextTick()</code>.</p>\n<pre><code class=\"language-js\">console.log('start');\nqueueMicrotask(() => {\n  console.log('microtask callback');\n});\nconsole.log('scheduled');\n// Output:\n// start\n// scheduled\n// microtask callback\n</code></pre>\n<p>One note-worthy difference between the two APIs is that <code>process.nextTick()</code>\nallows specifying additional values that will be passed as arguments to the\ndeferred function when it is called. Achieving the same result with\n<code>queueMicrotask()</code> requires using either a closure or a bound function:</p>\n<pre><code class=\"language-js\">function deferred(a, b) {\n  console.log('microtask', a + b);\n}\n\nconsole.log('start');\nqueueMicrotask(deferred.bind(undefined, 1, 2));\nconsole.log('scheduled');\n// Output:\n// start\n// scheduled\n// microtask 3\n</code></pre>\n<p>There are minor differences in the way errors raised from within the next tick\nqueue and microtask queue are handled. Errors thrown within a queued microtask\ncallback should be handled within the queued callback when possible. If they are\nnot, the <code>process.on('uncaughtException')</code> event handler can be used to capture\nand handle the errors.</p>\n<p>When in doubt, unless the specific capabilities of <code>process.nextTick()</code> are\nneeded, use <code>queueMicrotask()</code>.</p>",
               "type": "module",
               "displayName": "When to use `queueMicrotask()` vs. `process.nextTick()`"
             }
@@ -1766,6 +1828,126 @@
           "shortDesc": "The exit code. For string type, only integer strings (e.g.,'1') are allowed."
         },
         {
+          "textRaw": "`cached_builtins` {boolean}",
+          "type": "boolean",
+          "name": "cached_builtins",
+          "meta": {
+            "added": [
+              "v12.0.0"
+            ],
+            "changes": []
+          },
+          "desc": "<p>A boolean value that is <code>true</code> if the current Node.js build is caching builtin modules.</p>"
+        },
+        {
+          "textRaw": "`debug` {boolean}",
+          "type": "boolean",
+          "name": "debug",
+          "meta": {
+            "added": [
+              "v0.5.5"
+            ],
+            "changes": []
+          },
+          "desc": "<p>A boolean value that is <code>true</code> if the current Node.js build is a debug build.</p>"
+        },
+        {
+          "textRaw": "`inspector` {boolean}",
+          "type": "boolean",
+          "name": "inspector",
+          "meta": {
+            "added": [
+              "v11.10.0"
+            ],
+            "changes": []
+          },
+          "desc": "<p>A boolean value that is <code>true</code> if the current Node.js build includes the inspector.</p>"
+        },
+        {
+          "textRaw": "`ipv6` {boolean}",
+          "type": "boolean",
+          "name": "ipv6",
+          "meta": {
+            "added": [
+              "v0.5.3"
+            ],
+            "changes": []
+          },
+          "desc": "<p>A boolean value that is <code>true</code> if the current Node.js build includes support for IPv6.</p>"
+        },
+        {
+          "textRaw": "`require_module` {boolean}",
+          "type": "boolean",
+          "name": "require_module",
+          "meta": {
+            "added": [
+              "v20.19.0"
+            ],
+            "changes": []
+          },
+          "desc": "<p>A boolean value that is <code>true</code> if the current Node.js build supports\n<a href=\"modules.html#loading-ecmascript-modules-using-require\">loading ECMAScript modules using <code>require()</code></a>.</p>"
+        },
+        {
+          "textRaw": "`tls` {boolean}",
+          "type": "boolean",
+          "name": "tls",
+          "meta": {
+            "added": [
+              "v0.5.3"
+            ],
+            "changes": []
+          },
+          "desc": "<p>A boolean value that is <code>true</code> if the current Node.js build includes support for TLS.</p>"
+        },
+        {
+          "textRaw": "`tls_alpn` {boolean}",
+          "type": "boolean",
+          "name": "tls_alpn",
+          "meta": {
+            "added": [
+              "v4.8.0"
+            ],
+            "changes": []
+          },
+          "desc": "<p>A boolean value that is <code>true</code> if the current Node.js build includes support for ALPN in TLS.</p>\n<hr>"
+        },
+        {
+          "textRaw": "`tls_ocsp` {boolean}",
+          "type": "boolean",
+          "name": "tls_ocsp",
+          "meta": {
+            "added": [
+              "v0.11.13"
+            ],
+            "changes": []
+          },
+          "desc": "<p>A boolean value that is <code>true</code> if the current Node.js build includes support for OCSP in TLS.</p>\n<hr>"
+        },
+        {
+          "textRaw": "`tls_sni` {boolean}",
+          "type": "boolean",
+          "name": "tls_sni",
+          "meta": {
+            "added": [
+              "v0.5.3"
+            ],
+            "changes": []
+          },
+          "desc": "<p>A boolean value that is <code>true</code> if the current Node.js build includes support for SNI in TLS.</p>\n<hr>"
+        },
+        {
+          "textRaw": "`uv` {boolean}",
+          "type": "boolean",
+          "name": "uv",
+          "meta": {
+            "added": [
+              "v0.5.3"
+            ],
+            "changes": []
+          },
+          "desc": "<p>A boolean value that is <code>true</code> if the current Node.js build includes support for libuv.\nSince it's currently not possible to build Node.js without libuv, this value is always <code>true</code>.</p>"
+        },
+        {
           "textRaw": "`mainModule` {Object}",
           "type": "Object",
           "name": "mainModule",
@@ -1863,7 +2045,7 @@
             ],
             "changes": []
           },
-          "desc": "<p>The <code>process.platform</code> property returns a string identifying the operating\nsystem platform for which the Node.js binary was compiled.</p>\n<p>Currently possible values are:</p>\n<ul>\n<li><code>'aix'</code></li>\n<li><code>'darwin'</code></li>\n<li><code>'freebsd'</code></li>\n<li><code>'linux'</code></li>\n<li><code>'openbsd'</code></li>\n<li><code>'sunos'</code></li>\n<li><code>'win32'</code></li>\n</ul>\n<pre><code class=\"language-mjs\">import { platform } from 'node:process';\n\nconsole.log(`This platform is ${platform}`);\n</code></pre>\n<pre><code class=\"language-cjs\">const { platform } = require('node:process');\n\nconsole.log(`This platform is ${platform}`);\n</code></pre>\n<p>The value <code>'android'</code> may also be returned if the Node.js is built on the\nAndroid operating system. However, Android support in Node.js\n<a href=\"https://github.com/nodejs/node/blob/HEAD/BUILDING.md#androidandroid-based-devices-eg-firefox-os\">is experimental</a>.</p>"
+          "desc": "<p>The <code>process.platform</code> property returns a string identifying the operating\nsystem platform for which the Node.js binary was compiled.</p>\n<p>Currently possible values are:</p>\n<ul>\n<li><code>'aix'</code></li>\n<li><code>'darwin'</code></li>\n<li><code>'freebsd'</code></li>\n<li><code>'linux'</code></li>\n<li><code>'openbsd'</code></li>\n<li><code>'sunos'</code></li>\n<li><code>'win32'</code></li>\n</ul>\n<pre><code class=\"language-mjs\">import { platform } from 'node:process';\n\nconsole.log(`This platform is ${platform}`);\n</code></pre>\n<pre><code class=\"language-cjs\">const { platform } = require('node:process');\n\nconsole.log(`This platform is ${platform}`);\n</code></pre>\n<p>The value <code>'android'</code> may also be returned if the Node.js is built on the\nAndroid operating system. However, Android support in Node.js\n<a href=\"https://github.com/nodejs/node/blob/HEAD/BUILDING.md#android\">is experimental</a>.</p>"
         },
         {
           "textRaw": "`ppid` {integer}",

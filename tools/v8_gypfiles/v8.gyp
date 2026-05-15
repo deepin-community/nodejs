@@ -41,6 +41,19 @@
         'AdditionalOptions': ['/utf-8']
       }
     },
+    'conditions': [
+      ['OS=="mac"', {
+        # Hide symbols that are not explicitly exported with V8_EXPORT.
+        # TODO(joyeecheung): enable it on other platforms. Currently gcc times out
+        # or run out of memory with -fvisibility=hidden on some machines in the CI.
+        'xcode_settings': {
+          'GCC_SYMBOLS_PRIVATE_EXTERN': 'YES',  # -fvisibility=hidden
+        },
+        'defines': [
+          'BUILDING_V8_SHARED',  # Make V8_EXPORT visible.
+        ],
+      }],
+    ],
   },
   'targets': [
     {
@@ -1032,6 +1045,11 @@
                     '<(V8_ROOT)/src/trap-handler/handler-outside-posix.cc',
                   ],
                 }],
+                ['(_toolset=="host" and host_arch=="x64" or _toolset=="target" and target_arch=="x64") and (OS=="linux")', {
+                  'sources': [
+                    '<(V8_ROOT)/src/trap-handler/handler-outside-simulator.cc',
+                  ],
+                }],
               ],
             }],
           ],
@@ -1746,7 +1764,7 @@
           ['enable_lto=="true"', {
             'cflags_cc': [ '-fno-lto' ],
           }],
-          ['clang or OS!="win"', {
+          ['clang==1 or OS!="win"', {
             'conditions': [
               ['_toolset == "host" and host_arch == "x64" or _toolset == "target" and target_arch=="x64"', {
                 'sources': [
@@ -1981,12 +1999,6 @@
           ]
         }],
       ],
-      # -Wno-invalid-offsetof flag is not valid for C.
-      # The flag is initially set in `toolchain.gypi` for all targets.
-      'cflags!': [ '-Wno-invalid-offsetof' ],
-      'xcode_settings': {
-        'WARNING_CFLAGS!': ['-Wno-invalid-offsetof']
-      },
       'direct_dependent_settings': {
         'include_dirs': [
           '<(V8_ROOT)/third_party/zlib',

@@ -863,7 +863,7 @@ channels.tracePromise(async () => {
 });
 ```
 
-#### `tracingChannel.traceCallback(fn, position, context, thisArg, ...args)`
+#### `tracingChannel.traceCallback(fn[, position[, context[, thisArg[, ...args]]]])`
 
 <!-- YAML
 added:
@@ -917,7 +917,7 @@ const channels = diagnostics_channel.tracingChannel('my-channel');
 channels.traceCallback((arg1, callback) => {
   // Do something
   callback(null, 'result');
-}, {
+}, 1, {
   some: 'thing',
 }, thisArg, arg1, callback);
 ```
@@ -965,6 +965,42 @@ channels.start.bindStore(myStore, (data) => {
 channels.asyncStart.bindStore(myStore, (data) => {
   return data.span;
 });
+```
+
+#### `tracingChannel.hasSubscribers`
+
+<!-- YAML
+added:
+ - v22.0.0
+-->
+
+> Stability: 1 - Experimental
+
+* Returns: {boolean} `true` if any of the individual channels has a subscriber,
+  `false` if not.
+
+This is a helper method available on a [`TracingChannel`][] instance to check if
+any of the [TracingChannel Channels][] have subscribers. A `true` is returned if
+any of them have at least one subscriber, a `false` is returned otherwise.
+
+```mjs
+import diagnostics_channel from 'node:diagnostics_channel';
+
+const channels = diagnostics_channel.tracingChannel('my-channel');
+
+if (channels.hasSubscribers) {
+  // Do something
+}
+```
+
+```cjs
+const diagnostics_channel = require('node:diagnostics_channel');
+
+const channels = diagnostics_channel.tracingChannel('my-channel');
+
+if (channels.hasSubscribers) {
+  // Do something
+}
 ```
 
 ### TracingChannel Channels
@@ -1082,6 +1118,13 @@ independently.
 
 Emitted when client starts a request.
 
+`http.client.request.error`
+
+* `request` {http.ClientRequest}
+* `error` {Error}
+
+Emitted when an error occurs during a client request.
+
 `http.client.response.finish`
 
 * `request` {http.ClientRequest}
@@ -1120,6 +1163,26 @@ Emitted when a new TCP or pipe client socket is created.
 * `socket` {net.Socket}
 
 Emitted when a new TCP or pipe connection is received.
+
+`tracing:net.server.listen:asyncStart`
+
+* `server` {net.Server}
+* `options` {Object}
+
+Emitted when [`net.Server.listen()`][] is invoked, before the port or pipe is actually setup.
+
+`tracing:net.server.listen:asyncEnd`
+
+* `server` {net.Server}
+
+Emitted when [`net.Server.listen()`][] has completed and thus the server is ready to accept connection.
+
+`tracing:net.server.listen:error`
+
+* `server` {net.Server}
+* `error` {Error}
+
+Emitted when [`net.Server.listen()`][] is returning an error.
 
 #### UDP
 
@@ -1169,5 +1232,6 @@ Emitted when a new thread is created.
 [`diagnostics_channel.unsubscribe(name, onMessage)`]: #diagnostics_channelunsubscribename-onmessage
 [`end` event]: #endevent
 [`error` event]: #errorevent
+[`net.Server.listen()`]: net.md#serverlisten
 [`start` event]: #startevent
 [context loss]: async_context.md#troubleshooting-context-loss

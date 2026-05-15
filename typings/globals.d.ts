@@ -4,6 +4,7 @@ import {ConfigBinding} from "./internalBinding/config";
 import {ConstantsBinding} from "./internalBinding/constants";
 import {HttpParserBinding} from "./internalBinding/http_parser";
 import {FsBinding} from "./internalBinding/fs";
+import {FsDirBinding} from "./internalBinding/fs_dir";
 import {MessagingBinding} from "./internalBinding/messaging";
 import {OptionsBinding} from "./internalBinding/options";
 import {OSBinding} from "./internalBinding/os";
@@ -15,25 +16,13 @@ import {URLBinding} from "./internalBinding/url";
 import {UtilBinding} from "./internalBinding/util";
 import {WorkerBinding} from "./internalBinding/worker";
 
-declare type TypedArray =
-  | Uint8Array
-  | Uint8ClampedArray
-  | Uint16Array
-  | Uint32Array
-  | Int8Array
-  | Int16Array
-  | Int32Array
-  | Float32Array
-  | Float64Array
-  | BigUint64Array
-  | BigInt64Array;
-
 interface InternalBindingMap {
   async_wrap: AsyncWrapBinding;
   blob: BlobBinding;
   config: ConfigBinding;
   constants: ConstantsBinding;
   fs: FsBinding;
+  fs_dir: FsDirBinding;
   http_parser: HttpParserBinding;
   messaging: MessagingBinding;
   options: OptionsBinding;
@@ -52,6 +41,19 @@ type InternalBindingKeys = keyof InternalBindingMap;
 declare function internalBinding<T extends InternalBindingKeys>(binding: T): InternalBindingMap[T]
 
 declare global {
+  type TypedArray =
+    | Uint8Array
+    | Uint8ClampedArray
+    | Uint16Array
+    | Uint32Array
+    | Int8Array
+    | Int16Array
+    | Int32Array
+    | Float32Array
+    | Float64Array
+    | BigUint64Array
+    | BigInt64Array;
+
   namespace NodeJS {
     interface Global {
       internalBinding<T extends InternalBindingKeys>(binding: T): InternalBindingMap[T]

@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { describe, it, run } from 'node:test';
 import { dot, spec, tap } from 'node:test/reporters';
 import assert from 'node:assert';
+import util from 'node:util';
 
 const testFixtures = fixtures.path('test-runner');
 
@@ -76,10 +77,10 @@ describe('require(\'node:test\').run', { concurrency: true }, () => {
     const result = await run({
       files: [join(testFixtures, 'default-behavior/test/random.cjs')]
     }).compose(dot).toArray();
-    assert.deepStrictEqual(result, [
-      '.',
-      '\n',
-    ]);
+
+    assert.strictEqual(result.length, 2);
+    assert.strictEqual(util.stripVTControlCharacters(result[0]), '.');
+    assert.strictEqual(result[1], '\n');
   });
 
   describe('should be piped with spec reporter', () => {
@@ -350,8 +351,7 @@ describe('require(\'node:test\').run', { concurrency: true }, () => {
         }), {
           name: 'RangeError',
           code: 'ERR_OUT_OF_RANGE',
-          // eslint-disable-next-line @stylistic/js/max-len
-          message: 'The value of "options.shard.index" is out of range. It must be >= 1 && <= 6 ("options.shard.total"). Received 0'
+          message: 'The value of "options.shard.index" is out of range. It must be >= 1 && <= 6. Received 0'
         });
       });
 
@@ -365,8 +365,7 @@ describe('require(\'node:test\').run', { concurrency: true }, () => {
         }), {
           name: 'RangeError',
           code: 'ERR_OUT_OF_RANGE',
-          // eslint-disable-next-line @stylistic/js/max-len
-          message: 'The value of "options.shard.index" is out of range. It must be >= 1 && <= 6 ("options.shard.total"). Received 7'
+          message: 'The value of "options.shard.index" is out of range. It must be >= 1 && <= 6. Received 7'
         });
       });
 
@@ -543,4 +542,14 @@ describe('forceExit', () => {
       message: /The property 'options\.forceExit' is not supported with watch mode\./
     });
   });
+});
+
+
+// exitHandler doesn't run until after the tests / after hooks finish.
+process.on('exit', () => {
+  assert.strictEqual(process.listeners('uncaughtException').length, 0);
+  assert.strictEqual(process.listeners('unhandledRejection').length, 0);
+  assert.strictEqual(process.listeners('beforeExit').length, 0);
+  assert.strictEqual(process.listeners('SIGINT').length, 0);
+  assert.strictEqual(process.listeners('SIGTERM').length, 0);
 });

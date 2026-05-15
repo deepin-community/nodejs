@@ -255,8 +255,8 @@ class InspectorSession {
       const callFrame = message.params.callFrames[0];
       const location = callFrame.location;
       const scriptPath = this._scriptsIdsByUrl.get(location.scriptId);
-      assert.strictEqual(scriptPath.toString(),
-                         expectedScriptPath.toString(),
+      assert.strictEqual(decodeURIComponent(scriptPath),
+                         decodeURIComponent(expectedScriptPath),
                          `${scriptPath} !== ${expectedScriptPath}`);
       assert.strictEqual(location.lineNumber, line);
       return true;
@@ -309,6 +309,10 @@ class InspectorSession {
       return notification.method === 'Runtime.executionContextDestroyed' &&
         notification.params.executionContextId === 1;
     });
+    await this.waitForDisconnect();
+  }
+
+  async waitForDisconnect() {
     while ((await this._instance.nextStderrString()) !==
               'Waiting for the debugger to disconnect...');
     await this.disconnect();

@@ -78,7 +78,7 @@ struct RSAKeyExportTraits final {
 using RSAKeyExportJob = KeyExportJob<RSAKeyExportTraits>;
 
 struct RSACipherConfig final : public MemoryRetainer {
-  CryptoJobMode mode;
+  CryptoJobMode mode = kCryptoJobAsync;
   ByteSource label;
   int padding = 0;
   const EVP_MD* digest = nullptr;
@@ -114,10 +114,9 @@ struct RSACipherTraits final {
 
 using RSACipherJob = CipherJob<RSACipherTraits>;
 
-v8::Maybe<bool> ExportJWKRsaKey(
-    Environment* env,
-    std::shared_ptr<KeyObjectData> key,
-    v8::Local<v8::Object> target);
+v8::Maybe<void> ExportJWKRsaKey(Environment* env,
+                                std::shared_ptr<KeyObjectData> key,
+                                v8::Local<v8::Object> target);
 
 std::shared_ptr<KeyObjectData> ImportJWKRsaKey(
     Environment* env,

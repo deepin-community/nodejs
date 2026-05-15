@@ -1,0 +1,58 @@
+From 20616f17506051d4851cb0552c627d5e6a6ff6a3 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ren=C3=A9?= <contact.9a5d6388@renegade334.me.uk>
+Date: Thu, 9 Oct 2025 00:23:34 +0100
+Subject: [PATCH] http2: do not crash on mismatched ping buffer length
+
+PR-URL: https://github.com/nodejs/node/pull/60135
+Reviewed-By: Ruben Bridgewater <ruben@bridgewater.de>
+Reviewed-By: Matteo Collina <matteo.collina@gmail.com>
+Reviewed-By: Tim Perry <pimterry@gmail.com>
+Reviewed-By: Rafael Gonzaga <rafael.nunu@hotmail.com>
+Reviewed-By: Colin Ihrig <cjihrig@gmail.com>
+Reviewed-By: Luigi Pinca <luigipinca@gmail.com>
+---
+ lib/internal/http2/core.js       | 6 +++---
+ test/parallel/test-http2-ping.js | 7 ++++---
+ 2 files changed, 7 insertions(+), 6 deletions(-)
+
+--- a/lib/internal/http2/core.js
++++ b/lib/internal/http2/core.js
+@@ -1413,9 +1413,9 @@
+     }
+     if (payload) {
+       validateBuffer(payload, 'payload');
+-    }
+-    if (payload && payload.length !== 8) {
+-      throw new ERR_HTTP2_PING_LENGTH();
++      if (payload.byteLength !== 8) {
++        throw new ERR_HTTP2_PING_LENGTH();
++      }
+     }
+     validateFunction(callback, 'callback');
+ 
+--- a/test/parallel/test-http2-ping.js
++++ b/test/parallel/test-http2-ping.js
+@@ -64,11 +64,11 @@
+       })));
+     }
+     {
+-      const payload = Buffer.from('abcdefgi');
++      const payload = new Uint16Array([1, 2, 3, 4]);
+       assert(client.ping(payload, common.mustCall((err, duration, ret) => {
+         assert.strictEqual(err, null);
+         assert.strictEqual(typeof duration, 'number');
+-        assert.deepStrictEqual(payload, ret);
++        assert.deepStrictEqual(payload.buffer, ret.buffer);
+       })));
+     }
+ 
+@@ -99,7 +99,8 @@
+     {
+       const shortPayload = Buffer.from('abcdefg');
+       const longPayload = Buffer.from('abcdefghi');
+-      [shortPayload, longPayload].forEach((payloadWithInvalidLength) =>
++      const mismatchedPayload = new Uint32Array(8);
++      [shortPayload, longPayload, mismatchedPayload].forEach((payloadWithInvalidLength) =>
+         assert.throws(
+           () => client.ping(payloadWithInvalidLength),
+           {

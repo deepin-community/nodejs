@@ -8,7 +8,7 @@
       "introduced_in": "v0.10.0",
       "stability": 2,
       "stabilityText": "Stable",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v20.15.1/lib/http.js\">lib/http.js</a></p>\n<p>To use the HTTP server and client one must <code>require('node:http')</code>.</p>\n<p>The HTTP interfaces in Node.js are designed to support many features\nof the protocol which have been traditionally difficult to use.\nIn particular, large, possibly chunk-encoded, messages. The interface is\ncareful to never buffer entire requests or responses, so the\nuser is able to stream data.</p>\n<p>HTTP message headers are represented by an object like this:</p>\n<pre><code class=\"language-json\">{ \"content-length\": \"123\",\n  \"content-type\": \"text/plain\",\n  \"connection\": \"keep-alive\",\n  \"host\": \"example.com\",\n  \"accept\": \"*/*\" }\n</code></pre>\n<p>Keys are lowercased. Values are not modified.</p>\n<p>In order to support the full spectrum of possible HTTP applications, the Node.js\nHTTP API is very low-level. It deals with stream handling and message\nparsing only. It parses a message into headers and body but it does not\nparse the actual headers or the body.</p>\n<p>See <a href=\"#messageheaders\"><code>message.headers</code></a> for details on how duplicate headers are handled.</p>\n<p>The raw headers as they were received are retained in the <code>rawHeaders</code>\nproperty, which is an array of <code>[key, value, key2, value2, ...]</code>. For\nexample, the previous message header object might have a <code>rawHeaders</code>\nlist like the following:</p>\n<!-- eslint-disable @stylistic/js/semi -->\n<pre><code class=\"language-js\">[ 'ConTent-Length', '123456',\n  'content-LENGTH', '123',\n  'content-type', 'text/plain',\n  'CONNECTION', 'keep-alive',\n  'Host', 'example.com',\n  'accepT', '*/*' ]\n</code></pre>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v20.19.2/lib/http.js\">lib/http.js</a></p>\n<p>This module, containing both a client and server, can be imported via\n<code>require('node:http')</code> (CommonJS) or <code>import * as http from 'node:http'</code> (ES module).</p>\n<p>The HTTP interfaces in Node.js are designed to support many features\nof the protocol which have been traditionally difficult to use.\nIn particular, large, possibly chunk-encoded, messages. The interface is\ncareful to never buffer entire requests or responses, so the\nuser is able to stream data.</p>\n<p>HTTP message headers are represented by an object like this:</p>\n<pre><code class=\"language-json\">{ \"content-length\": \"123\",\n  \"content-type\": \"text/plain\",\n  \"connection\": \"keep-alive\",\n  \"host\": \"example.com\",\n  \"accept\": \"*/*\" }\n</code></pre>\n<p>Keys are lowercased. Values are not modified.</p>\n<p>In order to support the full spectrum of possible HTTP applications, the Node.js\nHTTP API is very low-level. It deals with stream handling and message\nparsing only. It parses a message into headers and body but it does not\nparse the actual headers or the body.</p>\n<p>See <a href=\"#messageheaders\"><code>message.headers</code></a> for details on how duplicate headers are handled.</p>\n<p>The raw headers as they were received are retained in the <code>rawHeaders</code>\nproperty, which is an array of <code>[key, value, key2, value2, ...]</code>. For\nexample, the previous message header object might have a <code>rawHeaders</code>\nlist like the following:</p>\n<!-- eslint-disable @stylistic/js/semi -->\n<pre><code class=\"language-js\">[ 'ConTent-Length', '123456',\n  'content-LENGTH', '123',\n  'content-type', 'text/plain',\n  'CONNECTION', 'keep-alive',\n  'Host', 'example.com',\n  'accepT', '*/*' ]\n</code></pre>",
       "classes": [
         {
           "textRaw": "Class: `http.Agent`",
@@ -1540,7 +1540,7 @@
                   "params": []
                 }
               ],
-              "desc": "<p>Closes all connections connected to this server, including active connections\nconnected to this server which are sending a request or waiting for a response.</p>\n<blockquote>\n<p>This is a forceful way of closing all connections and should be used with\ncaution. Whenever using this in conjunction with <code>server.close</code>, calling this\n<em>after</em> <code>server.close</code> is recommended as to avoid race conditions where new\nconnections are created between a call to this and a call to <code>server.close</code>.</p>\n</blockquote>\n<pre><code class=\"language-js\">const http = require('node:http');\n\nconst server = http.createServer({ keepAliveTimeout: 60000 }, (req, res) => {\n  res.writeHead(200, { 'Content-Type': 'application/json' });\n  res.end(JSON.stringify({\n    data: 'Hello World!',\n  }));\n});\n\nserver.listen(8000);\n// Close the server after 10 seconds\nsetTimeout(() => {\n  server.close(() => {\n    console.log('server on port 8000 closed successfully');\n  });\n  // Closes all connections, ensuring the server closes successfully\n  server.closeAllConnections();\n}, 10000);\n</code></pre>"
+              "desc": "<p>Closes all established HTTP(S) connections connected to this server, including\nactive connections connected to this server which are sending a request or\nwaiting for a response. This does <em>not</em> destroy sockets upgraded to a different\nprotocol, such as WebSocket or HTTP/2.</p>\n<blockquote>\n<p>This is a forceful way of closing all connections and should be used with\ncaution. Whenever using this in conjunction with <code>server.close</code>, calling this\n<em>after</em> <code>server.close</code> is recommended as to avoid race conditions where new\nconnections are created between a call to this and a call to <code>server.close</code>.</p>\n</blockquote>\n<pre><code class=\"language-js\">const http = require('node:http');\n\nconst server = http.createServer({ keepAliveTimeout: 60000 }, (req, res) => {\n  res.writeHead(200, { 'Content-Type': 'application/json' });\n  res.end(JSON.stringify({\n    data: 'Hello World!',\n  }));\n});\n\nserver.listen(8000);\n// Close the server after 10 seconds\nsetTimeout(() => {\n  server.close(() => {\n    console.log('server on port 8000 closed successfully');\n  });\n  // Closes all connections, ensuring the server closes successfully\n  server.closeAllConnections();\n}, 10000);\n</code></pre>"
             },
             {
               "textRaw": "`server.closeIdleConnections()`",
@@ -2145,7 +2145,7 @@
                   ]
                 }
               ],
-              "desc": "<p>If this method is called and <a href=\"#responsewriteheadstatuscode-statusmessage-headers\"><code>response.writeHead()</code></a> has not been called,\nit will switch to implicit header mode and flush the implicit headers.</p>\n<p>This sends a chunk of the response body. This method may\nbe called multiple times to provide successive parts of the body.</p>\n<p>Writing to the body is not allowed when the request method or response status\ndo not support content. If an attempt is made to write to the body for a\nHEAD request or as part of a <code>204</code> or <code>304</code>response, a synchronous <code>Error</code>\nwith the code <code>ERR_HTTP_BODY_NOT_ALLOWED</code> is thrown.</p>\n<p><code>chunk</code> can be a string or a buffer. If <code>chunk</code> is a string,\nthe second parameter specifies how to encode it into a byte stream.\n<code>callback</code> will be called when this chunk of data is flushed.</p>\n<p>This is the raw HTTP body and has nothing to do with higher-level multi-part\nbody encodings that may be used.</p>\n<p>The first time <a href=\"#responsewritechunk-encoding-callback\"><code>response.write()</code></a> is called, it will send the buffered\nheader information and the first chunk of the body to the client. The second\ntime <a href=\"#responsewritechunk-encoding-callback\"><code>response.write()</code></a> is called, Node.js assumes data will be streamed,\nand sends the new data separately. That is, the response is buffered up to the\nfirst chunk of the body.</p>\n<p>Returns <code>true</code> if the entire data was flushed successfully to the kernel\nbuffer. Returns <code>false</code> if all or part of the data was queued in user memory.\n<code>'drain'</code> will be emitted when the buffer is free again.</p>"
+              "desc": "<p>If this method is called and <a href=\"#responsewriteheadstatuscode-statusmessage-headers\"><code>response.writeHead()</code></a> has not been called,\nit will switch to implicit header mode and flush the implicit headers.</p>\n<p>This sends a chunk of the response body. This method may\nbe called multiple times to provide successive parts of the body.</p>\n<p>If <code>rejectNonStandardBodyWrites</code> is set to true in <code>createServer</code>\nthen writing to the body is not allowed when the request method or response\nstatus do not support content. If an attempt is made to write to the body for a\nHEAD request or as part of a <code>204</code> or <code>304</code>response, a synchronous <code>Error</code>\nwith the code <code>ERR_HTTP_BODY_NOT_ALLOWED</code> is thrown.</p>\n<p><code>chunk</code> can be a string or a buffer. If <code>chunk</code> is a string,\nthe second parameter specifies how to encode it into a byte stream.\n<code>callback</code> will be called when this chunk of data is flushed.</p>\n<p>This is the raw HTTP body and has nothing to do with higher-level multi-part\nbody encodings that may be used.</p>\n<p>The first time <a href=\"#responsewritechunk-encoding-callback\"><code>response.write()</code></a> is called, it will send the buffered\nheader information and the first chunk of the body to the client. The second\ntime <a href=\"#responsewritechunk-encoding-callback\"><code>response.write()</code></a> is called, Node.js assumes data will be streamed,\nand sends the new data separately. That is, the response is buffered up to the\nfirst chunk of the body.</p>\n<p>Returns <code>true</code> if the entire data was flushed successfully to the kernel\nbuffer. Returns <code>false</code> if all or part of the data was queued in user memory.\n<code>'drain'</code> will be emitted when the buffer is free again.</p>"
             },
             {
               "textRaw": "`response.writeContinue()`",
@@ -3188,9 +3188,9 @@
               "signatures": [
                 {
                   "return": {
-                    "textRaw": "Returns: {http.ServerResponse}",
+                    "textRaw": "Returns: {this}",
                     "name": "return",
-                    "type": "http.ServerResponse"
+                    "type": "this"
                   },
                   "params": [
                     {
@@ -3201,7 +3201,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Returns the response object.</p>\n<p>Sets multiple header values for implicit headers.\n<code>headers</code> must be an instance of <a href=\"globals.html#class-headers\"><code>Headers</code></a> or <code>Map</code>,\nif a header already exists in the to-be-sent headers,\nits value will be replaced.</p>\n<pre><code class=\"language-js\">const headers = new Headers({ foo: 'bar' });\nresponse.setHeaders(headers);\n</code></pre>\n<p>or</p>\n<pre><code class=\"language-js\">const headers = new Map([['foo', 'bar']]);\nres.setHeaders(headers);\n</code></pre>\n<p>When headers have been set with <a href=\"#outgoingmessagesetheadersheaders\"><code>outgoingMessage.setHeaders()</code></a>,\nthey will be merged with any headers passed to <a href=\"#responsewriteheadstatuscode-statusmessage-headers\"><code>response.writeHead()</code></a>,\nwith the headers passed to <a href=\"#responsewriteheadstatuscode-statusmessage-headers\"><code>response.writeHead()</code></a> given precedence.</p>\n<pre><code class=\"language-js\">// Returns content-type = text/plain\nconst server = http.createServer((req, res) => {\n  const headers = new Headers({ 'Content-Type': 'text/html' });\n  res.setHeaders(headers);\n  res.writeHead(200, { 'Content-Type': 'text/plain' });\n  res.end('ok');\n});\n</code></pre>"
+              "desc": "<p>Sets multiple header values for implicit headers.\n<code>headers</code> must be an instance of <a href=\"globals.html#class-headers\"><code>Headers</code></a> or <code>Map</code>,\nif a header already exists in the to-be-sent headers,\nits value will be replaced.</p>\n<pre><code class=\"language-js\">const headers = new Headers({ foo: 'bar' });\noutgoingMessage.setHeaders(headers);\n</code></pre>\n<p>or</p>\n<pre><code class=\"language-js\">const headers = new Map([['foo', 'bar']]);\noutgoingMessage.setHeaders(headers);\n</code></pre>\n<p>When headers have been set with <a href=\"#outgoingmessagesetheadersheaders\"><code>outgoingMessage.setHeaders()</code></a>,\nthey will be merged with any headers passed to <a href=\"#responsewriteheadstatuscode-statusmessage-headers\"><code>response.writeHead()</code></a>,\nwith the headers passed to <a href=\"#responsewriteheadstatuscode-statusmessage-headers\"><code>response.writeHead()</code></a> given precedence.</p>\n<pre><code class=\"language-js\">// Returns content-type = text/plain\nconst server = http.createServer((req, res) => {\n  const headers = new Headers({ 'Content-Type': 'text/html' });\n  res.setHeaders(headers);\n  res.writeHead(200, { 'Content-Type': 'text/plain' });\n  res.end('ok');\n});\n</code></pre>"
             },
             {
               "textRaw": "`outgoingMessage.setTimeout(msesc[, callback])`",
@@ -3572,11 +3572,11 @@
                       "desc": "Optionally overrides all `socket`s' `readableHighWaterMark` and `writableHighWaterMark`. This affects `highWaterMark` property of both `IncomingMessage` and `ServerResponse`."
                     },
                     {
-                      "textRaw": "`insecureHTTPParser` {boolean} Use an insecure HTTP parser that accepts invalid HTTP headers when `true`. Using the insecure parser should be avoided. See [`--insecure-http-parser`][] for more information. **Default:** `false`.",
+                      "textRaw": "`insecureHTTPParser` {boolean} If set to `true`, it will use a HTTP parser with leniency flags enabled. Using the insecure parser should be avoided. See [`--insecure-http-parser`][] for more information. **Default:** `false`.",
                       "name": "insecureHTTPParser",
                       "type": "boolean",
                       "default": "`false`",
-                      "desc": "Use an insecure HTTP parser that accepts invalid HTTP headers when `true`. Using the insecure parser should be avoided. See [`--insecure-http-parser`][] for more information."
+                      "desc": "If set to `true`, it will use a HTTP parser with leniency flags enabled. Using the insecure parser should be avoided. See [`--insecure-http-parser`][] for more information."
                     },
                     {
                       "textRaw": "`IncomingMessage` {http.IncomingMessage} Specifies the `IncomingMessage` class to be used. Useful for extending the original `IncomingMessage`. **Default:** `IncomingMessage`.",
@@ -3651,6 +3651,13 @@
                       "name": "uniqueHeaders",
                       "type": "Array",
                       "desc": "A list of response headers that should be sent only once. If the header's value is an array, the items will be joined using `; `."
+                    },
+                    {
+                      "textRaw": "`rejectNonStandardBodyWrites` {boolean} If set to `true`, an error is thrown when writing to an HTTP response which does not have a body. **Default:** `false`.",
+                      "name": "rejectNonStandardBodyWrites",
+                      "type": "boolean",
+                      "default": "`false`",
+                      "desc": "If set to `true`, an error is thrown when writing to an HTTP response which does not have a body."
                     }
                   ]
                 },
@@ -3907,11 +3914,11 @@
                       "desc": "Alias for `host`. To support [`url.parse()`][], `hostname` will be used if both `host` and `hostname` are specified."
                     },
                     {
-                      "textRaw": "`insecureHTTPParser` {boolean} Use an insecure HTTP parser that accepts invalid HTTP headers when `true`. Using the insecure parser should be avoided. See [`--insecure-http-parser`][] for more information. **Default:** `false`",
+                      "textRaw": "`insecureHTTPParser` {boolean} If set to `true`, it will use a HTTP parser with leniency flags enabled. Using the insecure parser should be avoided. See [`--insecure-http-parser`][] for more information. **Default:** `false`",
                       "name": "insecureHTTPParser",
                       "type": "boolean",
                       "default": "`false`",
-                      "desc": "Use an insecure HTTP parser that accepts invalid HTTP headers when `true`. Using the insecure parser should be avoided. See [`--insecure-http-parser`][] for more information."
+                      "desc": "If set to `true`, it will use a HTTP parser with leniency flags enabled. Using the insecure parser should be avoided. See [`--insecure-http-parser`][] for more information."
                     },
                     {
                       "textRaw": "`joinDuplicateHeaders` {boolean} It joins the field line values of multiple headers in a request with `, ` instead of discarding the duplicates. See [`message.headers`][] for more information. **Default:** `false`.",
@@ -4159,11 +4166,11 @@
                       "desc": "Alias for `host`. To support [`url.parse()`][], `hostname` will be used if both `host` and `hostname` are specified."
                     },
                     {
-                      "textRaw": "`insecureHTTPParser` {boolean} Use an insecure HTTP parser that accepts invalid HTTP headers when `true`. Using the insecure parser should be avoided. See [`--insecure-http-parser`][] for more information. **Default:** `false`",
+                      "textRaw": "`insecureHTTPParser` {boolean} If set to `true`, it will use a HTTP parser with leniency flags enabled. Using the insecure parser should be avoided. See [`--insecure-http-parser`][] for more information. **Default:** `false`",
                       "name": "insecureHTTPParser",
                       "type": "boolean",
                       "default": "`false`",
-                      "desc": "Use an insecure HTTP parser that accepts invalid HTTP headers when `true`. Using the insecure parser should be avoided. See [`--insecure-http-parser`][] for more information."
+                      "desc": "If set to `true`, it will use a HTTP parser with leniency flags enabled. Using the insecure parser should be avoided. See [`--insecure-http-parser`][] for more information."
                     },
                     {
                       "textRaw": "`joinDuplicateHeaders` {boolean} It joins the field line values of multiple headers in a request with `, ` instead of discarding the duplicates. See [`message.headers`][] for more information. **Default:** `false`.",

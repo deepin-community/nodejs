@@ -378,7 +378,7 @@ void Hash::HashDigest(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
 
   Hash* hash;
-  ASSIGN_OR_RETURN_UNWRAP(&hash, args.Holder());
+  ASSIGN_OR_RETURN_UNWRAP(&hash, args.This());
 
   enum encoding encoding = BUFFER;
   if (args.Length() >= 1) {
@@ -501,10 +501,10 @@ Maybe<bool> HashTraits::AdditionalConfig(
   return Just(true);
 }
 
-bool HashTraits::DeriveBits(
-    Environment* env,
-    const HashConfig& params,
-    ByteSource* out) {
+bool HashTraits::DeriveBits(Environment* env,
+                            const HashConfig& params,
+                            ByteSource* out,
+                            CryptoJobMode mode) {
   EVPMDCtxPointer ctx(EVP_MD_CTX_new());
 
   if (UNLIKELY(!ctx ||

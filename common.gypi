@@ -3,7 +3,6 @@
     'configuring_node%': 0,
     'asan%': 0,
     'ubsan%': 0,
-    'werror': '',                     # Turn off -Werror in V8 build.
     'visibility%': 'hidden',          # V8's visibility setting
     'target_arch%': 'ia32',           # set v8's target architecture
     'host_arch%': 'ia32',             # set v8's host architecture
@@ -37,7 +36,7 @@
 
     # Reset this number to 0 on major V8 upgrades.
     # Increment by one for each non-official patch applied to deps/v8.
-    'v8_embedder_string': '-node.23',
+    'v8_embedder_string': '-node.26',
 
     ##### V8 defaults for Node.js #####
 
@@ -107,7 +106,6 @@
         'v8_base': '<(PRODUCT_DIR)/obj.target/tools/v8_gypfiles/libv8_snapshot.a',
       }],
       ['OS=="mac"', {
-        'clang%': 1,
         'obj_dir%': '<(PRODUCT_DIR)/obj.target',
         'v8_base': '<(PRODUCT_DIR)/libv8_snapshot.a',
       }],
@@ -115,6 +113,7 @@
       ['target_arch in "arm ia32 mips mipsel ppc"', {
         'v8_enable_pointer_compression': 0,
         'v8_enable_31bit_smis_on_64bit_arch': 0,
+        'v8_enable_sandbox': 0
       }],
       ['target_arch in "ppc64 s390x"', {
         'v8_enable_backtrace': 1,
@@ -182,10 +181,10 @@
             }, {
               'MSVC_runtimeType': 2   # MultiThreadedDLL (/MD)
             }],
-            ['llvm_version=="0.0"', {
-              'lto': ' -flto=4 -fuse-linker-plugin -ffat-lto-objects ', # GCC
-            }, {
+            ['clang==1', {
               'lto': ' -flto ', # Clang
+            }, {
+              'lto': ' -flto=4 -fuse-linker-plugin -ffat-lto-objects ', # GCC
             }],
           ],
         },
@@ -554,6 +553,9 @@
               '-Wl,-brtl',
             ],
           }, {                                             # else it's `AIX`
+            'variables': {
+              'gcc_major': '<!(<(python) -c "import os; import subprocess; CXX=os.environ.get(\'CXX\', \'g++\'); subprocess.run([CXX, \'-dumpversion\'])")'
+            },
             # Disable the following compiler warning:
             #
             #   warning: visibility attribute not supported in this
@@ -564,7 +566,7 @@
             # out more relevant warnings.
             'cflags': [ '-Wno-attributes' ],
             'ldflags': [
-              '-Wl,-blibpath:/usr/lib:/lib:/opt/freeware/lib/pthread/ppc64',
+              '-Wl,-blibpath:/usr/lib:/lib:/opt/freeware/lib/gcc/powerpc-ibm-aix7.3.0.0/>(gcc_major)/pthread/ppc64:/opt/freeware/lib/gcc/powerpc-ibm-aix7.2.0.0/>(gcc_major)/pthread/ppc64:/opt/freeware/lib/pthread/ppc64',
             ],
           }],
         ],

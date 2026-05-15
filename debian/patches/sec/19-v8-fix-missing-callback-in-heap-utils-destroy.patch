@@ -1,0 +1,63 @@
+From 077d5020c43fa6c50be8af0b5753afdf46fe7566 Mon Sep 17 00:00:00 2001
+From: Ruben Bridgewater <ruben.bridgewater@datadoghq.com>
+Date: Mon, 30 Jun 2025 13:51:40 +0200
+Subject: [PATCH] v8: fix missing callback in heap utils destroy
+
+This fixes the v8.getHeapSnapshot() calls not properly being
+destroyed. Pipeline calls would for example not properly end
+without the callback being in place.
+
+PR-URL: https://github.com/nodejs/node/pull/58846
+Reviewed-By: Ethan Arrowood <ethan@arrowood.dev>
+Reviewed-By: Luigi Pinca <luigipinca@gmail.com>
+Reviewed-By: Chengzhong Wu <legendecas@gmail.com>
+Reviewed-By: Shelley Vohr <shelley.vohr@gmail.com>
+---
+ lib/internal/heap_utils.js       |  3 ++-
+ test/sequential/test-heapdump.js | 11 +++++++++++
+ 2 files changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/lib/internal/heap_utils.js b/lib/internal/heap_utils.js
+index c39d811ab793b0..6d72fb1d628540 100644
+--- a/lib/internal/heap_utils.js
++++ b/lib/internal/heap_utils.js
+@@ -53,11 +53,12 @@ class HeapSnapshotStream extends Readable {
+       this[kHandle].readStart();
+   }
+ 
+-  _destroy() {
++  _destroy(err, callback) {
+     // Release the references on the handle so that
+     // it can be garbage collected.
+     this[kHandle][owner_symbol] = undefined;
+     this[kHandle] = undefined;
++    callback(err);
+   }
+ 
+   [kUpdateTimer]() {
+diff --git a/test/sequential/test-heapdump.js b/test/sequential/test-heapdump.js
+index 1388623e61f939..ee025f57fb8258 100644
+--- a/test/sequential/test-heapdump.js
++++ b/test/sequential/test-heapdump.js
+@@ -8,6 +8,7 @@ if (!common.isMainThread)
+ const { writeHeapSnapshot, getHeapSnapshot } = require('v8');
+ const assert = require('assert');
+ const fs = require('fs');
++const { promises: { pipeline }, PassThrough } = require('stream');
+ const tmpdir = require('../common/tmpdir');
+ 
+ tmpdir.refresh();
+@@ -76,3 +77,13 @@ process.chdir(tmpdir.path);
+     JSON.parse(data);
+   }));
+ }
++
++{
++  const passthrough = new PassThrough();
++  passthrough.on('data', common.mustCallAtLeast(1));
++
++  pipeline(
++    getHeapSnapshot(),
++    passthrough,
++  ).then(common.mustCall());
++}

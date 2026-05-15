@@ -8,7 +8,7 @@
       "introduced_in": "v8.5.0",
       "stability": 2,
       "stabilityText": "Stable",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v20.15.1/lib/perf_hooks.js\">lib/perf_hooks.js</a></p>\n<p>This module provides an implementation of a subset of the W3C\n<a href=\"https://w3c.github.io/perf-timing-primer/\">Web Performance APIs</a> as well as additional APIs for\nNode.js-specific performance measurements.</p>\n<p>Node.js supports the following <a href=\"https://w3c.github.io/perf-timing-primer/\">Web Performance APIs</a>:</p>\n<ul>\n<li><a href=\"https://www.w3.org/TR/hr-time-2\">High Resolution Time</a></li>\n<li><a href=\"https://w3c.github.io/performance-timeline/\">Performance Timeline</a></li>\n<li><a href=\"https://www.w3.org/TR/user-timing/\">User Timing</a></li>\n<li><a href=\"https://www.w3.org/TR/resource-timing-2/\">Resource Timing</a></li>\n</ul>\n<pre><code class=\"language-js\">const { PerformanceObserver, performance } = require('node:perf_hooks');\n\nconst obs = new PerformanceObserver((items) => {\n  console.log(items.getEntries()[0].duration);\n  performance.clearMarks();\n});\nobs.observe({ type: 'measure' });\nperformance.measure('Start to Now');\n\nperformance.mark('A');\ndoSomeLongRunningProcess(() => {\n  performance.measure('A to Now', 'A');\n\n  performance.mark('B');\n  performance.measure('A to B', 'A', 'B');\n});\n</code></pre>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v20.19.2/lib/perf_hooks.js\">lib/perf_hooks.js</a></p>\n<p>This module provides an implementation of a subset of the W3C\n<a href=\"https://w3c.github.io/perf-timing-primer/\">Web Performance APIs</a> as well as additional APIs for\nNode.js-specific performance measurements.</p>\n<p>Node.js supports the following <a href=\"https://w3c.github.io/perf-timing-primer/\">Web Performance APIs</a>:</p>\n<ul>\n<li><a href=\"https://www.w3.org/TR/hr-time-2\">High Resolution Time</a></li>\n<li><a href=\"https://w3c.github.io/performance-timeline/\">Performance Timeline</a></li>\n<li><a href=\"https://www.w3.org/TR/user-timing/\">User Timing</a></li>\n<li><a href=\"https://www.w3.org/TR/resource-timing-2/\">Resource Timing</a></li>\n</ul>\n<pre><code class=\"language-js\">const { PerformanceObserver, performance } = require('node:perf_hooks');\n\nconst obs = new PerformanceObserver((items) => {\n  console.log(items.getEntries()[0].duration);\n  performance.clearMarks();\n});\nobs.observe({ type: 'measure' });\nperformance.measure('Start to Now');\n\nperformance.mark('A');\ndoSomeLongRunningProcess(() => {\n  performance.measure('A to Now', 'A');\n\n  performance.mark('B');\n  performance.measure('A to B', 'A', 'B');\n});\n</code></pre>",
       "properties": [
         {
           "textRaw": "`perf_hooks.performance`",
@@ -656,7 +656,7 @@
                   }
                 ]
               },
-              "desc": "<p>The type of the performance entry. It may be one of:</p>\n<ul>\n<li><code>'node'</code> (Node.js only)</li>\n<li><code>'mark'</code> (available on the Web)</li>\n<li><code>'measure'</code> (available on the Web)</li>\n<li><code>'gc'</code> (Node.js only)</li>\n<li><code>'function'</code> (Node.js only)</li>\n<li><code>'http2'</code> (Node.js only)</li>\n<li><code>'http'</code> (Node.js only)</li>\n</ul>"
+              "desc": "<p>The type of the performance entry. It may be one of:</p>\n<ul>\n<li><code>'dns'</code> (Node.js only)</li>\n<li><code>'function'</code> (Node.js only)</li>\n<li><code>'gc'</code> (Node.js only)</li>\n<li><code>'http2'</code> (Node.js only)</li>\n<li><code>'http'</code> (Node.js only)</li>\n<li><code>'mark'</code> (available on the Web)</li>\n<li><code>'measure'</code> (available on the Web)</li>\n<li><code>'net'</code> (Node.js only)</li>\n<li><code>'node'</code> (Node.js only)</li>\n<li><code>'resource'</code> (available on the Web)</li>\n</ul>"
             },
             {
               "textRaw": "`name` {string}",
@@ -963,6 +963,38 @@
                 "changes": []
               },
               "desc": "<p>The high resolution millisecond timestamp at which the Node.js process was\ninitialized.</p>"
+            },
+            {
+              "textRaw": "`uvMetricsInfo` Returns: {Object}",
+              "type": "Object",
+              "name": "return",
+              "meta": {
+                "added": [
+                  "v20.18.0"
+                ],
+                "changes": []
+              },
+              "options": [
+                {
+                  "textRaw": "`loopCount` {number} Number of event loop iterations.",
+                  "name": "loopCount",
+                  "type": "number",
+                  "desc": "Number of event loop iterations."
+                },
+                {
+                  "textRaw": "`events` {number} Number of events that have been processed by the event handler.",
+                  "name": "events",
+                  "type": "number",
+                  "desc": "Number of events that have been processed by the event handler."
+                },
+                {
+                  "textRaw": "`eventsWaiting` {number} Number of events that were waiting to be processed when the event provider was called.",
+                  "name": "eventsWaiting",
+                  "type": "number",
+                  "desc": "Number of events that were waiting to be processed when the event provider was called."
+                }
+              ],
+              "desc": "<p>This is a wrapper to the <code>uv_metrics_info</code> function.\nIt returns the current set of event loop metrics.</p>\n<p>It is recommended to use this property inside a function whose execution was\nscheduled using <code>setImmediate</code> to avoid collecting metrics before finishing all\noperations scheduled during the current loop iteration.</p>\n<pre><code class=\"language-cjs\">const { performance } = require('node:perf_hooks');\n\nsetImmediate(() => {\n  console.log(performance.nodeTiming.uvMetricsInfo);\n});\n</code></pre>\n<pre><code class=\"language-mjs\">import { performance } from 'node:perf_hooks';\n\nsetImmediate(() => {\n  console.log(performance.nodeTiming.uvMetricsInfo);\n});\n</code></pre>"
             },
             {
               "textRaw": "`v8Start` {number}",
@@ -1381,6 +1413,28 @@
                 }
               ],
               "desc": "<p>Subscribes the <a href=\"perf_hooks.html#class-performanceobserver\" class=\"type\">&lt;PerformanceObserver&gt;</a> instance to notifications of new\n<a href=\"perf_hooks.html#class-performanceentry\" class=\"type\">&lt;PerformanceEntry&gt;</a> instances identified either by <code>options.entryTypes</code>\nor <code>options.type</code>:</p>\n<pre><code class=\"language-js\">const {\n  performance,\n  PerformanceObserver,\n} = require('node:perf_hooks');\n\nconst obs = new PerformanceObserver((list, observer) => {\n  // Called once asynchronously. `list` contains three items.\n});\nobs.observe({ type: 'mark' });\n\nfor (let n = 0; n &#x3C; 3; n++)\n  performance.mark(`test${n}`);\n</code></pre>"
+            },
+            {
+              "textRaw": "`performanceObserver.takeRecords()`",
+              "type": "method",
+              "name": "takeRecords",
+              "meta": {
+                "added": [
+                  "v16.0.0"
+                ],
+                "changes": []
+              },
+              "signatures": [
+                {
+                  "return": {
+                    "textRaw": "Returns: {PerformanceEntry\\[]} Current list of entries stored in the performance observer, emptying it out.",
+                    "name": "return",
+                    "type": "PerformanceEntry\\[]",
+                    "desc": "Current list of entries stored in the performance observer, emptying it out."
+                  },
+                  "params": []
+                }
+              ]
             }
           ],
           "signatures": [

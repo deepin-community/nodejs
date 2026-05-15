@@ -1,19 +1,19 @@
-#include "ada.h"
-#include "ada/common_defs.h"
-#include "ada/character_sets-inl.h"
-#include "ada/unicode.h"
-#include "ada/url-inl.h"
-#include "ada/log.h"
 #include "ada/parser.h"
 
-#include <numeric>
 #include <limits>
+
+#include "ada.h"
+#include "ada/character_sets-inl.h"
+#include "ada/common_defs.h"
+#include "ada/log.h"
+#include "ada/unicode.h"
+#include "ada/url-inl.h"
 
 namespace ada::parser {
 
-template <class result_type>
-result_type parse_url(std::string_view user_input,
-                      const result_type* base_url) {
+template <class result_type, bool store_values>
+result_type parse_url_impl(std::string_view user_input,
+                           const result_type* base_url) {
   // We can specialize the implementation per type.
   // Important: result_type_is_ada_url is evaluated at *compile time*. This
   // means that doing if constexpr(result_type_is_ada_url) { something } else {
@@ -48,7 +48,7 @@ result_type parse_url(std::string_view user_input,
   if (!url.is_valid) {
     return url;
   }
-  if constexpr (result_type_is_ada_url_aggregator) {
+  if constexpr (result_type_is_ada_url_aggregator && store_values) {
     // Most of the time, we just need user_input.size().
     // In some instances, we may need a bit more.
     ///////////////////////////
@@ -65,9 +65,6 @@ result_type parse_url(std::string_view user_input,
          helpers::leading_zeroes(uint32_t(1 | user_input.size()))) +
         1;
     url.reserve(reserve_capacity);
-    //
-    //
-    //
   }
   std::string tmp_buffer;
   std::string_view internal_input;
@@ -290,32 +287,36 @@ result_type parse_url(std::string_view user_input,
               password_token_seen =
                   password_token_location != std::string_view::npos;
 
-              if (!password_token_seen) {
-                if constexpr (result_type_is_ada_url) {
-                  url.username += unicode::percent_encode(
-                      authority_view, character_sets::USERINFO_PERCENT_ENCODE);
+              if constexpr (store_values) {
+                if (!password_token_seen) {
+                  if constexpr (result_type_is_ada_url) {
+                    url.username += unicode::percent_encode(
+                        authority_view,
+                        character_sets::USERINFO_PERCENT_ENCODE);
+                  } else {
+                    url.append_base_username(unicode::percent_encode(
+                        authority_view,
+                        character_sets::USERINFO_PERCENT_ENCODE));
+                  }
                 } else {
-                  url.append_base_username(unicode::percent_encode(
-                      authority_view, character_sets::USERINFO_PERCENT_ENCODE));
-                }
-              } else {
-                if constexpr (result_type_is_ada_url) {
-                  url.username += unicode::percent_encode(
-                      authority_view.substr(0, password_token_location),
-                      character_sets::USERINFO_PERCENT_ENCODE);
-                  url.password += unicode::percent_encode(
-                      authority_view.substr(password_token_location + 1),
-                      character_sets::USERINFO_PERCENT_ENCODE);
-                } else {
-                  url.append_base_username(unicode::percent_encode(
-                      authority_view.substr(0, password_token_location),
-                      character_sets::USERINFO_PERCENT_ENCODE));
-                  url.append_base_password(unicode::percent_encode(
-                      authority_view.substr(password_token_location + 1),
-                      character_sets::USERINFO_PERCENT_ENCODE));
+                  if constexpr (result_type_is_ada_url) {
+                    url.username += unicode::percent_encode(
+                        authority_view.substr(0, password_token_location),
+                        character_sets::USERINFO_PERCENT_ENCODE);
+                    url.password += unicode::percent_encode(
+                        authority_view.substr(password_token_location + 1),
+                        character_sets::USERINFO_PERCENT_ENCODE);
+                  } else {
+                    url.append_base_username(unicode::percent_encode(
+                        authority_view.substr(0, password_token_location),
+                        character_sets::USERINFO_PERCENT_ENCODE));
+                    url.append_base_password(unicode::percent_encode(
+                        authority_view.substr(password_token_location + 1),
+                        character_sets::USERINFO_PERCENT_ENCODE));
+                  }
                 }
               }
-            } else {
+            } else if constexpr (store_values) {
               if constexpr (result_type_is_ada_url) {
                 url.password += unicode::percent_encode(
                     authority_view, character_sets::USERINFO_PERCENT_ENCODE);
@@ -342,8 +343,10 @@ result_type parse_url(std::string_view user_input,
             break;
           }
           if (end_of_authority == input_size) {
-            if (fragment.has_value()) {
-              url.update_unencoded_base_hash(*fragment);
+            if constexpr (store_values) {
+              if (fragment.has_value()) {
+                url.update_unencoded_base_hash(*fragment);
+              }
             }
             return url;
           }
@@ -540,19 +543,22 @@ result_type parse_url(std::string_view user_input,
       }
       case ada::state::QUERY: {
         ada_log("QUERY ", helpers::substring(url_data, input_position));
-        // Let queryPercentEncodeSet be the special-query percent-encode set if
-        // url is special; otherwise the query percent-encode set.
-        const uint8_t* query_percent_encode_set =
-            url.is_special() ? ada::character_sets::SPECIAL_QUERY_PERCENT_ENCODE
-                             : ada::character_sets::QUERY_PERCENT_ENCODE;
+        if constexpr (store_values) {
+          // Let queryPercentEncodeSet be the special-query percent-encode set
+          // if url is special; otherwise the query percent-encode set.
+          const uint8_t* query_percent_encode_set =
+              url.is_special()
+                  ? ada::character_sets::SPECIAL_QUERY_PERCENT_ENCODE
+                  : ada::character_sets::QUERY_PERCENT_ENCODE;
 
-        // Percent-encode after encoding, with encoding, buffer, and
-        // queryPercentEncodeSet, and append the result to url's query.
-        url.update_base_search(helpers::substring(url_data, input_position),
-                               query_percent_encode_set);
-        ada_log("QUERY update_base_search completed ");
-        if (fragment.has_value()) {
-          url.update_unencoded_base_hash(*fragment);
+          // Percent-encode after encoding, with encoding, buffer, and
+          // queryPercentEncodeSet, and append the result to url's query.
+          url.update_base_search(helpers::substring(url_data, input_position),
+                                 query_percent_encode_set);
+          ada_log("QUERY update_base_search completed ");
+          if (fragment.has_value()) {
+            url.update_unencoded_base_hash(*fragment);
+          }
         }
         return url;
       }
@@ -655,9 +661,11 @@ result_type parse_url(std::string_view user_input,
           // Optimization: Avoiding going into PATH state improves the
           // performance of urls ending with /.
           if (input_position == input_size) {
-            url.update_base_pathname("/");
-            if (fragment.has_value()) {
-              url.update_unencoded_base_hash(*fragment);
+            if constexpr (store_values) {
+              url.update_base_pathname("/");
+              if (fragment.has_value()) {
+                url.update_unencoded_base_hash(*fragment);
+              }
             }
             return url;
           }
@@ -703,11 +711,13 @@ result_type parse_url(std::string_view user_input,
         } else {
           input_position = input_size + 1;
         }
-        if constexpr (result_type_is_ada_url) {
-          helpers::parse_prepared_path(view, url.type, url.path);
-        } else {
-          url.consume_prepared_path(view);
-          ADA_ASSERT_TRUE(url.validate());
+        if constexpr (store_values) {
+          if constexpr (result_type_is_ada_url) {
+            helpers::parse_prepared_path(view, url.type, url.path);
+          } else {
+            url.consume_prepared_path(view);
+            ADA_ASSERT_TRUE(url.validate());
+          }
         }
         break;
       }
@@ -901,15 +911,27 @@ result_type parse_url(std::string_view user_input,
         ada::unreachable();
     }
   }
-  if (fragment.has_value()) {
-    url.update_unencoded_base_hash(*fragment);
+  if constexpr (store_values) {
+    if (fragment.has_value()) {
+      url.update_unencoded_base_hash(*fragment);
+    }
   }
   return url;
+}
+
+template url parse_url_impl(std::string_view user_input,
+                            const url* base_url = nullptr);
+template url_aggregator parse_url_impl(
+    std::string_view user_input, const url_aggregator* base_url = nullptr);
+
+template <class result_type>
+result_type parse_url(std::string_view user_input,
+                      const result_type* base_url) {
+  return parse_url_impl<result_type, true>(user_input, base_url);
 }
 
 template url parse_url<url>(std::string_view user_input,
                             const url* base_url = nullptr);
 template url_aggregator parse_url<url_aggregator>(
     std::string_view user_input, const url_aggregator* base_url = nullptr);
-
 }  // namespace ada::parser

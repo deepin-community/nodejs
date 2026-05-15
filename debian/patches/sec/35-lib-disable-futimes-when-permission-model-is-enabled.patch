@@ -1,0 +1,172 @@
+From 14fbbb510c6d62b4510e3f48ee801807d9a5fbab Mon Sep 17 00:00:00 2001
+From: RafaelGSS <rafael.nunu@hotmail.com>
+Date: Tue, 21 Oct 2025 18:25:31 -0300
+Subject: [PATCH] lib: disable futimes when permission model is enabled
+
+Refs: https://hackerone.com/reports/3390084
+PR-URL: https://github.com/nodejs-private/node-private/pull/748
+Reviewed-By: Matteo Collina <matteo.collina@gmail.com>
+Reviewed-By: Anna Henningsen <anna@addaleax.net>
+CVE-ID: CVE-2025-55132
+PR-URL: https://github.com/nodejs-private/node-private/pull/802
+Reviewed-By: Rafael Gonzaga <rafael.nunu@hotmail.com>
+CVE-ID: CVE-2025-55132
+---
+ lib/fs.js                                     | 24 ++++++++++
+ test/fixtures/permission/fs-write.js          | 45 +++++++++++++++++++
+ test/parallel/test-permission-fs-supported.js | 17 ++++++-
+ 3 files changed, 85 insertions(+), 1 deletion(-)
+
+diff --git a/lib/fs.js b/lib/fs.js
+index 05be1f18410037..0ee3ec59069189 100644
+--- a/lib/fs.js
++++ b/lib/fs.js
+@@ -1275,6 +1275,11 @@ function rmSync(path, options) {
+ function fdatasync(fd, callback) {
+   const req = new FSReqCallback();
+   req.oncomplete = makeCallback(callback);
++
++  if (permission.isEnabled()) {
++    callback(new ERR_ACCESS_DENIED('fdatasync API is disabled when Permission Model is enabled.'));
++    return;
++  }
+   binding.fdatasync(fd, req);
+ }
+ 
+@@ -1286,6 +1291,9 @@ function fdatasync(fd, callback) {
+  * @returns {void}
+  */
+ function fdatasyncSync(fd) {
++  if (permission.isEnabled()) {
++    throw new ERR_ACCESS_DENIED('fdatasync API is disabled when Permission Model is enabled.');
++  }
+   binding.fdatasync(fd);
+ }
+ 
+@@ -1299,6 +1307,10 @@ function fdatasyncSync(fd) {
+ function fsync(fd, callback) {
+   const req = new FSReqCallback();
+   req.oncomplete = makeCallback(callback);
++  if (permission.isEnabled()) {
++    callback(new ERR_ACCESS_DENIED('fsync API is disabled when Permission Model is enabled.'));
++    return;
++  }
+   binding.fsync(fd, req);
+ }
+ 
+@@ -1309,6 +1321,9 @@ function fsync(fd, callback) {
+  * @returns {void}
+  */
+ function fsyncSync(fd) {
++  if (permission.isEnabled()) {
++    throw new ERR_ACCESS_DENIED('fsync API is disabled when Permission Model is enabled.');
++  }
+   binding.fsync(fd);
+ }
+ 
+@@ -2165,6 +2180,11 @@ function futimes(fd, atime, mtime, callback) {
+   mtime = toUnixTimestamp(mtime, 'mtime');
+   callback = makeCallback(callback);
+ 
++  if (permission.isEnabled()) {
++    callback(new ERR_ACCESS_DENIED('futimes API is disabled when Permission Model is enabled.'));
++    return;
++  }
++
+   const req = new FSReqCallback();
+   req.oncomplete = callback;
+   binding.futimes(fd, atime, mtime, req);
+@@ -2180,6 +2200,10 @@ function futimes(fd, atime, mtime, callback) {
+  * @returns {void}
+  */
+ function futimesSync(fd, atime, mtime) {
++  if (permission.isEnabled()) {
++    throw new ERR_ACCESS_DENIED('futimes API is disabled when Permission Model is enabled.');
++  }
++
+   binding.futimes(
+     fd,
+     toUnixTimestamp(atime, 'atime'),
+diff --git a/test/fixtures/permission/fs-write.js b/test/fixtures/permission/fs-write.js
+index 5dd3b07ed9a0cf..5461a21aa234f2 100644
+--- a/test/fixtures/permission/fs-write.js
++++ b/test/fixtures/permission/fs-write.js
+@@ -553,4 +553,49 @@ const relativeProtectedFolder = process.env.RELATIVEBLOCKEDFOLDER;
+   }, {
+     code: 'ERR_ACCESS_DENIED',
+   });
++}
++
++// fs.utimes with read-only fd
++{
++  assert.throws(() => {
++    // blocked file is allowed to read
++    const fd = fs.openSync(blockedFile, 'r');
++    const date = new Date();
++    date.setFullYear(2100,0,1);
++
++    fs.futimes(fd, date, date, common.expectsError({
++      code: 'ERR_ACCESS_DENIED',
++    }));
++    fs.futimesSync(fd, date, date);
++  }, {
++    code: 'ERR_ACCESS_DENIED',
++  });
++}
++
++// fs.fdatasync with read-only fd
++{
++  assert.throws(() => {
++    // blocked file is allowed to read
++    const fd = fs.openSync(blockedFile, 'r');
++    fs.fdatasync(fd, common.expectsError({
++      code: 'ERR_ACCESS_DENIED',
++    }));
++    fs.fdatasyncSync(fd);
++  }, {
++    code: 'ERR_ACCESS_DENIED',
++  });
++}
++
++// fs.fsync with read-only fd
++{
++  assert.throws(() => {
++    // blocked file is allowed to read
++    const fd = fs.openSync(blockedFile, 'r');
++    fs.fsync(fd, common.expectsError({
++      code: 'ERR_ACCESS_DENIED',
++    }));
++    fs.fsyncSync(fd);
++  }, {
++    code: 'ERR_ACCESS_DENIED',
++  });
+ }
+\ No newline at end of file
+diff --git a/test/parallel/test-permission-fs-supported.js b/test/parallel/test-permission-fs-supported.js
+index 1062117798b800..805365f28b3bc1 100644
+--- a/test/parallel/test-permission-fs-supported.js
++++ b/test/parallel/test-permission-fs-supported.js
+@@ -77,7 +77,22 @@ const ignoreList = [
+   'unwatchFile',
+   ...syncAndAsyncAPI('lstat'),
+   ...syncAndAsyncAPI('realpath'),
+-  // fd required methods
++  // File descriptor–based metadata operations
++  //
++  // The kernel does not allow opening a file descriptor for an inode
++  // with write access if the inode itself is read-only. However, it still
++  // permits modifying the inode’s metadata (e.g., permission bits, ownership,
++  // timestamps) because you own the file. These changes can be made either
++  // by referring to the file by name (e.g., chmod) or through any existing
++  // file descriptor that identifies the same inode (e.g., fchmod).
++  //
++  // If the kernel required write access to change metadata, it would be
++  // impossible to modify the permissions of a file once it was made read-only.
++  // For that reason, syscalls such as fchmod, fchown, and futimes bypass
++  // the file descriptor’s access mode. Even a read-only ('r') descriptor
++  // can still update metadata. To prevent unintended modifications,
++  // these APIs are therefore blocked by default when permission model is
++  // enabled.
+   ...syncAndAsyncAPI('close'),
+   ...syncAndAsyncAPI('fchown'),
+   ...syncAndAsyncAPI('fchmod'),

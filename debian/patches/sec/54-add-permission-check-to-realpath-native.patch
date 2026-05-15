@@ -1,0 +1,57 @@
+From 00830712bc623ba04b08856462a56b79e29f5cc3 Mon Sep 17 00:00:00 2001
+From: RafaelGSS <rafael.nunu@hotmail.com>
+Date: Mon, 5 Jan 2026 18:18:39 -0300
+Subject: [PATCH] permission: add permission check to realpath.native
+
+Signed-off-by: RafaelGSS <rafael.nunu@hotmail.com>
+PR-URL: https://github.com/nodejs-private/node-private/pull/838
+CVE-ID: CVE-2026-21715
+---
+ src/node_file.cc                    |  8 ++++++++
+ test/fixtures/permission/fs-read.js | 14 ++++++++++++++
+ 2 files changed, 22 insertions(+)
+
+--- a/src/node_file.cc
++++ b/src/node_file.cc
+@@ -1914,11 +1914,19 @@
+ 
+   if (argc > 2) {  // realpath(path, encoding, req)
+     FSReqBase* req_wrap_async = GetReqWrap(args, 2);
++    CHECK_NOT_NULL(req_wrap_async);
++    ASYNC_THROW_IF_INSUFFICIENT_PERMISSIONS(
++        env,
++        req_wrap_async,
++        permission::PermissionScope::kFileSystemRead,
++        path.ToStringView());
+     FS_ASYNC_TRACE_BEGIN1(
+         UV_FS_REALPATH, req_wrap_async, "path", TRACE_STR_COPY(*path))
+     AsyncCall(env, req_wrap_async, args, "realpath", encoding, AfterStringPtr,
+               uv_fs_realpath, *path);
+   } else {  // realpath(path, encoding, undefined, ctx)
++    THROW_IF_INSUFFICIENT_PERMISSIONS(
++        env, permission::PermissionScope::kFileSystemRead, path.ToStringView());
+     FSReqWrapSync req_wrap_sync("realpath", *path);
+     FS_SYNC_TRACE_BEGIN(realpath);
+     int err =
+--- a/test/fixtures/permission/fs-read.js
++++ b/test/fixtures/permission/fs-read.js
+@@ -673,4 +673,18 @@
+   fs.lstat(regularFile, (err) => {
+     assert.ifError(err);
+   });
++}
++
++// fs.realpath.native
++{
++  fs.realpath.native(blockedFile, common.expectsError({
++    code: 'ERR_ACCESS_DENIED',
++    permission: 'FileSystemRead',
++    resource: path.toNamespacedPath(blockedFile),
++  }));
++
++  // doesNotThrow
++  fs.realpath.native(regularFile, (err) => {
++    assert.ifError(err);
++  });
+ }
+\ No newline at end of file

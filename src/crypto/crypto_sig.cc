@@ -92,12 +92,15 @@ std::unique_ptr<BackingStore> Node_SignFinal(Environment* env,
     sig = ArrayBuffer::NewBackingStore(env->isolate(), sig_len);
   }
   EVPKeyCtxPointer pkctx(EVP_PKEY_CTX_new(pkey.get(), nullptr));
-  if (pkctx &&
-      EVP_PKEY_sign_init(pkctx.get()) &&
+  if (pkctx && EVP_PKEY_sign_init(pkctx.get()) > 0 &&
       ApplyRSAOptions(pkey, pkctx.get(), padding, pss_salt_len) &&
-      EVP_PKEY_CTX_set_signature_md(pkctx.get(), EVP_MD_CTX_md(mdctx.get())) &&
-      EVP_PKEY_sign(pkctx.get(), static_cast<unsigned char*>(sig->Data()),
-                    &sig_len, m, m_len)) {
+      EVP_PKEY_CTX_set_signature_md(pkctx.get(), EVP_MD_CTX_md(mdctx.get())) >
+          0 &&
+      EVP_PKEY_sign(pkctx.get(),
+                    static_cast<unsigned char*>(sig->Data()),
+                    &sig_len,
+                    m,
+                    m_len) > 0) {
     CHECK_LE(sig_len, sig->ByteLength());
     if (sig_len == 0) {
       sig = ArrayBuffer::NewBackingStore(env->isolate(), 0);
@@ -371,7 +374,7 @@ void Sign::New(const FunctionCallbackInfo<Value>& args) {
 void Sign::SignInit(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
   Sign* sign;
-  ASSIGN_OR_RETURN_UNWRAP(&sign, args.Holder());
+  ASSIGN_OR_RETURN_UNWRAP(&sign, args.This());
 
   const node::Utf8Value sign_type(args.GetIsolate(), args[0]);
   crypto::CheckThrow(env, sign->Init(*sign_type));
@@ -414,7 +417,7 @@ Sign::SignResult Sign::SignFinal(
 void Sign::SignFinal(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
   Sign* sign;
-  ASSIGN_OR_RETURN_UNWRAP(&sign, args.Holder());
+  ASSIGN_OR_RETURN_UNWRAP(&sign, args.This());
 
   ClearErrorOnReturn clear_error_on_return;
 
@@ -492,7 +495,7 @@ void Verify::New(const FunctionCallbackInfo<Value>& args) {
 void Verify::VerifyInit(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
   Verify* verify;
-  ASSIGN_OR_RETURN_UNWRAP(&verify, args.Holder());
+  ASSIGN_OR_RETURN_UNWRAP(&verify, args.This());
 
   const node::Utf8Value verify_type(args.GetIsolate(), args[0]);
   crypto::CheckThrow(env, verify->Init(*verify_type));
@@ -527,14 +530,18 @@ SignBase::Error Verify::VerifyFinal(const ManagedEVPPKey& pkey,
     return kSignPublicKey;
 
   EVPKeyCtxPointer pkctx(EVP_PKEY_CTX_new(pkey.get(), nullptr));
-  if (pkctx &&
-      EVP_PKEY_verify_init(pkctx.get()) > 0 &&
-      ApplyRSAOptions(pkey, pkctx.get(), padding, saltlen) &&
-      EVP_PKEY_CTX_set_signature_md(pkctx.get(),
-                                    EVP_MD_CTX_md(mdctx.get())) > 0) {
-    const unsigned char* s = sig.data<unsigned char>();
-    const int r = EVP_PKEY_verify(pkctx.get(), s, sig.size(), m, m_len);
-    *verify_result = r == 1;
+  if (pkctx) {
+    const int init_ret = EVP_PKEY_verify_init(pkctx.get());
+    if (init_ret == -2) {
+      return kSignPublicKey;
+    }
+    if (init_ret > 0 && ApplyRSAOptions(pkey, pkctx.get(), padding, saltlen) &&
+        EVP_PKEY_CTX_set_signature_md(pkctx.get(), EVP_MD_CTX_md(mdctx.get())) >
+            0) {
+      const unsigned char* s = sig.data<unsigned char>();
+      const int r = EVP_PKEY_verify(pkctx.get(), s, sig.size(), m, m_len);
+      *verify_result = r == 1;
+    }
   }
 
   return kSignOk;
@@ -545,7 +552,7 @@ void Verify::VerifyFinal(const FunctionCallbackInfo<Value>& args) {
   ClearErrorOnReturn clear_error_on_return;
 
   Verify* verify;
-  ASSIGN_OR_RETURN_UNWRAP(&verify, args.Holder());
+  ASSIGN_OR_RETURN_UNWRAP(&verify, args.This());
 
   unsigned int offset = 0;
   ManagedEVPPKey pkey =
@@ -706,11 +713,11 @@ Maybe<bool> SignTraits::AdditionalConfig(
   return Just(true);
 }
 
-bool SignTraits::DeriveBits(
-    Environment* env,
-    const SignConfiguration& params,
-    ByteSource* out) {
-  ClearErrorOnReturn clear_error_on_return;
+bool SignTraits::DeriveBits(Environment* env,
+                            const SignConfiguration& params,
+                            ByteSource* out,
+                            CryptoJobMode mode) {
+  bool can_throw = mode == CryptoJobMode::kCryptoJobSync;
   EVPMDCtxPointer context(EVP_MD_CTX_new());
   EVP_PKEY_CTX* ctx = nullptr;
 
@@ -722,7 +729,7 @@ bool SignTraits::DeriveBits(
               params.digest,
               nullptr,
               params.key.get())) {
-        crypto::CheckThrow(env, SignBase::Error::kSignInit);
+        if (can_throw) crypto::CheckThrow(env, SignBase::Error::kSignInit);
         return false;
       }
       break;
@@ -733,7 +740,7 @@ bool SignTraits::DeriveBits(
               params.digest,
               nullptr,
               params.key.get())) {
-        crypto::CheckThrow(env, SignBase::Error::kSignInit);
+        if (can_throw) crypto::CheckThrow(env, SignBase::Error::kSignInit);
         return false;
       }
       break;
@@ -751,7 +758,7 @@ bool SignTraits::DeriveBits(
           ctx,
           padding,
           salt_length)) {
-    crypto::CheckThrow(env, SignBase::Error::kSignPrivateKey);
+    if (can_throw) crypto::CheckThrow(env, SignBase::Error::kSignPrivateKey);
     return false;
   }
 
@@ -765,7 +772,8 @@ bool SignTraits::DeriveBits(
             &len,
             params.data.data<unsigned char>(),
             params.data.size())) {
-          crypto::CheckThrow(env, SignBase::Error::kSignPrivateKey);
+          if (can_throw)
+            crypto::CheckThrow(env, SignBase::Error::kSignPrivateKey);
           return false;
         }
         ByteSource::Builder buf(len);
@@ -774,7 +782,8 @@ bool SignTraits::DeriveBits(
                             &len,
                             params.data.data<unsigned char>(),
                             params.data.size())) {
-          crypto::CheckThrow(env, SignBase::Error::kSignPrivateKey);
+          if (can_throw)
+            crypto::CheckThrow(env, SignBase::Error::kSignPrivateKey);
           return false;
         }
         *out = std::move(buf).release(len);
@@ -785,13 +794,15 @@ bool SignTraits::DeriveBits(
                 params.data.data<unsigned char>(),
                 params.data.size()) ||
             !EVP_DigestSignFinal(context.get(), nullptr, &len)) {
-          crypto::CheckThrow(env, SignBase::Error::kSignPrivateKey);
+          if (can_throw)
+            crypto::CheckThrow(env, SignBase::Error::kSignPrivateKey);
           return false;
         }
         ByteSource::Builder buf(len);
         if (!EVP_DigestSignFinal(
                 context.get(), buf.data<unsigned char>(), &len)) {
-          crypto::CheckThrow(env, SignBase::Error::kSignPrivateKey);
+          if (can_throw)
+            crypto::CheckThrow(env, SignBase::Error::kSignPrivateKey);
           return false;
         }
 

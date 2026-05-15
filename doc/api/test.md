@@ -431,7 +431,8 @@ command-line flag, code coverage is collected and statistics are reported once
 all tests have completed. If the [`NODE_V8_COVERAGE`][] environment variable is
 used to specify a code coverage directory, the generated V8 coverage files are
 written to that directory. Node.js core modules and files within
-`node_modules/` directories are not included in the coverage report. If
+`node_modules/` directories are, by default, not included in the coverage report.
+However, they can be explicity included via the [`--test-coverage-include`][] flag. If
 coverage is enabled, the coverage report is sent to any [test reporters][] via
 the `'test:coverage'` event.
 
@@ -473,6 +474,9 @@ used as an in depth coverage report.
 node --test --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=lcov.info
 ```
 
+* No test results are reported by this reporter.
+* This reporter should ideally be used alongside another reporter.
+
 ### Limitations
 
 The test runner's code coverage functionality does not support excluding
@@ -494,9 +498,9 @@ test('spies on a function', () => {
     return a + b;
   });
 
-  assert.strictEqual(sum.mock.calls.length, 0);
+  assert.strictEqual(sum.mock.callCount(), 0);
   assert.strictEqual(sum(3, 4), 7);
-  assert.strictEqual(sum.mock.calls.length, 1);
+  assert.strictEqual(sum.mock.callCount(), 1);
 
   const call = sum.mock.calls[0];
   assert.deepStrictEqual(call.arguments, [3, 4]);
@@ -518,9 +522,9 @@ test('spies on a function', () => {
     return a + b;
   });
 
-  assert.strictEqual(sum.mock.calls.length, 0);
+  assert.strictEqual(sum.mock.callCount(), 0);
   assert.strictEqual(sum(3, 4), 7);
-  assert.strictEqual(sum.mock.calls.length, 1);
+  assert.strictEqual(sum.mock.callCount(), 1);
 
   const call = sum.mock.calls[0];
   assert.deepStrictEqual(call.arguments, [3, 4]);
@@ -548,9 +552,9 @@ test('spies on an object method', (t) => {
   };
 
   t.mock.method(number, 'add');
-  assert.strictEqual(number.add.mock.calls.length, 0);
+  assert.strictEqual(number.add.mock.callCount(), 0);
   assert.strictEqual(number.add(3), 8);
-  assert.strictEqual(number.add.mock.calls.length, 1);
+  assert.strictEqual(number.add.mock.callCount(), 1);
 
   const call = number.add.mock.calls[0];
 
@@ -1044,13 +1048,13 @@ export default async function * customReporter(source) {
   for await (const event of source) {
     switch (event.type) {
       case 'test:dequeue':
-        yield `test ${event.data.name} dequeued`;
+        yield `test ${event.data.name} dequeued\n`;
         break;
       case 'test:enqueue':
-        yield `test ${event.data.name} enqueued`;
+        yield `test ${event.data.name} enqueued\n`;
         break;
       case 'test:watch:drained':
-        yield 'test watch queue drained';
+        yield 'test watch queue drained\n';
         break;
       case 'test:start':
         yield `test ${event.data.name} started\n`;
@@ -1062,7 +1066,7 @@ export default async function * customReporter(source) {
         yield `test ${event.data.name} failed\n`;
         break;
       case 'test:plan':
-        yield 'test plan';
+        yield 'test plan\n';
         break;
       case 'test:diagnostic':
       case 'test:stderr':
@@ -1084,13 +1088,13 @@ module.exports = async function * customReporter(source) {
   for await (const event of source) {
     switch (event.type) {
       case 'test:dequeue':
-        yield `test ${event.data.name} dequeued`;
+        yield `test ${event.data.name} dequeued\n`;
         break;
       case 'test:enqueue':
-        yield `test ${event.data.name} enqueued`;
+        yield `test ${event.data.name} enqueued\n`;
         break;
       case 'test:watch:drained':
-        yield 'test watch queue drained';
+        yield 'test watch queue drained\n';
         break;
       case 'test:start':
         yield `test ${event.data.name} started\n`;
@@ -1169,7 +1173,7 @@ changes:
     If `false`, it would only run one test file at a time.
     **Default:** `false`.
   * `files`: {Array} An array containing the list of files to run.
-    **Default** matching files from [test runner execution model][].
+    **Default:** matching files from [test runner execution model][].
   * `forceExit`: {boolean} Configures the test runner to exit the process once
     all known tests have finished executing even if the event loop would
     otherwise remain active. **Default:** `false`.
@@ -1186,6 +1190,12 @@ changes:
   * `signal` {AbortSignal} Allows aborting an in-progress test execution.
   * `testNamePatterns` {string|RegExp|Array} A String, RegExp or a RegExp Array,
     that can be used to only run tests whose name matches the provided pattern.
+    Test name patterns are interpreted as JavaScript regular expressions.
+    For each test that is executed, any corresponding test hooks, such as
+    `beforeEach()`, are also run.
+    **Default:** `undefined`.
+  * `testSkipPatterns` {string|RegExp|Array} A String, RegExp or a RegExp Array,
+    that can be used to exclude running tests whose name matches the provided pattern.
     Test name patterns are interpreted as JavaScript regular expressions.
     For each test that is executed, any corresponding test hooks, such as
     `beforeEach()`, are also run.
@@ -1726,6 +1736,25 @@ added:
 Resets the implementation of the mock function to its original behavior. The
 mock can still be used after calling this function.
 
+## Class: `MockModuleContext`
+
+<!-- YAML
+added: v20.18.0
+-->
+
+> Stability: 1.0 - Early development
+
+The `MockModuleContext` class is used to manipulate the behavior of module mocks
+created via the [`MockTracker`][] APIs.
+
+### `ctx.restore()`
+
+<!-- YAML
+added: v20.18.0
+-->
+
+Resets the implementation of the mock module.
+
 ## Class: `MockTracker`
 
 <!-- YAML
@@ -1845,9 +1874,9 @@ test('spies on an object method', (t) => {
   };
 
   t.mock.method(number, 'subtract');
-  assert.strictEqual(number.subtract.mock.calls.length, 0);
+  assert.strictEqual(number.subtract.mock.callCount(), 0);
   assert.strictEqual(number.subtract(3), 2);
-  assert.strictEqual(number.subtract.mock.calls.length, 1);
+  assert.strictEqual(number.subtract.mock.callCount(), 1);
 
   const call = number.subtract.mock.calls[0];
 
@@ -1856,6 +1885,68 @@ test('spies on an object method', (t) => {
   assert.strictEqual(call.error, undefined);
   assert.strictEqual(call.target, undefined);
   assert.strictEqual(call.this, number);
+});
+```
+
+### `mock.module(specifier[, options])`
+
+<!-- YAML
+added: v20.18.0
+-->
+
+> Stability: 1.0 - Early development
+
+* `specifier` {string} A string identifying the module to mock.
+* `options` {Object} Optional configuration options for the mock module. The
+  following properties are supported:
+  * `cache` {boolean} If `false`, each call to `require()` or `import()`
+    generates a new mock module. If `true`, subsequent calls will return the same
+    module mock, and the mock module is inserted into the CommonJS cache.
+    **Default:** false.
+  * `defaultExport` {any} An optional value used as the mocked module's default
+    export. If this value is not provided, ESM mocks do not include a default
+    export. If the mock is a CommonJS or builtin module, this setting is used as
+    the value of `module.exports`. If this value is not provided, CJS and builtin
+    mocks use an empty object as the value of `module.exports`.
+  * `namedExports` {Object} An optional object whose keys and values are used to
+    create the named exports of the mock module. If the mock is a CommonJS or
+    builtin module, these values are copied onto `module.exports`. Therefore, if a
+    mock is created with both named exports and a non-object default export, the
+    mock will throw an exception when used as a CJS or builtin module.
+* Returns: {MockModuleContext} An object that can be used to manipulate the mock.
+
+This function is used to mock the exports of ECMAScript modules, CommonJS
+modules, and Node.js builtin modules. Any references to the original module
+prior to mocking are not impacted. The following example demonstrates how a mock
+is created for a module.
+
+```js
+test('mocks a builtin module in both module systems', async (t) => {
+  // Create a mock of 'node:readline' with a named export named 'fn', which
+  // does not exist in the original 'node:readline' module.
+  const mock = t.mock.module('node:readline', {
+    namedExports: { fn() { return 42; } },
+  });
+
+  let esmImpl = await import('node:readline');
+  let cjsImpl = require('node:readline');
+
+  // cursorTo() is an export of the original 'node:readline' module.
+  assert.strictEqual(esmImpl.cursorTo, undefined);
+  assert.strictEqual(cjsImpl.cursorTo, undefined);
+  assert.strictEqual(esmImpl.fn(), 42);
+  assert.strictEqual(cjsImpl.fn(), 42);
+
+  mock.restore();
+
+  // The mock is restored, so the original builtin module is returned.
+  esmImpl = await import('node:readline');
+  cjsImpl = require('node:readline');
+
+  assert.strictEqual(typeof esmImpl.cursorTo, 'function');
+  assert.strictEqual(typeof cjsImpl.cursorTo, 'function');
+  assert.strictEqual(esmImpl.fn, undefined);
+  assert.strictEqual(cjsImpl.fn, undefined);
 });
 ```
 
@@ -1938,7 +2029,8 @@ Enables timer mocking for the specified timers.
     The currently supported timer values are `'setInterval'`, `'setTimeout'`, `'setImmediate'`,
     and `'Date'`. **Default:** `['setInterval', 'setTimeout', 'setImmediate', 'Date']`.
     If no array is provided, all time related APIs (`'setInterval'`, `'clearInterval'`,
-    `'setTimeout'`, `'clearTimeout'`, and `'Date'`) will be mocked by default.
+    `'setTimeout'`, `'clearTimeout'`, `'setImmediate'`, `'clearImmediate'`, and
+    `'Date'`) will be mocked by default.
   * `now` {number | Date} An optional number or Date object representing the
     initial time (in milliseconds) to use as the value
     for `Date.now()`. **Default:** `0`.
@@ -1993,10 +2085,11 @@ mock.timers.enable({ apis: ['Date'], now: new Date() });
 
 Alternatively, if you call `mock.timers.enable()` without any parameters:
 
-All timers (`'setInterval'`, `'clearInterval'`, `'setTimeout'`, and `'clearTimeout'`)
-will be mocked. The `setInterval`, `clearInterval`, `setTimeout`, and `clearTimeout`
-functions from `node:timers`, `node:timers/promises`,
-and `globalThis` will be mocked. As well as the global `Date` object.
+All timers (`'setInterval'`, `'clearInterval'`, `'setTimeout'`, `'clearTimeout'`,
+`'setImmediate'`, and `'clearImmediate'`) will be mocked. The `setInterval`,
+`clearInterval`, `setTimeout`, `clearTimeout`, `setImmediate`, and
+`clearImmediate` functions from `node:timers`, `node:timers/promises`, and
+`globalThis` will be mocked. As well as the global `Date` object.
 
 ### `timers.reset()`
 
@@ -2026,7 +2119,7 @@ mock.timers.reset();
 
 Calls `timers.reset()`.
 
-### `timers.tick(milliseconds)`
+### `timers.tick([milliseconds])`
 
 <!-- YAML
 added:
@@ -2036,7 +2129,7 @@ added:
 Advances time for all mocked timers.
 
 * `milliseconds` {number} The amount of time, in milliseconds,
-  to advance the timers.
+  to advance the timers. **Default:** `1`.
 
 **Note:** This diverges from how `setTimeout` in Node.js behaves and accepts
 only positive numbers. In Node.js, `setTimeout` with negative numbers is
@@ -2084,7 +2177,7 @@ test('mocks setTimeout to be executed synchronously without having to actually w
 });
 ```
 
-Alternativelly, the `.tick` function can be called many times
+Alternatively, the `.tick` function can be called many times
 
 ```mjs
 import assert from 'node:assert';
@@ -2096,10 +2189,10 @@ test('mocks setTimeout to be executed synchronously without having to actually w
   const nineSecs = 9000;
   setTimeout(fn, nineSecs);
 
-  const twoSeconds = 3000;
-  context.mock.timers.tick(twoSeconds);
-  context.mock.timers.tick(twoSeconds);
-  context.mock.timers.tick(twoSeconds);
+  const threeSeconds = 3000;
+  context.mock.timers.tick(threeSeconds);
+  context.mock.timers.tick(threeSeconds);
+  context.mock.timers.tick(threeSeconds);
 
   assert.strictEqual(fn.mock.callCount(), 1);
 });
@@ -2115,10 +2208,10 @@ test('mocks setTimeout to be executed synchronously without having to actually w
   const nineSecs = 9000;
   setTimeout(fn, nineSecs);
 
-  const twoSeconds = 3000;
-  context.mock.timers.tick(twoSeconds);
-  context.mock.timers.tick(twoSeconds);
-  context.mock.timers.tick(twoSeconds);
+  const threeSeconds = 3000;
+  context.mock.timers.tick(threeSeconds);
+  context.mock.timers.tick(threeSeconds);
+  context.mock.timers.tick(threeSeconds);
 
   assert.strictEqual(fn.mock.callCount(), 1);
 });
@@ -2168,8 +2261,8 @@ test('mocks setTimeout to be executed synchronously without having to actually w
 
 #### Using clear functions
 
-As mentioned, all clear functions from timers (`clearTimeout` and `clearInterval`)
-are implicity mocked. Take a look at this example using `setTimeout`:
+As mentioned, all clear functions from timers (`clearTimeout`, `clearInterval`,and
+`clearImmediate`) are implicitly mocked. Take a look at this example using `setTimeout`:
 
 ```mjs
 import assert from 'node:assert';
@@ -2182,7 +2275,7 @@ test('mocks setTimeout to be executed synchronously without having to actually w
   context.mock.timers.enable({ apis: ['setTimeout'] });
   const id = setTimeout(fn, 9999);
 
-  // Implicity mocked as well
+  // Implicitly mocked as well
   clearTimeout(id);
   context.mock.timers.tick(9999);
 
@@ -2202,7 +2295,7 @@ test('mocks setTimeout to be executed synchronously without having to actually w
   context.mock.timers.enable({ apis: ['setTimeout'] });
   const id = setTimeout(fn, 9999);
 
-  // Implicity mocked as well
+  // Implicitly mocked as well
   clearTimeout(id);
   context.mock.timers.tick(9999);
 
@@ -2722,11 +2815,7 @@ The corresponding execution ordered event is `'test:dequeue'`.
 ### Event: `'test:stderr'`
 
 * `data` {Object}
-  * `column` {number|undefined} The column number where the test is defined, or
-    `undefined` if the test was run through the REPL.
   * `file` {string} The path of the test file.
-  * `line` {number|undefined} The line number where the test is defined, or
-    `undefined` if the test was run through the REPL.
   * `message` {string} The message written to `stderr`.
 
 Emitted when a running test writes to `stderr`.
@@ -2737,11 +2826,7 @@ defined.
 ### Event: `'test:stdout'`
 
 * `data` {Object}
-  * `column` {number|undefined} The column number where the test is defined, or
-    `undefined` if the test was run through the REPL.
   * `file` {string} The path of the test file.
-  * `line` {number|undefined} The line number where the test is defined, or
-    `undefined` if the test was run through the REPL.
   * `message` {string} The message written to `stdout`.
 
 Emitted when a running test writes to `stdout`.
@@ -2886,6 +2971,24 @@ test('top level test', async (t) => {
 });
 ```
 
+### `context.assert`
+
+<!-- YAML
+added:
+  - v22.2.0
+-->
+
+An object containing assertion methods bound to `context`. The top-level
+functions from the `node:assert` module are exposed here for the purpose of
+creating test plans.
+
+```js
+test('test', (t) => {
+  t.plan(1);
+  t.assert.strictEqual(true, true);
+});
+```
+
 ### `context.diagnostic(message)`
 
 <!-- YAML
@@ -2905,6 +3008,14 @@ test('top level test', (t) => {
   t.diagnostic('A diagnostic message');
 });
 ```
+
+### `context.fullName`
+
+<!-- YAML
+added: v20.16.0
+-->
+
+The name of the test and each of its ancestors, separated by `>`.
 
 ### `context.name`
 
@@ -2937,7 +3048,7 @@ expected count, the test will fail.
 test('top level test', (t) => {
   t.plan(2);
   t.assert.ok('some relevant assertion here');
-  t.subtest('subtest', () => {});
+  t.test('subtest', () => {});
 });
 ```
 
@@ -3111,9 +3222,9 @@ behaves in the same fashion as the top level [`test()`][] function.
 test('top level test', async (t) => {
   await t.test(
     'This is a subtest',
-    { only: false, skip: false, concurrency: 1, todo: false, plan: 4 },
+    { only: false, skip: false, concurrency: 1, todo: false, plan: 1 },
     (t) => {
-      assert.ok('some relevant assertion here');
+      t.assert.ok('some relevant assertion here');
     },
   );
 });
@@ -3158,6 +3269,7 @@ Can be used to abort test subtasks when the test has been aborted.
 [`--experimental-test-coverage`]: cli.md#--experimental-test-coverage
 [`--import`]: cli.md#--importmodule
 [`--test-concurrency`]: cli.md#--test-concurrency
+[`--test-coverage-include`]: cli.md#--test-coverage-include
 [`--test-name-pattern`]: cli.md#--test-name-pattern
 [`--test-only`]: cli.md#--test-only
 [`--test-reporter-destination`]: cli.md#--test-reporter-destination

@@ -1,0 +1,98 @@
+From acec79989e3d87b220d31cedf69084044443a59c Mon Sep 17 00:00:00 2001
+From: zhoumingtao <zhoumingtao@loongson.cn>
+Date: Wed, 30 Jul 2025 12:02:51 +0800
+Subject: [PATCH] deps: V8: cherry-pick 6b1b9bca2a8
+
+Origin commit message:
+
+    [loong64][codegen] Avoid memory access under stack pointer
+
+    According to LoongArch ABI doc chapter 8.2:
+      "Procedures must not assume the persistence on-stack data of which
+       the addresses lie below the stack pointer."
+
+    Change-Id: I92735e052227495ac9884c4290b57eaffbf905e1
+    Reviewed-on: https://chromium-review.googlesource.com/c/v8/v8/+/6786372
+    Auto-Submit: Zhao Jiazhong <zhaojiazhong-hf@loongson.cn>
+    Reviewed-by: Matthias Liedtke <mliedtke@chromium.org>
+    Commit-Queue: Matthias Liedtke <mliedtke@chromium.org>
+    Cr-Commit-Position: refs/heads/main@{#101634}
+
+Backport-PR-URL: https://github.com/nodejs/node/pull/59662
+Refs: https://github.com/v8/v8/commit/6b1b9bca2a8fe9824bcc815a9ce642da904b91c3
+PR-URL: https://github.com/nodejs/node/pull/59283
+Reviewed-By: Marco Ippolito <marcoippolito54@gmail.com>
+---
+ common.gypi                                   |  2 +-
+ .../loong64/macro-assembler-loong64.cc        | 20 ++++++++++---------
+ 2 files changed, 12 insertions(+), 10 deletions(-)
+
+--- a/deps/v8/src/codegen/loong64/macro-assembler-loong64.cc
++++ b/deps/v8/src/codegen/loong64/macro-assembler-loong64.cc
+@@ -1256,21 +1256,24 @@
+ }
+ 
+ void MacroAssembler::MultiPush(RegList regs) {
+-  int16_t stack_offset = 0;
++  int16_t num_to_push = regs.Count();
++  int16_t stack_offset = num_to_push * kSystemPointerSize;
+ 
++  Sub_d(sp, sp, Operand(stack_offset));
+   for (int16_t i = kNumRegisters - 1; i >= 0; i--) {
+     if ((regs.bits() & (1 << i)) != 0) {
+       stack_offset -= kSystemPointerSize;
+       St_d(ToRegister(i), MemOperand(sp, stack_offset));
+     }
+   }
+-  addi_d(sp, sp, stack_offset);
+ }
+ 
+ void MacroAssembler::MultiPush(RegList regs1, RegList regs2) {
+   DCHECK((regs1 & regs2).is_empty());
+-  int16_t stack_offset = 0;
++  int16_t num_to_push = regs1.Count() + regs2.Count();
++  int16_t stack_offset = num_to_push * kSystemPointerSize;
+ 
++  Sub_d(sp, sp, Operand(stack_offset));
+   for (int16_t i = kNumRegisters - 1; i >= 0; i--) {
+     if ((regs1.bits() & (1 << i)) != 0) {
+       stack_offset -= kSystemPointerSize;
+@@ -1283,15 +1286,16 @@
+       St_d(ToRegister(i), MemOperand(sp, stack_offset));
+     }
+   }
+-  addi_d(sp, sp, stack_offset);
+ }
+ 
+ void MacroAssembler::MultiPush(RegList regs1, RegList regs2, RegList regs3) {
+   DCHECK((regs1 & regs2).is_empty());
+   DCHECK((regs1 & regs3).is_empty());
+   DCHECK((regs2 & regs3).is_empty());
+-  int16_t stack_offset = 0;
++  int16_t num_to_push = regs1.Count() + regs2.Count() + regs3.Count();
++  int16_t stack_offset = num_to_push * kSystemPointerSize;
+ 
++  Sub_d(sp, sp, Operand(stack_offset));
+   for (int16_t i = kNumRegisters - 1; i >= 0; i--) {
+     if ((regs1.bits() & (1 << i)) != 0) {
+       stack_offset -= kSystemPointerSize;
+@@ -1310,7 +1314,6 @@
+       St_d(ToRegister(i), MemOperand(sp, stack_offset));
+     }
+   }
+-  addi_d(sp, sp, stack_offset);
+ }
+ 
+ void MacroAssembler::MultiPop(RegList regs) {
+@@ -3563,9 +3566,8 @@
+ 
+ void MacroAssembler::LeaveFrame(StackFrame::Type type) {
+   ASM_CODE_COMMENT(this);
+-  addi_d(sp, fp, 2 * kSystemPointerSize);
+-  Ld_d(ra, MemOperand(fp, 1 * kSystemPointerSize));
+-  Ld_d(fp, MemOperand(fp, 0 * kSystemPointerSize));
++  Move(sp, fp);
++  Pop(ra, fp);
+ }
+ 
+ void MacroAssembler::EnterExitFrame(int stack_space,

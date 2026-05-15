@@ -432,6 +432,41 @@ async function* asyncIterableGenerator() {
 })();
 ```
 
+To pipe the resulting {ReadableStream} into a {WritableStream} the {Iterable}
+should yield a sequence of {Buffer}, {TypedArray}, or {DataView} objects.
+
+```mjs
+import { ReadableStream } from 'node:stream/web';
+import { Buffer } from 'node:buffer';
+
+async function* asyncIterableGenerator() {
+  yield Buffer.from('a');
+  yield Buffer.from('b');
+  yield Buffer.from('c');
+}
+
+const stream = ReadableStream.from(asyncIterableGenerator());
+
+await stream.pipeTo(createWritableStreamSomehow());
+```
+
+```cjs
+const { ReadableStream } = require('node:stream/web');
+const { Buffer } = require('node:buffer');
+
+async function* asyncIterableGenerator() {
+  yield Buffer.from('a');
+  yield Buffer.from('b');
+  yield Buffer.from('c');
+}
+
+const stream = ReadableStream.from(asyncIterableGenerator());
+
+(async () => {
+  await stream.pipeTo(createWritableStreamSomehow());
+})();
+```
+
 ### Class: `ReadableStreamDefaultReader`
 
 <!-- YAML
@@ -488,7 +523,7 @@ added: v16.5.0
 -->
 
 * Returns: A promise fulfilled with an object:
-  * `value` {ArrayBuffer}
+  * `value` {any}
   * `done` {boolean}
 
 Requests the next chunk of data from the underlying {ReadableStream}
@@ -613,15 +648,24 @@ added: v16.5.0
   {ReadableStream} is closed or rejected if the stream errors or the reader's
   lock is released before the stream finishes closing.
 
-#### `readableStreamBYOBReader.read(view)`
+#### `readableStreamBYOBReader.read(view[, options])`
 
 <!-- YAML
 added: v16.5.0
+changes:
+  - version: v20.17.0
+    pr-url: https://github.com/nodejs/node/pull/54044
+    description: Added `min` option.
 -->
 
 * `view` {Buffer|TypedArray|DataView}
+* `options` {Object}
+  * `min` {number} When set, the returned promise will only be
+    fulfilled as soon as `min` number of elements are available.
+    When not set, the promise fulfills when at least one element
+    is available.
 * Returns: A promise fulfilled with an object:
-  * `value` {ArrayBuffer}
+  * `value` {TypedArray|DataView}
   * `done` {boolean}
 
 Requests the next chunk of data from the underlying {ReadableStream}
