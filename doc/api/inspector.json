@@ -8,7 +8,7 @@
       "introduced_in": "v8.0.0",
       "stability": 2,
       "stabilityText": "Stable",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v20.15.1/lib/inspector.js\">lib/inspector.js</a></p>\n<p>The <code>node:inspector</code> module provides an API for interacting with the V8\ninspector.</p>\n<p>It can be accessed using:</p>\n<pre><code class=\"language-mjs\">import * as inspector from 'node:inspector/promises';\n</code></pre>\n<pre><code class=\"language-cjs\">const inspector = require('node:inspector/promises');\n</code></pre>\n<p>or</p>\n<pre><code class=\"language-mjs\">import * as inspector from 'node:inspector';\n</code></pre>\n<pre><code class=\"language-cjs\">const inspector = require('node:inspector');\n</code></pre>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v20.19.2/lib/inspector.js\">lib/inspector.js</a></p>\n<p>The <code>node:inspector</code> module provides an API for interacting with the V8\ninspector.</p>\n<p>It can be accessed using:</p>\n<pre><code class=\"language-mjs\">import * as inspector from 'node:inspector/promises';\n</code></pre>\n<pre><code class=\"language-cjs\">const inspector = require('node:inspector/promises');\n</code></pre>\n<p>or</p>\n<pre><code class=\"language-mjs\">import * as inspector from 'node:inspector';\n</code></pre>\n<pre><code class=\"language-cjs\">const inspector = require('node:inspector');\n</code></pre>",
       "modules": [
         {
           "textRaw": "Promises API",
@@ -468,6 +468,115 @@
           ],
           "type": "module",
           "displayName": "Common Objects"
+        },
+        {
+          "textRaw": "Integration with DevTools",
+          "name": "integration_with_devtools",
+          "desc": "<p>The <code>node:inspector</code> module provides an API for integrating with devtools that support Chrome DevTools Protocol.\nDevTools frontends connected to a running Node.js instance can capture protocol events emitted from the instance\nand display them accordingly to facilitate debugging.\nThe following methods broadcast a protocol event to all connected frontends.\nThe <code>params</code> passed to the methods can be optional, depending on the protocol.</p>\n<pre><code class=\"language-js\">// The `Network.requestWillBeSent` event will be fired.\ninspector.Network.requestWillBeSent({\n  requestId: 'request-id-1',\n  timestamp: Date.now() / 1000,\n  wallTime: Date.now(),\n  request: {\n    url: 'https://nodejs.org/en',\n    method: 'GET',\n  },\n});\n</code></pre>",
+          "methods": [
+            {
+              "textRaw": "`inspector.Network.requestWillBeSent([params])`",
+              "type": "method",
+              "name": "requestWillBeSent",
+              "meta": {
+                "added": [
+                  "v20.18.0"
+                ],
+                "changes": []
+              },
+              "stability": 1,
+              "stabilityText": "Experimental",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "textRaw": "`params` {Object}",
+                      "name": "params",
+                      "type": "Object"
+                    }
+                  ]
+                }
+              ],
+              "desc": "<p>This feature is only available with the <code>--experimental-network-inspection</code> flag enabled.</p>\n<p>Broadcasts the <code>Network.requestWillBeSent</code> event to connected frontends. This event indicates that\nthe application is about to send an HTTP request.</p>"
+            },
+            {
+              "textRaw": "`inspector.Network.responseReceived([params])`",
+              "type": "method",
+              "name": "responseReceived",
+              "meta": {
+                "added": [
+                  "v20.18.0"
+                ],
+                "changes": []
+              },
+              "stability": 1,
+              "stabilityText": "Experimental",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "textRaw": "`params` {Object}",
+                      "name": "params",
+                      "type": "Object"
+                    }
+                  ]
+                }
+              ],
+              "desc": "<p>This feature is only available with the <code>--experimental-network-inspection</code> flag enabled.</p>\n<p>Broadcasts the <code>Network.responseReceived</code> event to connected frontends. This event indicates that\nHTTP response is available.</p>"
+            },
+            {
+              "textRaw": "`inspector.Network.loadingFinished([params])`",
+              "type": "method",
+              "name": "loadingFinished",
+              "meta": {
+                "added": [
+                  "v20.18.0"
+                ],
+                "changes": []
+              },
+              "stability": 1,
+              "stabilityText": "Experimental",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "textRaw": "`params` {Object}",
+                      "name": "params",
+                      "type": "Object"
+                    }
+                  ]
+                }
+              ],
+              "desc": "<p>This feature is only available with the <code>--experimental-network-inspection</code> flag enabled.</p>\n<p>Broadcasts the <code>Network.loadingFinished</code> event to connected frontends. This event indicates that\nHTTP request has finished loading.</p>"
+            },
+            {
+              "textRaw": "`inspector.Network.loadingFailed([params])`",
+              "type": "method",
+              "name": "loadingFailed",
+              "meta": {
+                "added": [
+                  "v20.18.0"
+                ],
+                "changes": []
+              },
+              "stability": 1,
+              "stabilityText": "Experimental",
+              "signatures": [
+                {
+                  "params": [
+                    {
+                      "textRaw": "`params` {Object}",
+                      "name": "params",
+                      "type": "Object"
+                    }
+                  ]
+                }
+              ],
+              "desc": "<p>This feature is only available with the <code>--experimental-network-inspection</code> flag enabled.</p>\n<p>Broadcasts the <code>Network.loadingFailed</code> event to connected frontends. This event indicates that\nHTTP request has failed to load.</p>"
+            }
+          ],
+          "type": "module",
+          "displayName": "Integration with DevTools"
         },
         {
           "textRaw": "Support of breakpoints",

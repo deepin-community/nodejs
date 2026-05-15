@@ -1,0 +1,31 @@
+From 563e61f0121984b6d8aca4b861acfdde12a4ca22 Mon Sep 17 00:00:00 2001
+From: Eusgor <100363036+Eusgor@users.noreply.github.com>
+Date: Fri, 30 May 2025 02:01:48 +0600
+Subject: [PATCH] src: fix possible dereference of null pointer
+
+There is a CHECK_NOT_NULL check before dereferencing node_env on
+line 710 in the "if" block, but there is no CHECK_NOT_NULL check before
+dereferencing node_env on line 721. Maybe it makes sense to put
+CHECK_NOT_NULL right after calling the Environment::GetCurrent function.
+
+PR-URL: https://github.com/nodejs/node/pull/58459
+Reviewed-By: Anna Henningsen <anna@addaleax.net>
+Reviewed-By: Michael Dawson <midawson@redhat.com>
+Reviewed-By: Chengzhong Wu <legendecas@gmail.com>
+---
+ src/node_api.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/src/node_api.cc
++++ b/src/node_api.cc
+@@ -693,9 +693,9 @@
+                                     napi_addon_register_func init,
+                                     int32_t module_api_version) {
+   node::Environment* node_env = node::Environment::GetCurrent(context);
++  CHECK_NOT_NULL(node_env);
+   std::string module_filename = "";
+   if (init == nullptr) {
+-    CHECK_NOT_NULL(node_env);
+     node_env->ThrowError("Module has no declared entry point.");
+     return;
+   }

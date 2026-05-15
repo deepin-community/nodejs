@@ -30,7 +30,7 @@
                 ],
                 "changes": []
               },
-              "desc": "<p>A list of the names of all modules provided by Node.js. Can be used to verify\nif a module is maintained by a third party or not.</p>\n<p><code>module</code> in this context isn't the same object that's provided\nby the <a href=\"modules.html#the-module-wrapper\">module wrapper</a>. To access it, require the <code>Module</code> module:</p>\n<pre><code class=\"language-mjs\">// module.mjs\n// In an ECMAScript module\nimport { builtinModules as builtin } from 'node:module';\n</code></pre>\n<pre><code class=\"language-cjs\">// module.cjs\n// In a CommonJS module\nconst builtin = require('node:module').builtinModules;\n</code></pre>"
+              "desc": "<p>A list of the names of all modules provided by Node.js. Can be used to verify\nif a module is maintained by a third party or not.</p>\n<p>Note: the list doesn't contain <a href=\"modules.html#built-in-modules-with-mandatory-node-prefix\">prefix-only modules</a> like <code>node:test</code>.</p>\n<p><code>module</code> in this context isn't the same object that's provided\nby the <a href=\"modules.html#the-module-wrapper\">module wrapper</a>. To access it, require the <code>Module</code> module:</p>\n<pre><code class=\"language-mjs\">// module.mjs\n// In an ECMAScript module\nimport { builtinModules as builtin } from 'node:module';\n</code></pre>\n<pre><code class=\"language-cjs\">// module.cjs\n// In a CommonJS module\nconst builtin = require('node:module').builtinModules;\n</code></pre>"
             }
           ],
           "methods": [
@@ -105,6 +105,11 @@
                 ],
                 "changes": [
                   {
+                    "version": "v20.18.2",
+                    "pr-url": "https://github.com/nodejs-private/node-private/pull/629",
+                    "description": "Using this feature with the permission model enabled requires passing `--allow-worker`."
+                  },
+                  {
                     "version": "v20.8.0",
                     "pr-url": "https://github.com/nodejs/node/pull/49655",
                     "description": "Add support for WHATWG URL instances."
@@ -158,7 +163,7 @@
                   ]
                 }
               ],
-              "desc": "<p>Register a module that exports <a href=\"#customization-hooks\">hooks</a> that customize Node.js module\nresolution and loading behavior. See <a href=\"#customization-hooks\">Customization hooks</a>.</p>"
+              "desc": "<p>Register a module that exports <a href=\"#customization-hooks\">hooks</a> that customize Node.js module\nresolution and loading behavior. See <a href=\"#customization-hooks\">Customization hooks</a>.</p>\n<p>This feature requires <code>--allow-worker</code> if used with the <a href=\"permissions.html#permission-model\">Permission Model</a>.</p>"
             },
             {
               "textRaw": "`module.syncBuiltinESMExports()`",
@@ -280,6 +285,12 @@
                   "textRaw": "`sourceMap.findOrigin(lineNumber, columnNumber)`",
                   "type": "method",
                   "name": "findOrigin",
+                  "meta": {
+                    "added": [
+                      "v20.4.0"
+                    ],
+                    "changes": []
+                  },
                   "signatures": [
                     {
                       "return": {
@@ -382,7 +393,7 @@
             {
               "textRaw": "Communication with module customization hooks",
               "name": "communication_with_module_customization_hooks",
-              "desc": "<p>Module customization hooks run on a dedicated thread, separate from the main\nthread that runs application code. This means mutating global variables won't\naffect the other thread(s), and message channels must be used to communicate\nbetween the threads.</p>\n<p>The <code>register</code> method can be used to pass data to an <a href=\"#initialize\"><code>initialize</code></a> hook. The\ndata passed to the hook may include transferrable objects like ports.</p>\n<pre><code class=\"language-mjs\">import { register } from 'node:module';\nimport { MessageChannel } from 'node:worker_threads';\n\n// This example demonstrates how a message channel can be used to\n// communicate with the hooks, by sending `port2` to the hooks.\nconst { port1, port2 } = new MessageChannel();\n\nport1.on('message', (msg) => {\n  console.log(msg);\n});\n\nregister('./my-hooks.mjs', {\n  parentURL: import.meta.url,\n  data: { number: 1, port: port2 },\n  transferList: [port2],\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const { register } = require('node:module');\nconst { pathToFileURL } = require('node:url');\nconst { MessageChannel } = require('node:worker_threads');\n\n// This example showcases how a message channel can be used to\n// communicate with the hooks, by sending `port2` to the hooks.\nconst { port1, port2 } = new MessageChannel();\n\nport1.on('message', (msg) => {\n  console.log(msg);\n});\n\nregister('./my-hooks.mjs', {\n  parentURL: pathToFileURL(__filename),\n  data: { number: 1, port: port2 },\n  transferList: [port2],\n});\n</code></pre>",
+              "desc": "<p>Module customization hooks run on a dedicated thread, separate from the main\nthread that runs application code. This means mutating global variables won't\naffect the other thread(s), and message channels must be used to communicate\nbetween the threads.</p>\n<p>The <code>register</code> method can be used to pass data to an <a href=\"#initialize\"><code>initialize</code></a> hook. The\ndata passed to the hook may include transferrable objects like ports.</p>\n<pre><code class=\"language-mjs\">import { register } from 'node:module';\nimport { MessageChannel } from 'node:worker_threads';\n\n// This example demonstrates how a message channel can be used to\n// communicate with the hooks, by sending `port2` to the hooks.\nconst { port1, port2 } = new MessageChannel();\n\nport1.on('message', (msg) => {\n  console.log(msg);\n});\nport1.unref();\n\nregister('./my-hooks.mjs', {\n  parentURL: import.meta.url,\n  data: { number: 1, port: port2 },\n  transferList: [port2],\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const { register } = require('node:module');\nconst { pathToFileURL } = require('node:url');\nconst { MessageChannel } = require('node:worker_threads');\n\n// This example showcases how a message channel can be used to\n// communicate with the hooks, by sending `port2` to the hooks.\nconst { port1, port2 } = new MessageChannel();\n\nport1.on('message', (msg) => {\n  console.log(msg);\n});\nport1.unref();\n\nregister('./my-hooks.mjs', {\n  parentURL: pathToFileURL(__filename),\n  data: { number: 1, port: port2 },\n  transferList: [port2],\n});\n</code></pre>",
               "type": "misc",
               "displayName": "Communication with module customization hooks"
             },
@@ -415,7 +426,7 @@
                       ]
                     }
                   ],
-                  "desc": "<p>The <code>initialize</code> hook provides a way to define a custom function that runs in\nthe hooks thread when the hooks module is initialized. Initialization happens\nwhen the hooks module is registered via <a href=\"#moduleregisterspecifier-parenturl-options\"><code>register</code></a>.</p>\n<p>This hook can receive data from a <a href=\"#moduleregisterspecifier-parenturl-options\"><code>register</code></a> invocation, including\nports and other transferrable objects. The return value of <code>initialize</code> can be a\n<a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise\" class=\"type\">&lt;Promise&gt;</a>, in which case it will be awaited before the main application thread\nexecution resumes.</p>\n<p>Module customization code:</p>\n<pre><code class=\"language-mjs\">// path-to-my-hooks.js\n\nexport async function initialize({ number, port }) {\n  port.postMessage(`increment: ${number + 1}`);\n}\n</code></pre>\n<p>Caller code:</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\nimport { register } from 'node:module';\nimport { MessageChannel } from 'node:worker_threads';\n\n// This example showcases how a message channel can be used to communicate\n// between the main (application) thread and the hooks running on the hooks\n// thread, by sending `port2` to the `initialize` hook.\nconst { port1, port2 } = new MessageChannel();\n\nport1.on('message', (msg) => {\n  assert.strictEqual(msg, 'increment: 2');\n});\n\nregister('./path-to-my-hooks.js', {\n  parentURL: import.meta.url,\n  data: { number: 1, port: port2 },\n  transferList: [port2],\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\nconst { register } = require('node:module');\nconst { pathToFileURL } = require('node:url');\nconst { MessageChannel } = require('node:worker_threads');\n\n// This example showcases how a message channel can be used to communicate\n// between the main (application) thread and the hooks running on the hooks\n// thread, by sending `port2` to the `initialize` hook.\nconst { port1, port2 } = new MessageChannel();\n\nport1.on('message', (msg) => {\n  assert.strictEqual(msg, 'increment: 2');\n});\n\nregister('./path-to-my-hooks.js', {\n  parentURL: pathToFileURL(__filename),\n  data: { number: 1, port: port2 },\n  transferList: [port2],\n});\n</code></pre>"
+                  "desc": "<p>The <code>initialize</code> hook provides a way to define a custom function that runs in\nthe hooks thread when the hooks module is initialized. Initialization happens\nwhen the hooks module is registered via <a href=\"#moduleregisterspecifier-parenturl-options\"><code>register</code></a>.</p>\n<p>This hook can receive data from a <a href=\"#moduleregisterspecifier-parenturl-options\"><code>register</code></a> invocation, including\nports and other transferrable objects. The return value of <code>initialize</code> can be a\n<a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise\" class=\"type\">&lt;Promise&gt;</a>, in which case it will be awaited before the main application thread\nexecution resumes.</p>\n<p>Module customization code:</p>\n<pre><code class=\"language-mjs\">// path-to-my-hooks.js\n\nexport async function initialize({ number, port }) {\n  port.postMessage(`increment: ${number + 1}`);\n}\n</code></pre>\n<p>Caller code:</p>\n<pre><code class=\"language-mjs\">import assert from 'node:assert';\nimport { register } from 'node:module';\nimport { MessageChannel } from 'node:worker_threads';\n\n// This example showcases how a message channel can be used to communicate\n// between the main (application) thread and the hooks running on the hooks\n// thread, by sending `port2` to the `initialize` hook.\nconst { port1, port2 } = new MessageChannel();\n\nport1.on('message', (msg) => {\n  assert.strictEqual(msg, 'increment: 2');\n});\nport1.unref();\n\nregister('./path-to-my-hooks.js', {\n  parentURL: import.meta.url,\n  data: { number: 1, port: port2 },\n  transferList: [port2],\n});\n</code></pre>\n<pre><code class=\"language-cjs\">const assert = require('node:assert');\nconst { register } = require('node:module');\nconst { pathToFileURL } = require('node:url');\nconst { MessageChannel } = require('node:worker_threads');\n\n// This example showcases how a message channel can be used to communicate\n// between the main (application) thread and the hooks running on the hooks\n// thread, by sending `port2` to the `initialize` hook.\nconst { port1, port2 } = new MessageChannel();\n\nport1.on('message', (msg) => {\n  assert.strictEqual(msg, 'increment: 2');\n});\nport1.unref();\n\nregister('./path-to-my-hooks.js', {\n  parentURL: pathToFileURL(__filename),\n  data: { number: 1, port: port2 },\n  transferList: [port2],\n});\n</code></pre>"
                 },
                 {
                   "textRaw": "`resolve(specifier, context, nextResolve)`",
@@ -572,11 +583,11 @@
                             "type": "string"
                           },
                           {
-                            "textRaw": "`shortCircuit` {undefined|boolean} A signal that this hook intends to terminate the chain of `resolve` hooks. **Default:** `false`",
+                            "textRaw": "`shortCircuit` {undefined|boolean} A signal that this hook intends to terminate the chain of `load` hooks. **Default:** `false`",
                             "name": "shortCircuit",
                             "type": "undefined|boolean",
                             "default": "`false`",
-                            "desc": "A signal that this hook intends to terminate the chain of `resolve` hooks."
+                            "desc": "A signal that this hook intends to terminate the chain of `load` hooks."
                           },
                           {
                             "textRaw": "`source` {string|ArrayBuffer|TypedArray} The source for Node.js to evaluate",
@@ -624,8 +635,8 @@
                           "desc": "The subsequent `load` hook in the chain, or the Node.js default `load` hook after the last user-supplied `load` hook",
                           "options": [
                             {
-                              "textRaw": "`specifier` {string}",
-                              "name": "specifier",
+                              "textRaw": "`url` {string}",
+                              "name": "url",
                               "type": "string"
                             },
                             {

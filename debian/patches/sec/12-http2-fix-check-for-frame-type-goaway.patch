@@ -1,0 +1,52 @@
+From ff5cf8a4282cb99354aa1deae70ac99f4e889a8b Mon Sep 17 00:00:00 2001
+From: hanguanqiang <hanguanqiang@kylinos.cn>
+Date: Wed, 9 Apr 2025 19:48:11 +0800
+Subject: [PATCH] http2: fix check for `frame->hd.type`
+
+Related to CVE-2025-23085
+According to the comment, this should be checking whether
+`frame->hd.type` is `NGHTTP2_GOAWAY`, i.e. `0x07` and not `0x03`.
+
+PR-URL: https://github.com/nodejs/node/pull/57644
+Refs: https://github.com/nodejs/node/commit/1b693fa03a0d36bc1dc9ec8d95060e3e5ceeee7b
+Reviewed-By: Matteo Collina <matteo.collina@gmail.com>
+Reviewed-By: Rafael Gonzaga <rafael.nunu@hotmail.com>
+---
+ src/node_http2.cc                           | 2 +-
+ test/parallel/test-http2-premature-close.js | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+--- a/src/node_http2.cc
++++ b/src/node_http2.cc
+@@ -1195,7 +1195,7 @@
+     // closed but the Http2Session will still be up causing a memory leak.
+     // Therefore, if the GOAWAY frame couldn't be send due to
+     // ERR_SESSION_CLOSING we should force close from our side.
+-    if (frame->hd.type != 0x03) {
++    if (frame->hd.type != NGHTTP2_GOAWAY) {
+       return 0;
+     }
+   }
+--- a/test/parallel/test-http2-premature-close.js
++++ b/test/parallel/test-http2-premature-close.js
+@@ -29,9 +29,9 @@
+     // Send a valid HEADERS frame
+     const headersFrame = Buffer.concat([
+       Buffer.from([
+-        0x00, 0x00, 0x0c, // Length: 12 bytes
++        0x00, 0x00, 0x0e, // Length: 14 bytes
+         0x01, // Type: HEADERS
+-        0x05, // Flags: END_HEADERS + END_STREAM
++        0x04, // Flags: END_HEADERS
+         (streamId >> 24) & 0xFF, // Stream ID: high byte
+         (streamId >> 16) & 0xFF,
+         (streamId >> 8) & 0xFF,
+@@ -41,7 +41,7 @@
+         0x82, // Indexed Header Field Representation (Predefined ":method: GET")
+         0x84, // Indexed Header Field Representation (Predefined ":path: /")
+         0x86, // Indexed Header Field Representation (Predefined ":scheme: http")
+-        0x44, 0x0a, // Custom ":authority: localhost"
++        0x41, 0x09, // ":authority: localhost" Length: 9 bytes
+         0x6c, 0x6f, 0x63, 0x61, 0x6c, 0x68, 0x6f, 0x73, 0x74,
+       ]),
+     ]);

@@ -19,6 +19,7 @@ struct ContextOptions {
   v8::Local<v8::Boolean> allow_code_gen_wasm;
   std::unique_ptr<v8::MicrotaskQueue> own_microtask_queue;
   v8::Local<v8::Symbol> host_defined_options_id;
+  bool vanilla = false;
 };
 
 class ContextifyContext : public BaseObject {
@@ -43,8 +44,7 @@ class ContextifyContext : public BaseObject {
   static void RegisterExternalReferences(ExternalReferenceRegistry* registry);
 
   static ContextifyContext* ContextFromContextifiedSandbox(
-      Environment* env,
-      const v8::Local<v8::Object>& sandbox);
+      Environment* env, const v8::Local<v8::Object>& wrapper_holder);
 
   inline v8::Local<v8::Context> context() const {
     return PersistentToLocal::Default(env()->isolate(), context_);
@@ -55,8 +55,12 @@ class ContextifyContext : public BaseObject {
   }
 
   inline v8::Local<v8::Object> sandbox() const {
-    return context()->GetEmbedderData(ContextEmbedderIndex::kSandboxObject)
-        .As<v8::Object>();
+    // Only vanilla contexts have undefined sandboxes. sandbox() is only used by
+    // interceptors who are not supposed to be called on vanilla contexts.
+    v8::Local<v8::Value> result =
+        context()->GetEmbedderData(ContextEmbedderIndex::kSandboxObject);
+    CHECK(!result->IsUndefined());
+    return result.As<v8::Object>();
   }
 
   inline v8::MicrotaskQueue* microtask_queue() const {
@@ -94,18 +98,6 @@ class ContextifyContext : public BaseObject {
       bool produce_cached_data,
       v8::Local<v8::Symbol> id_symbol,
       const errors::TryCatchScope& try_catch);
-  static v8::ScriptCompiler::Source GetCommonJSSourceInstance(
-      v8::Isolate* isolate,
-      v8::Local<v8::String> code,
-      v8::Local<v8::String> filename,
-      int line_offset,
-      int column_offset,
-      v8::Local<v8::PrimitiveArray> host_defined_options,
-      v8::ScriptCompiler::CachedData* cached_data);
-  static v8::ScriptCompiler::CompileOptions GetCompileOptions(
-      const v8::ScriptCompiler::Source& source);
-  static void ContainsModuleSyntax(
-      const v8::FunctionCallbackInfo<v8::Value>& args);
   static void WeakCallback(
       const v8::WeakCallbackInfo<ContextifyContext>& data);
   static void PropertyGetterCallback(

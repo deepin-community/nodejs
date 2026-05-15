@@ -16,6 +16,10 @@ ADA_POP_DISABLE_WARNINGS
 
 namespace ada::unicode {
 
+constexpr bool is_tabs_or_newline(char c) noexcept {
+  return c == '\r' || c == '\n' || c == '\t';
+}
+
 constexpr uint64_t broadcast(uint8_t v) noexcept {
   return 0x101010101010101ull * v;
 }
@@ -50,53 +54,54 @@ ada_really_inline bool has_tabs_or_newline(
     std::string_view user_input) noexcept {
   // first check for short strings in which case we do it naively.
   if (user_input.size() < 16) {  // slow path
-    for (size_t i = 0; i < user_input.size(); i++) {
-      if (user_input[i] == '\r' || user_input[i] == '\n' ||
-          user_input[i] == '\t') {
-        return true;
-      }
-    }
-    return false;
+    return std::any_of(user_input.begin(), user_input.end(),
+                       is_tabs_or_newline);
   }
   // fast path for long strings (expected to be common)
   size_t i = 0;
-  const uint8x16_t mask1 = vmovq_n_u8('\r');
-  const uint8x16_t mask2 = vmovq_n_u8('\n');
-  const uint8x16_t mask3 = vmovq_n_u8('\t');
+  /**
+   * The fastest way to check for `\t` (==9), '\n'(== 10) and `\r` (==13) relies
+   * on table lookup instruction. We notice that these are all unique numbers
+   * between 0..15. Let's prepare a special register, where we put '\t' in the
+   * 9th position, '\n' - 10th and '\r' - 13th. Then we shuffle this register by
+   * input register. If the input had `\t` in position X then this shuffled
+   * register will also have '\t' in that position. Comparing input with this
+   * shuffled register will mark us all interesting characters in the input.
+   *
+   * credit for algorithmic idea: @aqrit, credit for description:
+   * @DenisYaroshevskiy
+   */
+  static uint8_t rnt_array[16] = {1, 0, 0,  0, 0, 0,  0, 0,
+                                  0, 9, 10, 0, 0, 13, 0, 0};
+  const uint8x16_t rnt = vld1q_u8(rnt_array);
+  // m['0xd', '0xa', '0x9']
   uint8x16_t running{0};
   for (; i + 15 < user_input.size(); i += 16) {
     uint8x16_t word = vld1q_u8((const uint8_t*)user_input.data() + i);
-    running = vorrq_u8(vorrq_u8(running, vorrq_u8(vceqq_u8(word, mask1),
-                                                  vceqq_u8(word, mask2))),
-                       vceqq_u8(word, mask3));
+
+    running = vorrq_u8(running, vceqq_u8(vqtbl1q_u8(rnt, word), word));
   }
   if (i < user_input.size()) {
     uint8x16_t word =
         vld1q_u8((const uint8_t*)user_input.data() + user_input.length() - 16);
-    running = vorrq_u8(vorrq_u8(running, vorrq_u8(vceqq_u8(word, mask1),
-                                                  vceqq_u8(word, mask2))),
-                       vceqq_u8(word, mask3));
+    running = vorrq_u8(running, vceqq_u8(vqtbl1q_u8(rnt, word), word));
   }
-  return vmaxvq_u8(running) != 0;
+  return vmaxvq_u32(vreinterpretq_u32_u8(running)) != 0;
 }
 #elif ADA_SSE2
 ada_really_inline bool has_tabs_or_newline(
     std::string_view user_input) noexcept {
   // first check for short strings in which case we do it naively.
   if (user_input.size() < 16) {  // slow path
-    for (size_t i = 0; i < user_input.size(); i++) {
-      if (user_input[i] == '\r' || user_input[i] == '\n' ||
-          user_input[i] == '\t') {
-        return true;
-      }
-    }
-    return false;
+    return std::any_of(user_input.begin(), user_input.end(),
+                       is_tabs_or_newline);
   }
   // fast path for long strings (expected to be common)
   size_t i = 0;
   const __m128i mask1 = _mm_set1_epi8('\r');
   const __m128i mask2 = _mm_set1_epi8('\n');
   const __m128i mask3 = _mm_set1_epi8('\t');
+  // If we supported SSSE3, we could use the algorithm that we use for NEON.
   __m128i running{0};
   for (; i + 15 < user_input.size(); i += 16) {
     __m128i word = _mm_loadu_si128((const __m128i*)(user_input.data() + i));
@@ -119,7 +124,7 @@ ada_really_inline bool has_tabs_or_newline(
 ada_really_inline bool has_tabs_or_newline(
     std::string_view user_input) noexcept {
   auto has_zero_byte = [](uint64_t v) {
-    return ((v - 0x0101010101010101) & ~(v)&0x8080808080808080);
+    return ((v - 0x0101010101010101) & ~(v) & 0x8080808080808080);
   };
   size_t i = 0;
   uint64_t mask1 = broadcast('\r');
@@ -249,15 +254,8 @@ contains_forbidden_domain_code_point_or_upper(const char* input,
 constexpr static std::array<bool, 256> is_alnum_plus_table = []() constexpr {
   std::array<bool, 256> result{};
   for (size_t c = 0; c < 256; c++) {
-    if (c >= '0' && c <= '9') {
-      result[c] = true;
-    } else if (c >= 'a' && c <= 'z') {
-      result[c] = true;
-    } else if (c >= 'A' && c <= 'Z') {
-      result[c] = true;
-    } else if (c == '+' || c == '-' || c == '.') {
-      result[c] = true;
-    }
+    result[c] = (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') ||
+                (c >= 'A' && c <= 'Z') || c == '+' || c == '-' || c == '.';
   }
   return result;
 }();
@@ -479,10 +477,6 @@ std::string percent_encode(const std::string_view input,
     }
   }
   return out;
-}
-
-std::string to_unicode(std::string_view input) {
-  return ada::idna::to_unicode(input);
 }
 
 }  // namespace ada::unicode

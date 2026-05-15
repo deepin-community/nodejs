@@ -460,7 +460,8 @@ MaybeLocal<Promise> FileHandle::ClosePromise() {
 
   auto maybe_resolver = Promise::Resolver::New(context);
   CHECK(!maybe_resolver.IsEmpty());
-  Local<Promise::Resolver> resolver = maybe_resolver.ToLocalChecked();
+  Local<Promise::Resolver> resolver;
+  if (!maybe_resolver.ToLocal(&resolver)) return {};
   Local<Promise> promise = resolver.As<Promise>();
 
   Local<Object> close_req_obj;
@@ -502,7 +503,7 @@ MaybeLocal<Promise> FileHandle::ClosePromise() {
 
 void FileHandle::Close(const FunctionCallbackInfo<Value>& args) {
   FileHandle* fd;
-  ASSIGN_OR_RETURN_UNWRAP(&fd, args.Holder());
+  ASSIGN_OR_RETURN_UNWRAP(&fd, args.This());
   Local<Promise> ret;
   if (!fd->ClosePromise().ToLocal(&ret)) return;
   args.GetReturnValue().Set(ret);
@@ -511,7 +512,7 @@ void FileHandle::Close(const FunctionCallbackInfo<Value>& args) {
 
 void FileHandle::ReleaseFD(const FunctionCallbackInfo<Value>& args) {
   FileHandle* fd;
-  ASSIGN_OR_RETURN_UNWRAP(&fd, args.Holder());
+  ASSIGN_OR_RETURN_UNWRAP(&fd, args.This());
   fd->Release();
 }
 
@@ -868,10 +869,12 @@ void AfterStringPath(uv_fs_t* req) {
                                req->path,
                                req_wrap->encoding(),
                                &error);
-    if (link.IsEmpty())
+    if (link.IsEmpty()) {
       req_wrap->Reject(error);
-    else
-      req_wrap->Resolve(link.ToLocalChecked());
+    } else {
+      Local<Value> val;
+      if (link.ToLocal(&val)) req_wrap->Resolve(val);
+    }
   }
 }
 
@@ -888,10 +891,12 @@ void AfterStringPtr(uv_fs_t* req) {
                                static_cast<const char*>(req->ptr),
                                req_wrap->encoding(),
                                &error);
-    if (link.IsEmpty())
+    if (link.IsEmpty()) {
       req_wrap->Reject(error);
-    else
-      req_wrap->Resolve(link.ToLocalChecked());
+    } else {
+      Local<Value> val;
+      if (link.ToLocal(&val)) req_wrap->Resolve(val);
+    }
   }
 }
 
@@ -1700,7 +1705,7 @@ int MKDirpSync(uv_loop_t* loop,
         // ~FSReqWrapSync():
         case 0:
           req_wrap->continuation_data()->MaybeSetFirstPath(next_path);
-          if (req_wrap->continuation_data()->paths().size() == 0) {
+          if (req_wrap->continuation_data()->paths().empty()) {
             return 0;
           }
           break;
@@ -1716,7 +1721,7 @@ int MKDirpSync(uv_loop_t* loop,
           if (dirname != next_path) {
             req_wrap->continuation_data()->PushPath(std::move(next_path));
             req_wrap->continuation_data()->PushPath(std::move(dirname));
-          } else if (req_wrap->continuation_data()->paths().size() == 0) {
+          } else if (req_wrap->continuation_data()->paths().empty()) {
             err = UV_EEXIST;
             continue;
           }
@@ -1773,7 +1778,7 @@ int MKDirpAsync(uv_loop_t* loop,
         // Note: uv_fs_req_cleanup in terminal paths will be called by
         // FSReqAfterScope::~FSReqAfterScope()
         case 0: {
-          if (req_wrap->continuation_data()->paths().size() == 0) {
+          if (req_wrap->continuation_data()->paths().empty()) {
             req_wrap->continuation_data()->MaybeSetFirstPath(path);
             req_wrap->continuation_data()->Done(0);
           } else {
@@ -1796,7 +1801,7 @@ int MKDirpAsync(uv_loop_t* loop,
           if (dirname != path) {
             req_wrap->continuation_data()->PushPath(path);
             req_wrap->continuation_data()->PushPath(std::move(dirname));
-          } else if (req_wrap->continuation_data()->paths().size() == 0) {
+          } else if (req_wrap->continuation_data()->paths().empty()) {
             err = UV_EEXIST;
             continue;
           }
@@ -2308,7 +2313,8 @@ static void WriteBuffers(const FunctionCallbackInfo<Value>& args) {
   MaybeStackBuffer<uv_buf_t> iovs(chunks->Length());
 
   for (uint32_t i = 0; i < iovs.length(); i++) {
-    Local<Value> chunk = chunks->Get(env->context(), i).ToLocalChecked();
+    Local<Value> chunk;
+    if (!chunks->Get(env->context(), i).ToLocal(&chunk)) return;
     CHECK(Buffer::HasInstance(chunk));
     iovs[i] = uv_buf_init(Buffer::Data(chunk), Buffer::Length(chunk));
   }
@@ -2417,7 +2423,6 @@ static void WriteString(const FunctionCallbackInfo<Value>& args) {
     }
   } else {  // write(fd, string, pos, enc, undefined, ctx)
     CHECK_EQ(argc, 6);
-    FSReqWrapSync req_wrap_sync;
     FSReqBase::FSReqBuffer stack_buffer;
     if (buf == nullptr) {
       if (!StringBytes::StorageSize(isolate, value, enc).To(&len))
@@ -2431,6 +2436,7 @@ static void WriteString(const FunctionCallbackInfo<Value>& args) {
       buf = *stack_buffer;
     }
     uv_buf_t uvbuf = uv_buf_init(buf, len);
+    FSReqWrapSync req_wrap_sync("write");
     FS_SYNC_TRACE_BEGIN(write);
     int bytesWritten = SyncCall(env, args[5], &req_wrap_sync, "write",
                                 uv_fs_write, fd, &uvbuf, 1, pos);
@@ -2609,9 +2615,9 @@ static void ReadFileUtf8(const FunctionCallbackInfo<Value>& args) {
     FS_SYNC_TRACE_END(open);
     if (req.result < 0) {
       uv_fs_req_cleanup(&req);
-      // req will be cleaned up by scope leave.
       return env->ThrowUVException(req.result, "open", nullptr, path.out());
     }
+    uv_fs_req_cleanup(&req);
   }
 
   auto defer_close = OnScopeLeave([file, is_fd, &req]() {
@@ -2642,8 +2648,12 @@ static void ReadFileUtf8(const FunctionCallbackInfo<Value>& args) {
   }
   FS_SYNC_TRACE_END(read);
 
-  args.GetReturnValue().Set(
-      ToV8Value(env->context(), result, isolate).ToLocalChecked());
+  Local<Value> val;
+  if (!ToV8Value(env->context(), result, isolate).ToLocal(&val)) {
+    return;
+  }
+
+  args.GetReturnValue().Set(val);
 }
 
 // Wrapper for readv(2).
@@ -2671,7 +2681,8 @@ static void ReadBuffers(const FunctionCallbackInfo<Value>& args) {
 
   // Init uv buffers from ArrayBufferViews
   for (uint32_t i = 0; i < iovs.length(); i++) {
-    Local<Value> buffer = buffers->Get(env->context(), i).ToLocalChecked();
+    Local<Value> buffer;
+    if (!buffers->Get(env->context(), i).ToLocal(&buffer)) return;
     CHECK(Buffer::HasInstance(buffer));
     iovs[i] = uv_buf_init(Buffer::Data(buffer), Buffer::Length(buffer));
   }
@@ -3132,6 +3143,8 @@ void BindingData::LegacyMainResolve(const FunctionCallbackInfo<Value>& args) {
     return;
   }
 
+  std::string package_initial_file = "";
+
   ada::result<ada::url_aggregator> file_path_url;
   std::optional<std::string> initial_file_path;
   std::string file_path;
@@ -3153,6 +3166,8 @@ void BindingData::LegacyMainResolve(const FunctionCallbackInfo<Value>& args) {
     }
 
     node::url::FromNamespacedPath(&initial_file_path.value());
+
+    package_initial_file = *initial_file_path;
 
     for (int i = 0; i < legacy_main_extensions_with_main_end; i++) {
       file_path = *initial_file_path + std::string(legacy_main_extensions[i]);
@@ -3209,13 +3224,10 @@ void BindingData::LegacyMainResolve(const FunctionCallbackInfo<Value>& args) {
     }
   }
 
-  std::optional<std::string> module_path =
-      node::url::FileURLToPath(env, *package_json_url);
-  std::optional<std::string> module_base;
+  if (package_initial_file == "")
+    package_initial_file = *initial_file_path + ".js";
 
-  if (!module_path.has_value()) {
-    return;
-  }
+  std::optional<std::string> module_base;
 
   if (args.Length() >= 3 && args[2]->IsString()) {
     Utf8Value utf8_base_path(isolate, args[2]);
@@ -3240,7 +3252,7 @@ void BindingData::LegacyMainResolve(const FunctionCallbackInfo<Value>& args) {
 
   THROW_ERR_MODULE_NOT_FOUND(isolate,
                              "Cannot find package '%s' imported from %s",
-                             *module_path,
+                             package_initial_file,
                              *module_base);
 }
 

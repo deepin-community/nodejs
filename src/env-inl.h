@@ -260,12 +260,6 @@ inline uv_idle_t* Environment::immediate_idle_handle() {
   return &immediate_idle_handle_;
 }
 
-inline void Environment::RegisterHandleCleanup(uv_handle_t* handle,
-                                               HandleCleanupCb cb,
-                                               void* arg) {
-  handle_cleanup_queue_.push_back(HandleCleanup{handle, cb, arg});
-}
-
 template <typename T, typename OnCloseCallback>
 inline void Environment::CloseHandle(T* handle, OnCloseCallback callback) {
   handle_cleanup_waiting_++;
@@ -576,11 +570,6 @@ inline std::shared_ptr<PerIsolateOptions> IsolateData::options() {
   return options_;
 }
 
-inline void IsolateData::set_options(
-    std::shared_ptr<PerIsolateOptions> options) {
-  options_ = std::move(options);
-}
-
 template <typename Fn>
 void Environment::SetImmediate(Fn&& cb, CallbackFlags::Flags flags) {
   auto callback = native_immediates_.CreateCallback(std::move(cb), flags);
@@ -662,6 +651,10 @@ inline bool Environment::owns_inspector() const {
 inline bool Environment::should_create_inspector() const {
   return (flags_ & EnvironmentFlags::kNoCreateInspector) == 0 &&
          !options_->test_runner && !options_->watch_mode;
+}
+
+inline bool Environment::should_wait_for_inspector_frontend() const {
+  return (flags_ & EnvironmentFlags::kNoWaitForInspectorFrontend) == 0;
 }
 
 inline bool Environment::tracks_unmanaged_fds() const {

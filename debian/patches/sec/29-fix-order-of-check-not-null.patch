@@ -1,0 +1,37 @@
+From b8d145db2c0ff1177765abb21de9352782ca16e6 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Tobias=20Nie=C3=9Fen?= <tniessen@tnie.de>
+Date: Mon, 18 Aug 2025 14:17:47 +0200
+Subject: [PATCH] src: fix order of CHECK_NOT_NULL/dereference
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+`ASYNC_THROW_IF_INSUFFICIENT_PERMISSIONS` may dereference
+`req_wrap_async`, so `CHECK_NOT_NULL(req_wrap_async)` should be used
+before and not after.
+
+PR-URL: https://github.com/nodejs/node/pull/59487
+Reviewed-By: Luigi Pinca <luigipinca@gmail.com>
+Reviewed-By: Richard Lau <richard.lau@ibm.com>
+Reviewed-By: Anna Henningsen <anna@addaleax.net>
+Reviewed-By: Ulises Gascón <ulisesgascongonzalez@gmail.com>
+---
+ src/node_file.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/src/node_file.cc
++++ b/src/node_file.cc
+@@ -1635,12 +1635,12 @@
+ 
+   if (argc > 1) {  // unlink(path, req)
+     FSReqBase* req_wrap_async = GetReqWrap(args, 1);
++    CHECK_NOT_NULL(req_wrap_async);
+     ASYNC_THROW_IF_INSUFFICIENT_PERMISSIONS(
+         env,
+         req_wrap_async,
+         permission::PermissionScope::kFileSystemWrite,
+         path.ToStringView());
+-    CHECK_NOT_NULL(req_wrap_async);
+     FS_ASYNC_TRACE_BEGIN1(
+         UV_FS_UNLINK, req_wrap_async, "path", TRACE_STR_COPY(*path))
+     AsyncCall(env, req_wrap_async, args, "unlink", UTF8, AfterNoArgs,

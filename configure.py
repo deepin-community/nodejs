@@ -128,6 +128,12 @@ parser.add_argument('--use-prefix-to-find-headers',
     default=None,
     help='use the prefix to look for pre-installed headers')
 
+parser.add_argument('--use_clang',
+    action='store_true',
+    dest='use_clang',
+    default=None,
+    help='use clang instead of gcc')
+
 parser.add_argument('--dest-os',
     action='store',
     dest='dest_os',
@@ -163,14 +169,14 @@ parser.add_argument("--fully-static",
     dest="fully_static",
     default=None,
     help="Generate an executable without external dynamic libraries. This "
-         "will not work on OSX when using the default compilation environment")
+         "will not work on macOS when using the default compilation environment")
 
 parser.add_argument("--partly-static",
     action="store_true",
     dest="partly_static",
     default=None,
     help="Generate an executable with libgcc and libstdc++ libraries. This "
-         "will not work on OSX when using the default compilation environment")
+         "will not work on macOS when using the default compilation environment")
 
 parser.add_argument("--enable-vtune-profiling",
     action="store_true",
@@ -380,6 +386,28 @@ shared_optgroup.add_argument('--shared-openssl-libpath',
     action='store',
     dest='shared_openssl_libpath',
     help='a directory to search for the shared OpenSSL DLLs')
+
+shared_optgroup.add_argument('--shared-uvwasi',
+    action='store_true',
+    dest='shared_uvwasi',
+    default=None,
+    help='link to a shared uvwasi DLL instead of static linking')
+
+shared_optgroup.add_argument('--shared-uvwasi-includes',
+    action='store',
+    dest='shared_uvwasi_includes',
+    help='directory containing uvwasi header files')
+
+shared_optgroup.add_argument('--shared-uvwasi-libname',
+    action='store',
+    dest='shared_uvwasi_libname',
+    default='uvwasi',
+    help='alternative lib name to link to [default: %(default)s]')
+
+shared_optgroup.add_argument('--shared-uvwasi-libpath',
+    action='store',
+    dest='shared_uvwasi_libpath',
+    help='a directory to search for the shared uvwasi DLL')
 
 shared_optgroup.add_argument('--shared-zlib',
     action='store_true',
@@ -1097,6 +1125,7 @@ def get_gas_version(cc):
 # quite prepared to go that far yet.
 def check_compiler(o):
   if sys.platform == 'win32':
+    o['variables']['clang'] = 0
     o['variables']['llvm_version'] = '0.0'
     if not options.openssl_no_asm and options.dest_cpu in ('x86', 'x64'):
       nasm_version = get_nasm_version('nasm')
@@ -1106,6 +1135,7 @@ def check_compiler(o):
     return
 
   ok, is_clang, clang_version, gcc_version = try_check_compiler(CXX, 'c++')
+  o['variables']['clang'] = B(is_clang)
   version_str = ".".join(map(str, clang_version if is_clang else gcc_version))
   print_verbose(f"Detected {'clang ' if is_clang else ''}C++ compiler (CXX={CXX}) version: {version_str}")
   if not ok:
@@ -1284,7 +1314,7 @@ def configure_zos(o):
   o['variables']['node_static_zoslib'] = b(True)
   if options.static_zoslib_gyp:
     # Apply to all Node.js components for now
-    o['variables']['zoslib_include_dir'] = Path(options.static_zoslib_gyp).parent + '/include'
+    o['variables']['zoslib_include_dir'] = Path(options.static_zoslib_gyp).parent / 'include'
     o['include_dirs'] += [o['variables']['zoslib_include_dir']]
   else:
     raise Exception('--static-zoslib-gyp=<path to zoslib.gyp file> is required.')
@@ -1334,6 +1364,10 @@ def configure_node(o):
   o['variables']['target_arch'] = target_arch
   o['variables']['node_byteorder'] = sys.byteorder
 
+  # Allow overriding the compiler - needed by embedders.
+  if options.use_clang:
+    o['variables']['clang'] = 1
+
   cross_compiling = (options.cross_compiling
                      if options.cross_compiling is not None
                      else target_arch != host_arch)
@@ -1365,7 +1399,9 @@ def configure_node(o):
     o['variables']['node_use_node_snapshot'] = b(
       not cross_compiling and not options.shared)
 
-  if options.without_node_code_cache or options.without_node_snapshot or options.node_builtin_modules_path:
+  # Do not use code cache when Node.js is built for collecting coverage of itself, this allows more
+  # precise coverage for the JS built-ins.
+  if options.without_node_code_cache or options.without_node_snapshot or options.node_builtin_modules_path or options.coverage:
     o['variables']['node_use_node_code_cache'] = 'false'
   else:
     # TODO(refack): fix this when implementing embedded code-cache when cross-compiling.
@@ -1572,6 +1608,7 @@ def configure_v8(o):
   o['variables']['v8_use_siphash'] = 0 if options.without_siphash else 1
   o['variables']['v8_enable_maglev'] = 1 if options.v8_enable_maglev else 0
   o['variables']['v8_enable_pointer_compression'] = 1 if options.enable_pointer_compression else 0
+  o['variables']['v8_enable_sandbox'] = 1 if options.enable_pointer_compression else 0
   o['variables']['v8_enable_31bit_smis_on_64bit_arch'] = 1 if options.enable_pointer_compression else 0
   o['variables']['v8_enable_shared_ro_heap'] = 0 if options.enable_pointer_compression or options.disable_shared_ro_heap else 1
   o['variables']['v8_enable_extensible_ro_snapshot'] = 0
@@ -1594,7 +1631,7 @@ def configure_v8(o):
     o['variables']['v8_enable_short_builtin_calls'] = 1
   if options.v8_enable_snapshot_compression:
     o['variables']['v8_enable_snapshot_compression'] = 1
-  if options.v8_enable_object_print and options.v8_disable_object_print:
+  if all(opt in sys.argv for opt in ['--v8-enable-object-print', '--v8-disable-object-print']):
     raise Exception(
         'Only one of the --v8-enable-object-print or --v8-disable-object-print options '
         'can be specified at a time.')
@@ -1682,7 +1719,7 @@ def configure_openssl(o):
 def configure_static(o):
   if options.fully_static or options.partly_static:
     if flavor == 'mac':
-      warn("Generation of static executable will not work on OSX "
+      warn("Generation of static executable will not work on macOS "
             "when using the default compilation environment")
       return
 
@@ -1802,7 +1839,7 @@ def configure_intl(o):
   elif with_intl == 'system-icu':
     # ICU from pkg-config.
     o['variables']['v8_enable_i18n_support'] = 1
-    pkgicu = pkg_config('icu-i18n')
+    pkgicu = pkg_config(['icu-i18n', 'icu-uc'])
     if not pkgicu[0]:
       error('''Could not load pkg-config data for "icu-i18n".
        See above errors or the README.md.''')
@@ -2116,6 +2153,7 @@ configure_library('cares', output, pkgname='libcares')
 configure_library('nghttp2', output, pkgname='libnghttp2')
 configure_library('nghttp3', output, pkgname='libnghttp3')
 configure_library('ngtcp2', output, pkgname='libngtcp2')
+configure_library('uvwasi', output, pkgname='libuvwasi')
 configure_v8(output)
 configure_openssl(output)
 configure_intl(output)
@@ -2221,8 +2259,9 @@ else:
 
 if options.compile_commands_json:
   gyp_args += ['-f', 'compile_commands_json']
-  os.path.islink('./compile_commands.json') and os.unlink('./compile_commands.json')
-  os.symlink('./out/' + config['BUILDTYPE'] + '/compile_commands.json', './compile_commands.json')
+  if sys.platform != 'win32':
+    os.path.lexists('./compile_commands.json') and os.unlink('./compile_commands.json')
+    os.symlink('./out/' + config['BUILDTYPE'] + '/compile_commands.json', './compile_commands.json')
 
 # pass the leftover non-whitespace positional arguments to GYP
 gyp_args += [arg for arg in args if not str.isspace(arg)]
@@ -2232,4 +2271,7 @@ if warn.warned and not options.verbose:
 
 print_verbose("running: \n    " + " ".join(['python', 'tools/gyp_node.py'] + gyp_args))
 run_gyp(gyp_args)
+if options.compile_commands_json and sys.platform == 'win32':
+  os.path.isfile('./compile_commands.json') and os.unlink('./compile_commands.json')
+  shutil.copy2('./out/' + config['BUILDTYPE'] + '/compile_commands.json', './compile_commands.json')
 info('configure completed successfully')

@@ -1,0 +1,170 @@
+From cc3f294507c715908b2b31a5301e295b3de04152 Mon Sep 17 00:00:00 2001
+From: Matteo Collina <hello@matteocollina.com>
+Date: Tue, 17 Feb 2026 14:26:17 +0100
+Subject: [PATCH] tls: wrap SNICallback invocation in try/catch
+
+Wrap the owner._SNICallback() invocation in loadSNI() with try/catch
+to route exceptions through owner.destroy() instead of letting them
+become uncaught exceptions. This completes the fix from CVE-2026-21637
+which added try/catch protection to callALPNCallback,
+onPskServerCallback, and onPskClientCallback but missed loadSNI().
+
+Without this fix, a remote unauthenticated attacker can crash any
+Node.js TLS server whose SNICallback may throw on unexpected input
+by sending a single TLS ClientHello with a crafted server_name value.
+
+Fixes: https://hackerone.com/reports/3556769
+Refs: https://hackerone.com/reports/3473882
+CVE-ID: CVE-2026-21637
+PR-URL: https://github.com/nodejs-private/node-private/pull/839
+Reviewed-By: Rafael Gonzaga <rafael.nunu@hotmail.com>
+CVE-ID: CVE-2026-21637
+---
+ lib/_tls_wrap.js                              | 30 ++++---
+ ...ls-psk-alpn-callback-exception-handling.js | 90 +++++++++++++++++++
+ 2 files changed, 107 insertions(+), 13 deletions(-)
+
+diff --git a/lib/_tls_wrap.js b/lib/_tls_wrap.js
+index d9c7e32174d558..33d5ae8ec61003 100644
+--- a/lib/_tls_wrap.js
++++ b/lib/_tls_wrap.js
+@@ -209,23 +209,27 @@ function loadSNI(info) {
+     return requestOCSP(owner, info);
+ 
+   let once = false;
+-  owner._SNICallback(servername, (err, context) => {
+-    if (once)
+-      return owner.destroy(new ERR_MULTIPLE_CALLBACK());
+-    once = true;
++  try {
++    owner._SNICallback(servername, (err, context) => {
++      if (once)
++        return owner.destroy(new ERR_MULTIPLE_CALLBACK());
++      once = true;
+ 
+-    if (err)
+-      return owner.destroy(err);
++      if (err)
++        return owner.destroy(err);
+ 
+-    if (owner._handle === null)
+-      return owner.destroy(new ERR_SOCKET_CLOSED());
++      if (owner._handle === null)
++        return owner.destroy(new ERR_SOCKET_CLOSED());
+ 
+-    // TODO(indutny): eventually disallow raw `SecureContext`
+-    if (context)
+-      owner._handle.sni_context = context.context || context;
++      // TODO(indutny): eventually disallow raw `SecureContext`
++      if (context)
++        owner._handle.sni_context = context.context || context;
+ 
+-    requestOCSP(owner, info);
+-  });
++      requestOCSP(owner, info);
++    });
++  } catch (err) {
++    owner.destroy(err);
++  }
+ }
+ 
+ 
+diff --git a/test/parallel/test-tls-psk-alpn-callback-exception-handling.js b/test/parallel/test-tls-psk-alpn-callback-exception-handling.js
+index 153853a3a9a4f0..12d4ede43f417e 100644
+--- a/test/parallel/test-tls-psk-alpn-callback-exception-handling.js
++++ b/test/parallel/test-tls-psk-alpn-callback-exception-handling.js
+@@ -335,4 +335,94 @@ describe('TLS callback exception handling', () => {
+ 
+     await promise;
+   });
++
++  // Test 7: SNI callback throwing should emit tlsClientError
++  it('SNICallback throwing emits tlsClientError', async (t) => {
++    const server = tls.createServer({
++      key: fixtures.readKey('agent2-key.pem'),
++      cert: fixtures.readKey('agent2-cert.pem'),
++      SNICallback: (servername, cb) => {
++        throw new Error('Intentional SNI callback error');
++      },
++    });
++
++    t.after(() => server.close());
++
++    const { promise, resolve, reject } = createTestPromise();
++
++    server.on('tlsClientError', common.mustCall((err, socket) => {
++      try {
++        assert.ok(err instanceof Error);
++        assert.strictEqual(err.message, 'Intentional SNI callback error');
++        socket.destroy();
++        resolve();
++      } catch (e) {
++        reject(e);
++      }
++    }));
++
++    server.on('secureConnection', () => {
++      reject(new Error('secureConnection should not fire'));
++    });
++
++    await new Promise((res) => server.listen(0, res));
++
++    const client = tls.connect({
++      port: server.address().port,
++      host: '127.0.0.1',
++      servername: 'evil.attacker.com',
++      rejectUnauthorized: false,
++    });
++
++    client.on('error', () => {});
++
++    await promise;
++  });
++
++  // Test 8: SNI callback with validation error should emit tlsClientError
++  it('SNICallback validation error emits tlsClientError', async (t) => {
++    const server = tls.createServer({
++      key: fixtures.readKey('agent2-key.pem'),
++      cert: fixtures.readKey('agent2-cert.pem'),
++      SNICallback: (servername, cb) => {
++        // Simulate common developer pattern: throw on unknown servername
++        if (servername !== 'expected.example.com') {
++          throw new Error(`Unknown servername: ${servername}`);
++        }
++        cb(null, null);
++      },
++    });
++
++    t.after(() => server.close());
++
++    const { promise, resolve, reject } = createTestPromise();
++
++    server.on('tlsClientError', common.mustCall((err, socket) => {
++      try {
++        assert.ok(err instanceof Error);
++        assert.ok(err.message.includes('Unknown servername'));
++        socket.destroy();
++        resolve();
++      } catch (e) {
++        reject(e);
++      }
++    }));
++
++    server.on('secureConnection', () => {
++      reject(new Error('secureConnection should not fire'));
++    });
++
++    await new Promise((res) => server.listen(0, res));
++
++    const client = tls.connect({
++      port: server.address().port,
++      host: '127.0.0.1',
++      servername: 'unexpected.domain.com',
++      rejectUnauthorized: false,
++    });
++
++    client.on('error', () => {});
++
++    await promise;
++  });
+ });

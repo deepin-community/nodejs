@@ -1,0 +1,612 @@
+From 85f73e7057e9badf6e7713f7440769375cdb5df5 Mon Sep 17 00:00:00 2001
+From: Matteo Collina <hello@matteocollina.com>
+Date: Mon, 22 Dec 2025 18:25:33 +0100
+Subject: [PATCH] tls: route callback exceptions through error handlers
+
+Wrap pskCallback and ALPNCallback invocations in try-catch blocks
+to route exceptions through owner.destroy() instead of letting them
+become uncaught exceptions. This prevents remote attackers from
+crashing TLS servers or causing resource exhaustion.
+
+Fixes: https://hackerone.com/reports/3473882
+PR-URL: https://github.com/nodejs-private/node-private/pull/782
+PR-URL: https://github.com/nodejs-private/node-private/pull/796
+Reviewed-By: Matteo Collina <matteo.collina@gmail.com>
+CVE-ID: CVE-2026-21637
+---
+ lib/_tls_wrap.js                              | 157 ++++----
+ test/parallel/test-tls-alpn-server-client.js  |  32 +-
+ ...ls-psk-alpn-callback-exception-handling.js | 338 ++++++++++++++++++
+ 3 files changed, 446 insertions(+), 81 deletions(-)
+ create mode 100644 test/parallel/test-tls-psk-alpn-callback-exception-handling.js
+
+diff --git a/lib/_tls_wrap.js b/lib/_tls_wrap.js
+index 4eb7b7ffa69f4a..c3e48a6cbc81ae 100644
+--- a/lib/_tls_wrap.js
++++ b/lib/_tls_wrap.js
+@@ -233,39 +233,44 @@ function callALPNCallback(protocolsBuffer) {
+   const handle = this;
+   const socket = handle[owner_symbol];
+ 
+-  const servername = handle.getServername();
++  try {
++    const servername = handle.getServername();
+ 
+-  // Collect all the protocols from the given buffer:
+-  const protocols = [];
+-  let offset = 0;
+-  while (offset < protocolsBuffer.length) {
+-    const protocolLen = protocolsBuffer[offset];
+-    offset += 1;
++    // Collect all the protocols from the given buffer:
++    const protocols = [];
++    let offset = 0;
++    while (offset < protocolsBuffer.length) {
++      const protocolLen = protocolsBuffer[offset];
++      offset += 1;
+ 
+-    const protocol = protocolsBuffer.slice(offset, offset + protocolLen);
+-    offset += protocolLen;
++      const protocol = protocolsBuffer.slice(offset, offset + protocolLen);
++      offset += protocolLen;
+ 
+-    protocols.push(protocol.toString('ascii'));
+-  }
++      protocols.push(protocol.toString('ascii'));
++    }
+ 
+-  const selectedProtocol = socket[kALPNCallback]({
+-    servername,
+-    protocols,
+-  });
++    const selectedProtocol = socket[kALPNCallback]({
++      servername,
++      protocols,
++    });
+ 
+-  // Undefined -> all proposed protocols rejected
+-  if (selectedProtocol === undefined) return undefined;
++    // Undefined -> all proposed protocols rejected
++    if (selectedProtocol === undefined) return undefined;
+ 
+-  const protocolIndex = protocols.indexOf(selectedProtocol);
+-  if (protocolIndex === -1) {
+-    throw new ERR_TLS_ALPN_CALLBACK_INVALID_RESULT(selectedProtocol, protocols);
+-  }
+-  let protocolOffset = 0;
+-  for (let i = 0; i < protocolIndex; i++) {
+-    protocolOffset += 1 + protocols[i].length;
+-  }
++    const protocolIndex = protocols.indexOf(selectedProtocol);
++    if (protocolIndex === -1) {
++      throw new ERR_TLS_ALPN_CALLBACK_INVALID_RESULT(selectedProtocol, protocols);
++    }
++    let protocolOffset = 0;
++    for (let i = 0; i < protocolIndex; i++) {
++      protocolOffset += 1 + protocols[i].length;
++    }
+ 
+-  return protocolOffset;
++    return protocolOffset;
++  } catch (err) {
++    socket.destroy(err);
++    return undefined;
++  }
+ }
+ 
+ function requestOCSP(socket, info) {
+@@ -372,63 +377,75 @@ function onnewsession(sessionId, session) {
+ 
+ function onPskServerCallback(identity, maxPskLen) {
+   const owner = this[owner_symbol];
+-  const ret = owner[kPskCallback](owner, identity);
+-  if (ret == null)
+-    return undefined;
+ 
+-  let psk;
+-  if (isArrayBufferView(ret)) {
+-    psk = ret;
+-  } else {
+-    if (typeof ret !== 'object') {
+-      throw new ERR_INVALID_ARG_TYPE(
+-        'ret',
+-        ['Object', 'Buffer', 'TypedArray', 'DataView'],
+-        ret,
++  try {
++    const ret = owner[kPskCallback](owner, identity);
++    if (ret == null)
++      return undefined;
++
++    let psk;
++    if (isArrayBufferView(ret)) {
++      psk = ret;
++    } else {
++      if (typeof ret !== 'object') {
++        throw new ERR_INVALID_ARG_TYPE(
++          'ret',
++          ['Object', 'Buffer', 'TypedArray', 'DataView'],
++          ret,
++        );
++      }
++      psk = ret.psk;
++      validateBuffer(psk, 'psk');
++    }
++
++    if (psk.length > maxPskLen) {
++      throw new ERR_INVALID_ARG_VALUE(
++        'psk',
++        psk,
++        `Pre-shared key exceeds ${maxPskLen} bytes`,
+       );
+     }
+-    psk = ret.psk;
+-    validateBuffer(psk, 'psk');
+-  }
+ 
+-  if (psk.length > maxPskLen) {
+-    throw new ERR_INVALID_ARG_VALUE(
+-      'psk',
+-      psk,
+-      `Pre-shared key exceeds ${maxPskLen} bytes`,
+-    );
++    return psk;
++  } catch (err) {
++    owner.destroy(err);
++    return undefined;
+   }
+-
+-  return psk;
+ }
+ 
+ function onPskClientCallback(hint, maxPskLen, maxIdentityLen) {
+   const owner = this[owner_symbol];
+-  const ret = owner[kPskCallback](hint);
+-  if (ret == null)
+-    return undefined;
+ 
+-  validateObject(ret, 'ret');
++  try {
++    const ret = owner[kPskCallback](hint);
++    if (ret == null)
++      return undefined;
++
++    validateObject(ret, 'ret');
++
++    validateBuffer(ret.psk, 'psk');
++    if (ret.psk.length > maxPskLen) {
++      throw new ERR_INVALID_ARG_VALUE(
++        'psk',
++        ret.psk,
++        `Pre-shared key exceeds ${maxPskLen} bytes`,
++      );
++    }
+ 
+-  validateBuffer(ret.psk, 'psk');
+-  if (ret.psk.length > maxPskLen) {
+-    throw new ERR_INVALID_ARG_VALUE(
+-      'psk',
+-      ret.psk,
+-      `Pre-shared key exceeds ${maxPskLen} bytes`,
+-    );
+-  }
++    validateString(ret.identity, 'identity');
++    if (Buffer.byteLength(ret.identity) > maxIdentityLen) {
++      throw new ERR_INVALID_ARG_VALUE(
++        'identity',
++        ret.identity,
++        `PSK identity exceeds ${maxIdentityLen} bytes`,
++      );
++    }
+ 
+-  validateString(ret.identity, 'identity');
+-  if (Buffer.byteLength(ret.identity) > maxIdentityLen) {
+-    throw new ERR_INVALID_ARG_VALUE(
+-      'identity',
+-      ret.identity,
+-      `PSK identity exceeds ${maxIdentityLen} bytes`,
+-    );
++    return { psk: ret.psk, identity: ret.identity };
++  } catch (err) {
++    owner.destroy(err);
++    return undefined;
+   }
+-
+-  return { psk: ret.psk, identity: ret.identity };
+ }
+ 
+ function onkeylog(line) {
+diff --git a/test/parallel/test-tls-alpn-server-client.js b/test/parallel/test-tls-alpn-server-client.js
+index 8f1a4b8e439aab..1ef32ca5938e20 100644
+--- a/test/parallel/test-tls-alpn-server-client.js
++++ b/test/parallel/test-tls-alpn-server-client.js
+@@ -252,25 +252,35 @@ function TestALPNCallback() {
+ function TestBadALPNCallback() {
+   // Server always returns a fixed invalid value:
+   const serverOptions = {
++    key: loadPEM('agent2-key'),
++    cert: loadPEM('agent2-cert'),
+     ALPNCallback: common.mustCall(() => 'http/5')
+   };
+ 
+-  const clientsOptions = [{
+-    ALPNProtocols: ['http/1', 'h2'],
+-  }];
++  const server = tls.createServer(serverOptions);
+ 
+-  process.once('uncaughtException', common.mustCall((error) => {
++  // Error should be emitted via tlsClientError, not as uncaughtException
++  server.on('tlsClientError', common.mustCall((error, socket) => {
+     assert.strictEqual(error.code, 'ERR_TLS_ALPN_CALLBACK_INVALID_RESULT');
++    socket.destroy();
+   }));
+ 
+-  runTest(clientsOptions, serverOptions, function(results) {
+-    // Callback returns 'http/5' => doesn't match client ALPN => error & reset
+-    assert.strictEqual(results[0].server, undefined);
+-    const allowedErrors = ['ECONNRESET', 'ERR_SSL_TLSV1_ALERT_NO_APPLICATION_PROTOCOL'];
+-    assert.ok(allowedErrors.includes(results[0].client.error.code), `'${results[0].client.error.code}' was not one of ${allowedErrors}.`);
++  server.listen(0, serverIP, common.mustCall(() => {
++    const client = tls.connect({
++      port: server.address().port,
++      host: serverIP,
++      rejectUnauthorized: false,
++      ALPNProtocols: ['http/1', 'h2'],
++    }, common.mustNotCall());
+ 
+-    TestALPNOptionsCallback();
+-  });
++    client.on('error', common.mustCall((err) => {
++      // Client gets reset when server handles error via tlsClientError
++      const allowedErrors = ['ECONNRESET', 'ERR_SSL_TLSV1_ALERT_NO_APPLICATION_PROTOCOL'];
++      assert.ok(allowedErrors.includes(err.code), `'${err.code}' was not one of ${allowedErrors}.`);
++      server.close();
++      TestALPNOptionsCallback();
++    }));
++  }));
+ }
+ 
+ function TestALPNOptionsCallback() {
+diff --git a/test/parallel/test-tls-psk-alpn-callback-exception-handling.js b/test/parallel/test-tls-psk-alpn-callback-exception-handling.js
+new file mode 100644
+index 00000000000000..153853a3a9a4f0
+--- /dev/null
++++ b/test/parallel/test-tls-psk-alpn-callback-exception-handling.js
+@@ -0,0 +1,338 @@
++'use strict';
++
++// This test verifies that exceptions in pskCallback and ALPNCallback are
++// properly routed through tlsClientError instead of becoming uncaught
++// exceptions. This is a regression test for a vulnerability where callback
++// validation errors would bypass all standard TLS error handlers.
++//
++// The vulnerability allows remote attackers to crash TLS servers or cause
++// resource exhaustion (file descriptor leaks) when pskCallback or ALPNCallback
++// throw exceptions during validation.
++
++const common = require('../common');
++
++if (!common.hasCrypto)
++  common.skip('missing crypto');
++
++const assert = require('assert');
++const { describe, it } = require('node:test');
++const tls = require('tls');
++const fixtures = require('../common/fixtures');
++
++const CIPHERS = 'PSK+HIGH';
++const TEST_TIMEOUT = 5000;
++
++// Helper to create a promise that rejects on uncaughtException or timeout
++function createTestPromise() {
++  let resolve, reject;
++  const promise = new Promise((res, rej) => {
++    resolve = res;
++    reject = rej;
++  });
++  let settled = false;
++
++  const cleanup = () => {
++    if (!settled) {
++      settled = true;
++      process.removeListener('uncaughtException', onUncaught);
++      clearTimeout(timeout);
++    }
++  };
++
++  const onUncaught = (err) => {
++    cleanup();
++    reject(new Error(
++      `Uncaught exception instead of tlsClientError: ${err.code || err.message}`
++    ));
++  };
++
++  const timeout = setTimeout(() => {
++    cleanup();
++    reject(new Error('Test timed out - tlsClientError was not emitted'));
++  }, TEST_TIMEOUT);
++
++  process.on('uncaughtException', onUncaught);
++
++  return {
++    resolve: (value) => {
++      cleanup();
++      resolve(value);
++    },
++    reject: (err) => {
++      cleanup();
++      reject(err);
++    },
++    promise,
++  };
++}
++
++describe('TLS callback exception handling', () => {
++
++  // Test 1: PSK server callback returning invalid type should emit tlsClientError
++  it('pskCallback returning invalid type emits tlsClientError', async (t) => {
++    const server = tls.createServer({
++      ciphers: CIPHERS,
++      pskCallback: () => {
++        // Return invalid type (string instead of object/Buffer)
++        return 'invalid-should-be-object-or-buffer';
++      },
++      pskIdentityHint: 'test-hint',
++    });
++
++    t.after(() => server.close());
++
++    const { promise, resolve, reject } = createTestPromise();
++
++    server.on('tlsClientError', common.mustCall((err, socket) => {
++      try {
++        assert.ok(err instanceof Error);
++        assert.strictEqual(err.code, 'ERR_INVALID_ARG_TYPE');
++        socket.destroy();
++        resolve();
++      } catch (e) {
++        reject(e);
++      }
++    }));
++
++    server.on('secureConnection', common.mustNotCall(() => {
++      reject(new Error('secureConnection should not fire'));
++    }));
++
++    await new Promise((res) => server.listen(0, res));
++
++    const client = tls.connect({
++      port: server.address().port,
++      host: '127.0.0.1',
++      ciphers: CIPHERS,
++      checkServerIdentity: () => {},
++      pskCallback: () => ({
++        psk: Buffer.alloc(32),
++        identity: 'test-identity',
++      }),
++    });
++
++    client.on('error', () => {});
++
++    await promise;
++  });
++
++  // Test 2: PSK server callback throwing should emit tlsClientError
++  it('pskCallback throwing emits tlsClientError', async (t) => {
++    const server = tls.createServer({
++      ciphers: CIPHERS,
++      pskCallback: () => {
++        throw new Error('Intentional callback error');
++      },
++      pskIdentityHint: 'test-hint',
++    });
++
++    t.after(() => server.close());
++
++    const { promise, resolve, reject } = createTestPromise();
++
++    server.on('tlsClientError', common.mustCall((err, socket) => {
++      try {
++        assert.ok(err instanceof Error);
++        assert.strictEqual(err.message, 'Intentional callback error');
++        socket.destroy();
++        resolve();
++      } catch (e) {
++        reject(e);
++      }
++    }));
++
++    server.on('secureConnection', common.mustNotCall(() => {
++      reject(new Error('secureConnection should not fire'));
++    }));
++
++    await new Promise((res) => server.listen(0, res));
++
++    const client = tls.connect({
++      port: server.address().port,
++      host: '127.0.0.1',
++      ciphers: CIPHERS,
++      checkServerIdentity: () => {},
++      pskCallback: () => ({
++        psk: Buffer.alloc(32),
++        identity: 'test-identity',
++      }),
++    });
++
++    client.on('error', () => {});
++
++    await promise;
++  });
++
++  // Test 3: ALPN callback returning non-matching protocol should emit tlsClientError
++  it('ALPNCallback returning invalid result emits tlsClientError', async (t) => {
++    const server = tls.createServer({
++      key: fixtures.readKey('agent2-key.pem'),
++      cert: fixtures.readKey('agent2-cert.pem'),
++      ALPNCallback: () => {
++        // Return a protocol not in the client's list
++        return 'invalid-protocol-not-in-list';
++      },
++    });
++
++    t.after(() => server.close());
++
++    const { promise, resolve, reject } = createTestPromise();
++
++    server.on('tlsClientError', common.mustCall((err, socket) => {
++      try {
++        assert.ok(err instanceof Error);
++        assert.strictEqual(err.code, 'ERR_TLS_ALPN_CALLBACK_INVALID_RESULT');
++        socket.destroy();
++        resolve();
++      } catch (e) {
++        reject(e);
++      }
++    }));
++
++    server.on('secureConnection', common.mustNotCall(() => {
++      reject(new Error('secureConnection should not fire'));
++    }));
++
++    await new Promise((res) => server.listen(0, res));
++
++    const client = tls.connect({
++      port: server.address().port,
++      host: '127.0.0.1',
++      rejectUnauthorized: false,
++      ALPNProtocols: ['http/1.1', 'h2'],
++    });
++
++    client.on('error', () => {});
++
++    await promise;
++  });
++
++  // Test 4: ALPN callback throwing should emit tlsClientError
++  it('ALPNCallback throwing emits tlsClientError', async (t) => {
++    const server = tls.createServer({
++      key: fixtures.readKey('agent2-key.pem'),
++      cert: fixtures.readKey('agent2-cert.pem'),
++      ALPNCallback: () => {
++        throw new Error('Intentional ALPN callback error');
++      },
++    });
++
++    t.after(() => server.close());
++
++    const { promise, resolve, reject } = createTestPromise();
++
++    server.on('tlsClientError', common.mustCall((err, socket) => {
++      try {
++        assert.ok(err instanceof Error);
++        assert.strictEqual(err.message, 'Intentional ALPN callback error');
++        socket.destroy();
++        resolve();
++      } catch (e) {
++        reject(e);
++      }
++    }));
++
++    server.on('secureConnection', common.mustNotCall(() => {
++      reject(new Error('secureConnection should not fire'));
++    }));
++    await new Promise((res) => server.listen(0, res));
++
++    const client = tls.connect({
++      port: server.address().port,
++      host: '127.0.0.1',
++      rejectUnauthorized: false,
++      ALPNProtocols: ['http/1.1'],
++    });
++
++    client.on('error', () => {});
++
++    await promise;
++  });
++
++  // Test 5: PSK client callback returning invalid type should emit error event
++  it('client pskCallback returning invalid type emits error', async (t) => {
++    const PSK = Buffer.alloc(32);
++
++    const server = tls.createServer({
++      ciphers: CIPHERS,
++      pskCallback: () => PSK,
++      pskIdentityHint: 'test-hint',
++    });
++
++    t.after(() => server.close());
++
++    const { promise, resolve, reject } = createTestPromise();
++
++    server.on('secureConnection', common.mustNotCall(() => {
++      reject(new Error('secureConnection should not fire'));
++    }));
++
++    await new Promise((res) => server.listen(0, res));
++
++    const client = tls.connect({
++      port: server.address().port,
++      host: '127.0.0.1',
++      ciphers: CIPHERS,
++      checkServerIdentity: () => {},
++      pskCallback: () => {
++        // Return invalid type - should cause validation error
++        return 'invalid-should-be-object';
++      },
++    });
++
++    client.on('error', common.mustCall((err) => {
++      try {
++        assert.ok(err instanceof Error);
++        assert.strictEqual(err.code, 'ERR_INVALID_ARG_TYPE');
++        resolve();
++      } catch (e) {
++        reject(e);
++      }
++    }));
++
++    await promise;
++  });
++
++  // Test 6: PSK client callback throwing should emit error event
++  it('client pskCallback throwing emits error', async (t) => {
++    const PSK = Buffer.alloc(32);
++
++    const server = tls.createServer({
++      ciphers: CIPHERS,
++      pskCallback: () => PSK,
++      pskIdentityHint: 'test-hint',
++    });
++
++    t.after(() => server.close());
++
++    const { promise, resolve, reject } = createTestPromise();
++
++    server.on('secureConnection', common.mustNotCall(() => {
++      reject(new Error('secureConnection should not fire'));
++    }));
++
++    await new Promise((res) => server.listen(0, res));
++
++    const client = tls.connect({
++      port: server.address().port,
++      host: '127.0.0.1',
++      ciphers: CIPHERS,
++      checkServerIdentity: () => {},
++      pskCallback: () => {
++        throw new Error('Intentional client PSK callback error');
++      },
++    });
++
++    client.on('error', common.mustCall((err) => {
++      try {
++        assert.ok(err instanceof Error);
++        assert.strictEqual(err.message, 'Intentional client PSK callback error');
++        resolve();
++      } catch (e) {
++        reject(e);
++      }
++    }));
++
++    await promise;
++  });
++});

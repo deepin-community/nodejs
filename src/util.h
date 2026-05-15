@@ -146,9 +146,9 @@ void DumpJavaScriptBacktrace(FILE* fp);
   do {                                                                         \
     /* Make sure that this struct does not end up in inline code, but      */  \
     /* rather in a read-only data section when modifying this code.        */  \
-    static const node::AssertionInfo args = {                                  \
+    static const node::AssertionInfo error_and_abort_args = {                  \
         __FILE__ ":" STRINGIFY(__LINE__), #expr, PRETTY_FUNCTION_NAME};        \
-    node::Assert(args);                                                        \
+    node::Assert(error_and_abort_args);                                        \
     /* `node::Assert` doesn't return. Add an [[noreturn]] abort() here to  */  \
     /* make the compiler happy about no return value in the caller         */  \
     /* function when calling ERROR_AND_ABORT.                              */  \
@@ -162,7 +162,11 @@ void DumpJavaScriptBacktrace(FILE* fp);
 #else
 #define LIKELY(expr) expr
 #define UNLIKELY(expr) expr
+#if defined(_MSC_VER)
+#define PRETTY_FUNCTION_NAME __FUNCSIG__
+#else
 #define PRETTY_FUNCTION_NAME ""
+#endif
 #endif
 
 #define STRINGIFY_(x) #x
@@ -213,7 +217,7 @@ void DumpJavaScriptBacktrace(FILE* fp);
 #define UNREACHABLE(...)                                                      \
   ERROR_AND_ABORT("Unreachable code reached" __VA_OPT__(": ") __VA_ARGS__)
 
-// ECMA262 20.1.2.6 Number.MAX_SAFE_INTEGER (2^53-1)
+// ECMA-262, 15th edition, 21.1.2.6. Number.MAX_SAFE_INTEGER (2^53-1)
 constexpr int64_t kMaxSafeJsInteger = 9007199254740991;
 
 inline bool IsSafeJsInt(v8::Local<v8::Value> v);
@@ -698,6 +702,11 @@ struct FunctionDeleter {
 template <typename T, void (*function)(T*)>
 using DeleteFnPtr = typename FunctionDeleter<T, function>::Pointer;
 
+// Mocking the FromV8Array from newer version of Node.js which relies
+// on V8 API that does not exist on v20.x to smooth out backports.
+inline v8::Maybe<void> FromV8Array(v8::Local<v8::Context> context,
+                                   v8::Local<v8::Array> js_array,
+                                   std::vector<v8::Global<v8::Value>>* out);
 std::vector<std::string_view> SplitString(const std::string_view in,
                                           const std::string_view delim);
 

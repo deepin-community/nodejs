@@ -138,12 +138,22 @@ struct PerIsolateWrapperData {
 };
 
 class NODE_EXTERN_PRIVATE IsolateData : public MemoryRetainer {
- public:
+ private:
   IsolateData(v8::Isolate* isolate,
               uv_loop_t* event_loop,
-              MultiIsolatePlatform* platform = nullptr,
-              ArrayBufferAllocator* node_allocator = nullptr,
-              const SnapshotData* snapshot_data = nullptr);
+              MultiIsolatePlatform* platform,
+              ArrayBufferAllocator* node_allocator,
+              const SnapshotData* snapshot_data,
+              std::shared_ptr<PerIsolateOptions> options);
+
+ public:
+  static IsolateData* CreateIsolateData(
+      v8::Isolate* isolate,
+      uv_loop_t* event_loop,
+      MultiIsolatePlatform* platform = nullptr,
+      ArrayBufferAllocator* node_allocator = nullptr,
+      const EmbedderSnapshotData* embedder_snapshot_data = nullptr,
+      std::shared_ptr<PerIsolateOptions> options = nullptr);
   ~IsolateData();
 
   SET_MEMORY_INFO_NAME(IsolateData)
@@ -172,7 +182,6 @@ class NODE_EXTERN_PRIVATE IsolateData : public MemoryRetainer {
   inline MultiIsolatePlatform* platform() const;
   inline const SnapshotData* snapshot_data() const;
   inline std::shared_ptr<PerIsolateOptions> options();
-  inline void set_options(std::shared_ptr<PerIsolateOptions> options);
 
   inline NodeArrayBufferAllocator* node_allocator() const;
 
@@ -321,7 +330,9 @@ class AsyncHooks : public MemoryRetainer {
                          v8::Local<v8::Function> before,
                          v8::Local<v8::Function> after,
                          v8::Local<v8::Function> resolve);
-
+  // Used for testing since V8 doesn't provide API for retrieving configured
+  // JS promise hooks.
+  v8::Local<v8::Array> GetPromiseHooks(v8::Isolate* isolate);
   inline v8::Local<v8::String> provider_string(int idx);
 
   inline void no_force_checks();
@@ -588,6 +599,18 @@ void DefaultProcessExitHandlerInternal(Environment* env, ExitCode exit_code);
 v8::Maybe<ExitCode> SpinEventLoopInternal(Environment* env);
 v8::Maybe<ExitCode> EmitProcessExitInternal(Environment* env);
 
+class Cleanable {
+ public:
+  virtual ~Cleanable() = default;
+
+ protected:
+  ListNode<Cleanable> cleanable_queue_;
+
+ private:
+  virtual void Clean() = 0;
+  friend class Environment;
+};
+
 /**
  * Environment is a per-isolate data structure that represents an execution
  * environment. Each environment has a principal realm. An environment can
@@ -626,6 +649,7 @@ class Environment : public MemoryRetainer {
   // the ownership if transferred into the Environment.
   void InitializeInspector(
       std::unique_ptr<inspector::ParentInspectorHandle> parent_handle);
+  void WaitForInspectorFrontendByOptions();
 #endif
 
   inline size_t async_callback_scope_depth() const;
@@ -659,24 +683,10 @@ class Environment : public MemoryRetainer {
   inline const std::vector<std::string>& argv();
   const std::string& exec_path() const;
 
-  typedef void (*HandleCleanupCb)(Environment* env,
-                                  uv_handle_t* handle,
-                                  void* arg);
-  struct HandleCleanup {
-    uv_handle_t* handle_;
-    HandleCleanupCb cb_;
-    void* arg_;
-  };
-
-  void RegisterHandleCleanups();
   void CleanupHandles();
   void Exit(ExitCode code);
   void ExitEnv(StopFlags::Flags flags);
-
-  // Register clean-up cb to be called on environment destruction.
-  inline void RegisterHandleCleanup(uv_handle_t* handle,
-                                    HandleCleanupCb cb,
-                                    void* arg);
+  void ClosePerEnvHandles();
 
   template <typename T, typename OnCloseCallback>
   inline void CloseHandle(T* handle, OnCloseCallback callback);
@@ -796,6 +806,7 @@ class Environment : public MemoryRetainer {
   inline bool no_native_addons() const;
   inline bool should_not_register_esm_loader() const;
   inline bool should_create_inspector() const;
+  inline bool should_wait_for_inspector_frontend() const;
   inline bool owns_process_state() const;
   inline bool owns_inspector() const;
   inline bool tracks_unmanaged_fds() const;
@@ -892,8 +903,12 @@ class Environment : public MemoryRetainer {
 
   typedef ListHead<HandleWrap, &HandleWrap::handle_wrap_queue_> HandleWrapQueue;
   typedef ListHead<ReqWrapBase, &ReqWrapBase::req_wrap_queue_> ReqWrapQueue;
+  typedef ListHead<Cleanable, &Cleanable::cleanable_queue_> CleanableQueue;
 
   inline HandleWrapQueue* handle_wrap_queue() { return &handle_wrap_queue_; }
+  inline CleanableQueue* cleanable_queue() {
+    return &cleanable_queue_;
+  }
   inline ReqWrapQueue* req_wrap_queue() { return &req_wrap_queue_; }
 
   // https://w3c.github.io/hr-time/#dfn-time-origin
@@ -1046,6 +1061,8 @@ class Environment : public MemoryRetainer {
   std::vector<std::string> supported_hash_algorithms;
 #endif  // HAVE_OPENSSL
 
+  v8::Global<v8::Module> temporary_required_module_facade_original;
+
  private:
   // V8 has changed the constructor of exceptions, support both APIs before Node
   // updates to V8 12.1.
@@ -1061,6 +1078,8 @@ class Environment : public MemoryRetainer {
   std::list<binding::DLib> loaded_addons_;
   v8::Isolate* const isolate_;
   IsolateData* const isolate_data_;
+
+  bool env_handle_initialized_ = false;
   uv_timer_t timer_handle_;
   uv_check_t immediate_check_handle_;
   uv_idle_t immediate_idle_handle_;
@@ -1169,9 +1188,9 @@ class Environment : public MemoryRetainer {
   // memory are predictable. For more information please refer to
   // `doc/contributing/node-postmortem-support.md`
   friend int GenDebugSymbols();
+  CleanableQueue cleanable_queue_;
   HandleWrapQueue handle_wrap_queue_;
   ReqWrapQueue req_wrap_queue_;
-  std::list<HandleCleanup> handle_cleanup_queue_;
   int handle_cleanup_waiting_ = 0;
   int request_waiting_ = 0;
 

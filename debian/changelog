@@ -1,3 +1,189 @@
+nodejs (20.19.2+dfsg-1+deb13u2) trixie-security; urgency=medium
+
+  * Upstream security patches:
+    + CVE-2026-21713: use timing-safe comparison in Web Cryptography HMAC
+    + CVE-2026-21717: fix array index hash collision
+    + CVE-2026-21710: http: use null prototype for headersDistinct/trailersDistinct
+    + CVE-2026-21716: include permission check on lib/fs/promises
+    + CVE-2026-21715: add permission check to realpath.native
+    + CVE-2026-21714: handle NGHTTP2_ERR_FLOW_CONTROL error code
+    + CVE-2026-21637: tls wrap SNICallback invocation in try/catch
+  * copyright: add rapidhash from sec/51 patch
+
+ -- Jérémy Lal <kapouer@melix.org>  Tue, 24 Mar 2026 22:11:25 +0100
+
+nodejs (20.19.2+dfsg-1+deb13u1) trixie-security; urgency=medium
+
+  * Upstream security patches:
+    + CVE-2025-23085: follow-up fix wrong check for NGHTTP2_GOAWAY
+    + CVE-2026-21637: TLS error handling allows remote attackers to
+      crash or exhaust resources of a TLS server when `pskCallback`
+      or `ALPNCallback` are in use.
+    + CVE-2025-59465: malformed `HTTP/2 HEADERS` frame with oversized
+      invalid `HPACK` data can cause a crash.
+    + CVE-2025-55132: permission model allows a file's access and
+      modification timestamps to be changed via `futimes()` even when
+      the process has only read permissions.
+    + CVE-2025-55130: permissions model allows attackers to bypass
+      `--allow-fs-read` and `--allow-fs-write` restrictions using
+      crafted relative symlink paths.
+    + CVE-2025-59466: "Maximum call stack size exceeded" errors become
+      uncatchable when `async_hooks.createHook()` is enabled.
+    + CVE-2025-55131: buffer allocation logic can expose uninitialized
+      memory when allocations are interrupted, when using the `vm` module
+      with the timeout option.
+  * Upstream critical fixes (see sec/NN patches)
+    + zlib: fix pointer alignment (10)
+    + os: fix GetInterfaceAddresses memory leak (15)
+    + src: fix possible dereference of null pointers (17, 29)
+    + v8: fix missing callback in heap utils destroy (19)
+    + v8: loong64 - avoid memory access under stack pointer (27)
+    + http2: do not crash on mismatched ping buffer length (28)
+    + v8: riscv64 - Fix sp handling in MacroAssembler::LeaveFrame (44)
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 05 Mar 2026 11:05:11 +0100
+
+nodejs (20.19.2+dfsg-1) unstable; urgency=medium
+
+  * New upstream version 20.19.2+dfsg
+    Security fixes: (Closes: #1105832)
+    + CVE-2025-23165: add missing call to uv_fs_req_cleanup (low)
+    + CVE-2025-23166: fix error handling on async crypto operations (high)
+    + CVE-2025-23167: Improper HTTP header block termination in llhttp (medium)
+  * Drop patch, applied upstream
+  * Switch back to +dfsg suffix
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 14 May 2025 23:43:31 +0200
+
+nodejs (20.19.0+dfsg1-1) unstable; urgency=medium
+
+  * New repackaged upstream tarball includes deps/uv. 
+  * Add missing changelogs to nodejs-doc
+  * Lintian: old-fsf-address-in-copyright-file
+  * watch: fix ada url to actually get current version
+  * copyright: document deps/uv
+  * Build bundled libuv on i386 architecture to fix CVE-2025-47153.
+    Closes: #922075, #1076350,
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 01 May 2025 11:09:56 +0200
+
+nodejs (20.19.0+dfsg-2) unstable; urgency=medium
+
+  * Tests: two more profiler tests are flaky on loongson
+  * Rephrase nodejs.README.Debian
+  * Patch test for compatibility with openssl 3.5. Closes: #1101074.
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 03 Apr 2025 23:21:02 +0200
+
+nodejs (20.19.0+dfsg-1) unstable; urgency=medium
+
+  * New upstream version 20.19.0+dfsg
+  * mipsel has been unsupported by v8 for a long time,
+    drop the patches.
+  * Instead of using patches for configuring tests,
+    patch test.py to support flaky tests set from d/rules
+  * Drop cctest_disable.patch, was a no-op
+  * Drop upstream-applied patches
+  * copyright: drop non-matching files
+  * Fix some DEP-3 fields in patches
+  * Standards-Version 4.7.2, no changes.
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 14 Mar 2025 00:27:43 +0100
+
+nodejs (20.18.3+dfsg-1) unstable; urgency=medium
+
+  * New upstream version 20.18.3+dfsg
+  * Really SKIP test-watch-mode - can hang
+
+ -- Jérémy Lal <kapouer@melix.org>  Mon, 10 Feb 2025 15:45:36 +0100
+
+nodejs (20.18.2+dfsg-4) unstable; urgency=medium
+
+  * Fix tests invocation
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 02 Feb 2025 01:03:59 +0100
+
+nodejs (20.18.2+dfsg-3) unstable; urgency=medium
+
+  * Mark skipped cli tests as flaky instead.
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 01 Feb 2025 21:54:45 +0100
+
+nodejs (20.18.2+dfsg-2) unstable; urgency=medium
+
+  * Move common flakyTests to debian/rules
+
+ -- Jérémy Lal <kapouer@melix.org>  Sat, 01 Feb 2025 14:59:38 +0100
+
+nodejs (20.18.2+dfsg-1) unstable; urgency=medium
+
+  * New upstream version 20.18.2+dfsg
+    + CVE-2025-23083: Worker permission bypass via InternalWorker
+      leak in diagnostics (High).
+    + CVE-2025-23085: GOAWAY HTTP/2 frames cause memory leak outside heap
+      (Medium).
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 26 Jan 2025 16:31:48 +0100
+
+nodejs (20.18.1+dfsg-2) unstable; urgency=medium
+
+  * Depends node-corepack
+  * Two patches to make some tests pass with openssl 3.4
+    Closes: #1091807.
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 01 Jan 2025 14:34:52 +0100
+
+nodejs (20.18.1+dfsg-1) unstable; urgency=medium
+
+  * New upstream version 20.18.1+dfsg
+  * d/watch: types-node 20
+  * d/copyright: remove stanzas matching unused deps/*
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 20 Nov 2024 20:02:53 +0100
+
+nodejs (20.18.0+dfsg-2) unstable; urgency=medium
+
+  * Fix remove of deps/* dirs that breaks Makefile.
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 08 Nov 2024 20:05:21 +0100
+
+nodejs (20.18.0+dfsg-1) unstable; urgency=medium
+
+  * New upstream version 20.18.0+dfsg
+  * Update types-node to 20.17.6
+  * Exclude unused deps/* to simplify maintenance
+  * Use shared ngtcp2, nghttp3, simdjson
+  * Use debian/openssl.cnf for tests
+  * tests: pass --skip-tests in d/rules instead of patches
+  * Refresh tests fixes for openssl 3.2.2 compatibility
+  * Use dh-sequence-bash-completion
+  * Fix test to build completion. Closes: #1085098
+
+ -- Jérémy Lal <kapouer@melix.org>  Fri, 08 Nov 2024 14:59:03 +0100
+
+nodejs (20.17.0+dfsg-2) unstable; urgency=medium
+
+  * Depend node-minimatch
+
+ -- Jérémy Lal <kapouer@melix.org>  Thu, 29 Aug 2024 10:25:23 +0200
+
+nodejs (20.17.0+dfsg-1) unstable; urgency=medium
+
+  * New upstream version 20.17.0+dfsg
+  * B-D node-minimatch, added to builtins.
+
+ -- Jérémy Lal <kapouer@melix.org>  Wed, 28 Aug 2024 20:25:41 +0200
+
+nodejs (20.16.0+dfsg-1) unstable; urgency=medium
+
+  * New upstream version 20.16.0+dfsg
+  * patches:
+    + improve openssl 3.2.2 tests fixes
+    + upstream fix for failing permissions tests in /tmp
+      Closes: #1076542.
+
+ -- Jérémy Lal <kapouer@melix.org>  Sun, 18 Aug 2024 14:48:08 +0200
+
 nodejs (20.15.1+dfsg-1) unstable; urgency=medium
 
   * New upstream version 20.15.1+dfsg

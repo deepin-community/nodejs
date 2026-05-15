@@ -28,6 +28,8 @@ added:
 A list of the names of all modules provided by Node.js. Can be used to verify
 if a module is maintained by a third party or not.
 
+Note: the list doesn't contain [prefix-only modules][] like `node:test`.
+
 `module` in this context isn't the same object that's provided
 by the [module wrapper][]. To access it, require the `Module` module:
 
@@ -85,6 +87,10 @@ isBuiltin('wss'); // false
 <!-- YAML
 added: v20.6.0
 changes:
+  - version: v20.18.2
+    pr-url: https://github.com/nodejs-private/node-private/pull/629
+    description: Using this feature with the permission model enabled requires
+                 passing `--allow-worker`.
   - version: v20.8.0
     pr-url: https://github.com/nodejs/node/pull/49655
     description: Add support for WHATWG URL instances.
@@ -110,6 +116,8 @@ changes:
 
 Register a module that exports [hooks][] that customize Node.js module
 resolution and loading behavior. See [Customization hooks][].
+
+This feature requires `--allow-worker` if used with the [Permission Model][].
 
 ### `module.syncBuiltinESMExports()`
 
@@ -321,6 +329,7 @@ const { port1, port2 } = new MessageChannel();
 port1.on('message', (msg) => {
   console.log(msg);
 });
+port1.unref();
 
 register('./my-hooks.mjs', {
   parentURL: import.meta.url,
@@ -341,6 +350,7 @@ const { port1, port2 } = new MessageChannel();
 port1.on('message', (msg) => {
   console.log(msg);
 });
+port1.unref();
 
 register('./my-hooks.mjs', {
   parentURL: pathToFileURL(__filename),
@@ -431,6 +441,7 @@ const { port1, port2 } = new MessageChannel();
 port1.on('message', (msg) => {
   assert.strictEqual(msg, 'increment: 2');
 });
+port1.unref();
 
 register('./path-to-my-hooks.js', {
   parentURL: import.meta.url,
@@ -453,6 +464,7 @@ const { port1, port2 } = new MessageChannel();
 port1.on('message', (msg) => {
   assert.strictEqual(msg, 'increment: 2');
 });
+port1.unref();
 
 register('./path-to-my-hooks.js', {
   parentURL: pathToFileURL(__filename),
@@ -590,12 +602,12 @@ changes:
   * `importAttributes` {Object}
 * `nextLoad` {Function} The subsequent `load` hook in the chain, or the
   Node.js default `load` hook after the last user-supplied `load` hook
-  * `specifier` {string}
+  * `url` {string}
   * `context` {Object}
 * Returns: {Object}
   * `format` {string}
   * `shortCircuit` {undefined|boolean} A signal that this hook intends to
-    terminate the chain of `resolve` hooks. **Default:** `false`
+    terminate the chain of `load` hooks. **Default:** `false`
   * `source` {string|ArrayBuffer|TypedArray} The source for Node.js to evaluate
 
 The `load` hook provides a way to define a custom method of determining how a
@@ -1021,6 +1033,13 @@ added:
 
 #### `new SourceMap(payload[, { lineLengths }])`
 
+<!-- YAML
+changes:
+  - version: v20.5.0
+    pr-url: https://github.com/nodejs/node/pull/48461
+    description: Add support for `lineLengths`.
+-->
+
 * `payload` {Object}
 * `lineLengths` {number\[]}
 
@@ -1083,6 +1102,10 @@ columnNumber)`
 
 #### `sourceMap.findOrigin(lineNumber, columnNumber)`
 
+<!-- YAML
+added: v20.4.0
+-->
+
 * `lineNumber` {number} The 1-indexed line number of the call
   site in the generated source
 * `columnNumber` {number} The 1-indexed column number
@@ -1111,6 +1134,7 @@ returned object contains the following keys:
 [Customization hooks]: #customization-hooks
 [ES Modules]: esm.md
 [HTTPS and HTTP imports]: esm.md#https-and-http-imports
+[Permission Model]: permissions.md#permission-model
 [Source map v3 format]: https://sourcemaps.info/spec.html#h.mofvlxcwqzej
 [`"exports"`]: packages.md#exports
 [`--enable-source-maps`]: cli.md#--enable-source-maps
@@ -1131,6 +1155,7 @@ returned object contains the following keys:
 [hooks]: #customization-hooks
 [load hook]: #loadurl-context-nextload
 [module wrapper]: modules.md#the-module-wrapper
+[prefix-only modules]: modules.md#built-in-modules-with-mandatory-node-prefix
 [realm]: https://tc39.es/ecma262/#realm
 [source map include directives]: https://sourcemaps.info/spec.html#h.lmz475t4mvbx
 [transferrable objects]: worker_threads.md#portpostmessagevalue-transferlist

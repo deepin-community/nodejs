@@ -94,6 +94,11 @@ class DebugOptions : public Options {
     break_first_line = true;
   }
 
+  void DisableWaitOrBreakFirstLine() {
+    inspect_wait = false;
+    break_first_line = false;
+  }
+
   bool wait_for_connect() const {
     return break_first_line || break_node_first_line || inspect_wait;
   }
@@ -110,9 +115,12 @@ class EnvironmentOptions : public Options {
  public:
   bool abort_on_uncaught_exception = false;
   std::vector<std::string> conditions;
-  bool detect_module = false;
+  bool detect_module = true;
+  bool print_required_tla = false;
+  bool require_module = true;
   std::string dns_result_order;
   bool enable_source_maps = false;
+  bool experimental_eventsource = false;
   bool experimental_fetch = true;
   bool experimental_websocket = false;
   bool experimental_global_customevent = true;
@@ -130,6 +138,7 @@ class EnvironmentOptions : public Options {
   std::vector<std::string> allow_fs_write;
   bool allow_addons = false;
   bool allow_child_process = false;
+  bool allow_wasi = false;
   bool allow_worker_threads = false;
   bool experimental_repl_await = true;
   bool experimental_vm_modules = false;
@@ -158,6 +167,7 @@ class EnvironmentOptions : public Options {
   uint64_t cpu_prof_interval = kDefaultCpuProfInterval;
   std::string cpu_prof_name;
   bool cpu_prof = false;
+  bool experimental_network_inspection = false;
   std::string heap_prof_dir;
   std::string heap_prof_name;
   static const uint64_t kDefaultHeapProfInterval = 512 * 1024;
@@ -167,12 +177,14 @@ class EnvironmentOptions : public Options {
   std::string redirect_warnings;
   std::string diagnostic_dir;
   std::string env_file;
+  std::string optional_env_file;
   bool has_env_file_string = false;
   bool test_runner = false;
   uint64_t test_runner_concurrency = 0;
   uint64_t test_runner_timeout = 0;
   bool test_runner_coverage = false;
   bool test_runner_force_exit = false;
+  bool test_runner_module_mocks = false;
   std::vector<std::string> test_name_pattern;
   std::vector<std::string> test_reporter;
   std::vector<std::string> test_reporter_destination;
@@ -188,6 +200,7 @@ class EnvironmentOptions : public Options {
   bool trace_uncaught = false;
   bool trace_warnings = false;
   bool trace_promises = false;
+  std::string trace_require_module;
   bool extra_info_on_fatal_exception = true;
   std::string unhandled_rejections;
   std::vector<std::string> userland_loaders;
@@ -239,6 +252,9 @@ class EnvironmentOptions : public Options {
 
 class PerIsolateOptions : public Options {
  public:
+  PerIsolateOptions() = default;
+  PerIsolateOptions(PerIsolateOptions&&) = default;
+
   std::shared_ptr<EnvironmentOptions> per_env { new EnvironmentOptions() };
   bool track_heap_objects = false;
   bool report_uncaught_exception = false;
@@ -250,6 +266,11 @@ class PerIsolateOptions : public Options {
   inline EnvironmentOptions* get_per_env_options();
   void CheckOptions(std::vector<std::string>* errors,
                     std::vector<std::string>* argv) override;
+
+  inline std::shared_ptr<PerIsolateOptions> Clone() const;
+
+ private:
+  PerIsolateOptions(const PerIsolateOptions&) = default;
 };
 
 class PerProcessOptions : public Options {
@@ -522,7 +543,10 @@ class OptionsParser {
   template <typename OtherOptions>
   friend class OptionsParser;
 
-  friend void GetCLIOptions(const v8::FunctionCallbackInfo<v8::Value>& args);
+  friend void GetCLIOptionsValues(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
+  friend void GetCLIOptionsInfo(
+      const v8::FunctionCallbackInfo<v8::Value>& args);
   friend std::string GetBashCompletion();
 };
 

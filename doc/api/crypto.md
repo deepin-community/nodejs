@@ -978,6 +978,11 @@ The `decipher.update()` method can be called multiple times with new data until
 [`decipher.final()`][] is called. Calling `decipher.update()` after
 [`decipher.final()`][] will result in an error being thrown.
 
+Even if the underlying cipher implements authentication, the authenticity and
+integrity of the plaintext returned from this function may be uncertain at this
+time. For authenticated encryption algorithms, authenticity is generally only
+established when the application calls [`decipher.final()`][].
+
 ## Class: `DiffieHellman`
 
 <!-- YAML
@@ -3633,7 +3638,7 @@ added:
 
 Computes the Diffie-Hellman secret based on a `privateKey` and a `publicKey`.
 Both keys must have the same `asymmetricKeyType`, which must be one of `'dh'`
-(for Diffie-Hellman), `'ec'` (for ECDH), `'x448'`, or `'x25519'` (for ECDH-ES).
+(for Diffie-Hellman), `'ec'`, `'x448'`, or `'x25519'` (for ECDH).
 
 ### `crypto.hash(algorithm, data[, outputEncoding])`
 
@@ -5389,12 +5394,17 @@ added: v15.6.0
 
 <!-- YAML
 added: v0.11.11
+changes:
+  - version: v20.16.0
+    pr-url: https://github.com/nodejs/node/pull/53329
+    description: Custom engine support in OpenSSL 3 is deprecated.
 -->
 
 * `engine` {string}
 * `flags` {crypto.constants} **Default:** `crypto.constants.ENGINE_METHOD_ALL`
 
 Load and set the `engine` for some or all OpenSSL functions (selected by flags).
+Support for custom engines in OpenSSL is deprecated from OpenSSL 3.
 
 `engine` could be either an id or a path to the engine's shared library.
 

@@ -144,14 +144,10 @@ void ares_sockstate_cb(void* data, ares_socket_t sock, int read, int write) {
                   ares_poll_cb);
 
   } else {
-    /* read == 0 and write == 0 this is c-ares's way of notifying us that */
-    /* the socket is now closed. We must free the data associated with */
-    /* socket. */
-    CHECK(task &&
-          "When an ares socket is closed we should have a handle for it");
-
-    channel->task_list()->erase(it);
-    channel->env()->CloseHandle(&task->poll_watcher, ares_poll_close_cb);
+    if (task != nullptr) {
+      channel->task_list()->erase(it);
+      channel->env()->CloseHandle(&task->poll_watcher, ares_poll_close_cb);
+    }
 
     if (channel->task_list()->empty()) {
       channel->CloseTimer();
@@ -682,7 +678,6 @@ GetNameInfoReqWrap::GetNameInfoReqWrap(
 void ChannelWrap::AresTimeout(uv_timer_t* handle) {
   ChannelWrap* channel = static_cast<ChannelWrap*>(handle->data);
   CHECK_EQ(channel->timer_handle(), handle);
-  CHECK_EQ(false, channel->task_list()->empty());
   ares_process_fd(channel->cares_channel(), ARES_SOCKET_BAD, ARES_SOCKET_BAD);
 }
 
@@ -716,6 +711,7 @@ void ChannelWrap::Setup() {
   options.sock_state_cb_data = this;
   options.timeout = timeout_;
   options.tries = tries_;
+  options.qcache_max_ttl = 0;
 
   int r;
   if (!library_inited_) {
@@ -829,62 +825,62 @@ void ChannelWrap::EnsureServers() {
 }
 
 int AnyTraits::Send(QueryWrap<AnyTraits>* wrap, const char* name) {
-  wrap->AresQuery(name, ns_c_in, ns_t_any);
+  wrap->AresQuery(name, ARES_CLASS_IN, ARES_REC_TYPE_ANY);
   return ARES_SUCCESS;
 }
 
 int ATraits::Send(QueryWrap<ATraits>* wrap, const char* name) {
-  wrap->AresQuery(name, ns_c_in, ns_t_a);
+  wrap->AresQuery(name, ARES_CLASS_IN, ARES_REC_TYPE_A);
   return ARES_SUCCESS;
 }
 
 int AaaaTraits::Send(QueryWrap<AaaaTraits>* wrap, const char* name) {
-  wrap->AresQuery(name, ns_c_in, ns_t_aaaa);
+  wrap->AresQuery(name, ARES_CLASS_IN, ARES_REC_TYPE_AAAA);
   return ARES_SUCCESS;
 }
 
 int CaaTraits::Send(QueryWrap<CaaTraits>* wrap, const char* name) {
-  wrap->AresQuery(name, ns_c_in, T_CAA);
+  wrap->AresQuery(name, ARES_CLASS_IN, ARES_REC_TYPE_CAA);
   return ARES_SUCCESS;
 }
 
 int CnameTraits::Send(QueryWrap<CnameTraits>* wrap, const char* name) {
-  wrap->AresQuery(name, ns_c_in, ns_t_cname);
+  wrap->AresQuery(name, ARES_CLASS_IN, ARES_REC_TYPE_CNAME);
   return ARES_SUCCESS;
 }
 
 int MxTraits::Send(QueryWrap<MxTraits>* wrap, const char* name) {
-  wrap->AresQuery(name, ns_c_in, ns_t_mx);
+  wrap->AresQuery(name, ARES_CLASS_IN, ARES_REC_TYPE_MX);
   return ARES_SUCCESS;
 }
 
 int NsTraits::Send(QueryWrap<NsTraits>* wrap, const char* name) {
-  wrap->AresQuery(name, ns_c_in, ns_t_ns);
+  wrap->AresQuery(name, ARES_CLASS_IN, ARES_REC_TYPE_NS);
   return ARES_SUCCESS;
 }
 
 int TxtTraits::Send(QueryWrap<TxtTraits>* wrap, const char* name) {
-  wrap->AresQuery(name, ns_c_in, ns_t_txt);
+  wrap->AresQuery(name, ARES_CLASS_IN, ARES_REC_TYPE_TXT);
   return ARES_SUCCESS;
 }
 
 int SrvTraits::Send(QueryWrap<SrvTraits>* wrap, const char* name) {
-  wrap->AresQuery(name, ns_c_in, ns_t_srv);
+  wrap->AresQuery(name, ARES_CLASS_IN, ARES_REC_TYPE_SRV);
   return ARES_SUCCESS;
 }
 
 int PtrTraits::Send(QueryWrap<PtrTraits>* wrap, const char* name) {
-  wrap->AresQuery(name, ns_c_in, ns_t_ptr);
+  wrap->AresQuery(name, ARES_CLASS_IN, ARES_REC_TYPE_PTR);
   return ARES_SUCCESS;
 }
 
 int NaptrTraits::Send(QueryWrap<NaptrTraits>* wrap, const char* name) {
-  wrap->AresQuery(name, ns_c_in, ns_t_naptr);
+  wrap->AresQuery(name, ARES_CLASS_IN, ARES_REC_TYPE_NAPTR);
   return ARES_SUCCESS;
 }
 
 int SoaTraits::Send(QueryWrap<SoaTraits>* wrap, const char* name) {
-  wrap->AresQuery(name, ns_c_in, ns_t_soa);
+  wrap->AresQuery(name, ARES_CLASS_IN, ARES_REC_TYPE_SOA);
   return ARES_SUCCESS;
 }
 
@@ -1404,7 +1400,7 @@ template <class Wrap>
 static void Query(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
   ChannelWrap* channel;
-  ASSIGN_OR_RETURN_UNWRAP(&channel, args.Holder());
+  ASSIGN_OR_RETURN_UNWRAP(&channel, args.This());
 
   CHECK_EQ(false, args.IsConstructCall());
   CHECK(args[0]->IsObject());
@@ -1664,7 +1660,7 @@ void GetNameInfo(const FunctionCallbackInfo<Value>& args) {
 void GetServers(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
   ChannelWrap* channel;
-  ASSIGN_OR_RETURN_UNWRAP(&channel, args.Holder());
+  ASSIGN_OR_RETURN_UNWRAP(&channel, args.This());
 
   Local<Array> server_array = Array::New(env->isolate());
 
@@ -1702,7 +1698,7 @@ void GetServers(const FunctionCallbackInfo<Value>& args) {
 void SetServers(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
   ChannelWrap* channel;
-  ASSIGN_OR_RETURN_UNWRAP(&channel, args.Holder());
+  ASSIGN_OR_RETURN_UNWRAP(&channel, args.This());
 
   if (channel->active_query_count()) {
     return args.GetReturnValue().Set(DNS_ESETSRVPENDING);
@@ -1783,7 +1779,7 @@ void SetServers(const FunctionCallbackInfo<Value>& args) {
 void SetLocalAddress(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
   ChannelWrap* channel;
-  ASSIGN_OR_RETURN_UNWRAP(&channel, args.Holder());
+  ASSIGN_OR_RETURN_UNWRAP(&channel, args.This());
 
   CHECK_EQ(args.Length(), 2);
   CHECK(args[0]->IsString());
@@ -1846,7 +1842,7 @@ void SetLocalAddress(const FunctionCallbackInfo<Value>& args) {
 
 void Cancel(const FunctionCallbackInfo<Value>& args) {
   ChannelWrap* channel;
-  ASSIGN_OR_RETURN_UNWRAP(&channel, args.Holder());
+  ASSIGN_OR_RETURN_UNWRAP(&channel, args.This());
 
   TRACE_EVENT_INSTANT0(TRACING_CATEGORY_NODE2(dns, native),
       "cancel", TRACE_EVENT_SCOPE_THREAD);
@@ -1934,16 +1930,6 @@ void Initialize(Local<Object> target,
       ->Set(env->context(),
             FIXED_ONE_BYTE_STRING(env->isolate(), "DNS_ORDER_IPV6_FIRST"),
             Integer::New(env->isolate(), DNS_ORDER_IPV6_FIRST))
-      .Check();
-  target
-      ->Set(env->context(),
-            FIXED_ONE_BYTE_STRING(env->isolate(), "AF_INET"),
-            Integer::New(env->isolate(), AF_INET))
-      .Check();
-  target
-      ->Set(env->context(),
-            FIXED_ONE_BYTE_STRING(env->isolate(), "AF_INET"),
-            Integer::New(env->isolate(), AF_INET))
       .Check();
 
   Local<FunctionTemplate> aiw =

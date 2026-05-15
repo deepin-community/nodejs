@@ -8,7 +8,7 @@
       "introduced_in": "v0.10.0",
       "stability": 2,
       "stabilityText": "Stable",
-      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v20.15.1/lib/util.js\">lib/util.js</a></p>\n<p>The <code>node:util</code> module supports the needs of Node.js internal APIs. Many of the\nutilities are useful for application and module developers as well. To access\nit:</p>\n<pre><code class=\"language-js\">const util = require('node:util');\n</code></pre>",
+      "desc": "<p><strong>Source Code:</strong> <a href=\"https://github.com/nodejs/node/blob/v20.19.2/lib/util.js\">lib/util.js</a></p>\n<p>The <code>node:util</code> module supports the needs of Node.js internal APIs. Many of the\nutilities are useful for application and module developers as well. To access\nit:</p>\n<pre><code class=\"language-js\">const util = require('node:util');\n</code></pre>",
       "methods": [
         {
           "textRaw": "`util.callbackify(original)`",
@@ -950,6 +950,11 @@
             ],
             "changes": [
               {
+                "version": "v20.16.0",
+                "pr-url": "https://github.com/nodejs/node/pull/53107",
+                "description": "add support for allowing negative options in input `config`."
+              },
+              {
                 "version": [
                   "v20.0.0"
                 ],
@@ -1042,10 +1047,10 @@
                           "desc": "A single character alias for the option."
                         },
                         {
-                          "textRaw": "`default` {string | boolean | string\\[] | boolean\\[]} The default option value when it is not set by args. It must be of the same type as the `type` property. When `multiple` is `true`, it must be an array.",
+                          "textRaw": "`default` {string | boolean | string\\[] | boolean\\[]} The default value to be used if (and only if) the option does not appear in the arguments to be parsed. It must be of the same type as the `type` property. When `multiple` is `true`, it must be an array.",
                           "name": "default",
                           "type": "string | boolean | string\\[] | boolean\\[]",
-                          "desc": "The default option value when it is not set by args. It must be of the same type as the `type` property. When `multiple` is `true`, it must be an array."
+                          "desc": "The default value to be used if (and only if) the option does not appear in the arguments to be parsed. It must be of the same type as the `type` property. When `multiple` is `true`, it must be an array."
                         }
                       ]
                     },
@@ -1064,6 +1069,13 @@
                       "desc": "Whether this command accepts positional arguments."
                     },
                     {
+                      "textRaw": "`allowNegative` {boolean} If `true`, allows explicitly setting boolean options to `false` by prefixing the option name with `--no-`. **Default:** `false`.",
+                      "name": "allowNegative",
+                      "type": "boolean",
+                      "default": "`false`",
+                      "desc": "If `true`, allows explicitly setting boolean options to `false` by prefixing the option name with `--no-`."
+                    },
+                    {
                       "textRaw": "`tokens` {boolean} Return the parsed tokens. This is useful for extending the built-in behavior, from adding additional checks through to reprocessing the tokens in different ways. **Default:** `false`.",
                       "name": "tokens",
                       "type": "boolean",
@@ -1080,7 +1092,7 @@
             {
               "textRaw": "`parseArgs` `tokens`",
               "name": "`parseargs`_`tokens`",
-              "desc": "<p>Detailed parse information is available for adding custom behaviors by\nspecifying <code>tokens: true</code> in the configuration.\nThe returned tokens have properties describing:</p>\n<ul>\n<li>all tokens\n<ul>\n<li><code>kind</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> One of 'option', 'positional', or 'option-terminator'.</li>\n<li><code>index</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> Index of element in <code>args</code> containing token. So the\nsource argument for a token is <code>args[token.index]</code>.</li>\n</ul>\n</li>\n<li>option tokens\n<ul>\n<li><code>name</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> Long name of option.</li>\n<li><code>rawName</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> How option used in args, like <code>-f</code> of <code>--foo</code>.</li>\n<li><code>value</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type\" class=\"type\">&lt;undefined&gt;</a> Option value specified in args.\nUndefined for boolean options.</li>\n<li><code>inlineValue</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type\" class=\"type\">&lt;undefined&gt;</a> Whether option value specified inline,\nlike <code>--foo=bar</code>.</li>\n</ul>\n</li>\n<li>positional tokens\n<ul>\n<li><code>value</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> The value of the positional argument in args (i.e. <code>args[index]</code>).</li>\n</ul>\n</li>\n<li>option-terminator token</li>\n</ul>\n<p>The returned tokens are in the order encountered in the input args. Options\nthat appear more than once in args produce a token for each use. Short option\ngroups like <code>-xy</code> expand to a token for each option. So <code>-xxx</code> produces\nthree tokens.</p>\n<p>For example to use the returned tokens to add support for a negated option\nlike <code>--no-color</code>, the tokens can be reprocessed to change the value stored\nfor the negated option.</p>\n<pre><code class=\"language-mjs\">import { parseArgs } from 'node:util';\n\nconst options = {\n  'color': { type: 'boolean' },\n  'no-color': { type: 'boolean' },\n  'logfile': { type: 'string' },\n  'no-logfile': { type: 'boolean' },\n};\nconst { values, tokens } = parseArgs({ options, tokens: true });\n\n// Reprocess the option tokens and overwrite the returned values.\ntokens\n  .filter((token) => token.kind === 'option')\n  .forEach((token) => {\n    if (token.name.startsWith('no-')) {\n      // Store foo:false for --no-foo\n      const positiveName = token.name.slice(3);\n      values[positiveName] = false;\n      delete values[token.name];\n    } else {\n      // Resave value so last one wins if both --foo and --no-foo.\n      values[token.name] = token.value ?? true;\n    }\n  });\n\nconst color = values.color;\nconst logfile = values.logfile ?? 'default.log';\n\nconsole.log({ logfile, color });\n</code></pre>\n<pre><code class=\"language-cjs\">const { parseArgs } = require('node:util');\n\nconst options = {\n  'color': { type: 'boolean' },\n  'no-color': { type: 'boolean' },\n  'logfile': { type: 'string' },\n  'no-logfile': { type: 'boolean' },\n};\nconst { values, tokens } = parseArgs({ options, tokens: true });\n\n// Reprocess the option tokens and overwrite the returned values.\ntokens\n  .filter((token) => token.kind === 'option')\n  .forEach((token) => {\n    if (token.name.startsWith('no-')) {\n      // Store foo:false for --no-foo\n      const positiveName = token.name.slice(3);\n      values[positiveName] = false;\n      delete values[token.name];\n    } else {\n      // Resave value so last one wins if both --foo and --no-foo.\n      values[token.name] = token.value ?? true;\n    }\n  });\n\nconst color = values.color;\nconst logfile = values.logfile ?? 'default.log';\n\nconsole.log({ logfile, color });\n</code></pre>\n<p>Example usage showing negated options, and when an option is used\nmultiple ways then last one wins.</p>\n<pre><code class=\"language-console\">$ node negate.js\n{ logfile: 'default.log', color: undefined }\n$ node negate.js --no-logfile --no-color\n{ logfile: false, color: false }\n$ node negate.js --logfile=test.log --color\n{ logfile: 'test.log', color: true }\n$ node negate.js --no-logfile --logfile=test.log --color --no-color\n{ logfile: 'test.log', color: false }\n</code></pre>",
+              "desc": "<p>Detailed parse information is available for adding custom behaviors by\nspecifying <code>tokens: true</code> in the configuration.\nThe returned tokens have properties describing:</p>\n<ul>\n<li>all tokens\n<ul>\n<li><code>kind</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> One of 'option', 'positional', or 'option-terminator'.</li>\n<li><code>index</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type\" class=\"type\">&lt;number&gt;</a> Index of element in <code>args</code> containing token. So the\nsource argument for a token is <code>args[token.index]</code>.</li>\n</ul>\n</li>\n<li>option tokens\n<ul>\n<li><code>name</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> Long name of option.</li>\n<li><code>rawName</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> How option used in args, like <code>-f</code> of <code>--foo</code>.</li>\n<li><code>value</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type\" class=\"type\">&lt;undefined&gt;</a> Option value specified in args.\nUndefined for boolean options.</li>\n<li><code>inlineValue</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type\" class=\"type\">&lt;boolean&gt;</a> | <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Undefined_type\" class=\"type\">&lt;undefined&gt;</a> Whether option value specified inline,\nlike <code>--foo=bar</code>.</li>\n</ul>\n</li>\n<li>positional tokens\n<ul>\n<li><code>value</code> <a href=\"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type\" class=\"type\">&lt;string&gt;</a> The value of the positional argument in args (i.e. <code>args[index]</code>).</li>\n</ul>\n</li>\n<li>option-terminator token</li>\n</ul>\n<p>The returned tokens are in the order encountered in the input args. Options\nthat appear more than once in args produce a token for each use. Short option\ngroups like <code>-xy</code> expand to a token for each option. So <code>-xxx</code> produces\nthree tokens.</p>\n<p>For example, to add support for a negated option like <code>--no-color</code> (which\n<code>allowNegative</code> supports when the option is of <code>boolean</code> type), the returned\ntokens can be reprocessed to change the value stored for the negated option.</p>\n<pre><code class=\"language-mjs\">import { parseArgs } from 'node:util';\n\nconst options = {\n  'color': { type: 'boolean' },\n  'no-color': { type: 'boolean' },\n  'logfile': { type: 'string' },\n  'no-logfile': { type: 'boolean' },\n};\nconst { values, tokens } = parseArgs({ options, tokens: true });\n\n// Reprocess the option tokens and overwrite the returned values.\ntokens\n  .filter((token) => token.kind === 'option')\n  .forEach((token) => {\n    if (token.name.startsWith('no-')) {\n      // Store foo:false for --no-foo\n      const positiveName = token.name.slice(3);\n      values[positiveName] = false;\n      delete values[token.name];\n    } else {\n      // Resave value so last one wins if both --foo and --no-foo.\n      values[token.name] = token.value ?? true;\n    }\n  });\n\nconst color = values.color;\nconst logfile = values.logfile ?? 'default.log';\n\nconsole.log({ logfile, color });\n</code></pre>\n<pre><code class=\"language-cjs\">const { parseArgs } = require('node:util');\n\nconst options = {\n  'color': { type: 'boolean' },\n  'no-color': { type: 'boolean' },\n  'logfile': { type: 'string' },\n  'no-logfile': { type: 'boolean' },\n};\nconst { values, tokens } = parseArgs({ options, tokens: true });\n\n// Reprocess the option tokens and overwrite the returned values.\ntokens\n  .filter((token) => token.kind === 'option')\n  .forEach((token) => {\n    if (token.name.startsWith('no-')) {\n      // Store foo:false for --no-foo\n      const positiveName = token.name.slice(3);\n      values[positiveName] = false;\n      delete values[token.name];\n    } else {\n      // Resave value so last one wins if both --foo and --no-foo.\n      values[token.name] = token.value ?? true;\n    }\n  });\n\nconst color = values.color;\nconst logfile = values.logfile ?? 'default.log';\n\nconsole.log({ logfile, color });\n</code></pre>\n<p>Example usage showing negated options, and when an option is used\nmultiple ways then last one wins.</p>\n<pre><code class=\"language-console\">$ node negate.js\n{ logfile: 'default.log', color: undefined }\n$ node negate.js --no-logfile --no-color\n{ logfile: false, color: false }\n$ node negate.js --logfile=test.log --color\n{ logfile: 'test.log', color: true }\n$ node negate.js --no-logfile --logfile=test.log --color --no-color\n{ logfile: 'test.log', color: false }\n</code></pre>",
               "type": "module",
               "displayName": "`parseArgs` `tokens`"
             }
@@ -1207,7 +1219,7 @@
           "desc": "<p>Returns <code>str</code> with any ANSI escape codes removed.</p>\n<pre><code class=\"language-js\">console.log(util.stripVTControlCharacters('\\u001B[4mvalue\\u001B[0m'));\n// Prints \"value\"\n</code></pre>"
         },
         {
-          "textRaw": "`util.styleText(format, text)`",
+          "textRaw": "`util.styleText(format, text[, options])`",
           "type": "method",
           "name": "styleText",
           "stability": 1,
@@ -1216,7 +1228,13 @@
             "added": [
               "v20.12.0"
             ],
-            "changes": []
+            "changes": [
+              {
+                "version": "v20.18.0",
+                "pr-url": "https://github.com/nodejs/node/pull/54389",
+                "description": "Respect isTTY and environment variables such as NO_COLORS, NODE_DISABLE_COLORS, and FORCE_COLOR."
+              }
+            ]
           },
           "signatures": [
             {
@@ -1232,11 +1250,32 @@
                   "name": "text",
                   "type": "string",
                   "desc": "The text to to be formatted."
+                },
+                {
+                  "textRaw": "`options` {Object}",
+                  "name": "options",
+                  "type": "Object",
+                  "options": [
+                    {
+                      "textRaw": "`validateStream` {boolean} When true, `stream` is checked to see if it can handle colors. **Default:** `true`.",
+                      "name": "validateStream",
+                      "type": "boolean",
+                      "default": "`true`",
+                      "desc": "When true, `stream` is checked to see if it can handle colors."
+                    },
+                    {
+                      "textRaw": "`stream` {Stream} A stream that will be validated if it can be colored. **Default:** `process.stdout`.",
+                      "name": "stream",
+                      "type": "Stream",
+                      "default": "`process.stdout`",
+                      "desc": "A stream that will be validated if it can be colored."
+                    }
+                  ]
                 }
               ]
             }
           ],
-          "desc": "<p>This function returns a formatted text considering the <code>format</code> passed.</p>\n<pre><code class=\"language-mjs\">import { styleText } from 'node:util';\nconst errorMessage = styleText('red', 'Error! Error!');\nconsole.log(errorMessage);\n</code></pre>\n<pre><code class=\"language-cjs\">const { styleText } = require('node:util');\nconst errorMessage = styleText('red', 'Error! Error!');\nconsole.log(errorMessage);\n</code></pre>\n<p><code>util.inspect.colors</code> also provides text formats such as <code>italic</code>, and\n<code>underline</code> and you can combine both:</p>\n<pre><code class=\"language-cjs\">console.log(\n  util.styleText(['underline', 'italic'], 'My italic underlined message'),\n);\n</code></pre>\n<p>When passing an array of formats, the order of the format applied\nis left to right so the following style might overwrite the previous one.</p>\n<pre><code class=\"language-cjs\">console.log(\n  util.styleText(['red', 'green'], 'text'), // green\n);\n</code></pre>\n<p>The full list of formats can be found in <a href=\"#modifiers\">modifiers</a>.</p>"
+          "desc": "<p>This function returns a formatted text considering the <code>format</code> passed\nfor printing in a terminal. It is aware of the terminal's capabilities\nand acts according to the configuration set via <code>NO_COLORS</code>,\n<code>NODE_DISABLE_COLORS</code> and <code>FORCE_COLOR</code> environment variables.</p>\n<pre><code class=\"language-mjs\">import { styleText } from 'node:util';\nimport { stderr } from 'node:process';\n\nconst successMessage = styleText('green', 'Success!');\nconsole.log(successMessage);\n\nconst errorMessage = styleText(\n  'red',\n  'Error! Error!',\n  // Validate if process.stderr has TTY\n  { stream: stderr },\n);\nconsole.error(errorMessage);\n</code></pre>\n<pre><code class=\"language-cjs\">const { styleText } = require('node:util');\nconst { stderr } = require('node:process');\n\nconst successMessage = styleText('green', 'Success!');\nconsole.log(successMessage);\n\nconst errorMessage = styleText(\n  'red',\n  'Error! Error!',\n  // Validate if process.stderr has TTY\n  { stream: stderr },\n);\nconsole.error(successMessage);\n</code></pre>\n<p><code>util.inspect.colors</code> also provides text formats such as <code>italic</code>, and\n<code>underline</code> and you can combine both:</p>\n<pre><code class=\"language-cjs\">console.log(\n  util.styleText(['underline', 'italic'], 'My italic underlined message'),\n);\n</code></pre>\n<p>When passing an array of formats, the order of the format applied\nis left to right so the following style might overwrite the previous one.</p>\n<pre><code class=\"language-cjs\">console.log(\n  util.styleText(['red', 'green'], 'text'), // green\n);\n</code></pre>\n<p>The full list of formats can be found in <a href=\"#modifiers\">modifiers</a>.</p>"
         },
         {
           "textRaw": "`util.toUSVString(string)`",
@@ -1337,15 +1376,15 @@
                   "type": "AbortSignal"
                 },
                 {
-                  "textRaw": "`resource` {Object} Any non-null entity, reference to which is held weakly.",
+                  "textRaw": "`resource` {Object} Any non-null object tied to the abortable operation and held weakly. If `resource` is garbage collected before the `signal` aborts, the promise remains pending, allowing Node.js to stop tracking it. This helps prevent memory leaks in long-running or non-cancelable operations.",
                   "name": "resource",
                   "type": "Object",
-                  "desc": "Any non-null entity, reference to which is held weakly."
+                  "desc": "Any non-null object tied to the abortable operation and held weakly. If `resource` is garbage collected before the `signal` aborts, the promise remains pending, allowing Node.js to stop tracking it. This helps prevent memory leaks in long-running or non-cancelable operations."
                 }
               ]
             }
           ],
-          "desc": "<p>Listens to abort event on the provided <code>signal</code> and\nreturns a promise that is fulfilled when the <code>signal</code> is\naborted. If the passed <code>resource</code> is garbage collected before the <code>signal</code> is\naborted, the returned promise shall remain pending indefinitely.</p>\n<pre><code class=\"language-cjs\">const { aborted } = require('node:util');\n\nconst dependent = obtainSomethingAbortable();\n\naborted(dependent.signal, dependent).then(() => {\n  // Do something when dependent is aborted.\n});\n\ndependent.on('event', () => {\n  dependent.abort();\n});\n</code></pre>\n<pre><code class=\"language-mjs\">import { aborted } from 'node:util';\n\nconst dependent = obtainSomethingAbortable();\n\naborted(dependent.signal, dependent).then(() => {\n  // Do something when dependent is aborted.\n});\n\ndependent.on('event', () => {\n  dependent.abort();\n});\n</code></pre>"
+          "desc": "<p>Listens to abort event on the provided <code>signal</code> and returns a promise that resolves when the <code>signal</code> is aborted.\nIf <code>resource</code> is provided, it weakly references the operation's associated object,\nso if <code>resource</code> is garbage collected before the <code>signal</code> aborts,\nthen returned promise shall remain pending.\nThis prevents memory leaks in long-running or non-cancelable operations.</p>\n<pre><code class=\"language-cjs\">const { aborted } = require('node:util');\n\n// Obtain an object with an abortable signal, like a custom resource or operation.\nconst dependent = obtainSomethingAbortable();\n\n// Pass `dependent` as the resource, indicating the promise should only resolve\n// if `dependent` is still in memory when the signal is aborted.\naborted(dependent.signal, dependent).then(() => {\n\n  // This code runs when `dependent` is aborted.\n  console.log('Dependent resource was aborted.');\n});\n\n// Simulate an event that triggers the abort.\ndependent.on('event', () => {\n  dependent.abort(); // This will cause the `aborted` promise to resolve.\n});\n</code></pre>\n<pre><code class=\"language-mjs\">import { aborted } from 'node:util';\n\n// Obtain an object with an abortable signal, like a custom resource or operation.\nconst dependent = obtainSomethingAbortable();\n\n// Pass `dependent` as the resource, indicating the promise should only resolve\n// if `dependent` is still in memory when the signal is aborted.\naborted(dependent.signal, dependent).then(() => {\n\n  // This code runs when `dependent` is aborted.\n  console.log('Dependent resource was aborted.');\n});\n\n// Simulate an event that triggers the abort.\ndependent.on('event', () => {\n  dependent.abort(); // This will cause the `aborted` promise to resolve.\n});\n</code></pre>"
         }
       ],
       "classes": [
@@ -1607,7 +1646,13 @@
             "added": [
               "v8.3.0"
             ],
-            "changes": []
+            "changes": [
+              {
+                "version": "v11.0.0",
+                "pr-url": "https://github.com/nodejs/node/pull/22281",
+                "description": "The class is now available on the global object."
+              }
+            ]
           },
           "desc": "<p>An implementation of the <a href=\"https://encoding.spec.whatwg.org/\">WHATWG Encoding Standard</a> <code>TextDecoder</code> API.</p>\n<pre><code class=\"language-js\">const decoder = new TextDecoder();\nconst u8arr = new Uint8Array([72, 101, 108, 108, 111]);\nconsole.log(decoder.decode(u8arr)); // Hello\n</code></pre>",
           "modules": [
@@ -1783,6 +1828,12 @@
               "textRaw": "`textEncoder.encodeInto(src, dest)`",
               "type": "method",
               "name": "encodeInto",
+              "meta": {
+                "added": [
+                  "v12.11.0"
+                ],
+                "changes": []
+              },
               "signatures": [
                 {
                   "return": {
@@ -2018,6 +2069,34 @@
                 }
               ],
               "desc": "<p>Returns <code>true</code> if the value is a <code>BigInt64Array</code> instance.</p>\n<pre><code class=\"language-js\">util.types.isBigInt64Array(new BigInt64Array());   // Returns true\nutil.types.isBigInt64Array(new BigUint64Array());  // Returns false\n</code></pre>"
+            },
+            {
+              "textRaw": "`util.types.isBigIntObject(value)`",
+              "type": "method",
+              "name": "isBigIntObject",
+              "meta": {
+                "added": [
+                  "v10.4.0"
+                ],
+                "changes": []
+              },
+              "signatures": [
+                {
+                  "return": {
+                    "textRaw": "Returns: {boolean}",
+                    "name": "return",
+                    "type": "boolean"
+                  },
+                  "params": [
+                    {
+                      "textRaw": "`value` {any}",
+                      "name": "value",
+                      "type": "any"
+                    }
+                  ]
+                }
+              ],
+              "desc": "<p>Returns <code>true</code> if the value is a BigInt object, e.g. created\nby <code>Object(BigInt(123))</code>.</p>\n<pre><code class=\"language-js\">util.types.isBigIntObject(Object(BigInt(123)));   // Returns true\nutil.types.isBigIntObject(BigInt(123));   // Returns false\nutil.types.isBigIntObject(123);  // Returns false\n</code></pre>"
             },
             {
               "textRaw": "`util.types.isBigUint64Array(value)`",
